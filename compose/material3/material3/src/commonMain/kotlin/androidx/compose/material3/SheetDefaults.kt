@@ -46,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -72,10 +73,9 @@ import kotlinx.coroutines.CancellationException
  *
  * Contains states relating to its swipe position as well as animations between state values.
  *
- * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large enough,
- *   should be skipped. If true, the sheet will always expand to the [Expanded] state and move to
- *   the [Hidden] state if available when hiding the sheet, either programmatically or by user
- *   interaction.
+ * @param enabledValues The set of [SheetValue]s that the bottom sheet can settle in. This is the
+ *   direct source of truth for available states; if a value is included here, the component will
+ *   attempt to create an anchor for it.
  * @param positionalThreshold The positional threshold, in px, to be used when calculating the
  *   target state while a drag is in progress and when settling after the drag ends. This is the
  *   distance from the start of a transition. It will be, depending on the direction of the
@@ -86,32 +86,88 @@ import kotlinx.coroutines.CancellationException
  *   reached.
  * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
- * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
- *   expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
- *   programmatically or by user interaction.
  */
 @Stable
 @ExperimentalMaterial3Api
 class SheetState(
-    internal val skipPartiallyExpanded: Boolean,
+    internal val enabledValues: Set<SheetValue>,
     internal val positionalThreshold: () -> Float,
     internal val velocityThreshold: () -> Float,
     initialValue: SheetValue = Hidden,
     internal val confirmValueChange: (SheetValue) -> Boolean = { true },
-    internal val skipHiddenState: Boolean = false,
 ) {
+    /**
+     * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
+     *   enough, should be skipped. If true, the sheet will always expand to the [Expanded] state
+     *   and move to the [Hidden] state if available when hiding the sheet, either programmatically
+     *   or by user interaction.
+     * @param positionalThreshold The positional threshold, in px, to be used when calculating the
+     *   target state while a drag is in progress and when settling after the drag ends. This is the
+     *   distance from the start of a transition. It will be, depending on the direction of the
+     *   interaction, added or subtracted from/to the origin offset. It should always be a positive
+     *   value.
+     * @param velocityThreshold The velocity threshold (in px per second) that the end velocity has
+     *   to exceed in order to animate to the next state, even if the [positionalThreshold] has not
+     *   been reached.
+     * @param initialValue The initial value of the state.
+     * @param confirmValueChange Optional callback invoked to confirm or veto a pending state
+     *   change.
+     * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will
+     *   always expand to the [Expanded] state and move to the [PartiallyExpanded] if available,
+     *   either programmatically or by user interaction.
+     */
+    @Deprecated(
+        message = "Use the primary constructor that takes a set of enabled values.",
+        replaceWith =
+            ReplaceWith(
+                "SheetState(enabledValues = buildSet { " +
+                    "add(SheetValue.Expanded); " +
+                    "if (!skipPartiallyExpanded) add(SheetValue.PartiallyExpanded); " +
+                    "if (!skipHiddenState) add(SheetValue.Hidden) " +
+                    "}, positionalThreshold, velocityThreshold, initialValue, confirmValueChange)",
+                "androidx.compose.material3.SheetValue",
+            ),
+    )
+    constructor(
+        skipPartiallyExpanded: Boolean,
+        positionalThreshold: () -> Float,
+        velocityThreshold: () -> Float,
+        initialValue: SheetValue = Hidden,
+        confirmValueChange: (SheetValue) -> Boolean = { true },
+        skipHiddenState: Boolean = false,
+    ) : this(
+        enabledValues =
+            buildSet {
+                add(Expanded)
+                if (!skipPartiallyExpanded) add(PartiallyExpanded)
+                if (!skipHiddenState) add(Hidden)
+            },
+        positionalThreshold = positionalThreshold,
+        velocityThreshold = velocityThreshold,
+        initialValue = initialValue,
+        confirmValueChange = confirmValueChange,
+    )
+
+    /**
+     * Whether the partially expanded state, if the sheet is large enough, should be skipped. If
+     * true, the sheet will always expand to the [Expanded] state and move to the [Hidden] state if
+     * available when hiding the sheet, either programmatically or by user interaction.
+     */
+    internal val skipPartiallyExpanded: Boolean
+        get() = !enabledValues.contains(PartiallyExpanded)
+
+    /**
+     * Whether the hidden state should be skipped. If true, the sheet will always expand to the
+     * [Expanded] state and move to the [PartiallyExpanded] if available, either programmatically or
+     * by user interaction.
+     */
+    internal val skipHiddenState: Boolean
+        get() = !enabledValues.contains(Hidden)
 
     init {
-        if (skipPartiallyExpanded) {
-            require(initialValue != PartiallyExpanded) {
-                "The initial value must not be set to PartiallyExpanded if skipPartiallyExpanded " +
-                    "is set to true."
-            }
-        }
-        if (skipHiddenState) {
-            require(initialValue != Hidden) {
-                "The initial value must not be set to Hidden if skipHiddenState is set to true."
-            }
+        require(enabledValues.contains(Expanded)) { "Expanded must be one of the enabled values." }
+        require(enabledValues.contains(initialValue)) {
+            "The initial value must be one of the enabled values."
         }
     }
 
@@ -324,30 +380,53 @@ class SheetState(
     companion object {
         /** The default [Saver] implementation for [SheetState]. */
         fun Saver(
+            enabledValues: Set<SheetValue>,
+            positionalThreshold: () -> Float,
+            velocityThreshold: () -> Float,
+            confirmValueChange: (SheetValue) -> Boolean,
+        ) =
+            Saver<SheetState, SheetValue>(
+                save = { it.currentValue },
+                restore = { savedValue ->
+                    SheetState(
+                        enabledValues,
+                        positionalThreshold,
+                        velocityThreshold,
+                        savedValue,
+                        confirmValueChange,
+                    )
+                },
+            )
+
+        @Deprecated(
+            message = "Use the Saver that takes a set of enabled values.",
+            replaceWith =
+                ReplaceWith(
+                    "Saver(enabledValues = buildSet { " +
+                        "add(SheetValue.Expanded); " +
+                        "if (!skipPartiallyExpanded) add(SheetValue.PartiallyExpanded); " +
+                        "if (!skipHiddenState) add(SheetValue.Hidden) " +
+                        "}, positionalThreshold, velocityThreshold, confirmValueChange)",
+                    "androidx.compose.material3.SheetValue",
+                ),
+        )
+        fun Saver(
             skipPartiallyExpanded: Boolean,
             positionalThreshold: () -> Float,
             velocityThreshold: () -> Float,
             confirmValueChange: (SheetValue) -> Boolean,
             skipHiddenState: Boolean,
         ) =
-            Saver<SheetState, SheetValue>(
-                save = { it.currentValue },
-                restore = { savedValue ->
-                    val newValue =
-                        if (skipPartiallyExpanded && savedValue == PartiallyExpanded) {
-                            Expanded
-                        } else {
-                            savedValue
-                        }
-                    SheetState(
-                        skipPartiallyExpanded,
-                        positionalThreshold,
-                        velocityThreshold,
-                        newValue,
-                        confirmValueChange,
-                        skipHiddenState,
-                    )
-                },
+            Saver(
+                enabledValues =
+                    buildSet {
+                        add(Expanded)
+                        if (!skipPartiallyExpanded) add(PartiallyExpanded)
+                        if (!skipHiddenState) add(Hidden)
+                    },
+                positionalThreshold = positionalThreshold,
+                velocityThreshold = velocityThreshold,
+                confirmValueChange = confirmValueChange,
             )
 
         @Deprecated(
@@ -361,9 +440,13 @@ class SheetState(
             skipHiddenState: Boolean,
         ) =
             Saver(
-                skipPartiallyExpanded = skipPartiallyExpanded,
+                enabledValues =
+                    buildSet {
+                        add(Expanded)
+                        if (!skipPartiallyExpanded) add(PartiallyExpanded)
+                        if (!skipHiddenState) add(Hidden)
+                    },
                 confirmValueChange = confirmValueChange,
-                skipHiddenState = skipHiddenState,
                 positionalThreshold = {
                     with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
                 },
@@ -381,12 +464,16 @@ class SheetState(
         confirmValueChange: (SheetValue) -> Boolean = { true },
         skipHiddenState: Boolean = false,
     ) : this(
-        skipPartiallyExpanded = skipPartiallyExpanded,
+        enabledValues =
+            buildSet {
+                add(Expanded)
+                if (!skipPartiallyExpanded) add(PartiallyExpanded)
+                if (!skipHiddenState) add(Hidden)
+            },
         positionalThreshold = { with(density) { BottomSheetDefaults.PositionalThreshold.toPx() } },
         velocityThreshold = { with(density) { BottomSheetDefaults.VelocityThreshold.toPx() } },
         initialValue = initialValue,
         confirmValueChange = confirmValueChange,
-        skipHiddenState = skipHiddenState,
     )
 }
 
@@ -564,13 +651,46 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
     }
 
+/**
+ * Create and [remember] a [SheetState] for [BottomSheet], [ModalBottomSheet], or
+ * [BottomSheetScaffold].
+ *
+ * @param initialValue The initial value of the state.
+ * @param enabledValues The set of [SheetValue]s that the bottom sheet can settle in. This is the
+ *   direct source of truth for available states; if a value is included here, the component will
+ *   attempt to create an anchor for it.
+ * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ */
+@Composable
+@ExperimentalMaterial3Api
+fun rememberBottomSheetState(
+    initialValue: SheetValue,
+    enabledValues: Set<SheetValue> = setOf(Hidden, PartiallyExpanded, Expanded),
+    confirmValueChange: (SheetValue) -> Boolean = { true },
+): SheetState =
+    rememberSheetState(
+        enabledValues = enabledValues,
+        confirmValueChange = confirmValueChange,
+        initialValue = initialValue,
+    )
+
+/**
+ * Create and [remember] a [SheetState] for a sheet composable.
+ *
+ * @param enabledValues The set of [SheetValue]s that the bottom sheet can settle in.
+ * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ * @param initialValue The initial value of the state.
+ * @param positionalThreshold The positional threshold, in dp, used to determine whether the sheet
+ *   should settle to the next anchor when being dragged.
+ * @param velocityThreshold The velocity threshold, in dp, used to determine whether the sheet
+ *   should settle to the next anchor when being dragged with velocity.
+ */
 @Composable
 @ExperimentalMaterial3Api
 internal fun rememberSheetState(
-    skipPartiallyExpanded: Boolean = false,
+    enabledValues: Set<SheetValue> = setOf(Hidden, PartiallyExpanded, Expanded),
     confirmValueChange: (SheetValue) -> Boolean = { true },
     initialValue: SheetValue = Hidden,
-    skipHiddenState: Boolean = false,
     positionalThreshold: Dp = BottomSheetDefaults.PositionalThreshold,
     velocityThreshold: Dp = BottomSheetDefaults.VelocityThreshold,
 ): SheetState {
@@ -578,25 +698,22 @@ internal fun rememberSheetState(
     val positionalThresholdToPx = { with(density) { positionalThreshold.toPx() } }
     val velocityThresholdToPx = { with(density) { velocityThreshold.toPx() } }
     return rememberSaveable(
-        skipPartiallyExpanded,
+        enabledValues,
         confirmValueChange,
-        skipHiddenState,
         saver =
             SheetState.Saver(
-                skipPartiallyExpanded = skipPartiallyExpanded,
+                enabledValues = enabledValues,
                 positionalThreshold = positionalThresholdToPx,
                 velocityThreshold = velocityThresholdToPx,
                 confirmValueChange = confirmValueChange,
-                skipHiddenState = skipHiddenState,
             ),
     ) {
         SheetState(
-            skipPartiallyExpanded,
+            enabledValues,
             positionalThresholdToPx,
             velocityThresholdToPx,
             initialValue,
             confirmValueChange,
-            skipHiddenState,
         )
     }
 }
