@@ -435,8 +435,10 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static void moveWithHistoryMultiPointer$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, java.util.List!, java.util.List!, long, int, Object!);
     method public void up(optional int pointerId);
     method @BytecodeOnly public static void up$default(androidx.compose.ui.test.IndirectPointerInjectionScope!, int, int, Object!);
+    method @KotlinOnly public default void updatePointerBy(androidx.compose.ui.geometry.Offset delta);
     method @KotlinOnly public default void updatePointerBy(int pointerId, androidx.compose.ui.geometry.Offset delta);
     method @BytecodeOnly public default void updatePointerBy-Uv8p0NA(int, long);
+    method @BytecodeOnly public default void updatePointerBy-k-4lQ0M(long);
     method @KotlinOnly public default void updatePointerTo(androidx.compose.ui.geometry.Offset position);
     method @KotlinOnly public void updatePointerTo(int pointerId, androidx.compose.ui.geometry.Offset position);
     method @BytecodeOnly public void updatePointerTo-Uv8p0NA(int, long);
@@ -901,8 +903,10 @@ package androidx.compose.ui.test {
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void moveWithHistoryMultiPointer$default(androidx.compose.ui.test.TouchInjectionScope!, java.util.List!, java.util.List!, long, int, Object!);
     method public void up(optional int pointerId);
     method @BytecodeOnly public static void up$default(androidx.compose.ui.test.TouchInjectionScope!, int, int, Object!);
+    method @KotlinOnly public default void updatePointerBy(androidx.compose.ui.geometry.Offset delta);
     method @KotlinOnly public default void updatePointerBy(int pointerId, androidx.compose.ui.geometry.Offset delta);
     method @BytecodeOnly public default void updatePointerBy-Uv8p0NA(int, long);
+    method @BytecodeOnly public default void updatePointerBy-k-4lQ0M(long);
     method @KotlinOnly public void updatePointerTo(int pointerId, androidx.compose.ui.geometry.Offset position);
     method @BytecodeOnly public void updatePointerTo-Uv8p0NA(int, long);
   }

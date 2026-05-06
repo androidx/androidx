@@ -17,7 +17,12 @@
 package androidx.compose.ui.test.util
 
 import android.view.MotionEvent
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEventType
+import androidx.compose.ui.input.indirect.IndirectPointerInputChange
+import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -27,10 +32,13 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -71,6 +79,26 @@ data class DataPoint(
         event.motionEvent?.getAxisValue(MotionEvent.AXIS_GESTURE_PINCH_SCALE_FACTOR),
     )
 
+    constructor(
+        change: IndirectPointerInputChange,
+        event: IndirectPointerEvent,
+    ) : this(
+        id = change.id,
+        timestamp = change.uptimeMillis,
+        position = change.position,
+        scrollDelta = Offset.Zero,
+        gesturePanOffset = Offset.Zero,
+        down = change.pressed,
+        pointerType = Touch,
+        eventType = event.type.toPointerEventType(),
+        buttons = PointerButtons(0),
+        keyboardModifiers = PointerKeyboardModifiers(0),
+        classification = 0,
+        axisGestureScrollXDistance = null,
+        axisGestureScrollYDistance = null,
+        axisGestureScaleFactor = null,
+    )
+
     val x
         get() = position.x
 
@@ -78,14 +106,23 @@ data class DataPoint(
         get() = position.y
 }
 
+private fun IndirectPointerEventType.toPointerEventType(): PointerEventType {
+    return when (this) {
+        IndirectPointerEventType.Press -> PointerEventType.Press
+        IndirectPointerEventType.Release -> PointerEventType.Release
+        IndirectPointerEventType.Move -> PointerEventType.Move
+        else -> PointerEventType.Unknown
+    }
+}
+
 /**
- * A [PointerInputModifier] that records all [PointerEvent]s as they pass through the
- * [PointerEventPass.Initial] phase, without consuming anything. This modifier is supposed to be
- * completely transparent to the rest of the system.
+ * A [Modifier.Node] that records all [PointerEvent]s and [IndirectPointerEvent]s as they pass
+ * through the [PointerEventPass.Initial] phase, without consuming anything. This modifier is
+ * supposed to be completely transparent to the rest of the system.
  *
  * Does not support multiple pointers: all [PointerInputChange]s are flattened in the recorded list.
  */
-class SinglePointerInputRecorder : PointerInputModifier {
+class SinglePointerInputRecorder : ModifierNodeElement<SinglePointerInputRecorderNode>() {
     private val _events = mutableListOf<DataPoint>()
     val events
         get() = _events as List<DataPoint>
@@ -94,23 +131,78 @@ class SinglePointerInputRecorder : PointerInputModifier {
     val recordedVelocity
         get() = velocityTracker.calculateVelocity()
 
-    override val pointerInputFilter = RecordingFilter { event ->
-        event.changes.forEach {
-            _events.add(DataPoint(it, event))
-            velocityTracker.addPosition(it.uptimeMillis, it.position)
+    override fun create() = SinglePointerInputRecorderNode(_events, velocityTracker)
+
+    override fun update(node: SinglePointerInputRecorderNode) {
+        node.events = _events
+        node.velocityTracker = velocityTracker
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "singlePointerInputRecorder"
+        properties["events"] = events
+        properties["recordedVelocity"] = recordedVelocity
+    }
+
+    override fun hashCode(): Int {
+        var result = _events.hashCode()
+        result = 31 * result + velocityTracker.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SinglePointerInputRecorder) return false
+        if (_events !== other._events) return false
+        if (velocityTracker !== other.velocityTracker) return false
+        return true
+    }
+}
+
+class SinglePointerInputRecorderNode(
+    var events: MutableList<DataPoint>,
+    var velocityTracker: VelocityTracker,
+) : Modifier.Node(), PointerInputModifierNode, IndirectPointerInputModifierNode {
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize,
+    ) {
+        if (pass == PointerEventPass.Initial) {
+            pointerEvent.changes.forEach {
+                events.add(DataPoint(it, pointerEvent))
+                velocityTracker.addPosition(it.uptimeMillis, it.position)
+            }
         }
+    }
+
+    override fun onCancelPointerInput() {
+        // Do nothing
+    }
+
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
+        if (pass == PointerEventPass.Initial) {
+            event.changes.forEach {
+                events.add(DataPoint(it, event))
+                velocityTracker.addPosition(it.uptimeMillis, it.position)
+            }
+        }
+    }
+
+    override fun onCancelIndirectPointerInput() {
+        // Do nothing
     }
 }
 
 /**
- * A [PointerInputModifier] that records all [PointerEvent]s as they pass through the
- * [PointerEventPass.Initial] phase, without consuming anything. This modifier is supposed to be
- * completely transparent to the rest of the system.
+ * A [Modifier.Node] that records all [PointerEvent]s and [IndirectPointerEvent]s as they pass
+ * through the [PointerEventPass.Initial] phase, without consuming anything. This modifier is
+ * supposed to be completely transparent to the rest of the system.
  *
  * Supports multiple pointers: the set of [PointerInputChange]s from each event is kept together in
  * the recorded list.
  */
-class MultiPointerInputRecorder : PointerInputModifier {
+class MultiPointerInputRecorder : ModifierNodeElement<MultiPointerInputRecorderNode>() {
     data class Event(val pointers: List<DataPoint>) {
         val pointerCount: Int
             get() = pointers.size
@@ -122,8 +214,58 @@ class MultiPointerInputRecorder : PointerInputModifier {
     val events
         get() = _events as List<Event>
 
-    override val pointerInputFilter = RecordingFilter { event ->
-        _events.add(Event(event.changes.map { DataPoint(it, event) }))
+    override fun create() = MultiPointerInputRecorderNode(_events)
+
+    override fun update(node: MultiPointerInputRecorderNode) {
+        node.events = _events
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "multiPointerInputRecorder"
+        properties["events"] = events
+    }
+
+    override fun hashCode(): Int {
+        var result = _events.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MultiPointerInputRecorder) return false
+        if (_events !== other._events) return false
+        return true
+    }
+}
+
+class MultiPointerInputRecorderNode(var events: MutableList<MultiPointerInputRecorder.Event>) :
+    Modifier.Node(), PointerInputModifierNode, IndirectPointerInputModifierNode {
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize,
+    ) {
+        if (pass == PointerEventPass.Initial) {
+            events.add(
+                MultiPointerInputRecorder.Event(
+                    pointerEvent.changes.map { DataPoint(it, pointerEvent) }
+                )
+            )
+        }
+    }
+
+    override fun onCancelPointerInput() {
+        // Do nothing
+    }
+
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
+        if (pass == PointerEventPass.Initial) {
+            events.add(MultiPointerInputRecorder.Event(event.changes.map { DataPoint(it, event) }))
+        }
+    }
+
+    override fun onCancelIndirectPointerInput() {
+        // Do nothing
     }
 }
 

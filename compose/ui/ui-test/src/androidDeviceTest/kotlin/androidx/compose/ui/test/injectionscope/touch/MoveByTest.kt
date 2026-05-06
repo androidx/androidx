@@ -57,7 +57,36 @@ class MoveByTest {
     }
 
     @Test
-    fun onePointer() {
+    fun onePointerSameInputBlock() {
+        // When we inject a down event followed by a move event
+        rule.performTouchInput {
+            down(downPosition1)
+            // Sleep done within input block
+            sleep(20)
+            moveBy(delta1)
+        }
+
+        rule.runOnIdle {
+            recorder.run {
+                // Then we have recorded 1 down event and 1 move event
+                assertTimestampsAreIncreasing()
+
+                assertThat(events).hasSize(2)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                t += eventPeriodMillis
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1]
+                    .getPointer(0)
+                    .verify(t, pointerId, true, downPosition1 + delta1, Touch, Move)
+            }
+        }
+    }
+
+    @Test
+    fun onePointerDifferentInputBlocks() {
         // When we inject a down event followed by a move event
         rule.performTouchInput { down(downPosition1) }
         sleep(20) // (with some time in between)
@@ -114,6 +143,34 @@ class MoveByTest {
                 events[3]
                     .getPointer(1)
                     .verify(t, pointerId2, true, downPosition2 + delta2, Touch, Move)
+            }
+        }
+    }
+
+    @Test
+    fun onePointer_oneMoveEvent() {
+        rule.performTouchInput { down(downPosition1) }
+        sleep(20) // (with some time in between)
+        // Uses default pointer id of zero
+        rule.performTouchInput { updatePointerBy(delta1) }
+        rule.performTouchInput { move() }
+
+        rule.runOnIdle {
+            recorder.run {
+                // Then we have recorded two down events and one move events
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(2)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId1 = events[0].getPointer(0).id
+
+                assertThat(pointerId1.value).isEqualTo(0)
+
+                t += eventPeriodMillis
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1]
+                    .getPointer(0)
+                    .verify(t, pointerId1, true, downPosition1 + delta1, Touch, Move)
             }
         }
     }

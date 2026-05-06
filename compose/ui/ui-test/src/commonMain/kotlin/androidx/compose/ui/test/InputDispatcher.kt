@@ -76,6 +76,14 @@ internal expect fun createInputDispatcher(
  * * [enqueueTrackpadScaleChange]
  * * [enqueueTrackpadScaleEnd]
  *
+ * Indirect Pointer input:
+ * * [getCurrentTouchPosition]
+ * * [enqueueIndirectPointerDown]
+ * * [enqueueIndirectPointerMove]
+ * * [updateIndirectPointer]
+ * * [enqueueIndirectPointerUp]
+ * * [enqueueIndirectPointerCancel]
+ *
  * Chaining methods:
  * * [advanceEventTime]
  *
@@ -115,31 +123,24 @@ internal abstract class InputDispatcher(
         const val SubsequentRepeatDelay = 50L
     }
 
-    // Time retrieved when the class is loaded. This isn't saved back to alter the time clock. It's
-    // just used as a starting point for all events triggered here.
-    private val currentTestClockTime = testContext.currentTime
+    // The initial time for the test clock. This is captured once upon the first call to
+    // [performMultiModalInput] (or its single-modality alternatives) and persists across
+    // subsequent input dispatcher recreations within the same test to ensure consistent timing.
+    internal val initiallyLoadedTestClockTime = testContext.currentTime
 
     // Used to increase the current time as events are generated.
     private var currentTimeOffset: Long = 0L
 
     /**
-     * The eventTime of the next event. It includes the test clock time (to start), the device
-     * system time (in some cases this is needed for events to trigger properly), and the offset
-     * used to increase time.
+     * The eventTime of the next event. It includes the initially loaded test clock time (to start),
+     * and the offset used to increase time.
      */
     var currentTime: Long
-        get() = currentTestClockTime + deviceSystemTime + currentTimeOffset
+        get() = initiallyLoadedTestClockTime + currentTimeOffset
         protected set(value) {
-            val currentTimeWithoutOffset = currentTestClockTime + deviceSystemTime
-            val delta = value - currentTimeWithoutOffset
+            val delta = value - initiallyLoadedTestClockTime
             currentTimeOffset = if (delta <= 0) 0L else delta
         }
-
-    /**
-     * In certain scenarios, the device's system time is added to align event time with system time
-     * of a specific platform (for example, Android).
-     */
-    protected var deviceSystemTime: Long = 0L
 
     /** The state of the current touch gesture. If `null`, no touch gesture is in progress. */
     protected var partialGesture: PartialGesture? = null
@@ -196,7 +197,6 @@ internal abstract class InputDispatcher(
             partialIndirectGesture = state.partialIndirectGesture
             cursorInputState = state.cursorInputState
             keyInputState = state.keyInputState
-            deviceSystemTime = state.initialSystemTimeMillis
         }
     }
 
@@ -209,7 +209,6 @@ internal abstract class InputDispatcher(
                     partialIndirectGesture,
                     cursorInputState,
                     keyInputState,
-                    deviceSystemTime,
                 )
         }
     }
@@ -1604,5 +1603,4 @@ internal data class InputDispatcherState(
     val partialIndirectGesture: PartialIndirectGesture?,
     val cursorInputState: CursorInputState,
     val keyInputState: KeyInputState,
-    val initialSystemTimeMillis: Long,
 )
