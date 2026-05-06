@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
  * @sample androidx.xr.glimmer.samples.TitleChipWithCardSample
  * @param modifier the [Modifier] to be applied to this title chip
  * @param leadingIcon optional leading icon to be placed before the [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param shape the [Shape] used to clip this title chip, and also used to draw the background and
  *   border
  * @param color background color of this title chip

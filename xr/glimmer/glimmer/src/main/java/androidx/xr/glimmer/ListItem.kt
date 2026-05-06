@@ -61,9 +61,9 @@ import androidx.compose.ui.unit.dp
  * @param supportingLabel optional supporting label to be placed underneath the primary label
  *   [content]
  * @param leadingIcon optional leading icon to be placed before the primary label [content]. This is
- *   typically an [Icon].
+ *   typically an [Icon] tinted with [contentColor] by default.
  * @param trailingIcon optional trailing icon to be placed after the primary label [content]. This
- *   is typically an [Icon].
+ *   is typically an [Icon] tinted with [contentColor] by default.
  * @param shape the [Shape] used to clip this list item, and also used to draw the background and
  *   border
  * @param color background color of this list item
@@ -134,9 +134,9 @@ public fun ListItem(
  * @param supportingLabel optional supporting label to be placed underneath the primary label
  *   [content]
  * @param leadingIcon optional leading icon to be placed before the primary label [content]. This is
- *   typically an [Icon].
+ *   typically an [Icon] tinted with [contentColor] by default.
  * @param trailingIcon optional trailing icon to be placed after the primary label [content]. This
- *   is typically an [Icon].
+ *   is typically an [Icon] tinted with [contentColor] by default.
  * @param shape the [Shape] used to clip this list item, and also used to draw the background and
  *   border
  * @param color background color of this list item
