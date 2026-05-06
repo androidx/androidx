@@ -42,4 +42,9 @@ dependencies {
     implementation(project(":compose:remote:remote-core"))
     implementation("androidx.customview:customview:1.2.0")
     implementation(libs.androidx.core)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
 }
