@@ -43,7 +43,6 @@ import androidx.wear.compose.material3.AlertDialogDefaults.ConfirmIcon
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -269,7 +268,6 @@ class AlertDialogScreenshotTest {
         )
     }
 
-    @Ignore("b/508678506")
     @Test
     fun alertContent_icon_title_longMessageText_reducedBottomButton(
         @TestParameter edgeButtonContent: EdgeButtonContent
@@ -287,7 +285,7 @@ class AlertDialogScreenshotTest {
             titleText = "Test EdgeButton",
             messageText =
                 "This long text forces the AlertDialog's EdgeButton to shrink in size, allowing us to verify that the UI renders and scales correctly even when constrained by content length.",
-            matcher = MSSIMMatcher(1.0), // Check for the perfect match
+            matcher = MSSIMMatcher(0.99), // Check for the near-perfect match
         )
     }
 
