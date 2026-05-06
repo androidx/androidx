@@ -21,6 +21,7 @@ import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
 import androidx.xr.scenecore.impl.impress.GltfModel
 import androidx.xr.scenecore.impl.impress.ImpressNode
 import androidx.xr.scenecore.runtime.ExrImageResource
+import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfModelResource
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPreference
@@ -384,9 +385,77 @@ class SpatialEnvironmentFeatureImplTest {
         assertThat(environment.preferredSpatialEnvironment).isNull()
     }
 
+    @Test
+    fun setPreferredSpatialEnvironment_withGeometryEntity_retainsGeometryEntity() {
+        val mockEntity = Mockito.mock(GltfEntity::class.java)
+        val preference = SpatialEnvironmentPreference(null, null, mockEntity)
+        environment.preferredSpatialEnvironment = preference
+
+        assertThat(environment.preferredSpatialEnvironment?.geometryEntity).isEqualTo(mockEntity)
+    }
+
+    @Test
+    fun setPreferredSpatialEnvironment_withNestedGeometryEntity_successfullyExtractsFeature() =
+        runBlocking {
+            val mockFeature =
+                TestFeature(
+                    fakeImpressApi,
+                    splitEngineSubspaceManager,
+                    xrExtensions,
+                    expectedSubspace,
+                )
+            val mockEntity = Mockito.mock(GltfEntity::class.java)
+            val childEntity = TestGltfEntity(mockEntity, mockFeature)
+            val parentEntity = TestGltfEntity(mockEntity, otherEntity = childEntity)
+
+            val preference = SpatialEnvironmentPreference(null, null, parentEntity)
+            environment.preferredSpatialEnvironment = preference
+            runUiThreadTasks()
+
+            val environmentNode =
+                ShadowXrExtensions.extract(xrExtensions).getEnvironmentNode(activity)
+            assertThat(environmentNode).isNotNull()
+        }
+
+    @Test
+    fun setPreferredSpatialEnvironment_withCircularReference_doesNotInfiniteLoop() = runBlocking {
+        val mockEntity = Mockito.mock(GltfEntity::class.java)
+        val entityA = TestGltfEntity(mockEntity)
+        val entityB = TestGltfEntity(mockEntity, otherEntity = entityA)
+        entityA.setCircular(entityB)
+
+        val preference = SpatialEnvironmentPreference(null, null, entityA)
+        environment.preferredSpatialEnvironment = preference
+        runUiThreadTasks()
+
+        val environmentNode = ShadowXrExtensions.extract(xrExtensions).getEnvironmentNode(activity)
+        assertThat(environmentNode).isNotNull()
+    }
+
     companion object {
         private const val SUBSPACE_ID = 5
         private const val INVALID_SPLIT_ENGINE_ID = -1
         private const val WATER_MATERIAL_ID = 1L
+    }
+}
+
+private class TestFeature(
+    impressApi: androidx.xr.scenecore.impl.impress.ImpressApi,
+    splitEngineSubspaceManager: com.google.androidxr.splitengine.SplitEngineSubspaceManager,
+    extensions: com.android.extensions.xr.XrExtensions,
+    subspaceNode: SubspaceNode,
+) : BaseRenderingFeature(impressApi, splitEngineSubspaceManager, extensions) {
+    init {
+        subspace = subspaceNode
+    }
+}
+
+private class TestGltfEntity(
+    private val delegate: GltfEntity,
+    private val gltfFeature: BaseRenderingFeature? = null,
+    private var otherEntity: GltfEntity? = null,
+) : GltfEntity by delegate {
+    fun setCircular(entity: GltfEntity) {
+        otherEntity = entity
     }
 }
