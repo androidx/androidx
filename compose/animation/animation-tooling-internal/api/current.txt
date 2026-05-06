@@ -35,6 +35,7 @@ package androidx.compose.animation.tooling {
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType INFINITE_TRANSITION;
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType TARGET_BASED_ANIMATION;
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType TRANSITION_ANIMATION;
+    enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType TRIGGER;
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType UNSUPPORTED;
   }
 
