@@ -16,9 +16,6 @@
 package androidx.compose.remote.player.view.platform;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteContext;
@@ -30,12 +27,12 @@ import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.DataMap;
 import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.core.platform.BitmapLoader;
+import androidx.compose.remote.player.core.platform.RemoteBitmapDecoder;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -135,99 +132,10 @@ public class RemotePreparedDocument implements RemoteComposePlayer.PreparedDocum
                         int width,
                         int height,
                         byte @NonNull [] data) {
-                    Bitmap image = null;
-                    switch (encoding) {
-                        case BitmapData.ENCODING_INLINE:
-                            switch (type) {
-                                case BitmapData.TYPE_PNG_8888:
-                                    BitmapFactory.Options opts = new BitmapFactory.Options();
-                                    opts.inJustDecodeBounds = true; // <-- do a bounds-only pass
-                                    BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-                                    if (opts.outWidth > width || opts.outHeight > height) {
-                                        throw new RuntimeException(
-                                                "dimension don't match "
-                                                        + opts.outWidth
-                                                        + "x"
-                                                        + opts.outHeight
-                                                        + " vs "
-                                                        + width
-                                                        + "x"
-                                                        + height);
-                                    }
-
-                                    image = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                    break;
-                                case BitmapData.TYPE_PNG_ALPHA_8:
-                                    image = decodePreferringAlpha8(data);
-
-                                    // If needed convert to ALPHA_8.
-                                    if (!image.getConfig().equals(Bitmap.Config.ALPHA_8)) {
-                                        Bitmap alpha8Bitmap =
-                                                Bitmap.createBitmap(
-                                                        image.getWidth(),
-                                                        image.getHeight(),
-                                                        Bitmap.Config.ALPHA_8);
-                                        Canvas canvas = new Canvas(alpha8Bitmap);
-                                        Paint paint = new Paint();
-                                        paint.setXfermode(
-                                                new android.graphics.PorterDuffXfermode(
-                                                        android.graphics.PorterDuff.Mode.SRC));
-                                        canvas.drawBitmap(image, 0, 0, paint);
-                                        image.recycle(); // Release resources
-
-                                        image = alpha8Bitmap;
-                                    }
-                                    break;
-                                case BitmapData.TYPE_RAW8888:
-                                    image =
-                                            Bitmap.createBitmap(
-                                                    width, height, Bitmap.Config.ARGB_8888);
-                                    int[] idata = new int[data.length / 4];
-                                    for (int i = 0; i < idata.length; i++) {
-                                        int p = i * 4;
-                                        idata[i] =
-                                                (data[p] << 24)
-                                                        | (data[p + 1] << 16)
-                                                        | (data[p + 2] << 8)
-                                                        | data[p + 3];
-                                    }
-                                    image.setPixels(idata, 0, width, 0, 0, width, height);
-                                    break;
-                                case BitmapData.TYPE_RAW8:
-                                    image =
-                                            Bitmap.createBitmap(
-                                                    width, height, Bitmap.Config.ARGB_8888);
-                                    int[] bdata = new int[data.length / 4];
-                                    for (int i = 0; i < bdata.length; i++) {
-
-                                        bdata[i] = 0x1010101 * data[i];
-                                    }
-                                    image.setPixels(bdata, 0, width, 0, 0, width, height);
-                                    break;
-                            }
-                            break;
-                        case BitmapData.ENCODING_FILE:
-                            image = BitmapFactory.decodeFile(
-                                    new String(data, java.nio.charset.StandardCharsets.UTF_8));
-                            break;
-                        case BitmapData.ENCODING_URL:
-                            try (java.io.InputStream is = mBitmapLoader.loadBitmap(
-                                    new String(data, java.nio.charset.StandardCharsets.UTF_8))) {
-                                image = BitmapFactory.decodeStream(is);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            break;
-                        case BitmapData.ENCODING_EMPTY:
-                            image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                    }
+                    Bitmap image =
+                            RemoteBitmapDecoder.decodeBitmap(
+                                    imageId, encoding, type, width, height, data, mBitmapLoader);
                     mResolvedData.put(imageId, image);
-                }
-
-                private Bitmap decodePreferringAlpha8(byte @NonNull [] data) {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inPreferredConfig = Bitmap.Config.ALPHA_8;
-                    return BitmapFactory.decodeByteArray(data, 0, data.length, options);
                 }
 
                 @Override

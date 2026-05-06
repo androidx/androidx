@@ -15,17 +15,9 @@
  */
 package androidx.compose.remote.player.compose.context
 
-import android.graphics.Bitmap
-import android.graphics.Bitmap.createBitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
-import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
@@ -219,83 +211,19 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
         bitmap: ByteArray,
     ) {
         if (!mRemoteComposeState.containsId(imageId)) {
-            var image: Bitmap? = null
-            when (encoding) {
-                BitmapData.ENCODING_INLINE ->
-                    when (type) {
-                        BitmapData.TYPE_PNG_8888 -> {
-                            if (CHECK_DATA_SIZE) {
-                                val opts = BitmapFactory.Options()
-                                opts.inJustDecodeBounds = true // <-- do a bounds-only pass
-                                BitmapFactory.decodeByteArray(bitmap, 0, bitmap.size, opts)
-                                if (opts.outWidth > width || opts.outHeight > height) {
-                                    throw RuntimeException(
-                                        ("dimension don't match " +
-                                            opts.outWidth +
-                                            "x" +
-                                            opts.outHeight +
-                                            " vs " +
-                                            width +
-                                            "x" +
-                                            height)
-                                    )
-                                }
-                            }
-                            image = BitmapFactory.decodeByteArray(bitmap, 0, bitmap.size)
-                        }
-                        BitmapData.TYPE_PNG_ALPHA_8 -> {
-                            image = decodePreferringAlpha8(bitmap)
-
-                            // If needed convert to ALPHA_8.
-                            if (image!!.getConfig() != Bitmap.Config.ALPHA_8) {
-                                val alpha8Bitmap =
-                                    createBitmap(
-                                        image.getWidth(),
-                                        image.getHeight(),
-                                        Bitmap.Config.ALPHA_8,
-                                    )
-                                val canvas = Canvas(alpha8Bitmap)
-                                val paint = Paint()
-                                paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
-                                canvas.drawBitmap(image, 0f, 0f, paint)
-                                image.recycle() // Release resources
-
-                                image = alpha8Bitmap
-                            }
-                        }
-                        BitmapData.TYPE_RAW8888 -> {
-                            image = createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                            val intData = IntArray(bitmap.size / 4)
-                            var i = 0
-                            while (i < intData.size) {
-                                val p = i * 4
-                                intData[i] =
-                                    ((bitmap[p].toInt() shl 24) or
-                                        (bitmap[p + 1].toInt() shl 16) or
-                                        (bitmap[p + 2].toInt() shl 8) or
-                                        bitmap[p + 3].toInt())
-                                i++
-                            }
-                            image.setPixels(intData, 0, width, 0, 0, width, height)
-                        }
-                        BitmapData.TYPE_RAW8 -> {
-                            image = createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                            val bitmapData = IntArray(bitmap.size / 4)
-                            var i = 0
-                            while (i < bitmapData.size) {
-                                bitmapData[i] = 0x1010101 * bitmap[i]
-                                i++
-                            }
-                            image.setPixels(bitmapData, 0, width, 0, 0, width, height)
-                        }
-                    }
-                BitmapData.ENCODING_FILE -> image = BitmapFactory.decodeFile(String(bitmap))
-                BitmapData.ENCODING_URL ->
-                    image = BitmapFactory.decodeStream(bitmapLoader.loadBitmap(String(bitmap)))
-                BitmapData.ENCODING_EMPTY ->
-                    image = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val image =
+                androidx.compose.remote.player.core.platform.RemoteBitmapDecoder.decodeBitmap(
+                    imageId,
+                    encoding,
+                    type,
+                    width,
+                    height,
+                    bitmap,
+                    bitmapLoader,
+                )
+            if (image != null) {
+                mRemoteComposeState.cacheData(imageId, image)
             }
-            mRemoteComposeState.cacheData(imageId, image!!)
         }
     }
 
@@ -396,16 +324,6 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
         } else {
             false
         }
-
-    private fun decodePreferringAlpha8(data: ByteArray): Bitmap? {
-        val options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.ALPHA_8
-        return BitmapFactory.decodeByteArray(data, 0, data.size, options)
-    }
-
-    companion object {
-        private const val CHECK_DATA_SIZE: Boolean = true
-    }
 }
 
 private data class VarName(val name: String, val id: Int, val type: Int)
