@@ -28,7 +28,7 @@ internal class AndroidAccessibilityManager(context: Context) : AccessibilityMana
         const val FlagContentControls = 4
     }
 
-    private val accessibilityManager =
+    val accessibilityManager =
         context.getSystemService(Context.ACCESSIBILITY_SERVICE)
             as android.view.accessibility.AccessibilityManager
 
