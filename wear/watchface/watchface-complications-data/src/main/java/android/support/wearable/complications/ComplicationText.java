@@ -31,6 +31,7 @@ import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
@@ -123,7 +124,9 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
                 + ", mTimeDependentText="
                 + mTimeDependentText
                 + ", mDynamicText="
-                + mDynamicText
+                + (Log.isLoggable("ComplicationData", Log.VERBOSE) || mDynamicText == null
+                        ? mDynamicText
+                        : "VALUE_HIDDEN_UNLESS_VERBOSE")
                 + "}";
     }
 

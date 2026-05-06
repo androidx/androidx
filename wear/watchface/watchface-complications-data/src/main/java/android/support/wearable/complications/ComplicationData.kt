@@ -1198,7 +1198,32 @@ private constructor(
         }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun toStringNoRedaction(): String = "ComplicationData{mType=$type, mFields=$fields}"
+    public fun toStringNoRedaction(): String =
+        "ComplicationData{mType=$type, mFields=${getFieldsString()}}"
+
+    private fun getFieldsString(): String {
+        if (!hasRangedDynamicValue()) {
+            return fields.toString()
+        }
+
+        val isLogSetToVerbose = Log.isLoggable(TAG, Log.VERBOSE)
+        return buildString {
+            append('{')
+            for ((key, value) in fields) {
+                append(key).append('=')
+                if (key == FIELD_DYNAMIC_VALUE && !isLogSetToVerbose) {
+                    append("VALUE_HIDDEN_UNLESS_VERBOSE")
+                } else {
+                    append(value)
+                }
+                append(", ")
+            }
+            if (length > 1) {
+                setLength(length - 2)
+            }
+            append('}')
+        }
+    }
 
     override fun equals(other: Any?): Boolean =
         other is ComplicationData &&
