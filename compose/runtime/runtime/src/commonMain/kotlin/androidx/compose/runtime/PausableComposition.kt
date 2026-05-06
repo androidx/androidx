@@ -236,11 +236,15 @@ internal class PausedCompositionImpl(
             when (state.get()) {
                 PausedCompositionState.InitialPending -> {
                     if (reusable) composer.startReuseFromRoot()
+                    var completed = false
                     try {
                         invalidScopes =
                             context.composeInitialPaused(composition, shouldPause, content)
+                        completed = true
                     } finally {
-                        if (reusable) composer.endReuseFromRoot()
+                        // Failed initial composition aborts reuse state in the composer, so only
+                        // perform the normal root-reuse unwind after a successful compose.
+                        if (reusable && completed) composer.endReuseFromRoot()
                     }
                     updateState(
                         PausedCompositionState.InitialPending,
