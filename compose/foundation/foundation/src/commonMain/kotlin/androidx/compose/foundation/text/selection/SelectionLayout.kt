@@ -20,6 +20,7 @@ import androidx.collection.LongIntMap
 import androidx.collection.LongObjectMap
 import androidx.collection.MutableLongIntMap
 import androidx.collection.MutableLongObjectMap
+import androidx.collection.buildLongObjectMap
 import androidx.collection.longObjectMapOf
 import androidx.collection.mutableLongIntMapOf
 import androidx.collection.mutableLongObjectMapOf
@@ -31,6 +32,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 
 /**
@@ -119,6 +121,9 @@ internal interface SelectionLayout {
     /** The previous [Selection] that we are modifying. */
     val previousSelection: Selection?
 
+    /** Returns the [SelectableInfo] of the selectable with the given id. */
+    fun infoForSelectable(selectableId: Long): SelectableInfo?
+
     /**
      * Whether this layout, compared to another layout, has any relevant changes that would require
      * recomputing selection.
@@ -148,6 +153,17 @@ private class MultiSelectionLayout(
             "MultiSelectionLayout requires an infoList size greater than 1, was ${infoList.size}."
         }
     }
+
+    private var _infoBySelectableId: LongObjectMap<SelectableInfo>? = null
+    private val infoBySelectableId: LongObjectMap<SelectableInfo>
+        get() {
+            var result = _infoBySelectableId
+            if (result == null) {
+                result = buildLongObjectMap { infoList.fastForEach { put(it.selectableId, it) } }
+                _infoBySelectableId = result
+            }
+            return result
+        }
 
     // Most of these properties are unused unless shouldRecomputeSelection returns true,
     // hence why getters are used everywhere.
@@ -193,6 +209,10 @@ private class MultiSelectionLayout(
         for (i in minIndex + 1 until maxIndex) {
             block(infoList[i])
         }
+    }
+
+    override fun infoForSelectable(selectableId: Long): SelectableInfo? {
+        return infoBySelectableId[selectableId]
     }
 
     override fun shouldRecomputeSelection(other: SelectionLayout?): Boolean =
@@ -365,6 +385,10 @@ private class SingleSelectionLayout(
         // there are no middle infos, so do nothing
     }
 
+    override fun infoForSelectable(selectableId: Long): SelectableInfo? {
+        return if (selectableId == info.selectableId) info else null
+    }
+
     override fun shouldRecomputeSelection(other: SelectionLayout?): Boolean =
         previousSelection == null ||
             other == null ||
@@ -474,6 +498,14 @@ internal const val UNASSIGNED_SLOT = -1
  * @param containerCoordinates the coordinates of the [SelectionContainer] for converting
  *   [SelectionContainer] coordinates to their respective [Selectable] coordinates
  * @param isStartHandle whether the currently pressed/clicked handle is the start
+ * @param previousLayout The [SelectionLayout] created when [currentPosition] was
+ *   [previousHandlePosition]. When non-null, it is used to obtain
+ *   [SelectableInfo.rawPreviousHandleOffset] instead of re-computing it from
+ *   [previousHandlePosition]. Note that this is not just an optimization. When selectables are
+ *   moved (due to drag-to-scroll, for example) inside the selection container, it becomes
+ *   impossible to correctly deduce [SelectableInfo.rawPreviousHandleOffset] from
+ *   [previousHandlePosition] (because to do that, the "previous" layout coordinates are needed, but
+ *   are not available).
  * @param selectableIdOrderingComparator determines the ordering of selectables by their IDs
  */
 internal class SelectionLayoutBuilder(
@@ -482,6 +514,7 @@ internal class SelectionLayoutBuilder(
     val containerCoordinates: LayoutCoordinates,
     val isStartHandle: Boolean,
     val previousSelection: Selection?,
+    val previousLayout: SelectionLayout?,
     val selectableIdOrderingComparator: Comparator<Long>,
 ) {
     private val selectableIdToInfoListIndex: MutableLongIntMap = mutableLongIntMapOf()
@@ -499,7 +532,7 @@ internal class SelectionLayoutBuilder(
         val lastSlot = currentSlot + 1
         return when (infoList.size) {
             0 -> {
-                return null
+                null
             }
             1 -> {
                 SingleSelectionLayout(

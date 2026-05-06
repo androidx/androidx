@@ -25,14 +25,20 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.PinnableContainer
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateMeasurement
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
@@ -61,7 +67,13 @@ internal class SelectableTextAnnotatedStringNode(
     overrideColor: ColorProducer? = null,
     autoSize: TextAutoSize? = null,
     private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null,
-) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode {
+) :
+    DelegatingNode(),
+    LayoutModifierNode,
+    DrawModifierNode,
+    GlobalPositionAwareModifierNode,
+    CompositionLocalConsumerModifierNode,
+    ObserverModifierNode {
     override val shouldAutoInvalidate: Boolean
         get() = false
 
@@ -89,6 +101,24 @@ internal class SelectableTextAnnotatedStringNode(
         requirePreconditionNotNull(selectionController) {
             "Do not use SelectionCapableStaticTextModifier unless selectionController != null"
         }
+    }
+
+    override fun onAttach() {
+        selectionController?.updatePinnableContainer(retrievePinnableContainer())
+    }
+
+    override fun onDetach() {
+        selectionController?.updatePinnableContainer(null)
+    }
+
+    override fun onObservedReadsChanged() {
+        selectionController?.updatePinnableContainer(retrievePinnableContainer())
+    }
+
+    private fun retrievePinnableContainer(): PinnableContainer? {
+        var container: PinnableContainer? = null
+        observeReads { container = currentValueOf(LocalPinnableContainer) }
+        return container
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
@@ -160,6 +190,8 @@ internal class SelectableTextAnnotatedStringNode(
                 ),
         )
         this.selectionController = selectionController
+        selectionController?.updatePinnableContainer(retrievePinnableContainer())
+
         // we always relayout when we're selectable
         invalidateMeasurement()
     }

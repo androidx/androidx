@@ -93,6 +93,7 @@ open class SelectionLayout2DTest {
         containerCoordinates: LayoutCoordinates = MockCoordinates(),
         isStartHandle: Boolean = false,
         previousSelection: Selection? = null,
+        previousLayout: SelectionLayout? = null,
         selectableIdOrderingComparator: Comparator<Long> = naturalOrder(),
         block: SelectionLayoutBuilder.() -> Unit,
     ): SelectionLayout {
@@ -103,6 +104,7 @@ open class SelectionLayout2DTest {
                 containerCoordinates = containerCoordinates,
                 isStartHandle = isStartHandle,
                 previousSelection = previousSelection,
+                previousLayout = previousLayout,
                 selectableIdOrderingComparator = selectableIdOrderingComparator,
             )
             .run {

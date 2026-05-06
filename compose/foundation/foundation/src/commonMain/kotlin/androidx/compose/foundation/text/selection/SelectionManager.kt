@@ -45,6 +45,7 @@ import androidx.compose.foundation.text.input.internal.coerceIn
 import androidx.compose.foundation.text.isPositionInsideSelection
 import androidx.compose.foundation.text.selection.Selection.AnchorInfo
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -58,6 +59,7 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -67,6 +69,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -84,11 +87,15 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMapNotNull
 import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 
 /** A bridge class between user interaction to the text composables for text selection. */
-internal class SelectionManager(private val selectionRegistrar: SelectionRegistrarImpl) {
+internal class SelectionManager(private val selectionRegistrar: SelectionRegistrarImpl) :
+    RememberObserver {
 
     private val _selection: MutableState<Selection?> = mutableStateOf(null)
 
@@ -96,10 +103,14 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     var selection: Selection?
         get() = _selection.value
         set(value) {
+            if (_selection.value == value) return
             _selection.value = value
             if (value != null) {
                 updateHandleOffsets()
             }
+            // TODO: Update selectionRegistrar.subselections from the new selection before calling
+            //       updatePinnedSelectables()
+            updatePinnedSelectables()
         }
 
     /** Is touch mode active */
@@ -237,20 +248,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     private var positionChangeState by mutableStateOf(Unit, neverEqualPolicy())
 
     /**
-     * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
-     * recalculated.
-     */
-    internal var dragBeginPosition by mutableStateOf(Offset.Zero)
-        private set
-
-    /**
-     * The total distance being dragged of the drag gesture. Every time a new drag gesture starts,
-     * it will be zeroed out.
-     */
-    internal var dragTotalDistance by mutableStateOf(Offset.Zero)
-        private set
-
-    /**
      * The calculated position of the start handle in the [SelectionContainer] coordinates. It is
      * null when handle shouldn't be displayed. It is a [State] so reading it during the composition
      * will cause recomposition every time the position has been changed.
@@ -313,6 +310,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     internal var coroutineScope: CoroutineScope? = null
 
     internal var platformSelectionBehaviors: PlatformSelectionBehaviors? = null
+
+    /** Maps selectable ids to the corresponding [PinnedHandle], if that selectable is pinned. */
+    private val pinnedHandleBySelectableId = mutableLongObjectMapOf<PinnedHandle>()
 
     init {
         selectionRegistrar.onPositionChangeCallback = { selectableId ->
@@ -379,8 +379,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
                 this.isInTouchMode = isInTouchMode
                 updateSelection(
-                    newPosition = newPositionInContainer,
-                    previousPosition = previousPositionInContainer,
+                    position = newPositionInContainer,
+                    previousHandlePosition = previousPositionInContainer,
                     isStartHandle = isStartHandle,
                     adjustment = selectionMode,
                 )
@@ -422,6 +422,51 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             if (selectableId in selectionRegistrar.subselections) {
                 // Unsubscribing the selectable may make the selection empty, which would hide it.
                 updateSelectionToolbar()
+            }
+
+            val pinnedHandle = pinnedHandleBySelectableId.remove(selectableId)
+            pinnedHandle?.release()
+        }
+    }
+
+    override fun onRemembered() {}
+
+    override fun onForgotten() {
+        // Not sure what scenario can cause the selection manager to be forgotten with the
+        // selectables remaining in the composition, but just in case, unpin them.
+        unpinAllSelectables()
+    }
+
+    override fun onAbandoned() {
+        unpinAllSelectables()
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun unpinAllSelectables() {
+        if (!ComposeFoundationFlags.isSelectionAutoScrollEnabled) return
+
+        pinnedHandleBySelectableId.forEachValue { it.release() }
+        pinnedHandleBySelectableId.clear()
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun updatePinnedSelectables() {
+        if (!ComposeFoundationFlags.isSelectionAutoScrollEnabled) return
+
+        // Unpin selectables that no longer have a selection
+        pinnedHandleBySelectableId.removeIf { selectableId, pinnedHandle ->
+            (selectableId !in selectionRegistrar.subselections).also { notSelected ->
+                if (notSelected) pinnedHandle.release()
+            }
+        }
+
+        // Pin selectables that have a selection but are not yet pinned
+        selectionRegistrar.subselections.forEach { selectableId, subSelection ->
+            if (subSelection.start.offset == subSelection.end.offset) return@forEach
+            val selectable = selectionRegistrar.selectableMap[selectableId] ?: return@forEach
+            val pinnableContainer = selectable.pinnableContainer ?: return@forEach
+            if (selectableId !in pinnedHandleBySelectableId) {
+                pinnedHandleBySelectableId[selectableId] = pinnableContainer.pin()
             }
         }
     }
@@ -750,9 +795,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * 1. `text`: The [AnnotatedString] content of the current selectable.
      * 2. `selectionRange`: The [TextRange] representing the portion of `text` that is selected
      *    within this specific selectable. This range is relative to the start of `text`.
-     * 3. `isLastSelectable`: A [Boolean] indicating whether this the last selected selectable. The
-     *    [block] returns a [Boolean] indicating whether it should continue iterating over the rest
-     *    of [Selectable]s.
+     * 3. `isLastSelectable`: A [Boolean] indicating whether this is the last selected selectable.
+     *
+     * [block] returns a [Boolean] indicating whether it should continue iterating over the rest of
+     * the [Selectable]s.
      */
     internal inline fun forEachSelectableWithSelection(
         crossinline block:
@@ -795,7 +841,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * selection. Hide it during selection. Hide it when no selection exists.
      */
     internal var showToolbar = false
-        internal set(value) {
+        set(value) {
             field = value
             updateSelectionToolbar()
         }
@@ -892,6 +938,12 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     fun handleDragObserver(isStartHandle: Boolean): TextDragObserver =
         object : TextDragObserver {
+            /** The beginning position of the current unconsumed drag movement. */
+            var dragBeginPosition = Offset.Unspecified
+
+            /** The total distance of the unconsumed drag movement. */
+            var dragTotalDistance = Offset.Zero
+
             override fun onDown(point: Offset) {
                 // if the handle position is null, then it is invisible, so ignore the gesture
                 (if (isStartHandle) startHandlePosition else endHandlePosition) ?: return
@@ -962,8 +1014,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 val endPosition = dragBeginPosition + dragTotalDistance
                 val consumed =
                     updateSelection(
-                        newPosition = endPosition,
-                        previousPosition = dragBeginPosition,
+                        position = endPosition,
+                        previousHandlePosition = dragBeginPosition,
                         isStartHandle = isStartHandle,
                         adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     )
@@ -1048,32 +1100,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     /**
      * Updates the selection after one of the selection handle moved.
      *
-     * @param newPosition the new position of the moving selection handle.
-     * @param previousPosition the previous position of the moving selection handle.
-     * @param isStartHandle whether the moving selection handle is the start handle.
-     * @param adjustment the [SelectionAdjustment] used to adjust the raw selection range and
-     *   produce the final selection range.
-     * @return a boolean representing whether the movement is consumed.
-     * @see SelectionAdjustment
-     */
-    internal fun updateSelection(
-        newPosition: Offset?,
-        previousPosition: Offset,
-        isStartHandle: Boolean,
-        adjustment: SelectionAdjustment,
-    ): Boolean {
-        if (newPosition == null) return false
-        return updateSelection(
-            position = newPosition,
-            previousHandlePosition = previousPosition,
-            isStartHandle = isStartHandle,
-            adjustment = adjustment,
-        )
-    }
-
-    /**
-     * Updates the selection after one of the selection handle moved.
-     *
      * To make sure that [SelectionAdjustment] works correctly, it's expected that only one
      * selection handle is updated each time. The only exception is that when a new selection is
      * started. In this case, [previousHandlePosition] is always null.
@@ -1100,17 +1126,75 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         val selectionLayout =
             getSelectionLayout(position, previousHandlePosition, isStartHandle) ?: return false
-        if (!selectionLayout.shouldRecomputeSelection(previousSelectionLayout)) {
-            return false
+
+        val needToRecomputeSelection =
+            selectionLayout.shouldRecomputeSelection(previousSelectionLayout)
+        if (needToRecomputeSelection) {
+            val newSelection = adjustment.adjust(selectionLayout)
+            if (newSelection != selection) {
+                if (shouldPerformHaptics()) {
+                    hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
+                selectionRegistrar.subselections = selectionLayout.createSubSelections(newSelection)
+                onSelectionChange(newSelection)
+                isLongPressOrClickSelection = false
+            }
+            previousSelectionLayout = selectionLayout
         }
 
-        val newSelection = adjustment.adjust(selectionLayout)
-        if (newSelection != selection) {
-            selectionChanged(selectionLayout, newSelection)
-            isLongPressOrClickSelection = false
+        @OptIn(ExperimentalFoundationApi::class)
+        if (ComposeFoundationFlags.isSelectionAutoScrollEnabled) {
+            bringDraggedPositionIntoView()
         }
-        previousSelectionLayout = selectionLayout
-        return true
+
+        return needToRecomputeSelection
+    }
+
+    private fun bringDraggedPositionIntoView() {
+        val selectionLayout = previousSelectionLayout ?: return
+        val selectableInfo = selectionLayout.currentInfo
+        val selectable = selectionRegistrar.selectableMap[selectableInfo.selectableId] ?: return
+        val selectableLayoutCoordinates = selectable.getLayoutCoordinates() ?: return
+        val dragPosition = currentDragPosition ?: return
+        val containerCoordinates = requireContainerCoordinates()
+        val positionInSelectable =
+            selectableLayoutCoordinates.localPositionOf(
+                sourceCoordinates = containerCoordinates,
+                relativeToSource = dragPosition,
+            )
+
+        var rect = Rect(positionInSelectable, Size.Zero)
+        if (isInTouchMode) {
+            // In touch mode, also include the edge of the selection (where the cursor would be
+            // positioned, if it had existed)
+            val offset =
+                if (selectionLayout.isStartHandle) {
+                    selectableInfo.rawStartHandleOffset
+                } else {
+                    selectableInfo.rawEndHandleOffset
+                }
+            val edgeRect = selectableInfo.textLayoutResult.getCursorRect(offset)
+            rect = rect.union(edgeRect)
+        }
+
+        // Always include the edge of the selectable in the rect, to prevent
+        // `bringIntoView` from scrolling too fast, thus potentially skipping composing some items
+        // if the scrollable is lazy.
+        // When `bringIntoView` is given a rectangle whose span is larger than the viewport, it will
+        // scroll only to the nearest edge of the requested rectangle.
+        // We don't know for sure the direction of scrolling, but we can include the point on the
+        // boundary of the selectable that is nearest to the drag position.
+        rect =
+            rect.extendedToInclude(selectableLayoutCoordinates.nearestPointTo(positionInSelectable))
+
+        selectable.bringIntoView(rect)
+    }
+
+    private fun Selectable.bringIntoView(rect: Rect) {
+        val bringIntoViewRequester = this.bringIntoViewRequester ?: return
+        coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
+            bringIntoViewRequester.bringIntoView(rect)
+        }
     }
 
     private fun getSelectionLayout(
@@ -1128,8 +1212,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         val selectableIdOrderingComparator = compareBy<Long> { idToIndexMap[it] }
 
-        // if previous handle is null, then treat this as a new selection.
+        // if previous handle is null, then treat this as a new selection
         val previousSelection = if (previousHandlePosition.isUnspecified) null else selection
+        val previousLayout =
+            if (previousHandlePosition.isUnspecified) null else previousSelectionLayout
         val builder =
             SelectionLayoutBuilder(
                 currentPosition = position,
@@ -1137,20 +1223,13 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 containerCoordinates = containerCoordinates,
                 isStartHandle = isStartHandle,
                 previousSelection = previousSelection,
+                previousLayout = previousLayout,
                 selectableIdOrderingComparator = selectableIdOrderingComparator,
             )
 
         sortedSelectables.fastForEach { it.appendSelectableInfoToBuilder(builder) }
 
         return builder.build()
-    }
-
-    private fun selectionChanged(selectionLayout: SelectionLayout, newSelection: Selection) {
-        if (shouldPerformHaptics()) {
-            hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        }
-        selectionRegistrar.subselections = selectionLayout.createSubSelections(newSelection)
-        onSelectionChange(newSelection)
     }
 
     @VisibleForTesting
@@ -1287,7 +1366,7 @@ internal fun calculateSelectionMagnifierCenterAndroid(
 ): Offset {
     val selection = manager.selection ?: return Offset.Unspecified
     return when (manager.draggingHandle) {
-        null -> return Offset.Unspecified
+        null -> Offset.Unspecified
         Handle.SelectionStart -> getMagnifierCenter(manager, magnifierSize, selection.start)
         Handle.SelectionEnd -> getMagnifierCenter(manager, magnifierSize, selection.end)
         Handle.Cursor -> error("SelectionContainer does not support cursor")
@@ -1369,3 +1448,38 @@ internal fun LayoutCoordinates.visibleBounds(): Rect {
 
 internal fun Rect.containsInclusive(offset: Offset): Boolean =
     offset.x in left..right && offset.y in top..bottom
+
+private fun Rect.union(rect: Rect): Rect {
+    return Rect(
+        left = min(left, rect.left),
+        top = min(top, rect.top),
+        right = max(right, rect.right),
+        bottom = max(bottom, rect.bottom),
+    )
+}
+
+/**
+ * Returns the smallest rectangle that includes both `this` and [offset].
+ *
+ * For example, `Rect(10f, 10f, 30f, 20f)` extended to include `Offset(30f, 30f)` will return
+ * `Rect(10f, 10f, 30f, 30f)`.
+ *
+ * Note that [offset] could be on the boundary of the returned [Rect], and [Rect.contains] can thus
+ * return `false` on it.
+ */
+private fun Rect.extendedToInclude(offset: Offset): Rect {
+    return Rect(
+        left = min(left, offset.x),
+        top = min(top, offset.y),
+        right = max(right, offset.x),
+        bottom = max(bottom, offset.y),
+    )
+}
+
+/** Returns the point in the bounds (in the local coordinate system) that is nearest to [point]. */
+private fun LayoutCoordinates.nearestPointTo(point: Offset): Offset {
+    return Offset(
+        x = point.x.coerceIn(0f, size.width.toFloat()),
+        y = point.y.coerceIn(0f, size.height.toFloat()),
+    )
+}

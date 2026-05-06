@@ -162,6 +162,7 @@ package androidx.compose.foundation {
     property public boolean isNewContextMenuEnabled;
     property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
+    property public boolean isSelectionAutoScrollEnabled;
     property public boolean isSkipItemPlacementAnimationFixEnabled;
     property public boolean isSmartSelectionEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
@@ -177,6 +178,7 @@ package androidx.compose.foundation {
     field public static boolean isNewContextMenuEnabled;
     field public static boolean isPausableCompositionInPrefetchEnabled;
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
+    field public static boolean isSelectionAutoScrollEnabled;
     field public static boolean isSkipItemPlacementAnimationFixEnabled;
     field public static boolean isSmartSelectionEnabled;
   }

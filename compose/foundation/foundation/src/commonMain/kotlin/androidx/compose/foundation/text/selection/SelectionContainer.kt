@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.rememberClipboardEventsHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -90,12 +91,17 @@ internal fun SelectionContainer(
     selection: Selection?,
     /** A function containing customized behaviour when selection changes. */
     onSelectionChange: (Selection?) -> Unit,
+    /** Used for tests */
+    onSelectionManagerCreated: ((SelectionManager) -> Unit)? = null,
     children: @Composable () -> Unit,
 ) {
     val registrarImpl =
         rememberSaveable(saver = SelectionRegistrarImpl.Saver) { SelectionRegistrarImpl() }
 
     val manager = remember { SelectionManager(registrarImpl) }
+    if (onSelectionManagerCreated != null) {
+        LaunchedEffect(onSelectionManagerCreated) { onSelectionManagerCreated.invoke(manager) }
+    }
 
     val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
@@ -117,6 +123,13 @@ internal fun SelectionContainer(
     if (ComposeFoundationFlags.isSmartSelectionEnabled) {
         manager.platformSelectionBehaviors =
             rememberPlatformSelectionBehaviors(SelectedTextType.StaticText, null)
+    }
+    @OptIn(ExperimentalFoundationApi::class)
+    if (
+        ComposeFoundationFlags.isSmartSelectionEnabled ||
+            ComposeFoundationFlags.isSelectionAutoScrollEnabled
+    ) {
+        // The coroutine scope is needed for both these features
         manager.coroutineScope = coroutineScope
     }
 
