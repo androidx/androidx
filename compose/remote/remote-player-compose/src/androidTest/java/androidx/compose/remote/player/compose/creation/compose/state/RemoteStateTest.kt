@@ -16,6 +16,8 @@
 
 package androidx.compose.remote.player.compose.creation.compose.state
 
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -32,6 +34,9 @@ import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteC
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.text.DecimalFormat
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,10 +45,21 @@ import org.junit.runners.JUnit4
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalRemoteCreationComposeApi::class)
 class RemoteStateTest {
     @get:Rule
     val composeTestRule =
         RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+
+    @Before
+    fun setup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+    }
+
+    @After
+    fun cleanup() {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
+    }
 
     @Test
     fun testNamedFloatIdDiffers() {
@@ -63,12 +79,14 @@ class RemoteStateTest {
                 val configurableWidth2 =
                     rememberNamedRemoteFloat(name = "configurableWidth2") { width }
 
-                RemoteText(RemoteString("Width: ") + width.toRemoteString(3, 0))
+                RemoteText(RemoteString("Width: ") + width.toRemoteString(DecimalFormat("###0")))
                 RemoteText(
-                    RemoteString("Configurable Width: ") + configurableWidth.toRemoteString(3, 0)
+                    RemoteString("Configurable Width: ") +
+                        configurableWidth.toRemoteString(DecimalFormat("###0"))
                 )
                 RemoteText(
-                    RemoteString("Configurable Width2: ") + configurableWidth2.toRemoteString(3, 0)
+                    RemoteString("Configurable Width2: ") +
+                        configurableWidth2.toRemoteString(DecimalFormat("###0"))
                 )
 
                 with(creationState) {

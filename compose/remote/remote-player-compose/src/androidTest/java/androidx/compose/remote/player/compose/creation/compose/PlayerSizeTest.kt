@@ -202,7 +202,7 @@ class PlayerSizeTest {
                 modifier =
                     RemoteModifier.size(400.rdp)
                         .background(Color.Blue.rc)
-                        .padding(10.dp)
+                        .padding(10.rdp)
                         .border(1.rdp, Color.Green.rc)
             )
         }

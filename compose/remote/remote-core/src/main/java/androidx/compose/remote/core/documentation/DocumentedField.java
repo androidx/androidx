@@ -21,9 +21,7 @@ import androidx.annotation.RestrictTo;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Interface for a documented field
- */
+/** Interface for a documented field */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DocumentedField {
     /**

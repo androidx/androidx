@@ -43,8 +43,11 @@ public class ApplyTouchDrag extends TestOperation {
     }
 
     @Override
-    public boolean apply(@NonNull RemoteContext context, @NonNull CoreDocument document,
-            @NonNull TestParameters testParameters, @Nullable List<Map<String, Object>> commands) {
+    public boolean apply(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull TestParameters testParameters,
+            @Nullable List<Map<String, Object>> commands) {
         if (commands != null) {
             Map<String, Object> applyTouchDrag = new LinkedHashMap<>();
             applyTouchDrag.put("x", mX);

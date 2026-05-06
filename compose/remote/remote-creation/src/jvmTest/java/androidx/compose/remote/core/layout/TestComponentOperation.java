@@ -40,7 +40,9 @@ class TestComponentOperation extends TestOperation {
     }
 
     @Override
-    public boolean apply(@NonNull RemoteContext context, @NonNull CoreDocument document,
+    public boolean apply(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
             @NonNull TestParameters testParameters,
             @Nullable List<Map<String, Object>> commands) {
         mContext = context;

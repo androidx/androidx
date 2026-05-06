@@ -21,6 +21,7 @@ package androidx.compose.runtime
 
 import kotlin.text.toString as stdlibToString
 
+@Suppress("TypealiasDefinition")
 public actual typealias CompositeKeyHashCode = Long
 
 public actual inline fun CompositeKeyHashCode.toLong(): CompositeKeyHashCode = this

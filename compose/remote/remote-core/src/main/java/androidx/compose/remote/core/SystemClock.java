@@ -25,9 +25,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-/**
- * Implementation of RemoteClock using java.time.Clock for API 26+.
- */
+/** Implementation of RemoteClock using java.time.Clock for API 26+. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(26)
 public class SystemClock implements RemoteClock {

@@ -111,6 +111,8 @@
         verticalPositioning: TOP
         horizontalPositioning: START
         spacedBy: 0.0
+        maxItemsInEachRow: 2147483647
+        maxLines: 2147483647
 - description: Component Tree
   command: Capture
   result:
@@ -224,3 +226,5 @@
         verticalPositioning: TOP
         horizontalPositioning: START
         spacedBy: 0.0
+        maxItemsInEachRow: 2147483647
+        maxLines: 2147483647

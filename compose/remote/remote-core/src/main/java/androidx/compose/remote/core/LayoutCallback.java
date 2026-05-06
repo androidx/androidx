@@ -22,8 +22,6 @@ import androidx.annotation.RestrictTo;
 
 @RestrictTo(LIBRARY_GROUP)
 public interface LayoutCallback {
-    /**
-     * Called when the layout has changed.
-     */
+    /** Called when the layout has changed. */
     void onRequestLayout();
 }

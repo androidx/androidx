@@ -35,6 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @RunWith(AndroidJUnit4::class)
 class LoadingIndicatorTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())

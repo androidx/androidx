@@ -21,6 +21,7 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -34,8 +35,8 @@ import java.util.List;
 
 /** Operation to perform Color related calculation TODO support color update */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorAttribute extends PaintOperation implements VariableSupport, Serializable,
-        ComponentData {
+public class ColorAttribute extends PaintOperation
+        implements VariableSupport, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.ATTRIBUTE_COLOR;
     private static final String CLASS_NAME = "ColorAttribute";
     public int mId;
@@ -63,12 +64,22 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
     /** The alpha value of the color */
     public static final short COLOR_ALPHA = 6;
 
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
+
     /**
      * creates a new operation
      *
-     * @param id      to write value to
+     * @param id to write value to
      * @param colorId of long to calculate on
-     * @param type    the type of calculation
+     * @param type the type of calculation
      */
     public ColorAttribute(int id, int colorId, short type) {
         this.mId = id;
@@ -108,9 +119,9 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
      * Writes out the operation to the buffer
      *
      * @param buffer write command to this buffer
-     * @param id     the id
+     * @param id the id
      * @param textId the id
-     * @param type   the value of the float
+     * @param type the value of the float
      */
     public static void apply(@NonNull WireBuffer buffer, int id, int textId, short type) {
         buffer.start(OP_CODE);
@@ -122,14 +133,14 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int textId = buffer.readInt();
+        int id = buffer.readId();
+        int colorId = buffer.readId();
         short type = (short) buffer.readShort();
-        operations.add(new ColorAttribute(id, textId, type));
+        operations.add(new ColorAttribute(id, colorId, type));
     }
 
     /**
@@ -229,10 +240,7 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
         context.listensTo(mColorId, this);
     }
 
-    /**
-     * Called to be notified that the variables you are interested have changed.
-     */
+    /** Called to be notified that the variables you are interested have changed. */
     @Override
-    public void updateVariables(@NonNull RemoteContext context) {
-    }
+    public void updateVariables(@NonNull RemoteContext context) {}
 }

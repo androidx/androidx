@@ -54,7 +54,6 @@ public class TestSerializeUtils {
         return doc.getDocument().getBuffer().getBuffer().cloneBytes();
     }
 
-
     /**
      * Convert to YAML
      *
@@ -89,6 +88,7 @@ public class TestSerializeUtils {
 
     /**
      * Convert to YAML (flat string)
+     *
      * @param rawDoc
      * @return
      */

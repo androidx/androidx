@@ -3140,117 +3140,6 @@ class ScrollableTest {
     }
 
     @Test
-    fun scrollable_isInterestedInDownEvents() {
-        val scrollableState = ScrollableState { it }
-
-        var isOuterInterested: Boolean? = null
-        var isInnerInterested: Boolean? = null
-        rule.setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollableBoxTag)
-                            .size(100.dp)
-                            .then(
-                                InspectGestureNodeElement { parentCoordinator, event ->
-                                    isOuterInterested = parentCoordinator.isInterested(event)
-                                }
-                            )
-                            .scrollable(
-                                state = scrollableState,
-                                orientation = Orientation.Horizontal,
-                            )
-                            .then(
-                                InspectGestureNodeElement { parentCoordinator, event ->
-                                    isInnerInterested = parentCoordinator.isInterested(event)
-                                }
-                            )
-                )
-            }
-        }
-
-        rule.onRoot().performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(isOuterInterested).isNull()
-            assertThat(isInnerInterested).isTrue()
-        }
-    }
-
-    @Test
-    fun scrollable_isInterestedInDownEvents_handlesParentEnabledState() {
-        val scrollableState = ScrollableState { it }
-
-        var isOuterInterested: Boolean? = null
-        var isInnerInterested: Boolean? = null
-        var isEnabled by mutableStateOf(false)
-        rule.setContent {
-            Box {
-                Box(
-                    modifier =
-                        Modifier.testTag(scrollableBoxTag)
-                            .size(100.dp)
-                            .then(
-                                InspectGestureNodeElement { parentCoordinator, event ->
-                                    isOuterInterested = parentCoordinator.isInterested(event)
-                                }
-                            )
-                            .scrollable(
-                                state = scrollableState,
-                                orientation = Orientation.Horizontal,
-                                enabled = isEnabled,
-                            )
-                            .then(
-                                InspectGestureNodeElement { parentCoordinator, event ->
-                                    isInnerInterested = parentCoordinator.isInterested(event)
-                                }
-                            )
-                )
-            }
-        }
-
-        rule.onRoot().performTouchInput {
-            down(center)
-            up()
-        }
-
-        rule.runOnIdle {
-            assertThat(isOuterInterested).isNull()
-            assertThat(isInnerInterested).isFalse()
-        }
-
-        rule.runOnUiThread {
-            isOuterInterested = null
-            isInnerInterested = null
-            isEnabled = true
-        }
-        rule.onRoot().performTouchInput {
-            down(center)
-            up()
-        }
-
-        rule.runOnIdle {
-            assertThat(isOuterInterested).isNull()
-            assertThat(isInnerInterested).isTrue()
-        }
-
-        rule.runOnUiThread {
-            isOuterInterested = null
-            isInnerInterested = null
-            isEnabled = false
-        }
-        rule.onRoot().performTouchInput {
-            down(center)
-            up()
-        }
-
-        rule.runOnIdle {
-            assertThat(isOuterInterested).isNull()
-            assertThat(isInnerInterested).isFalse()
-        }
-    }
-
-    @Test
     fun scrollable_scrollByWorksWithRepeatableAnimations() {
         rule.mainClock.autoAdvance = false
 
@@ -4360,7 +4249,12 @@ internal class InspectGestureNode(
             pass == PointerEventPass.Main &&
                 pointerEvent.changes.first().changedToDownIgnoreConsumed()
         ) {
-            parentGestureConnection?.let { onDownEvent(it, pointerEvent.changes.first()) }
+            var connection: GestureConnection? = null
+            traverseAncestorGestures {
+                connection = it
+                false
+            }
+            connection?.let { onDownEvent(it, pointerEvent.changes.first()) }
         }
     }
 

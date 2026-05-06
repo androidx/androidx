@@ -19,42 +19,49 @@ package androidx.compose.remote.tooling.preview
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.creation.compose.capture.RememberRemoteDocumentInline
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.runBlocking
 
-/** Display a Remote Compose Composable in the Android Studio Preview. */
+/**
+ * Displays a Remote Compose Composable in the Android Studio Preview.
+ *
+ * This function captures the provided [content] using the specified [profile] and renders it as a
+ * [RemoteDocument] to simulate how it would appear when played back in a remote context.
+ *
+ * @param profile The [Profile] defining the target environment for the remote content. Defaults to
+ *   [RcPlatformProfiles.ANDROIDX].
+ * @param modifier The modifier to be applied to the box containing the preview.
+ * @param content The Composable content to be captured and previewed. It does not have be annotated
+ *   with [@RemoteComposable].
+ */
 @Composable
 public fun RemotePreview(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
+    @Suppress("ModifierParameter") // content as last modifier is allowed
+    modifier: Modifier = Modifier,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
-    var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
+    val context = LocalContext.current
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        RememberRemoteDocumentInline(
-            profile = profile,
-            onDocument = { doc ->
-                println("Document generated: $doc")
-                if (documentState == null) {
-                    // Generate seems to get called again with a partial document
-                    // Essentially re-recording but with existing state, so document is incomplete
-                    documentState = RemoteDocument(doc)
-                }
-            },
-            content = content,
-        )
-
-        documentState?.let { RemoteDocPreview(it) }
+    val document = remember {
+        runBlocking {
+            RemoteDocument(
+                captureSingleRemoteDocument(context = context, profile = profile, content = content)
+                    .bytes
+            )
+        }
     }
+
+    LaunchedEffect(Unit) {}
+
+    Box(modifier = modifier) { RemoteDocPreview(document) }
 }

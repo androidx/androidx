@@ -68,8 +68,7 @@ public class ImpulseOperation extends PaintOperation implements VariableSupport,
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
-        if (mProcess == null) {
-            System.out.println(".....");
+        if (mProcess == null && !mList.isEmpty()) {
             Operation last = mList.get(mList.size() - 1);
             if (last instanceof ImpulseProcess) {
                 mProcess = (ImpulseProcess) last;
@@ -141,8 +140,12 @@ public class ImpulseOperation extends PaintOperation implements VariableSupport,
     @Override
     public void paint(@NonNull PaintContext context) {
         RemoteContext remoteContext = context.getContext();
-
-        if (remoteContext.getAnimationTime() <= mOutStartAt + mOutDuration) {
+        float currentTime = remoteContext.getAnimationTime();
+        if (currentTime < mOutStartAt) {
+            context.wakeIn(mOutStartAt - currentTime);
+            return;
+        }
+        if (currentTime >= mOutStartAt && currentTime <= mOutStartAt + mOutDuration) {
             if (mInitialPass) {
                 for (Operation op : mList) {
                     if (op instanceof VariableSupport && op.isDirty()) {
@@ -193,8 +196,8 @@ public class ImpulseOperation extends PaintOperation implements VariableSupport,
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float duration = buffer.readFloat();
-        float startAt = buffer.readFloat();
+        float duration = buffer.readNanId();
+        float startAt = buffer.readNanId();
 
         operations.add(new ImpulseOperation(duration, startAt));
     }

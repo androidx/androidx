@@ -41,7 +41,6 @@ public class PaintData extends PaintOperation
     private static final int OP_CODE = Operations.PAINT_VALUES;
     private static final String CLASS_NAME = "PaintData";
     @NonNull public PaintBundle mPaintData = new PaintBundle();
-    public static final int MAX_STRING_SIZE = 4000;
 
     public PaintData() {}
 

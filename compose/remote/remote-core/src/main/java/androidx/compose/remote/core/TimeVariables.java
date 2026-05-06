@@ -33,9 +33,7 @@ public class TimeVariables {
         return mClock;
     }
 
-    /**
-     * This class populates all time variables in the system
-     */
+    /** This class populates all time variables in the system */
     public void updateTime(@NonNull RemoteContext context) {
         RemoteClock.TimeSnapshot snapshot = mClock.snapshot(null);
 
@@ -51,7 +49,8 @@ public class TimeVariables {
         context.loadFloat(RemoteContext.ID_DAY_OF_YEAR, snapshot.getDayOfYear());
         context.loadFloat(RemoteContext.ID_YEAR, snapshot.getYear());
 
-        context.loadFloat(RemoteContext.ID_API_LEVEL,
+        context.loadFloat(
+                RemoteContext.ID_API_LEVEL,
                 CoreDocument.getDocumentApiLevel() + CoreDocument.BUILD);
     }
 }

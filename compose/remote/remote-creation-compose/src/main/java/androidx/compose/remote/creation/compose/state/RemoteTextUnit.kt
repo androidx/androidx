@@ -19,9 +19,13 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.state.RemoteTextUnit.OperationKey
+import androidx.compose.remote.creation.compose.text.RemoteFontScaleConverter
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 
 /**
@@ -30,10 +34,16 @@ import androidx.compose.ui.unit.sp
  * @property value The [RemoteFloat] that holds the scalar value.
  * @property type The [TextUnitType] (Sp or Em).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteTextUnit
 internal constructor(public val value: RemoteFloat, public val type: TextUnitType) :
     BaseRemoteState<TextUnit>() {
+    internal override val cacheKey: RemoteStateCacheKey
+        get() = toPx().cacheKey
+
+    internal enum class OperationKey {
+        ToPx,
+        DpToSp,
+    }
 
     init {
         require(type == TextUnitType.Sp || type == TextUnitType.Em) {
@@ -61,16 +71,20 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toPx(density: RemoteDensity): RemoteFloat {
         checkTextUnit()
-        return value * density.fontScale * density.density
+        val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
+        return dp * density.density
     }
 
     /** Converts this [RemoteTextUnit] to pixels using the screen's density. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toPx(): RemoteFloat {
         checkTextUnit()
-        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value),
+        ) { creationState ->
             val density = creationState.remoteDensity
-            (value * density.fontScale * density.density).arrayForCreationState(creationState)
+            val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
+            (dp * density.density).arrayForCreationState(creationState)
         }
     }
 
@@ -80,8 +94,25 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
 
 /** Extension property to convert an [Int] to a [RemoteTextUnit] in Sp. */
 public val Int.rsp: RemoteTextUnit
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = RemoteTextUnit(this.rf, TextUnitType.Sp)
+    get() = RemoteTextUnit(this.rf, TextUnitType.Sp)
 
 /** Extension function to convert a [TextUnit] to a [RemoteTextUnit]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit = RemoteTextUnit(this.value.rf, this.type)
+
+/** Extension function to convert a [Dp] to a [RemoteTextUnit] in Sp. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Dp.toRsp(): RemoteTextUnit {
+    check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
+    return RemoteTextUnit(
+        value =
+            RemoteFloatExpression(
+                constantValueOrNull = null,
+                cacheKey = RemoteOperationCacheKey.create(OperationKey.DpToSp, value),
+            ) { creationState ->
+                val fontScale = creationState.remoteDensity.fontScale
+                (value.rf / fontScale).arrayForCreationState(creationState)
+            },
+        type = TextUnitType.Sp,
+    )
+}

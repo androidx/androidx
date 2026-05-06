@@ -23,6 +23,7 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -36,7 +37,8 @@ import java.util.List;
 
 /** Operation to perform Constructive area geometry operations, combining two Paths */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PathCombine extends PaintOperation implements VariableSupport, Serializable {
+public class PathCombine extends PaintOperation
+        implements VariableSupport, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.PATH_COMBINE;
     private static final String CLASS_NAME = "PathCombine";
     public int mOutId;
@@ -58,6 +60,16 @@ public class PathCombine extends PaintOperation implements VariableSupport, Seri
 
     /** Exclusive-or the two paths. */
     public static final byte OP_XOR = 4;
+
+    @Override
+    public int getId() {
+        return mOutId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mOutId = id;
+    }
 
     public PathCombine(int outId, int pathId1, int pathId2, byte operation) {
         this.mOutId = outId;
@@ -135,9 +147,9 @@ public class PathCombine extends PaintOperation implements VariableSupport, Seri
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int outId1 = buffer.readInt();
-        int pathId1 = buffer.readInt();
-        int pathId2 = buffer.readInt();
+        int outId1 = buffer.readId();
+        int pathId1 = buffer.readId();
+        int pathId2 = buffer.readId();
         byte op = (byte) buffer.readByte();
         operations.add(new PathCombine(outId1, pathId1, pathId2, op));
     }

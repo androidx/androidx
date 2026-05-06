@@ -24,12 +24,15 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.util.propertyName
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,9 +42,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RemoteBoxTest {
     @get:Rule
-    val composeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
-    }
+    val composeTestRule: RemoteScreenshotTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+            matcher = MSSIMMatcher(threshold = 0.999),
+        )
 
     private val gridScreenshotUI = GridScreenshotUI()
 
@@ -50,42 +56,107 @@ class RemoteBoxTest {
         composeTestRule.runScreenshotTest {
             val alignments =
                 listOf(
-                    RemoteAlignment.Start,
-                    RemoteAlignment.CenterHorizontally,
-                    RemoteAlignment.End,
+                    RemoteAlignment.TopStart,
+                    RemoteAlignment.TopCenter,
+                    RemoteAlignment.TopEnd,
+                    RemoteAlignment.CenterStart,
+                    RemoteAlignment.Center,
+                    RemoteAlignment.CenterEnd,
+                    RemoteAlignment.BottomStart,
+                    RemoteAlignment.BottomCenter,
+                    RemoteAlignment.BottomEnd,
                 )
-            val arrangements =
-                listOf(RemoteArrangement.Top, RemoteArrangement.Center, RemoteArrangement.Bottom)
+            gridScreenshotUI.GridContent(getLayoutAlignmentUIs(alignments))
+        }
 
+    @Test
+    fun rtl() =
+        composeTestRule.runScreenshotTest {
+            val alignments =
+                listOf(
+                    RemoteAlignment.TopStart,
+                    RemoteAlignment.TopCenter,
+                    RemoteAlignment.TopEnd,
+                    RemoteAlignment.CenterStart,
+                    RemoteAlignment.Center,
+                    RemoteAlignment.CenterEnd,
+                    RemoteAlignment.BottomStart,
+                    RemoteAlignment.BottomCenter,
+                    RemoteAlignment.BottomEnd,
+                )
             gridScreenshotUI.GridContent(
-                sequence {
-                        for (arrangement in arrangements) {
-                            for (alignment in alignments) {
-                                yield(
-                                    "${arrangement.propertyName()} ${alignment.propertyName()}" to
-                                        @RemoteComposable @Composable {
-                                            RemoteBox(
-                                                modifier = RemoteModifier.fillMaxSize(),
-                                                horizontalAlignment = alignment,
-                                                verticalArrangement = arrangement,
-                                            ) {
-                                                RemoteBox(
-                                                    modifier =
-                                                        RemoteModifier.size(48.rdp)
-                                                            .background(Color(0xFF6200EE))
-                                                )
-                                                RemoteBox(
-                                                    modifier =
-                                                        RemoteModifier.size(24.rdp)
-                                                            .background(Color(0xFF03DAC6))
-                                                )
-                                            }
-                                        }
-                                )
-                            }
-                        }
-                    }
-                    .toList()
+                getLayoutAlignmentUIs(alignments),
+                layoutDirection = LayoutDirection.Rtl,
             )
         }
+
+    @Test
+    fun absoluteAlignment() =
+        composeTestRule.runScreenshotTest {
+            val alignments =
+                listOf(
+                    RemoteAbsoluteAlignment.TopLeft,
+                    RemoteAlignment.TopCenter,
+                    RemoteAbsoluteAlignment.TopRight,
+                    RemoteAbsoluteAlignment.CenterLeft,
+                    RemoteAlignment.Center,
+                    RemoteAbsoluteAlignment.CenterRight,
+                    RemoteAbsoluteAlignment.BottomLeft,
+                    RemoteAlignment.BottomCenter,
+                    RemoteAbsoluteAlignment.BottomRight,
+                )
+            gridScreenshotUI.GridContent(getLayoutAlignmentUIs(alignments))
+        }
+
+    @Test
+    fun rtlAbsoluteAlignment() =
+        composeTestRule.runScreenshotTest {
+            val alignments =
+                listOf(
+                    RemoteAbsoluteAlignment.TopLeft,
+                    RemoteAlignment.TopCenter,
+                    RemoteAbsoluteAlignment.TopRight,
+                    RemoteAbsoluteAlignment.CenterLeft,
+                    RemoteAlignment.Center,
+                    RemoteAbsoluteAlignment.CenterRight,
+                    RemoteAbsoluteAlignment.BottomLeft,
+                    RemoteAlignment.BottomCenter,
+                    RemoteAbsoluteAlignment.BottomRight,
+                )
+            gridScreenshotUI.GridContent(
+                getLayoutAlignmentUIs(alignments),
+                layoutDirection = LayoutDirection.Rtl,
+            )
+        }
+
+    private fun getLayoutAlignmentUIs(
+        alignments: List<RemoteAlignment>
+    ): List<Pair<String, @RemoteComposable @Composable () -> Unit>> {
+
+        return sequence {
+                for (alignment in alignments) {
+                    yield(
+                        alignment.propertyName() to
+                            @RemoteComposable @Composable {
+                                RemoteBox(
+                                    modifier = RemoteModifier.fillMaxSize(),
+                                    contentAlignment = alignment,
+                                ) {
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.size(48.rdp)
+                                                .background(Color(0xFF6200EE))
+                                    )
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.size(24.rdp)
+                                                .background(Color(0xFF03DAC6))
+                                    )
+                                }
+                            }
+                    )
+                }
+            }
+            .toList()
+    }
 }

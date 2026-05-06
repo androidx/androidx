@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.test.base
 
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -33,7 +32,10 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 
 /** Class to provide a single UI composed of many other smaller UIs, displayed on a grid. */
 class GridScreenshotUI(
@@ -48,7 +50,8 @@ class GridScreenshotUI(
     @Composable
     @RemoteComposable
     fun GridContent(
-        innerContentList: List<Pair<String, @RemoteComposable @Composable () -> Unit>>
+        innerContentList: List<Pair<String, @RemoteComposable @Composable () -> Unit>>,
+        layoutDirection: LayoutDirection? = null,
     ) {
         val chunkedContents = innerContentList.chunked(itemsPerRow)
         RemoteColumn {
@@ -63,7 +66,19 @@ class GridScreenshotUI(
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 2,
                             )
-                            outerContainer(ContainerSize, RemoteModifier) { content() }
+                            if (layoutDirection != null) {
+                                outerContainer(ContainerSize, RemoteModifier) {
+                                    DeviceConfigurationOverride(
+                                        override =
+                                            DeviceConfigurationOverride.LayoutDirection(
+                                                layoutDirection
+                                            ),
+                                        content = content,
+                                    )
+                                }
+                            } else {
+                                outerContainer(ContainerSize, RemoteModifier) { content() }
+                            }
                         }
                         RemoteBox(modifier = RemoteModifier.width(Padding))
                     }
@@ -94,8 +109,7 @@ private fun Container(
 ) {
     RemoteBox(
         modifier = modifier.size(size).background(Color(0xFFCFD8DC)),
-        horizontalAlignment = RemoteAlignment.Start,
-        verticalArrangement = RemoteArrangement.Center,
+        contentAlignment = RemoteAlignment.CenterStart,
         content = content,
     )
 }

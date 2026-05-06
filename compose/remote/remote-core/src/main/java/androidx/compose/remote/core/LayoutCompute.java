@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package androidx.compose.remote.core;
+
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
 
-/**
- * Interface for operations that can participate in the layout computations
- */
+/** Interface for operations that can participate in the layout computations */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface LayoutCompute {
 

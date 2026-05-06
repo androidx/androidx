@@ -4379,7 +4379,7 @@ class CompositionTests {
             InlineSubcomposition {
                 @Suppress("ConstantConditionIf") // Testing this case
                 if (false) {
-                    remember { "Something" }
+                    remember { @Suppress("UNUSED_EXPRESSION") "Something" }
                 }
             }
         }

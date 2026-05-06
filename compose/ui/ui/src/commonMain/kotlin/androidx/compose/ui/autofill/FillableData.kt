@@ -68,7 +68,8 @@ expect fun FillableData.Companion.createFromBoolean(booleanValue: Boolean): Fill
 /**
  * Creates a [FillableData] instance from a [CharSequence].
  *
- * This function is used to wrap a text value for autofill purposes.
+ * This function is used to wrap a text value for autofill purposes. Depending on the platform, the
+ * text might be truncated to a safe length if it is too long to prevent crashing the IPC.
  *
  * @param textValue The text data to be used for autofill.
  * @return A [FillableData] object containing the text data, or `null` if the platform does not

@@ -36,6 +36,211 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
+/** Using addThemedColor( String lightName, int lightValue, String darkName, int darkValue */
+@Suppress("RestrictedApiAndroidX")
+fun colorCheck1(): RemoteComposeWriter {
+    val rc =
+        RemoteComposeContextAndroid(
+            width = 500,
+            height = 500,
+            contentDescription = "Simple Timer",
+            apiLevel = 7,
+            profiles = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            platform = AndroidxRcPlatformServices(),
+        ) {
+            val title =
+                "uses\naddThemedColor( String lightName, int lightValue,\n" +
+                    " String darkName, int darkValue)"
+            val light: Int = 0xFFAABBCCL.toInt()
+            val lightName: String = "color.holo_blue_dark"
+            val dark: Int = 0xFF223344L.toInt()
+            val darkName: String = "color.holo_blue_light"
+
+            val id1 = writer.addThemedColor(lightName, light, darkName, dark)
+            val id2 = writer.addThemedColor(darkName, dark, lightName, light)
+
+            val time = createTextFromFloat(Seconds(), 3, 0, 0)
+            root {
+                column(
+                    Modifier.background(WHITE).fillMaxSize(),
+                    ColumnLayout.START,
+                    ColumnLayout.SPACE_AROUND,
+                ) {
+                    text(title)
+
+                    text(
+                        "addThemedColor\n(LS,Lid,DS,Did)",
+                        Modifier.fillMaxWidth().backgroundId(id1),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                    text(
+                        "addThemedColor\n(Lid, Did)",
+                        Modifier.fillMaxWidth().backgroundId(id2),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                    text(time)
+                }
+            }
+        }
+    return rc.writer
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun colorCheck2(): RemoteComposeWriter {
+    val rc =
+        RemoteComposeContextAndroid(
+            width = 500,
+            height = 500,
+            contentDescription = "Simple Timer",
+            apiLevel = 7,
+            profiles = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            platform = AndroidxRcPlatformServices(),
+        ) {
+            val title = "uses\naddThemedColor(short lightId, short darkId)"
+            val light: Int = 0xFFAABBCCL.toInt()
+            val dark: Int = 0xFF223344L.toInt()
+
+            val lightId = addColor(light).toShort()
+            val darkId = addColor(dark).toShort()
+            setColorName(lightId.toInt(), "color.holo_blue_dark")
+            setColorName(darkId.toInt(), "color.holo_blue_light")
+            val id1 = writer.addThemedColor(darkId, lightId)
+            val id2 = writer.addThemedColor(lightId, darkId)
+
+            root {
+                column(
+                    Modifier.background(WHITE).fillMaxSize(),
+                    ColumnLayout.START,
+                    ColumnLayout.SPACE_AROUND,
+                ) {
+                    text(title)
+
+                    text(
+                        "addThemedColor\n(LS,Lid,DS,Did)",
+                        Modifier.fillMaxWidth().backgroundId(id1),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                    text(
+                        "addThemedColor\n(Lid, Did)",
+                        Modifier.fillMaxWidth().backgroundId(id2),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                }
+            }
+        }
+    return rc.writer
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun colorCheck3(): RemoteComposeWriter {
+    val rc =
+        RemoteComposeContextAndroid(
+            width = 500,
+            height = 500,
+            contentDescription = "Simple Timer",
+            apiLevel = 7,
+            profiles = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            platform = AndroidxRcPlatformServices(),
+        ) {
+            val title =
+                "uses\naddThemedColor( String lightName, int lightValue,\n" +
+                    " String darkName, int darkValue)\n" +
+                    "& addThemedColor(short lightId, short darkId)"
+            val light: Int = 0xFFAABBCCL.toInt()
+            val lightName: String = "color.holo_blue_dark"
+            val dark: Int = 0xFF223344L.toInt()
+            val darkName: String = "color.holo_blue_light"
+
+            val id1 = writer.addThemedColor(lightName, light, darkName, dark)
+
+            val lightId = addColor(light).toShort()
+            val darkId = addColor(dark).toShort()
+            setColorName(lightId.toInt(), "color.holo_blue_dark")
+            setColorName(darkId.toInt(), "color.holo_blue_light")
+            val id2 = writer.addThemedColor(lightId, darkId)
+            root {
+                column(
+                    Modifier.background(WHITE).fillMaxSize(),
+                    ColumnLayout.START,
+                    ColumnLayout.SPACE_AROUND,
+                ) {
+                    text(title)
+
+                    text(
+                        "addThemedColor\n(LS,Lid,DS,Did)",
+                        Modifier.fillMaxWidth().backgroundId(id1),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                    text(
+                        "addThemedColor\n(Lid, Did)",
+                        Modifier.fillMaxWidth().backgroundId(id2),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                }
+            }
+        }
+    return rc.writer
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun colorCheck4(): RemoteComposeWriter {
+    val rc =
+        RemoteComposeContextAndroid(
+            width = 500,
+            height = 500,
+            contentDescription = "Simple Timer",
+            apiLevel = 7,
+            profiles = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            platform = AndroidxRcPlatformServices(),
+        ) {
+            val title =
+                "uses\naddThemedColor( String lightName, int lightValue,\n" +
+                    " String darkName, int darkValue)\n" +
+                    "& addThemedColor(short lightId, short darkId)"
+            val light: Int = 0xFFAABBCCL.toInt()
+            val lightName = Rc.AndroidColors.HOLO_BLUE_DARK
+            val dark: Int = 0xFF223344L.toInt()
+            val darkName = Rc.AndroidColors.HOLO_BLUE_LIGHT
+
+            val id1 = writer.addThemedColor("color", lightName, darkName, light, dark)
+
+            val lightId = addColor(light).toShort()
+            val darkId = addColor(dark).toShort()
+            setColorName(lightId.toInt(), "color.holo_blue_dark")
+            setColorName(darkId.toInt(), "color.holo_blue_light")
+            val id2 = writer.addThemedColor(lightId, darkId)
+            root {
+                column(
+                    Modifier.background(WHITE).fillMaxSize(),
+                    ColumnLayout.START,
+                    ColumnLayout.SPACE_AROUND,
+                ) {
+                    text(title)
+
+                    text(
+                        "addThemedColor\n(LS,Lid,DS,Did)",
+                        Modifier.fillMaxWidth().backgroundId(id1),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                    text(
+                        "addThemedColor\n(Lid, Did)",
+                        Modifier.fillMaxWidth().backgroundId(id2),
+                        fontSize = 128f,
+                        color = 0xFFAA0000L.toInt(),
+                    )
+                }
+            }
+        }
+    return rc.writer
+}
+
 @Suppress("RestrictedApiAndroidX")
 fun colorList(): RemoteComposeWriter {
     val rc =

@@ -142,12 +142,12 @@ public abstract class DrawBase6 extends PaintOperation implements VariableSuppor
      */
     public static void read(
             @NonNull WireBuffer buffer, @NonNull List<Operation> operations, @NonNull Maker build) {
-        float sv1 = buffer.readFloat();
-        float sv2 = buffer.readFloat();
-        float sv3 = buffer.readFloat();
-        float sv4 = buffer.readFloat();
-        float sv5 = buffer.readFloat();
-        float sv6 = buffer.readFloat();
+        float sv1 = buffer.readNanId();
+        float sv2 = buffer.readNanId();
+        float sv3 = buffer.readNanId();
+        float sv4 = buffer.readNanId();
+        float sv5 = buffer.readNanId();
+        float sv6 = buffer.readNanId();
 
         Operation op = build.create(sv1, sv2, sv3, sv4, sv5, sv6);
         operations.add(op);

@@ -16,11 +16,13 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.DrawTextOnCircle
+import androidx.compose.remote.core.operations.ConditionalOperations
+import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -29,8 +31,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.Path
+import androidx.graphics.shapes.RoundedPolygon
 
 /**
  * A wrapper around [RecordingCanvas] that provides overloads for remote types and avoids platform
@@ -43,6 +44,22 @@ public class RemoteCanvas(
 ) : RemoteStateScope by internalCanvas {
     public val drawScope: RemoteDrawScope = RemoteDrawScope(this)
     public val remote: RemoteAccess = RemoteAccess(drawScope)
+
+    /** Processes a [RemotePaint] object and serializes its changes to the remote document. */
+    public fun usePaint(paint: RemotePaint?) {
+        if (paint == null) return
+        val paintBundle = PaintBundle()
+
+        internalCanvas.tracker.reset(
+            internalCanvas.forceSendingPaint || document.checkAndClearForceSendingNewPaint()
+        )
+        internalCanvas.tracker.updateWithPaint(paint, paintBundle, internalCanvas)
+
+        if (internalCanvas.tracker.isChanged) {
+            document.buffer.addPaint(paintBundle)
+        }
+        internalCanvas.forceSendingPaint = false
+    }
 
     /** Saves the current canvas state. */
     public fun save() {
@@ -75,7 +92,8 @@ public class RemoteCanvas(
     }
 
     /**
-     * Scales the canvas by [sx] and [sy] around the pivot point ([px], [py]).
+     * Scales the canvas by [sx] and [sy] around the pivot point ([RemoteOffset.x],
+     * [RemoteOffset.y]) from [pivot].
      *
      * @param sx The scale factor along the X axis.
      * @param sy The scale factor along the Y axis.
@@ -101,7 +119,20 @@ public class RemoteCanvas(
      * @param pivot The pivot point around which to rotate.
      */
     public fun rotate(degrees: RemoteFloat, pivot: RemoteOffset) {
+        // Temporarily use Android graphics Canvas rotate, with does translate/rotate/translate
         internalCanvas.rotate(degrees, pivot.x, pivot.y)
+    }
+
+    /**
+     * Rotates the canvas by [degrees] around the pivot point ([centerX], [centerY]).
+     *
+     * @param degrees The angle of rotation in degrees.
+     * @param centerX The x-coordinate of the pivot point.
+     * @param centerY The y-coordinate of the pivot point.
+     */
+    public fun rotate(degrees: RemoteFloat, centerX: RemoteFloat, centerY: RemoteFloat) {
+        // Temporarily use Android graphics Canvas rotate
+        internalCanvas.rotate(degrees.floatId, centerX.floatId, centerY.floatId)
     }
 
     /**
@@ -127,9 +158,10 @@ public class RemoteCanvas(
         top: RemoteFloat,
         right: RemoteFloat,
         bottom: RemoteFloat,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawRect(left, top, right, bottom, paint)
+        usePaint(paint)
+        document.drawRect(left.floatId, top.floatId, right.floatId, bottom.floatId)
     }
 
     /**
@@ -143,30 +175,38 @@ public class RemoteCanvas(
         bottom: RemoteFloat,
         rx: RemoteFloat,
         ry: RemoteFloat,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint)
+        usePaint(paint)
+        document.drawRoundRect(
+            left.floatId,
+            top.floatId,
+            right.floatId,
+            bottom.floatId,
+            rx.floatId,
+            ry.floatId,
+        )
     }
 
-    /** Draws a circle at ([centerX], [centerY]) with the specified [radius] and [paint]. */
     public fun drawCircle(
         centerX: RemoteFloat,
         centerY: RemoteFloat,
         radius: RemoteFloat,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawCircle(centerX, centerY, radius, paint)
+        usePaint(paint)
+        document.drawCircle(centerX.floatId, centerY.floatId, radius.floatId)
     }
 
-    /** Draws an oval from ([left], [top]) to ([right], [bottom]) using the specified [paint]. */
     public fun drawOval(
         left: RemoteFloat,
         top: RemoteFloat,
         right: RemoteFloat,
         bottom: RemoteFloat,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawOval(left, top, right, bottom, paint)
+        usePaint(paint)
+        document.drawOval(left.floatId, top.floatId, right.floatId, bottom.floatId)
     }
 
     /**
@@ -183,42 +223,50 @@ public class RemoteCanvas(
         startAngle: RemoteFloat,
         sweepAngle: RemoteFloat,
         useCenter: Boolean,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint)
+        usePaint(paint)
+        if (useCenter) {
+            document.drawSector(
+                left.floatId,
+                top.floatId,
+                right.floatId,
+                bottom.floatId,
+                startAngle.floatId,
+                sweepAngle.floatId,
+            )
+        } else {
+            document.drawArc(
+                left.floatId,
+                top.floatId,
+                right.floatId,
+                bottom.floatId,
+                startAngle.floatId,
+                sweepAngle.floatId,
+            )
+        }
     }
 
-    /** Draws a line from ([startX], [startY]) to ([stopX], [stopY]) using the specified [paint]. */
     public fun drawLine(
         startX: RemoteFloat,
         startY: RemoteFloat,
         stopX: RemoteFloat,
         stopY: RemoteFloat,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawLine(startX, startY, stopX, stopY, paint)
+        usePaint(paint)
+        document.drawLine(startX.floatId, startY.floatId, stopX.floatId, stopY.floatId)
     }
 
     /**
      * Draws a path that is an interpolation (tween) between [path1] and [path2] based on [tween].
      *
-     * @param tween The interpolation factor (0.0 for [path1], 1.0 for [path2]).
-     * @param start The start value for internal tween calculations (often 0.0).
-     * @param stop The stop value for internal tween calculations (often 1.0).
-     */
-    public fun drawTweenPath(
-        path1: Path,
-        path2: Path,
-        tween: RemoteFloat,
-        start: RemoteFloat,
-        stop: RemoteFloat,
-        paint: Paint,
-    ) {
-        internalCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
-    }
-
-    /**
-     * Draws a path that is an interpolation (tween) between [path1] and [path2] based on [tween].
+     * @param path1 The first [androidx.compose.remote.creation.RemotePath]
+     * @param path2 The second [androidx.compose.remote.creation.RemotePath]
+     * @param tween The interpolation factor between 0 and 1.
+     * @param start The start of the path segment to draw.
+     * @param stop The end of the path segment to draw.
+     * @param paint The [RemotePaint] to use.
      */
     public fun drawTweenPath(
         path1: RemotePath,
@@ -226,17 +274,23 @@ public class RemoteCanvas(
         tween: RemoteFloat,
         start: RemoteFloat,
         stop: RemoteFloat,
-        paint: Paint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
+        usePaint(paint)
+        document.drawTweenPath(path1, path2, tween.floatId, start.floatId, stop.floatId)
     }
 
     /** Draws text from [text] at ([x], [y]) using the specified [paint]. */
-    public fun drawText(text: RemoteString, x: RemoteFloat, y: RemoteFloat, paint: RemotePaint) {
-        internalCanvas.drawText(text, -1, x, y, paint)
+    public fun drawText(
+        text: RemoteString,
+        x: RemoteFloat,
+        y: RemoteFloat,
+        paint: RemotePaint? = null,
+    ) {
+        usePaint(paint)
+        document.drawTextRun(text.id, 0, -1, 0, -1, x.floatId, y.floatId, false)
     }
 
-    /** Draws a run of text at a specified position. */
     public fun drawTextRun(
         text: RemoteString,
         start: Int,
@@ -246,17 +300,21 @@ public class RemoteCanvas(
         x: RemoteFloat,
         y: RemoteFloat,
         isRtl: Boolean,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
+        usePaint(paint)
+        document.drawTextRun(
+            text.id,
+            start,
+            end,
+            contextStart,
+            contextEnd,
+            x.floatId,
+            y.floatId,
+            isRtl,
+        )
     }
 
-    /**
-     * Draws text with an anchor point and translation factors.
-     *
-     * @param panx A horizontal translation factor (-1 = left, 0 = center, 1 = right).
-     * @param pany A vertical translation factor (-1 = top, 0 = center, 1 = bottom).
-     */
     public fun drawAnchoredText(
         text: RemoteString,
         anchorX: RemoteFloat,
@@ -264,41 +322,50 @@ public class RemoteCanvas(
         panx: RemoteFloat,
         pany: RemoteFloat,
         flags: Int,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawAnchoredText(text, anchorX, anchorY, panx, pany, flags, paint)
+        usePaint(paint)
+        document.drawTextAnchored(
+            text.id,
+            anchorX.floatId,
+            anchorY.floatId,
+            panx.floatId,
+            pany.floatId,
+            flags,
+        )
     }
 
-    /** Draws text along a given [path] using the specified [paint]. */
     public fun drawTextOnPath(
         text: RemoteString,
         path: RemotePath,
         hOffset: RemoteFloat,
         vOffset: RemoteFloat,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
-    }
-
-    /** Draws text from [text] along a given [path] using the specified [paint]. */
-    public fun drawTextOnPath(
-        text: RemoteString,
-        path: android.graphics.Path,
-        hOffset: RemoteFloat,
-        vOffset: RemoteFloat,
-        paint: RemotePaint,
-    ) {
-        internalCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
+        usePaint(paint)
+        document.drawTextOnPath(text.id, path, hOffset.floatId, vOffset.floatId)
     }
 
     /** Draws a path using the specified [paint]. */
-    public fun drawPath(path: android.graphics.Path, paint: RemotePaint) {
-        internalCanvas.drawPath(path, paint)
+    public fun drawPath(path: RemotePath, paint: RemotePaint? = null) {
+        usePaint(paint)
+        val pathId = document.addPathData(path)
+        document.drawPath(pathId)
     }
 
-    /** Draws a remote path using the specified [paint]. */
-    public fun drawPath(path: RemotePath, paint: RemotePaint) {
-        internalCanvas.drawRPath(path, paint)
+    /** Draws a [RoundedPolygon] using the specified [paint]. */
+    public fun drawRoundedPolygon(roundedPolygon: RoundedPolygon, paint: RemotePaint?) {
+        internalCanvas.drawRoundedPolygon(roundedPolygon, paint)
+    }
+
+    /** Draws a morph between two [RoundedPolygon]s using the specified [paint]. */
+    public fun drawRoundedPolygonMorph(
+        from: RoundedPolygon,
+        to: RoundedPolygon,
+        progress: RemoteFloat,
+        paint: RemotePaint?,
+    ) {
+        internalCanvas.drawRoundedPolygonMorph(from, to, progress, paint)
     }
 
     /** Draws a bitmap at ([left], [top]) using the specified [paint]. */
@@ -306,9 +373,10 @@ public class RemoteCanvas(
         bitmap: RemoteBitmap,
         left: RemoteFloat,
         top: RemoteFloat,
-        paint: RemotePaint,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawBitmap(bitmap, left, top, paint)
+        usePaint(paint)
+        document.drawBitmap(bitmap.id, left.floatId, top.floatId, "")
     }
 
     /** Draws a bitmap scaled to the destination rectangle. */
@@ -325,20 +393,22 @@ public class RemoteCanvas(
         scaleType: Int,
         scaleFactor: RemoteFloat,
         contentDescription: String?,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawScaledBitmap(
-            bitmap,
-            srcLeft,
-            srcTop,
-            srcRight,
-            srcBottom,
-            dstLeft,
-            dstTop,
-            dstRight,
-            dstBottom,
+        usePaint(paint)
+        document.drawScaledBitmap(
+            bitmap.id,
+            srcLeft.floatId,
+            srcTop.floatId,
+            srcRight.floatId,
+            srcBottom.floatId,
+            dstLeft.floatId,
+            dstTop.floatId,
+            dstRight.floatId,
+            dstBottom.floatId,
             scaleType,
-            scaleFactor,
-            contentDescription,
+            scaleFactor.floatId,
+            contentDescription ?: "",
         )
     }
 
@@ -349,20 +419,20 @@ public class RemoteCanvas(
         radius: RemoteFloat,
         startAngle: RemoteFloat,
         warpRadiusOffset: RemoteFloat,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
-        paint: RemotePaint,
+        alignment: androidx.compose.remote.core.operations.DrawTextOnCircle.Alignment,
+        placement: androidx.compose.remote.core.operations.DrawTextOnCircle.Placement,
+        paint: RemotePaint? = null,
     ) {
-        internalCanvas.drawTextOnCircle(
-            text,
-            centerX,
-            centerY,
-            radius,
-            startAngle,
-            warpRadiusOffset,
+        usePaint(paint)
+        document.drawTextOnCircle(
+            text.id,
+            centerX.floatId,
+            centerY.floatId,
+            radius.floatId,
+            startAngle.floatId,
+            warpRadiusOffset.floatId,
             alignment,
             placement,
-            paint,
         )
     }
 
@@ -374,19 +444,13 @@ public class RemoteCanvas(
         bottom: RemoteFloat,
         clipOp: ClipOp = ClipOp.Intersect,
     ) {
-        internalCanvas.clipRect(
-            left.getFloatIdForCreationState(creationState),
-            top.getFloatIdForCreationState(creationState),
-            right.getFloatIdForCreationState(creationState),
-            bottom.getFloatIdForCreationState(creationState),
-            // TODO: add ClipOp support to internalCanvas
-        )
+        document.clipRect(left.floatId, top.floatId, right.floatId, bottom.floatId)
     }
 
     /** Clips the current canvas state to the specified [path]. */
     public fun clipPath(path: RemotePath, clipOp: ClipOp = ClipOp.Intersect) {
-        internalCanvas.clipPath(path.path)
-        // TODO: add ClipOp support to internalCanvas
+        val pathId = document.addPathData(path)
+        document.addClipPath(pathId)
     }
 
     /**
@@ -394,12 +458,30 @@ public class RemoteCanvas(
      * true.
      */
     public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
-        internalCanvas.drawConditionally(condition, drawCommands)
+        document.conditionalOperations(
+            ConditionalOperations.TYPE_NEQ,
+            condition.toRemoteInt().toRemoteFloat().floatId,
+            0f,
+        )
+        internalCanvas.forceSendingPaint = true
+        drawCommands()
+        internalCanvas.forceSendingPaint = true
+        document.endConditionalOperations()
     }
 
     /** Instructs the player to draw [drawCommands] into [bitmap]. */
     public fun drawToOffscreenBitmap(bitmap: RemoteBitmap, drawCommands: () -> Unit) {
-        internalCanvas.drawToOffscreenBitmap(bitmap, drawCommands)
+        val bitmapId = bitmap.id
+        document.drawOnBitmap(bitmapId, 1, 0)
+
+        internalCanvas.forceSendingPaint = true
+        val lastDrawToBitmapId = internalCanvas.currentDrawToBitmapId
+        internalCanvas.currentDrawToBitmapId = bitmapId
+        drawCommands()
+        internalCanvas.currentDrawToBitmapId = lastDrawToBitmapId
+        internalCanvas.forceSendingPaint = true
+        // Switch back to the previous canvas without clearing it.
+        document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
     }
 
     /**
@@ -408,10 +490,20 @@ public class RemoteCanvas(
      */
     public fun drawToOffscreenBitmap(
         bitmap: RemoteBitmap,
-        @ColorInt clearColor: Int,
+        @androidx.annotation.ColorInt clearColor: Int,
         drawCommands: () -> Unit,
     ) {
-        internalCanvas.drawToOffscreenBitmap(bitmap, clearColor, drawCommands)
+        val bitmapId = bitmap.id
+        document.drawOnBitmap(bitmapId, 0, clearColor)
+
+        internalCanvas.forceSendingPaint = true
+        val lastDrawToBitmapId = internalCanvas.currentDrawToBitmapId
+        internalCanvas.currentDrawToBitmapId = bitmapId
+        drawCommands()
+        internalCanvas.currentDrawToBitmapId = lastDrawToBitmapId
+        internalCanvas.forceSendingPaint = true
+        // Switch back to the previous canvas without clearing it.
+        document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
     }
 
     /**
@@ -424,6 +516,23 @@ public class RemoteCanvas(
         step: RemoteFloat,
         body: (index: RemoteFloat) -> Unit,
     ) {
-        internalCanvas.loop(from, until, step, body)
+        val loopVariableId = document.createFloatId()
+        val loopVariable = MutableRemoteFloat(loopVariableId)
+        document.loop(Utils.idFromNan(loopVariableId), from.floatId, step.floatId, until.floatId) {
+            body(loopVariable)
+        }
+    }
+
+    /** Starts a state layout. */
+    public fun startStateLayout(
+        modifier: androidx.compose.remote.creation.modifiers.RecordingModifier,
+        currentStateId: Int,
+    ) {
+        document.startStateLayout(modifier, currentStateId)
+    }
+
+    /** Ends a state layout. */
+    public fun endStateLayout() {
+        document.endStateLayout()
     }
 }

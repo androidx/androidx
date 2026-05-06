@@ -27,6 +27,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.elementFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
@@ -815,6 +817,86 @@ class Draggable2DTest {
             assertThat(downEventPosition.y + touchSlop * Math.sin(moveAngle).toFloat())
                 .isWithin(0.5f)
                 .of(onDragStartedOffset.y)
+        }
+    }
+
+    @Test
+    fun gestureState_shouldReflectDraggableBehavior() {
+        var outerDrag = Offset.Zero
+        val node = object : DelegatingNode() {}
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.testTag(draggable2DBoxTag).size(300.dp).draggable2D(
+                        enabled = enabled
+                    ) {
+                        outerDrag += it
+                    }
+            ) {
+                Box(Modifier.size(300.dp).elementFor(node))
+            }
+        }
+
+        // haven't received any input yet so node isn't initialized
+        rule.runOnIdle { assertThat(node.getParentDraggableGestureConnection()).isNull() }
+
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { down(center) }
+
+        assertThat(node.getParentDraggableGestureConnection()?.gestureState)
+            .isEqualTo(GestureState.Waiting)
+
+        // haven't crossed touch slop yet
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { moveBy(Offset(10f, 10f)) }
+
+        assertThat(node.getParentDraggableGestureConnection()?.gestureState)
+            .isEqualTo(GestureState.Waiting)
+
+        // crossed touch slop
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { moveBy(Offset(50f, 50f)) }
+
+        assertThat(node.getParentDraggableGestureConnection()?.gestureState)
+            .isEqualTo(GestureState.Recognized)
+
+        // crossed touch slop
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { up() }
+
+        assertThat(node.getParentDraggableGestureConnection()?.gestureState)
+            .isEqualTo(GestureState.Idle)
+
+        enabled = false
+
+        rule.runOnIdle { assertThat(node.getParentDraggableGestureConnection()).isNull() }
+
+        enabled = true
+
+        // need to receive a new event after enabled to get it back to reporting.
+        rule.runOnIdle { assertThat(node.getParentDraggableGestureConnection()).isNull() }
+
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { down(center) }
+
+        assertThat(node.getParentDraggableGestureConnection()?.gestureState)
+            .isEqualTo(GestureState.Waiting)
+    }
+
+    @Test
+    fun gestureNode_orientationLock_shouldReportCorrectValue() {
+        var outerDrag = Offset.Zero
+        val node = object : DelegatingNode() {}
+
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.testTag(draggable2DBoxTag).size(300.dp).draggable2D { outerDrag += it }
+            ) {
+                Box(Modifier.size(300.dp).elementFor(node))
+            }
+        }
+
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(node.getParentDraggableGestureConnection()?.orientation).isNull()
         }
     }
 

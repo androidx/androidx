@@ -17,6 +17,7 @@
 
 package androidx.compose.remote.player.compose
 
+import androidx.activity.compose.LocalFullyDrawnReporterOwner
 import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -31,6 +32,7 @@ import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.doOnPreDraw
 
 /** A player of a [CoreDocument] */
 @OptIn(ExperimentalRemotePlayerApi::class)
@@ -89,11 +92,16 @@ public fun RemoteDocumentPlayer(
                 Modifier.size(documentWidth.dp, documentHeight.dp)
             }
         )
-
+    val fullyDrawnReporter = LocalFullyDrawnReporterOwner.current?.fullyDrawnReporter
+    DisposableEffect(fullyDrawnReporter) {
+        fullyDrawnReporter?.addReporter()
+        onDispose { fullyDrawnReporter?.removeReporter() }
+    }
     AndroidView(
         modifier = androidViewModifier,
         factory = {
             RemoteComposePlayer(it).apply {
+                doOnPreDraw { fullyDrawnReporter?.removeReporter() }
                 init(this)
                 if (bitmapLoader != null) {
                     setBitmapLoader(bitmapLoader)

@@ -38,35 +38,39 @@ import org.jspecify.annotations.Nullable;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
 
-    public WidgetsProfileWriterV6(@NonNull CreationDisplayInfo creationDisplayInfo,
-            @Nullable String contentDescription, @NonNull Profile profile) {
+    public WidgetsProfileWriterV6(
+            @NonNull CreationDisplayInfo creationDisplayInfo,
+            @Nullable String contentDescription,
+            @NonNull Profile profile) {
         super(creationDisplayInfo, contentDescription, profile);
-        mMaxValidFloatExpressionOperation = AnimatedFloatExpression.getMaxOpForLevel(
-                profile.getApiLevel());
+        mMaxValidFloatExpressionOperation =
+                AnimatedFloatExpression.getMaxOpForLevel(profile.getApiLevel());
     }
 
     /**
      * Creates a {@link RemoteComposeWriter} for widgets on Baklava (API level 6).
      *
      * @param creationDisplayInfo Information about the display where the content will be rendered.
-     * @param contentDescription  A content description for the root composable, used for
-     *                            accessibility.
-     * @param profile             The profile defining the capabilities and API level of the
-     *                            remote environment.
+     * @param contentDescription A content description for the root composable, used for
+     *     accessibility.
+     * @param profile The profile defining the capabilities and API level of the remote environment.
      * @return A new instance of {@link RemoteComposeWriter} configured for widgets.
      */
     public static @NonNull RemoteComposeWriter createWriter(
             @NonNull CreationDisplayInfo creationDisplayInfo,
-            @Nullable String contentDescription, @NonNull Profile profile) {
-        WidgetsProfileWriterV6 widgetsProfileWriterV6 = new WidgetsProfileWriterV6(
-                creationDisplayInfo, contentDescription, profile);
+            @Nullable String contentDescription,
+            @NonNull Profile profile) {
+        WidgetsProfileWriterV6 widgetsProfileWriterV6 =
+                new WidgetsProfileWriterV6(creationDisplayInfo, contentDescription, profile);
 
         if (contentDescription != null) {
             int contentDescriptionId = widgetsProfileWriterV6.addText(contentDescription);
             widgetsProfileWriterV6.getBuffer().addRootContentDescription(contentDescriptionId);
         }
-        widgetsProfileWriterV6.setRootContentBehavior(RootContentBehavior.NONE,
-                RootContentBehavior.ALIGNMENT_CENTER, RootContentBehavior.SIZING_SCALE,
+        widgetsProfileWriterV6.setRootContentBehavior(
+                RootContentBehavior.NONE,
+                RootContentBehavior.ALIGNMENT_CENTER,
+                RootContentBehavior.SIZING_SCALE,
                 RootContentBehavior.SCALE_FILL_BOUNDS);
 
         return widgetsProfileWriterV6;
@@ -101,30 +105,43 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
         throw new RuntimeException("Adding custom fonts is not available in V6");
     }
 
-    /**
-     * Intercepts invalid image operations.
-     */
+    /** Intercepts invalid image operations. */
     @Override
-    public void image(@NonNull RecordingModifier modifier, int imageId, int scaleType,
-            float alpha) {
+    public void image(
+            @NonNull RecordingModifier modifier, int imageId, int scaleType, float alpha) {
         if (Float.isNaN(alpha)) {
             throw new IllegalArgumentException("Invalid alpha in V6");
         }
         super.image(modifier, imageId, scaleType, alpha);
     }
 
-    /**
-     * Intercepts invalid text operations.
-     */
+    /** Intercepts invalid text operations. */
     @Override
-    public void startTextComponent(@NonNull RecordingModifier modifier, int textId, int color,
-            float fontSize, int fontStyle, float fontWeight, @Nullable String fontFamily,
-            int textAlign, int overflow, int maxLines) {
+    public void startTextComponent(
+            @NonNull RecordingModifier modifier,
+            int textId,
+            int color,
+            float fontSize,
+            int fontStyle,
+            float fontWeight,
+            @Nullable String fontFamily,
+            int textAlign,
+            int overflow,
+            int maxLines) {
         if (Float.isNaN(fontSize)) {
             throw new IllegalArgumentException("Invalid fontSize in V6");
         }
-        super.startTextComponent(modifier, textId, color, fontSize, fontStyle, fontWeight,
-                fontFamily, textAlign, overflow, maxLines);
+        super.startTextComponent(
+                modifier,
+                textId,
+                color,
+                fontSize,
+                fontStyle,
+                fontWeight,
+                fontFamily,
+                textAlign,
+                overflow,
+                maxLines);
     }
 
     /**
@@ -144,7 +161,7 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
      * Example of validating parameters on the writer Add a float expression that is a computation
      * based on variables. see packAnimation
      *
-     * @param value     A RPN style float operation i.e. "4, 3, ADD" outputs 7
+     * @param value A RPN style float operation i.e. "4, 3, ADD" outputs 7
      * @param animation Array of floats that represents animation
      * @return NaN id of the result of the calculation
      */
@@ -157,10 +174,10 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
     /**
      * set the Matrix relative to the path
      *
-     * @param pathId   the id of the path object
+     * @param pathId the id of the path object
      * @param fraction the position on path
-     * @param vOffset  the vertical offset to position the string
-     * @param flags    flags to set path 1=position only , 2 = Tangent
+     * @param vOffset the vertical offset to position the string
+     * @param flags flags to set path 1=position only , 2 = Tangent
      */
     @Override
     public void matrixFromPath(int pathId, float fraction, float vOffset, int flags) {
@@ -199,19 +216,20 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
 
         return super.addNamedColor(name, color);
     }
+
     // todo DAY of Month. etc.
 
     /**
      * Add a light and dark themed color
      *
-     * @param lightName  the name of the light color
+     * @param lightName the name of the light color
      * @param lightValue the value of the light color
-     * @param darkName   the name of the dark color
-     * @param darkValue  the value of the dark color
+     * @param darkName the name of the dark color
+     * @param darkValue the value of the dark color
      * @return the id of the color
      */
-    public short addThemedColor(@Nullable String lightName, int lightValue,
-            @Nullable String darkName, int darkValue) {
+    public short addThemedColor(
+            @Nullable String lightName, int lightValue, @Nullable String darkName, int darkValue) {
         int lightId = mState.createNextAvailableId();
         int darkId = mState.createNextAvailableId();
         int light_mode;
@@ -246,5 +264,4 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
 
         return (short) retId;
     }
-
 }

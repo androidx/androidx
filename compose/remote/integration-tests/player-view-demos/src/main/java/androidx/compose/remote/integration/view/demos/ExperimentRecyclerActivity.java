@@ -109,6 +109,7 @@ public class ExperimentRecyclerActivity extends Activity {
     static final String CHANNEL_ID = "custom_notification_channel";
     static int sNotificationId = 1;
     public static final boolean BACKGROUND = false;
+    private static final boolean NO_COMPOSE = false;
 
 
     public static @NonNull RemoteComposeBuffer getCurrentDoc() {
@@ -214,7 +215,34 @@ public class ExperimentRecyclerActivity extends Activity {
         lock.setBackgroundColor(0xFFAAFFAA);
         docControl.addView(lock);
         docControl.addView(mStatsView);
+        // ===================== Next section button ================
+        TextView next = new TextView(this);
+        next.setText(">");
+        next.setTextSize(24);
+        next.setBackgroundColor(Color.LTGRAY);
 
+        next.setPadding(0, 0, 0, 0);
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nextSection();
+            }
+        });
+        TextView prev = new TextView(this);
+        prev.setText("<");
+        prev.setTextSize(24);
+        prev.setPadding(0, 0, 0, 0);
+        prev.setBackgroundColor(Color.LTGRAY);
+        prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prevSection();
+            }
+        });
+        docControl.addView(prev);
+        docControl.addView(next);
+
+        // ==========================================================
         layout.addView(docControl);
         LinearLayout row = new LinearLayout(this);
         float textSize = 15;
@@ -297,6 +325,14 @@ public class ExperimentRecyclerActivity extends Activity {
         setContentView(layout);
     }
 
+    void nextSection() {
+
+    }
+
+    void prevSection() {
+
+    }
+
     void setUpMetrics() {
         Handler handler = new Handler();
         // Log.d("Metrics", "setup");
@@ -361,6 +397,9 @@ public class ExperimentRecyclerActivity extends Activity {
         }
 
         for (RCDoc doc : mDocList) {
+            if (NO_COMPOSE && doc.toString().startsWith("Compose")) {
+                continue;
+            }
             saveDoc(doc.toString(), docToBytes(doc), getApplicationContext(), false);
         }
     }
@@ -715,7 +754,7 @@ public class ExperimentRecyclerActivity extends Activity {
 //            int mode =(mPlayer.getResources().getConfiguration().isNightModeActive())?Rc.Theme
 //            .DARK:Rc.Theme.LIGHT;
 //            mPlayer.setTheme(mode);
-            mTitle.setTextSize(32);
+            mTitle.setTextSize(24);
             mTitle.setTypeface(mTitle.getTypeface(), Typeface.BOLD);
             mTitle.setTextColor(Color.BLACK);
             mTitle.setBackgroundColor(0xFFDDDDDD);
@@ -963,6 +1002,85 @@ public class ExperimentRecyclerActivity extends Activity {
         return getp(name, () -> gen.get().mRemoteWriter);
     }
 
+
+    /**
+     * Creates a document with a name and a writer supplier
+     *
+     * @param name        name of the document
+     * @param docSupplier the writer supplier
+     * @return the document
+     */
+    @SuppressLint("RestrictedApiAndroidX")
+    public static @NonNull RCDoc get(@NonNull String name,
+            @NonNull Supplier<byte @NonNull []> docSupplier) {
+        return new RCDoc() {
+            @NonNull
+            final Supplier<byte @NonNull []> mSupplier = docSupplier;
+            byte @Nullable [] mDoc;
+            float mBuildTime = 0;
+
+            @Override
+            public float getBuildTime() {
+                return mBuildTime;
+            }
+
+            public byte @NonNull [] doc() {
+                if (mDoc == null) {
+                    mDoc = mSupplier.get();
+                }
+
+                return mDoc;
+            }
+
+            @Override
+            public int getColor() {
+                return 0;
+            }
+
+            @Override
+            public void run() {
+            }
+
+            @Override
+            public int size() {
+                return doc().length;
+            }
+
+            @Override
+            public int zipSize() {
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                try {
+                    DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(baos);
+                    deflaterOutputStream.write(doc(), 0, doc().length);
+                    deflaterOutputStream.finish();
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                return baos.size();
+            }
+
+            @Override
+            @NonNull
+            public String toString() {
+                return name;
+            }
+
+            @Override
+            public RemoteDocument getDoc() {
+                Log.v("perf", "build doc \"" + name + "\"");
+                long time = System.nanoTime();
+                RemoteDocument ret = new RemoteDocument(
+                        new ByteArrayInputStream(doc(), 0, doc().length));
+                mBuildTime = (System.nanoTime() - time) * 1E-6f;
+                return ret;
+            }
+        };
+    }
+
+    /**
     /**
      * Creates a document with a name and a writer supplier
      *

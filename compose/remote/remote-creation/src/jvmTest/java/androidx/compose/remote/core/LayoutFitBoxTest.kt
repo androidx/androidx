@@ -32,7 +32,7 @@ class LayoutFitBoxTest : BaseLayoutTest() {
     @Test
     fun testFitBoxSelection() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         // FitBox that will resize based on document resize
@@ -78,7 +78,7 @@ class LayoutFitBoxTest : BaseLayoutTest() {
     @Test
     fun testFitBoxWithConstraints() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         fitBox(
@@ -89,7 +89,11 @@ class LayoutFitBoxTest : BaseLayoutTest() {
 
                             // Child 1: Prefers to be 500px, but has min 400px.
                             // With unbounded measure, it will be 500px.
-                            box(Modifier.widthIn(400f, 500f).height(100).background(Color.RED)) {
+                            box(
+                                Modifier.requiredWidthIn(400f, 500f)
+                                    .height(100)
+                                    .background(Color.RED)
+                            ) {
                                 text("Constrained Large")
                             }
 

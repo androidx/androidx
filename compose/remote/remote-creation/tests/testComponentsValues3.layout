@@ -43,6 +43,7 @@
           - {type: ComponentValue, valueId: 45, componentValueType: HEIGHT, componentId: -5}
           - {type: ComponentValue, valueId: 46, componentValueType: INVALID_TYPE,
             componentId: -5}
+          - {type: FloatConstant, id: 42, value: 0.0}
           - type: ComponentModifiers
             modifiers:
             - type: WidthModifierOperation
@@ -390,6 +391,7 @@
           - {type: ComponentValue, valueId: 45, componentValueType: HEIGHT, componentId: -5}
           - {type: ComponentValue, valueId: 46, componentValueType: INVALID_TYPE,
             componentId: -5}
+          - {type: FloatConstant, id: 42, value: 0.0}
           - type: ComponentModifiers
             modifiers:
             - type: WidthModifierOperation

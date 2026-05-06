@@ -566,8 +566,8 @@ class AlertDialogTest {
 
         rule
             .onNodeWithTag(IconTestTag)
-            // Dialog's icon should be centered (icon size is 28dp)
-            .assertLeftPositionInRootIsEqualTo((dialogBounds.width - 28.dp) / 2)
+            // Dialog's icon should be centered (icon size is 24dp)
+            .assertLeftPositionInRootIsEqualTo((dialogBounds.width - 24.dp) / 2)
             // Dialog's icon should be 20dp from the top
             .assertTopPositionInRootIsEqualTo(20.dp)
 

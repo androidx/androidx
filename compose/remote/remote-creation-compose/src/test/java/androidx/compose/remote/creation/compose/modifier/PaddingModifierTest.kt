@@ -44,8 +44,8 @@ class PaddingModifierTest {
 
     /** Tests that negative start padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeLeftPadding_throws() {
-        RemoteModifier.padding(left = (-1f).rf)
+    fun negativeStartPadding_throws() {
+        RemoteModifier.padding(start = (-1f).rf)
     }
 
     /** Tests that negative top padding is not allowed. */
@@ -56,8 +56,8 @@ class PaddingModifierTest {
 
     /** Tests that negative end padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeRightPadding_throws() {
-        RemoteModifier.padding(right = (-1f).rf)
+    fun negativeEndPadding_throws() {
+        RemoteModifier.padding(end = (-1f).rf)
     }
 
     /** Tests that negative bottom padding is not allowed. */
@@ -86,7 +86,7 @@ class PaddingModifierTest {
 
     /** Tests that the [padding]-all and [padding] factories return equivalent modifiers. */
     @Test
-    fun allEqualToAbsoluteWithExplicitSides() {
+    fun allEqualToExplicitSides() {
         assertTrue(
             haveSameValues(
                 RemoteModifier.padding(10f.rf, 10f.rf, 10f.rf, 10f.rf),
@@ -97,15 +97,10 @@ class PaddingModifierTest {
 
     /** Tests that the symmetrical-[padding] and [padding] factories return equivalent modifiers. */
     @Test
-    fun symmetricEqualToAbsoluteWithExplicitSides() {
+    fun symmetricEqualToExplicitSides() {
         assertTrue(
             haveSameValues(
-                RemoteModifier.padding(
-                    left = 10f.rf,
-                    top = 20f.rf,
-                    right = 10f.rf,
-                    bottom = 20f.rf,
-                ),
+                RemoteModifier.padding(start = 10f.rf, top = 20f.rf, end = 10f.rf, bottom = 20f.rf),
                 RemoteModifier.padding(horizontal = 10f.rf, vertical = 20f.rf),
             )
         )
@@ -131,18 +126,81 @@ class PaddingModifierTest {
         )
         assertTrue(
             /* condition = */ haveSameValues(
+                RemoteModifier.padding(start = 10f.rf, top = 11f.rf, end = 12f.rf, bottom = 13f.rf),
                 RemoteModifier.padding(
-                    left = 10f.rf,
-                    top = 11f.rf,
-                    right = 12f.rf,
-                    bottom = 13f.rf,
-                ),
-                RemoteModifier.padding(
-                    left = 10f.rdp,
+                    start = 10f.rdp,
                     top = 11f.rdp,
-                    right = 12f.rdp,
+                    end = 12f.rdp,
                     bottom = 13f.rdp,
                 ),
+            )
+        )
+    }
+
+    /** Tests that negative start padding is not allowed. */
+    @Test
+    fun negativeStartPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(start = (-1).rdp)
+    }
+
+    /** Tests that negative top padding is not allowed. */
+    @Test
+    fun negativeTopPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(top = (-1).rdp)
+    }
+
+    /** Tests that negative end padding is not allowed. */
+    @Test
+    fun negativeEndPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(end = (-1).rdp)
+    }
+
+    /** Tests that negative bottom padding is not allowed. */
+    @Test
+    fun negativeBottomPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(bottom = (-1).rdp)
+    }
+
+    /** Tests that negative all padding is not allowed. */
+    @Test
+    fun negativeAllPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(all = (-1).rdp)
+    }
+
+    /** Tests that negative horizontal padding is not allowed. */
+    @Test
+    fun negativeHorizontalPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(horizontal = (-1).rdp)
+    }
+
+    /** Tests that negative vertical padding is not allowed. */
+    @Test
+    fun negativeVerticalPaddingRemoteDp_doesNotThrow() {
+        RemoteModifier.padding(vertical = (-1).rdp)
+    }
+
+    /** Tests that the [padding]-all and [padding] factories return equivalent modifiers. */
+    @Test
+    fun allRemoteDpEqualToExplicitSides() {
+        context.density = 1f
+
+        assertTrue(
+            haveSameValues(
+                RemoteModifier.padding(10.rdp, 10.rdp, 10.rdp, 10.rdp),
+                RemoteModifier.padding(10.rdp),
+            )
+        )
+    }
+
+    /** Tests that the symmetrical-[padding] and [padding] factories return equivalent modifiers. */
+    @Test
+    fun symmetricRemoteDpEqualToExplicitSides() {
+        context.density = 1f
+
+        assertTrue(
+            haveSameValues(
+                RemoteModifier.padding(10.rdp, 20.rdp, 10.rdp, 20.rdp),
+                RemoteModifier.padding(10.rdp, 20.rdp),
             )
         )
     }
@@ -152,14 +210,14 @@ class PaddingModifierTest {
             "This function only compares PaddingModifier"
         }
 
-        val modifier1LeftId = modifier1.left.getIdForCreationState(creationState)
+        val modifier1StartId = modifier1.start.getIdForCreationState(creationState)
         val modifier1TopId = modifier1.top.getIdForCreationState(creationState)
-        val modifier1RightId = modifier1.right.getIdForCreationState(creationState)
+        val modifier1EndId = modifier1.end.getIdForCreationState(creationState)
         val modifier1BottomId = modifier1.bottom.getIdForCreationState(creationState)
 
-        val modifier2LeftId = modifier2.left.getIdForCreationState(creationState)
+        val modifier2StartId = modifier2.start.getIdForCreationState(creationState)
         val modifier2TopId = modifier2.top.getIdForCreationState(creationState)
-        val modifier2RightId = modifier2.right.getIdForCreationState(creationState)
+        val modifier2EndId = modifier2.end.getIdForCreationState(creationState)
         val modifier2BottomId = modifier2.bottom.getIdForCreationState(creationState)
 
         makeAndPaintCoreDocument()
@@ -167,9 +225,9 @@ class PaddingModifierTest {
         fun areEquals(floatId1: Int, floatId2: Int) =
             context.getFloat(floatId1) == context.getFloat(floatId2)
 
-        return areEquals(modifier1LeftId, modifier2LeftId) &&
+        return areEquals(modifier1StartId, modifier2StartId) &&
             areEquals(modifier1TopId, modifier2TopId) &&
-            areEquals(modifier1RightId, modifier2RightId) &&
+            areEquals(modifier1EndId, modifier2EndId) &&
             areEquals(modifier1BottomId, modifier2BottomId)
     }
 

@@ -42,7 +42,6 @@ public class PaintPathEffectsEncodeTest {
         assert (pe3.mAdvance == 1.0);
         assert (pe3.mShapeId == 42);
         assert (pe3.mStyle == 3);
-
     }
 
     @Test
@@ -58,27 +57,27 @@ public class PaintPathEffectsEncodeTest {
 
     @Test
     public void composeTest1() {
-        PaintPathEffects pe = new PaintPathEffects.Compose(
-                new PaintPathEffects.Discrete(32.1f, 3.3f),
-                new PaintPathEffects.PathDash(42, 1.0f, 2.0f, 3));
+        PaintPathEffects pe =
+                new PaintPathEffects.Compose(
+                        new PaintPathEffects.Discrete(32.1f, 3.3f),
+                        new PaintPathEffects.PathDash(42, 1.0f, 2.0f, 3));
         float[] data = PaintPathEffects.encode(pe);
         PaintPathEffects pe2 = PaintPathEffects.parse(data, 0);
         assert (pe2 instanceof PaintPathEffects.Compose);
         PaintPathEffects.Compose pe3 = (PaintPathEffects.Compose) pe2;
-
     }
 
     @Test
     public void sumTest1() {
-        PaintPathEffects pe = new PaintPathEffects.Sum(
-                new PaintPathEffects.Discrete(32.1f, 3.3f),
-                new PaintPathEffects.PathDash(42, 1.0f, 2.0f, 3));
+        PaintPathEffects pe =
+                new PaintPathEffects.Sum(
+                        new PaintPathEffects.Discrete(32.1f, 3.3f),
+                        new PaintPathEffects.PathDash(42, 1.0f, 2.0f, 3));
         float[] data = PaintPathEffects.encode(pe);
         PaintPathEffects pe2 = PaintPathEffects.parse(data, 0);
 
         assert (pe2 instanceof PaintPathEffects.Sum);
         PaintPathEffects.Sum pe3 = (PaintPathEffects.Sum) pe2;
-
     }
 
     @Test
@@ -102,7 +101,6 @@ public class PaintPathEffectsEncodeTest {
         assert (pe3.mAdvance == 1.0);
         assert (pe3.mShapeId == 42);
         assert (pe3.mStyle == 3);
-
     }
 
     @Test
@@ -117,32 +115,29 @@ public class PaintPathEffectsEncodeTest {
 
     @Test
     public void composeTest2() {
-        PaintPathEffects pe = new PaintPathEffects.Compose(
-                new PaintPathEffects.Discrete(32.1f, 3.3f),
-                new PaintPathEffects.PathDash(42, 1.0f, 2.0f, 3));
-        float[] data = PaintPathEffects.compose(
-                PaintPathEffects.discrete(32.1f, 3.3f),
-                PaintPathEffects.pathDash(42, 1.0f, 2.0f, 3)
-        );
+        PaintPathEffects pe =
+                new PaintPathEffects.Compose(
+                        new PaintPathEffects.Discrete(32.1f, 3.3f),
+                        new PaintPathEffects.PathDash(42, 1.0f, 2.0f, 3));
+        float[] data =
+                PaintPathEffects.compose(
+                        PaintPathEffects.discrete(32.1f, 3.3f),
+                        PaintPathEffects.pathDash(42, 1.0f, 2.0f, 3));
         PaintPathEffects pe2 = PaintPathEffects.parse(data, 0);
         assert (pe2 instanceof PaintPathEffects.Compose);
         PaintPathEffects.Compose pe3 = (PaintPathEffects.Compose) pe2;
-
     }
 
     @Test
     public void sumTest2() {
 
-        float[] data = PaintPathEffects.sum(
-                PaintPathEffects.discrete(32.1f, 3.3f),
-                PaintPathEffects.pathDash(42, 1.0f, 2.0f, 3)
-        );
+        float[] data =
+                PaintPathEffects.sum(
+                        PaintPathEffects.discrete(32.1f, 3.3f),
+                        PaintPathEffects.pathDash(42, 1.0f, 2.0f, 3));
         PaintPathEffects pe2 = PaintPathEffects.parse(data, 0);
 
         assert (pe2 instanceof PaintPathEffects.Sum);
         PaintPathEffects.Sum pe3 = (PaintPathEffects.Sum) pe2;
-
     }
-
-
 }

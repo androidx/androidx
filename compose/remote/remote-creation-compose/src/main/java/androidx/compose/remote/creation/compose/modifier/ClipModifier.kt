@@ -17,8 +17,6 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
@@ -31,14 +29,6 @@ import androidx.compose.remote.creation.modifiers.ClipModifier as CoreClipModifi
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.RectShape as CoreRectShape
 import androidx.compose.remote.creation.modifiers.RoundedRectShape as CoreRoundedRectShape
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
-import androidx.compose.remote.creation.modifiers.UnsupportedModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.isUnspecified
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpSize
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) :
@@ -75,55 +65,5 @@ public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) 
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.clip(shape: RemoteShape = RemoteRectangleShape): RemoteModifier =
     then(ClipModifier(shape))
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-private class LegacyClipModifier(
-    public val shape: Shape,
-    public val size: DpSize,
-    public val density: Density,
-) : RemoteModifier.Element {
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        val remoteShape = remoteShape()
-
-        return if (remoteShape == null) {
-            UnsupportedModifier("ClipModifier($shape size: $size)")
-        } else {
-            androidx.compose.remote.creation.modifiers.ClipModifier(remoteShape)
-        }
-    }
-
-    private fun remoteShape(): RoundedRectShape? {
-        val pxSize = with(density) { size.toSize() }
-
-        return when (shape) {
-            CircleShape -> {
-                // TODO how to avoid needing the size here
-                if (pxSize.isUnspecified) return null
-
-                val cornerSize = pxSize.minDimension
-                RoundedRectShape(cornerSize, cornerSize, cornerSize, cornerSize)
-            }
-            is RoundedCornerShape -> {
-                RoundedRectShape(
-                    shape.topStart.toPx(pxSize, density),
-                    shape.topEnd.toPx(pxSize, density),
-                    shape.bottomStart.toPx(pxSize, density),
-                    shape.bottomEnd.toPx(pxSize, density),
-                )
-            }
-            else -> {
-                System.err.println("Unhandled clip shape $shape size: $size")
-                null
-            }
-        }
-    }
-}
-
-// @Deprecated
-// To be replaced by form above completely once API approved.
-@Composable
-public fun RemoteModifier.clip(shape: Shape, size: DpSize = DpSize.Unspecified): RemoteModifier =
-    then(LegacyClipModifier(shape, size, LocalDensity.current))

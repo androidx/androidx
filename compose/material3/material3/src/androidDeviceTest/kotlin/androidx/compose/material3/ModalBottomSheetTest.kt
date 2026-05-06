@@ -51,6 +51,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.WindowInsets as WindowInsetsOverride
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isDialog
@@ -67,6 +69,8 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -669,6 +673,43 @@ class ModalBottomSheetTest {
             rule.waitForIdle()
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
         }
+
+    @Test
+    fun modalBottomSheet_respectsContentWindowInsets_whenImeIsPresent() {
+        val imeHeightDp = 200.dp
+        var showBottomSheet by mutableStateOf(true)
+
+        rule.setContent {
+            val density = LocalDensity.current
+            val imeInsets = Insets.of(0, 0, 0, with(density) { imeHeightDp.roundToPx() })
+            val windowInsets =
+                WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.ime(), imeInsets)
+                    .build()
+
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.WindowInsetsOverride(windowInsets)
+            ) {
+                if (showBottomSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showBottomSheet = false },
+                        contentWindowInsets = { WindowInsets(0) },
+                    ) {
+                        Box(Modifier.testTag(sheetTag).height(200.dp).fillMaxSize())
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        val sheetBounds = rule.onNodeWithTag(sheetTag).getUnclippedBoundsInRoot()
+        val rootHeight = rule.onNode(isDialog()).getUnclippedBoundsInRoot().height
+
+        // If the sheet is NOT pushed up by the hardcoded imePadding, its bottom should be at the
+        // root height.
+        assertThat(sheetBounds.bottom.value).isWithin(1f).of(rootHeight.value)
+    }
 
     private val Bundle.traversalBefore: Int
         get() = getInt("android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL")

@@ -20,6 +20,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -35,7 +36,12 @@ import java.util.List;
 /** Add a click area to the document */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickArea extends Operation
-        implements RemoteComposeOperation, AccessibleComponent, VariableSupport, Serializable {
+        implements RemoteComposeOperation,
+                AccessibleComponent,
+                VariableSupport,
+                VariableProvider,
+                Serializable,
+                ComponentData {
     private static final int OP_CODE = Operations.CLICK_AREA;
     private static final String CLASS_NAME = "ClickArea";
     int mId;
@@ -49,6 +55,16 @@ public class ClickArea extends Operation
     float mOutRight;
     float mOutBottom;
     int mMetadata;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * Add a click area to the document
@@ -206,13 +222,13 @@ public class ClickArea extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int contentDescription = buffer.readInt();
-        float left = buffer.readFloat();
-        float top = buffer.readFloat();
-        float right = buffer.readFloat();
-        float bottom = buffer.readFloat();
-        int metadata = buffer.readInt();
+        int id = buffer.declareId();
+        int contentDescription = buffer.readId();
+        float left = buffer.readNanId();
+        float top = buffer.readNanId();
+        float right = buffer.readNanId();
+        float bottom = buffer.readNanId();
+        int metadata = buffer.readId();
         ClickArea clickArea =
                 new ClickArea(id, contentDescription, left, top, right, bottom, metadata);
         operations.add(clickArea);

@@ -1,0 +1,71 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: 1
+        x: 0.0
+        y: 0.0
+        width: 600.0
+        height: 400.0
+        visibility: VISIBLE
+        list:
+        - {type: ComponentValue, valueId: 42, componentValueType: WIDTH, componentId: 1}
+        - {type: ComponentValue, valueId: 43, componentValueType: HEIGHT, componentId: 1}
+        - type: FloatExpression
+          id: 44
+          srcValues:
+          - {type: Variable, id: 42}
+          - {type: Variable, id: 43}
+          - {type: Instruction, instruction: MIN}
+          animation: null
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Value, value: 600.0}
+            dimensionModifierType: EXACT
+          - type: HeightModifierOperation
+            height: {type: Value, value: 400.0}
+            dimensionModifierType: EXACT
+        - type: BOX
+          id: 2
+          x: 0.0
+          y: 0.0
+          width: 400.0
+          height: 400.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 44, value: 400.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 44, value: 400.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 400.0, height: 400.0,
+              color: '0xffffff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

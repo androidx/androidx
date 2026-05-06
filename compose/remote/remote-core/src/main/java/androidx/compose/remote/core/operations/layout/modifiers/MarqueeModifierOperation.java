@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -105,8 +106,8 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
     }
 
     @Override
-    public void applyEdgeEffect(@NonNull PaintContext context,
-            @NonNull Component component, int phase) {
+    public void applyEdgeEffect(
+            @NonNull PaintContext context, @NonNull Component component, int phase) {
         // nothing
     }
 
@@ -286,9 +287,15 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
             float height) {
         mComponentWidth = width;
         mComponentHeight = height;
+
+        float spacing = mSpacing;
+        if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+            spacing *= context.getDensity();
+        }
+
         if (component instanceof LayoutComponent) {
             LayoutComponent layoutComponent = (LayoutComponent) component;
-            setContentWidth(layoutComponent.minIntrinsicWidth(context));
+            setContentWidth(layoutComponent.minIntrinsicWidth(context) + spacing);
             setContentHeight(layoutComponent.minIntrinsicHeight(context));
         }
     }

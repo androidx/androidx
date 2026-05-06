@@ -77,7 +77,7 @@ object ComposeFoundationFlags {
      * be inherited by text composables contained in a style box.
      */
     // TODO: b/485968143
-    @field:Suppress("MutableBareField") @JvmField var isInheritedTextStyleEnabled = true
+    @field:Suppress("MutableBareField") @JvmField var isInheritedTextStyleEnabled = false
 
     /**
      * Selecting flag to enable the use of new PausableComposition in lazy layout prefetch. This
@@ -164,6 +164,16 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     internal var isBasicTextFieldStyledTextEnabled = false
+
+    /**
+     * This flag controls whether the legacy nodeOffset logic in DragGestureNode and
+     * IndirectPointerInputDragCycleDetector is disabled. Previously, VelocityTracker used local
+     * coordinates, necessitating manual point adjustment tracking.
+     */
+    // TODO: Remove this flag once it has soaked (b/457672200)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isDragNodeOffsetDoubleCountingFixEnabled = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

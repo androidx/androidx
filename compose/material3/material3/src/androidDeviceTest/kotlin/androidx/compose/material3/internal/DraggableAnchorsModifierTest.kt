@@ -16,8 +16,10 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -63,8 +65,8 @@ class DraggableAnchorsModifierTest {
     @Test
     fun draggableAnchors_stateInstanceChanged_recalculatesAnchors() {
         // 1. Create two distinct state instances
-        val state1 = MaterialAnchoredDraggableState(initialValue = TestValue.A)
-        val state2 = MaterialAnchoredDraggableState(initialValue = TestValue.A)
+        val state1 = AnchoredDraggableState(initialValue = TestValue.A)
+        val state2 = AnchoredDraggableState(initialValue = TestValue.A)
 
         var currentState by mutableStateOf(state1)
 
@@ -102,7 +104,7 @@ class DraggableAnchorsModifierTest {
 
     @Test
     fun draggableAnchors_orphanTarget_recoversAndPreventsException() {
-        val state = MaterialAnchoredDraggableState(initialValue = TestValue.C)
+        val state = AnchoredDraggableState(initialValue = TestValue.C)
 
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -125,7 +127,7 @@ class DraggableAnchorsModifierTest {
 
     @Test
     fun draggableAnchors_safeTargeting_withLayoutChange_reconcilesCorrectly() {
-        val state = MaterialAnchoredDraggableState(initialValue = TestValue.C)
+        val state = AnchoredDraggableState(initialValue = TestValue.C)
         var supportsStateC by mutableStateOf(false)
 
         rule.setContent {

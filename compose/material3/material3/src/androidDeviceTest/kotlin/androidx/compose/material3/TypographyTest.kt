@@ -19,6 +19,7 @@ package androidx.compose.material3
 import androidx.compose.material3.tokens.TypeScaleTokens
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -78,5 +79,24 @@ class TypographyTest {
                 labelMedium = TextStyle(fontFamily = FontFamily.SansSerif),
             )
         assertThat(typ.labelMedium.fontFamily).isEqualTo(FontFamily.SansSerif)
+    }
+
+    @Test
+    fun typography_nullValuesWithCustomFont_fallbackToCustomFontTokens() {
+        val customFontFamily = FontFamily.Cursive
+        val typ = Typography(fontFamily = customFontFamily, displayLarge = null)
+        assertThat(typ.displayLarge.fontFamily).isEqualTo(customFontFamily)
+    }
+
+    @Test
+    fun typography_customFontFamily_mergesWithNullFontFamilyStyles() {
+        val customFontFamily = FontFamily.Cursive
+        val typ =
+            Typography(
+                fontFamily = customFontFamily,
+                displayLarge = TextStyle(fontWeight = FontWeight.Bold),
+            )
+        assertThat(typ.displayLarge.fontFamily).isEqualTo(customFontFamily)
+        assertThat(typ.displayLarge.fontWeight).isEqualTo(FontWeight.Bold)
     }
 }

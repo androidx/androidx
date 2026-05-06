@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.round
 import androidx.compose.remote.creation.sign
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb

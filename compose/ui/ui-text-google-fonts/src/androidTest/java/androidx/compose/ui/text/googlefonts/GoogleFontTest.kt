@@ -61,6 +61,7 @@ class GoogleFontTest {
             listOf(listOf(ByteArray(100) { it.toByte() })),
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_create_ComposeFont() {
         val font = Font(GoogleFont("Test font"), TestProvider)
@@ -74,6 +75,7 @@ class GoogleFontTest {
     }
 
     @OptIn(ExperimentalTextApi::class)
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_is_AsyncFont() {
         val font = Font(GoogleFont("Test font"), TestProvider)
@@ -87,6 +89,7 @@ class GoogleFontTest {
         assertThat(font.loadingStrategy).isEqualTo(FontLoadingStrategy.Async)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_default_W400() {
         val font = Font(GoogleFont("Test"), TestProvider)
@@ -99,6 +102,7 @@ class GoogleFontTest {
         assertThat(font.weight).isEqualTo(FontWeight.W400)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_default_isNormal() {
         val font = Font(GoogleFont("Test"), TestProvider)
@@ -111,6 +115,7 @@ class GoogleFontTest {
         assertThat(font.style).isEqualTo(FontStyle.Normal)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_default_bestEffort_true() {
         val font = Font(GoogleFont("best effort"), TestProvider) as GoogleFontImpl
@@ -123,6 +128,7 @@ class GoogleFontTest {
         assertThat(font.bestEffort).isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @Test(expected = IllegalArgumentException::class)
     fun GoogleFont_throwsOn_emptyName() {
         Font(GoogleFont(""), TestProvider)
@@ -133,6 +139,7 @@ class GoogleFontTest {
         Font(GoogleFont(""))
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_keepsUrlEncodingRequiredNames() {
         val expected = "!@#$%^&*(){}'<>PYFGCRL?+|AOEUIDHTNS_:QJKXBMWVZ~~`1234567890[]/=\\-;:,."
@@ -147,6 +154,7 @@ class GoogleFontTest {
         assertThat(font.name).isEqualTo(expected)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_fontRequest_containsName() {
         val font = Font(GoogleFont("Test Name"), TestProvider) as GoogleFontImpl
@@ -159,6 +167,7 @@ class GoogleFontTest {
         assertThat(font.toFontRequest(context).query).contains("name=Test Name")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_fontRequest_containsWeight() {
         val font = Font(GoogleFont("a"), TestProvider, weight = FontWeight.W800) as GoogleFontImpl
@@ -171,6 +180,7 @@ class GoogleFontTest {
         assertThat(font.toFontRequest(context).query).contains("weight=800")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_fontRequest_containsStyle_normal() {
         val font = Font(GoogleFont("a"), TestProvider) as GoogleFontImpl
@@ -183,6 +193,7 @@ class GoogleFontTest {
         assertThat(font.toFontRequest(context).query).contains("italic=0")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_fontRequest_containsStyle_italic() {
         val font = Font(GoogleFont("a"), TestProvider, style = FontStyle.Italic) as GoogleFontImpl
@@ -195,6 +206,7 @@ class GoogleFontTest {
         assertThat(font.toFontRequest(context).query).contains("italic=1")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_fontRequest_bestEffort() {
         val font = Font(GoogleFont("a"), TestProvider) as GoogleFontImpl
@@ -207,6 +219,7 @@ class GoogleFontTest {
         assertThat(font.toFontRequest(context).query).contains("besteffort=true")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_fontRequest_bestEffort_false() {
         val font = Font(GoogleFont("a", bestEffort = false), TestProvider) as GoogleFontImpl
@@ -219,6 +232,7 @@ class GoogleFontTest {
         assertThat(font.toFontRequest(context).query).contains("besteffort=false")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_providerAuthority_passedDown() {
         val font = Font(GoogleFont("a"), TestProvider) as GoogleFontImpl
@@ -226,6 +240,7 @@ class GoogleFontTest {
             .isEqualTo(TestProvider.providerAuthority)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_providerPackage_passedDown() {
         val font = Font(GoogleFont("a"), TestProvider) as GoogleFontImpl
@@ -233,19 +248,22 @@ class GoogleFontTest {
             .isEqualTo(TestProvider.providerPackage)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_providerCerts_passedDown() {
         val font = Font(GoogleFont("a"), TestProvider) as GoogleFontImpl
         assertThat(font.toFontRequest(context).certificates).isEqualTo(TestProvider.certificates)
     }
 
+    @Suppress("DEPRECATION")
     @Test
-    fun GoogleFontImpl_providercerts_fromRes_passedDown() {
+    fun GoogleFontImpl_providerCerts_fromRes_passedDown() {
         val provider = GoogleFont.Provider("a", "b", 17)
         val font = Font(GoogleFont("a"), provider) as GoogleFontImpl
         assertThat(font.toFontRequest(context).certificatesArrayResId).isEqualTo(17)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_TypefaceStyle_Normal() {
         val font = Font(GoogleFont("a"), TestProvider) as GoogleFontImpl
@@ -258,6 +276,7 @@ class GoogleFontTest {
         assertThat(font.toTypefaceStyle()).isEqualTo(Typeface.NORMAL)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_TypefaceStyle_Italic() {
         val font = Font(GoogleFont("a"), TestProvider, style = FontStyle.Italic) as GoogleFontImpl
@@ -270,6 +289,7 @@ class GoogleFontTest {
         assertThat(font.toTypefaceStyle()).isEqualTo(Typeface.ITALIC)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_TypefaceStyle_Bold() {
         val font = Font(GoogleFont("a"), TestProvider, weight = FontWeight.Bold) as GoogleFontImpl
@@ -282,6 +302,7 @@ class GoogleFontTest {
         assertThat(font.toTypefaceStyle()).isEqualTo(Typeface.BOLD)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFontImpl_TypefaceStyle_BoldItalic() {
         val font =
@@ -343,6 +364,7 @@ class GoogleFontTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_TypefaceLoader_resumesOnCompletion() {
         val compatLoader = CapturingFontsContractCompatLoader()
@@ -350,12 +372,7 @@ class GoogleFontTest {
             val deferred = async {
                 GoogleFontTypefaceLoader.awaitLoad(
                     context,
-                    Font(
-                        GoogleFont("Foo"),
-                        TestProvider,
-                        variationSettings = FontVariation.Settings(),
-                    )
-                        as AndroidFont,
+                    Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
                     compatLoader,
                 )
             }
@@ -383,6 +400,7 @@ class GoogleFontTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_TypefaceLoader_throwsOnError() {
         val compatLoader = CapturingFontsContractCompatLoader()
@@ -433,6 +451,7 @@ class GoogleFontTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_TypefaceLoader_throwsOnError_withFullListUrl() {
         val compatLoader = CapturingFontsContractCompatLoader()
@@ -488,6 +507,7 @@ class GoogleFontTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun GoogleFont_toString() {
         val font = Font(GoogleFont("Font Family"), TestProvider)
@@ -499,28 +519,13 @@ class GoogleFontTest {
     }
 
     @Test
-    fun GoogleFont_withVariationSettings_toString() {
-        val font =
-            Font(
-                GoogleFont("Font Family"),
-                TestProvider,
-                variationSettings = FontVariation.Settings(FontVariation.slant(-8f)),
-            )
-        assertThat(font.toString())
-            .isEqualTo(
-                "Font(GoogleFont(\"Font Family\", bestEffort=true), weight=FontWeight(weight=400), " +
-                    "style=Normal, fontVariationSettings=Settings(settings=[FontVariation.Setting(axisName='slnt'" +
-                    ", value=-8.0)]))"
-            )
-    }
-
-    @Test
     fun GoogleFont_embeddedCert_toString() {
         val font = Font(GoogleFont("Font Family"))
         assertThat(font.toString())
             .isEqualTo(
                 "Font(GoogleFont(\"Font Family\", bestEffort=true), weight=FontWeight(weight=400), " +
-                    "style=Normal, fontVariationSettings=Settings(settings=[]))"
+                    "style=Normal, fontVariationSettings=Settings(settings=[FontVariation.Setting(axisName='ital'" +
+                    ", value=0.0), FontVariation.Setting(axisName='wght', value=400)]))"
             )
     }
 

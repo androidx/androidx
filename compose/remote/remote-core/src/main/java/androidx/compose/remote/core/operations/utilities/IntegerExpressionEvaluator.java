@@ -330,7 +330,8 @@ public class IntegerExpressionEvaluator {
      * @return
      */
     @NonNull
-    public static String toString(int opMask, int @NonNull [] exp, @NonNull String[] labels) {
+    public static String toString(
+            int opMask, int @NonNull [] exp, @NonNull String[] labels) {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < exp.length; i++) {
             int v = exp[i];

@@ -82,7 +82,7 @@ public class WakeIn extends PaintOperation implements VariableSupport, Serializa
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float wake = buffer.readFloat();
+        float wake = buffer.readNanId();
         WakeIn op = new WakeIn(wake);
         operations.add(op);
     }

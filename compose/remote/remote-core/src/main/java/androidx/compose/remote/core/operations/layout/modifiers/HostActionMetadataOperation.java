@@ -85,7 +85,9 @@ public class HostActionMetadataOperation extends Operation
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mActionId, mMetadataId);
+    }
 
     @Override
     public void runAction(
@@ -121,8 +123,8 @@ public class HostActionMetadataOperation extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int actionId = buffer.readInt();
-        int metadataId = buffer.readInt();
+        int actionId = buffer.readId();
+        int metadataId = buffer.readId();
         operations.add(new HostActionMetadataOperation(actionId, metadataId));
     }
 
@@ -133,8 +135,9 @@ public class HostActionMetadataOperation extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Layout Operations", OP_CODE, "HostActionMetadata")
-                .description("Host action + metadata. This operation represents a host action"
-                        + " that can also provides some metadata")
+                .description(
+                        "Host action + metadata. This operation represents a host action"
+                                + " that can also provides some metadata")
                 .field(INT, "ACTION_ID", "Host Action ID")
                 .field(INT, "METADATA", "Host Action Text Metadata ID");
     }

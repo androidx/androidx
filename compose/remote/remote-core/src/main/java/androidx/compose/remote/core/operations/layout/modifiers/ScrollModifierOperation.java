@@ -58,9 +58,9 @@ public class ScrollModifierOperation extends ListActionsOperation
     private static final int OP_CODE = Operations.MODIFIER_SCROLL;
     public static final String CLASS_NAME = "ScrollModifierOperation";
 
-    private final float mPositionExpression;
-    private final float mMax;
-    private final float mNotchMax;
+    private float mPositionExpression;
+    private float mMax;
+    private float mNotchMax;
 
     int mDirection;
 
@@ -168,9 +168,7 @@ public class ScrollModifierOperation extends ListActionsOperation
         if (mTouchExpression == null) {
             return;
         }
-        float position =
-                context.getContext()
-                        .getFloat(Utils.idFromNan(mPositionExpression));
+        float position = context.getContext().getFloat(Utils.idFromNan(mPositionExpression));
 
         if (mDirection == 0) {
             mScrollY = -Math.min(mMaxScrollY, position);
@@ -229,9 +227,9 @@ public class ScrollModifierOperation extends ListActionsOperation
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int direction = buffer.readInt();
-        float position = buffer.readFloat();
-        float max = buffer.readFloat();
-        float notchMax = buffer.readFloat();
+        float position = buffer.readNanId();
+        float max = buffer.readNanId();
+        float notchMax = buffer.readNanId();
         operations.add(new ScrollModifierOperation(direction, position, max, notchMax));
     }
 
@@ -426,6 +424,7 @@ public class ScrollModifierOperation extends ListActionsOperation
         }
         return handled;
     }
+
     /**
      * Set the horizontal scroll dimension
      *
@@ -486,8 +485,8 @@ public class ScrollModifierOperation extends ListActionsOperation
     }
 
     @Override
-    public void applyEdgeEffect(@NonNull PaintContext context,
-            @NonNull Component component, int phase) {
+    public void applyEdgeEffect(
+            @NonNull PaintContext context, @NonNull Component component, int phase) {
         if (mEdgeEffectA == null) {
             if (mDirection == 0) {
                 mEdgeEffectA = context.getContext().createEdgeEffect(ScrollingEdgeEffect.TOP);

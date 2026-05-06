@@ -25,14 +25,15 @@ import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import java.io.ByteArrayInputStream
+import kotlinx.coroutines.runBlocking
 
 /** Widget implementation that takes a composable */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RCWidget(public val Content: @Composable (Context, Int) -> Unit) :
+public open class RCWidget(public val content: @Composable (Context, Int) -> Unit) :
     AbstractRCWidget() {
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -43,11 +44,18 @@ public open class RCWidget(public val Content: @Composable (Context, Int) -> Uni
         widgetId: Int,
     ) {
         WidgetLambdaAction.clear()
-        createRemoteComposeDocument(context, widgetId) { doc ->
-            if (doc != null) {
-                val widget = getRemoteView(context, doc, provider, widgetId)
-                appWidgetManager.updateAppWidget(widgetId, widget)
-            }
+
+        val widgetInformation = WidgetInformation(widgetId)
+
+        runBlocking {
+            captureSingleRemoteDocument(
+                context = context,
+                content = {
+                    CompositionLocalProvider(LocalWidget.provides(widgetInformation)) {
+                        content(context, widgetId)
+                    }
+                },
+            )
         }
     }
 
@@ -61,51 +69,38 @@ public open class RCWidget(public val Content: @Composable (Context, Int) -> Uni
     ) {
         // First, get the document (in order to get the lambdas)
         WidgetLambdaAction.clear()
-        createRemoteComposeDocument(context, widgetId) { doc ->
-            if (doc != null) {
-                // then run the lambda...
-                WidgetLambdaAction.run(lambdaId)
-                // and recreate the document.
-                WidgetLambdaAction.clear()
-                createRemoteComposeDocument(context, widgetId) { doc ->
-                    if (doc != null) {
-                        val widget = getRemoteView(context, doc, provider, widgetId)
-                        appWidgetManager.updateAppWidget(widgetId, widget)
-                    }
-                }
-            }
-        }
-    }
 
-    public fun createRemoteComposeDocument(
-        context: Context,
-        id: Int,
-        onReadyCallback: (CoreDocument?) -> Unit,
-    ) {
-        val host =
-            RemoteComposeHost(context, onReadyCallback = onReadyCallback) {
-                val widgetInformation = WidgetInformation(id)
-                CompositionLocalProvider(LocalWidget.provides(widgetInformation)) {
-                    Content(context, id)
-                }
-            }
-        host.getDoc()
+        val widgetInformation = WidgetInformation(widgetId)
+
+        val doc = runBlocking {
+            captureSingleRemoteDocument(
+                context = context,
+                content = {
+                    CompositionLocalProvider(LocalWidget.provides(widgetInformation)) {
+                        content(context, widgetId)
+                    }
+                },
+            )
+        }
+
+        // then run the lambda...
+        WidgetLambdaAction.run(lambdaId)
+        // and recreate the document.
+        WidgetLambdaAction.clear()
+
+        val widget = getRemoteView(context, doc, provider, widgetId)
+        appWidgetManager.updateAppWidget(widgetId, widget)
     }
 
     @SuppressLint("ResourceType")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     public fun getRemoteView(
         context: Context,
-        document: CoreDocument,
+        document: CapturedDocument,
         provider: RemoteComposeWidget,
         widgetId: Int,
     ): RemoteViews {
-        val buffer = document.getBuffer().buffer
-        val bufferSize = buffer.size()
-        val bytes = ByteArray(bufferSize)
-        val b = ByteArrayInputStream(buffer.getBuffer(), 0, bufferSize)
-        b.read(bytes)
-        val r = RemoteViews.DrawInstructions.Builder(listOf<ByteArray>(bytes))
+        val r = RemoteViews.DrawInstructions.Builder(listOf(document.bytes))
         val rv = RemoteViews(r.build())
         for (i in 0 until WidgetLambdaAction.counter) {
             val intentId = 1000 * widgetId + i

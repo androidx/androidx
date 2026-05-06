@@ -98,8 +98,9 @@ public class NanMap {
         return (fromNaN(value) >> 20) == 3;
     }
 
-    public static final int START_VAR = (1 << 20) + 42;
-    public static final int START_ARRAY = (2 << 20) + 42;
+    public static final int START_VARIABLE_ID = 42;
+    public static final int START_VAR = (1 << 20) + START_VARIABLE_ID;
+    public static final int START_ARRAY = (2 << 20) + START_VARIABLE_ID;
     public static final int TYPE_SYSTEM = 0;
     public static final int TYPE_VARIABLE = 1;
     public static final int TYPE_ARRAY = 2;

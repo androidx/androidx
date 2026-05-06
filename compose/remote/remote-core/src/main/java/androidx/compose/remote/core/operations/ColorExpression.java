@@ -21,10 +21,12 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -37,8 +39,8 @@ import java.util.List;
  * mMode = 2 color2 is a colorID. mMode = 3 color1 & color2 are ids mMode = 4 H S V mode
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorExpression extends Operation implements VariableSupport, Serializable,
-        ComponentData {
+public class ColorExpression extends Operation
+        implements VariableSupport, Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.COLOR_EXPRESSIONS;
     private static final String CLASS_NAME = "ColorExpression";
     public int mId;
@@ -96,12 +98,22 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /** ARGB mode with a being an id */
     public static final byte IDARGB_MODE = 6;
 
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
+
     /**
      * Create a new ColorExpression object
      *
-     * @param id    the id of the color
-     * @param hue   the hue of the color
-     * @param sat   the saturation of the color
+     * @param id the id of the color
+     * @param hue the hue of the color
+     * @param sat the saturation of the color
      * @param value the value of the color
      */
     public ColorExpression(int id, float hue, float sat, float value) {
@@ -119,11 +131,11 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Create a new ColorExpression object based on HSV
      *
-     * @param id    id of the color
-     * @param mode  the mode of the color
+     * @param id id of the color
+     * @param mode the mode of the color
      * @param alpha the alpha of the color
-     * @param hue   the hue of the color
-     * @param sat   the saturation of the color
+     * @param hue the hue of the color
+     * @param sat the saturation of the color
      * @param value the value (brightness) of the color
      */
     public ColorExpression(int id, byte mode, int alpha, float hue, float sat, float value) {
@@ -144,11 +156,11 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Create a new ColorExpression object based interpolationg two colors
      *
-     * @param id     the id of the color
-     * @param mode   the type of mode (are colors ids or actual values)
+     * @param id the id of the color
+     * @param mode the type of mode (are colors ids or actual values)
      * @param color1 the first color to use
      * @param color2 the second color to use
-     * @param tween  the value to use to interpolate between the two colors
+     * @param tween the value to use to interpolate between the two colors
      */
     public ColorExpression(int id, int mode, int color1, int color2, float tween) {
         this.mId = id;
@@ -170,12 +182,12 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Create a new ColorExpression object based on ARGB
      *
-     * @param id    the id of the color
-     * @param mode  the mode must be ARGB_MODE
+     * @param id the id of the color
+     * @param mode the mode must be ARGB_MODE
      * @param alpha the alpha value of the color
-     * @param red   the red of component the color
+     * @param red the red of component the color
      * @param green the greej component of the color
-     * @param blue  the blue of component the color
+     * @param blue the blue of component the color
      */
     public ColorExpression(int id, byte mode, float alpha, float red, float green, float blue) {
         if (mode != ARGB_MODE) {
@@ -386,7 +398,7 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Call to write a ColorExpression object on the buffer
      *
-     * @param id   of the ColorExpression object
+     * @param id of the ColorExpression object
      * @param mode if colors are id or actual values
      */
     public static void apply(
@@ -422,11 +434,11 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int param1 = buffer.readInt();
         int param2 = buffer.readInt();
         int param3 = buffer.readInt();
@@ -438,37 +450,59 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
         float blue;
         switch (mode) {
             case IDARGB_MODE:
-                alpha = Utils.asNan(param1 >> 16);
-                red = Float.intBitsToFloat(param2);
-                green = Float.intBitsToFloat(param3);
-                blue = Float.intBitsToFloat(param4);
+                int alphaId = param1 >> 16;
+                if (buffer instanceof LoomWireBuffer) {
+                    alphaId = ((LoomWireBuffer) buffer).getRemapContext().resolveId(alphaId);
+                }
+                alpha = Utils.asNan(alphaId);
+                red = resolveFloat(buffer, Float.intBitsToFloat(param2));
+                green = resolveFloat(buffer, Float.intBitsToFloat(param3));
+                blue = resolveFloat(buffer, Float.intBitsToFloat(param4));
                 operations.add(new ColorExpression(id, (byte) ARGB_MODE, alpha, red, green, blue));
                 break;
             case ARGB_MODE:
                 alpha = (param1 >> 16) / 1024.0f;
-                red = Float.intBitsToFloat(param2);
-                green = Float.intBitsToFloat(param3);
-                blue = Float.intBitsToFloat(param4);
+                red = resolveFloat(buffer, Float.intBitsToFloat(param2));
+                green = resolveFloat(buffer, Float.intBitsToFloat(param3));
+                blue = resolveFloat(buffer, Float.intBitsToFloat(param4));
                 operations.add(new ColorExpression(id, (byte) ARGB_MODE, alpha, red, green, blue));
                 break;
             case HSV_MODE:
                 alpha = (param1 >> 16) / 1024.0f;
-                float hue = Float.intBitsToFloat(param2);
-                float sat = Float.intBitsToFloat(param3);
-                float value = Float.intBitsToFloat(param4);
+                float hue = resolveFloat(buffer, Float.intBitsToFloat(param2));
+                float sat = resolveFloat(buffer, Float.intBitsToFloat(param3));
+                float value = resolveFloat(buffer, Float.intBitsToFloat(param4));
                 operations.add(new ColorExpression(id, HSV_MODE, (param1 >> 16), hue, sat, value));
                 break;
             case COLOR_ID_INTERPOLATE:
             case ID_COLOR_INTERPOLATE:
             case ID_ID_INTERPOLATE:
             case COLOR_COLOR_INTERPOLATE:
-                operations.add(
-                        new ColorExpression(
-                                id, mode, param2, param3, Float.intBitsToFloat(param4)));
+                int c1 = param2;
+                if ((mode & 1) == 1) {
+                    if (buffer instanceof LoomWireBuffer) {
+                        c1 = ((LoomWireBuffer) buffer).getRemapContext().resolveId(param2);
+                    }
+                }
+                int c2 = param3;
+                if ((mode & 2) == 2) {
+                    if (buffer instanceof LoomWireBuffer) {
+                        c2 = ((LoomWireBuffer) buffer).getRemapContext().resolveId(param3);
+                    }
+                }
+                float tween = resolveFloat(buffer, Float.intBitsToFloat(param4));
+                operations.add(new ColorExpression(id, mode, c1, c2, tween));
                 break;
             default:
                 throw new RuntimeException("Invalid mode " + mode);
         }
+    }
+
+    private static float resolveFloat(@NonNull WireBuffer buffer, float v) {
+        if (buffer instanceof LoomWireBuffer) {
+            return ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(v);
+        }
+        return v;
     }
 
     /**
@@ -489,7 +523,9 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
                 .possibleValues("ARGB_MODE", 5)
                 .possibleValues("IDARGB_MODE", 6)
                 .field(INT, "param1", "First parameter (color1, hue, or alpha depending on mode)")
-                .field(INT, "param2",
+                .field(
+                        INT,
+                        "param2",
                         "Second parameter (color2, saturation, or red depending on mode)")
                 .field(INT, "param3", "Third parameter (tween, value, or green depending on mode)")
                 .field(INT, "param4", "Fourth parameter (blue, only used in ARGB modes)");

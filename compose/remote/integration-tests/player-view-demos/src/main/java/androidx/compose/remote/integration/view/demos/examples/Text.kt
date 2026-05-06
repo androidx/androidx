@@ -194,6 +194,68 @@ fun RcTextDemo7(): RemoteComposeContext {
 }
 
 @Suppress("RestrictedApiAndroidX")
+fun RcTextDemo9(): RemoteComposeContext {
+    return RemoteComposeContextAndroid(
+        600,
+        600,
+        "Demo",
+        7,
+        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+        AndroidxRcPlatformServices(),
+    ) {
+        root {
+            column(Modifier.background(Color.YELLOW).fillMaxSize()) {
+                val content = "The quick brown Fox "
+                text(
+                    content + ": serif",
+                    RecordingModifier().background(Color.LTGRAY),
+                    fontFamily = "serif",
+                    fontSize = 30f,
+                    color = Color.BLUE,
+                )
+                val textStyle1 =
+                    addTextStyle(fontFamily = "serif", fontSize = 30f, color = Color.BLUE)
+                val textStyle2 =
+                    addTextStyle(fontFamily = "serif", fontSize = 60f, color = Color.RED)
+                val textStyle3 = addTextStyle(parentId = textStyle2, fontStyle = 1)
+                text(
+                    content + " (1) ",
+                    RecordingModifier().background(Color.LTGRAY),
+                    textStyleId = textStyle1,
+                )
+                text(
+                    content + " (2) ",
+                    RecordingModifier().background(Color.LTGRAY),
+                    textStyleId = textStyle2,
+                )
+                text(
+                    content + " (1) ",
+                    RecordingModifier().background(Color.LTGRAY),
+                    textStyleId = textStyle1,
+                )
+                text(
+                    content + " (1+color) ",
+                    RecordingModifier().background(Color.LTGRAY),
+                    textStyleId = textStyle1,
+                    color = Color.GREEN,
+                )
+                text(
+                    content + " (1+size) ",
+                    RecordingModifier().background(Color.LTGRAY),
+                    textStyleId = textStyle1,
+                    fontSize = 60f,
+                )
+                text(
+                    content + " (3->1) ",
+                    RecordingModifier().background(Color.LTGRAY),
+                    textStyleId = textStyle3,
+                )
+            }
+        }
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
 fun RcTextDemo6(): RemoteComposeContext {
     return RemoteComposeContextAndroid(
         600,
@@ -594,3 +656,5 @@ private fun RcTextDemo3bPreview() = RemoteDocPreview(RcTextDemo3b())
 @Preview @Composable private fun RcTextDemo7Preview() = RemoteDocPreview(RcTextDemo7())
 
 @Preview @Composable private fun RcTextDemo8Preview() = RemoteDocPreview(RcTextDemo8())
+
+@Preview @Composable private fun RcTextDemo9Preview() = RemoteDocPreview(RcTextDemo9())

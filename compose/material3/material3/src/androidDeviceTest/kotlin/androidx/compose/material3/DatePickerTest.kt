@@ -1007,21 +1007,25 @@ class DatePickerTest {
         rule.onNodeWithText("January 2010").performKeyInput { pressKey(Key.Enter) }
         rule.waitForIdle()
 
-        // Assert focus jumps to selected year
+        // Assert focus jumps to selected year.
         rule.onNodeWithText("Navigate to year 2010").assertIsFocused()
 
         // Assert tabbing goes to ok button.
         rule.onNodeWithText("January 2010").performKeyInput { pressKey(Key.Tab) }
         rule.onNodeWithText("OK").assertIsFocused()
 
-        // Assert shift + tabbing goes back to year above ok button.
+        // Assert shift + tabbing goes to cancel button.
         rule.onNodeWithText("OK").performKeyInput {
             withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
         }
-        rule.onNodeWithText("Navigate to year 2025").assertIsFocused()
+        // Assert shift + tabbing goes back to selected year.
+        rule.onNodeWithText("Cancel").performKeyInput {
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
+        }
+        rule.onNodeWithText("Navigate to year 2010").assertIsFocused()
 
         // Assert shift + tabbing goes back to year picker button.
-        rule.onNodeWithText("Navigate to year 2025").performKeyInput {
+        rule.onNodeWithText("Navigate to year 2010").performKeyInput {
             withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
         }
         rule.onNodeWithText("January 2010").assertIsFocused()
@@ -1162,14 +1166,14 @@ class DatePickerTest {
         // Focus on last day of the month.
         rule.onNodeWithText("January 31, 2010", substring = true).requestFocus()
 
-        // Assert tabbing goes back to OK button.
+        // Assert tabbing goes to cancel button.
         rule.onNodeWithText("January 31, 2010", substring = true).performKeyInput {
             pressKey(Key.Tab)
         }
-        rule.onNodeWithText("OK").assertIsFocused()
+        rule.onNodeWithText("Cancel").assertIsFocused()
 
         // Shift tab to last day of month
-        rule.onNodeWithText("OK").performKeyInput {
+        rule.onNodeWithText("Cancel").performKeyInput {
             withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
         }
         rule.onNodeWithText("January 31, 2010", substring = true).assertIsFocused()
@@ -1236,6 +1240,58 @@ class DatePickerTest {
         rule.onNodeWithText("January 2010").assertDoesNotExist()
         rule.onNodeWithText("February 2010").assertExists()
         rule.onNodeWithText("February 1, 2010", substring = true).assertIsFocused()
+    }
+
+    @Test
+    fun cancelAndOkButtons_keyboardBehavior() {
+        rule.setMaterialContent(lightColorScheme()) {
+            if (SDK_INT <= Build.VERSION_CODES.R) {
+                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
+            }
+            val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 1)
+            val datePickerState =
+                rememberDatePickerState(
+                    initialSelectedDateMillis = initialDateMillis,
+                    initialDisplayedMonthMillis = monthInUtcMillis,
+                )
+            DatePickerDialog(
+                onDismissRequest = {},
+                confirmButton = { TextButton(onClick = {}) { Text("OK") } },
+                dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
+            ) {
+                DatePicker(state = datePickerState)
+            }
+        }
+        rule.waitForIdle()
+        if (SDK_INT > Build.VERSION_CODES.R) {
+            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+        }
+
+        // Focus on last day of the month.
+        rule.onNodeWithText("January 31, 2010", substring = true).requestFocus()
+
+        // Assert tabbing goes to cancel button.
+        rule.onNodeWithText("January 31, 2010", substring = true).performKeyInput {
+            pressKey(Key.Tab)
+        }
+        rule.onNodeWithText("Cancel").assertIsFocused()
+
+        // Assert tabbing goes to ok button.
+        rule.onNodeWithText("Cancel").performKeyInput { pressKey(Key.Tab) }
+        rule.onNodeWithText("OK").assertIsFocused()
+
+        // Assert shift tabbing goes to back to cancel button.
+        rule.onNodeWithText("OK").performKeyInput {
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
+        }
+        rule.onNodeWithText("Cancel").assertIsFocused()
+
+        // Assert shift tabbing goes to back to date button.
+        rule.onNodeWithText("Cancel").performKeyInput {
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.Tab) }
+        }
+        rule.onNodeWithText("January 31, 2010", substring = true).assertIsFocused()
     }
 
     @Test

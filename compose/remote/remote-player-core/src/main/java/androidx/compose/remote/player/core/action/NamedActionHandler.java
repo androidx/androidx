@@ -26,8 +26,6 @@ import org.jspecify.annotations.Nullable;
 /** An interface for handling named actions. */
 @RestrictTo(LIBRARY_GROUP)
 public interface NamedActionHandler {
-    /**
-     * Execute a named action
-     */
+    /** Execute a named action */
     void execute(@NonNull String name, @Nullable Object value, @NonNull StateUpdater stateUpdater);
 }

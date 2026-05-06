@@ -13,48 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.capture
 
-import android.graphics.Path
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathBuilder
 import androidx.compose.remote.creation.compose.vector.RemotePathData
+import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.DefaultFillType
-import androidx.compose.ui.graphics.vector.DefaultGroupName
-import androidx.compose.ui.graphics.vector.DefaultPathName
-import androidx.compose.ui.graphics.vector.DefaultPivotX
-import androidx.compose.ui.graphics.vector.DefaultPivotY
-import androidx.compose.ui.graphics.vector.DefaultRotation
-import androidx.compose.ui.graphics.vector.DefaultScaleX
-import androidx.compose.ui.graphics.vector.DefaultScaleY
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineCap
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineJoin
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineMiter
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineWidth
-import androidx.compose.ui.graphics.vector.DefaultTranslationX
-import androidx.compose.ui.graphics.vector.DefaultTranslationY
-import androidx.compose.ui.graphics.vector.DefaultTrimPathEnd
-import androidx.compose.ui.graphics.vector.DefaultTrimPathOffset
-import androidx.compose.ui.graphics.vector.DefaultTrimPathStart
-import androidx.compose.ui.graphics.vector.EmptyPath
-import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorGroup
 
 /**
  * A base class for defining vector graphics that can be drawn in a remote compose. It could be
  * rendered by passing it as an argument to
  * [androidx.compose.remote.creation.compose.vector.painterRemoteVector]
+ */
+public class RemoteImageVector
+/**
+ * Create a RemoteImageVector.
  *
  * @param name Name of the Vector asset
  * @param viewportWidth Used to define the height of the viewport space. Viewport is basically the
@@ -67,8 +53,7 @@ import androidx.compose.ui.graphics.vector.VectorGroup
  * @param autoMirror Determines if the vector asset should automatically be mirrored for right to
  *   left locales
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteImageVector(
+internal constructor(
     internal val name: String,
     internal val viewportWidth: RemoteFloat,
     internal val viewportHeight: RemoteFloat,
@@ -86,12 +71,7 @@ public class RemoteImageVector(
      * memoized across composition calls to avoid doing redundant work
      */
     @Suppress("MissingGetterMatchingBuilder")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Builder(
-        scope: RemoteStateScope,
-
-        /** Name of the vector asset */
-        private val name: String = DefaultGroupName,
 
         /**
          * Used to define the width of the viewport space. Viewport is basically the virtual canvas
@@ -108,6 +88,9 @@ public class RemoteImageVector(
         /** Optional color used to tint the entire vector image */
         private val tintColor: RemoteColor,
 
+        /** Name of the vector asset */
+        private val name: String = DefaultGroupName,
+
         /** Blend mode used to apply the tint color */
         private val tintBlendMode: BlendMode = BlendMode.SrcIn,
 
@@ -115,7 +98,7 @@ public class RemoteImageVector(
          * Determines if the vector asset should automatically be mirrored for right to left locales
          */
         private val autoMirror: Boolean = false,
-    ) : RemoteStateScope by scope {
+    ) {
 
         private val nodes = ArrayList<RemoteGroupParams>()
 
@@ -144,16 +127,16 @@ public class RemoteImageVector(
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun addGroup(
+        internal fun addGroup(
             name: String = DefaultGroupName,
-            rotate: Float = DefaultRotation,
-            pivotX: Float = DefaultPivotX,
-            pivotY: Float = DefaultPivotY,
-            scaleX: Float = DefaultScaleX,
-            scaleY: Float = DefaultScaleY,
-            translationX: Float = DefaultTranslationX,
-            translationY: Float = DefaultTranslationY,
-            clipPathData: List<PathNode> = EmptyPath,
+            rotate: RemoteFloat = DefaultRotation,
+            pivotX: RemoteFloat = DefaultPivotX,
+            pivotY: RemoteFloat = DefaultPivotY,
+            scaleX: RemoteFloat = DefaultScaleX,
+            scaleY: RemoteFloat = DefaultScaleY,
+            translationX: RemoteFloat = DefaultTranslationX,
+            translationY: RemoteFloat = DefaultTranslationY,
+            clipPathData: List<RemotePathNode> = EmptyPath,
         ): Builder {
             ensureNotConsumed()
             val group =
@@ -178,8 +161,7 @@ public class RemoteImageVector(
          *
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun clearGroup(): Builder {
+        internal fun clearGroup(): Builder {
             ensureNotConsumed()
             val popped = nodes.pop()
             currentGroup.children.add(popped.asVectorGroup())
@@ -213,22 +195,21 @@ public class RemoteImageVector(
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
         @Suppress("MissingGetterMatchingBuilder")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun addPath(
-            pathData: List<PathNode>,
+        internal fun addPath(
+            pathData: List<RemotePathNode>,
             pathFillType: PathFillType = DefaultFillType,
             name: String = DefaultPathName,
             fill: Brush? = null,
-            fillAlpha: Float = 1.0f,
+            fillAlpha: RemoteFloat = 1.0f.rf,
             stroke: Brush? = null,
-            strokeAlpha: Float = 1.0f,
-            strokeLineWidth: Float = DefaultStrokeLineWidth,
+            strokeAlpha: RemoteFloat = 1.0f.rf,
+            strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
             strokeLineCap: StrokeCap = DefaultStrokeLineCap,
             strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
-            strokeLineMiter: Float = DefaultStrokeLineMiter,
-            trimPathStart: Float = DefaultTrimPathStart,
-            trimPathEnd: Float = DefaultTrimPathEnd,
-            trimPathOffset: Float = DefaultTrimPathOffset,
+            strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
+            trimPathStart: RemoteFloat = DefaultTrimPathStart,
+            trimPathEnd: RemoteFloat = DefaultTrimPathEnd,
+            trimPathOffset: RemoteFloat = DefaultTrimPathOffset,
         ): Builder {
             ensureNotConsumed()
             currentGroup.children.add(
@@ -258,7 +239,6 @@ public class RemoteImageVector(
          *
          * @return The newly created ImageVector instance
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun build(): RemoteImageVector {
             ensureNotConsumed()
             // pop all groups except for the root
@@ -316,14 +296,14 @@ public class RemoteImageVector(
          */
         private class RemoteGroupParams(
             var name: String = DefaultGroupName,
-            var rotate: Float = DefaultRotation,
-            var pivotX: Float = DefaultPivotX,
-            var pivotY: Float = DefaultPivotY,
-            var scaleX: Float = DefaultScaleX,
-            var scaleY: Float = DefaultScaleY,
-            var translationX: Float = DefaultTranslationX,
-            var translationY: Float = DefaultTranslationY,
-            var clipPathData: List<PathNode> = EmptyPath,
+            var rotate: RemoteFloat = DefaultRotation,
+            var pivotX: RemoteFloat = DefaultPivotX,
+            var pivotY: RemoteFloat = DefaultPivotY,
+            var scaleX: RemoteFloat = DefaultScaleX,
+            var scaleY: RemoteFloat = DefaultScaleY,
+            var translationX: RemoteFloat = DefaultTranslationX,
+            var translationY: RemoteFloat = DefaultTranslationY,
+            var clipPathData: List<RemotePathNode> = EmptyPath,
             var children: MutableList<RemoteVectorNode> = mutableListOf(),
         )
     }
@@ -342,28 +322,28 @@ internal constructor(
     val name: String = DefaultGroupName,
 
     /** Rotation of the group in degrees */
-    val rotation: Float = DefaultRotation,
+    val rotation: RemoteFloat = DefaultRotation,
 
     /** X coordinate of the pivot point to rotate or scale the group */
-    val pivotX: Float = DefaultPivotX,
+    val pivotX: RemoteFloat = DefaultPivotX,
 
     /** Y coordinate of the pivot point to rotate or scale the group */
-    val pivotY: Float = DefaultPivotY,
+    val pivotY: RemoteFloat = DefaultPivotY,
 
     /** Scale factor in the X-axis to apply to the group */
-    val scaleX: Float = DefaultScaleX,
+    val scaleX: RemoteFloat = DefaultScaleX,
 
     /** Scale factor in the Y-axis to apply to the group */
-    val scaleY: Float = DefaultScaleY,
+    val scaleY: RemoteFloat = DefaultScaleY,
 
     /** Translation in virtual pixels to apply along the x-axis */
-    val translationX: Float = DefaultTranslationX,
+    val translationX: RemoteFloat = DefaultTranslationX,
 
     /** Translation in virtual pixels to apply along the y-axis */
-    val translationY: Float = DefaultTranslationY,
+    val translationY: RemoteFloat = DefaultTranslationY,
 
     /** Path information used to clip the content within the group */
-    val clipPathData: List<PathNode> = EmptyPath,
+    val clipPathData: List<RemotePathNode> = EmptyPath,
 
     /** Child Vector nodes that are part of this group, this can contain paths or other groups */
     private val children: List<RemoteVectorNode> = emptyList(),
@@ -398,7 +378,7 @@ internal constructor(
     val name: String = DefaultPathName,
 
     /** Path information to render the shape of the path */
-    val pathData: List<PathNode>,
+    val pathData: List<RemotePathNode>,
 
     /** Rule to determine how the interior of the path is to be calculated */
     val pathFillType: PathFillType,
@@ -407,16 +387,16 @@ internal constructor(
     val fill: Brush? = null,
 
     /** Opacity to fill the path */
-    val fillAlpha: Float = 1.0f,
+    val fillAlpha: RemoteFloat = 1.0f.rf,
 
     /** Specifies the color or gradient used to fill the stroke */
     val stroke: Brush? = null,
 
     /** Opacity to stroke the path */
-    val strokeAlpha: Float = 1.0f,
+    val strokeAlpha: RemoteFloat = 1.0f.rf,
 
     /** Width of the line to stroke the path */
-    val strokeLineWidth: Float = DefaultStrokeLineWidth,
+    val strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
 
     /**
      * Specifies the linecap for a stroked path, either butt, round, or square. The default is butt.
@@ -429,25 +409,25 @@ internal constructor(
     val strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
 
     /** Specifies the miter limit for a stroked path, the default is 4 */
-    val strokeLineMiter: Float = DefaultStrokeLineMiter,
+    val strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
 
     /**
      * Specifies the fraction of the path to trim from the start, in the range from 0 to 1. The
      * default is 0.
      */
-    val trimPathStart: Float = DefaultTrimPathStart,
+    val trimPathStart: RemoteFloat = DefaultTrimPathStart,
 
     /**
      * Specifies the fraction of the path to trim from the end, in the range from 0 to 1. The
      * default is 1.
      */
-    val trimPathEnd: Float = DefaultTrimPathEnd,
+    val trimPathEnd: RemoteFloat = DefaultTrimPathEnd,
 
     /**
      * Specifies the offset of the trim region (allows showed region to include the start and end),
      * in the range from 0 to 1. The default is 0.
      */
-    val trimPathOffset: Float = DefaultTrimPathOffset,
+    val trimPathOffset: RemoteFloat = DefaultTrimPathOffset,
 ) : RemoteVectorNode() {
 
     override fun equals(other: Any?): Boolean {
@@ -507,23 +487,23 @@ internal constructor(
  * @param strokeLineMiter specifies the miter limit for a stroked path
  * @param pathFillType specifies the winding rule that decides how the interior of a [Path] is
  *   calculated.
- * @param pathBuilder [RemotePathBuilder] lambda for adding [PathNode]s to this path.
+ * @param pathBuilder [RemotePathBuilder] lambda for adding [RemotePathNode]s to this path.
  */
-public inline fun RemoteImageVector.Builder.path(
+public fun RemoteImageVector.Builder.path(
     name: String = DefaultPathName,
     fill: Brush? = null,
-    fillAlpha: Float = 1.0f,
+    fillAlpha: RemoteFloat = 1.0f.rf,
     stroke: Brush? = null,
-    strokeAlpha: Float = 1.0f,
-    strokeLineWidth: Float = DefaultStrokeLineWidth,
+    strokeAlpha: RemoteFloat = 1.0f.rf,
+    strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
     strokeLineCap: StrokeCap = DefaultStrokeLineCap,
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
-    strokeLineMiter: Float = DefaultStrokeLineMiter,
+    strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
     pathFillType: PathFillType = DefaultFillType,
     pathBuilder: RemotePathBuilder.() -> Unit,
 ): RemoteImageVector.Builder =
     addPath(
-        RemotePathData(this, pathBuilder),
+        RemotePathData(pathBuilder),
         pathFillType,
         name,
         fill,
@@ -550,16 +530,17 @@ public inline fun RemoteImageVector.Builder.path(
  * @param clipPathData the path information used to clip the content within the group
  * @param block builder lambda to add children to this group
  */
-public inline fun RemoteImageVector.Builder.group(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteImageVector.Builder.group(
     name: String = DefaultGroupName,
-    rotate: Float = DefaultRotation,
-    pivotX: Float = DefaultPivotX,
-    pivotY: Float = DefaultPivotY,
-    scaleX: Float = DefaultScaleX,
-    scaleY: Float = DefaultScaleY,
-    translationX: Float = DefaultTranslationX,
-    translationY: Float = DefaultTranslationY,
-    clipPathData: List<PathNode> = EmptyPath,
+    rotate: RemoteFloat = DefaultRotation,
+    pivotX: RemoteFloat = DefaultPivotX,
+    pivotY: RemoteFloat = DefaultPivotY,
+    scaleX: RemoteFloat = DefaultScaleX,
+    scaleY: RemoteFloat = DefaultScaleY,
+    translationX: RemoteFloat = DefaultTranslationX,
+    translationY: RemoteFloat = DefaultTranslationY,
+    clipPathData: List<RemotePathNode> = EmptyPath,
     block: RemoteImageVector.Builder.() -> Unit,
 ): RemoteImageVector.Builder = apply {
     addGroup(name, rotate, pivotX, pivotY, scaleX, scaleY, translationX, translationY, clipPathData)
@@ -575,3 +556,27 @@ private fun <T> ArrayList<T>.peek(): T = this[size - 1]
 
 /** For image vectors that don't have an intrinsic size. */
 internal const val DefaultIconSize = 24f
+
+internal const val DefaultGroupName = ""
+internal val DefaultRotation = 0.0f.rf
+internal val DefaultPivotX = 0.0f.rf
+internal val DefaultPivotY = 0.0f.rf
+internal val DefaultScaleX = 1.0f.rf
+internal val DefaultScaleY = 1.0f.rf
+internal val DefaultTranslationX = 0.0f.rf
+internal val DefaultTranslationY = 0.0f.rf
+
+internal val EmptyPath = emptyList<RemotePathNode>()
+
+internal const val DefaultPathName = ""
+internal val DefaultStrokeLineWidth = 0.0f.rf
+internal val DefaultStrokeLineMiter = 4.0f.rf
+internal val DefaultTrimPathStart = 0.0f.rf
+internal val DefaultTrimPathEnd = 1.0f.rf
+internal val DefaultTrimPathOffset = 0.0f.rf
+
+internal val DefaultStrokeLineCap = StrokeCap.Butt
+internal val DefaultStrokeLineJoin = StrokeJoin.Miter
+internal val DefaultTintBlendMode = BlendMode.SrcIn
+internal val DefaultTintColor = Color.Transparent
+internal val DefaultFillType = PathFillType.NonZero

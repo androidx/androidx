@@ -41,7 +41,7 @@ import java.util.List;
  * </ul>
  *
  * @param <N> The type representing information about the node. This could be an Androidx
- *            `AccessibilityNodeInfoCompat`, or potentially a platform `AccessibilityNodeInfo`.
+ *     `AccessibilityNodeInfoCompat`, or potentially a platform `AccessibilityNodeInfo`.
  */
 @RestrictTo(LIBRARY_GROUP)
 public interface SemanticNodeApplier<N> {
@@ -54,26 +54,22 @@ public interface SemanticNodeApplier<N> {
      * about the component being processed.
      *
      * @param remoteComposeAccessibility An instance of {@link RemoteComposeDocumentAccessibility}
-     *                                   providing context.
-     * @param nodeInfo                   The node to which the semantic information will be
-     *                                   applied. This could be an
-     *                                   Androidx `AccessibilityNodeInfoCompat` or a platform
-     *                                   `AccessibilityNodeInfo`.
-     * @param component                  The component that this semantic information corresponds
-     *                                   to.
-     * @param semantics                  A list of {@link AccessibilitySemantics} objects
-     *                                   representing the semantic
-     *                                   properties and actions to apply.
-     * @param parentId                   The parent according to semantic tree.
+     *     providing context.
+     * @param nodeInfo The node to which the semantic information will be applied. This could be an
+     *     Androidx `AccessibilityNodeInfoCompat` or a platform `AccessibilityNodeInfo`.
+     * @param component The component that this semantic information corresponds to.
+     * @param semantics A list of {@link AccessibilitySemantics} objects representing the semantic
+     *     properties and actions to apply.
+     * @param parentId The parent according to semantic tree.
      */
-    void applyComponent(@NonNull RemoteComposeDocumentAccessibility remoteComposeAccessibility,
-            @NonNull N nodeInfo, @NonNull Component component,
+    void applyComponent(
+            @NonNull RemoteComposeDocumentAccessibility remoteComposeAccessibility,
+            @NonNull N nodeInfo,
+            @NonNull Component component,
             @NonNull List<@NonNull AccessibilitySemantics> semantics,
             @Nullable Integer parentId);
 
-    /**
-     * add children to the node
-     */
+    /** add children to the node */
     void addChildren(@NonNull N nodeInfo, @NonNull List<Integer> childIds);
 
     String VIRTUAL_VIEW_ID_KEY = "VirtualViewId";

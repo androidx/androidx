@@ -967,6 +967,12 @@ class ParameterFactoryTest {
         assertThat(lookup(Icons.Rounded.Add)).isEqualTo(ParameterType.String to "Rounded.Add")
     }
 
+    @Test
+    fun testPrimitiveConstantNamesAreSkipped() {
+        create("parameter", ParameterFactoryTest())
+        assertThat(lookup(PARAM_INDEX)).isEqualTo(ParameterType.Int32 to 4)
+    }
+
     private fun create(
         name: String,
         value: Any,

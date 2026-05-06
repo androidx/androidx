@@ -413,6 +413,7 @@ internal fun measureLazyGrid(
                 afterContentPadding,
                 layoutWidth,
                 layoutHeight,
+                isVertical,
             ) {
                 val span = measuredLineProvider.spanOf(it)
                 val childConstraints = measuredLineProvider.childConstraints(0, span)

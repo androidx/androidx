@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+
 /**
  * Represents the horizontal order of panes in a pane scaffold. An implementation of this interface
  * is supposed to represent an 1-to-1 mapping between all the possible pane roles supported by the
@@ -23,8 +25,13 @@ package androidx.compose.material3.adaptive.layout
  * [ThreePaneScaffoldHorizontalOrder] represents an order of three panes supported by the three pane
  * scaffold implementations like [ListDetailPaneScaffold] and [SupportingPaneScaffold].
  *
+ * Note that this class is not supposed to be used directly by developers. It's defined as public to
+ * support [ThreePaneScaffoldOverride], which can be replaced in the future by other mechanisms. By
+ * then we will hide this class as well.
+ *
  * @see ThreePaneScaffoldHorizontalOrder
  */
+@ExperimentalMaterial3AdaptiveApi
 sealed interface PaneScaffoldHorizontalOrder<Role : PaneScaffoldRole> {
     /** The number of panes in the order. */
     val size: Int

@@ -27,6 +27,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
@@ -49,7 +50,12 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
     float mOutGlyphSpacing;
 
     public DrawBitmapFontTextOnPath(
-            int textID, int bitmapFontID, int pathID, int start, int end, float yAdj,
+            int textID,
+            int bitmapFontID,
+            int pathID,
+            int start,
+            int end,
+            float yAdj,
             float glyphSpacing) {
         if (textID < 0) {
             throw new IllegalArgumentException("textID must not be negative");
@@ -71,8 +77,10 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
         mOutYAdj = Float.isNaN(mYAdj) ? context.getFloat(Utils.idFromNan(mYAdj)) : mYAdj;
-        mOutGlyphSpacing = Float.isNaN(mGlyphSpacing)
-                ? context.getFloat(Utils.idFromNan(mGlyphSpacing)) : mGlyphSpacing;
+        mOutGlyphSpacing =
+                Float.isNaN(mGlyphSpacing)
+                        ? context.getFloat(Utils.idFromNan(mGlyphSpacing))
+                        : mGlyphSpacing;
     }
 
     @Override
@@ -115,16 +123,25 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
         int text = buffer.readInt();
         float glyphSpacing;
         if ((text & 0x80000000) != 0) {
-            text = text & 0xFFFF;
-            glyphSpacing = buffer.readFloat();
+            // Manual remapping since we used the top bit as a flag
+            if (buffer instanceof LoomWireBuffer) {
+                text = ((LoomWireBuffer) buffer).getRemapContext().resolveId(text & 0x7FFFFFFF);
+            } else {
+                text = text & 0x7FFFFFFF;
+            }
+            glyphSpacing = buffer.readNanId();
         } else {
+            // Manual remapping
+            if (buffer instanceof LoomWireBuffer) {
+                text = ((LoomWireBuffer) buffer).getRemapContext().resolveId(text);
+            }
             glyphSpacing = 0f;
         }
-        int bitmapFont = buffer.readInt();
-        int path = buffer.readInt();
+        int bitmapFont = buffer.readId();
+        int path = buffer.readId();
         int start = buffer.readInt();
         int end = buffer.readInt();
-        float yAdj = buffer.readFloat();
+        float yAdj = buffer.readNanId();
         DrawBitmapFontTextOnPath op =
                 new DrawBitmapFontTextOnPath(
                         text, bitmapFont, path, start, end, yAdj, glyphSpacing);
@@ -199,10 +216,7 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                 .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(DocumentedOperation.INT, "bitmapFontId", "The ID of the bitmap font")
                 .field(DocumentedOperation.INT, "pathId", "The ID of the path to follow")
-                .field(
-                        DocumentedOperation.INT,
-                        "start",
-                        "The start index of the text to render")
+                .field(DocumentedOperation.INT, "start", "The start index of the text to render")
                 .field(DocumentedOperation.INT, "end", "The end index of the text to render")
                 .field(
                         DocumentedOperation.FLOAT,

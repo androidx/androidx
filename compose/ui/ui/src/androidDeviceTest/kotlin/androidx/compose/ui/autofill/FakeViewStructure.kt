@@ -75,6 +75,7 @@ internal data class FakeViewStructure(
     @JvmField var visibility: Int = View.VISIBLE,
     @JvmField var maxTextLength: Int = -1,
     @JvmField var webDomain: String? = null,
+    @JvmField var localeList: LocaleList? = null,
 ) : ViewStructure() {
     @JvmField var extras: Bundle = Bundle()
 
@@ -250,6 +251,11 @@ internal data class FakeViewStructure(
         webDomain = domain
     }
 
+    override fun setChildCount(num: Int) {
+        children.clear()
+        repeat(num) { children.add(FakeViewStructure()) }
+    }
+
     // Unimplemented methods.
     override fun asyncCommit() {
         TODO("not implemented")
@@ -271,12 +277,8 @@ internal data class FakeViewStructure(
         TODO("not implemented")
     }
 
-    override fun setChildCount(num: Int) {
-        TODO("not implemented")
-    }
-
     override fun setLocaleList(localeList: LocaleList?) {
-        TODO("not implemented")
+        this.localeList = localeList
     }
 
     override fun setTextStyle(size: Float, fgColor: Int, bgColor: Int, style: Int) {

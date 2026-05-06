@@ -21,19 +21,22 @@ import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RemoteViews;
+import android.widget.ScrollView;
 import android.widget.TextView;
-
 
 import androidx.compose.remote.integration.view.demos.notifications.RemoteNotification;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
@@ -56,13 +59,35 @@ public class RawViewActivity extends Activity {
     static byte[] sDoc = new byte[0];
     RcDocs[] mFoundDocs;
     private static final boolean USE_PLAYER = true;
+    RecyclerView mRecyclerView;
 
     /**
      * Get the current document.
+     *
      * @return the current document
      */
     public static byte @NonNull [] getCurrentDoc() {
         return sDoc;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        paletteChange();
+    }
+
+    private void paletteChange() {
+        if (mRecyclerView == null) return;
+        for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
+            View child = mRecyclerView.getChildAt(i);
+            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
+            if (holder instanceof DocAdapter.ViewHolder) {
+                DocAdapter.ViewHolder docHolder = (DocAdapter.ViewHolder) holder;
+                if (docHolder.mPlayer != null) {
+                    docHolder.mPlayer.reloadPalette();
+                }
+            }
+        }
     }
 
     @Override
@@ -76,8 +101,8 @@ public class RawViewActivity extends Activity {
         }
         getRcFiles();
 
-        RecyclerView recyclerView = new RecyclerView(this);
-        recyclerView.setLayoutParams(new ViewGroup.LayoutParams(
+        mRecyclerView = new RecyclerView(this);
+        mRecyclerView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -85,10 +110,10 @@ public class RawViewActivity extends Activity {
         getDisplayMetricsDimensions(dim);
         int orientation = RecyclerView.HORIZONTAL;
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, orientation, false));
-        recyclerView.setAdapter(new DocAdapter());
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, orientation, false));
+        mRecyclerView.setAdapter(new DocAdapter());
 
-        setContentView(recyclerView);
+        setContentView(mRecyclerView);
     }
 
     @SuppressLint("RestrictedApiAndroidX")
@@ -137,9 +162,20 @@ public class RawViewActivity extends Activity {
 
             itemLayout.addView(rcViewContainer);
             itemLayout.addView(controlsRow);
+            EditText text = new EditText(parent.getContext());
+            text.setLayoutParams(new ScrollView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    500));
+
+            text.setBackgroundColor(0xFFAABBCC);
+            text.setMovementMethod(new ScrollingMovementMethod());
+            text.setText("1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
+
+            itemLayout.addView(text);
+
 
             return new ViewHolder(itemLayout, rcViewContainer, player, nameLabel, launcherButton,
-                    notificationButton);
+                    notificationButton, text);
         }
 
         @Override
@@ -170,6 +206,19 @@ public class RawViewActivity extends Activity {
                 if (USE_PLAYER) {
                     if (holder.mPlayer != null) {
                         holder.mPlayer.setDocument(bytes);
+                        holder.mPlayer.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                String str =
+                                        holder.mPlayer.getDocument().getDocument().toNestedString();
+                                holder.mText.setText(str);
+                                holder.mText.setBackgroundColor(0xFFDDEEFF);
+                                System.out.println(str);
+                            }
+
+                        }, 600);
+
                     }
                 } else {
                     holder.mRcViewContainer.removeAllViews();
@@ -210,22 +259,26 @@ public class RawViewActivity extends Activity {
             TextView mNameLabel;
             Button mLauncherButton;
             Button mNotificationButton;
+            EditText mText;
 
             @SuppressLint("RestrictedApiAndroidX")
             ViewHolder(View itemView, FrameLayout rcViewContainer, RemoteComposePlayer player,
-                       TextView nameLabel, Button launcherButton, Button notificationButton) {
+                    TextView nameLabel, Button launcherButton, Button notificationButton,
+                    EditText text) {
                 super(itemView);
                 this.mRcViewContainer = rcViewContainer;
                 this.mPlayer = player;
                 this.mNameLabel = nameLabel;
                 this.mLauncherButton = launcherButton;
                 this.mNotificationButton = notificationButton;
+                this.mText = text;
             }
         }
     }
 
     /**
      * Handle click on launcher button.
+     *
      * @param i position of the document
      */
     @SuppressLint("RestrictedApiAndroidX")
@@ -292,12 +345,13 @@ public class RawViewActivity extends Activity {
 
     /**
      * Read a raw resource as a byte array.
+     *
      * @param context context to use
-     * @param resId resource id
+     * @param resId   resource id
      * @return the byte array
      */
     @SuppressLint("RestrictedApiAndroidX")
-    public static byte @NonNull[] readRawResource(@NonNull Context context, int resId) {
+    public static byte @NonNull [] readRawResource(@NonNull Context context, int resId) {
         try (InputStream inputStream = context.getResources().openRawResource(resId)) {
             int size = inputStream.available();
             byte[] buffer = new byte[size];
@@ -336,6 +390,10 @@ public class RawViewActivity extends Activity {
             Field[] fields = rawClass.getFields();
             for (Field field : fields) {
                 String name = field.getName();
+//                if (!name.startsWith("text_refresh_bug")) {
+//                    continue;
+//                }
+
                 int id = field.getInt(null);
                 result.add(new RcDocs(id, name));
             }

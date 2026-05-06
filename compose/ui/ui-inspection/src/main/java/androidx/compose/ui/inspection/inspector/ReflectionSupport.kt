@@ -127,7 +127,7 @@ internal class ReflectionSupport(private val inlineClassConverter: InlineClassCo
                     value.javaClass in WRAPPERS &&
                     property.returnType?.contains('/') == true
             ) {
-                value = inlineClassConverter.castParameterValue(property.returnType, value)
+                value = inlineClassConverter.castValue(property.returnType, value)
             }
             return value
         } catch (ex: CancellationException) {

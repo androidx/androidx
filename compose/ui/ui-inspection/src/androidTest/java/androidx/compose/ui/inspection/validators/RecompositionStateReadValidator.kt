@@ -48,7 +48,7 @@ private fun validate(
     reads: List<StateReadGroup>,
     block: MultiRecompositionStateReadValidator.() -> Unit = {},
 ) {
-    val map = reads.associate { it.recompositionNumber to it.readList }
+    val map = reads.associateBy { it.recompositionNumber }
     try {
         val validator = MultiRecompositionStateReadValidator(strings, map)
         validator.block()
@@ -68,7 +68,7 @@ private fun validate(
 /** Validator of a DSL for [GetRecompositionStateReadResponse]. */
 internal class MultiRecompositionStateReadValidator(
     private val strings: Map<Int, String>,
-    private val reads: Map<Int, List<StateRead>>,
+    private val reads: Map<Int, StateReadGroup>,
 ) {
     private val recompositionsChecked = mutableSetOf<Int>()
 
@@ -85,8 +85,8 @@ internal class MultiRecompositionStateReadValidator(
             .that(recompositionsChecked)
             .doesNotContain(recomposition)
         recompositionsChecked.add(recomposition)
-        val read = reads[recomposition] ?: emptyList()
-        val validator = RecompositionStateReadValidator(strings, read)
+        val group = reads[recomposition] ?: StateReadGroup.getDefaultInstance()
+        val validator = RecompositionStateReadValidator(strings, group)
         validator.block()
         validator.end()
     }
@@ -108,8 +108,8 @@ internal class MultiRecompositionStateReadValidator(
         val spaces = "    ".repeat(indent)
         for (recomposition in recompositions) {
             output.appendLine("${spaces}recomposition($recomposition) {")
-            val read = reads[recomposition] ?: emptyList()
-            val validator = RecompositionStateReadValidator(strings, read)
+            val group = reads[recomposition] ?: StateReadGroup.getDefaultInstance()
+            val validator = RecompositionStateReadValidator(strings, group)
             validator.dump(output, indent + 1)
             output.appendLine("${spaces}}")
         }
@@ -119,9 +119,29 @@ internal class MultiRecompositionStateReadValidator(
 /** Validator of a DSL of state reads from a [GetRecompositionStateReadResponse]. */
 internal class RecompositionStateReadValidator(
     private val strings: Map<Int, String>,
-    private val reads: List<StateRead>,
+    private val group: StateReadGroup,
 ) {
+    private val reads = group.readList
     private var readIndex = 0
+    private var parameterIndex = 0
+
+    fun parameterChange(
+        name: String,
+        type: Type,
+        value: Any,
+        block: ParameterListValidator.() -> Unit = {},
+    ) {
+        if (group.parameterChangesList.isEmpty()) {
+            error("No changed parameters detected")
+        } else if (parameterIndex >= group.parameterChangesList.size) {
+            error(
+                "There are only ${group.parameterChangesList.size} changed parameters for this recomposition"
+            )
+        }
+        val change = group.parameterChangesList[parameterIndex++]
+        val validator = ParameterListValidator(strings, listOf(change))
+        validator.parameter(name, type, value, block)
+    }
 
     /** Specifies an expected state read with a [block] for the expected value and state trace. */
     fun read(block: StateReadValidator.() -> Unit = {}) {
@@ -141,11 +161,18 @@ internal class RecompositionStateReadValidator(
         assertWithMessage("Only $readIndex out of ${reads.size} state reads are accounted for")
             .that(readIndex)
             .isEqualTo(reads.size)
+        assertWithMessage(
+                "Only $parameterIndex out of ${group.parameterChangesList.size} parameter changes are accounted for"
+            )
+            .that(parameterIndex)
+            .isEqualTo(group.parameterChangesList.size)
     }
 
     /** Formats the actual data (to be used in error messages). */
     fun dump(output: StringBuilder, indent: Int) {
         val spaces = "    ".repeat(indent)
+        val validator = ParameterListValidator(strings, group.parameterChangesList)
+        validator.dump(output, indent, "parameterChange", showName = true)
         for (read in reads) {
             output.appendLine("${spaces}read {")
             val validator = StateReadValidator(strings, read)

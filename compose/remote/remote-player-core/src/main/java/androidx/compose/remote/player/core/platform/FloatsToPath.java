@@ -34,19 +34,18 @@ import org.jspecify.annotations.Nullable;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class FloatsToPath {
-    private FloatsToPath() {
-    }
+    private FloatsToPath() {}
 
     /**
      * Converts a float array representing a path into a Path object.
      *
-     * @param retPath   The Path object to populate with the converted path data.
+     * @param retPath The Path object to populate with the converted path data.
      * @param floatPath The float array representing the path.
-     * @param start     The starting percentage (0.0 to 1.0) of the path to include.
-     * @param stop      The ending percentage (0.0 to 1.0) of the path to include.
+     * @param start The starting percentage (0.0 to 1.0) of the path to include.
+     * @param stop The ending percentage (0.0 to 1.0) of the path to include.
      */
-    public static void genPath(@NonNull Path retPath, float @Nullable [] floatPath, float start,
-            float stop) {
+    public static void genPath(
+            @NonNull Path retPath, float @Nullable [] floatPath, float start, float stop) {
         int i = 0;
         Path path = new Path(); // todo this should be cached for performance
         while (i < floatPath.length) {

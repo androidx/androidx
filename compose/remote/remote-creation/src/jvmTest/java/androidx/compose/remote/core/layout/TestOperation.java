@@ -33,14 +33,16 @@ public abstract class TestOperation {
      * @param document the document to test
      * @return true if we want to force a repaint
      */
-    public abstract boolean apply(@NonNull RemoteContext context,
+    public abstract boolean apply(
+            @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull TestParameters testParameters,
             @Nullable List<Map<String, Object>> commands);
 
-
-    protected Map<String, Object> command(@NonNull String description,
-            Map<String, Object> command, Map<String, Object> snapshot) {
+    protected Map<String, Object> command(
+            @NonNull String description,
+            Map<String, Object> command,
+            Map<String, Object> snapshot) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("description", description);
         map.put("command", command);
@@ -48,8 +50,8 @@ public abstract class TestOperation {
         return map;
     }
 
-    protected Map<String, Object> command(@NonNull String description,
-            @NonNull String command, Map<String, Object> snapshot) {
+    protected Map<String, Object> command(
+            @NonNull String description, @NonNull String command, Map<String, Object> snapshot) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("description", description);
         map.put("command", command);

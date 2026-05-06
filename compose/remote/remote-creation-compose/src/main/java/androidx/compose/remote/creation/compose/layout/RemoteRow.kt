@@ -13,43 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.WidthModifier
-import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
-import androidx.compose.remote.creation.compose.v2.RemoteRowV2
-import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.remember
-import androidx.compose.ui.draw.DrawModifier
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-
-/** Utility modifier to record the layout information */
-internal class RemoteComposeRowModifier(
-    public val modifier: RecordingModifier,
-    public val horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
-    public val verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
-) : DrawModifier {
-    override fun ContentDrawScope.draw() {
-        drawIntoRemoteCanvas { canvas ->
-            canvas.document.startRow(
-                modifier,
-                horizontalArrangement.toRemote(),
-                verticalAlignment.toRemote(),
-            )
-            this@draw.drawContent()
-            canvas.document.endRow()
-        }
-    }
-}
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 
 /** Receiver scope used by [RemoteRow] for its content. */
 public class RemoteRowScope {
@@ -64,6 +41,30 @@ public class RemoteRowScope {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteModifier.weight(weight: Float): RemoteModifier =
         then(WidthModifier(Type.WEIGHT, RemoteFloat(weight)))
+}
+
+internal class RemoteRowNode : RemoteComposeNode() {
+    var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
+    var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+        (horizontalArrangement as? RemoteSpaced)?.let {
+            recordingModifier.spacedBy(it.space.getFloatIdForCreationState(creationState))
+        }
+        creationState.document.startRow(
+            recordingModifier,
+            horizontalArrangement.toRemote(layoutDirection),
+            verticalAlignment.toRemote(),
+        )
+        renderChildren(
+            creationState,
+            remoteCanvas,
+            reversed = shouldReverse(horizontalArrangement, layoutDirection),
+        )
+        creationState.document.endRow()
+    }
 }
 
 /**
@@ -85,31 +86,22 @@ public fun RemoteRow(
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
     content: @Composable RemoteRowScope.() -> Unit,
 ) {
-    if (currentComposer.applier is RemoteComposeApplierV2) {
-        RemoteRowV2(modifier, horizontalArrangement, verticalAlignment) {
-            // Bridge V1 scope to V2 scope
-            val v1Scope = remember { RemoteRowScope() }
-            v1Scope.content()
-        }
-        return
-    }
-
-    val creationState = LocalRemoteComposeCreationState.current
     val scope = remember { RemoteRowScope() }
-    val composeModifiers =
-        RemoteComposeRowModifier(
-                creationState.toRecordingModifier(modifier),
-                horizontalArrangement,
-                verticalAlignment,
-            )
-            .then(modifier.toComposeUiLayout())
-
-    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-    androidx.compose.foundation.layout.Row(
-        composeModifiers,
-        horizontalArrangement = horizontalArrangement.toComposeUi(),
-        verticalAlignment = verticalAlignment.toComposeUi(),
-    ) {
-        content(scope)
-    }
+    val layoutDirection = LocalLayoutDirection.current
+    RemoteComposeNode(
+        factory = ::RemoteRowNode,
+        update = {
+            set(modifier) { nodeModifier -> this.modifier = nodeModifier }
+            set(horizontalArrangement) { nodeHorizontalArrangement ->
+                this.horizontalArrangement = nodeHorizontalArrangement
+            }
+            set(verticalAlignment) { nodeVerticalAlignment ->
+                this.verticalAlignment = nodeVerticalAlignment
+            }
+            set(layoutDirection) { nodeLayoutDirection ->
+                this.layoutDirection = nodeLayoutDirection
+            }
+        },
+        content = { scope.content() },
+    )
 }

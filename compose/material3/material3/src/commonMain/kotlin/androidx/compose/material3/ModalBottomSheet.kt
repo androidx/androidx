@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.internal.Strings
@@ -135,7 +134,7 @@ fun ModalBottomSheet(
         contentColor = contentColor,
         onDismissRequest = settleToDismiss,
     ) {
-        Box(modifier = Modifier.fillMaxSize().imePadding().semantics { isTraversalGroup = true }) {
+        Box(modifier = Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
             val sheetWindowInsets = remember(sheetState) { SheetWindowInsets(sheetState) }
             val isScrimVisible: Boolean by remember {
                 derivedStateOf { sheetState.targetValue != Hidden }

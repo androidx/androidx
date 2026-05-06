@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -24,7 +25,12 @@ import androidx.compose.ui.unit.LayoutDirection
  * this class only have two possible instances, i.e. [ListDetailPaneScaffoldDefaults.PaneOrder] and
  * [SupportingPaneScaffoldDefaults.PaneOrder], which will be used internally by
  * [ListDetailPaneScaffold] and [SupportingPaneScaffold] respectively.
+ *
+ * Note that this class is not supposed to be used directly by developers. It's defined as public to
+ * support [ThreePaneScaffoldOverride], which can be replaced in the future by other mechanisms. By
+ * then we will hide this class as well.
  */
+@ExperimentalMaterial3AdaptiveApi
 @Immutable
 class ThreePaneScaffoldHorizontalOrder
 internal constructor(
@@ -97,6 +103,7 @@ internal constructor(
  *
  * @param layoutDirection the current [LayoutDirection]
  */
+@ExperimentalMaterial3AdaptiveApi
 internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
     layoutDirection: LayoutDirection
 ): ThreePaneScaffoldHorizontalOrder {

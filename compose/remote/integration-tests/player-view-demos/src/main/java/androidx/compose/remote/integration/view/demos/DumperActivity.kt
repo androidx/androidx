@@ -17,6 +17,8 @@
 package androidx.compose.remote.integration.view.demos
 
 import android.content.Context
+import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,7 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import androidx.compose.remote.integration.view.demos.examples.RideShare
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,10 +54,9 @@ import androidx.compose.ui.unit.dp
 class DumperActivity : ComponentActivity() {
     @Suppress("RestrictedApiAndroidX")
     override fun onCreate(savedInstanceState: Bundle?) {
-        @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
-        RemoteComposeCreationComposeFlags.isRemoteApplierEnabled = false
         super.onCreate(savedInstanceState)
 
+        initRideShare(getResources())
         val initialMode = RenderMode.fromString(intent.getStringExtra("mode"))
 
         setContent {
@@ -69,6 +70,27 @@ class DumperActivity : ComponentActivity() {
             }
         }
     }
+
+    companion object {
+        private var rideShare: RideShare? = null
+
+        private fun initRideShare(resources: Resources) {
+            if (rideShare != null) {
+                return
+            }
+
+            val carLogo = BitmapFactory.decodeResource(resources, R.drawable.car_logo)
+            val carDriver = BitmapFactory.decodeResource(resources, R.drawable.car_driver)
+            val carIcon = BitmapFactory.decodeResource(resources, R.drawable.car_icon)
+
+            rideShare = RideShare()
+            rideShare?.setBitmaps(carLogo, carDriver, carIcon)
+        }
+
+        public fun getRideShare(): RideShare? {
+            return rideShare
+        }
+    }
 }
 
 @Composable
@@ -77,6 +99,7 @@ fun DumperScreen(context: Context, initialMode: RenderMode) {
     var resolution by remember { mutableStateOf(Resolution.RES_480X480) }
     var duration by remember { mutableStateOf(Duration.SEC_30) }
     var fps by remember { mutableStateOf(Fps.FPS_30) }
+    var bitrate by remember { mutableStateOf(Bitrate.BITRATE_200K) }
     var selectedSample by remember { mutableStateOf(AllSamples.first()) }
     var isRunning by remember { mutableStateOf(false) }
     var outputInfo by remember { mutableStateOf("") }
@@ -108,6 +131,8 @@ fun DumperScreen(context: Context, initialMode: RenderMode) {
                 onDurationChange = { duration = it },
                 fps = fps,
                 onFpsChange = { fps = it },
+                bitrate = bitrate,
+                onBitrateChange = { bitrate = it },
                 samples = AllSamples,
                 selectedSample = selectedSample,
                 onSampleChange = { selectedSample = it },
@@ -124,6 +149,7 @@ fun DumperScreen(context: Context, initialMode: RenderMode) {
                 resolution = resolution,
                 duration = duration,
                 fps = fps,
+                bitrate = bitrate,
                 onOutputReady = {
                     outputInfo = it
                     isRunning = false
@@ -143,6 +169,8 @@ fun DumperControlPanel(
     onDurationChange: (Duration) -> Unit,
     fps: Fps,
     onFpsChange: (Fps) -> Unit,
+    bitrate: Bitrate,
+    onBitrateChange: (Bitrate) -> Unit,
     samples: List<DumperSample>,
     selectedSample: DumperSample,
     onSampleChange: (DumperSample) -> Unit,
@@ -157,6 +185,7 @@ fun DumperControlPanel(
         ResolutionSelector(resolution, onResolutionChange)
         DurationSelector(duration, onDurationChange)
         FpsSelector(fps, onFpsChange)
+        BitrateSelector(bitrate, onBitrateChange)
         SampleSelector(samples, selectedSample.name, onSampleChange)
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -173,6 +202,7 @@ fun DumperPreviewSection(
     resolution: Resolution,
     duration: Duration,
     fps: Fps,
+    bitrate: Bitrate,
     onOutputReady: (String) -> Unit,
 ) {
     Box(modifier = Modifier.background(Color.Black).padding(4.dp)) {
@@ -194,6 +224,7 @@ fun DumperPreviewSection(
                         height = resolution.height,
                         durationMillis = duration.millis,
                         fps = fps.value,
+                        bitrate = bitrate.bps,
                     )
                 LaunchedEffect(result) { result?.let { onOutputReady(it.filePath) } }
             }

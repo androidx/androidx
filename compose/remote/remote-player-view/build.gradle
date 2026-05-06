@@ -19,7 +19,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 androidx {
@@ -34,7 +34,7 @@ android {
     namespace = "androidx.compose.remote.player.view"
     compileSdk = 35
     defaultConfig {
-        minSdk = 29
+        minSdk = 26
     }
 }
 

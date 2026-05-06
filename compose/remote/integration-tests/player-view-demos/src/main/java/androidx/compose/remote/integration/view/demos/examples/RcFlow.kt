@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Color
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
@@ -42,7 +43,8 @@ fun RcFlow(): RemoteComposeContext {
             Header.DOC_PROFILES,
             RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
         ),
-        RemoteComposeWriter.HTag(Header.FEATURE_MEASURE_VERSION, 2),
+        RemoteComposeWriter.HTag(Header.FEATURE_MEASURE_VERSION, 4),
+        RemoteComposeWriter.HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_PIXELS),
     ) {
         root {
             column(Modifier.fillMaxSize().background(Color.WHITE).padding(60)) {

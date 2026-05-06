@@ -20,10 +20,12 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.INT
 import static androidx.compose.remote.core.documentation.DocumentedOperation.REPEATED_FLOAT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.TouchListener;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -49,7 +51,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchExpression extends Operation
-        implements ComponentData, VariableSupport, TouchListener, Serializable {
+        implements ComponentData, VariableSupport, TouchListener, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.TOUCH_EXPRESSION;
     private static final String CLASS_NAME = "TouchExpression";
     private float mDefValue;
@@ -69,9 +71,6 @@ public class TouchExpression extends Operation
     private float mLastChange = Float.NaN;
     private float mLastCalculatedValue = Float.NaN;
     AnimatedFloatExpression mExp = new AnimatedFloatExpression();
-
-    /** The maximum number of floats in the expression */
-    public static final int MAX_EXPRESSION_SIZE = 32;
 
     private VelocityEasing mEasyTouch = new VelocityEasing();
     private boolean mEasingToStop = false;
@@ -113,19 +112,29 @@ public class TouchExpression extends Operation
     /** Stop at evenly spaced single step notches */
     public static final int STOP_NOTCHES_SINGLE_EVEN = 7;
 
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
+
     /**
      * create a touch expression
      *
-     * @param id           The float id the value is output to
-     * @param exp          the expression (containing TOUCH_* )
-     * @param defValue     the default value
-     * @param min          the minimum value
-     * @param max          the maximum value
+     * @param id The float id the value is output to
+     * @param exp the expression (containing TOUCH_* )
+     * @param defValue the default value
+     * @param min the minimum value
+     * @param max the maximum value
      * @param touchEffects the type of touch mode
-     * @param velocityId   the velocity (not used)
-     * @param stopMode     the behaviour on touch oup
-     * @param stopSpec     the parameters that affect the touch up behaviour
-     * @param easingSpec   the easing parameters for coming to a stop
+     * @param velocityId the velocity (not used)
+     * @param stopMode the behaviour on touch oup
+     * @param stopSpec the parameters that affect the touch up behaviour
+     * @param easingSpec the easing parameters for coming to a stop
      */
     public TouchExpression(
             int id,
@@ -480,7 +489,7 @@ public class TouchExpression extends Operation
     @Override
     public void touchDown(@NonNull RemoteContext context, float x, float y) {
         if (!(x >= mScrLeft && x <= mScrRight && y >= mScrTop && y <= mScrBottom)) {
-            Utils.log("NOT IN WINDOW " + x + ", " + y + " " + mScrLeft + ", " + mScrTop);
+            // "NOT IN WINDOW " + x + ", " + y + " " + mScrLeft + ", " + mScrTop);
             return;
         }
         mEasingToStop = false;
@@ -627,17 +636,17 @@ public class TouchExpression extends Operation
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer       The buffer to write to
-     * @param id           the id of the resulting float
-     * @param value        the float expression array
-     * @param min          the minimum allowed value
-     * @param max          the maximum allowed value
-     * @param velocityId   the velocity id
+     * @param buffer The buffer to write to
+     * @param id the id of the resulting float
+     * @param value the float expression array
+     * @param min the minimum allowed value
+     * @param max the maximum allowed value
+     * @param velocityId the velocity id
      * @param touchEffects the type touch effect
-     * @param exp          the expression the maps touch drags to movement
-     * @param touchMode    the touch mode e.g. notch modes
-     * @param touchSpec    the spec of the touch modes
-     * @param easingSpec   the spec of when the object comes to an easing
+     * @param exp the expression the maps touch drags to movement
+     * @param touchMode the touch mode e.g. notch modes
+     * @param touchSpec the spec of the touch modes
+     * @param easingSpec the spec of when the object comes to an easing
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -685,24 +694,24 @@ public class TouchExpression extends Operation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        float startValue = buffer.readFloat();
-        float min = buffer.readFloat();
-        float max = buffer.readFloat();
-        float velocityId = buffer.readFloat(); // TODO future support
+        int id = buffer.readId();
+        float startValue = buffer.readNanId();
+        float min = buffer.readNanId();
+        float max = buffer.readNanId();
+        float velocityId = buffer.readNanId(); // TODO future support
         int touchEffects = buffer.readInt();
         int len = buffer.readInt();
         int valueLen = len & 0xFFFF;
-        if (valueLen > MAX_EXPRESSION_SIZE) {
+        if (valueLen > Limits.MAX_EXPRESSION_SIZE) {
             throw new RuntimeException("Float expression to long");
         }
         float[] exp = new float[valueLen];
         for (int i = 0; i < exp.length; i++) {
-            exp[i] = buffer.readFloat();
+            exp[i] = buffer.readNanId();
         }
         int stopLogic = buffer.readInt();
         int stopLen = stopLogic & 0xFFFF;
@@ -710,13 +719,13 @@ public class TouchExpression extends Operation
 
         float[] stopsData = new float[stopLen];
         for (int i = 0; i < stopsData.length; i++) {
-            stopsData[i] = buffer.readFloat();
+            stopsData[i] = buffer.readNanId();
         }
         int easingLen = buffer.readInt();
 
         float[] easingData = new float[easingLen];
         for (int i = 0; i < easingData.length; i++) {
-            easingData[i] = buffer.readFloat();
+            easingData[i] = buffer.readNanId();
         }
 
         operations.add(
@@ -748,7 +757,9 @@ public class TouchExpression extends Operation
                 .field(FLOAT, "velocityId", "Reserved for velocity ID")
                 .field(INT, "touchEffects", "Haptic feedback and touch behavior flags")
                 .field(INT, "expression_length", "The length of the touch mapping expression")
-                .field(REPEATED_FLOAT, "expression",
+                .field(
+                        REPEATED_FLOAT,
+                        "expression",
                         "Sequence of floats representing touch mapping (RPN)")
                 .field(INT, "stopModeAndLen", "Encoded stop mode and length of stop spec")
                 .field(REPEATED_FLOAT, "stopSpec", "Parameters for stop behavior (e.g., notches)")

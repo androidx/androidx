@@ -295,7 +295,7 @@ private fun StateReadRecord.convert(
     stringTable: StringTable,
     layoutInspectorTree: LayoutInspectorTree,
 ): StateRead {
-    val value = layoutInspectorTree.convertStateValue(this.value)
+    val value = layoutInspectorTree.convertStateValue("value", this.value)
     val elements = this.trace.stackTrace
     val builder = StateRead.newBuilder()
     builder.value = value?.convert(stringTable) ?: Parameter.getDefaultInstance()
@@ -318,12 +318,17 @@ private fun StateReadRecord.convert(
     return builder.build()
 }
 
-fun ObservedReadResult.convert(
+internal fun ObservedReadResult.convert(
     stringTable: StringTable,
     layoutInspectorTree: LayoutInspectorTree,
 ): StateReadGroup {
     val builder = StateReadGroup.newBuilder()
     builder.recompositionNumber = recomposition
+    val parameters =
+        parameterChanges.mapNotNull {
+            layoutInspectorTree.convertStateValue(it.name, it.value)?.convert(stringTable)
+        }
+    builder.addAllParameterChanges(parameters)
 
     // Collapse state reads that are identical:
     val convertedReads = mutableSetOf<StateRead>()

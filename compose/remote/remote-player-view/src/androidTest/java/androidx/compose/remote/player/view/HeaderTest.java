@@ -210,8 +210,7 @@ public class HeaderTest {
 
         byte[] buffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        RemoteDocument doc =
-                new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
+        RemoteDocument doc = new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
 
         String result = doc.toString();
         String expected =

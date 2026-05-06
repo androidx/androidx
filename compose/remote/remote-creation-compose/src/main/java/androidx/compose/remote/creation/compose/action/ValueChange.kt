@@ -41,24 +41,27 @@ internal class ValueChangeAction<T>(
 ) : Action {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
-        return if (remoteValue is MutableRemoteInt) {
-            updatedValue as RemoteInt
-            val array = updatedValue.arrayForCreationState(creationState)
+        val actualMutable = remoteValue.asEncodedMutable
+        val actualValue = updatedValue.asEncoded
+
+        return if (actualMutable is MutableRemoteInt) {
+            actualValue as RemoteInt
+            val array = actualValue.arrayForCreationState(this)
 
             if (array.isLiteral()) {
-                ValueIntegerChange(remoteValue.id, array[0].toInt())
+                ValueIntegerChange(actualMutable.id, array[0].toInt())
             } else {
                 // TODO validate why these are direct ids as a Long.
-                ValueIntegerExpressionChange(remoteValue.longId, updatedValue.longId)
+                ValueIntegerExpressionChange(actualMutable.longId, actualValue.longId)
             }
-        } else if (remoteValue is MutableRemoteFloat) {
-            updatedValue as RemoteFloat
-            ValueFloatExpressionChange(remoteValue.id, updatedValue.id)
-        } else if (remoteValue is RemoteString) {
-            updatedValue as RemoteString
-            ValueStringChange(remoteValue.id, updatedValue.constantValue)
+        } else if (actualMutable is MutableRemoteFloat) {
+            actualValue as RemoteFloat
+            ValueFloatExpressionChange(actualMutable.id, actualValue.id)
+        } else if (actualMutable is RemoteString) {
+            actualValue as RemoteString
+            ValueStringChange(actualMutable.id, actualValue.constantValue)
         } else {
-            TODO("println unsupported type in ValueChange $remoteValue")
+            TODO("println unsupported type in ValueChange $actualMutable")
         }
     }
 }

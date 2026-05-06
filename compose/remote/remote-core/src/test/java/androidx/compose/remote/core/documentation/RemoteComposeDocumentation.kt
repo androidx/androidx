@@ -51,7 +51,6 @@ import androidx.compose.remote.core.operations.DrawRoundRect
 import androidx.compose.remote.core.operations.DrawSector
 import androidx.compose.remote.core.operations.DrawText
 import androidx.compose.remote.core.operations.DrawTextAnchored
-import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.DrawTextOnPath
 import androidx.compose.remote.core.operations.DrawToBitmap
 import androidx.compose.remote.core.operations.DrawTweenPath
@@ -106,6 +105,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.ImpulseProcess
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
+import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation
@@ -123,12 +123,14 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.core.operations.layout.managers.TextStyle
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
@@ -435,7 +437,7 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         operationsMap.put(Operations.DRAW_TEXT_RUN, DrawText::documentation)
         operationsMap.put(Operations.DRAW_TEXT_ANCHOR, DrawTextAnchored::documentation)
         operationsMap.put(Operations.DRAW_TEXT_ON_PATH, DrawTextOnPath::documentation)
-        operationsMap.put(Operations.DRAW_TEXT_ON_CIRCLE, DrawTextOnCircle::documentation)
+        // operationsMap.put(Operations.DRAW_TEXT_ON_CIRCLE, DrawTextOnCircle::documentation)
         operationsMap.put(Operations.DRAW_BITMAP_FONT_TEXT_RUN, DrawBitmapFontText::documentation)
         operationsMap.put(
             Operations.DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,
@@ -482,6 +484,7 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         operationsMap.put(Operations.LAYOUT_CANVAS, CanvasLayout::documentation)
         operationsMap.put(Operations.LAYOUT_TEXT, TextLayout::documentation)
         operationsMap.put(Operations.CORE_TEXT, CoreText::documentation)
+        operationsMap.put(Operations.TEXT_STYLE, TextStyle::documentation)
         operationsMap.put(Operations.LAYOUT_IMAGE, ImageLayout::documentation)
         operationsMap.put(Operations.LAYOUT_STATE, StateLayout::documentation)
         operationsMap.put(Operations.COMPONENT_START, ComponentStart::documentation)
@@ -491,6 +494,10 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         operationsMap.put(Operations.MODIFIER_HEIGHT, HeightModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_WIDTH_IN, WidthInModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_HEIGHT_IN, HeightInModifierOperation::documentation)
+        operationsMap.put(
+            Operations.MODIFIER_DIMENSION_CONSTRAINTS,
+            DimensionConstraintsModifierOperation::documentation,
+        )
         operationsMap.put(
             Operations.MODIFIER_COLLAPSIBLE_PRIORITY,
             CollapsiblePriorityModifierOperation::documentation,
@@ -508,6 +515,7 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         )
         operationsMap.put(Operations.CLICK_AREA, ClickArea::documentation)
         operationsMap.put(Operations.MODIFIER_CLICK, ClickModifierOperation::documentation)
+        operationsMap.put(Operations.MODIFIER_MULTI_CLICK, MultiClickModifier::documentation)
         operationsMap.put(Operations.MODIFIER_TOUCH_DOWN, TouchDownModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_TOUCH_UP, TouchUpModifierOperation::documentation)
         operationsMap.put(

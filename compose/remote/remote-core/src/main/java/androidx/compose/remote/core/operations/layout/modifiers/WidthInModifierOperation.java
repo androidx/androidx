@@ -51,8 +51,8 @@ public class WidthInModifierOperation extends DimensionInModifierOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        float v1 = buffer.readFloat();
-        float v2 = buffer.readFloat();
+        float v1 = buffer.readNanId();
+        float v2 = buffer.readNanId();
         operations.add(new WidthInModifierOperation(v1, v2));
     }
 

@@ -57,6 +57,14 @@ class RemoteLongTest {
         assertThat(context.getLong(longId)).isEqualTo(20L)
     }
 
+    @Test
+    fun remoteLong_cacheKey() {
+        val long1 = RemoteLong(10L)
+        val long2 = RemoteLong(10L)
+        assertThat(long1.cacheKey).isNotNull()
+        assertThat(long1.cacheKey).isEqualTo(long2.cacheKey)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

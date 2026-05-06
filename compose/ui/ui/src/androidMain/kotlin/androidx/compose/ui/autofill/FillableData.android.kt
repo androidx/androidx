@@ -59,7 +59,8 @@ internal class AndroidFillableData(internal val autofillValue: AutofillValue) : 
  * Creates a [FillableData] instance from a [CharSequence].
  *
  * This function is used to wrap a text value for autofill purposes. On Android, it creates an
- * [AutofillValue] that contains the provided text.
+ * [AutofillValue] that contains the provided text. The text will be truncated to a safe length if
+ * it is too long to prevent [android.os.TransactionTooLargeException].
  *
  * @param textValue The text data to be used for autofill.
  * @return A [FillableData] object containing the text data, or `null` if the platform version is
@@ -67,7 +68,7 @@ internal class AndroidFillableData(internal val autofillValue: AutofillValue) : 
  */
 actual fun FillableData.Companion.createFromText(textValue: CharSequence): FillableData? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        AndroidFillableData(AutofillValue.forText(textValue))
+        AndroidFillableData(AutofillValue.forText(trimToSafeLength(textValue)))
     } else null
 }
 

@@ -832,15 +832,9 @@ class RecompositionTest {
                 includeRecomposeCounts = true,
                 keepRecomposeCounts = false,
                 stateReadKind = StateReadSettings.Kind.ALL,
+                includeParameterChanges = true,
             )
         )
-
-        rule.onNodeWithText("Click row 1").performClick()
-        rule.onNodeWithText("Click row 1").performClick()
-        rule.onNodeWithText("Click row 1").performClick()
-        rule.onNodeWithText("Click row 1").performClick()
-        rule.onNodeWithText("Click row 1").performClick()
-        rule.waitForIdle()
 
         val rootId = WindowInspector.getGlobalWindowViews().map { it.uniqueDrawingId }.single()
         val composables =
@@ -853,6 +847,13 @@ class RecompositionTest {
                 .getAllParametersResponse
         val nodes = Nodes(composables, parameters)
 
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.waitForIdle()
+
         val reads =
             inspectorTester.getStateReads(
                 anchorHash = nodes.anotherItem1.anchorHash,
@@ -863,22 +864,25 @@ class RecompositionTest {
 
         validate(reads, nodes.anotherItem1.anchorHash) {
             recomposition(1) {
+                parameterChange("number", Type.INT32, 1)
                 read {
                     value(Type.INT32, 1)
                     trace(TRACE_ANOTHER_ITEM)
                     folding(UNFOLDED_TRACE_ANOTHER_ITEM)
                 }
             }
-            recomposition(2) {}
+            recomposition(2) { parameterChange("number", Type.INT32, 2) }
             recomposition(3) {
+                parameterChange("number", Type.INT32, 3)
                 read {
                     value(Type.INT32, 3)
                     trace(TRACE_ANOTHER_ITEM)
                     folding(UNFOLDED_TRACE_ANOTHER_ITEM)
                 }
             }
-            recomposition(4) {}
+            recomposition(4) { parameterChange("number", Type.INT32, 4) }
             recomposition(5) {
+                parameterChange("number", Type.INT32, 5)
                 read {
                     value(Type.INT32, 5)
                     trace(TRACE_ANOTHER_ITEM)
@@ -886,6 +890,54 @@ class RecompositionTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun testUnchangedEmptyResponse(): Unit = runBlocking {
+        val rootId = WindowInspector.getGlobalWindowViews().map { it.uniqueDrawingId }.single()
+        val composables =
+            inspectorTester
+                .sendCommand(
+                    GetComposablesCommand(
+                        rootId,
+                        skipSystemComposables = false,
+                        allowEmptyIfUnchanged = true,
+                    )
+                )
+                .getComposablesResponse
+        assertThat(composables.unchanged).isFalse()
+        assertThat(composables.rootsCount).isEqualTo(1)
+        assertThat(composables.stringsCount).isGreaterThan(0)
+
+        val unchangedComposables =
+            inspectorTester
+                .sendCommand(
+                    GetComposablesCommand(
+                        rootId,
+                        skipSystemComposables = false,
+                        allowEmptyIfUnchanged = true,
+                    )
+                )
+                .getComposablesResponse
+        assertThat(unchangedComposables.unchanged).isTrue()
+        assertThat(unchangedComposables.rootsCount).isEqualTo(0)
+        assertThat(unchangedComposables.stringsCount).isEqualTo(0)
+
+        rule.onNodeWithText("Click row 1").performClick()
+
+        val changedComposables =
+            inspectorTester
+                .sendCommand(
+                    GetComposablesCommand(
+                        rootId,
+                        skipSystemComposables = false,
+                        allowEmptyIfUnchanged = true,
+                    )
+                )
+                .getComposablesResponse
+        assertThat(changedComposables.unchanged).isFalse()
+        assertThat(changedComposables.rootsCount).isEqualTo(1)
+        assertThat(changedComposables.stringsCount).isGreaterThan(0)
     }
 
     private suspend fun InspectorTester.getStateReads(

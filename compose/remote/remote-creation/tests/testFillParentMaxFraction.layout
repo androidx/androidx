@@ -21,6 +21,7 @@
         height: 1000.0
         visibility: VISIBLE
         list:
+        - {type: FloatConstant, id: 42, value: 0.0}
         - type: ComponentModifiers
           modifiers:
           - type: WidthModifierOperation
@@ -133,6 +134,7 @@
         height: 1000.0
         visibility: VISIBLE
         list:
+        - {type: FloatConstant, id: 42, value: 0.0}
         - type: ComponentModifiers
           modifiers:
           - type: WidthModifierOperation

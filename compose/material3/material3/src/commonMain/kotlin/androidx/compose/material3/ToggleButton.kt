@@ -109,7 +109,6 @@ import androidx.compose.ui.unit.dp
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun ToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -202,7 +201,6 @@ fun ToggleButton(
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun ElevatedToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -275,7 +273,6 @@ fun ElevatedToggleButton(
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun TonalToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -346,7 +343,6 @@ fun TonalToggleButton(
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun OutlinedToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -375,7 +371,6 @@ fun OutlinedToggleButton(
     )
 
 /** Contains the default values for all five toggle button types. */
-@ExperimentalMaterial3ExpressiveApi
 object ToggleButtonDefaults {
     /**
      * The default min height applied for all toggle buttons. Note that you can override it by
@@ -895,7 +890,6 @@ class ToggleButtonColors(
  * @property pressedShape is the pressed shape.
  * @property checkedShape is the checked shape.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Immutable
 class ToggleButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape) {
     /** Returns a copy of this ToggleButtonShapes, optionally overriding some of the values. */

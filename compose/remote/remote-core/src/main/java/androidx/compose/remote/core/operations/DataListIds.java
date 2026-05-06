@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -37,13 +38,23 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DataListIds extends Operation implements VariableSupport, ArrayAccess, ComponentData,
-        Serializable {
+public class DataListIds extends Operation
+        implements VariableSupport, ArrayAccess, ComponentData, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.ID_LIST;
     private static final String CLASS_NAME = "IdListData";
-    private final int mId;
+    private int mId;
     private final int @NonNull [] mIds;
     private static final int MAX_LIST = 2000;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public DataListIds(int id, int @NonNull [] ids) {
         mId = id;
@@ -90,14 +101,14 @@ public class DataListIds extends Operation implements VariableSupport, ArrayAcce
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int len = buffer.readInt();
         if (len > MAX_LIST) {
             throw new RuntimeException(len + " list entries more than max = " + MAX_LIST);
         }
         int[] ids = new int[len];
         for (int i = 0; i < ids.length; i++) {
-            ids[i] = buffer.readInt();
+            ids[i] = buffer.readId();
         }
         DataListIds data = new DataListIds(id, ids);
         operations.add(data);

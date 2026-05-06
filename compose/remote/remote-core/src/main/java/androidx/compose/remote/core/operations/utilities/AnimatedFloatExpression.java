@@ -27,9 +27,9 @@ import java.util.Random;
 /** high performance floating point expression evaluator used in animation */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimatedFloatExpression {
-    @NonNull
-    static IntMap<String> sNames = new IntMap<>();
+    @NonNull static IntMap<String> sNames = new IntMap<>();
     private float mR0, mR1, mR2, mR3;
+
     /** The START POINT in the float NaN space for operators */
     public static final int OFFSET = 0x310_000;
 
@@ -215,19 +215,25 @@ public class AnimatedFloatExpression {
 
     /** load from register 0 operator */
     public static final float LOAD_R0 = asNan(OFFSET + 60);
+
     /** load from register 1 operator */
     public static final float LOAD_R1 = asNan(OFFSET + 61);
+
     /** load from register 2 operator */
     public static final float LOAD_R2 = asNan(OFFSET + 62);
+
     /** load from register 3 operator */
     public static final float LOAD_R3 = asNan(OFFSET + 63);
 
     /** Command reserved for operator use such as particles */
     public static final float CMD1 = asNan(OFFSET + 64);
+
     /** Command reserved for operator use such as particles */
     public static final float CMD2 = asNan(OFFSET + 65);
+
     /** Command reserved for operator use such as particles */
     public static final float CMD3 = asNan(OFFSET + 66);
+
     /** Command reserved for operator use such as particles */
     public static final float CMD4 = asNan(OFFSET + 67);
 
@@ -246,26 +252,25 @@ public class AnimatedFloatExpression {
     /** CHANGE_SIGN operator x -> -x */
     public static final float CHANGE_SIGN = asNan(OFFSET + 73);
 
-    /** CUBIC operator  x1,y1,x2,y2,x, -> y */
+    /** CUBIC operator x1,y1,x2,y2,x, -> y */
     public static final float CUBIC = asNan(OFFSET + 74);
 
-    /** CUBIC operator  A_SPLINE_LOOP is A_SPLINE but the array is assumed to be a loop */
+    /** CUBIC operator A_SPLINE_LOOP is A_SPLINE but the array is assumed to be a loop */
     public static final float A_SPLINE_LOOP = asNan(OFFSET + 75);
 
     /** SUM the array till the n value */
     public static final float A_SUM_TILL = asNan(OFFSET + 76);
 
-    /** SUM two arrays multiplying each element with the other  */
+    /** SUM two arrays multiplying each element with the other */
     public static final float A_SUM_XY = asNan(OFFSET + 77);
 
-    /** SUM the squar of the arrays values  */
+    /** SUM the squar of the arrays values */
     public static final float A_SUM_SQR = asNan(OFFSET + 78);
 
-    /**  Linear interpolation between elements. like spline but linear */
+    /** Linear interpolation between elements. like spline but linear */
     public static final float A_LERP = asNan(OFFSET + 79);
 
-    public static final int END_OP =  OFFSET + 79;
-
+    public static final int END_OP = OFFSET + 79;
 
     // TODO SQUARE, DUP, HYPOT, SWAP
     //    private static final float FP_PI = (float) Math.PI;
@@ -275,16 +280,12 @@ public class AnimatedFloatExpression {
     float @NonNull [] mStack = new float[0];
     float @NonNull [] mLocalStack = new float[128];
     float @NonNull [] mVar = new float[0];
-    @Nullable
-    CollectionsAccess mCollectionsAccess;
-    @Nullable
-    CubicEasing mEasing = null;
+    @Nullable CollectionsAccess mCollectionsAccess;
+    @Nullable CubicEasing mEasing = null;
     IntMap<MonotonicSpline> mSplineMap = new IntMap<>();
     private static Random sRandom;
 
-    /**
-     * Get the max op for a given API level
-     */
+    /** Get the max op for a given API level */
     public static int getMaxOpForLevel(int level) {
         switch (level) {
             case 7:
@@ -294,7 +295,6 @@ public class AnimatedFloatExpression {
             default:
                 return END_OP;
         }
-
     }
 
     private float getSplineValue(int arrayId, float pos) {
@@ -312,9 +312,7 @@ public class AnimatedFloatExpression {
         return fit.getPos(pos);
     }
 
-    /**
-     * is float a math operator
-     */
+    /** is float a math operator */
     public static boolean isMathOperator(float v) {
         if (Float.isNaN(v)) {
             int pos = fromNaN(v);
@@ -358,7 +356,7 @@ public class AnimatedFloatExpression {
     /**
      * Evaluate a float expression
      *
-     * @param ca  Access to float array collections
+     * @param ca Access to float array collections
      * @param exp the expressions
      * @param len the length of the expression array
      * @param var variables if the expression contains VAR tags
@@ -391,7 +389,7 @@ public class AnimatedFloatExpression {
     /**
      * Evaluate a float expression
      *
-     * @param ca  The access to float arrays
+     * @param ca The access to float arrays
      * @param exp the expression
      * @param len the length of the expression sections
      * @return the value the expression evaluated to
@@ -423,9 +421,7 @@ public class AnimatedFloatExpression {
     //        return sp;
     //    }
 
-    /**
-     * Evaluate a float expression
-     */
+    /** Evaluate a float expression */
     public float eval(float @NonNull [] exp, int len, float @NonNull ... var) {
         System.arraycopy(exp, 0, mLocalStack, 0, len);
         mStack = mLocalStack;
@@ -442,9 +438,7 @@ public class AnimatedFloatExpression {
         return mStack[sp];
     }
 
-    /**
-     * Evaluate a float expression
-     */
+    /** Evaluate a float expression */
     public float evalDB(float @NonNull [] exp, float @NonNull ... var) {
         mStack = exp;
         mVar = var;
@@ -539,21 +533,16 @@ public class AnimatedFloatExpression {
         sNames.put(k++, "a_sum_xy");
         sNames.put(k++, "a_sum_sqr");
         sNames.put(k++, "a_lerp");
-
     }
 
-    /**
-     * given a float command return its math name (e.g sin, cos etc.)
-     */
+    /** given a float command return its math name (e.g sin, cos etc.) */
     @Nullable
     public static String toMathName(float f) {
         int id = fromNaN(f) - OFFSET;
         return sNames.get(id);
     }
 
-    /**
-     * Convert an expression encoded as an array of floats int to a string
-     */
+    /** Convert an expression encoded as an array of floats int to a string */
     @NonNull
     public static String toString(float @NonNull [] exp, @Nullable String[] labels) {
         StringBuilder s = new StringBuilder();
@@ -635,41 +624,84 @@ public class AnimatedFloatExpression {
     }
 
     static final int[] NO_OF_OPS = {
-            -1, // no op
-            2, 2, 2, 2, 2, // + - * / %
-            2, 2, 2, // min max, power
-            1, 1, 1, 1, 1, 1, 1, 1, // sqrt,abs,CopySign,exp,floor,log,ln
-            1, 1, 1, 1, 1, 1, 1, 2, // round,sin,cos,tan,asin,acos,atan,atan2
-            3, 3, 3, 1, 1, 1, 1, 0, 0, 0, // mad, ?:, clamp, cbrt, deg, rad, ceil , a[0],a[1],a[2]
-            1, // log2
-            1, // inv
-            1, // fract
-            2, // ping_pong
-            1, // nop
-            1, 1, 1, 1, // store
-            0, 0, 0, 0, // load
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            1, 5, 2, // change_sign, cubic, a_spline_loop
-            2, 2, 1, 2 // a_sum_till, a_sum_xy, a_sum_sqr, a_lerp
+        -1, // no op
+        2,
+        2,
+        2,
+        2,
+        2, // + - * / %
+        2,
+        2,
+        2, // min max, power
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1, // sqrt,abs,CopySign,exp,floor,log,ln
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2, // round,sin,cos,tan,asin,acos,atan,atan2
+        3,
+        3,
+        3,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0, // mad, ?:, clamp, cbrt, deg, rad, ceil , a[0],a[1],a[2]
+        1, // log2
+        1, // inv
+        1, // fract
+        2, // ping_pong
+        1, // nop
+        1,
+        1,
+        1,
+        1, // store
+        0,
+        0,
+        0,
+        0, // load
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        5,
+        2, // change_sign, cubic, a_spline_loop
+        2,
+        2,
+        1,
+        2 // a_sum_till, a_sum_xy, a_sum_sqr, a_lerp
     };
 
-    /**
-     * to be used by parser to determine if command is infix
-     */
+    /** to be used by parser to determine if command is infix */
     static boolean infix(int n) {
         return ((n < 6) || (n == 25) || (n == 26));
     }
 
-    /**
-     * Convert an id into a NaN object
-     */
+    /** Convert an id into a NaN object */
     public static float asNan(int v) {
         return Float.intBitsToFloat(v | -0x800000);
     }
 
-    /**
-     * Get ID from a NaN float
-     */
+    /** Get ID from a NaN float */
     public static int fromNaN(float v) {
         int b = Float.floatToRawIntBits(v);
         return b & 0x7FFFFF;
@@ -740,7 +772,6 @@ public class AnimatedFloatExpression {
     private static final int OP_LOAD_R1 = OFFSET + 61;
     private static final int OP_LOAD_R2 = OFFSET + 62;
     private static final int OP_LOAD_R3 = OFFSET + 63;
-
 
     private static final int OP_FIRST_VAR = OFFSET + 70;
     private static final int OP_SECOND_VAR = OFFSET + 71;
@@ -971,7 +1002,7 @@ public class AnimatedFloatExpression {
                 mStack[sp] =
                         (1.0f
                                 - ((x * (x * x * 15731 + 789221) + 1376312589) & 0x7fffffff)
-                                / 1.0737418E+9f);
+                                        / 1.0737418E+9f);
                 return sp;
 
             case OP_RAND_IN_RANGE:
@@ -1135,8 +1166,9 @@ public class AnimatedFloatExpression {
                     mStack[sp - 1] = array[array.length - 1];
                 } else {
                     float t_lerp = p_lerp - index_lerp;
-                    mStack[sp - 1] = array[index_lerp] + t_lerp * (array[index_lerp + 1]
-                            - array[index_lerp]);
+                    mStack[sp - 1] =
+                            array[index_lerp]
+                                    + t_lerp * (array[index_lerp + 1] - array[index_lerp]);
                 }
                 return sp - 1;
         }

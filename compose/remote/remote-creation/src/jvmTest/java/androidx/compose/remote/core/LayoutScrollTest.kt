@@ -40,7 +40,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testVerticalScrollClick() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     val text = addNamedString("click", "empty")
                     column(Modifier.fillMaxSize().verticalScroll()) {
@@ -85,7 +85,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testHorizontalScrollClick() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     val name = addNamedString("click", "empty")
                     row(Modifier.fillMaxSize().horizontalScroll()) {
@@ -130,7 +130,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testNestedScrolling() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     val hClick = addNamedFloat("h_click", -1f)
                     val vClick = addNamedFloat("v_click", -1f)
@@ -195,7 +195,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testFlingScroll() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     val scrollPosId = addNamedFloat("scroll_pos", 0f)
                     column(Modifier.fillMaxSize().verticalScroll(scrollPosId)) {
@@ -229,7 +229,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testFillParentViewport() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize().verticalScroll()) {
                         // This box should be exactly the size of the viewport (600x600)
@@ -255,7 +255,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testFillParentMaxWidthHorizontal() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     row(Modifier.fillMaxSize().horizontalScroll()) {
                         // This box should be exactly the size of the viewport (600x600)
@@ -281,7 +281,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testFillMaxFraction() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         // This box should be half the size of the document width (300)
@@ -305,7 +305,7 @@ class LayoutScrollTest : BaseLayoutTest() {
     @Test
     fun testFillParentMaxFraction() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize().verticalScroll()) {
                         // This box should be half the size of the viewport height (300)

@@ -1580,7 +1580,7 @@ class AppBarTest {
 
         // Swipe up to scroll the content and collapse the top app bar.
         rule.onNodeWithTag(LazyListTag).performTouchInput {
-            swipeUp(startY = height - 200f, endY = height - 1000f)
+            swipeUp(startY = height * 0.8f, endY = height - 1000f)
         }
         rule.waitForIdle()
 
@@ -1594,9 +1594,9 @@ class AppBarTest {
         // Do a slow swipe so the list doesn't fling.
         rule.onNodeWithTag(LazyListTag).performTouchInput {
             swipeDown(
-                startY = height - 1000f,
-                endY = height - (1000f - appBarHeightPx / 1.5f),
-                durationMillis = 1000L,
+                startY = height * 0.2f,
+                endY = height * 0.2f + appBarHeightPx,
+                durationMillis = 2000L,
             )
         }
         rule.waitForIdle()

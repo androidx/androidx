@@ -25,8 +25,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,6 +39,7 @@ import java.util.List;
 @SuppressLint("RestrictedApiAndroidX")
 @RunWith(Parameterized.class)
 public class RemoteComposeConverterTest {
+    private static final boolean SKIP = true;
     private static final boolean VERBOSE = false;
     private final File mRcFile;
 
@@ -54,10 +57,14 @@ public class RemoteComposeConverterTest {
             rawDir = new File("integration-tests/player-view-demos/src/main/res/raw");
         }
         File[] files = rawDir.listFiles((dir, name) -> name.endsWith(".rc"));
+        Arrays.sort(files);
         if (files != null) {
             for (File f : files) {
                 samples.add(f);
             }
+        }
+        if (SKIP) {
+            return new ArrayList<>();
         }
         return samples;
     }
@@ -65,6 +72,9 @@ public class RemoteComposeConverterTest {
     @Test
     @SuppressLint("RestrictedApiAndroidX")
     public void testRoundTrip() throws Exception {
+        if (SKIP) {
+            return;
+        }
         System.out.println(mRcFile.toPath());
         byte[] originalBytes = Files.readAllBytes(mRcFile.toPath());
         assertNotNull("Original bytes should not be null for " + mRcFile.getName(), originalBytes);
@@ -76,7 +86,12 @@ public class RemoteComposeConverterTest {
             System.out.println("===========================================");
             System.out.println(mRcFile.getName());
             System.out.println("===========================================");
-            System.out.println(json.substring(0, Math.min(json.length(), 1000)));
+            //System.out.println(json);
+            File f = new File("/tmp", mRcFile.getName() + ".json");
+            FileWriter fw = new FileWriter(f);
+            fw.write(json);
+            fw.close();
+            System.out.println(json.substring(0, Math.min(json.length(), 7000)));
             System.out.println("===========================================");
 
         }

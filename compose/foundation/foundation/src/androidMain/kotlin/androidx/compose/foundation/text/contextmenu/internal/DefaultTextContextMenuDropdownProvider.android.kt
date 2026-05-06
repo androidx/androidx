@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.contextmenu.internal
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.Icon
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.contextmenu.ContextMenuColumnBuilder
@@ -242,33 +241,23 @@ private object TextContextMenuHelperApi28 {
         if (context == null) return
         val index = component.index
         val textClassification = component.textClassification
+        val preloadedIcon = component.icon
         if (index < 0) {
+            // index < 0 denotes that this is a legacy textClassificationItem.
+            // Use sendLegacyIntent to send the PendingIntent.
             item(
                 label = { textClassification.label.toString() },
-                leadingIcon = textClassification.icon?.let { icon -> { color -> IconBox(icon) } },
+                leadingIcon = preloadedIcon?.let { icon -> { IconBox(icon) } },
                 onClick = { sendLegacyIntent(context, textClassification) },
             )
         } else {
             val action = textClassification.actions[index]
-            val isPrimary = index == 0
             item(
                 label = { action.title.toString() },
-                leadingIcon =
-                    if (isPrimary || action.shouldShowIcon()) {
-                        { IconBox(action.icon) }
-                    } else {
-                        null
-                    },
+                leadingIcon = preloadedIcon?.let { icon -> { IconBox(icon) } },
                 onClick = { sendPendingIntent(action.actionIntent) },
             )
         }
-    }
-
-    @Composable
-    private fun IconBox(icon: Icon) {
-        val context = LocalContext.current
-        val drawable = remember(icon, context) { icon.loadDrawable(context) } ?: return
-        IconBox(drawable)
     }
 
     @Composable

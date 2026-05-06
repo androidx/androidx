@@ -19,22 +19,59 @@ package androidx.compose.remote.core.operations.matrix;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(JUnit4.class)
 public class MatrixExpressionTest {
+
+    @Test
+    public void testSerialization() {
+        RemoteContext context = mock(RemoteContext.class);
+        float[] exp = new float[] {60f, MatrixOperations.ROT_X};
+        MatrixExpression original = new MatrixExpression(1, 0, exp);
+
+        // Evaluate the expression to populate mValues
+        original.updateVariables(context);
+        original.apply(context);
+
+        String originalString = original.toString();
+
+        // Serialize
+        WireBuffer buffer = new WireBuffer(1024);
+        original.write(buffer);
+        buffer.setIndex(0);
+
+        // Deserialize
+        // Skip opcode (read by Operations.java usually, but here we test the read() method)
+        assertEquals(MatrixExpression.id(), buffer.readByte());
+        List<Operation> operations = new ArrayList<>();
+        MatrixExpression.read(buffer, operations);
+        MatrixExpression deserialized = (MatrixExpression) operations.get(0);
+
+        // Evaluate the deserialized expression
+        deserialized.updateVariables(context);
+        deserialized.apply(context);
+
+        // Verify the expression and evaluated values are preserved
+        assertEquals(originalString, deserialized.toString());
+    }
 
     @Test
     public void testRotation() {
         RemoteContext context = mock(RemoteContext.class);
 
         // IDENTITY
-        float[] exp1 = new float[]{MatrixOperations.IDENTITY};
+        float[] exp1 = new float[] {MatrixOperations.IDENTITY};
         MatrixExpression expr1 = new MatrixExpression(1, 0, exp1);
         expr1.updateVariables(context);
         expr1.apply(context);
@@ -47,7 +84,7 @@ public class MatrixExpressionTest {
                 expr1.toString());
 
         // ROT_X
-        float[] exp2 = new float[]{60f, MatrixOperations.ROT_X};
+        float[] exp2 = new float[] {60f, MatrixOperations.ROT_X};
         MatrixExpression expr2 = new MatrixExpression(1, 0, exp2);
         expr2.updateVariables(context);
         expr2.apply(context);
@@ -60,7 +97,7 @@ public class MatrixExpressionTest {
                 expr2.toString());
 
         // ROT_Y
-        float[] exp3 = new float[]{60f, MatrixOperations.ROT_Y};
+        float[] exp3 = new float[] {60f, MatrixOperations.ROT_Y};
         MatrixExpression expr3 = new MatrixExpression(1, 0, exp3);
         expr3.updateVariables(context);
         expr3.apply(context);
@@ -73,7 +110,7 @@ public class MatrixExpressionTest {
                 expr3.toString());
 
         // ROT_Z
-        float[] exp4 = new float[]{60f, MatrixOperations.ROT_Z};
+        float[] exp4 = new float[] {60f, MatrixOperations.ROT_Z};
         MatrixExpression expr4 = new MatrixExpression(1, 0, exp4);
         expr4.updateVariables(context);
         expr4.apply(context);
@@ -91,7 +128,7 @@ public class MatrixExpressionTest {
         RemoteContext context = mock(RemoteContext.class);
 
         // TRANSLATE_X
-        float[] exp1 = new float[]{12.34f, MatrixOperations.TRANSLATE_X};
+        float[] exp1 = new float[] {12.34f, MatrixOperations.TRANSLATE_X};
         MatrixExpression expr1 = new MatrixExpression(1, 0, exp1);
         expr1.updateVariables(context);
         expr1.apply(context);
@@ -104,7 +141,7 @@ public class MatrixExpressionTest {
                 expr1.toString());
 
         // TRANSLATE_Y
-        float[] exp2 = new float[]{12.34f, MatrixOperations.TRANSLATE_Y};
+        float[] exp2 = new float[] {12.34f, MatrixOperations.TRANSLATE_Y};
         MatrixExpression expr2 = new MatrixExpression(1, 0, exp2);
         expr2.updateVariables(context);
         expr2.apply(context);
@@ -117,7 +154,7 @@ public class MatrixExpressionTest {
                 expr2.toString());
 
         // TRANSLATE_Z
-        float[] exp3 = new float[]{12.34f, MatrixOperations.TRANSLATE_Z};
+        float[] exp3 = new float[] {12.34f, MatrixOperations.TRANSLATE_Z};
         MatrixExpression expr3 = new MatrixExpression(1, 0, exp3);
         expr3.updateVariables(context);
         expr3.apply(context);
@@ -130,7 +167,7 @@ public class MatrixExpressionTest {
                 expr3.toString());
 
         // TRANSLATE3
-        float[] exp4 = new float[]{12.34f, 56.78f, 90.12f, MatrixOperations.TRANSLATE3};
+        float[] exp4 = new float[] {12.34f, 56.78f, 90.12f, MatrixOperations.TRANSLATE3};
         MatrixExpression expr4 = new MatrixExpression(1, 0, exp4);
         expr4.updateVariables(context);
         expr4.apply(context);
@@ -148,7 +185,7 @@ public class MatrixExpressionTest {
         RemoteContext context = mock(RemoteContext.class);
 
         // SCALE_X
-        float[] exp1 = new float[]{12.34f, MatrixOperations.SCALE_X};
+        float[] exp1 = new float[] {12.34f, MatrixOperations.SCALE_X};
         MatrixExpression expr1 = new MatrixExpression(1, 0, exp1);
         expr1.updateVariables(context);
         expr1.apply(context);
@@ -161,7 +198,7 @@ public class MatrixExpressionTest {
                 expr1.toString());
 
         // SCALE_Y
-        float[] exp2 = new float[]{12.34f, MatrixOperations.SCALE_Y};
+        float[] exp2 = new float[] {12.34f, MatrixOperations.SCALE_Y};
         MatrixExpression expr2 = new MatrixExpression(1, 0, exp2);
         expr2.updateVariables(context);
         expr2.apply(context);
@@ -174,7 +211,7 @@ public class MatrixExpressionTest {
                 expr2.toString());
 
         // SCALE_Z
-        float[] exp3 = new float[]{12.34f, MatrixOperations.SCALE_Z};
+        float[] exp3 = new float[] {12.34f, MatrixOperations.SCALE_Z};
         MatrixExpression expr3 = new MatrixExpression(1, 0, exp3);
         expr3.updateVariables(context);
         expr3.apply(context);
@@ -187,7 +224,7 @@ public class MatrixExpressionTest {
                 expr3.toString());
 
         // SCALE2
-        float[] exp4 = new float[]{12.34f, 56.78f, MatrixOperations.SCALE2};
+        float[] exp4 = new float[] {12.34f, 56.78f, MatrixOperations.SCALE2};
         MatrixExpression expr4 = new MatrixExpression(1, 0, exp4);
         expr4.updateVariables(context);
         expr4.apply(context);
@@ -200,7 +237,7 @@ public class MatrixExpressionTest {
                 expr4.toString());
 
         // SCALE3
-        float[] exp5 = new float[]{12.34f, 45.67f, 78.90f, MatrixOperations.SCALE3};
+        float[] exp5 = new float[] {12.34f, 45.67f, 78.90f, MatrixOperations.SCALE3};
         MatrixExpression expr5 = new MatrixExpression(1, 0, exp5);
         expr5.updateVariables(context);
         expr5.apply(context);
@@ -217,14 +254,15 @@ public class MatrixExpressionTest {
     public void testMultiply() {
         RemoteContext context = mock(RemoteContext.class);
 
-        float[] exp = new float[]{
-                12.34f,
-                MatrixOperations.SCALE_X,
-                MatrixOperations.IDENTITY,
-                60f,
-                MatrixOperations.ROT_X,
-                MatrixOperations.MUL
-        };
+        float[] exp =
+                new float[] {
+                    12.34f,
+                    MatrixOperations.SCALE_X,
+                    MatrixOperations.IDENTITY,
+                    60f,
+                    MatrixOperations.ROT_X,
+                    MatrixOperations.MUL
+                };
         MatrixExpression expr = new MatrixExpression(1, 0, exp);
         expr.updateVariables(context);
         expr.apply(context);

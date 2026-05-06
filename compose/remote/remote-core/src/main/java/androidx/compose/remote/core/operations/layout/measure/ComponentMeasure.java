@@ -160,8 +160,10 @@ public class ComponentMeasure {
         mVisibility = Component.Visibility.add(mVisibility, value);
     }
 
-    /** If true, measures applied to a component will result into an animation, if false the
-     * measure will be applied immediately */
+    /**
+     * If true, measures applied to a component will result into an animation, if false the measure
+     * will be applied immediately
+     */
     public boolean getAllowsAnimation() {
         return mAllowsAnimation;
     }

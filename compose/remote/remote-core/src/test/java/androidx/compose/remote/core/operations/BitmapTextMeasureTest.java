@@ -79,7 +79,7 @@ public class BitmapTextMeasureTest {
     @Test
     public void testMeasureWidth_withGlyphSpacing() {
         BitmapFontData.Glyph[] glyphs = {
-                createGlyph("A", 10, 10, 20, 1, 2, 1, 2), createGlyph("B", 11, 12, 20, 2, 2, 2, 2)
+            createGlyph("A", 10, 10, 20, 1, 2, 1, 2), createGlyph("B", 11, 12, 20, 2, 2, 2, 2)
         };
         BitmapFontData font = new BitmapFontData(FONT_ID, glyphs);
         when(mRemoteContext.getObject(FONT_ID)).thenReturn(font);

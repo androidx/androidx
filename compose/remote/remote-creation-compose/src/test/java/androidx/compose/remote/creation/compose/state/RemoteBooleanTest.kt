@@ -28,9 +28,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class RemoteBooleanTest {
     val context =
         AndroidRemoteContext().apply {
@@ -684,6 +685,48 @@ class RemoteBooleanTest {
         makeAndPaintCoreDocument()
         val expected = (50 * 51) / 2f
         assertThat(context.getFloat(resultId)).isEqualTo(expected)
+    }
+
+    @Test
+    fun cacheKeys() {
+        val constant = RemoteBoolean(true)
+        // implemented as RemoteInt
+        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(1))
+
+        val named = RemoteBoolean.createNamedRemoteBoolean("test", false)
+        val op = constant and named
+        assertThat(op.cacheKey)
+            .isEqualTo(
+                RemoteOperationCacheKey.create(
+                    RemoteInt.OperationKey.And,
+                    constant.intValue,
+                    named.intValue,
+                )
+            )
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_true() {
+        val bool = RemoteBoolean(true)
+        val str = bool.select(RemoteString("A"), RemoteString("B"))
+
+        assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("A")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_false() {
+        val bool = RemoteBoolean(false)
+        val str = bool.select(RemoteString("A"), RemoteString("B"))
+
+        assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("B")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_dynamic() {
+        val bool = RemoteBoolean.createNamedRemoteBoolean("test", true)
+        val str = bool.select(RemoteString("A"), RemoteString("B"))
+
+        assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("A", "B")
     }
 
     private fun makeAndPaintCoreDocument() =

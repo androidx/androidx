@@ -107,8 +107,8 @@ fun MediaQuerySample() {
 @Composable
 fun FoldableAwareSample() {
     Column(Modifier.fillMaxSize()) {
-        when {
-            mediaQuery { windowPosture == Posture.Tabletop } -> {
+        when (mediaQuery { windowPosture }) {
+            Posture.Tabletop -> {
                 // Tabletop mode layout: Two rows separated by hinge
                 Column(Modifier.fillMaxSize()) {
                     Box(
@@ -123,7 +123,7 @@ fun FoldableAwareSample() {
                     Box(Modifier.weight(1f).background(Color.Blue).fillMaxWidth())
                 }
             }
-            mediaQuery { windowPosture == Posture.Book } -> {
+            Posture.Book -> {
                 // Book mode layout: Two columns separated by hinge
                 Row(Modifier.fillMaxSize()) {
                     Box(
@@ -155,20 +155,20 @@ fun FoldableAwareSample() {
 @Composable
 fun AdaptiveButtonSample() {
     Column(Modifier.padding(top = 100.dp).padding(16.dp)) {
-        val isTouchPrimary = mediaQuery { pointerPrecision == PointerPrecision.Coarse }
-        val isUnreachable = mediaQuery { viewingDistance != ViewingDistance.Near }
-
-        // Adjust button size for touch targets
-        val adaptiveSize =
+        // Adjust button size for touch targets directly using a media query
+        val adaptiveSize = mediaQuery {
             when {
-                isUnreachable -> DpSize(150.dp, 70.dp)
-                isTouchPrimary -> DpSize(120.dp, 50.dp)
+                viewingDistance != ViewingDistance.Near -> DpSize(150.dp, 70.dp)
+                pointerPrecision == PointerPrecision.Coarse -> DpSize(120.dp, 50.dp)
                 else -> DpSize(100.dp, 40.dp)
             }
+        }
 
         // Adjust style for reachability
         val label = "Submit"
-        val adaptiveLabel = if (isUnreachable) label.uppercase(getDefault()) else label
+        val adaptiveLabel = mediaQuery {
+            if (viewingDistance != ViewingDistance.Near) label.uppercase(getDefault()) else label
+        }
 
         Button(
             modifier =

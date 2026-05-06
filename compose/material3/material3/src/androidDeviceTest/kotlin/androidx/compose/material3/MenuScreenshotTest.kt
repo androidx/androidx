@@ -265,7 +265,6 @@ class MenuScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     private fun TestSegmentedMenu(
         enabledItems: Boolean = true,
@@ -392,7 +391,6 @@ class MenuScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     private fun TestPrecisionPointerSegmentedMenu() {
         Box(Modifier.testTag(testTag).padding(20.dp), contentAlignment = Alignment.Center) {

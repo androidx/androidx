@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+UseIcu: androidx.compose.remote.creation.compose.state.RemoteFloat#toRemoteString(java.text.DecimalFormat) parameter #0:
+    Type `java.text.DecimalFormat` should be replaced with richer ICU type `android.icu.text.DecimalFormat`

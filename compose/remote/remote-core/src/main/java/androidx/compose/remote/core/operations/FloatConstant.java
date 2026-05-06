@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -34,16 +35,29 @@ import java.util.List;
 
 /** Used to represent a float */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FloatConstant extends Operation implements Serializable {
+public class FloatConstant extends Operation
+        implements Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.DATA_FLOAT;
     private static final String CLASS_NAME = "FloatConstant";
     public int mId;
     public float mValue;
 
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
+
     public FloatConstant(int id, float value) {
         this.mId = id;
-        this.mValue = Utils.idFromNan(value) == Utils.idFromNan(AnimatedFloatExpression.RAND)
-                ? (float) Math.random() : value;
+        this.mValue =
+                Utils.idFromNan(value) == Utils.idFromNan(AnimatedFloatExpression.RAND)
+                        ? (float) Math.random()
+                        : value;
     }
 
     /**
@@ -89,8 +103,8 @@ public class FloatConstant extends Operation implements Serializable {
      * Writes out the operation to the buffer
      *
      * @param buffer write command to this buffer
-     * @param id     the id
-     * @param value  the value of the float
+     * @param id the id
+     * @param value the value of the float
      */
     public static void apply(@NonNull WireBuffer buffer, int id, float value) {
         buffer.start(OP_CODE);
@@ -101,13 +115,12 @@ public class FloatConstant extends Operation implements Serializable {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-
-        float value = buffer.readFloat();
+        int id = buffer.declareId();
+        float value = buffer.readNanId();
         operations.add(new FloatConstant(id, value));
     }
 

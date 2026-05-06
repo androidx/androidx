@@ -18,97 +18,68 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.graphics.Bitmap
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
-import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Region
-import android.graphics.Typeface
-import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.core.operations.ConditionalOperations
-import androidx.compose.remote.core.operations.DrawTextOnCircle
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
-import androidx.compose.remote.creation.compose.shaders.RemoteShader
-import androidx.compose.remote.creation.compose.shaders.colorFilterModeToInt
+import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
-import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteColorFilter
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.getFloatIdForCreationState
-import androidx.compose.remote.creation.compose.state.pack
+import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.nativePaint
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.graphics.shapes.RoundedPolygon
 
 /**
- * This provides a recording canvas implementation. This is the main way we intercept the output of
- * a compose function and serialize the result in an origami document.
+ * A bridge for code calling standard [android.graphics.Canvas] to record drawing commands into a
+ * remote document.
  *
- * see also: Layout functions
+ * This implementation intercepts standard [Canvas] methods and serializes the resulting operations
+ * via [RemoteComposeWriter]. It allows legacy or framework-dependent code that uses standard
+ * platform types to be recorded.
  *
- * Beyond intercepting all the canvas commands, we also support additional origami-specific commands
- * that allow us to represent higher-level concepts:
- * - layout
- * - state machine
- * - animation
- *
- * Notes: this also keeps a local cache of bitmaps and associate them with Ids. Bitmap draw calls
- * are then split in two, with 1/ sending the bitmap 2/ referencing the bitmap via its id, such that
- * follow up calls are cheaper. Main caveat is that the current implementation will not resend an
- * updated bitmap if it's still the same instance (todo: check bitmap generation flag)
- *
- * Capturing the paint object is at the moment very crude; we need a much better mechanism:
- * - the Paint object contains a lot more stuff to capture (!)
- * - efficiently capturing and serializing paint calls is still a WIP; current thinking is to split
- *   up the paint object in several paint commands areas, to simplify both runtime checks at capture
- *   time and more efficient serialization (eg if only one of the area changed, like text-related
- *   attributes, only send this instead of the full paint object).
- * - the way paint instances are used in normal android views begs for a post-process pass in origmi
- *   to identify reuse (eg if cycling between 3-4 different paint objects, we should identify this
- *   instead of serializing the deltas). On the flip side, this might not be as critical/useful in a
- *   compose perspective (are paint objects reused this way?)
+ * For most remote-compose development,
+ * [androidx.compose.remote.creation.compose.layout.RemoteCanvas] is the main way to interact with
+ * the recording system, as it provides a remote-first API with overloads for [RemoteFloat],
+ * [RemoteColor], etc.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateScope {
 
-    private var lastStyleOrdinal: Int = -1
-    private var typeface: Int = -1
-    private var typefaceIsItalic: Boolean = false
-    private var typefaceWeight: Int = -1
-    private var typefaceStyle: Int = -1
-    private var lastStrokeCapOrdinal: Int = -1
-    private var lastStrokeJoinOrdinal: Int = -1
-    private var lastTextSize: Float = -1F
-    private var lastStrokeWidth: Float = -1F
-    private var lastColor: Long = -1L
-    private var lastColorFilter: ColorFilter? = null
-    private var lastColorFilterColor: Int = -1
-    private var lastColorFilterMode: Int = -1
-    private var lastRemoteShader: RemoteShader? = null
-    private var lastBlendMode: BlendMode? = null
-    private var lastRemoteColorFilter: RemoteColorFilter? = null
-    override lateinit var creationState: RemoteComposeCreationState
+    internal val tracker = PaintTracker()
+
+    internal lateinit var creationState: RemoteComposeCreationState
+
+    override val parentScope: RemoteStateScope
+        get() = creationState
+
+    internal var forceSendingPaint = false
+
+    public var saveCounter: Int = 0
+    internal var currentDrawToBitmapId = 0
+
     override val document: RemoteComposeWriter
         get() = creationState.document
 
@@ -116,15 +87,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         get() = creationState.remoteDensity
 
     override val layoutDirection: LayoutDirection
-        get() = creationState.layoutDirection
+        get() = this.creationState.layoutDirection
 
-    private var usingShaderMatrix: Boolean = false
-
-    private var forceSendingPaint = false
-
-    public val tempCanvas: Canvas = Canvas()
-    public var saveCounter: Int = 0
-    private var currentDrawToBitmapId = 0
+    public val creationDisplayInfo: RemoteCreationDisplayInfo
+        get() = creationState.creationDisplayInfo
 
     /**
      * Forces the next `usePaint` call to send all Paint attributes, regardless of changes. This is
@@ -159,219 +125,25 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param paint The [Paint] object whose attributes need to be synchronized with the remote
      *   side.
      */
-    public fun usePaint(paint: Paint) {
-        if (document.checkAndClearForceSendingNewPaint()) {
-            forceSendingPaint = true
+    public fun usePaint(paint: Paint?) {
+        if (paint == null) {
+            return
         }
+
+        usePaint(paint.asRemotePaint())
+    }
+
+    public fun usePaint(paint: RemotePaint?) {
+        if (paint == null) {
+            return
+        }
+
         val paintBundle = PaintBundle()
-        val tmpLastColorLong =
-            if (paint is RemotePaint) {
-                val remoteColor = paint.remoteColor
-                if (remoteColor == null) {
-                    paint.color.toLong() shl 32
-                } else {
-                    val constantValue = remoteColor.constantValueOrNull
-                    if (constantValue == null) {
-                        remoteColor.getIdForCreationState(creationState).toLong() shl
-                            6 or
-                            REMOTE_COMPOSE_EXPRESSION_COLOR_SPACE_ID
-                    } else {
-                        constantValue.pack()
-                    }
-                }
-            } else {
-                paint.color.toLong() shl 32
-            }
-        val tmpLastStrokeWidth = paint.strokeWidth
-        val tmpLastTextSize = paint.textSize
-        // Handle NPE in Robolectric
-        val tmpLastStrokeCapOrdinal = paint.strokeCap?.ordinal ?: Paint.Cap.BUTT.ordinal
-        val tmpLastStrokeJoinOrdinal = paint.strokeJoin?.ordinal ?: Paint.Join.MITER.ordinal
-        val tmpLastStyleOrdinal = paint.style?.ordinal ?: Paint.Style.FILL.ordinal
-        val paintTypeface = paint.typeface
-        val tmpTypeface =
-            when (paintTypeface) {
-                null -> PaintBundle.FONT_TYPE_DEFAULT
-                Typeface.DEFAULT -> PaintBundle.FONT_TYPE_DEFAULT
-                Typeface.DEFAULT_BOLD -> PaintBundle.FONT_TYPE_DEFAULT
-                Typeface.SERIF -> PaintBundle.FONT_TYPE_SERIF
-                Typeface.SANS_SERIF -> PaintBundle.FONT_TYPE_SANS_SERIF
-                Typeface.MONOSPACE -> PaintBundle.FONT_TYPE_MONOSPACE
-                else -> {
-                    if ( // REMOVE IN PLATFORM
-                        Build.VERSION.SDK_INT // REMOVE IN PLATFORM
-                        >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-                    ) { // REMOVE IN PLATFORM
-                        when (paintTypeface.systemFontFamilyName) {
-                            "serif" -> PaintBundle.FONT_TYPE_SERIF
-                            "sans-serif" -> PaintBundle.FONT_TYPE_SANS_SERIF
-                            "monospace" -> PaintBundle.FONT_TYPE_MONOSPACE
-                            else -> PaintBundle.FONT_TYPE_DEFAULT
-                        }
-                    } else { // REMOVE IN PLATFORM
-                        PaintBundle.FONT_TYPE_DEFAULT // REMOVE IN PLATFORM
-                    } // REMOVE IN PLATFORM
-                }
-            }
-        val tmpTypefaceStyle = paintTypeface?.style ?: 0
-        val tmpTypefaceWeight = paintTypeface?.weight ?: 0
-        val tmpTypefaceIsItalic = paintTypeface?.isItalic ?: false
-        val tmpLastColorFilter = paint.colorFilter
-        val tmpLastColorFilterColor =
-            if (tmpLastColorFilter is BlendModeColorFilter) {
-                tmpLastColorFilter.color
-            } else {
-                -1
-            }
-        val tmpLastColorFilterMode =
-            if (tmpLastColorFilter is BlendModeColorFilter) {
-                colorFilterModeToInt(tmpLastColorFilter.mode)
-            } else {
-                -1
-            }
-        val tmpLastRemoteColorFilter =
-            if (paint is RemotePaint) {
-                paint.remoteColorFilter
-            } else {
-                null
-            }
-        var send = forceSendingPaint
 
-        if (forceSendingPaint || lastColor != tmpLastColorLong) {
-            val colorSpace = tmpLastColorLong and 0x3fL
-            if (colorSpace == REMOTE_COMPOSE_EXPRESSION_COLOR_SPACE_ID) {
-                paintBundle.setColorId((tmpLastColorLong shr 6).toInt())
-            } else {
-                // We don't handle long colors in PaintBundle.
-                // TODO: add color long support / color space
-                paintBundle.setColor((tmpLastColorLong shr 32).toInt())
-            }
-            lastColor = tmpLastColorLong
-            send = true
-        }
-        if (forceSendingPaint || lastStrokeWidth != tmpLastStrokeWidth) {
-            paintBundle.setStrokeWidth(paint.strokeWidth)
-            lastStrokeWidth = tmpLastStrokeWidth
-            send = true
-        }
-        if (forceSendingPaint || lastTextSize != tmpLastTextSize) {
-            paintBundle.setTextSize(paint.textSize)
-            lastTextSize = tmpLastTextSize
-            send = true
-        }
-        if (forceSendingPaint || lastStrokeCapOrdinal != tmpLastStrokeCapOrdinal) {
-            paintBundle.setStrokeCap(tmpLastStrokeCapOrdinal)
-            lastStrokeCapOrdinal = tmpLastStrokeCapOrdinal
-            send = true
-        }
-        if (forceSendingPaint || lastStrokeJoinOrdinal != tmpLastStrokeJoinOrdinal) {
-            paintBundle.setStrokeJoin(tmpLastStrokeJoinOrdinal)
-            lastStrokeJoinOrdinal = tmpLastStrokeJoinOrdinal
-            send = true
-        }
-        if (forceSendingPaint || lastStyleOrdinal != tmpLastStyleOrdinal) {
-            paintBundle.setStyle(tmpLastStyleOrdinal)
-            lastStyleOrdinal = tmpLastStyleOrdinal
-            send = true
-        }
-        if (
-            forceSendingPaint ||
-                typeface != tmpTypeface ||
-                typefaceStyle != tmpTypefaceStyle ||
-                typefaceWeight != tmpTypefaceWeight ||
-                typefaceIsItalic != tmpTypefaceIsItalic
-        ) {
-            typeface = tmpTypeface
-            typefaceStyle = tmpTypefaceStyle
-            typefaceWeight = tmpTypefaceWeight
-            typefaceIsItalic = tmpTypefaceIsItalic
-            paintBundle.setTextStyle(typeface, typefaceWeight, typefaceIsItalic)
-            send = true
-        }
+        tracker.reset(forceSendingPaint || document.checkAndClearForceSendingNewPaint())
+        tracker.updateWithPaint(paint, paintBundle, this)
 
-        if (
-            forceSendingPaint ||
-                lastColorFilter != tmpLastColorFilter ||
-                lastColorFilterMode != tmpLastColorFilterMode ||
-                lastColorFilterColor != tmpLastColorFilterColor ||
-                lastRemoteColorFilter != tmpLastRemoteColorFilter
-        ) {
-            if (tmpLastRemoteColorFilter != null) {
-                when (tmpLastRemoteColorFilter) {
-                    is RemoteBlendModeColorFilter -> {
-                        val constantColor = tmpLastRemoteColorFilter.color.constantValueOrNull
-
-                        if (constantColor != null) {
-                            // Where possible use a constant instead of an expression.
-                            paintBundle.setColorFilter(
-                                constantColor.toArgb(),
-                                colorFilterModeToInt(tmpLastRemoteColorFilter.blendMode),
-                            )
-                        } else {
-                            paintBundle.setColorFilterId(
-                                tmpLastRemoteColorFilter.color.getIdForCreationState(creationState),
-                                colorFilterModeToInt(tmpLastRemoteColorFilter.blendMode),
-                            )
-                        }
-                    }
-                }
-                send = true
-            } else if (tmpLastColorFilter is BlendModeColorFilter) {
-                paintBundle.setColorFilter(
-                    tmpLastColorFilter.color,
-                    colorFilterModeToInt(tmpLastColorFilter.mode),
-                )
-                send = true
-            }
-
-            if (
-                (tmpLastRemoteColorFilter == null && tmpLastColorFilter == null) &&
-                    (lastRemoteColorFilter != null || lastColorFilter != null)
-            ) {
-                paintBundle.clearColorFilter()
-                send = true
-            }
-
-            lastColorFilter = tmpLastColorFilter
-            lastColorFilterColor = tmpLastColorFilterColor
-            lastColorFilterMode = tmpLastColorFilterMode
-            lastRemoteColorFilter = tmpLastRemoteColorFilter
-        }
-
-        val paintBlendMode = paint.blendMode
-        if (forceSendingPaint || lastBlendMode != paintBlendMode) {
-            lastBlendMode = paintBlendMode
-            if (paintBlendMode != null) {
-                paintBundle.setBlendMode(colorFilterModeToInt(paintBlendMode))
-            } else {
-                paintBundle.setBlendMode(PaintBundle.BLEND_MODE_SRC_OVER)
-            }
-            send = true
-        }
-
-        val shader = paint.shader as? RemoteShader
-        if (forceSendingPaint || shader != lastRemoteShader) {
-            if (shader != null) {
-                shader.apply(creationState, paintBundle)
-                if (usingShaderMatrix || shader.remoteMatrix3x3 != null) {
-                    usingShaderMatrix = true
-                    val remoteMatrix3x3 = shader.remoteMatrix3x3
-                    if (remoteMatrix3x3 != null) {
-                        paintBundle.setShaderMatrix(
-                            remoteMatrix3x3.getFloatIdForCreationState(creationState)
-                        )
-                    } else {
-                        paintBundle.setShaderMatrix(0f)
-                        usingShaderMatrix = false
-                    }
-                }
-            } else {
-                paintBundle.setShader(0)
-            }
-            lastRemoteShader = shader
-            send = true
-        }
-        if (send) {
+        if (tracker.isChanged) {
             document.buffer.addPaint(paintBundle)
         }
         forceSendingPaint = false
@@ -381,8 +153,8 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         drawRect(
             0f.rf,
             0f.rf,
-            creationState.creationDisplayInfo.width.rf,
-            creationState.creationDisplayInfo.height.rf,
+            creationState.creationDisplayInfo.size.width.toInt().rf,
+            creationState.creationDisplayInfo.size.height.toInt().rf,
             Paint().apply {
                 color = drawColor
                 style = Paint.Style.FILL
@@ -528,30 +300,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         )
     }
 
-    public fun drawTextOnCircle(
-        text: RemoteString,
-        centerX: RemoteFloat,
-        centerY: RemoteFloat,
-        radius: RemoteFloat,
-        startAngle: RemoteFloat,
-        warpRadiusOffset: RemoteFloat,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
-        paint: RemotePaint,
-    ) {
-        usePaint(paint)
-        document.drawTextOnCircle(
-            text.getIdForCreationState(creationState),
-            centerX.getFloatIdForCreationState(creationState),
-            centerY.getFloatIdForCreationState(creationState),
-            radius.getFloatIdForCreationState(creationState),
-            startAngle.getFloatIdForCreationState(creationState),
-            warpRadiusOffset.getFloatIdForCreationState(creationState),
-            alignment,
-            placement,
-        )
-    }
-
     override fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint) {
         usePaint(paint)
         document.drawLine(startX, startY, stopX, stopY)
@@ -677,6 +425,25 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         drawBitmap(bitmap.asImageBitmap(), src, dst, paint)
     }
 
+    public fun drawBitmap(
+        bitmap: Bitmap,
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        paint: Paint?,
+    ) {
+        usePaint(paint!!)
+        document.drawBitmap(
+            bitmap,
+            left.getFloatIdForCreationState(creationState),
+            top.getFloatIdForCreationState(creationState),
+            right.getFloatIdForCreationState(creationState),
+            bottom.getFloatIdForCreationState(creationState),
+            "",
+        )
+    }
+
     /**
      * Draws a [RemotePath] onto the canvas using the specified [Paint].
      *
@@ -688,38 +455,66 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         document.drawPath(path)
     }
 
+    /**
+     * Draws a [RoundedPolygon] onto the canvas using the specified [Paint].
+     *
+     * @param roundedPolygon The [RoundedPolygon] to draw.
+     * @param paint The [Paint] object to use for drawing the polygon.
+     */
+    public fun drawRoundedPolygon(roundedPolygon: RoundedPolygon, paint: RemotePaint?) {
+        usePaint(paint)
+        val pathData = MorphTweenUtility.cubicsToPathData(roundedPolygon.cubics)
+        val id =
+            document.addPathData(
+                object : RcPathArrayCreator {
+                    override fun createFloatArray(): FloatArray = pathData
+                }
+            )
+        document.buffer.addDrawPath(id)
+    }
+
+    /**
+     * Draws a morph between two [RoundedPolygon]s onto the canvas using the specified [Paint].
+     *
+     * @param from The starting [RoundedPolygon].
+     * @param to The ending [RoundedPolygon].
+     * @param progress The morph progress [0..1].
+     * @param paint The [Paint] object to use for drawing the morph.
+     */
+    public fun drawRoundedPolygonMorph(
+        from: RoundedPolygon,
+        to: RoundedPolygon,
+        progress: RemoteFloat,
+        paint: RemotePaint?,
+    ) {
+        usePaint(paint)
+        MorphTweenUtility.emitMorphAsTweens(
+            document,
+            from,
+            to,
+            progress.getFloatIdForCreationState(creationState),
+        )
+    }
+
     override fun save(): Int {
         document.save()
         saveCounter++
-        val temp = tempCanvas.save()
         return saveCounter
     }
 
     override fun restore() {
         document.restore()
         saveCounter--
-        if (tempCanvas.saveCount > 1) {
-            tempCanvas.restore()
-        }
     }
 
     override fun restoreToCount(saveCount: Int) {
-        // TOOD: fix ?
         document.restore()
         saveCounter = saveCount
-        // println("NRO STACK restoreToCount $saveCount => pre temp canvas is
-        // ${tempCanvas.saveCount}")
     }
 
     override fun getClipBounds(bounds: Rect): Boolean {
-        // temp fix, returns the full canvas
-        bounds?.set(0, 0, 2048, 2048)
+        bounds.set(0, 0, 2048, 2048)
         return true
-    }
-
-    override fun clipPath(path: Path): Boolean {
-        tempCanvas.clipPath(path)
-        return super.clipPath(path)
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
@@ -732,7 +527,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         op: Region.Op,
     ): Boolean {
         document.clipRect(left, top, right, bottom)
-        tempCanvas.clipRect(left, top, right, bottom, op)
         return super.clipRect(left, top, right, bottom, op)
     }
 
@@ -749,7 +543,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float): Boolean {
         document.clipRect(left, top, right, bottom)
-        tempCanvas.clipRect(left, top, right, bottom)
         return super.clipRect(left, top, right, bottom)
     }
 
@@ -764,7 +557,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         val r = right.getFloatIdForCreationState(creationState)
         val b = bottom.getFloatIdForCreationState(creationState)
         document.clipRect(l, t, r, b)
-        tempCanvas.clipRect(l, t, r, b)
         return super.clipRect(l, t, r, b)
     }
 
@@ -934,12 +726,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         )
     }
 
-    public fun drawRPath(path: RemotePath, paint: RemotePaint) {
-        usePaint(paint)
-        val pathId = document.addPathData(path)
-        document.drawPath(pathId)
-    }
-
     override fun drawPath(path: Path, paint: Paint) {
         usePaint(paint)
         document.drawPath(path)
@@ -974,26 +760,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             px.getFloatIdForCreationState(creationState),
             py.getFloatIdForCreationState(creationState),
         )
-    }
-
-    override fun saveLayer(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        paint: Paint?,
-    ): Int {
-        //    if (paint != null) {
-        //      //            usePaint(paint)
-        //    }
-        //    origami.saveLayer(left, top, left + right, top + bottom)
-        //    //        tempCanvas.saveLayer(left, top, right, bottom, paint)
-        return super.saveLayer(left, top, right, bottom, paint)
-    }
-
-    override fun saveLayer(bounds: RectF?, paint: Paint?): Int {
-        tempCanvas.saveLayer(bounds, paint)
-        return super.saveLayer(bounds, paint)
     }
 
     override fun getSaveCount(): Int {
@@ -1111,6 +877,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         )
     }
 
+    /*
     public fun drawTextOnCircle(
         text: RemoteString,
         centerX: RemoteFloat,
@@ -1134,6 +901,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             placement,
         )
     }
+    */
 
     override fun drawArc(
         left: Float,
@@ -1456,14 +1224,8 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         step: RemoteFloat,
         body: (index: RemoteFloat) -> Unit,
     ) {
-        val loopVariableId = document.createFloatId()
-        val loopVariable = MutableRemoteFloat(loopVariableId)
-        document.loop(
-            Utils.idFromNan(loopVariableId),
-            from.getFloatIdForCreationState(creationState),
-            step.getFloatIdForCreationState(creationState),
-            until.getFloatIdForCreationState(creationState),
-        ) {
+        val loopVariable = MutableRemoteFloat()
+        document.loop(loopVariable.id, from.floatId, step.floatId, until.floatId) {
             body(loopVariable)
         }
     }
@@ -1479,14 +1241,8 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param body Code that generates draw calls to run in a loop.
      */
     public fun loop(from: Int, until: RemoteInt, body: (index: RemoteInt) -> Unit) {
-        val loopVariableId = document.createFloatId()
-        val loopVariable = MutableRemoteFloat(loopVariableId)
-        document.loop(
-            Utils.idFromNan(loopVariableId),
-            from.toFloat(),
-            1f,
-            until.getFloatIdForCreationState(creationState),
-        ) {
+        val loopVariable = MutableRemoteFloat()
+        document.loop(loopVariable.id, from.toFloat(), 1f, until.floatId) {
             body(loopVariable.toRemoteInt())
         }
     }
@@ -1518,15 +1274,21 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param drawCommands The commands the player will execute if [condition] evaluate to true.
      */
     public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
-        document.conditionalOperations(
-            ConditionalOperations.TYPE_NEQ,
-            condition.toRemoteInt().toRemoteFloat().getFloatIdForCreationState(creationState),
-            0f,
-        )
-        forceSendingPaint(true)
-        drawCommands()
-        forceSendingPaint(true)
-        document.endConditionalOperations()
+        if (condition.hasConstantValue) {
+            if (condition.constantValue) {
+                drawCommands()
+            }
+        } else {
+            document.conditionalOperations(
+                ConditionalOperations.TYPE_NEQ,
+                condition.toRemoteInt().toRemoteFloat().getFloatIdForCreationState(creationState),
+                0f,
+            )
+            forceSendingPaint(true)
+            drawCommands()
+            forceSendingPaint(true)
+            document.endConditionalOperations()
+        }
     }
 
     /**
@@ -1579,13 +1341,4 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         // TODO replace this with a dedicated color space for RemoteCompose.
         internal const val REMOTE_COMPOSE_EXPRESSION_COLOR_SPACE_ID = 5L
     }
-}
-
-private object Api29ColorLongHelper {
-    fun getColorLong(paint: Paint, creationState: RemoteComposeCreationState) =
-        if (paint is RemotePaint) {
-            paint.getColorLong(creationState) ?: paint.colorLong
-        } else {
-            paint.colorLong
-        }
 }

@@ -51,9 +51,7 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_SCROLL
 import android.view.MotionEvent.ACTION_UP
-import android.view.MotionEvent.TOOL_TYPE_ERASER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
-import android.view.MotionEvent.TOOL_TYPE_STYLUS
 import android.view.ScrollCaptureTarget
 import android.view.View
 import android.view.ViewGroup
@@ -86,9 +84,7 @@ import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
@@ -96,7 +92,6 @@ import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
 import androidx.compose.ui.autofill.AndroidAutofillManager
 import androidx.compose.ui.autofill.Autofill
-import androidx.compose.ui.autofill.AutofillLoggingCallback
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.PlatformAutofillManagerImpl
@@ -892,8 +887,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     /** List of lambdas to be called when [onEndApplyChanges] is called. */
     private val endApplyChangesListeners = mutableObjectListOf<(() -> Unit)?>()
 
-    private var currentFrameRate = 0f
-    private var currentFrameRateCategory = 0f
+    private var currentFrameRate = Float.NaN
+    private var currentFrameRateCategory = Float.NaN
+
+    private var lastSetFrameRate = Float.NaN
+    private var lastSetFrameRateCategory = Float.NaN
 
     /**
      * Runnable used to update the pointer position after layout. If another pointer event comes in
@@ -1027,6 +1025,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      * from the hierarchy.
      */
     internal var composeViewContextIncrementedDuringInit = false
+
+    /**
+     * Guards against re-entering [onProvideAutofillVirtualStructure] while
+     * [dispatchProvideAutofillStructure] delegates to the framework to collect hosted Android
+     * views.
+     */
+    private var isDispatchingAutofillStructure = false
 
     init {
         addOnAttachStateChangeListener(contentCaptureManager)
@@ -1405,19 +1410,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         previous: FocusTargetModifierNode?,
         current: FocusTargetModifierNode?,
     ) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (isOptimizedFocusEventDispatchEnabled) {
-            val previousIndirectPointerEventModifiers =
-                previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
+        val previousIndirectPointerEventModifiers =
+            previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
 
-            val currentIndirectPointerEventModifiers =
-                current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
+        val currentIndirectPointerEventModifiers =
+            current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
 
-            previousIndirectPointerEventModifiers.fastForEach {
-                val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false
-                if (!stillHasFocus) {
-                    it.onCancelIndirectPointerInput()
-                }
+        previousIndirectPointerEventModifiers.fastForEach {
+            val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false
+            if (!stillHasFocus) {
+                it.onCancelIndirectPointerInput()
             }
         }
     }
@@ -1451,11 +1453,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             // Finally, dispatch the key event to onPreKeyEvent/onKeyEvent listeners.
             focusOwner.dispatchKeyEvent(keyEvent)
 
-    /** This function is used by the testing framework to send indirect pointer events. */
-    @ExperimentalIndirectPointerApi
+    /**
+     * Allows testing framework to trigger an indirect pointer event (pointer event where
+     * coordinates do not map to the screen). Used for triggering events with Focus (e.g., swipe
+     * goes to next focusable item, etc.).
+     */
     override fun sendIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean {
-        // TODO (jjw): Investigate only triggering cancel during an active indirect event stream
-        //  (should include detach scenarios).
+        // TODO (b/498983361): Investigate only triggering cancel during an active indirect event
+        //  stream (should include detach scenarios).
         if (indirectPointerEvent.nativeEvent.actionMasked == ACTION_CANCEL) {
             focusOwner.dispatchIndirectPointerCancel()
             return true
@@ -2207,10 +2212,17 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
         // Used to handle frame rate information
         if (isArrEnabled) {
-            Api35Impl.setRequestedFrameRate(this, currentFrameRate)
+            // Float.NaN == Float.NaN is false, so we use compareTo to check for equality
+            if (currentFrameRate.compareTo(lastSetFrameRate) != 0) {
+                lastSetFrameRate = currentFrameRate
+                Api35Impl.setRequestedFrameRate(this, currentFrameRate)
+            }
             val frameRateCategoryView = frameRateCategoryView
             if (frameRateCategoryView != null) {
-                Api35Impl.setRequestedFrameRate(frameRateCategoryView, currentFrameRateCategory)
+                if (currentFrameRateCategory.compareTo(lastSetFrameRateCategory) != 0) {
+                    lastSetFrameRateCategory = currentFrameRateCategory
+                    Api35Impl.setRequestedFrameRate(frameRateCategoryView, currentFrameRateCategory)
+                }
 
                 if (!currentFrameRateCategory.isNaN()) {
                     frameRateCategoryView.invalidate()
@@ -2310,13 +2322,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
         snapshotObserver.startObserving()
-        ifAutofillDebug {
-            if (autofillSupported()) {
-                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
-                // system.
-                _autofill?.let { AutofillLoggingCallback.register(it) }
-            }
-        }
         // Moving this work outside of frame, as this callback is not trivial. The initial value
         // will be requested and read synchronously anyway.
         val outOfFrameExecutor =
@@ -2393,13 +2398,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         val lifecycle = composeViewContext.lifecycleOwner.lifecycle
         lifecycle.removeObserver(contentCaptureManager)
         lifecycle.removeObserver(this)
-        ifAutofillDebug {
-            if (autofillSupported()) {
-                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
-                // system.
-                _autofill?.let { AutofillLoggingCallback.unregister(it) }
-            }
-        }
         viewTreeObserver.removeOnGlobalLayoutListener(this)
         viewTreeObserver.removeOnScrollChangedListener(this)
         viewTreeObserver.removeOnTouchModeChangeListener(this)
@@ -2421,10 +2419,33 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
-        if (autofillSupported() && structure != null) {
-            _autofillManager?.populateViewStructure(structure)
-            _autofill?.populateViewStructure(structure)
+        if (autofillSupported() && structure != null && !isDispatchingAutofillStructure) {
+            populateAutofillVirtualStructure(structure)
         }
+    }
+
+    override fun dispatchProvideAutofillStructure(structure: ViewStructure, flags: Int) {
+        if (!autofillSupported()) {
+            super.dispatchProvideAutofillStructure(structure, flags)
+            return
+        }
+
+        isDispatchingAutofillStructure = true
+        try {
+            // Let ViewGroup collect hosted AndroidView children before appending Compose virtual
+            // autofill nodes. Otherwise, the framework stops traversal once virtual children exist.
+            super.dispatchProvideAutofillStructure(structure, flags)
+        } finally {
+            isDispatchingAutofillStructure = false
+        }
+
+        populateAutofillVirtualStructure(structure)
+    }
+
+    @RequiresApi(O)
+    private fun populateAutofillVirtualStructure(structure: ViewStructure) {
+        _autofillManager?.populateViewStructure(structure)
+        _autofill?.populateViewStructure(structure)
     }
 
     override fun autofill(values: SparseArray<AutofillValue>) {
@@ -3037,6 +3058,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     private fun autofillSupported() = SDK_INT >= O
 
+    @OptIn(ExperimentalComposeUiApi::class)
     public override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         if (hoverExitReceived) {
             // Go ahead and send it now
@@ -3049,14 +3071,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
         // Always call accessibilityDelegate dispatchHoverEvent (since accessibilityDelegate's
         // dispatchHoverEvent only runs if touch exploration is enabled)
-        composeAccessibilityDelegate.dispatchHoverEvent(event)
+        val delegateHandled =
+            composeAccessibilityDelegate.dispatchHoverEvent(event) &&
+                ComposeUiFlags.isExploreByTouchHoverHandled
 
         when (event.actionMasked) {
             ACTION_HOVER_EXIT -> {
                 if (isInBounds(event)) {
                     if (event.getToolType(0) == TOOL_TYPE_MOUSE && event.buttonState != 0) {
                         // We know that this is caused by a mouse button press, so we can ignore it
-                        return false
+                        return delegateHandled
                     }
 
                     // This may be caused by a press (e.g. stylus pressed on the screen), but
@@ -3071,18 +3095,19 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     // a press/down event (which hasn't occurred yet). Therefore, we delay the post
                     // call a small amount to account for that.
                     postDelayed(sendHoverExitEvent, ONE_FRAME_120_HERTZ_IN_MILLISECONDS)
-                    return false
+                    return delegateHandled
                 }
             }
 
             ACTION_HOVER_MOVE ->
                 // Check if we're receiving this when we've already handled it elsewhere
                 if (!isPositionChanged(event)) {
-                    return false
+                    return delegateHandled
                 }
         }
         val result = handleMotionEvent(event)
-        return result.dispatchedToAPointerInputModifier
+
+        return result.dispatchedToAPointerInputModifier || delegateHandled
     }
 
     private fun isBadMotionEvent(event: MotionEvent): Boolean {
@@ -4030,10 +4055,8 @@ private const val maskForNonWindowMetricsChanges =
         ActivityInfo.CONFIG_COLOR_MODE or
         ActivityInfo.CONFIG_FONT_SCALE or
         ActivityInfo.CONFIG_GRAMMATICAL_GENDER or
-        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT // or
-
-// TODO(b/450557132): Add when compileSdk is bumped to 36
-//   ActivityInfo.CONFIG_ASSETS_PATHS
+        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT or
+        ActivityInfo.CONFIG_ASSETS_PATHS
 
 /**
  * Diffs this [Configuration] with the [other] to determine if there were any configuration changes

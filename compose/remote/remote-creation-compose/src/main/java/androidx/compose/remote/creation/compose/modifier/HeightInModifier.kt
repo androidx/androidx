@@ -19,10 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
-import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.isUnspecified
 
 internal class HeightInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
     RemoteModifier.Element {
@@ -40,19 +37,6 @@ internal class HeightInModifier(val min: RemoteDp? = null, val max: RemoteDp? = 
         }
         return androidx.compose.remote.creation.modifiers.HeightInModifier(minValue, maxValue)
     }
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.heightIn(
-    min: Dp = Dp.Unspecified,
-    max: Dp = Dp.Unspecified,
-): RemoteModifier {
-    return then(
-        HeightInModifier(
-            min = if (min.isUnspecified) null else min.asRdp(),
-            max = if (max.isUnspecified) null else max.asRdp(),
-        )
-    )
 }
 
 /**

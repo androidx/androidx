@@ -16,6 +16,7 @@
 package androidx.compose.remote.creation.modifiers;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.MultiClickModifier;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.actions.Action;
 
@@ -24,19 +25,29 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Encapsulate actions */
+/** Encapsulate actions for click */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickActionModifier implements RecordingModifier.Element {
     @NonNull
     ArrayList<Action> mList = new ArrayList<>();
+    int mClickType = MultiClickModifier.CLICK_TYPE_SINGLE;
 
     public ClickActionModifier(@NonNull List<Action> actions) {
         mList.addAll(actions);
     }
 
+    public ClickActionModifier(@NonNull List<Action> actions, int clickType) {
+        mList.addAll(actions);
+        mClickType = clickType;
+    }
+
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.addClickModifierOperation();
+        if (mClickType == 0) {
+            writer.addClickModifierOperation();
+        } else {
+            writer.addClickModifierOperation(mClickType);
+        }
         for (Action m : mList) {
             m.write(writer);
         }

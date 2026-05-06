@@ -35,7 +35,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk = 37
         namespace = "androidx.compose.foundation"
         optimization {
             it.consumerKeepRules.publish = true

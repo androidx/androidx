@@ -21,10 +21,10 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteContext;
-import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
@@ -87,8 +87,7 @@ public class ImageErrorTest {
         return Arrays.copyOf(buffer, bufferSize);
     }
 
-    private RemoteDocument createDocument(
-            byte[] buffer, int bufferSize, RemoteContext context) {
+    private RemoteDocument createDocument(byte[] buffer, int bufferSize, RemoteContext context) {
         RemoteDocument recreatedDocument =
                 new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
         recreatedDocument.initializeContext(context);
@@ -230,7 +229,7 @@ public class ImageErrorTest {
     @Test
     public void testImageTooLargeCreating1() {
         int tw = 400;
-        int th = BitmapData.MAX_IMAGE_DIMENSION + 1;
+        int th = Limits.MAX_IMAGE_DIMENSION + 1;
         Bitmap lightImage = TestUtils.createImage(tw, th, false);
         Bitmap darkImage = TestUtils.createImage(tw, th, true);
         DebugPlayerContext debugContext = new DebugPlayerContext();
@@ -247,7 +246,7 @@ public class ImageErrorTest {
 
     @Test
     public void testImageTooLargeCreating2() {
-        int tw = BitmapData.MAX_IMAGE_DIMENSION + 1;
+        int tw = Limits.MAX_IMAGE_DIMENSION + 1;
         int th = 60;
         Bitmap lightImage = TestUtils.createImage(tw, th, false);
         Bitmap darkImage = TestUtils.createImage(tw, th, true);
@@ -266,7 +265,7 @@ public class ImageErrorTest {
     @Test
     public void testNonSquareImageThroughPlayer() {
         int tw = 400;
-        int th = BitmapData.MAX_IMAGE_DIMENSION + 1;
+        int th = Limits.MAX_IMAGE_DIMENSION + 1;
         Bitmap lightImage = TestUtils.createImage(tw, th, false);
         Bitmap darkImage = TestUtils.createImage(tw, th, true);
         DebugPlayerContext debugContext = new DebugPlayerContext();

@@ -42,7 +42,6 @@ public class RemoteComposeState implements CollectionsAccess {
     /** Offset added to bitmap to cache bitmap textures */
     public static final int BITMAP_TEXTURE_ID_OFFSET = 2000;
 
-    private static final int MAX_DATA = 10000;
     private final IntMap<Object> mIntDataMap = new IntMap<>();
     private final IntMap<Boolean> mIntWrittenMap = new IntMap<>();
     private final HashMap<Object, Integer> mDataIntMap = new HashMap<>();
@@ -60,11 +59,12 @@ public class RemoteComposeState implements CollectionsAccess {
     private final IntIntMap mColorOverride = new IntIntMap();
     @NonNull private final IntMap<ArrayAccess> mCollectionMap = new IntMap<>();
 
-    private final boolean[] mDataOverride = new boolean[MAX_DATA];
-    private final boolean[] mIntegerOverride = new boolean[MAX_DATA];
-    private final boolean[] mFloatOverride = new boolean[MAX_DATA];
+    private final boolean[] mDataOverride = new boolean[Limits.MAX_STATE_DATA];
+    private final boolean[] mIntegerOverride = new boolean[Limits.MAX_STATE_DATA];
+    private final boolean[] mFloatOverride = new boolean[Limits.MAX_STATE_DATA];
 
     private int mNextId = START_ID;
+    private int mNextLocalId = 0x4000;
     private final int @NonNull [] mIdMaps =
             new int[] {START_ID, NanMap.START_VAR, NanMap.START_ARRAY};
     @Nullable private RemoteContext mRemoteContext = null;
@@ -185,6 +185,7 @@ public class RemoteComposeState implements CollectionsAccess {
 
     /**
      * Get the winding associated with the path id
+     *
      * @param id the id of the path
      * @return the winding
      */
@@ -194,6 +195,7 @@ public class RemoteComposeState implements CollectionsAccess {
 
     /**
      * Set the winding associated with the path id
+     *
      * @param id the id of the path
      * @param winding the winding
      */
@@ -451,6 +453,15 @@ public class RemoteComposeState implements CollectionsAccess {
     }
 
     /**
+     * Get the next available macro-local id
+     *
+     * @return next available local id
+     */
+    public int createNextLocalId() {
+        return mNextLocalId++;
+    }
+
+    /**
      * Set the next id
      *
      * @param id set the id to increment off of
@@ -530,7 +541,9 @@ public class RemoteComposeState implements CollectionsAccess {
             int sub = (int) (currentTime % 60000);
             return Math.min(repaintMs, 2 + 1000 * 60 - sub);
         }
-
+        if (!Float.isNaN(mRepaintSeconds)) {
+            return (int) (mRepaintSeconds * 1000);
+        }
         return -1;
     }
 
@@ -677,10 +690,10 @@ public class RemoteComposeState implements CollectionsAccess {
 
     /**
      * Mark the variable with id to be dirty
+     *
      * @param id
      */
     public void markVariableDirty(int id) {
         updateListeners(id);
     }
-
 }

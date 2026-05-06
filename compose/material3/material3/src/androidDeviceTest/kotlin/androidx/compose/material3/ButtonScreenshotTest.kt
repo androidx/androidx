@@ -385,7 +385,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "button_withIcon_disabled_darkTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_withAnimatedShape_default_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -404,7 +403,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_default_lightTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_withAnimatedShape_default_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -423,7 +421,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_default_darkTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun elevatedButton_withAnimatedShape_default_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -445,7 +442,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun elevatedButton_withAnimatedShape_default_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -467,7 +463,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun filledTonalButton_withAnimatedShape_default_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -489,7 +484,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun filledTonalButton_withAnimatedShape_default_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -511,7 +505,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun outlinedButton_withAnimatedShape_default_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -533,7 +526,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun outlinedButton_withAnimatedShape_default_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -555,7 +547,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun textButton_withAnimatedShape_default_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -574,7 +565,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "textButton_withAnimatedShape_default_lightTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun textButton_withAnimatedShape_default_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -593,7 +583,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "textButton_withAnimatedShape_default_darkTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_withAnimatedShape_pressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -623,7 +612,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_pressed_lightTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun button_withAnimatedShape_pressed_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -653,7 +641,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_pressed_darkTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun elevatedButton_withAnimatedShape_pressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -686,7 +673,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun elevatedButton_withAnimatedShape_pressed_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -719,7 +705,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun filledTonalButton_withAnimatedShape_pressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -752,7 +737,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun filledTonalButton_withAnimatedShape_pressed_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -785,7 +769,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun outlinedButton_withAnimatedShape_pressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -818,7 +801,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun outlinedButton_withAnimatedShape_pressed_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
@@ -851,7 +833,6 @@ class ButtonScreenshotTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun textButton_withAnimatedShape_pressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -881,7 +862,6 @@ class ButtonScreenshotTest {
             .assertAgainstGolden(screenshotRule, "textButton_withAnimatedShape_pressed_lightTheme")
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun textButton_withAnimatedShape_pressed_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {

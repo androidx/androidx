@@ -17,251 +17,289 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.compose.remote.creation.RemotePath
-import androidx.compose.ui.graphics.vector.PathNode
-import androidx.compose.ui.graphics.vector.PathNode.ArcTo
-import androidx.compose.ui.graphics.vector.PathNode.Close
-import androidx.compose.ui.graphics.vector.PathNode.CurveTo
-import androidx.compose.ui.graphics.vector.PathNode.HorizontalTo
-import androidx.compose.ui.graphics.vector.PathNode.LineTo
-import androidx.compose.ui.graphics.vector.PathNode.MoveTo
-import androidx.compose.ui.graphics.vector.PathNode.QuadTo
-import androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo
-import androidx.compose.ui.graphics.vector.PathNode.ReflectiveQuadTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeHorizontalTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeLineTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeMoveTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo
-import androidx.compose.ui.graphics.vector.PathNode.RelativeVerticalTo
-import androidx.compose.ui.graphics.vector.PathNode.VerticalTo
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.abs
+import androidx.compose.remote.creation.compose.state.atan2
+import androidx.compose.remote.creation.compose.state.ceil
+import androidx.compose.remote.creation.compose.state.cos
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.sin
+import androidx.compose.remote.creation.compose.state.sqrt
+import androidx.compose.remote.creation.compose.state.tan
+import androidx.compose.remote.creation.compose.state.toRad
+import androidx.compose.remote.creation.compose.vector.RemotePathExtensions
+import androidx.compose.remote.creation.compose.vector.RemotePathNode
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.ArcTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.Close
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.CurveTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.HorizontalTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.LineTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.MoveTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.QuadTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.ReflectiveCurveTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.ReflectiveQuadTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeArcTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeCurveTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeHorizontalTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeLineTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeMoveTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeQuadTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeReflectiveCurveTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeReflectiveQuadTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeVerticalTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.VerticalTo
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.ceil
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
-import kotlin.math.tan
 
-internal fun List<PathNode>.toRemotePath(target: RemotePath = RemotePath()): RemotePath {
+internal fun List<RemotePathNode>.toRemotePath(
+    target: RemotePath = RemotePath(),
+    creationState: RemoteStateScope,
+): RemotePath {
     // Rewind unsets the fill type so reset it here
     target.rewind()
 
-    var currentX = 0.0f
-    var currentY = 0.0f
-    var ctrlX = 0.0f
-    var ctrlY = 0.0f
-    var segmentX = 0.0f
-    var segmentY = 0.0f
-    var reflectiveCtrlX: Float
-    var reflectiveCtrlY: Float
+    var currentX = 0.0f.rf
+    var currentY = 0.0f.rf
+    var ctrlX = 0.0f.rf
+    var ctrlY = 0.0f.rf
+    var segmentX = 0.0f.rf
+    var segmentY = 0.0f.rf
+    var reflectiveCtrlX: RemoteFloat
+    var reflectiveCtrlY: RemoteFloat
 
     var previousNode = if (isEmpty()) Close else this[0]
-    fastForEach { node ->
-        when (node) {
-            is Close -> {
-                currentX = segmentX
-                currentY = segmentY
-                ctrlX = segmentX
-                ctrlY = segmentY
-                target.close()
-            }
-            is RelativeMoveTo -> {
-                currentX += node.dx
-                currentY += node.dy
-                target.rMoveTo(node.dx, node.dy)
-                segmentX = currentX
-                segmentY = currentY
-            }
-            is MoveTo -> {
-                currentX = node.x
-                currentY = node.y
-                target.moveTo(node.x, node.y)
-                segmentX = currentX
-                segmentY = currentY
-            }
-            is RelativeLineTo -> {
-                target.rLineTo(node.dx, node.dy)
-                currentX += node.dx
-                currentY += node.dy
-            }
-            is LineTo -> {
-                target.lineTo(node.x, node.y)
-                currentX = node.x
-                currentY = node.y
-            }
-            is RelativeHorizontalTo -> {
-                target.rLineTo(node.dx, 0.0f)
-                currentX += node.dx
-            }
-            is HorizontalTo -> {
-                target.lineTo(node.x, currentY)
-                currentX = node.x
-            }
-            is RelativeVerticalTo -> {
-                target.rLineTo(0.0f, node.dy)
-                currentY += node.dy
-            }
-            is VerticalTo -> {
-                target.lineTo(currentX, node.y)
-                currentY = node.y
-            }
-            is RelativeCurveTo -> {
-                target.rCubicTo(node.dx1, node.dy1, node.dx2, node.dy2, node.dx3, node.dy3)
-                ctrlX = currentX + node.dx2
-                ctrlY = currentY + node.dy2
-                currentX += node.dx3
-                currentY += node.dy3
-            }
-            is CurveTo -> {
-                target.cubicTo(node.x1, node.y1, node.x2, node.y2, node.x3, node.y3)
-                ctrlX = node.x2
-                ctrlY = node.y2
-                currentX = node.x3
-                currentY = node.y3
-            }
-            is RelativeReflectiveCurveTo -> {
-                if (previousNode.isCurve) {
-                    reflectiveCtrlX = currentX - ctrlX
-                    reflectiveCtrlY = currentY - ctrlY
-                } else {
-                    reflectiveCtrlX = 0.0f
-                    reflectiveCtrlY = 0.0f
+    with(RemotePathExtensions(creationState)) {
+        fastForEach { node ->
+            when (node) {
+                is Close -> {
+                    currentX = segmentX
+                    currentY = segmentY
+                    ctrlX = segmentX
+                    ctrlY = segmentY
+                    target.close()
                 }
-                target.rCubicTo(
-                    reflectiveCtrlX,
-                    reflectiveCtrlY,
-                    node.dx1,
-                    node.dy1,
-                    node.dx2,
-                    node.dy2,
-                )
-                ctrlX = currentX + node.dx1
-                ctrlY = currentY + node.dy1
-                currentX += node.dx2
-                currentY += node.dy2
-            }
-            is ReflectiveCurveTo -> {
-                if (previousNode.isCurve) {
-                    reflectiveCtrlX = 2 * currentX - ctrlX
-                    reflectiveCtrlY = 2 * currentY - ctrlY
-                } else {
-                    reflectiveCtrlX = currentX
-                    reflectiveCtrlY = currentY
+
+                is RelativeMoveTo -> {
+                    currentX += node.dx
+                    currentY += node.dy
+                    target.rMoveTo(node.dx, node.dy)
+                    segmentX = currentX
+                    segmentY = currentY
                 }
-                target.cubicTo(reflectiveCtrlX, reflectiveCtrlY, node.x1, node.y1, node.x2, node.y2)
-                ctrlX = node.x1
-                ctrlY = node.y1
-                currentX = node.x2
-                currentY = node.y2
-            }
-            is RelativeQuadTo -> {
-                target.rQuadTo(node.dx1, node.dy1, node.dx2, node.dy2)
-                ctrlX = currentX + node.dx1
-                ctrlY = currentY + node.dy1
-                currentX += node.dx2
-                currentY += node.dy2
-            }
-            is QuadTo -> {
-                target.quadTo(node.x1, node.y1, node.x2, node.y2)
-                ctrlX = node.x1
-                ctrlY = node.y1
-                currentX = node.x2
-                currentY = node.y2
-            }
-            is RelativeReflectiveQuadTo -> {
-                if (previousNode.isQuad) {
-                    reflectiveCtrlX = currentX - ctrlX
-                    reflectiveCtrlY = currentY - ctrlY
-                } else {
-                    reflectiveCtrlX = 0.0f
-                    reflectiveCtrlY = 0.0f
+
+                is MoveTo -> {
+                    currentX = node.x
+                    currentY = node.y
+                    target.moveTo(node.x, node.y)
+                    segmentX = currentX
+                    segmentY = currentY
                 }
-                target.rQuadTo(reflectiveCtrlX, reflectiveCtrlY, node.dx, node.dy)
-                ctrlX = currentX + reflectiveCtrlX
-                ctrlY = currentY + reflectiveCtrlY
-                currentX += node.dx
-                currentY += node.dy
-            }
-            is ReflectiveQuadTo -> {
-                if (previousNode.isQuad) {
-                    reflectiveCtrlX = 2 * currentX - ctrlX
-                    reflectiveCtrlY = 2 * currentY - ctrlY
-                } else {
-                    reflectiveCtrlX = currentX
-                    reflectiveCtrlY = currentY
+
+                is RelativeLineTo -> {
+                    target.rLineTo(node.dx, node.dy)
+                    currentX += node.dx
+                    currentY += node.dy
                 }
-                target.quadTo(reflectiveCtrlX, reflectiveCtrlY, node.x, node.y)
-                ctrlX = reflectiveCtrlX
-                ctrlY = reflectiveCtrlY
-                currentX = node.x
-                currentY = node.y
+
+                is LineTo -> {
+                    target.lineTo(node.x, node.y)
+                    currentX = node.x
+                    currentY = node.y
+                }
+
+                is RelativeHorizontalTo -> {
+                    target.rLineTo(node.dx, 0.0f.rf)
+                    currentX += node.dx
+                }
+
+                is HorizontalTo -> {
+                    target.lineTo(node.x, currentY)
+                    currentX = node.x
+                }
+
+                is RelativeVerticalTo -> {
+                    target.rLineTo(0.0f.rf, node.dy)
+                    currentY += node.dy
+                }
+
+                is VerticalTo -> {
+                    target.lineTo(currentX, node.y)
+                    currentY = node.y
+                }
+
+                is RelativeCurveTo -> {
+                    target.rCubicTo(node.dx1, node.dy1, node.dx2, node.dy2, node.dx3, node.dy3)
+                    ctrlX = currentX + node.dx2
+                    ctrlY = currentY + node.dy2
+                    currentX += node.dx3
+                    currentY += node.dy3
+                }
+
+                is CurveTo -> {
+                    target.cubicTo(node.x1, node.y1, node.x2, node.y2, node.x3, node.y3)
+                    ctrlX = node.x2
+                    ctrlY = node.y2
+                    currentX = node.x3
+                    currentY = node.y3
+                }
+
+                is RelativeReflectiveCurveTo -> {
+                    if (previousNode.isCurve) {
+                        reflectiveCtrlX = currentX - ctrlX
+                        reflectiveCtrlY = currentY - ctrlY
+                    } else {
+                        reflectiveCtrlX = 0.0f.rf
+                        reflectiveCtrlY = 0.0f.rf
+                    }
+                    target.rCubicTo(
+                        reflectiveCtrlX,
+                        reflectiveCtrlY,
+                        node.dx1,
+                        node.dy1,
+                        node.dx2,
+                        node.dy2,
+                    )
+                    ctrlX = currentX + node.dx1
+                    ctrlY = currentY + node.dy1
+                    currentX += node.dx2
+                    currentY += node.dy2
+                }
+
+                is ReflectiveCurveTo -> {
+                    if (previousNode.isCurve) {
+                        reflectiveCtrlX = 2.rf * currentX - ctrlX
+                        reflectiveCtrlY = 2.rf * currentY - ctrlY
+                    } else {
+                        reflectiveCtrlX = currentX
+                        reflectiveCtrlY = currentY
+                    }
+                    target.cubicTo(
+                        reflectiveCtrlX,
+                        reflectiveCtrlY,
+                        node.x1,
+                        node.y1,
+                        node.x2,
+                        node.y2,
+                    )
+                    ctrlX = node.x1
+                    ctrlY = node.y1
+                    currentX = node.x2
+                    currentY = node.y2
+                }
+
+                is RelativeQuadTo -> {
+                    target.rQuadTo(node.dx1, node.dy1, node.dx2, node.dy2)
+                    ctrlX = currentX + node.dx1
+                    ctrlY = currentY + node.dy1
+                    currentX += node.dx2
+                    currentY += node.dy2
+                }
+
+                is QuadTo -> {
+                    target.quadTo(node.x1, node.y1, node.x2, node.y2)
+                    ctrlX = node.x1
+                    ctrlY = node.y1
+                    currentX = node.x2
+                    currentY = node.y2
+                }
+
+                is RelativeReflectiveQuadTo -> {
+                    if (previousNode.isQuad) {
+                        reflectiveCtrlX = currentX - ctrlX
+                        reflectiveCtrlY = currentY - ctrlY
+                    } else {
+                        reflectiveCtrlX = 0.0f.rf
+                        reflectiveCtrlY = 0.0f.rf
+                    }
+                    target.rQuadTo(reflectiveCtrlX, reflectiveCtrlY, node.dx, node.dy)
+                    ctrlX = currentX + reflectiveCtrlX
+                    ctrlY = currentY + reflectiveCtrlY
+                    currentX += node.dx
+                    currentY += node.dy
+                }
+
+                is ReflectiveQuadTo -> {
+                    if (previousNode.isQuad) {
+                        reflectiveCtrlX = 2.rf * currentX - ctrlX
+                        reflectiveCtrlY = 2.rf * currentY - ctrlY
+                    } else {
+                        reflectiveCtrlX = currentX
+                        reflectiveCtrlY = currentY
+                    }
+                    target.quadTo(reflectiveCtrlX, reflectiveCtrlY, node.x, node.y)
+                    ctrlX = reflectiveCtrlX
+                    ctrlY = reflectiveCtrlY
+                    currentX = node.x
+                    currentY = node.y
+                }
+
+                is RelativeArcTo -> {
+                    // TODO: Uses RemotePath.arcTo
+                    val arcStartX = node.arcStartDx + currentX
+                    val arcStartY = node.arcStartDy + currentY
+                    drawArc(
+                        target,
+                        currentX,
+                        currentY,
+                        arcStartX,
+                        arcStartY,
+                        node.horizontalEllipseRadius,
+                        node.verticalEllipseRadius,
+                        node.theta,
+                        node.isMoreThanHalf,
+                        node.isPositiveArc,
+                        creationState,
+                    )
+                    currentX = arcStartX
+                    currentY = arcStartY
+                    ctrlX = currentX
+                    ctrlY = currentY
+                }
+
+                is ArcTo -> {
+                    // TODO: Uses RemotePath.arcTo
+                    drawArc(
+                        target,
+                        currentX,
+                        currentY,
+                        node.arcStartX,
+                        node.arcStartY,
+                        node.horizontalEllipseRadius,
+                        node.verticalEllipseRadius,
+                        node.theta,
+                        node.isMoreThanHalf,
+                        node.isPositiveArc,
+                        creationState,
+                    )
+                    currentX = node.arcStartX
+                    currentY = node.arcStartY
+                    ctrlX = currentX
+                    ctrlY = currentY
+                }
             }
-            is RelativeArcTo -> {
-                // TODO: Uses RemotePath.arcTo
-                val arcStartX = node.arcStartDx + currentX
-                val arcStartY = node.arcStartDy + currentY
-                drawArc(
-                    target,
-                    currentX.toDouble(),
-                    currentY.toDouble(),
-                    arcStartX.toDouble(),
-                    arcStartY.toDouble(),
-                    node.horizontalEllipseRadius.toDouble(),
-                    node.verticalEllipseRadius.toDouble(),
-                    node.theta.toDouble(),
-                    node.isMoreThanHalf,
-                    node.isPositiveArc,
-                )
-                currentX = arcStartX
-                currentY = arcStartY
-                ctrlX = currentX
-                ctrlY = currentY
-            }
-            is ArcTo -> {
-                // TODO: Uses RemotePath.arcTo
-                drawArc(
-                    target,
-                    currentX.toDouble(),
-                    currentY.toDouble(),
-                    node.arcStartX.toDouble(),
-                    node.arcStartY.toDouble(),
-                    node.horizontalEllipseRadius.toDouble(),
-                    node.verticalEllipseRadius.toDouble(),
-                    node.theta.toDouble(),
-                    node.isMoreThanHalf,
-                    node.isPositiveArc,
-                )
-                currentX = node.arcStartX
-                currentY = node.arcStartY
-                ctrlX = currentX
-                ctrlY = currentY
-            }
+            previousNode = node
         }
-        previousNode = node
     }
     return target
 }
 
 private fun drawArc(
     p: RemotePath,
-    x0: Double,
-    y0: Double,
-    x1: Double,
-    y1: Double,
-    a: Double,
-    b: Double,
-    theta: Double,
-    isMoreThanHalf: Boolean,
-    isPositiveArc: Boolean,
+    x0: RemoteFloat,
+    y0: RemoteFloat,
+    x1: RemoteFloat,
+    y1: RemoteFloat,
+    a: RemoteFloat,
+    b: RemoteFloat,
+    theta: RemoteFloat,
+    isMoreThanHalf: RemoteBoolean,
+    isPositiveArc: RemoteBoolean,
+    remoteStateScope: RemoteStateScope,
 ) {
-
     /* Convert rotation angle from degrees to radians */
-    val thetaD = theta.toRadians()
+    val thetaD: RemoteFloat = toRad(theta)
     /* Pre-compute rotation matrix entries */
     val cosTheta = cos(thetaD)
     val sinTheta = sin(thetaD)
@@ -275,44 +313,29 @@ private fun drawArc(
     /* Compute differences and averages */
     val dx = x0p - x1p
     val dy = y0p - y1p
-    val xm = (x0p + x1p) / 2
-    val ym = (y0p + y1p) / 2
+    val xm = (x0p + x1p) / 2.rf
+    val ym = (y0p + y1p) / 2.rf
     /* Solve for intersecting unit circles */
     val dsq = dx * dx + dy * dy
-    if (dsq == 0.0) {
+    if (dsq.constantValueOrNull == 0.0f) {
         return /* Points are coincident */
     }
-    val disc = 1.0 / dsq - 1.0 / 4.0
-    if (disc < 0.0) {
-        val adjust = (sqrt(dsq) / 1.99999).toFloat()
-        drawArc(p, x0, y0, x1, y1, a * adjust, b * adjust, theta, isMoreThanHalf, isPositiveArc)
-        return /* Points are too far apart */
-    }
+    val disc = 1.rf / dsq - 1.rf / 4.rf
     val s = sqrt(disc)
     val sdx = s * dx
     val sdy = s * dy
-    var cx: Double
-    var cy: Double
-    if (isMoreThanHalf == isPositiveArc) {
-        cx = xm - sdy
-        cy = ym + sdx
-    } else {
-        cx = xm + sdy
-        cy = ym - sdx
-    }
+    val branch = isMoreThanHalf.eq(isPositiveArc)
+    var cx: RemoteFloat = branch.select(xm - sdy, xm + sdy)
+    var cy: RemoteFloat = branch.select(ym + sdx, ym - sdx)
 
     val eta0 = atan2(y0p - cy, x0p - cx)
 
     val eta1 = atan2(y1p - cy, x1p - cx)
 
-    var sweep = eta1 - eta0
-    if (isPositiveArc != (sweep >= 0)) {
-        if (sweep > 0) {
-            sweep -= 2 * PI
-        } else {
-            sweep += 2 * PI
-        }
-    }
+    val initialSweep = eta1 - eta0
+    val branch2 = isPositiveArc.ne(initialSweep.ge(0.rf))
+    val pi2 = 2.rf * PI.toFloat().rf
+    val sweep = initialSweep + branch2.select(initialSweep.gt(0.rf).select(-pi2, pi2), 0.rf)
 
     cx *= a
     cy *= b
@@ -320,7 +343,7 @@ private fun drawArc(
     cx = cx * cosTheta - cy * sinTheta
     cy = tcx * sinTheta + cy * cosTheta
 
-    arcToBezier(p, cx, cy, a, b, x0, y0, thetaD, eta0, sweep)
+    arcToBezier(p, cx, cy, a, b, x0, y0, thetaD, eta0, sweep, remoteStateScope)
 }
 
 /**
@@ -339,15 +362,16 @@ private fun drawArc(
  */
 private fun arcToBezier(
     p: RemotePath,
-    cx: Double,
-    cy: Double,
-    a: Double,
-    b: Double,
-    e1x: Double,
-    e1y: Double,
-    theta: Double,
-    start: Double,
-    sweep: Double,
+    cx: RemoteFloat,
+    cy: RemoteFloat,
+    a: RemoteFloat,
+    b: RemoteFloat,
+    e1x: RemoteFloat,
+    e1y: RemoteFloat,
+    theta: RemoteFloat,
+    start: RemoteFloat,
+    sweep: RemoteFloat,
+    remoteStateScope: RemoteStateScope,
 ) {
     var eta1x = e1x
     var eta1y = e1y
@@ -355,7 +379,11 @@ private fun arcToBezier(
     // and http://www.spaceroots.org/documents/ellipse/node22.html
 
     // Maximum of 45 degrees per cubic Bezier segment
-    val numSegments = ceil(abs(sweep * 4 / PI)).toInt()
+    val numSegments =
+        ceil(abs(sweep * 4.rf / PI.toFloat().rf))
+            .toRemoteInt()
+            // Temporary limitation that this must be a constant
+            .constantValue
 
     var eta1 = start
     val cosTheta = cos(theta)
@@ -365,7 +393,7 @@ private fun arcToBezier(
     var ep1x = (-a * cosTheta * sinEta1) - (b * sinTheta * cosEta1)
     var ep1y = (-a * sinTheta * sinEta1) + (b * cosTheta * cosEta1)
 
-    val anglePerSegment = sweep / numSegments
+    val anglePerSegment = sweep / numSegments.rf
     for (i in 0 until numSegments) {
         val eta2 = eta1 + anglePerSegment
         val sinEta2 = sin(eta2)
@@ -374,8 +402,8 @@ private fun arcToBezier(
         val e2y = cy + (a * sinTheta * cosEta2) + (b * cosTheta * sinEta2)
         val ep2x = (-a * cosTheta * sinEta2) - (b * sinTheta * cosEta2)
         val ep2y = (-a * sinTheta * sinEta2) + (b * cosTheta * cosEta2)
-        val tanDiff2 = tan((eta2 - eta1) / 2)
-        val alpha = sin(eta2 - eta1) * (sqrt(4 + 3.0 * tanDiff2 * tanDiff2) - 1) / 3
+        val tanDiff2 = tan((eta2 - eta1) / 2.rf)
+        val alpha = sin(eta2 - eta1) * (sqrt(4.rf + 3.rf * tanDiff2 * tanDiff2) - 1.rf) / 3.rf
         val q1x = eta1x + alpha * ep1x
         val q1y = eta1y + alpha * ep1y
         val q2x = e2x - alpha * ep2x
@@ -385,14 +413,7 @@ private fun arcToBezier(
         // Adding this no-op call to workaround a proguard related issue.
         // p.relativeLineTo(0.0, 0.0)
 
-        p.cubicTo(
-            q1x.toFloat(),
-            q1y.toFloat(),
-            q2x.toFloat(),
-            q2y.toFloat(),
-            e2x.toFloat(),
-            e2y.toFloat(),
-        )
+        with(RemotePathExtensions(remoteStateScope)) { p.cubicTo(q1x, q1y, q2x, q2y, e2x, e2y) }
         eta1 = eta2
         eta1x = e2x
         eta1y = e2y
@@ -400,5 +421,3 @@ private fun arcToBezier(
         ep1y = ep2y
     }
 }
-
-@Suppress("NOTHING_TO_INLINE") private inline fun Double.toRadians(): Double = this / 180 * PI

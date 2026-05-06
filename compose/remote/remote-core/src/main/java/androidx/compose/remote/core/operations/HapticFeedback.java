@@ -90,7 +90,7 @@ public class HapticFeedback extends Operation implements SerializableToString, S
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int hapticFeedbackType = buffer.readInt();
+        int hapticFeedbackType = buffer.readId();
 
         operations.add(new HapticFeedback(hapticFeedbackType));
     }

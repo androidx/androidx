@@ -18,6 +18,7 @@ package androidx.compose.remote.a11y
 
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -27,6 +28,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
+import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
@@ -36,6 +38,8 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.ri
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
@@ -43,10 +47,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.uiautomator.boundsInScreen
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,7 +65,6 @@ class ListA11yTest {
         RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
-    @Ignore("b/484916070")
     fun listSemantics() {
         remoteComposeTestRule.runTest {
             ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 0)
@@ -98,7 +101,6 @@ class ListA11yTest {
     }
 
     @Test
-    @Ignore("b/484916070")
     fun listWithSnapSemantics() {
         remoteComposeTestRule.runTest {
             ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 29)
@@ -118,6 +120,32 @@ class ListA11yTest {
         }
     }
 
+    @Test
+    fun getComponentIdAt() {
+        remoteComposeTestRule.runTest {
+            ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 0)
+        }
+
+        uiAutomator {
+            val list = onElement { isScrollable }
+
+            val listAni = list.accessibilityNodeInfo
+            assertThat(listAni.childCount).isEqualTo(30)
+
+            val zeroeth = listAni.getChild(0)
+            val zeroethBounds = zeroeth.boundsInScreen()
+
+            device.click(zeroethBounds.centerX(), zeroethBounds.centerY())
+
+            val fourth = listAni.getChild(4)
+            val fourthBounds = fourth.boundsInScreen()
+
+            device.click(fourthBounds.centerX(), fourthBounds.centerY())
+        }
+
+        assertThat(remoteComposeTestRule.clickEvents).containsExactly("abc" to 0, "abc" to 4)
+    }
+
     @RemoteComposable
     @Composable
     fun ScrollableList(
@@ -131,18 +159,18 @@ class ListA11yTest {
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
             verticalArrangement = RemoteArrangement.Center,
         ) {
-            repeat(items) {
+            repeat(items) { i ->
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(192.rdp)
                             .border(1.rdp, Color.LightGray.rc)
+                            .clickable(HostAction("abc".rs, i.ri))
                             // Must be direct child of the scrollable item
                             .semantics(mergeDescendants = true) {},
-                    horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                    verticalArrangement = RemoteArrangement.Center,
+                    contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Item $it", color = RemoteColor(Color.Black), fontSize = 36.rsp)
+                    RemoteText("Item $i", color = RemoteColor(Color.Black), fontSize = 36.rsp)
                 }
             }
         }

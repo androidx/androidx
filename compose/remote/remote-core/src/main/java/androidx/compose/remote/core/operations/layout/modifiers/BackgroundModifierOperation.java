@@ -28,6 +28,7 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -39,8 +40,8 @@ import java.util.List;
 
 /** Component size-aware background draw */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BackgroundModifierOperation extends DecoratorModifierOperation implements
-        VariableSupport {
+public class BackgroundModifierOperation extends DecoratorModifierOperation
+        implements VariableSupport {
     private static final int OP_CODE = Operations.MODIFIER_BACKGROUND;
     private static final String CLASS_NAME = "BackgroundModifierOperation";
     float mX;
@@ -60,8 +61,7 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation impl
     int mShapeType = ShapeType.RECTANGLE;
 
     public static final int COLOR_REF = 2;
-    @NonNull
-    public PaintBundle mPaint = new PaintBundle();
+    @NonNull public PaintBundle mPaint = new PaintBundle();
 
     public BackgroundModifierOperation(
             int flags,
@@ -165,15 +165,15 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation impl
     /**
      * Write the operation to the buffer
      *
-     * @param buffer    the WireBuffer
-     * @param flags     flag
-     * @param colorId   color ref
-     * @param reserve1  reserved for future use
-     * @param reserve2  reserved for future use
-     * @param r         red component of the background color
-     * @param g         green component of the background color
-     * @param b         blue component of the background color
-     * @param a         alpha component of the background color
+     * @param buffer the WireBuffer
+     * @param flags flag
+     * @param colorId color ref
+     * @param reserve1 reserved for future use
+     * @param reserve2 reserved for future use
+     * @param r red component of the background color
+     * @param g green component of the background color
+     * @param b blue component of the background color
+     * @param a alpha component of the background color
      * @param shapeType the shape of the background (RECTANGLE=0, CIRCLE=1)
      */
     public static void apply(
@@ -203,23 +203,29 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation impl
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int flags = buffer.readInt();
         int colorId = buffer.readInt();
+        if ((flags & COLOR_REF) != 0) {
+            // Manual remapping since we already read it
+            if (buffer instanceof LoomWireBuffer) {
+                colorId = ((LoomWireBuffer) buffer).getRemapContext().resolveId(colorId);
+            }
+        }
         int reserve1 = buffer.readInt();
         int reserve2 = buffer.readInt();
-        float r = buffer.readFloat();
-        float g = buffer.readFloat();
-        float b = buffer.readFloat();
-        float a = buffer.readFloat();
+        float r = buffer.readNanId();
+        float g = buffer.readNanId();
+        float b = buffer.readNanId();
+        float a = buffer.readNanId();
         // shape type
         int shapeType = buffer.readInt();
         operations.add(
-                new BackgroundModifierOperation(flags, colorId, reserve1, reserve2, r, g, b, a,
-                        shapeType));
+                new BackgroundModifierOperation(
+                        flags, colorId, reserve1, reserve2, r, g, b, a, shapeType));
     }
 
     @Override

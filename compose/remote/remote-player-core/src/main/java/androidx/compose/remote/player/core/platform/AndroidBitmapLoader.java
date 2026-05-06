@@ -34,6 +34,7 @@ public class AndroidBitmapLoader implements BitmapLoader{
      * @return an InputStream with data.
      */
     @Override
+    @SuppressWarnings("deprecation")
     public @NonNull InputStream loadBitmap(@NonNull String url) throws IOException {
         return new URL(url).openStream();
     }

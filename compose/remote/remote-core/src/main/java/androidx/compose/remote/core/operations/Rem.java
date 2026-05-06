@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -38,7 +39,6 @@ public class Rem extends Operation implements SerializableToString, Serializable
     private static final int OP_CODE = Operations.REM;
     private static final String CLASS_NAME = "Rem";
     @NonNull public String mText;
-    public static final int MAX_STRING_SIZE = 4000;
 
     public Rem(@NonNull String text) {
         this.mText = text;
@@ -101,7 +101,7 @@ public class Rem extends Operation implements SerializableToString, Serializable
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        String text = buffer.readUTF8(MAX_STRING_SIZE);
+        String text = buffer.readUTF8(Limits.MAX_STRING_SIZE);
         operations.add(new Rem(text));
     }
 

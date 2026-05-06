@@ -16,6 +16,7 @@
 package androidx.compose.remote.core.operations.layout.animation;
 
 import androidx.annotation.RestrictTo;
+
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Particle {
     public final float x;

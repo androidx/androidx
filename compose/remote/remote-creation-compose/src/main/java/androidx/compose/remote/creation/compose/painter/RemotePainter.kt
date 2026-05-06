@@ -17,15 +17,13 @@
 
 package androidx.compose.remote.creation.compose.painter
 
-import android.graphics.BlendMode
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.DefaultAlpha
 
 /**
@@ -34,7 +32,6 @@ import androidx.compose.ui.graphics.DefaultAlpha
  * [RemotePainter] are responsible for implementing the [onDraw] method, which defines the drawing
  * operations.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemotePainter {
 
     private var paint: RemotePaint? = null
@@ -65,23 +62,15 @@ public abstract class RemotePainter {
 
     /** Update the alpha component of RemoteColor. */
     private fun configureAlpha(alpha: RemoteFloat) {
-        val color = obtainPaint().remoteColor ?: RemoteColor(Color.Black)
-        obtainPaint().remoteColor = color.copy(alpha = alpha)
-    }
-
-    /** Returns the size of the component that this painter is drawing on. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun RemoteDrawScope.componentSize(): RemoteSize {
-        return remoteSize
+        obtainPaint().apply { color = color.copy(alpha = alpha) }
     }
 
     /**
      * The main entry point for drawing. This method is called by the remote compose framework to
      * draw the painter.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteDrawScope.draw(
-        blendMode: android.graphics.BlendMode? = null,
+        blendMode: BlendMode? = null,
         alpha: RemoteFloat = DefaultAlpha.rf,
     ) {
         configureBlendMode(blendMode)

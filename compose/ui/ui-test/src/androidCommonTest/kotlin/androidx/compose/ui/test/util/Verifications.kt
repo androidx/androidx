@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MultiModalInjectionScopeImpl
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
 import com.google.common.collect.Ordering
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
@@ -37,6 +38,8 @@ const val TypeMouse = MotionEvent.TOOL_TYPE_MOUSE
 const val SourceTouchscreen = InputDevice.SOURCE_TOUCHSCREEN
 const val SourceMouse = InputDevice.SOURCE_MOUSE
 
+const val SourceIndirectTouch = InputDevice.SOURCE_TOUCH_NAVIGATION
+
 internal fun SemanticsNodeInteraction.assertNoTouchGestureInProgress() {
     val failMessage = "Can't verify if a touch is in progress: failed to create an injection scope"
     val node = fetchSemanticsNode(failMessage)
@@ -46,6 +49,18 @@ internal fun SemanticsNodeInteraction.assertNoTouchGestureInProgress() {
 
 internal fun InputDispatcher.assertNoTouchGestureInProgress() {
     assertThat(isTouchInProgress).isFalse()
+}
+
+internal fun SemanticsNodeInteraction.assertNoIndirectPointerGestureInProgress() {
+    val failMessage =
+        "Can't verify if a indirect pointer gesture is in progress: failed to create an injection scope"
+    val node = fetchSemanticsNode(failMessage)
+    val scope = MultiModalInjectionScopeImpl(node, testContext)
+    assertThat(scope.inputDispatcher.isIndirectPointerGestureInProgress).isFalse()
+}
+
+internal fun InputDispatcher.assertNoIndirectPointerGestureInProgress() {
+    assertThat(isIndirectPointerGestureInProgress).isFalse()
 }
 
 /**
@@ -112,6 +127,50 @@ internal fun InputEvent.verifyTouchPointer(expectedPointerId: Int, expectedPosit
     } else {
         throw AssertionError(
             "A touch event must be of type MotionEvent, " + "not ${this::class.simpleName}"
+        )
+    }
+}
+
+internal fun InputEvent.verifyIndirectPointerEvent(
+    expectedPointerCount: Int,
+    expectedAction: Int,
+    expectedActionIndex: Int,
+    expectedRelativeTime: Long,
+) {
+    if (this is MotionEvent) {
+        assertThat(pointerCount).isEqualTo(expectedPointerCount)
+        assertThat(actionMasked).isEqualTo(expectedAction)
+        assertThat(actionIndex).isEqualTo(expectedActionIndex)
+        assertThat(relativeTime).isEqualTo(expectedRelativeTime)
+        assertThat(source).isEqualTo(SourceIndirectTouch)
+    } else {
+        throw AssertionError(
+            "A indirect pointer event must be of type MotionEvent, " +
+                "not ${this::class.simpleName}"
+        )
+    }
+}
+
+internal fun InputEvent.verifyIndirectPointerEventPointers(
+    expectedPointerId: Int,
+    expectedPosition: Offset,
+) {
+    if (this is MotionEvent) {
+        var index = -1
+        for (i in 0 until pointerCount) {
+            if (getPointerId(i) == expectedPointerId) {
+                index = i
+                break
+            }
+        }
+        assertThat(index).isAtLeast(0)
+        assertThat(getX(index)).isEqualTo(expectedPosition.x)
+        assertThat(getY(index)).isEqualTo(expectedPosition.y)
+        assertThat(getToolType(index)).isEqualTo(TypeFinger)
+    } else {
+        throw AssertionError(
+            "A indirect pointer event must be of type MotionEvent, " +
+                "not ${this::class.simpleName}"
         )
     }
 }
