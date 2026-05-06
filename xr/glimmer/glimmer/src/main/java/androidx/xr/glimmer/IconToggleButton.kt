@@ -52,7 +52,7 @@ import androidx.compose.ui.semantics.Role
  * @param modifier the [Modifier] to be applied to this icon toggle button.
  * @param shape the [Shape] of this icon toggle button. It is recommended to change the shape
  *   depending on the [checked] state. [IconToggleButtonDefaults] provides both animated and
- *   non-animated versions, see [IconToggleButtonDefaults.animateShape] and
+ *   non-animated versions, see [IconToggleButtonDefaults.animatedShape] and
  *   [IconToggleButtonDefaults.shape] for more details.
  * @param colors the [IconToggleButtonColors] providing color variants for all icon toggle button
  *   states.
@@ -72,7 +72,7 @@ public fun IconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = IconToggleButtonDefaults.animateShape(checked),
+    shape: Shape = IconToggleButtonDefaults.animatedShape(checked),
     colors: IconToggleButtonColors = IconToggleButtonDefaults.colors(),
     border: BorderStroke? = SurfaceDefaults.border(),
     enabled: Boolean = true,
@@ -128,7 +128,7 @@ public object IconToggleButtonDefaults {
      * Chooses a [Shape] based on the [checked] state and can be used to override the default
      * Glimmer button shapes. Note that it simply switches shapes without animation.
      *
-     * If you require an animated version, please refer to [IconToggleButtonDefaults.animateShape],
+     * If you require an animated version, please refer to [IconToggleButtonDefaults.animatedShape],
      * which uses default Glimmer animations and shapes, or consider creating a custom animated
      * shape.
      *
@@ -151,7 +151,7 @@ public object IconToggleButtonDefaults {
      * @param checked whether the button is in the checked state
      */
     @Composable
-    public fun animateShape(checked: Boolean): Shape {
+    public fun animatedShape(checked: Boolean): Shape {
         val progress =
             animateFloatAsState(
                 targetValue = if (checked) 1f else 0f,

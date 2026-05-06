@@ -222,8 +222,8 @@ package androidx.xr.glimmer {
   }
 
   public final class IconToggleButtonDefaults {
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animateShape(boolean checked);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animateShape(boolean, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean checked);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.IconToggleButtonColors colors(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color checkedContentColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.IconToggleButtonColors colors-ro_MJ88(long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
@@ -330,8 +330,8 @@ package androidx.xr.glimmer {
   }
 
   public final class ToggleButtonDefaults {
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animateShape(boolean checked);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animateShape(boolean, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean checked);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color checkedContentColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors-ro_MJ88(long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(androidx.xr.glimmer.ButtonSize buttonSize);

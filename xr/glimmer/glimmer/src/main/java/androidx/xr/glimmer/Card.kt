@@ -83,9 +83,9 @@ import kotlin.math.max
  *   [androidx.compose.foundation.layout.fillMaxSize] will result in an image that fills the maximum
  *   aspect ratio.
  * @param leadingIcon optional leading icon to be placed before [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param trailingIcon optional trailing icon to be placed after [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param shape the [Shape] used to clip this card, and also used to draw the background and border
  * @param color background color of this card
  * @param contentColor content color used by components inside [content], [title], [subtitle],
@@ -179,9 +179,9 @@ public fun Card(
  *   [androidx.compose.foundation.layout.fillMaxSize] will result in an image that fills the maximum
  *   aspect ratio.
  * @param leadingIcon optional leading icon to be placed before [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param trailingIcon optional trailing icon to be placed after [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param shape the [Shape] used to clip this card, and also used to draw the background and border
  * @param color background color of this card
  * @param contentColor content color used by components inside [content], [title], [subtitle],
@@ -265,9 +265,9 @@ public fun Card(
  *   [androidx.compose.foundation.layout.fillMaxSize] will result in an image that fills the maximum
  *   aspect ratio.
  * @param leadingIcon optional leading icon to be placed before [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param trailingIcon optional trailing icon to be placed after [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param shape the [Shape] used to clip this card, and also used to draw the background and border
  * @param color background color of this card
  * @param contentColor content color used by components inside [content], [title], [subtitle],

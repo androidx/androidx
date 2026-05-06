@@ -67,9 +67,9 @@ import androidx.compose.ui.unit.dp
  *   the provided [buttonSize] will affect other properties such as padding values and the size of
  *   icons.
  * @param leadingIcon optional leading icon to be placed before the [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param trailingIcon optional trailing icon to be placed after the [content]. This is typically an
- *   [Icon].
+ *   [Icon] tinted with [contentColor] by default.
  * @param shape the [Shape] used to clip this button, and also used to draw the background and
  *   border
  * @param color background color of this button
