@@ -27,6 +27,7 @@ import android.view.ScrollCaptureSession
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.AndroidComposeUiFlags.isAlwaysScrollDuringScrollCaptureEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.geometry.Offset
@@ -255,7 +256,8 @@ private class RelativeScroller(
         scrollAmount = 0f
     }
 
-    /** Scroll the specified range into the center unless it's already fully visible. */
+    /** Scroll the specified range into the center. */
+    @OptIn(ExperimentalComposeUiApi::class)
     suspend fun scrollRangeToCenter(min: Int, max: Int) {
         if (DEBUG) Log.d(TAG, "scrollRangeToCenter(min=$min, max=$max)")
         require(min <= max) { "Expected min=$min ≤ max=$max" }
@@ -263,10 +265,12 @@ private class RelativeScroller(
             "Expected range (${max - min}) to be ≤ viewportSize=$viewportSize"
         }
 
-        if (min >= scrollAmount && max <= scrollAmount + viewportSize) {
-            // Already visible, no need to scroll.
-            if (DEBUG) Log.d(TAG, "requested range already in view, not scrolling")
-            return
+        if (!isAlwaysScrollDuringScrollCaptureEnabled) {
+            if (min >= scrollAmount && max <= scrollAmount + viewportSize) {
+                // Already visible, no need to scroll.
+                if (DEBUG) Log.d(TAG, "requested range already in view, not scrolling")
+                return
+            }
         }
 
         // Target is requested center minus half the viewport size

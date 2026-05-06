@@ -75,4 +75,13 @@ object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isFrameworkVelocityTrackerEnabled: Boolean = false
+
+    /**
+     * This flag forces scroll capture to center the content being rendered even if it's already
+     * visible.
+     */
+    // TODO: remove and close b/509934021
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAlwaysScrollDuringScrollCaptureEnabled: Boolean = true
 }
