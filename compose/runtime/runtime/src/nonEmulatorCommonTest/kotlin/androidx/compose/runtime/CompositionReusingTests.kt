@@ -17,6 +17,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.mock.CompositionTestScope
+import androidx.compose.runtime.mock.EmptyApplier
 import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.NonReusableLinear
 import androidx.compose.runtime.mock.NonReusableText
@@ -33,6 +34,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @Stable
@@ -755,6 +757,29 @@ class CompositionReusingTests {
         assertEquals(2, rememberedState.rememberCount)
         assertEquals(1, rememberedState.forgottenCount)
         assertEquals(0, rememberedState.abandonCount)
+    }
+
+    @Test
+    fun setContentWithReuse_throwInInitialComposition_preservesOriginalException() = runTest {
+        val recomposer = Recomposer(coroutineContext)
+        val composition = ReusableComposition(EmptyApplier(), recomposer)
+        val expectedException = IllegalStateException("Test error")
+
+        try {
+            val actualException: Throwable? =
+                try {
+                    composition.setContentWithReuse { throw expectedException }
+                    null
+                } catch (t: Throwable) {
+                    t
+                }
+
+            assertSame(expectedException, actualException)
+        } finally {
+            composition.dispose()
+            recomposer.cancel()
+            recomposer.close()
+        }
     }
 
     @Test

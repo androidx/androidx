@@ -30,6 +30,7 @@ import kotlin.coroutines.resume
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
@@ -469,6 +470,31 @@ class PausableCompositionTests {
                 recomposer.close()
             }
         }
+
+    @Test
+    fun pausableComposition_throwInResumeWithReuse_preservesOriginalException() = runTest {
+        val recomposer = Recomposer(coroutineContext)
+        val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
+        val expectedException = IllegalStateException("Test error")
+
+        try {
+            val actualException: Throwable? =
+                try {
+                    val handle =
+                        pausableComposition.setPausableContentWithReuse { throw expectedException }
+                    handle.resume { false }
+                    null
+                } catch (t: Throwable) {
+                    t
+                }
+
+            assertSame(expectedException, actualException)
+        } finally {
+            pausableComposition.dispose()
+            recomposer.cancel()
+            recomposer.close()
+        }
+    }
 
     @Test
     fun pausableComposition_throwInApply() =
