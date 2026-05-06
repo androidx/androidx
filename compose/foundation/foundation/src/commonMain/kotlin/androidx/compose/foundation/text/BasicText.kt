@@ -111,7 +111,11 @@ fun BasicText(
                     selectionRegistrar.nextSelectableId()
                 }
             remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
-                SelectionController(selectableId, selectionRegistrar, backgroundSelectionColor)
+                SelectionController(
+                    selectableId = selectableId,
+                    selectionRegistrar = selectionRegistrar,
+                    backgroundSelectionColor = backgroundSelectionColor,
+                )
             }
         } else {
             null
@@ -209,7 +213,11 @@ fun BasicText(
                     selectionRegistrar.nextSelectableId()
                 }
             remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
-                SelectionController(selectableId, selectionRegistrar, backgroundSelectionColor)
+                SelectionController(
+                    selectableId = selectableId,
+                    selectionRegistrar = selectionRegistrar,
+                    backgroundSelectionColor = backgroundSelectionColor,
+                )
             }
         } else {
             null

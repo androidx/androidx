@@ -191,6 +191,15 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
+
+    /**
+     * This flag controls whether selecting text in
+     * [androidx.compose.foundation.text.selection.SelectionContainer] causes scrollable ancestors
+     * of the text to be scrolled when the selecting pointer is dragged outside the scrollable's
+     * viewport.
+     */
+    // TODO: Remove this flag once it has soaked (b/0)
+    @field:Suppress("MutableBareField") @JvmField var isSelectionAutoScrollEnabled = false
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
