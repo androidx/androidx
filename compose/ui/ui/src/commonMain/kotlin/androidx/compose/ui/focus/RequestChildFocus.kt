@@ -16,17 +16,18 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Attempts to request focus for the most suitable focusable child node that overlaps with the given
  * rect area ([left], [top], [right], [bottom]).
  *
- * The rectangle is interpreted in the coordinate space **relative to the compose root**. See
- * [androidx.compose.ui.layout.LayoutCoordinates.localToRoot] for converting local coordinates to
- * the root coordinates.
+ * The rectangle is interpreted in the coordinate space **relative to the compose root**.
  *
  * @param left is the left edge of the rectangle, in pixels relative to the compose root.
  * @param top is the top edge of the rectangle, in pixels relative to the compose root.
@@ -34,6 +35,7 @@ import androidx.compose.ui.node.requireOwner
  * @param bottom is the bottom edge of the rectangle, in pixels relative to the compose root.
  * @return `true` if a matching child was found and focus was granted; `false` if no such child
  *   exists, it is already focused, or the focus request failed.
+ * @see requestFocusForChildInLocalBounds
  */
 public fun DelegatableNode.requestFocusForChildInRootBounds(
     left: Int,
@@ -53,4 +55,35 @@ public fun DelegatableNode.requestFocusForChildInRootBounds(
                 containerId = containerId,
             )
     return childNode?.requestFocus() ?: false
+}
+
+/**
+ * Attempts to request focus for the most suitable focusable child node that overlaps with the given
+ * rect area ([left], [top], [right], [bottom]).
+ *
+ * The rectangle is interpreted in the coordinate space **relative to the receiver node**.
+ *
+ * @param left the left edge of the rectangle, in pixels relative to the receiver node's origin.
+ * @param top the top edge of the rectangle, in pixels relative to the receiver node's origin.
+ * @param right the right edge of the rectangle, in pixels relative to the receiver node's origin.
+ * @param bottom the bottom edge of the rectangle, in pixels relative to the receiver node's origin.
+ * @return `true` if a matching child was found and focus was granted; `false` if no such child
+ *   exists, it is already focused, or the focus request failed.
+ * @see requestFocusForChildInRootBounds
+ */
+public fun DelegatableNode.requestFocusForChildInLocalBounds(
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int,
+): Boolean {
+    val rootOrigin = requireLayoutCoordinates().positionInRoot()
+    val x = rootOrigin.x.fastRoundToInt()
+    val y = rootOrigin.y.fastRoundToInt()
+    return requestFocusForChildInRootBounds(
+        left = x + left,
+        top = y + top,
+        right = x + right,
+        bottom = y + bottom,
+    )
 }

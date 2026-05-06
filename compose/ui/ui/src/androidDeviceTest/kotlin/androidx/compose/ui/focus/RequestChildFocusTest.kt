@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
@@ -40,16 +41,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-class RequestChildFocusTest {
+@RunWith(Parameterized::class)
+class RequestChildFocusTest(private val focusInLocalBounds: Boolean) {
 
     @get:Rule val rule = createComposeRule()
 
@@ -787,6 +788,30 @@ class RequestChildFocusTest {
 
     private fun SemanticsNodeInteraction.requestChildFocusInRect(localRect: DpRect): Boolean {
         val localPixelRect = with(rule.density) { localRect.toRect() }
+        return if (focusInLocalBounds) {
+            requestChildFocusInLocalRect(localPixelRect)
+        } else {
+            requestChildFocusInRootRect(localPixelRect)
+        }
+    }
+
+    private fun SemanticsNodeInteraction.requestChildFocusInLocalRect(
+        localPixelRect: Rect
+    ): Boolean {
+        return rule.runOnIdle {
+            val modifierNode = fetchSemanticsNode().layoutNode.nodes.head
+            modifierNode.requestFocusForChildInLocalBounds(
+                left = localPixelRect.left.fastRoundToInt(),
+                top = localPixelRect.top.fastRoundToInt(),
+                right = localPixelRect.right.fastRoundToInt(),
+                bottom = localPixelRect.bottom.fastRoundToInt(),
+            )
+        }
+    }
+
+    private fun SemanticsNodeInteraction.requestChildFocusInRootRect(
+        localPixelRect: Rect
+    ): Boolean {
         val layoutNode = fetchSemanticsNode().layoutNode
         val modifierNode = layoutNode.nodes.head
 
@@ -806,5 +831,9 @@ class RequestChildFocusTest {
 
     companion object {
         private const val CONTAINER_TAG: String = "container"
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "focusInLocalBounds = {0}")
+        fun initParameters() = listOf(false, true)
     }
 }
