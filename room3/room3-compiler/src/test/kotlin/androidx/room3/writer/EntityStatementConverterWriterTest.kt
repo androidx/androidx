@@ -41,7 +41,7 @@ class EntityStatementConverterWriterTest : BaseEntityParserTest() {
             import kotlin.Suppress
 
             @Generated(value = ["androidx.room3.RoomProcessor"])
-            @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
+            @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "UNUSED_EXPRESSION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
             public class MyContainerClass {
             """
                 .trimIndent()

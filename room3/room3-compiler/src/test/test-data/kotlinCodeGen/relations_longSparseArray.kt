@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
 import kotlin.text.StringBuilder
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "UNUSED_EXPRESSION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
 internal class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
