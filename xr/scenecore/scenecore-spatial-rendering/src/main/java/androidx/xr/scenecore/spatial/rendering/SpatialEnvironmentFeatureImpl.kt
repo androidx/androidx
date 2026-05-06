@@ -33,6 +33,7 @@ import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.androidxr.splitengine.SubspaceNode
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
+import kotlin.collections.ArrayDeque
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -233,12 +234,36 @@ internal class SpatialEnvironmentFeatureImpl(
     // TODO(b/486200886): Revisit glTF Entity/Feature architecture to avoid having to access feature
     // fields by reflection.
     private val GltfEntity.extractedFeature: BaseRenderingFeature?
-        get() =
-            try {
-                val field = this.javaClass.getDeclaredField("gltfFeature")
-                field.isAccessible = true
-                field.get(this) as? BaseRenderingFeature
-            } catch (e: Exception) {
-                null
+        get() {
+            val visited = mutableSetOf<Any>()
+            val queue = ArrayDeque<Any>()
+            queue.add(this)
+
+            while (queue.isNotEmpty()) {
+                val current = queue.removeFirst()
+                if (!visited.add(current)) continue
+
+                var clazz: Class<*>? = current.javaClass
+                while (clazz != null) {
+                    val nonNullClazz = clazz
+                    for (field in nonNullClazz.declaredFields) {
+                        try {
+                            field.isAccessible = true
+                            val value = field.get(current) ?: continue
+
+                            if (value is BaseRenderingFeature) {
+                                return value
+                            }
+                            if (value is GltfEntity) {
+                                queue.add(value)
+                            }
+                        } catch (e: Exception) {
+                            // Ignore possible field access errors instead of crashing.
+                        }
+                    }
+                    clazz = nonNullClazz.superclass
+                }
             }
+            return null
+        }
 }
