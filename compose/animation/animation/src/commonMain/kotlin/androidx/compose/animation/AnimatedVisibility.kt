@@ -42,7 +42,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -124,6 +123,7 @@ import kotlin.math.max
  * @see fadeOut
  * @see shrinkOut
  * @see AnimatedVisibilityScope
+ * @see CapturedAnimatedVisibility
  */
 @Composable
 public fun AnimatedVisibility(
@@ -937,7 +937,7 @@ private class AnimatedEnterExitMeasurePolicy(val scope: AnimatedVisibilityScopeI
 
 // This converts Boolean visible to EnterExitState
 @Composable
-private fun <T> Transition<T>.targetEnterExit(
+internal fun <T> Transition<T>.targetEnterExit(
     visible: (T) -> Boolean,
     targetState: T,
 ): EnterExitState =

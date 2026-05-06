@@ -19,6 +19,7 @@ package androidx.compose.animation.samples
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.CapturedAnimatedVisibility
 import androidx.compose.animation.DeferredAnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExitTransition
@@ -787,5 +788,56 @@ fun DeferredAnimatedVisibilitySample() {
             },
     ) {
         Box(Modifier.size(200.dp).background(Color.Red))
+    }
+}
+
+@Sampled
+@Composable
+fun CapturedAnimatedVisibilitySample() {
+    var visible by remember { mutableStateOf(true) }
+    Column {
+        Button(onClick = { visible = !visible }) { Text(if (visible) "Hide" else "Show") }
+        Spacer(Modifier.height(16.dp))
+        CapturedAnimatedVisibility(
+            visible = visible,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+        ) {
+            // Child composition is removed immediately when visible becomes false
+            Box(Modifier.size(100.dp).background(Color.Blue, shape = RoundedCornerShape(8.dp)))
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun CapturedAnimatedVisibilityMutableTransitionStateSample() {
+    // MutableTransitionState allows observing the animation status (currentState, targetState, and
+    // isIdle) as well as setting an initial currentState = false and targetState = true to animate
+    // in immediately upon entering composition.
+    val visibleState = remember { MutableTransitionState(false) }.apply { targetState = true }
+
+    Column {
+        Button(onClick = { visibleState.targetState = !visibleState.targetState }) {
+            Text(if (visibleState.targetState) "Hide" else "Show")
+        }
+        Spacer(Modifier.height(8.dp))
+        // Observe the current animation status directly via visibleState properties
+        Text(
+            "State: current=${visibleState.currentState}, " +
+                "target=${visibleState.targetState}, " +
+                "isIdle=${visibleState.isIdle}"
+        )
+        Spacer(Modifier.height(16.dp))
+        CapturedAnimatedVisibility(
+            visibleState = visibleState,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+        ) {
+            // Content animates IN from false -> true upon initial composition.
+            // When targetState becomes false, child composition is removed immediately
+            // while the last captured graphics layer frame animates OUT.
+            Box(Modifier.size(100.dp).background(Color.Red, shape = RoundedCornerShape(8.dp)))
+        }
     }
 }

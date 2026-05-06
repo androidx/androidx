@@ -33,6 +33,7 @@ import androidx.compose.animation.demos.layoutanimation.AnimatedContentWithConte
 import androidx.compose.animation.demos.layoutanimation.AnimatedPlacementDemo
 import androidx.compose.animation.demos.layoutanimation.AnimatedVisibilityDemo
 import androidx.compose.animation.demos.layoutanimation.AnimatedVisibilityLazyColumnDemo
+import androidx.compose.animation.demos.layoutanimation.CapturedAnimatedVisibilityDemo
 import androidx.compose.animation.demos.layoutanimation.NestedMenuDemo
 import androidx.compose.animation.demos.layoutanimation.ScaleEnterExitDemo
 import androidx.compose.animation.demos.layoutanimation.ScreenTransitionDemo
@@ -107,6 +108,9 @@ val AnimationDemos =
                     },
                     ComposableDemo("Animate Placement") { AnimatedPlacementDemo() },
                     ComposableDemo("Animate Visibility Demo") { AnimatedVisibilityDemo() },
+                    ComposableDemo("Captured Animate Visibility Demo") {
+                        CapturedAnimatedVisibilityDemo()
+                    },
                     ComposableDemo("Animate Visibility Lazy Column Demo") {
                         AnimatedVisibilityLazyColumnDemo()
                     },
