@@ -23,6 +23,22 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlinx.coroutines.test.TestResult
 
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use runComposeUiTest(config, block) instead. " +
+            "The individual parameters `effectContext`, `runTestContext`, and `testTimeout` " +
+            "have been consolidated into [ComposeUiTestConfig] to allow for more flexible test " +
+            "environment configuration.\n" +
+            "Before:\n" +
+            "runComposeUiTest(effectContext, runTestContext, testTimeout) { ... }\n" +
+            "After:\n" +
+            "runComposeUiTest(ComposeUiTestConfig(effectContext, runTestContext, testTimeout)) { ... }",
+    replaceWith =
+        ReplaceWith(
+            "runComposeUiTest(ComposeUiTestConfig(effectContext, runTestContext, testTimeout), block)"
+        ),
+)
 actual fun runComposeUiTest(
     effectContext: CoroutineContext,
     runTestContext: CoroutineContext,

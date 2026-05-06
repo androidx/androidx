@@ -22,7 +22,6 @@ import androidx.compose.ui.test.MainTestClock
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
@@ -81,10 +80,26 @@ import kotlinx.coroutines.test.TestResult
  *   platform specific timeout exception will be thrown.
  * @param block The test function.
  */
+@Deprecated(
+    level = DeprecationLevel.WARNING,
+    message =
+        "Use runComposeUiTest(config, block) instead. " +
+            "The individual parameters `effectContext`, `runTestContext`, and `testTimeout` " +
+            "have been consolidated into [ComposeUiTestConfig] to allow for more flexible test " +
+            "environment configuration.\n" +
+            "Before:\n" +
+            "runComposeUiTest(effectContext, runTestContext, testTimeout) { ... }\n" +
+            "After:\n" +
+            "runComposeUiTest(ComposeUiTestConfig(effectContext, runTestContext, testTimeout)) { ... }",
+    replaceWith =
+        ReplaceWith(
+            "runComposeUiTest(ComposeUiTestConfig(effectContext, runTestContext, testTimeout), block)"
+        ),
+)
 expect fun runComposeUiTest(
-    effectContext: CoroutineContext = EmptyCoroutineContext,
-    runTestContext: CoroutineContext = EmptyCoroutineContext,
-    testTimeout: Duration = 60.seconds,
+    effectContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
+    runTestContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
+    testTimeout: Duration = kotlin.time.Duration.parse("60s"),
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult
 
