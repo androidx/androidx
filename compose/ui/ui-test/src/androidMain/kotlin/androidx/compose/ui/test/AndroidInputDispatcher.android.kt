@@ -251,6 +251,10 @@ internal class AndroidInputDispatcher(
     private var batchedEvents = mutableListOf<InputEventWithAdditionalInformation>()
     private var disposed = false
 
+    // Ensures tests that queue multiple (down) events, don't initialize the system time more
+    // than once.
+    private var isSystemTimeInitialized = false
+
     // The current time of the Main Clock relative to the event stream. We need this to find the
     // difference between a new event coming in (with a new current time) and the last dispatched
     // event, so we can move the clock that much as we flush the events.
@@ -314,9 +318,10 @@ internal class AndroidInputDispatcher(
         indirectPointerEventPrimaryDirectionalMotionAxis:
             IndirectPointerEventPrimaryDirectionalMotionAxis,
     ) {
-        if (deviceSystemTime == 0L) {
-            // System expects a system time for indirect touch events.
-            deviceSystemTime = System.currentTimeMillis()
+        if (initiallyLoadedTestClockTime == 0L && !isSystemTimeInitialized) {
+            // System expects an Android system time for indirect touch events.
+            currentTime = System.currentTimeMillis()
+            isSystemTimeInitialized = true
         }
         super.enqueueIndirectPointerDown(
             pointerId,
