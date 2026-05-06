@@ -788,7 +788,7 @@ private constructor(
                 (customMesh as CustomMesh).nativeHandle,
                 materialHandles,
                 boneCount,
-                /* enableCollider= */ true,
+                /* enableCollider= */ false,
             )
         val impressNode = ImpressNode(impressNodeId)
         val meshBoundingBox = getCustomMeshBoundingBox(customMesh)

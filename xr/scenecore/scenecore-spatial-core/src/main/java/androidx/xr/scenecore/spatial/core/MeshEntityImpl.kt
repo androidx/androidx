@@ -51,4 +51,8 @@ internal class MeshEntityImpl(
     override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
         meshFeature.setReformAffordanceEnabled(this, enabled, scheduledExecutor, systemMovable)
     }
+
+    override fun setColliderEnabled(enabled: Boolean) {
+        meshFeature.setColliderEnabled(enabled)
+    }
 }

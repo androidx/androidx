@@ -47,12 +47,19 @@ public interface MeshEntity : Entity {
     public fun setBoneTransforms(transforms: List<Matrix4>)
 
     /**
-     * Enable/disable the reform affordances for Mesh entity.
+     * Enable/disable the reform affordances for [MeshEntity].
      *
      * @param enabled Whether the reform affordances should be enabled.
      * @param systemMovable Whether the entity should be movable by the system.
      */
     public fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean)
+
+    /**
+     * Enable/disable the collider for the [MeshEntity].
+     *
+     * @param enabled Whether the collider should be enabled.
+     */
+    public fun setColliderEnabled(enabled: Boolean)
 }
 
 /** Provide the rendering implementation for [MeshEntity] */
@@ -80,7 +87,7 @@ public interface MeshFeature : RenderingFeature {
     public fun setBoneTransforms(transforms: List<Matrix4>)
 
     /**
-     * Adds reform affordance to the passed MeshEntity.
+     * Adds reform affordance to the passed [MeshEntity].
      *
      * @param entity The MeshEntity to attach the reform affordance to.
      * @param enabled Whether the affordance is enabled.
@@ -93,4 +100,11 @@ public interface MeshFeature : RenderingFeature {
         executor: java.util.concurrent.Executor,
         systemMovable: Boolean,
     )
+
+    /**
+     * Enable/disable the collider for the [MeshEntity].
+     *
+     * @param enabled Whether the collider should be enabled.
+     */
+    public fun setColliderEnabled(enabled: Boolean)
 }

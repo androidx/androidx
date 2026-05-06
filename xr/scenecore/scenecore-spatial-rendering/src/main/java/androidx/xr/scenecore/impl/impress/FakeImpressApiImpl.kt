@@ -1167,6 +1167,13 @@ public class FakeImpressApiImpl : ImpressApi {
         // Test stub.
     }
 
+    override fun setCustomMeshNodeColliderEnabled(
+        impressNode: ImpressNode,
+        enableCollider: Boolean,
+    ) {
+        // Test stub.
+    }
+
     override fun setBoneTransforms(impressNode: ImpressNode, transforms: List<Matrix4>) {
         // Test stub.
     }

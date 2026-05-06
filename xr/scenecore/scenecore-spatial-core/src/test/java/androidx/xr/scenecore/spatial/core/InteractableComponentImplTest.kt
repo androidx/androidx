@@ -21,6 +21,7 @@ import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.InteractableComponent
+import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.InputEvent
 import com.android.extensions.xr.node.ShadowInputEvent
@@ -167,5 +168,17 @@ class InteractableComponentImplTest {
 
         assertThat(interactableComponent.onAttach(gltfEntity)).isTrue()
         verify(gltfEntity).setColliderEnabled(true)
+    }
+
+    @Test
+    fun interactableComponent_enablesColliderForMeshEntity() {
+        val meshEntity = mock<MeshEntity>()
+        val executor = MoreExecutors.directExecutor()
+        val mockInputEventListener = mock<InputEventListener>()
+        val interactableComponent: InteractableComponent =
+            InteractableComponentImpl(executor, mockInputEventListener)
+
+        assertThat(interactableComponent.onAttach(meshEntity)).isTrue()
+        verify(meshEntity).setColliderEnabled(true)
     }
 }
