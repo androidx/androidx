@@ -396,7 +396,11 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
     @Deprecated(
         "Entity instances are reclaimed automatically. Instead of `dispose()`, use `parent = null` to detach entities from the scene graph."
     )
-    public fun dispose() {}
+    public fun dispose() {
+        if (!isDisposed) {
+            parent = null
+        }
+    }
 
     public companion object {
         internal fun create(

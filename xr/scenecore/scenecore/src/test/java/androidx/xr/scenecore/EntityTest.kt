@@ -1786,4 +1786,16 @@ class EntityTest {
         // Verify cleanup: rtEntity.dispose() should have been called
         verify(mockRtEntity).dispose()
     }
+
+    @Test
+    fun dispose_setsParentToNull() {
+        val parentEntity = Entity.create(session, "parent")
+        val childEntity = Entity.create(session, "child", parent = parentEntity)
+
+        assertThat(childEntity.parent).isEqualTo(parentEntity)
+
+        childEntity.dispose()
+
+        assertThat(childEntity.parent).isNull()
+    }
 }
