@@ -19,7 +19,7 @@ package androidx.appfunctions.core
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.appfunctions.internal.readAll
+import androidx.appfunctions.internal.consumeAll
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionAppMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -112,7 +112,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                             .setNumericSearchEnabled(true)
                             .build(),
                     )
-                    .readAll { it.genericDocument }
+                    .consumeAll { it.genericDocument }
                     .filterNotNull()
                     .first()
 
