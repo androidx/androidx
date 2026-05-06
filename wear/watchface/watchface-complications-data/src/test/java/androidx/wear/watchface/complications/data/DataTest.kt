@@ -469,7 +469,8 @@ public class AsWireComplicationDataTest {
     }
 
     @Test
-    public fun rangedValueComplicationData_withStringExpression() {
+    public fun rangedValueComplicationData_withStringExpression_whenVerboseLevelEnabled() {
+        ShadowLog.setLoggable("ComplicationData", Log.VERBOSE)
         val data =
             RangedValueComplicationData.Builder(
                     value = 95f,
@@ -510,6 +511,59 @@ public class AsWireComplicationDataTest {
                     "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
                     "title=ComplicationText{mSurroundingText=fallback, mTimeDependentText=null, " +
                     "mDynamicText=FixedString{value=title}}, text=null, " +
+                    "contentDescription=ComplicationText{mSurroundingText=content description, " +
+                    "mTimeDependentText=null, mDynamicText=null}), " +
+                    "tapActionLostDueToSerialization=false, tapAction=null, " +
+                    "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                    "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z), " +
+                    "dataSource=ComponentInfo{com.pkg_a/com.a}, colorRamp=null, " +
+                    "persistencePolicy=0, displayPolicy=0, " +
+                    "dynamicValueInvalidationFallback=null, extras=PersistableBundle[{}])"
+            )
+    }
+
+    @Test
+    public fun rangedValueComplicationData_withStringExpression_whenDebugLevelEnabled() {
+        val data =
+            RangedValueComplicationData.Builder(
+                    value = 95f,
+                    min = 0f,
+                    max = 100f,
+                    contentDescription = "content description".complicationText,
+                )
+                .setTitle(DynamicComplicationText(DynamicString.constant("title"), "fallback"))
+                .setDataSource(dataSource)
+                .build()
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                WireComplicationData.Builder(WireComplicationData.TYPE_RANGED_VALUE)
+                    .setRangedValue(95f)
+                    .setRangedValueType(RangedValueComplicationData.TYPE_UNDEFINED)
+                    .setRangedMinValue(0f)
+                    .setRangedMaxValue(100f)
+                    .setShortTitle(
+                        WireComplicationText("fallback", DynamicString.constant("title"))
+                    )
+                    .setContentDescription(WireComplicationText.plainText("content description"))
+                    .setDataSource(dataSource)
+                    .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
+                    .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
+                    .build()
+            )
+        testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as RangedValueComplicationData
+        assertThat(deserialized.max).isEqualTo(100f)
+        assertThat(deserialized.min).isEqualTo(0f)
+        assertThat(deserialized.value).isEqualTo(95f)
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+
+        assertThat(data.toString())
+            .isEqualTo(
+                "RangedValueComplicationData(value=95.0, dynamicValue=null, valueType=0, " +
+                    "min=0.0, max=100.0, monochromaticImage=null, smallImage=null, " +
+                    "title=ComplicationText{mSurroundingText=fallback, mTimeDependentText=null, " +
+                    "mDynamicText=VALUE_HIDDEN_UNLESS_VERBOSE}, text=null, " +
                     "contentDescription=ComplicationText{mSurroundingText=content description, " +
                     "mTimeDependentText=null, mDynamicText=null}), " +
                     "tapActionLostDueToSerialization=false, tapAction=null, " +
