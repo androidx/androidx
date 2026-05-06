@@ -22,6 +22,9 @@
  */
 import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
+import org.gradle.work.DisableCachingByDefault
+
+import javax.inject.Inject
 
 plugins {
     id("AndroidXPlugin")
@@ -48,24 +51,51 @@ def reusePrebuiltsAar = Boolean.parseBoolean(
         System.getProperty("TRACING_PERFETTO_REUSE_PREBUILTS_AAR", "true")
 )
 def prebuiltsAarVersion = androidx.LibraryVersions.TRACING_PERFETTO
-def unzippedPrebuiltsAarDir = "$buildDir/unzipped-aar"
+
+@DisableCachingByDefault
+abstract class ExtractJniFromAar extends DefaultTask {
+    @InputFiles FileTree sourceAar
+    @OutputDirectory abstract DirectoryProperty getOutputDirectory()
+    @Inject abstract FileSystemOperations getFs()
+
+    @TaskAction
+    void copy() {
+        outputDirectory.get().asFile.deleteDir()
+        fs.copy { copySpec ->
+            copySpec.from(sourceAar) {
+                include("jni/**")
+                // Modify the path of each file to strip the first directory ("jni")
+                eachFile { fileDetails ->
+                    fileDetails.relativePath = new RelativePath(
+                            !fileDetails.isDirectory(),
+                            fileDetails.relativePath.segments.drop(1) as String[]
+                    )
+                }
+                // Prevent Gradle from creating the now-empty "jni" root folder
+                includeEmptyDirs = false
+            }
+            copySpec.into(outputDirectory)
+        }
+    }
+}
 
 if (reusePrebuiltsAar) {
-    def unzipTask = tasks.register("unzipPrebuiltsAarDir", Copy) {
+    def extractJni = tasks.register("extractJni", ExtractJniFromAar) {
         def zipFile = AndroidXConfig.getPrebuiltsRoot(project).toPath().resolve(
                 "androidx/internal/androidx/tracing/tracing-perfetto-binary/$prebuiltsAarVersion/" +
                         "tracing-perfetto-binary-${prebuiltsAarVersion}.aar"
         )
-        from zipTree(zipFile)
-        into file(unzippedPrebuiltsAarDir)
+        sourceAar = zipTree(zipFile)
     }
-
-    tasks.findByName("preBuild").dependsOn(unzipTask)
-}
-
-android {
-    // build .so files from scratch
-    if (!reusePrebuiltsAar) {
+    androidComponents {
+        onVariants(selector().all()) { variant ->
+            // use extracted .so files
+            variant.sources.jniLibs.addGeneratedSourceDirectory(extractJni) { it.outputDirectory }
+        }
+    }
+} else {
+    android {
+        // build .so files from scratch
         externalNativeBuild {
             cmake {
                 path "src/main/cpp/CMakeLists.txt"
@@ -73,16 +103,10 @@ android {
             }
         }
     }
-    namespace = "androidx.tracing.perfetto.binary"
 }
 
-if (reusePrebuiltsAar) {
-    androidComponents {
-        def jniLibsPath = new File(unzippedPrebuiltsAarDir, "jni").absolutePath
-        onVariants(selector().all()) { variant ->
-            variant.sources.jniLibs.addStaticSourceDirectory(jniLibsPath)
-        }
-    }
+android {
+    namespace = "androidx.tracing.perfetto.binary"
 }
 
 dependencies {
