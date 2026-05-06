@@ -3,6 +3,7 @@ public final class androidx/compose/ui/test/ActionsKt {
 	public static final fun performFirstLinkClick (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static synthetic fun performFirstLinkClick$default (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun performGesture (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
+	public static final fun performIndirectPointerInput-O3Q2Zgs (Landroidx/compose/ui/test/SemanticsNodeInteractionsProvider;IJLkotlin/jvm/functions/Function1;)V
 	public static final fun performKeyInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun performMouseInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
 	public static final fun performMultiModalInput (Landroidx/compose/ui/test/SemanticsNodeInteraction;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/test/SemanticsNodeInteraction;
@@ -236,6 +237,120 @@ public final class androidx/compose/ui/test/IdlingResource$DefaultImpls {
 	public static fun getDiagnosticMessageIfBusy (Landroidx/compose/ui/test/IdlingResource;)Ljava/lang/String;
 }
 
+public abstract interface class androidx/compose/ui/test/IndirectPointerInjectionScope : androidx/compose/ui/unit/Density {
+	public abstract fun advanceEventTime (J)V
+	public static synthetic fun advanceEventTime$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
+	public abstract fun cancel (J)V
+	public static synthetic fun cancel$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
+	public abstract fun currentPosition-x-9fifI (I)Landroidx/compose/ui/geometry/Offset;
+	public static synthetic fun currentPosition-x-9fifI$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IILjava/lang/Object;)Landroidx/compose/ui/geometry/Offset;
+	public abstract fun down-Uv8p0NA (IJ)V
+	public fun down-k-4lQ0M (J)V
+	public fun getEventPeriodMillis ()J
+	public abstract fun getIndirectPointerEventPrimaryDirectionalMotionAxis-nZO2Niw ()I
+	public abstract fun getInputDeviceSize-YbymL2g ()J
+	public abstract fun getViewConfiguration ()Landroidx/compose/ui/platform/ViewConfiguration;
+	public abstract fun move (J)V
+	public static synthetic fun move$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
+	public fun moveBy-3MmeM6k (JJ)V
+	public static synthetic fun moveBy-3MmeM6k$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJILjava/lang/Object;)V
+	public fun moveBy-d-4ec7I (IJJ)V
+	public static synthetic fun moveBy-d-4ec7I$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJJILjava/lang/Object;)V
+	public fun moveTo-3MmeM6k (JJ)V
+	public static synthetic fun moveTo-3MmeM6k$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJILjava/lang/Object;)V
+	public fun moveTo-d-4ec7I (IJJ)V
+	public static synthetic fun moveTo-d-4ec7I$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJJILjava/lang/Object;)V
+	public fun moveWithHistory (Ljava/util/List;Ljava/util/List;J)V
+	public static synthetic fun moveWithHistory$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Ljava/util/List;Ljava/util/List;JILjava/lang/Object;)V
+	public abstract fun moveWithHistoryMultiPointer (Ljava/util/List;Ljava/util/List;J)V
+	public static synthetic fun moveWithHistoryMultiPointer$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Ljava/util/List;Ljava/util/List;JILjava/lang/Object;)V
+	public abstract fun up (I)V
+	public static synthetic fun up$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IILjava/lang/Object;)V
+	public fun updatePointerBy-Uv8p0NA (IJ)V
+	public abstract fun updatePointerTo-Uv8p0NA (IJ)V
+	public fun updatePointerTo-k-4lQ0M (J)V
+}
+
+public final class androidx/compose/ui/test/IndirectPointerInjectionScope$DefaultImpls {
+	public static synthetic fun advanceEventTime$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
+	public static synthetic fun cancel$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
+	public static synthetic fun currentPosition-x-9fifI$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IILjava/lang/Object;)Landroidx/compose/ui/geometry/Offset;
+	public static fun down-k-4lQ0M (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)V
+	public static fun getEventPeriodMillis (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static synthetic fun move$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
+	public static fun moveBy-3MmeM6k (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJ)V
+	public static synthetic fun moveBy-3MmeM6k$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJILjava/lang/Object;)V
+	public static fun moveBy-d-4ec7I (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJJ)V
+	public static synthetic fun moveBy-d-4ec7I$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJJILjava/lang/Object;)V
+	public static fun moveTo-3MmeM6k (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJ)V
+	public static synthetic fun moveTo-3MmeM6k$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJILjava/lang/Object;)V
+	public static fun moveTo-d-4ec7I (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJJ)V
+	public static synthetic fun moveTo-d-4ec7I$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJJILjava/lang/Object;)V
+	public static fun moveWithHistory (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Ljava/util/List;Ljava/util/List;J)V
+	public static synthetic fun moveWithHistory$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Ljava/util/List;Ljava/util/List;JILjava/lang/Object;)V
+	public static synthetic fun moveWithHistoryMultiPointer$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Ljava/util/List;Ljava/util/List;JILjava/lang/Object;)V
+	public static fun roundToPx--R2X_6o (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)I
+	public static fun roundToPx-0680j_4 (Landroidx/compose/ui/test/IndirectPointerInjectionScope;F)I
+	public static fun toDp-GaN1DYA (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)F
+	public static fun toDp-u2uoSUM (Landroidx/compose/ui/test/IndirectPointerInjectionScope;F)F
+	public static fun toDp-u2uoSUM (Landroidx/compose/ui/test/IndirectPointerInjectionScope;I)F
+	public static fun toDpSize-k-rfVVM (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)J
+	public static fun toPx--R2X_6o (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)F
+	public static fun toPx-0680j_4 (Landroidx/compose/ui/test/IndirectPointerInjectionScope;F)F
+	public static fun toRect (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Landroidx/compose/ui/unit/DpRect;)Landroidx/compose/ui/geometry/Rect;
+	public static fun toSize-XkaWNTQ (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)J
+	public static fun toSp-0xMU5do (Landroidx/compose/ui/test/IndirectPointerInjectionScope;F)J
+	public static fun toSp-kPz2Gy4 (Landroidx/compose/ui/test/IndirectPointerInjectionScope;F)J
+	public static fun toSp-kPz2Gy4 (Landroidx/compose/ui/test/IndirectPointerInjectionScope;I)J
+	public static synthetic fun up$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IILjava/lang/Object;)V
+	public static fun updatePointerBy-Uv8p0NA (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJ)V
+	public static fun updatePointerTo-k-4lQ0M (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)V
+}
+
+public final class androidx/compose/ui/test/IndirectPointerInjectionScopeKt {
+	public static final fun click-Uv8p0NA (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)V
+	public static synthetic fun click-Uv8p0NA$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
+	public static final fun doubleClick-d-4ec7I (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJ)V
+	public static synthetic fun doubleClick-d-4ec7I$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJILjava/lang/Object;)V
+	public static final fun getInputDeviceBottom (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)F
+	public static final fun getInputDeviceBottomCenter (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceBottomLeft (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceBottomRight (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceCenter (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceCenterLeft (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceCenterRight (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceCenterX (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)F
+	public static final fun getInputDeviceCenterY (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)F
+	public static final fun getInputDeviceHeight (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)I
+	public static final fun getInputDeviceLeft (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)F
+	public static final fun getInputDeviceRight (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)F
+	public static final fun getInputDeviceTop (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)F
+	public static final fun getInputDeviceTopCenter (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceTopLeft (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceTopRight (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)J
+	public static final fun getInputDeviceWidth (Landroidx/compose/ui/test/IndirectPointerInjectionScope;)I
+	public static final fun longClick-d-4ec7I (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJ)V
+	public static synthetic fun longClick-d-4ec7I$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJILjava/lang/Object;)V
+	public static final fun multiTouchSwipe (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Ljava/util/List;JLjava/util/List;)V
+	public static synthetic fun multiTouchSwipe$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Ljava/util/List;JLjava/util/List;ILjava/lang/Object;)V
+	public static final fun pinch-_QUENCA (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJJJJ)V
+	public static synthetic fun pinch-_QUENCA$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJJJJILjava/lang/Object;)V
+	public static final fun swipe (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Lkotlin/jvm/functions/Function1;JLjava/util/List;)V
+	public static synthetic fun swipe$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;Lkotlin/jvm/functions/Function1;JLjava/util/List;ILjava/lang/Object;)V
+	public static final fun swipe-DUneCvk (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJJ)V
+	public static synthetic fun swipe-DUneCvk$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJJILjava/lang/Object;)V
+	public static final fun swipeDown (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJ)V
+	public static synthetic fun swipeDown$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJILjava/lang/Object;)V
+	public static final fun swipeLeft (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJ)V
+	public static synthetic fun swipeLeft$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJILjava/lang/Object;)V
+	public static final fun swipeRight (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJ)V
+	public static synthetic fun swipeRight$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJILjava/lang/Object;)V
+	public static final fun swipeUp (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJ)V
+	public static synthetic fun swipeUp$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;FFJILjava/lang/Object;)V
+	public static final fun swipeWithVelocity-5iVPX68 (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJFJ)V
+	public static synthetic fun swipeWithVelocity-5iVPX68$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JJFJILjava/lang/Object;)V
+}
+
 public abstract interface class androidx/compose/ui/test/InjectionScope : androidx/compose/ui/unit/Density {
 	public abstract fun advanceEventTime (J)V
 	public static synthetic fun advanceEventTime$default (Landroidx/compose/ui/test/InjectionScope;JILjava/lang/Object;)V
@@ -451,6 +566,7 @@ public final class androidx/compose/ui/test/MouseInjectionScopeKt {
 }
 
 public abstract interface class androidx/compose/ui/test/MultiModalInjectionScope : androidx/compose/ui/test/InjectionScope {
+	public abstract fun indirectPointer-RaavUB8 (IJLkotlin/jvm/functions/Function1;)V
 	public abstract fun key (Lkotlin/jvm/functions/Function1;)V
 	public abstract fun mouse (Lkotlin/jvm/functions/Function1;)V
 	public abstract fun rotary (Lkotlin/jvm/functions/Function1;)V
