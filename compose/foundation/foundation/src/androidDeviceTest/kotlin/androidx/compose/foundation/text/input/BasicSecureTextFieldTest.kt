@@ -78,7 +78,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -92,8 +91,7 @@ internal class BasicSecureTextFieldTest {
 
     // Keyboard shortcut tests for BasicSecureTextField are in TextFieldKeyEventTest
 
-    @get:Rule
-    val rule = createComposeRule(StandardTestDispatcher()).apply { mainClock.autoAdvance = false }
+    @get:Rule val rule = createComposeRule().apply { mainClock.autoAdvance = false }
 
     @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 
