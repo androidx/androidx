@@ -322,6 +322,9 @@
     <!-- SectionHeaderDemo -->
     <string name="section_header_demo_title">Section Header Demo</string>
 
+    <!-- SpotlightSectionDemo -->
+    <string name="spotlight_section_demo_title">Spotlight Section Demo</string>
+
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
 
