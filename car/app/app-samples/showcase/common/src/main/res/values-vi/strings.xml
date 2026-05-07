@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Tin nhắn vào đây.\nThêm văn bản ở dòng thứ hai."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Bản minh hoạ mẫu tin nhắn ngắn"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Bản minh hoạ mẫu mục theo phần"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Bản minh hoạ đã bật tính năng AlphaJump cho mục theo phần"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Phần nút chọn"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Phần bật tắt"</string>

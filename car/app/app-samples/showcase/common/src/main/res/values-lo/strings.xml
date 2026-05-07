@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ຂໍ້ຄວາມຢູ່ບ່ອນນີ້.\nຂໍ້ຄວາມເພີ່ມເຕີມຢູ່ແຖວທີສອງ."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ເດໂມແມ່ແບບຂໍ້ຄວາມນັ້ນ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ເດໂມແມ່ແບບລາຍການທີ່ແບ່ງພາກສ່ວນ"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"ເດໂມທີ່ເປີດການນຳໃຊ້ Sectioned Item AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ພາກສ່ວນປຸ່ມຕົວເລືອກ"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ພາກສ່ວນສະ​ຫຼັບ"</string>

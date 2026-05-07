@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ההודעה תופיע כאן.\nטקסט נוסף מופיע בשורה השנייה."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"הדגמה של תבנית של הודעה קצרה"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"הדגמה של תבנית פריטים שמחולקת לקטעים"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"‏הדגמה של פריט שמחולק לקטעים שמופעל בו AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"קטע של כפתורי בחירה"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"קטע של מתגים"</string>

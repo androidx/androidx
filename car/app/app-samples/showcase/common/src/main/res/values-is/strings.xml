@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Skilaboð koma hér.\nMeiri texti í næstu línu."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Sýnishorn sniðmáts fyrir stutt skilaboð"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Sýnishorn af sniðmáti yfir skipt atriði"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Kynning á skiptum atriðum með kveikt á AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Hluti hringhnapps"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Hluti rofa"</string>

@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Mesaj burada olmalıdır.\nİkinci sətirdə daha çox mətn."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Qısa Mesaj Şablonu Demosu"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Bölməli element şablonu demosu"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"AlphaJump-ın aktiv olduğu bölməli elementlər üzrə demo"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Radio düyməsi bölməsi"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Bölməni aktiv/deaktiv edin"</string>

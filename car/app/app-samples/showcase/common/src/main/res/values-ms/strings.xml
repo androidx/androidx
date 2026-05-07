@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Mesej di sini.\nLebih banyak teks pada baris kedua."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo Templat Mesej Ringkas"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo Templat Item Berbahagian"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo Item Diringkaskan"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demo AlphaJump Item Berbahagian didayakan"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Bahagian Butang Radio"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Bahagian Togol"</string>

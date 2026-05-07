@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"여기에 메시지가 들어갑니다.\n추가 텍스트는 두 번째 줄에 입력됩니다."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"짧은 메시지 템플릿 데모"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"섹션으로 구분된 항목 템플릿 데모"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"섹션으로 구분된 항목 알파 점프 사용 설정 데모"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"라디오 버튼 섹션"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"섹션 전환"</string>

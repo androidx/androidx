@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ମେସେଜ ଏଠାକୁ ଯାଏ।\nଦ୍ୱିତୀୟ ଲାଇନରେ ଅଧିକ ଟେକ୍ସଟ।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ଛୋଟ ମେସେଜ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ଚୟନିତ ଆଇଟମ ଟେମ୍ପଲେଟ ଡେମୋ"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"ବିଭାଗୀକୃତ ଆଇଟମ AlphaJump ସକ୍ଷମ କରାଯାଇଥିବା ଡେମୋ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ରେଡିଓ ବଟନ ବିଭାଗ"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ଟୋଗଲ ବିଭାଗ"</string>

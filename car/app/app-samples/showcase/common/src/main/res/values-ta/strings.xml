@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"மெசேஜ்கள் இங்கே செல்லும்.\nகூடுதல் உரைகள் இரண்டாவது வரியில் இருக்கும்."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"குறுகிய மெசேஜ் டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"பிரிக்கப்பட்டதன் டெம்ப்ளேட் டெமோ"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"AlphaJump இயக்கப்பட்ட பிரிவுகளுக்கான டெமோ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ரேடியோ பட்டன் பிரிவு"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"நிலைமாற்றம் பிரிவு"</string>
