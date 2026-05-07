@@ -2300,8 +2300,10 @@ package androidx.wear.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearComposeMaterial3Api public final class WearComposeMaterial3Flags {
+    property public boolean isOneHandedGesturesInAlertDialogEnabled;
     property public boolean isSwipeToRevealDualFlingThresholdEnabled;
     field public static final androidx.wear.compose.material3.WearComposeMaterial3Flags INSTANCE;
+    field public static boolean isOneHandedGesturesInAlertDialogEnabled;
     field public static boolean isSwipeToRevealDualFlingThresholdEnabled;
   }
 

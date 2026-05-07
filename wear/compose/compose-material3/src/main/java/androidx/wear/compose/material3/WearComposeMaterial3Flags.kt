@@ -62,4 +62,17 @@ public object WearComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isSwipeToRevealDualFlingThresholdEnabled: Boolean = true
+
+    /**
+     * Determines whether Material3 [androidx.wear.compose.material3.AlertDialog] components
+     * automatically respond to one-handed gestures.
+     * * When `true`, [androidx.wear.compose.material3.AlertDialog] intercepts and reacts to
+     *   one-handed gestures internally.
+     * * When `false`, gestures are ignored by the component, allowing default system behavior to
+     *   take precedence.
+     */
+    // TODO: b/510778679
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isOneHandedGesturesInAlertDialogEnabled: Boolean = true
 }

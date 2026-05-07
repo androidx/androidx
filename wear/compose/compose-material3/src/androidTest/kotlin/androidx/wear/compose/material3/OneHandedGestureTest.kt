@@ -415,9 +415,20 @@ class OneHandedGestureTest {
     }
 
     @Test
-    fun alert_dialog_content_groups_edge_button() {
+    fun alert_dialog_content_groups_edge_button_enabled() {
+        alert_dialog_content_groups_edge_button(true)
+    }
+
+    @Test
+    fun alert_dialog_content_groups_edge_button_disabled() {
+        alert_dialog_content_groups_edge_button(false)
+    }
+
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    private fun alert_dialog_content_groups_edge_button(enabled: Boolean) {
         val sdkGestureInputManager = SdkGestureInputManagerMock(false)
         var edgeButtonClicked = false
+        WearComposeMaterial3Flags.isOneHandedGesturesInAlertDialogEnabled = enabled
 
         rule.setContentWithTheme {
             MockSdkGestureInputManager(sdkGestureInputManager) {
@@ -488,7 +499,7 @@ class OneHandedGestureTest {
                 break
             }
         }
-        assert(edgeButtonClicked)
+        assertEquals(enabled, edgeButtonClicked)
     }
 
     @Composable
@@ -527,7 +538,7 @@ class OneHandedGestureTest {
         override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {}
 
         fun performGesture(sdkGestureAction: Int) {
-            gestureConsumers[sdkGestureAction]!!.invoke(sdkGestureAction)
+            gestureConsumers[sdkGestureAction]?.invoke(sdkGestureAction)
         }
 
         private val gestureConsumers = mutableMapOf<Int, (Int) -> Unit>()
