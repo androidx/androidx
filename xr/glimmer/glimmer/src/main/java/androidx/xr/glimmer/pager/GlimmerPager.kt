@@ -25,10 +25,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.lerp
 import androidx.xr.glimmer.internal.SingleItemScrollConstraintConnection
+import kotlin.math.abs
 
 /**
  * [GlimmerHorizontalPager] is a lazily-composed, horizontally scrollable layout that arranges its
@@ -104,6 +112,66 @@ public fun GlimmerHorizontalPager(
         reverseLayout = reverseLayout,
         key = key,
     ) { page ->
-        GlimmerPagerScopeImpl.pageContent(page)
+        PageItemLayout(state, page) { GlimmerPagerScopeImpl.pageContent(page) }
     }
 }
+
+@Composable
+private fun PageItemLayout(state: GlimmerPagerState, page: Int, content: @Composable () -> Unit) {
+    Layout(content = content) { measurables, constraints ->
+        var maxWidth = 0
+        var maxHeight = 0
+        val placeables =
+            measurables.fastMap {
+                it.measure(constraints).also { placeable ->
+                    maxWidth = maxOf(maxWidth, placeable.width)
+                    maxHeight = maxOf(maxHeight, placeable.height)
+                }
+            }
+
+        layout(maxWidth, maxHeight) {
+            val continuousPosition = state.currentPage + state.currentPageOffsetFraction
+            val distanceFromSnappedPosition = abs(continuousPosition - page).coerceIn(0f, 1f)
+
+            if (distanceFromSnappedPosition == 0f) {
+                // Skip the transition effects if the page is centered.
+                placeables.fastForEach { placeable -> placeable.placeRelativeWithLayer(0, 0) }
+                return@layout
+            }
+
+            val scaleProgress =
+                (distanceFromSnappedPosition / ScaleProgressThreshold).coerceIn(0f, 1f)
+            val itemScale = lerp(1f, MinScale, scaleProgress)
+
+            val itemAlpha = lerp(1f, 0f, distanceFromSnappedPosition)
+
+            val blurProgress =
+                (distanceFromSnappedPosition / BlurProgressThreshold).coerceIn(0f, 1f)
+            val blurRadiusPx = lerp(0f, MaxBlurRadius.toPx(), blurProgress)
+
+            // Align the page to the bottom of the viewport during scale transformation
+            val itemTransformOrigin = TransformOrigin(0.5f, 1f)
+
+            placeables.fastForEach { placeable ->
+                placeable.placeRelativeWithLayer(0, 0) {
+                    alpha = itemAlpha
+                    scaleY = itemScale
+                    transformOrigin = itemTransformOrigin
+                    if (blurRadiusPx > 1f) {
+                        renderEffect = BlurEffect(blurRadiusPx, blurRadiusPx, TileMode.Decal)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** The minimum scale applied to a page when it is scrolled away from the snapped position. */
+private const val MinScale = 0.9f
+
+/** The threshold of scroll progress at which the scale reaches [MinScale]. */
+private const val ScaleProgressThreshold = 0.69f
+
+/** The threshold of scroll progress at which the blur effect reaches [MaxBlurRadius]. */
+private const val BlurProgressThreshold = 0.82f
+private val MaxBlurRadius = 2f.dp
