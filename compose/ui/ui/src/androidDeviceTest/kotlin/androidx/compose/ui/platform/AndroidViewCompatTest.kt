@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -587,8 +588,8 @@ class AndroidViewCompatTest {
 
         Espresso.onView(
                 allOf(
-                    withClassName(endsWith("AndroidComposeView")),
-                    not(isDescendantOfA(withClassName(endsWith("AndroidComposeView")))),
+                    isAssignableFrom(AndroidComposeView::class.java),
+                    not(isDescendantOfA(isAssignableFrom(AndroidComposeView::class.java))),
                 )
             )
             .check { view, exception ->
@@ -599,8 +600,8 @@ class AndroidViewCompatTest {
         var innerAndroidComposeView: AndroidComposeView? = null
         Espresso.onView(
                 allOf(
-                    withClassName(endsWith("AndroidComposeView")),
-                    isDescendantOfA(withClassName(endsWith("AndroidComposeView"))),
+                    isAssignableFrom(AndroidComposeView::class.java),
+                    isDescendantOfA(isAssignableFrom(AndroidComposeView::class.java)),
                 )
             )
             .check { view, exception ->

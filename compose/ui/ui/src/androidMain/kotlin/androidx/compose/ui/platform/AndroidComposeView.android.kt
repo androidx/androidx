@@ -251,9 +251,19 @@ internal var platformTextInputServiceInterceptor:
 
 private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 
+internal fun createAndroidComposeView(
+    context: Context,
+    composeViewContext: ComposeViewContext,
+): AndroidComposeView =
+    when {
+        SDK_INT < N -> AndroidComposeView(context, composeViewContext)
+        SDK_INT < O -> AndroidComposeView24(context, composeViewContext)
+        else -> AndroidComposeView26(context, composeViewContext)
+    }
+
 @Suppress("ViewConstructor", "VisibleForTests")
 @OptIn(InternalComposeUiApi::class)
-internal class AndroidComposeView(context: Context, composeViewContext: ComposeViewContext) :
+internal open class AndroidComposeView(context: Context, composeViewContext: ComposeViewContext) :
     ViewGroup(context),
     Owner,
     PlatformFocusOwner,
@@ -315,7 +325,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         LifecycleRetainedValuesStoreOwner.RetainedValuesStoreEntry? =
         null
     override var retainedValuesStore: RetainedValuesStore = ForgetfulRetainedValuesStore
-        private set
+        protected set
 
     // Out of frame scheduler currently has different semantics compared to the frame end scheduler
     // The frame end scheduler executes its tasks at the end of the next recomposition frame,
@@ -332,7 +342,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
-        private set
+        protected set
 
     private var frameRateCategoryView: View? = null
 
@@ -340,11 +350,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         get() = SDK_INT >= VANILLA_ICE_CREAM
 
     override val focusOwner: FocusOwner = FocusOwnerImpl(this, this)
-
-    @RequiresApi(O)
-    override fun getImportantForAutofill(): Int {
-        return IMPORTANT_FOR_AUTOFILL_YES
-    }
 
     override var coroutineContext: CoroutineContext =
         composeViewContext.compositionContext.effectCoroutineContext
@@ -627,22 +632,12 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     // Used as a CompositionLocal for performing autofill.
-    override val autofill: AndroidAutofill? =
-        if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
+    override val autofill: AndroidAutofill?
+        get() = null
 
     // Used as a CompositionLocal for performing semantic autofill.
-    override val autofillManager: AndroidAutofillManager? =
-        if (autofillSupported()) {
-            AndroidAutofillManager(
-                platformAutofillManager = PlatformAutofillManagerImpl(context),
-                semanticsOwner = semanticsOwner,
-                view = this,
-                rectManager = rectManager,
-                packageName = context.packageName,
-            )
-        } else {
-            null
-        }
+    override val autofillManager: AndroidAutofillManager?
+        get() = null
 
     private var observationClearRequested = false
 
@@ -797,7 +792,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             toLayoutDirection(context.resources.configuration.layoutDirection)
                 ?: LayoutDirection.Ltr
         )
-        private set
+        protected set
 
     /** Provide haptic feedback to the user. Use the Android version of haptic feedback. */
     override val hapticFeedBack: HapticFeedback
@@ -999,24 +994,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      */
     internal var composeViewContextIncrementedDuringInit = false
 
-    /**
-     * Guards against re-entering [onProvideAutofillVirtualStructure] while
-     * [dispatchProvideAutofillStructure] delegates to the framework to collect hosted Android
-     * views.
-     */
-    private var isDispatchingAutofillStructure = false
-
     init {
         addOnAttachStateChangeListener(contentCaptureManager)
         setWillNotDraw(false)
         isFocusable = true
-        if (SDK_INT >= O) {
-            AndroidComposeViewVerificationHelperMethodsO.focusable(
-                this,
-                focusable = FOCUSABLE,
-                defaultFocusHighlightEnabled = false,
-            )
-        }
         isFocusableInTouchMode = true
         clipChildren = false
         ViewCompat.setAccessibilityDelegate(this, composeAccessibilityDelegate)
@@ -1504,26 +1485,15 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         layoutNodes[node.semanticsId] = node
     }
 
-    override fun onPostAttach(node: LayoutNode) {
-        if (autofillSupported()) {
-            autofillManager?.onPostAttach(node)
-        }
-    }
+    override fun onPostAttach(node: LayoutNode) {}
 
     override fun onDetach(node: LayoutNode) {
         layoutNodes.remove(node.semanticsId)
         measureAndLayoutDelegate.onNodeDetached(node)
         requestClearInvalidObservations()
-        if (autofillSupported()) {
-            autofillManager?.onDetach(node)
-        }
     }
 
-    override fun requestAutofill(node: LayoutNode) {
-        if (autofillSupported()) {
-            autofillManager?.requestAutofill(node)
-        }
-    }
+    override fun requestAutofill(node: LayoutNode) {}
 
     fun requestClearInvalidObservations() {
         observationClearRequested = true
@@ -1537,9 +1507,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         val childAndroidViews = androidViewsHandler
         if (childAndroidViews != null) {
             clearChildInvalidObservations(childAndroidViews)
-        }
-        if (autofillSupported()) {
-            autofillManager?.onEndApplyChanges()
         }
         // Listeners can add more items to the list and we want to ensure that they
         // are executed after being added, so loop until the list is empty
@@ -1579,21 +1546,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 drawDragDecoration = drawDragDecoration,
             )
         @Suppress("DEPRECATION")
-        return if (SDK_INT >= N) {
-            AndroidComposeViewStartDragAndDropN.startDragAndDrop(
-                view = this,
-                transferData = transferData,
-                dragShadowBuilder = shadowBuilder,
-            )
-        } else {
-            startDrag(
-                transferData.clipData,
-                shadowBuilder,
-                transferData.localState,
-                transferData.flags,
-            )
-        }
+        return startDragAndDrop(transferData, shadowBuilder)
     }
+
+    protected open fun startDragAndDrop(
+        transferData: DragAndDropTransferData,
+        shadowBuilder: ComposeDragShadowBuilder,
+    ): Boolean =
+        startDrag(transferData.clipData, shadowBuilder, transferData.localState, transferData.flags)
 
     private fun clearChildInvalidObservations(viewGroup: ViewGroup) {
         for (i in 0 until viewGroup.childCount) {
@@ -2119,11 +2079,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         contentCaptureManager.onLayoutChange()
     }
 
-    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
-        if (autofillSupported()) {
-            autofillManager?.onLayoutNodeDeactivated(layoutNode)
-        }
-    }
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
 
     override fun onPreLayoutNodeReused(layoutNode: LayoutNode, oldSemanticsId: Int) {
         // Keep the mapping up to date when the semanticsId changes
@@ -2131,11 +2087,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         layoutNodes[layoutNode.semanticsId] = layoutNode
     }
 
-    override fun onPostLayoutNodeReused(layoutNode: LayoutNode, oldSemanticsId: Int) {
-        if (autofillSupported()) {
-            autofillManager?.onPostLayoutNodeReused(layoutNode, oldSemanticsId)
-        }
-    }
+    override fun onPostLayoutNodeReused(layoutNode: LayoutNode, oldSemanticsId: Int) {}
 
     override fun onInteropViewLayoutChange(view: InteropView) {
         isPendingInteropViewLayoutChangeDispatch = true
@@ -2327,10 +2279,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         viewTreeObserver.addOnTouchModeChangeListener(this)
 
         if (SDK_INT >= S) AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(this)
-        autofillManager?.let {
-            focusOwner.listeners += it
-            semanticsOwner.listeners += it
-        }
         focusOwner.listeners += this
     }
 
@@ -2385,55 +2333,12 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         lifecycleRetainedValuesStoreOwnerEntry = null
 
         if (SDK_INT >= S) AndroidComposeViewTranslationCallbackS.clearViewTranslationCallback(this)
-        autofillManager?.let {
-            semanticsOwner.listeners -= it
-            focusOwner.listeners -= it
-        }
 
         rectManager.resetOffsets()
         rectManager.dispatchCallbacks()
         rectManager.removeScheduledCallback()
 
         focusOwner.listeners -= this
-    }
-
-    override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
-        if (autofillSupported() && structure != null && !isDispatchingAutofillStructure) {
-            populateAutofillVirtualStructure(structure)
-        }
-    }
-
-    @RequiresApi(O)
-    override fun dispatchProvideAutofillStructure(structure: ViewStructure, flags: Int) {
-        if (!autofillSupported()) {
-            return
-        }
-
-        isDispatchingAutofillStructure = true
-        try {
-            // TODO: This will cause a class verification error on devices before O
-
-            // Let ViewGroup collect hosted AndroidView children before appending Compose virtual
-            // autofill nodes. Otherwise, the framework stops traversal once virtual children exist.
-            super.dispatchProvideAutofillStructure(structure, flags)
-        } finally {
-            isDispatchingAutofillStructure = false
-        }
-
-        populateAutofillVirtualStructure(structure)
-    }
-
-    @RequiresApi(O)
-    private fun populateAutofillVirtualStructure(structure: ViewStructure) {
-        autofillManager?.populateViewStructure(structure)
-        autofill?.populateViewStructure(structure)
-    }
-
-    override fun autofill(values: SparseArray<AutofillValue>) {
-        if (autofillSupported()) {
-            autofillManager?.performAutofill(values)
-            autofill?.performAutofill(values)
-        }
     }
 
     @RequiresApi(S)
@@ -3055,8 +2960,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    private fun autofillSupported() = SDK_INT >= O
-
     @OptIn(ExperimentalComposeUiApi::class)
     public override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         if (hoverExitReceived) {
@@ -3142,55 +3045,20 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             event.rawY != lastEvent.rawY
     }
 
-    @RequiresApi(N)
-    override fun onResolvePointerIcon(
-        event: MotionEvent,
-        pointerIndex: Int,
-    ): android.view.PointerIcon {
-        val toolType = event.getToolType(pointerIndex)
-        if (
-            !event.isFromSource(InputDevice.SOURCE_MOUSE) &&
-                event.isFromSource(InputDevice.SOURCE_STYLUS) &&
-                (toolType == TOOL_TYPE_STYLUS || toolType == TOOL_TYPE_ERASER)
-        ) {
-            val icon = pointerIconService.getStylusHoverIcon()
-            if (icon != null) {
-                return AndroidComposeViewVerificationHelperMethodsN.toAndroidPointerIcon(
-                    context,
-                    icon,
-                )
-            }
-        }
-        // TODO: This will cause a class verification error on M and earlier
-        return super.onResolvePointerIcon(event, pointerIndex)
-    }
+    private var _pointerIconService: PointerIconService? = null
+    override val pointerIconService: PointerIconService
+        get() {
+            return _pointerIconService
+                ?: object : PointerIconService {
+                        override fun getIcon(): PointerIcon = PointerIcon.Default
 
-    override val pointerIconService: PointerIconService =
-        object : PointerIconService {
-            private var currentMouseCursorIcon: PointerIcon = PointerIcon.Default
-            private var currentStylusHoverIcon: PointerIcon? = null
+                        override fun setIcon(value: PointerIcon?) {}
 
-            override fun getIcon(): PointerIcon {
-                return currentMouseCursorIcon
-            }
+                        override fun getStylusHoverIcon(): PointerIcon? = null
 
-            override fun setIcon(value: PointerIcon?) {
-                currentMouseCursorIcon = value ?: PointerIcon.Default
-                if (SDK_INT >= N) {
-                    AndroidComposeViewVerificationHelperMethodsN.setPointerIcon(
-                        this@AndroidComposeView,
-                        currentMouseCursorIcon,
-                    )
-                }
-            }
-
-            override fun getStylusHoverIcon(): PointerIcon? {
-                return currentStylusHoverIcon
-            }
-
-            override fun setStylusHoverIcon(value: PointerIcon?) {
-                currentStylusHoverIcon = value
-            }
+                        override fun setStylusHoverIcon(value: PointerIcon?) {}
+                    }
+                    .also { _pointerIconService = it }
         }
 
     /**
@@ -3658,6 +3526,214 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 }
 
+@RequiresApi(N)
+@SuppressLint("ViewConstructor")
+private class AndroidComposeView24(context: Context, composeViewContext: ComposeViewContext) :
+    AndroidComposeView(context, composeViewContext) {
+    @RequiresApi(N)
+    override fun onResolvePointerIcon(
+        event: MotionEvent,
+        pointerIndex: Int,
+    ): android.view.PointerIcon =
+        resolvePointerIcon(event, pointerIndex, pointerIconService, context)
+            ?: super.onResolvePointerIcon(event, pointerIndex)
+
+    override fun startDragAndDrop(
+        transferData: DragAndDropTransferData,
+        shadowBuilder: ComposeDragShadowBuilder,
+    ): Boolean =
+        startDragAndDrop(
+            transferData.clipData,
+            shadowBuilder,
+            transferData.localState,
+            transferData.flags,
+        )
+
+    override val pointerIconService: PointerIconService = PointerIconServiceN(this)
+
+    class PointerIconServiceN(val view: AndroidComposeView) : PointerIconService {
+        private var currentMouseCursorIcon: PointerIcon = PointerIcon.Default
+        private var currentStylusHoverIcon: PointerIcon? = null
+
+        override fun getIcon(): PointerIcon {
+            return currentMouseCursorIcon
+        }
+
+        override fun setIcon(value: PointerIcon?) {
+            currentMouseCursorIcon = value ?: PointerIcon.Default
+            val iconToSet = toAndroidPointerIcon(view.context, currentMouseCursorIcon)
+
+            if (view.pointerIcon != iconToSet) {
+                view.pointerIcon = iconToSet
+            }
+        }
+
+        override fun getStylusHoverIcon(): PointerIcon? = currentStylusHoverIcon
+
+        override fun setStylusHoverIcon(value: PointerIcon?) {
+            currentStylusHoverIcon = value
+        }
+    }
+
+    companion object {
+        fun toAndroidPointerIcon(context: Context, icon: PointerIcon): android.view.PointerIcon =
+            when (icon) {
+                is AndroidPointerIcon -> icon.pointerIcon
+                is AndroidPointerIconType ->
+                    android.view.PointerIcon.getSystemIcon(context, icon.type)
+                else ->
+                    android.view.PointerIcon.getSystemIcon(
+                        context,
+                        android.view.PointerIcon.TYPE_DEFAULT,
+                    )
+            }
+
+        fun resolvePointerIcon(
+            event: MotionEvent,
+            pointerIndex: Int,
+            pointerIconService: PointerIconService,
+            context: Context,
+        ): android.view.PointerIcon? {
+            val toolType = event.getToolType(pointerIndex)
+            if (
+                !event.isFromSource(InputDevice.SOURCE_MOUSE) &&
+                    event.isFromSource(InputDevice.SOURCE_STYLUS) &&
+                    (toolType == TOOL_TYPE_STYLUS || toolType == TOOL_TYPE_ERASER)
+            ) {
+                val icon = pointerIconService.getStylusHoverIcon()
+                if (icon != null) {
+                    return toAndroidPointerIcon(context, icon)
+                }
+            }
+            return null
+        }
+    }
+}
+
+@RequiresApi(O)
+@SuppressLint("ViewConstructor")
+// Don't extend AndroidComposeViewN -- it is more expensive to have layers of constructors
+// (O -> N -> AndroidComposeView) than to have one layer (O -> AndroidComposeView)
+private class AndroidComposeView26(context: Context, composeViewContext: ComposeViewContext) :
+    AndroidComposeView(context, composeViewContext) {
+    override val autofill: AndroidAutofill = AndroidAutofill(this, autofillTree)
+    override val autofillManager: AndroidAutofillManager =
+        AndroidAutofillManager(
+            platformAutofillManager = PlatformAutofillManagerImpl(context),
+            semanticsOwner = semanticsOwner,
+            view = this,
+            rectManager = rectManager,
+            packageName = context.packageName,
+        )
+
+    /**
+     * Guards against re-entering [onProvideAutofillVirtualStructure] while
+     * [dispatchProvideAutofillStructure] delegates to the framework to collect hosted Android
+     * views.
+     */
+    private var isDispatchingAutofillStructure = false
+
+    override val pointerIconService: PointerIconService =
+        AndroidComposeView24.PointerIconServiceN(this)
+
+    init {
+        focusable = FOCUSABLE
+        // not to add the default focus highlight to the whole compose view
+        defaultFocusHighlightEnabled = false
+    }
+
+    override fun onResolvePointerIcon(
+        event: MotionEvent,
+        pointerIndex: Int,
+    ): android.view.PointerIcon =
+        AndroidComposeView24.resolvePointerIcon(event, pointerIndex, pointerIconService, context)
+            ?: super.onResolvePointerIcon(event, pointerIndex)
+
+    override fun startDragAndDrop(
+        transferData: DragAndDropTransferData,
+        shadowBuilder: ComposeDragShadowBuilder,
+    ): Boolean =
+        startDragAndDrop(
+            transferData.clipData,
+            shadowBuilder,
+            transferData.localState,
+            transferData.flags,
+        )
+
+    override fun getImportantForAutofill(): Int {
+        return IMPORTANT_FOR_AUTOFILL_YES
+    }
+
+    override fun dispatchProvideAutofillStructure(structure: ViewStructure, flags: Int) {
+        isDispatchingAutofillStructure = true
+        try {
+            // TODO: This will cause a class verification error on devices before O
+
+            // Let ViewGroup collect hosted AndroidView children before appending Compose virtual
+            // autofill nodes. Otherwise, the framework stops traversal once virtual children exist.
+            super.dispatchProvideAutofillStructure(structure, flags)
+        } finally {
+            isDispatchingAutofillStructure = false
+        }
+
+        populateAutofillVirtualStructure(structure)
+    }
+
+    private fun populateAutofillVirtualStructure(structure: ViewStructure) {
+        autofillManager.populateViewStructure(structure)
+        autofill.populateViewStructure(structure)
+    }
+
+    override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
+        if (structure != null && !isDispatchingAutofillStructure) {
+            populateAutofillVirtualStructure(structure)
+        }
+    }
+
+    override fun autofill(values: SparseArray<AutofillValue>) {
+        autofillManager.performAutofill(values)
+        autofill.performAutofill(values)
+    }
+
+    override fun onPostAttach(node: LayoutNode) {
+        autofillManager.onPostAttach(node)
+    }
+
+    override fun onDetach(node: LayoutNode) {
+        super.onDetach(node)
+        autofillManager.onDetach(node)
+    }
+
+    override fun requestAutofill(node: LayoutNode) {
+        autofillManager.requestAutofill(node)
+    }
+
+    override fun onEndApplyChanges() {
+        autofillManager.onEndApplyChanges()
+        super.onEndApplyChanges()
+    }
+
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
+        autofillManager.onLayoutNodeDeactivated(layoutNode)
+    }
+
+    override fun onPostLayoutNodeReused(layoutNode: LayoutNode, oldSemanticsId: Int) {
+        autofillManager.onPostLayoutNodeReused(layoutNode, oldSemanticsId)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        focusOwner.listeners += autofillManager
+        semanticsOwner.listeners += autofillManager
+    }
+
+    override fun onDetachedFromWindow() {
+        focusOwner.listeners -= autofillManager
+        semanticsOwner.listeners -= autofillManager
+        super.onDetachedFromWindow()
+    }
+}
+
 @RequiresApi(S)
 private object AndroidComposeViewTranslationCallback : ViewTranslationCallback {
     override fun onShowTranslation(view: View): Boolean {
@@ -3701,31 +3777,6 @@ private object AndroidComposeViewAssistHelperMethodsO {
     @DoNotInline
     fun setClassName(structure: ViewStructure, view: View) {
         structure.setClassName(view.accessibilityClassName.toString())
-    }
-}
-
-@RequiresApi(N)
-private object AndroidComposeViewVerificationHelperMethodsN {
-    @RequiresApi(N)
-    fun toAndroidPointerIcon(context: Context, icon: PointerIcon?): android.view.PointerIcon =
-        when (icon) {
-            is AndroidPointerIcon -> icon.pointerIcon
-            is AndroidPointerIconType -> android.view.PointerIcon.getSystemIcon(context, icon.type)
-            else ->
-                android.view.PointerIcon.getSystemIcon(
-                    context,
-                    android.view.PointerIcon.TYPE_DEFAULT,
-                )
-        }
-
-    @DoNotInline
-    @RequiresApi(N)
-    fun setPointerIcon(view: View, icon: PointerIcon?) {
-        val iconToSet = toAndroidPointerIcon(view.context, icon)
-
-        if (view.pointerIcon != iconToSet) {
-            view.pointerIcon = iconToSet
-        }
     }
 }
 
@@ -3894,23 +3945,6 @@ private object MotionEventVerifierApi29 {
     fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
         return event.getRawX(index).fastIsFinite() && event.getRawY(index).fastIsFinite()
     }
-}
-
-@RequiresApi(N)
-private object AndroidComposeViewStartDragAndDropN {
-    @DoNotInline
-    @RequiresApi(N)
-    fun startDragAndDrop(
-        view: View,
-        transferData: DragAndDropTransferData,
-        dragShadowBuilder: ComposeDragShadowBuilder,
-    ): Boolean =
-        view.startDragAndDrop(
-            transferData.clipData,
-            dragShadowBuilder,
-            transferData.localState,
-            transferData.flags,
-        )
 }
 
 private fun View.containsDescendant(other: View): Boolean {
