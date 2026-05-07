@@ -33,6 +33,7 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioned
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ChipDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.CondensedItemDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.EndImageAndActionsDemo
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.EnhancedHeaderDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ProgressBarDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SectionHeaderDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SimpleListDemoScreen
@@ -66,6 +67,12 @@ class SectionedItemTemplateDemoScreen(carContext: CarContext) : Screen(carContex
                                 buildRowForTemplate(
                                     CondensedItemDemoScreen(carContext),
                                     R.string.condensed_item_demo_title,
+                                )
+                            )
+                            addItem(
+                                buildRowForTemplate(
+                                    EnhancedHeaderDemoScreen(carContext),
+                                    R.string.enhanced_header_demo_title,
                                 )
                             )
                         }
