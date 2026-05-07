@@ -178,14 +178,14 @@ final class androidx.compose.animation/ContentTransform { // androidx.compose.an
 }
 
 final class androidx.compose.animation/MutableContentTransform { // androidx.compose.animation/MutableContentTransform|null[0]
-    constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Function1<androidx.compose.animation/MutableContentTransform, kotlin/Unit> = ...) // androidx.compose.animation/MutableContentTransform.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Function1<androidx.compose.animation.MutableContentTransform,kotlin.Unit>){}[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Function0<androidx.compose.ui.geometry/Offset>? = ..., kotlin/Function0<androidx.compose.ui.geometry/Offset>? = ..., kotlin/Function1<androidx.compose.animation/MutableContentTransform, kotlin/Unit> = ...) // androidx.compose.animation/MutableContentTransform.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Function0<androidx.compose.ui.geometry.Offset>?;kotlin.Function0<androidx.compose.ui.geometry.Offset>?;kotlin.Function1<androidx.compose.animation.MutableContentTransform,kotlin.Unit>){}[0]
 
     final fun initialContentTransform(kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>) // androidx.compose.animation/MutableContentTransform.initialContentTransform|initialContentTransform(kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>){}[0]
     final fun targetContentTransform(kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>) // androidx.compose.animation/MutableContentTransform.targetContentTransform|targetContentTransform(kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>){}[0]
 }
 
 final class androidx.compose.animation/MutableTransform { // androidx.compose.animation/MutableTransform|null[0]
-    constructor <init>(kotlin/Boolean = ..., kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>? = ...) // androidx.compose.animation/MutableTransform.<init>|<init>(kotlin.Boolean;kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>?){}[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/Function0<androidx.compose.ui.geometry/Offset>? = ..., kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>? = ...) // androidx.compose.animation/MutableTransform.<init>|<init>(kotlin.Boolean;kotlin.Function0<androidx.compose.ui.geometry.Offset>?;kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>?){}[0]
 
     final fun invoke(kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>) // androidx.compose.animation/MutableTransform.invoke|invoke(kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>){}[0]
 }
