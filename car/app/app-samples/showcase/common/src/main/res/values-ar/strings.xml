@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"تظهر الرسالة هنا.\nالمزيد من النص في السطر الثاني."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"عرض توضيحي لنموذج رسالة قصيرة"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"عرض توضيحي لنموذج عناصر مُقسَّم"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"‏عرض توضيحي لميزة AlphaJump المفعّلة في قائمة مقسّمة"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"قسم \"زر الاختيار\""</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"تفعيل القسم أو إيقافه"</string>

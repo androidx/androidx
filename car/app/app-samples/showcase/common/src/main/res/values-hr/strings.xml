@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Ovdje dolazi poruka.\nViše teksta u drugom retku."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Pokazna verzija predloška kratke poruke"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Pokazna verzija predloška stavke po odjeljcima"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Pokazna verzija s omogućenim AlphaJumpom za stavke po odjeljcima"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Odjeljak gumba za odabir"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Odjeljak prebacivanja"</string>

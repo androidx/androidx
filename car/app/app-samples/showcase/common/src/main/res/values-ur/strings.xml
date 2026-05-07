@@ -234,6 +234,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"پیغام یہاں جاتا ہے۔\nدوسری لان پر مزید ٹیکسٹ۔"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"پیغام کی تمثیل کا ڈیمو ترتیب دیں"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"سیکشن کردہ آئٹم کی تمثیل کا ڈیمو"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"‏سیکشن کردہ آئٹم AlphaJump فعال کردہ ڈیمو"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ریڈیو بٹن کا سیکشن"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"سیکشن ٹوگل کریں"</string>
@@ -246,8 +248,7 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"تصویر اور کارروائیوں کا ڈیمو ختم کریں"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"چِپ ڈیمو"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"پیش رفت بار کا ڈیمو"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
-    <skip />
+    <string name="section_header_demo_title" msgid="4880150421750399922">"سیکشن ہیڈر ڈیمو"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"پین کی تمثیل کا ڈیمو"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"مقام کی فہرست کی تمثیل کا ڈیمو"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"مقامات براؤز کریں"</string>

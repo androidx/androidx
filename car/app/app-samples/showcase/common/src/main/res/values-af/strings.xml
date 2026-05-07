@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Boodskap kom hier.\nMeer teks in tweede reël."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstrasie van kortboodskaptemplaat"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demonstrasie van verdeelde itemtemplaat"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Verdeelde item-AlphaJump- geaktiveerde demonstrasie"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Radioknoppie-afdeling"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Wissel-afdeling"</string>

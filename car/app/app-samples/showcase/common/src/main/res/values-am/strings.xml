@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"መልእክት እዚህ ይሆናል።\nበሁለተኛው መስመር ላይ ተጨማሪ ጽሁፍ።"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"የአጭር መልዕክት ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"የተከፈለ ንጥል ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"የተከፈለ ንጥል AlphaJump የነቃ ቅንጭብ ማሳያ"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"የራድዮ አዝራር ክፍል"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"የቀያይር ክፍል"</string>

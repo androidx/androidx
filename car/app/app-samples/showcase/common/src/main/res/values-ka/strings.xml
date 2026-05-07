@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"შეტყობინება.\nმეტი ტექსტი მეორე ხაზზეა."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"მოკლე შეტყობინების შაბლონის დემო"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"სექციებად დაყოფილი ერთეულის შაბლონის დემო"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"შეკუმშული ერთეულის დემო"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"სექციებად დაყოფილი ერთეულის AlphaJump-ის ჩართული დემო"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"არჩევანის ღილაკის სექცია"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"სექციის გადართვა"</string>
@@ -244,8 +245,7 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"სურათისა და მოქმედებების დემოს დასრულება"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"ჩიპის დემონსტრაცია"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"პროგრესის ზოლის დემო"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
-    <skip />
+    <string name="section_header_demo_title" msgid="4880150421750399922">"სექციის ზედა კოლონტიტულის დემო"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"პანელის შაბლონის დემო"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ადგილების სიის შაბლონის დემო"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ადგილების დათვალიერება"</string>

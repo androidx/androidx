@@ -232,6 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"A mensagem é colocada aqui.\nMais texto na segunda linha."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstração do modelo de mensagem curta"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demonstração do modelo de item em secções"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demonstração do item condensada"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demonstração do AlphaJump de itens em secções ativado"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Secção Botão de opção"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Ativar/desativar secção"</string>

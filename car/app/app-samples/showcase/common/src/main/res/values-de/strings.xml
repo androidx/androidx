@@ -232,6 +232,8 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Nachricht wird hier angezeigt.\nMehr Text in der zweiten Zeile."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo der kurzen Nachrichtenvorlage"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo für Elementvorlage mit Abschnitten"</string>
+    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
+    <skip />
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demo für Element mit Abschnitten und aktiviertem AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Abschnitt „Optionsfeld“"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Abschnitt wechseln"</string>
