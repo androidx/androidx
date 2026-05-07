@@ -293,6 +293,11 @@ class RotateToLookAtUserTest {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
             val parentRotation = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
 
+            val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
             composeTestRule.setContent {
                 Subspace {
                     SpatialBox(SubspaceModifier.rotate(parentRotation)) {
@@ -303,20 +308,10 @@ class RotateToLookAtUserTest {
                 }
             }
 
-            val watcherEntity = composeTestRule.getTaggedEntity("child")
-
-            composeTestRule
-                .onSubspaceNodeWithTag("child")
-                .assertRotationInRootIsEqualTo(parentRotation)
-
-            val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
-
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
+            val watcherEntity = composeTestRule.getTaggedEntity("child")
             val watcherWorldPose = watcherEntity.getPose(Space.ACTIVITY)
             val targetVector = userLocation - watcherWorldPose.translation
             val expectedWorldRotation =
@@ -331,6 +326,14 @@ class RotateToLookAtUserTest {
     fun rotateToLookAtUser_withTranslatedRoot_calculatesCorrectLookDirection() =
         runTest(testDispatcher) {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            val userLocation = Vector3(x = 1F, y = 0F, z = 3F)
+
+            // Pre-initialize before composition to ensure the first tracking tick captures the
+            // target geometry and avoids simulation deadlock.
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
 
             // Create a custom Subspace root node offset by 1 meter on the X axis.
             val customRootNode =
@@ -357,13 +360,6 @@ class RotateToLookAtUserTest {
                 }
             }
 
-            // Place the user directly in front of the Root's X = 1m position.
-            val userLocation = Vector3(x = 1F, y = 0F, z = 3F)
-
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
-
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
 
@@ -379,6 +375,91 @@ class RotateToLookAtUserTest {
             // With the User placed at X=1m, Z=3m, the Node and User share the exact same X-axis.
             // Therefore, the mathematically correct look direction points purely along the positive
             // Z-axis. In this right-handed coordinate system, +Z maps to Vector3.Backward.
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(expectedRotation)
+        }
+
+    @Test
+    fun rotateToLookAtUser_userDirectlyAbove_handlesSingularityWithoutCrash() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            // Place the user directly above the root origin to trigger the singularity.
+            val userLocation = Vector3(x = 0F, y = 3F, z = 0F)
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
+            val customRootNode =
+                Entity.create(
+                    session = assertNotNull(composeTestRule.session),
+                    name = "customRootNode",
+                    parent = assertNotNull(composeTestRule.session).scene.activitySpace,
+                )
+            customRootNode.setPose(relativeTo = Space.ACTIVITY, pose = Pose.Identity)
+
+            composeTestRule.setContent {
+                CompositionLocalProvider(LocalSubspaceRootNode provides customRootNode) {
+                    Subspace {
+                        // Node is directly at origin, directly underneath the user.
+                        SpatialPanel(SubspaceModifier.testTag("TheWatcher").rotateToLookAtUser()) {
+                            Text(text = "Target")
+                        }
+                    }
+                }
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            // Mathematically verify behavior. When directly beneath, forward = +Y.
+            // The fallback up is Vector3.Forward [0, 0, -1].
+            // The resulting math translates this to exactly -90 degrees around the X-axis.
+            val expectedRotation = Quaternion(x = -0.7071068f, y = 0f, z = 0f, w = 0.7071068f)
+
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(expectedRotation)
+        }
+
+    @Test
+    fun rotateToLookAtUser_userAlignedWithCustomUpDirection_remainsStable() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            // Position the user in front of the node along the Z axis.
+            val userLocation = Vector3(x = 0F, y = 0F, z = 3F)
+
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
+            // Explicitly set a custom upDirection that is collinear with the target vector (Gimbal
+            // Lock condition)
+            // We set the upDirection to Vector3.Backward [0,0,1], matching the target direction to
+            // the user.
+            val customUpDirection = Vector3.Backward
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("TheWatcher")
+                            .rotateToLookAtUser(upDirection = customUpDirection)
+                    ) {
+                        Text(text = "Target")
+                    }
+                }
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            // Verify it does not collapse into NaN. The logic correctly derives
+            // up = [0, 1, 0] from the plane, and atan2(0, 0) safely yields 0 degrees.
+            // So we should settle precisely back into the default Identity orientation.
+            val expectedRotation = Quaternion.Identity
+
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
                 .assertRotationInRootIsEqualTo(expectedRotation)
