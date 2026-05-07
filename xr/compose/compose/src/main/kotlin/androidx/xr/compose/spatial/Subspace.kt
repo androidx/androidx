@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
@@ -27,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
@@ -68,8 +70,10 @@ import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 
 internal val LocalSubspaceRootNode: ProvidableCompositionLocal<Entity?> =
@@ -510,7 +514,15 @@ public fun FollowingSubspace(
         }
     }
 
-    LaunchedEffect(behavior, target, dimensions) {
+    val recenterSignal =
+        rememberRecenterSignal(
+            session = session,
+            target = target,
+            subspaceTrailingEntity = subspaceTrailingEntity,
+            subspaceRootNode = subspaceRootNode,
+        )
+
+    LaunchedEffect(behavior, target, dimensions, recenterSignal) {
         behavior.configure(
             session = session,
             trailingEntity = subspaceTrailingEntity,
@@ -541,6 +553,38 @@ public fun FollowingSubspace(
 
 private fun getInitialSubspaceOffset(target: FollowTarget): Pose {
     return if (target is ArDeviceTarget) target.offset else Pose.Identity
+}
+
+@Composable
+private fun rememberRecenterSignal(
+    session: Session,
+    target: FollowTarget,
+    subspaceTrailingEntity: CoreGroupEntity,
+    subspaceRootNode: Entity,
+): Boolean {
+    var recenterSignal by remember { mutableStateOf(false) }
+    val currentTargetState = rememberUpdatedState(target)
+    DisposableEffect(session) {
+        val listener = Runnable {
+            recenterSignal = !recenterSignal
+            val targetValue = currentTargetState.value
+            if (targetValue is AnchorTarget) {
+                // Anchors live outside the ActivitySpace, so if the ActivitySpace moves, the
+                // relative position to the anchor must be manually updated.
+                subspaceTrailingEntity.poseInMeters =
+                    targetValue.anchorEntity.getPose(Space.ACTIVITY)
+            } else {
+                // If the activity space moves, this should be the new origin.
+                subspaceRootNode.setPose(Pose.Identity)
+                subspaceTrailingEntity.poseInMeters = Pose.Identity
+            }
+        }
+        session.scene.activitySpace.addOriginChangedListener(listener)
+
+        onDispose { session.scene.activitySpace.removeOriginChangedListener(listener) }
+    }
+
+    return recenterSignal
 }
 
 /** Validates the configuration for [FollowingSubspace]. */
