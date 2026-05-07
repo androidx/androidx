@@ -198,8 +198,8 @@ object ComposeFoundationFlags {
      * of the text to be scrolled when the selecting pointer is dragged outside the scrollable's
      * viewport.
      */
-    // TODO: Remove this flag once it has soaked (b/0)
-    @field:Suppress("MutableBareField") @JvmField var isSelectionAutoScrollEnabled = false
+    // TODO: Remove this flag once it has soaked (b/504914051)
+    @field:Suppress("MutableBareField") @JvmField var isSelectionAutoScrollEnabled = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
