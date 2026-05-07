@@ -35,9 +35,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import javax.inject.Provider
-import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
@@ -46,6 +43,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
@@ -248,7 +246,7 @@ class Camera2DeviceCacheTest {
                 )
 
             val cameraIds = camera2DeviceCache.cameraIds.first()
-            assertTrue(cameraIds.isEmpty())
+            assertThat(cameraIds.isEmpty()).isTrue()
 
             camera2DeviceCache.shutdown()
         }
@@ -339,12 +337,12 @@ class Camera2DeviceCacheTest {
 
             // Get the camera ID list for the first time.
             val cameraIds = camera2DeviceCache.awaitCameraIds()
-            assertTrue(cameraIds != null && cameraIds.isEmpty())
+            assertThat(cameraIds != null && cameraIds.isEmpty()).isTrue()
             verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
             // Get the camera ID list for the second time.
             val cameraIds2 = camera2DeviceCache.awaitCameraIds()
-            assertTrue(cameraIds2 != null && cameraIds2.isEmpty())
+            assertThat(cameraIds2 != null && cameraIds2.isEmpty()).isTrue()
             // Since the list is valid, we shouldn't query the camera ID list again.
             verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
@@ -373,14 +371,14 @@ class Camera2DeviceCacheTest {
             // Get the camera ID list for the first time. Note that even if the camera ID list is
             // invalid, the query should still succeed.
             val cameraIds = camera2DeviceCache.awaitCameraIds()
-            assertNotNull(cameraIds)
-            assertTrue(cameraIds.isEmpty())
+            assertThat(cameraIds).isNotNull()
+            assertThat(cameraIds!!.isEmpty()).isTrue()
             verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
             // Get the camera ID list for the second time.
             val cameraIds2 = camera2DeviceCache.awaitCameraIds()
-            assertNotNull(cameraIds2)
-            assertTrue(cameraIds2.isEmpty())
+            assertThat(cameraIds2).isNotNull()
+            assertThat(cameraIds2!!.isEmpty()).isTrue()
             // Since the list is invalid, we should query the camera ID list again.
             verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
 
@@ -482,7 +480,7 @@ class Camera2DeviceCacheTest {
 
             // The list should be cached from now on.
             val cameraIds2 = camera2DeviceCache.awaitCameraIds()
-            assertNotNull(cameraIds2)
+            assertThat(cameraIds2).isNotNull()
             assertThat(cameraIds2).containsExactly(CameraId("0"), CameraId("1"))
             verify(fakeCameraManagerProvider.fakeCameraManager, times(4)).cameraIdList
             assertThat(collectedCameraIds)

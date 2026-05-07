@@ -22,8 +22,6 @@ import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.internal.OutputDistributor.OutputListener
 import androidx.camera.camera2.pipe.media.Finalizer
 import com.google.common.truth.Truth.assertThat
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
 import kotlinx.atomicfu.atomic
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -459,14 +457,14 @@ class OutputDistributorTest {
 
         // OutputDistributor receives the capture result for output 1, and should complete it.
         outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
 
         // OutputDistributor receives the capture result for output 2, but since the onOutputStarted
         // call for output 2 is ignored, pendingOutput2 should not be completed.
         outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
     }
 
     @Test
@@ -480,8 +478,8 @@ class OutputDistributorTest {
         // OutputDistributor receives the capture result for output 1, and should complete it.
         val fakeOutput1 = FakeOutput(101)
         outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
 
         // OutputDistributor receives the capture result for output 2. Even though the output number
         // is the same should normally result in a match, the onOutputStarted call for output 2 is
@@ -489,8 +487,8 @@ class OutputDistributorTest {
         // completed.
         val fakeOutput2 = FakeOutput(101)
         outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
     }
 
     @Test
@@ -502,15 +500,15 @@ class OutputDistributorTest {
 
         val fakeOutput1 = FakeOutput(101)
         outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
 
         // Simulate OutputDistributor getting a duplicated OutputResult. In this case, the
         // OutputResult will be cached, since its corresponding onOutputStarted event is ignored.
         val fakeOutput2 = FakeOutput(101)
         outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
 
         // Simulate getting 3 more OutputResults, which in this case, should cause the
         // OutputDistributor to exceed its maximum number of cached OutputResults (by default), and
@@ -521,7 +519,7 @@ class OutputDistributorTest {
         outputDistributor.onOutputResult(fakeOutput3.outputNumber, OutputResult.from(fakeOutput3))
         outputDistributor.onOutputResult(fakeOutput4.outputNumber, OutputResult.from(fakeOutput4))
         outputDistributor.onOutputResult(fakeOutput5.outputNumber, OutputResult.from(fakeOutput5))
-        assertTrue(fakeOutput2.finalized)
+        assertThat(fakeOutput2.finalized).isTrue()
     }
 
     @Test
@@ -532,12 +530,12 @@ class OutputDistributorTest {
         outputDistributor.startWith(pendingOutput2)
 
         outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
 
         outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
-        assertTrue(pendingOutput1.isComplete)
-        assertTrue(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isTrue()
     }
 
     @Test
@@ -549,13 +547,13 @@ class OutputDistributorTest {
 
         val fakeOutput1 = FakeOutput(101)
         outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
-        assertTrue(pendingOutput1.isComplete)
-        assertFalse(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isFalse()
 
         val fakeOutput2 = FakeOutput(101)
         outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
-        assertTrue(pendingOutput1.isComplete)
-        assertTrue(pendingOutput2.isComplete)
+        assertThat(pendingOutput1.isComplete).isTrue()
+        assertThat(pendingOutput2.isComplete).isTrue()
     }
 
     /**

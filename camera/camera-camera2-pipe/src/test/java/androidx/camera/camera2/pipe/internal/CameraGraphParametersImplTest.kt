@@ -48,14 +48,11 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Tests for [CameraGraphParametersImpl] */
@@ -101,9 +98,9 @@ class CameraGraphParametersImplTest {
         parameters[CAPTURE_REQUEST_KEY] = 2
         parameters[TEST_NULLABLE_KEY] = null
 
-        assertEquals(parameters[TEST_KEY], 42)
-        assertEquals(parameters[CAPTURE_REQUEST_KEY], 2)
-        assertNull(parameters[TEST_NULLABLE_KEY])
+        assertThat(parameters[TEST_KEY]).isEqualTo(42)
+        assertThat(parameters[CAPTURE_REQUEST_KEY]).isEqualTo(2)
+        assertThat(parameters[TEST_NULLABLE_KEY]).isNull()
     }
 
     @Test
@@ -112,9 +109,9 @@ class CameraGraphParametersImplTest {
             mapOf(TEST_KEY to 42, CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to null)
         )
 
-        assertEquals(parameters[TEST_KEY], 42)
-        assertEquals(parameters[CAPTURE_REQUEST_KEY], 2)
-        assertNull(parameters[TEST_NULLABLE_KEY])
+        assertThat(parameters[TEST_KEY]).isEqualTo(42)
+        assertThat(parameters[CAPTURE_REQUEST_KEY]).isEqualTo(2)
+        assertThat(parameters[TEST_NULLABLE_KEY]).isNull()
     }
 
     @Test
@@ -123,7 +120,7 @@ class CameraGraphParametersImplTest {
 
         parameters.remove(TEST_KEY)
 
-        assertNull(parameters[TEST_KEY])
+        assertThat(parameters[TEST_KEY]).isNull()
     }
 
     @Test
@@ -133,8 +130,8 @@ class CameraGraphParametersImplTest {
 
         parameters.clear()
 
-        assertNull(parameters[TEST_KEY])
-        assertNull(parameters[CAPTURE_REQUEST_KEY])
+        assertThat(parameters[TEST_KEY]).isNull()
+        assertThat(parameters[CAPTURE_REQUEST_KEY]).isNull()
     }
 
     @Test
@@ -149,8 +146,8 @@ class CameraGraphParametersImplTest {
             advanceUntilIdle()
 
             // Check that the latest request with existing repeatingRequest has graphParameters
-            assertEquals(csp1.events.size, 2)
-            assertTrue(csp1.events[1].isRepeating)
+            assertThat(csp1.events.size).isEqualTo(2)
+            assertThat(csp1.events[1].isRepeating).isTrue()
             assertThat(csp1.events[1].graphParameters).containsExactly(TEST_KEY, 42)
         }
 
