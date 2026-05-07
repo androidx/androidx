@@ -191,7 +191,7 @@ internal class PaintTracker {
             colorFilter = targetColorFilter
             when (targetColorFilter) {
                 null -> {
-                    if (wasSet) {
+                    if (wasSet || force) {
                         paintBundle.clearColorFilter()
                     }
                 }

@@ -747,6 +747,76 @@ class RecordingCanvasTest {
         assertScreenshot(document, "morphCircleToStar_progress_1")
     }
 
+    @Test
+    fun drawConditionally_colorFilterState() {
+        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
+
+        // 1. Draw something with a color filter
+        val paintWithFilter =
+            Paint().apply { colorFilter = BlendModeColorFilter(Color.RED, BlendMode.SRC_IN) }
+        recordingCanvas.drawRect(0f, 0f, 10f, 10f, paintWithFilter)
+
+        // 2. Draw conditionally, without color filter inside
+        recordingCanvas.drawConditionally(flag) {
+            val paintNoFilter = Paint().apply { color = Color.BLUE }
+            recordingCanvas.drawRect(10f, 10f, 20f, 20f, paintNoFilter)
+        }
+
+        // 3. Draw something after, without color filter
+        val paintNoFilterPost = Paint().apply { color = Color.GREEN }
+        recordingCanvas.drawRect(20f, 20f, 30f, 30f, paintNoFilterPost)
+
+        val operations = inflateOperations()
+        val paintOps = operations.filterIsInstance<PaintData>()
+        assertThat(paintOps.size).isAtLeast(3)
+
+        // The first paint should have a color filter
+        assertThat(paintOps[0].mPaintData.toString()).contains("ColorFilter")
+
+        // The second paint (inside conditional) should EXPLICITLY clear the color filter
+        // because forceSendingPaint(true) was called before it.
+        assertThat(paintOps[1].mPaintData.toString()).contains("clearColorFilter")
+
+        // The third paint (after conditional) should also EXPLICITLY clear the color filter
+        // because forceSendingPaint(true) was called after the conditional block.
+        assertThat(paintOps[2].mPaintData.toString()).contains("clearColorFilter")
+    }
+
+    @Test
+    fun drawConditionally_colorFilterState_differentFilterInside() {
+        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
+
+        // 1. Draw something with color filter A
+        val paintWithFilterA =
+            Paint().apply { colorFilter = BlendModeColorFilter(Color.RED, BlendMode.SRC_IN) }
+        recordingCanvas.drawRect(0f, 0f, 10f, 10f, paintWithFilterA)
+
+        // 2. Draw conditionally, with color filter B inside
+        recordingCanvas.drawConditionally(flag) {
+            val paintWithFilterB =
+                Paint().apply { colorFilter = BlendModeColorFilter(Color.BLUE, BlendMode.SRC_IN) }
+            recordingCanvas.drawRect(10f, 10f, 20f, 20f, paintWithFilterB)
+        }
+
+        // 3. Draw something after, without color filter
+        val paintNoFilterPost = Paint().apply { color = Color.GREEN }
+        recordingCanvas.drawRect(20f, 20f, 30f, 30f, paintNoFilterPost)
+
+        val operations = inflateOperations()
+        val paintOps = operations.filterIsInstance<PaintData>()
+        assertThat(paintOps.size).isAtLeast(3)
+
+        // The first paint should have color filter A (Red)
+        assertThat(paintOps[0].mPaintData.toString()).contains("ColorFilter(color=0xffff0000")
+
+        // The second paint (inside conditional) should have color filter B (Blue)
+        assertThat(paintOps[1].mPaintData.toString()).contains("ColorFilter(color=0xff0000ff")
+
+        // The third paint (after conditional) should EXPLICITLY clear the color filter
+        // because forceSendingPaint(true) was called after the conditional block.
+        assertThat(paintOps[2].mPaintData.toString()).contains("clearColorFilter")
+    }
+
     private fun constructDocument() =
         CoreDocument(clock).apply {
             recordingBuffer.writeToBuffer()
