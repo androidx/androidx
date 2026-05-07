@@ -132,6 +132,7 @@ class FillBox(
 class PopupState(
     val bounds: IntRect,
     private val focusable: Boolean = false,
+    private val consumePointerInputOutside: Boolean = focusable,
     private val dismissOnClickOutside: Boolean = focusable,
     private val onDismissRequest: () -> Unit = {}
 ) {
@@ -141,6 +142,7 @@ class PopupState(
 
     @Composable
     fun Content() {
+        @OptIn(ExperimentalComposeUiApi::class)
         Popup(
             popupPositionProvider = object : PopupPositionProvider {
                 override fun calculatePosition(
@@ -154,7 +156,8 @@ class PopupState(
             properties = PopupProperties(
                 focusable = focusable,
                 dismissOnClickOutside = dismissOnClickOutside,
-                clippingEnabled = false
+                clippingEnabled = false,
+                consumePointerInputOutside = consumePointerInputOutside,
             )
         ) {
             with(LocalDensity.current) {

@@ -40,10 +40,11 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
 internal class SwingComposeSceneLayer(
     composeContainer: ComposeContainer,
     private val skiaLayerAnalytics: SkiaLayerAnalytics,
+    compositionContext: CompositionContext,
     density: Density,
     layoutDirection: LayoutDirection,
     focusable: Boolean,
-    compositionContext: CompositionContext
+    override var consumePointerInputOutside: Boolean = focusable,
 ) : DesktopComposeSceneLayer(composeContainer, density, layoutDirection) {
     private val backgroundMouseListener = object : MouseAdapter() {
         override fun mousePressed(event: MouseEvent) = onMouseEventOutside(event)
@@ -156,7 +157,7 @@ internal class SwingComposeSceneLayer(
             val contentComponent = mediator?.contentComponent ?: return
             val localDrawBounds = drawBounds.toAwtRectangle(density)
 
-            if (focusable) {
+            if (consumePointerInputOutside) {
                 container.setBounds(0, 0, windowContainer.width, windowContainer.height)
                 contentComponent.bounds = localDrawBounds
                 mediator?.sceneBoundsInPx = null

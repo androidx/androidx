@@ -26,6 +26,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
@@ -259,6 +260,73 @@ class PopupInteractionTest {
         assertTrue(popupButtonClicked)
 
         findNodeWithLabel("Content Button").tap()
+        waitForIdle()
+        assertTrue(contentButtonClicked)
+    }
+
+    @Test
+    fun testBlockingNonFocusablePopupBlocksContentInteraction() = runUIKitInstrumentedTest {
+        var contentButtonClicked = false
+        var popupButtonClicked = false
+        setContent {
+            Button(
+                onClick = { contentButtonClicked = true },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text("Content Button")
+            }
+            @OptIn(ExperimentalComposeUiApi::class)
+            Popup(
+                properties = PopupProperties(
+                    dismissOnClickOutside = false,
+                    focusable = false,
+                    consumePointerInputOutside = true,
+                )
+            ) {
+                Button({ popupButtonClicked = true }) {
+                    Text("Popup Button")
+                }
+            }
+        }
+
+        findNodeWithLabel("Popup Button").tap()
+        waitForIdle()
+        assertTrue(popupButtonClicked)
+
+        tap(outOfPopupBoundsPoint)
+        waitForIdle()
+        assertFalse(contentButtonClicked)
+    }
+
+    @Test
+    fun testNonBlockingFocusablePopupAllowsContentInteraction() = runUIKitInstrumentedTest {
+        var contentButtonClicked = false
+        var popupButtonClicked = false
+        setContent {
+            Button(
+                onClick = { contentButtonClicked = true },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text("Content Button")
+            }
+            Popup(
+                properties = PopupProperties(
+                    dismissOnClickOutside = false,
+                    focusable = true,
+                    consumePointerInputOutside = false,
+                )
+            ) {
+                Button({ popupButtonClicked = true }) {
+                    Text("Popup Button")
+                }
+            }
+        }
+
+        findNodeWithLabel("Popup Button").tap()
+        waitForIdle()
+        assertTrue(popupButtonClicked)
+
+        tap(outOfPopupBoundsPoint)
         waitForIdle()
         assertTrue(contentButtonClicked)
     }

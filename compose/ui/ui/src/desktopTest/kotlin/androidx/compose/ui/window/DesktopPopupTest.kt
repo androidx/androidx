@@ -17,6 +17,8 @@
 package androidx.compose.ui.window
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,18 +33,25 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.sendMousePress
+import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.google.common.truth.Truth.assertThat
+import java.awt.BorderLayout
 import java.awt.Window
+import javax.swing.JFrame
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -262,6 +271,66 @@ class DesktopPopupTest {
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
         assertThat(onKeyEventCallCount).isEqualTo(2)
+    }
+
+    @Test
+    fun focusableNonBlockingPopup_withComponentLayerType_passesClicksThrough() {
+        ComposeFeatureFlags.layerType.withOverride(LayerType.OnComponent) {
+            ComposeFeatureFlags.useSwingGraphicsInComposePanel.withOverride(true) {
+                val window = JFrame()
+                try {
+                    runApplicationTest {
+                        var showPopup by mutableStateOf(false)
+                        var backgroundClickCount = 0
+
+                        val composePanel = ComposePanel()
+                        composePanel.setContent {
+                            Box(
+                                Modifier
+                                    .size(200.dp)
+                                    .background(Color.Yellow)
+                                    .clickable { backgroundClickCount++ }
+                            )
+
+                            if (showPopup) {
+                                Popup(
+                                    properties = PopupProperties(
+                                        focusable = true,
+                                        dismissOnClickOutside = false,
+                                        consumePointerInputOutside = false,
+                                    ),
+                                ) {
+                                    Box(
+                                        Modifier
+                                            .size(50.dp)
+                                            .background(Color.Blue)
+                                    )
+                                }
+                            }
+                        }
+
+                        composePanel.windowContainer = window.layeredPane
+
+                        window.contentPane.add(composePanel, BorderLayout.CENTER)
+                        window.pack()
+                        window.isVisible = true
+
+                        awaitIdle()
+
+                        showPopup = true
+                        awaitIdle()
+
+                        window.layeredPane.sendMousePress(x = 100, y = 100)
+                        window.layeredPane.sendMouseRelease(x = 100, y = 100)
+                        awaitIdle()
+
+                        assertEquals(1, backgroundClickCount)
+                    }
+                } finally {
+                    window.dispose()
+                }
+            }
+        }
     }
 
     @Test

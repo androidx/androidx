@@ -96,12 +96,19 @@ interface ComposeSceneLayer {
      * for example, the pressing of the back button.
      *
      * This flag also influences the expected behavior of [setOutsidePointerEventListener]:
-     * when [focusable] is true, touch events outside of this layer's bounds are not propagated to
+     * when [focusable] is true, pointer events outside of this layer's bounds are not propagated to
      * the content layered below this one.
      *
      * @see PopupProperties.focusable
      */
     var focusable: Boolean
+
+    /**
+     * Indicates if pointer input events outside of this layer's bounds should be blocked.
+     * When set to true, pointer events outside of this layer's bounds are not propagated to
+     * the content layered below this one.
+     */
+    var consumePointerInputOutside: Boolean
 
     /**
      * Close all resources and subscriptions. It's anticipated that the platform implementation
@@ -174,7 +181,8 @@ interface ComposeSceneLayer {
  */
 @Composable
 internal fun rememberComposeSceneLayer(
-    focusable: Boolean = false
+    focusable: Boolean = false,
+    consumePointerInputOutside: Boolean = focusable,
 ): ComposeSceneLayer {
     val sceneContext = LocalComposeSceneContext.requireCurrent()
     val density = LocalDensity.current
@@ -183,16 +191,18 @@ internal fun rememberComposeSceneLayer(
     val compositionLocalContext = currentCompositionLocalContext
     val layer = remember {
         sceneContext.createLayer(
+            compositionContext = parentComposition,
             density = density,
             layoutDirection = layoutDirection,
             focusable = focusable,
-            compositionContext = parentComposition,
+            consumePointerInputOutside = consumePointerInputOutside,
         )
     }
-    layer.focusable = focusable
-    layer.compositionLocalContext = compositionLocalContext
     layer.density = density
     layer.layoutDirection = layoutDirection
+    layer.compositionLocalContext = compositionLocalContext
+    layer.focusable = focusable
+    layer.consumePointerInputOutside = consumePointerInputOutside
 
     return layer
 }

@@ -58,6 +58,7 @@ internal class UIKitComposeSceneLayer(
     private val onAccessibilityChanged: () -> Unit,
     configuration: ComposeContainerConfiguration,
     private var focusedViewsList: FocusedViewsList?,
+    consumePointerInputOutside: Boolean = focusedViewsList != null,
     parentCoroutineContext: CoroutineContext,
     private val ownerProvider: PlatformArchitectureComponentsOwner,
     private val interfaceOrientationState: State<InterfaceOrientation>,
@@ -66,6 +67,14 @@ internal class UIKitComposeSceneLayer(
     private val layerCoroutineContext = parentCoroutineContext + layerJob
 
     override var focusable: Boolean = focusedViewsList != null
+        set(value) {
+            if (field != value) {
+                field = value
+                onAccessibilityChanged()
+            }
+        }
+
+    override var consumePointerInputOutside: Boolean = consumePointerInputOutside
         set(value) {
             if (field != value) {
                 field = value
@@ -102,7 +111,7 @@ internal class UIKitComposeSceneLayer(
         interfaceOrientationState = interfaceOrientationState
     ).also {
         interactionView.embedSubview(it.backgroundView)
-        it.isInterceptingOutsideEvents = focusable
+        it.isInterceptingOutsideEvents = consumePointerInputOutside
     }
 
     private fun createComposeScene(

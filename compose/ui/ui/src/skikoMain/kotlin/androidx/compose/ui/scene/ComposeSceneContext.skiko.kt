@@ -55,19 +55,22 @@ interface ComposeSceneContext {
     /**
      * Creates a scene layer to display content as a new [LayoutNode] tree.
      *
+     * @param compositionContext The composition context for the layer.
      * @param density The density of the layer.
      * @param layoutDirection The layout direction of the layer.
      * @param focusable Indicates whether the layer is focusable.
-     * @param compositionContext The composition context for the layer.
+     * @param consumePointerInputOutside Indicates whether the pointer input events outside the
+     *  layer should be blocked.
      * @return The created [ComposeSceneLayer] representing the scene layer.
      *
      * @see ComposeSceneLayer
      */
     fun createLayer(
+        compositionContext: CompositionContext,
         density: Density,
         layoutDirection: LayoutDirection,
         focusable: Boolean,
-        compositionContext: CompositionContext,
+        consumePointerInputOutside: Boolean = focusable,
     ) : ComposeSceneLayer {
         throw IllegalStateException()
     }

@@ -415,6 +415,50 @@ class PopupTest {
     }
 
     @Test
+    fun passEventIfClickedOutsideOfNonBlockingFocusablePopup() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = true,
+            consumePointerInputOutside = false,
+            dismissOnClickOutside = false
+        )
+
+        setContent {
+            background.Content()
+            popup.Content()
+        }
+
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+        scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f))
+        background.events.assertReceived(PointerEventType.Press, Offset(10f, 10f))
+        background.events.assertReceived(PointerEventType.Release, Offset(10f, 10f))
+    }
+
+    @Test
+    fun doNotPassEventIfClickedOutsideOfBlockingNonFocusablePopup() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = false,
+            consumePointerInputOutside = true
+        )
+
+        setContent {
+            background.Content()
+            popup.Content()
+        }
+
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+        scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f))
+        background.events.assertReceivedNoEvents()
+    }
+
+    @Test
     fun canScrollOutsideOfNonFocusablePopup() = runSkikoComposeUiTest(
         size = Size(100f, 100f)
     ) {

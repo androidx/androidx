@@ -49,12 +49,12 @@ import org.jetbrains.skiko.transparentWindowBackgroundHack
 internal class WindowComposeSceneLayer(
     composeContainer: ComposeContainer,
     private val skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val renderSettings: RenderSettings,
     private val transparent: Boolean,
+    compositionContext: CompositionContext,
     density: Density,
     layoutDirection: LayoutDirection,
     focusable: Boolean,
-    compositionContext: CompositionContext,
-    private val renderSettings: RenderSettings
 ) : DesktopComposeSceneLayer(composeContainer, density, layoutDirection) {
     // WindowComposeSceneLayer is tied to the window it was created with
     private val parentWindow = requireNotNull(composeContainer.window)
@@ -112,6 +112,11 @@ internal class WindowComposeSceneLayer(
         }
 
     override var scrimColor: Color? = null
+
+    // Blocking pointer input outside is not supported for window-based popup layers.
+    override var consumePointerInputOutside: Boolean
+        get() = false
+        set(_) {}
 
     init {
         val boundsInPx = windowContainer.sizeInPx.toRect()

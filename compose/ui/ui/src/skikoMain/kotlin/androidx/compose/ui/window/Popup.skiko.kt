@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
@@ -76,14 +77,32 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
  * platform insets.
  */
 @Immutable
-actual class PopupProperties constructor(
+actual class PopupProperties @ExperimentalComposeUiApi constructor(
     actual val focusable: Boolean = false,
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     actual val clippingEnabled: Boolean = true,
     actual val usePlatformDefaultWidth: Boolean = false,
     val usePlatformInsets: Boolean = true,
+    @property:ExperimentalComposeUiApi
+    val consumePointerInputOutside: Boolean = focusable,
 ) {
+    constructor(
+        focusable: Boolean = false,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        clippingEnabled: Boolean = true,
+        usePlatformDefaultWidth: Boolean = false,
+        usePlatformInsets: Boolean = true,
+    ): this(
+        focusable = focusable,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        clippingEnabled = clippingEnabled,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        usePlatformInsets = usePlatformInsets,
+        consumePointerInputOutside = focusable,
+    )
 
     actual constructor(
         focusable: Boolean,
@@ -97,7 +116,8 @@ actual class PopupProperties constructor(
         dismissOnClickOutside = dismissOnClickOutside,
         clippingEnabled = clippingEnabled,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
-        usePlatformInsets = true
+        usePlatformInsets = true,
+        consumePointerInputOutside = focusable,
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -113,6 +133,7 @@ actual class PopupProperties constructor(
         clippingEnabled = clippingEnabled,
         usePlatformDefaultWidth = false,
         usePlatformInsets = true,
+        consumePointerInputOutside = focusable,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -125,6 +146,7 @@ actual class PopupProperties constructor(
         if (clippingEnabled != other.clippingEnabled) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
         if (usePlatformInsets != other.usePlatformInsets) return false
+        if (consumePointerInputOutside != other.consumePointerInputOutside) return false
 
         return true
     }
@@ -136,6 +158,7 @@ actual class PopupProperties constructor(
         result = 31 * result + clippingEnabled.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
         result = 31 * result + usePlatformInsets.hashCode()
+        result = 31 * result + consumePointerInputOutside.hashCode()
         return result
     }
 }
@@ -464,7 +487,8 @@ private fun PopupLayout(
 
     val currentContent by rememberUpdatedState(content)
     val layer = rememberComposeSceneLayer(
-        focusable = properties.focusable
+        focusable = properties.focusable,
+        consumePointerInputOutside = properties.consumePointerInputOutside,
     )
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)

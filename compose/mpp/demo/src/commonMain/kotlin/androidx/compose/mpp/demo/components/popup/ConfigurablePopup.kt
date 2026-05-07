@@ -148,13 +148,15 @@ private fun EditPopupProperties(): PopupProperties {
         val clippingEnabled = EditBooleanSetting("clippingEnabled", true)
         val usePlatformDefaultWidth = EditBooleanSetting("usePlatformDefaultWidth", false)
         val usePlatformInsets = EditBooleanSetting("usePlatformInsets", true)
+        val consumePointerInputOutside = EditBooleanSetting("consumePointerInputOutside", false)
         popupProperties = PopupProperties(
             focusable = focusable,
             dismissOnBackPress = dismissOnBackPress,
             dismissOnClickOutside = dismissOnClickOutside,
             clippingEnabled = clippingEnabled,
             usePlatformDefaultWidth = usePlatformDefaultWidth,
-            usePlatformInsets = usePlatformInsets
+            usePlatformInsets = usePlatformInsets,
+            consumePointerInputOutside = consumePointerInputOutside,
         )
     }
     return popupProperties
