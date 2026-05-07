@@ -481,6 +481,9 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
             case LINEAR_SEARCH:
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY;
+            case APPROXIMATE_NEAREST_NEIGHBOR:
+                throw new IllegalArgumentException(
+                        "APPROXIMATE_NEAREST_NEIGHBOR indexing type is not supported yet");
         }
         // Avoid crashing in the 'read' path; we should try to interpret the document to the
         // extent possible.

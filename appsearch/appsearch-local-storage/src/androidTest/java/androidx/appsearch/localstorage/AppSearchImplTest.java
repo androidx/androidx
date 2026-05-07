@@ -110,18 +110,15 @@ import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
 import com.google.android.icing.proto.PersistToDiskResultProto;
 import com.google.android.icing.proto.PersistType;
-import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.PutResultProto;
 import com.google.android.icing.proto.ResetResultProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
-import com.google.android.icing.proto.SetSchemaRequestProto;
 import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.StorageInfoProto;
 import com.google.android.icing.proto.StorageInfoResultProto;
-import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.android.icing.protobuf.ByteString;
 import com.google.common.collect.ImmutableList;
@@ -199,180 +196,6 @@ public class AppSearchImplTest {
     @After
     public void tearDown() {
         mAppSearchImpl.close();
-    }
-
-    /**
-     * Ensure that we can rewrite an incoming schema type by adding the database as a prefix. While
-     * also keeping any other existing schema types that may already be part of Icing's persisted
-     * schema.
-     *
-     * <p> This test is disabled when database-scoped schema operations are enabled, since
-     * rewriteSchema will not be called with existing types from multiple prefixes in that case.
-     */
-    @Test
-    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_DATABASE_SCOPED_SCHEMA_OPERATIONS)
-    public void testRewriteSchema_addType() throws Exception {
-        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$existingDatabase/Foo").build());
-
-        // Create a copy so we can modify it.
-        List<SchemaTypeConfigProto> existingTypes =
-                new ArrayList<>(existingSchemaBuilder.getTypesList());
-        SchemaTypeConfigProto schemaTypeConfigProto1 = SchemaTypeConfigProto.newBuilder()
-                .setSchemaType("Foo").build();
-        SchemaTypeConfigProto schemaTypeConfigProto2 = SchemaTypeConfigProto.newBuilder()
-                .setSchemaType("TestType")
-                .addProperties(PropertyConfigProto.newBuilder()
-                        .setPropertyName("subject")
-                        .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                        .setStringIndexingConfig(StringIndexingConfig.newBuilder()
-                                .setTokenizerType(
-                                        StringIndexingConfig.TokenizerType.Code.PLAIN)
-                                .setTermMatchType(TermMatchType.Code.PREFIX)
-                                .build()
-                        ).build()
-                ).addProperties(PropertyConfigProto.newBuilder()
-                        .setPropertyName("link")
-                        .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
-                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                        .setSchemaType("RefType")
-                        .build()
-                ).build();
-        SchemaTypeConfigProto schemaTypeConfigProto3 = SchemaTypeConfigProto.newBuilder()
-                .setSchemaType("RefType")
-                .addParentTypes("Foo")
-                .build();
-        SchemaProto newSchema = SchemaProto.newBuilder()
-                .addTypes(schemaTypeConfigProto1)
-                .addTypes(schemaTypeConfigProto2)
-                .addTypes(schemaTypeConfigProto3)
-                .build();
-
-        AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = AppSearchImpl.rewriteSchema(
-                createPrefix("package", "newDatabase"), existingSchemaBuilder,
-                newSchema, mAppSearchImpl.useDatabaseScopedSchemaOperations());
-
-        // We rewrote all the new types that were added. And nothing was removed.
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet()).containsExactly(
-                "package$newDatabase/Foo", "package$newDatabase/TestType",
-                "package$newDatabase/RefType");
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.get(
-                "package$newDatabase/Foo").getSchemaType()).isEqualTo(
-                "package$newDatabase/Foo");
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.get(
-                "package$newDatabase/TestType").getSchemaType()).isEqualTo(
-                "package$newDatabase/TestType");
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.get(
-                "package$newDatabase/RefType").getSchemaType()).isEqualTo(
-                "package$newDatabase/RefType");
-        assertThat(rewrittenSchemaResults.mDeletedPrefixedTypes).isEmpty();
-
-        SchemaProto expectedSchema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$newDatabase/Foo").build())
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$newDatabase/TestType")
-                        .addProperties(PropertyConfigProto.newBuilder()
-                                .setPropertyName("subject")
-                                .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                                .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setStringIndexingConfig(StringIndexingConfig.newBuilder()
-                                        .setTokenizerType(
-                                                StringIndexingConfig.TokenizerType.Code.PLAIN)
-                                        .setTermMatchType(TermMatchType.Code.PREFIX)
-                                        .build()
-                                ).build()
-                        ).addProperties(PropertyConfigProto.newBuilder()
-                                .setPropertyName("link")
-                                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
-                                .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setSchemaType("package$newDatabase/RefType")
-                                .build()
-                        ).build())
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$newDatabase/RefType")
-                        .addParentTypes("package$newDatabase/Foo")
-                        .build())
-                .build();
-
-        existingTypes.addAll(expectedSchema.getTypesList());
-        assertThat(existingSchemaBuilder.getTypesList()).containsExactlyElementsIn(existingTypes);
-    }
-
-    /**
-     * Ensure that we track all types that were rewritten in the input schema. Even if they were
-     * not technically "added" to the existing schema.
-     */
-    @Test
-    public void testRewriteSchema_rewriteType() throws Exception {
-        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$existingDatabase/Foo").build());
-
-        SchemaProto newSchema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("Foo").build())
-                .build();
-
-        AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = AppSearchImpl.rewriteSchema(
-                createPrefix("package", "existingDatabase"), existingSchemaBuilder,
-                newSchema, mAppSearchImpl.useDatabaseScopedSchemaOperations());
-
-        // Nothing was removed, but the method did rewrite the type name.
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet()).containsExactly(
-                "package$existingDatabase/Foo");
-        assertThat(rewrittenSchemaResults.mDeletedPrefixedTypes).isEmpty();
-
-        // Same schema since nothing was added, but the database field should be populated if
-        // useDatabaseScopedSchemaOperations() is true
-        SchemaProto expectedSchema = existingSchemaBuilder.build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedSchema = getSchemaProtoWithDatabase(expectedSchema);
-        }
-        assertThat(existingSchemaBuilder.getTypesList())
-                .containsExactlyElementsIn(expectedSchema.getTypesList());
-    }
-
-    /**
-     * Ensure that we track which types from the existing schema are deleted when a new schema is
-     * set.
-     */
-    @Test
-    public void testRewriteSchema_deleteType() throws Exception {
-        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$existingDatabase/Foo").build());
-
-        SchemaProto newSchema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("Bar").build())
-                .build();
-
-        AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = AppSearchImpl.rewriteSchema(
-                createPrefix("package", "existingDatabase"), existingSchemaBuilder,
-                newSchema, mAppSearchImpl.useDatabaseScopedSchemaOperations());
-
-        // Bar type was rewritten, but Foo ended up being deleted since it wasn't included in the
-        // new schema.
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes)
-                .containsKey("package$existingDatabase/Bar");
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet().size()).isEqualTo(1);
-        assertThat(rewrittenSchemaResults.mDeletedPrefixedTypes)
-                .containsExactly("package$existingDatabase/Foo");
-
-        // Same schema since nothing was added.
-        SchemaProto expectedSchema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$existingDatabase/Bar"))
-                .build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedSchema = getSchemaProtoWithDatabase(expectedSchema);
-        }
-
-        assertThat(existingSchemaBuilder.getTypesList())
-                .containsExactlyElementsIn(expectedSchema.getTypesList());
     }
 
     @Test
@@ -1093,149 +916,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testResetWithSchemaDatabaseMigration() throws Exception {
-        IcingSearchEngineOptions.Builder optionsBuilder =
-                IcingSearchEngineOptions.newBuilder(mUnlimitedConfig.toIcingSearchEngineOptions(
-                        mAppSearchDir.getAbsolutePath(),  /* isVmEnabled= */ false));
-        // Initialize Icing without schema database enabled.
-        IcingSearchEngine icingSearchEngine = new IcingSearchEngine(
-                optionsBuilder.setEnableSchemaDatabase(false).build());
-        mAppSearchImpl = AppSearchImpl.create(
-                mAppSearchDir,
-                mUnlimitedConfig,
-                new AppSearchUserPlugins.Builder()
-                        // Initializing with a custom icing instance will cause AppSearch to assume
-                        // isVmEnabled. Therefore we cannot call AppSearch::setSchema below since
-                        // it'll still use database-scoped operations.
-                        .setIcingSearchEngine(icingSearchEngine).build(),
-                ALWAYS_OPTIMIZE);
-
-        SchemaProto existingSchema = mAppSearchImpl.getSchemaProtoLocked(
-                /*callStatsBuilder=*/ null);
-        // Insert some schemas in 2 databases. We need to use the full SchemaProto and call Icing's
-        // set schema API directly as AppSearch will use database-scoped schema operation since
-        // we initialized with a custom icing instance (which AppSearch understands as having VM
-        // enabled). This will fail as the Icing instance has not enabled schema database.
-        SchemaProto expectedProto =
-                SchemaProto.newBuilder()
-                        .addTypes(
-                                SchemaTypeConfigProto.newBuilder()
-                                        .setSchemaType("package$database1/Type1")
-                                        .setDescription("")
-                                        .setVersion(0))
-                        .addTypes(
-                                SchemaTypeConfigProto.newBuilder()
-                                        .setSchemaType("package$database1/Type2")
-                                        .setDescription("")
-                                        .setVersion(0))
-                        .addTypes(
-                                SchemaTypeConfigProto.newBuilder()
-                                        .setSchemaType("package$database2/Type3")
-                                        .setDescription("")
-                                        .setVersion(0))
-                        .build();
-        SchemaProto fullSchema =
-                SchemaProto.newBuilder(existingSchema)
-                        .addAllTypes(expectedProto.getTypesList())
-                        .build();
-        SetSchemaRequestProto requestProto =
-                SetSchemaRequestProto.newBuilder()
-                        .setSchema(fullSchema)
-                        .setIgnoreErrorsAndDeleteDocuments(false)
-                        .build();
-        assertThat(icingSearchEngine.setSchemaWithRequestProto(requestProto).getStatus().getCode())
-                .isEqualTo(StatusProto.Code.OK);
-
-        // We need to get the full schema here since Icing doesn't have schema database enabled,
-        // which also disables the getSchemaForPrefix API. The schema should be exactly the same
-        // as what we've just set, without the database fields being populated.
-        assertThat(mAppSearchImpl.getSchemaProtoLocked(/*callStatsBuilder=*/ null).getTypesList())
-                .containsExactlyElementsIn(fullSchema.getTypesList());
-
-        // Reinitialize Icing and AppSearch, this time with schema database enabled.
-        InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        icingSearchEngine = new IcingSearchEngine(
-                optionsBuilder.setEnableSchemaDatabase(true).build());
-        mAppSearchImpl = AppSearchImpl.create(
-                mAppSearchDir,
-                mUnlimitedConfig,
-                new AppSearchUserPlugins.Builder()
-                        .setInitStatsBuilder(initStatsBuilder)
-                        .setIcingSearchEngine(icingSearchEngine).build(),
-                ALWAYS_OPTIMIZE);
-
-        // Initialization should NOT trigger a recovery
-        InitializeStats initStats = initStatsBuilder.build();
-        assertThat(initStats.getNativeDocumentStoreRecoveryCause())
-                .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
-        assertThat(initStats.getNativeIndexRestorationCause())
-                .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
-
-        // GetSchema for db1 and db2. The old schema should have the database field populated
-        // after the migration
-        SchemaProto expectedDb1Proto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$database1/Type1")
-                        .setDatabase("package$database1/")
-                        .setDescription("")
-                        .setVersion(0))
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$database1/Type2")
-                        .setDatabase("package$database1/")
-                        .setDescription("")
-                        .setVersion(0))
-                .build();
-        SchemaProto expectedDb2Proto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$database2/Type3")
-                        .setDatabase("package$database2/")
-                        .setDescription("")
-                        .setVersion(0))
-                .build();
-        assertThat(
-                mAppSearchImpl.getSchemaProtoForPrefixLocked("package$database1/").getTypesList())
-                .containsExactlyElementsIn(expectedDb1Proto.getTypesList());
-        assertThat(
-                mAppSearchImpl.getSchemaProtoForPrefixLocked("package$database2/").getTypesList())
-                .containsExactlyElementsIn(expectedDb2Proto.getTypesList());
-
-        // SetSchema for database 1 again. We can use the AppSearch API this time since we've
-        // enabled database-scoped schema operation for Icing too. Check that the old db1 schema
-        // gets overridden and db2 is not affected
-        List<AppSearchSchema> schemas = Collections.singletonList(
-                new AppSearchSchema.Builder("Type4").build());
-        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
-                "package",
-                "database1",
-                schemas,
-                /*visibilityConfigs=*/ Collections.emptyList(),
-                /*accountPropertyPaths=*/ ImmutableMap.of(),
-                /*forceOverride=*/ true,
-                /*version=*/ 0,
-                /*setSchemaStatsBuilder=*/ null,
-                /*calLStatsBuilder=*/ null);
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-
-        // expectedDb1Proto has changed. The proto should contain the database field.
-        expectedDb1Proto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("package$database1/Type4")
-                        .setDatabase("package$database1/")
-                        .setDescription("")
-                        .setVersion(0))
-                .build();
-        assertThat(
-                mAppSearchImpl.getSchemaProtoForPrefixLocked("package$database1/").getTypesList())
-                .containsExactlyElementsIn(expectedDb1Proto.getTypesList());
-        assertThat(
-                mAppSearchImpl.getSchemaProtoForPrefixLocked("package$database2/").getTypesList())
-                .containsExactlyElementsIn(expectedDb2Proto.getTypesList());
-    }
-
-    @Test
-    @RequiresFlagsEnabled({
-            Flags.FLAG_ENABLE_RESET_VISIBILITY_STORE,
-            Flags.FLAG_ENABLE_DATABASE_SCOPED_SCHEMA_OPERATIONS})
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_RESET_VISIBILITY_STORE)
     public void testResetVisibilityStore() throws Exception {
         // Setup Icing mock to success to all calls in initialize expect the setSchema call of
         // VisibilityStore.
@@ -1306,11 +987,6 @@ public class AppSearchImplTest {
                 IcingSearchEngineOptions.newBuilder(mUnlimitedConfig.toIcingSearchEngineOptions(
                                 mAppSearchDir.getAbsolutePath(),  /* isVmEnabled= */ false))
                         .setEnableStrictPageByteSizeLimit(true)
-                        // We need to enable schema database as by passing in a custom Icing
-                        // instance, AppSearch assumes that the VM is enabled and will use
-                        // database-scoped schema operations. We need Icing's options to match
-                        // this in order for setSchema to work properly.
-                        .setEnableSchemaDatabase(true)
                         .build();
         IcingSearchEngine icingSearchEngine = new IcingSearchEngine(icingOptions);
         AppSearchConfig appSearchConfig = new AppSearchConfigImpl(
@@ -3302,9 +2978,7 @@ public class AppSearchImplTest {
                                         .setDescription("")
                                         .setVersion(0))
                         .build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = getSchemaProtoWithDatabase(expectedProto);
-        }
+        expectedProto = getSchemaProtoWithDatabase(expectedProto);
 
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
         expectedTypes.addAll(existingSchemas);
@@ -3315,9 +2989,7 @@ public class AppSearchImplTest {
 
     @Test
     public void testSetSchemaNoChanges_doesntInteractWithIcing() throws Exception {
-        boolean canSkipIcingInteraction =
-                mAppSearchImpl.useDatabaseScopedSchemaOperations()
-                        && mAppSearchImpl.enableEarlySetSchemaExit();
+        boolean canSkipIcingInteraction = mAppSearchImpl.enableEarlySetSchemaExit();
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("Email").build());
@@ -3366,9 +3038,7 @@ public class AppSearchImplTest {
     @Test
     public void testSetSchemaNoChangesWithAddVisibilityChange_updatesVisibilityConfig()
             throws Exception {
-        boolean canSkipIcingInteraction =
-                mAppSearchImpl.useDatabaseScopedSchemaOperations()
-                        && mAppSearchImpl.enableEarlySetSchemaExit();
+        boolean canSkipIcingInteraction = mAppSearchImpl.enableEarlySetSchemaExit();
 
         InternalVisibilityConfig visibilityConfig =
                 new InternalVisibilityConfig.Builder("Email")
@@ -3526,9 +3196,7 @@ public class AppSearchImplTest {
                                 .setDescription("")
                                 .setVersion(0))
                 .build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = getSchemaProtoWithDatabase(expectedProto);
-        }
+        expectedProto = getSchemaProtoWithDatabase(expectedProto);
 
         // Check both schema Email and Document saved correctly.
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
@@ -3576,9 +3244,7 @@ public class AppSearchImplTest {
                                 .setDescription("")
                                 .setVersion(0))
                 .build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = getSchemaProtoWithDatabase(expectedProto);
-        }
+        expectedProto = getSchemaProtoWithDatabase(expectedProto);
 
         expectedTypes = new ArrayList<>();
         expectedTypes.addAll(existingSchemas);
@@ -3644,9 +3310,7 @@ public class AppSearchImplTest {
                                 .setDescription("")
                                 .setVersion(0))
                 .build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = getSchemaProtoWithDatabase(expectedProto);
-        }
+        expectedProto = getSchemaProtoWithDatabase(expectedProto);
 
         // Check Email and Document is saved in database 1 and 2 correctly.
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
@@ -3688,9 +3352,7 @@ public class AppSearchImplTest {
                                 .setDescription("")
                                 .setVersion(0))
                 .build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = getSchemaProtoWithDatabase(expectedProto);
-        }
+        expectedProto = getSchemaProtoWithDatabase(expectedProto);
 
         // Check nothing changed in database2.
         expectedTypes = new ArrayList<>();
@@ -4697,9 +4359,7 @@ public class AppSearchImplTest {
                                 .setDescription("")
                                 .setVersion(0))
                 .build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = getSchemaProtoWithDatabase(expectedProto);
-        }
+        expectedProto = getSchemaProtoWithDatabase(expectedProto);
 
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
         expectedTypes.addAll(existingSchemas);
@@ -4788,9 +4448,7 @@ public class AppSearchImplTest {
 
         // Verify these two packages are stored in AppSearch.
         SchemaProto expectedProto = expectedProtoBuilder.build();
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = getSchemaProtoWithDatabase(expectedProto);
-        }
+        expectedProto = getSchemaProtoWithDatabase(expectedProto);
 
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
         expectedTypes.addAll(existingSchemas);
@@ -11401,32 +11059,14 @@ public class AppSearchImplTest {
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Create expected schemaType proto.
-        SchemaProto expectedProto;
-        if (mAppSearchImpl.useDatabaseScopedSchemaOperations()) {
-            expectedProto = SchemaProto.newBuilder()
-                    .addTypes(
-                            SchemaTypeConfigProto.newBuilder()
-                                    .setSchemaType("package$database1/Email")
-                                    .setDatabase("package$database1/")
-                                    .setDescription("")
-                                    .setVersion(0))
-                    .build();
-        } else {
-            expectedProto = SchemaProto.newBuilder()
-                    .addTypes(
-                            SchemaTypeConfigProto.newBuilder()
-                                    .setSchemaType("package$database1/Email")
-                                    .setDescription("")
-                                    .setVersion(0))
-                    // This type shows up twice in the expectedProto when it actually should only
-                    // be there once. This is because we call getSchema in the setSchema
-                    // operation, and then build on top of the retrieved schema. When the new
-                    // database-scoped schema operation we'll only retrieve the types from the
-                    // requested database, and so this shouldn't be built into the existing schema
-                    // again.
-                    .addTypes(additionalConfigProto)
-                    .build();
-        }
+        SchemaProto expectedProto = SchemaProto.newBuilder()
+                .addTypes(
+                        SchemaTypeConfigProto.newBuilder()
+                                .setSchemaType("package$database1/Email")
+                                .setDatabase("package$database1/")
+                                .setDescription("")
+                                .setVersion(0))
+                .build();
 
         List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
         expectedTypes.addAll(existingSchemas);

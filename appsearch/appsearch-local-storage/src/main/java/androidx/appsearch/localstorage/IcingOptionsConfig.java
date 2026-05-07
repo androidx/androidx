@@ -339,9 +339,6 @@ public interface IcingOptionsConfig {
                         (Flags.enableCompressionThreshold() || isVmEnabled)
                                 ? Math.max(0, getCompressionThresholdBytes()) : 0)
                 .setCompressionMemLevel(getCompressionMemLevel())
-                .setEnableSchemaDatabase(
-                        Flags.enableDatabaseScopedSchemaOperations() || isVmEnabled)
-                .setEnableSmallerDecompressionBufferSize(true)
                 .setEnablePassingFilterToChildren(
                         Flags.enablePassingFilterToChildren() || isVmEnabled)
                 .setEnableProtoLogNewHeaderFormat(true)
@@ -355,7 +352,6 @@ public interface IcingOptionsConfig {
                 .setEnableNonExistentQualifiedIdJoin(Flags.enableNonExistentQualifiedIdJoin())
                 .setEnableSkipSetSchemaTypeEqualityCheck(
                         Flags.enableSkipSetSchemaTypeEqualityCheck())
-                .setEnableEmbedQueryOptimization(Flags.enableEmbedQueryOptimization())
                 .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
                 .setEnableSchemaDefinitionDeduping(Flags.enableSchemaDefinitionDeduping())
                 .build();
