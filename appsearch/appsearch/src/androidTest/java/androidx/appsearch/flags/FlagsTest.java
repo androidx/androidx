@@ -195,12 +195,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableDatabaseScopedSchemaOperations() {
-        assertThat(Flags.FLAG_ENABLE_DATABASE_SCOPED_SCHEMA_OPERATIONS)
-                .isEqualTo("com.android.appsearch.flags.enable_database_scoped_schema_operations");
-    }
-
-    @Test
     public void testFlagValue_enableInitializationRetriesBeforeReset() {
         assertThat(Flags.FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET)
                 .isEqualTo(
@@ -260,12 +254,6 @@ public class FlagsTest {
     public void testFlagValue_enableSchemaDefinitionDeduping() {
         assertThat(Flags.FLAG_ENABLE_SCHEMA_DEFINITION_DEDUPING)
                 .isEqualTo("com.android.appsearch.flags.enable_schema_definition_deduping");
-    }
-
-    @Test
-    public void testFlagValue_enableEmbedQueryOptimization() {
-        assertThat(Flags.FLAG_ENABLE_EMBED_QUERY_OPTIMIZATION)
-                .isEqualTo("com.android.appsearch.flags.enable_embed_query_optimization");
     }
 
     @Test

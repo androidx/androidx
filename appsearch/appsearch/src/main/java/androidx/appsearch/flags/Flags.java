@@ -205,13 +205,6 @@ public final class Flags {
             FLAG_PREFIX + "enable_throw_exception_for_native_not_found_page_token";
 
     /**
-     * Enable database-scoped set and get schema operations for AppSearch internal impl. This
-     * allows AppSearchImpl to set and get the schema for a single package-database combo at a time.
-     */
-    public static final String FLAG_ENABLE_DATABASE_SCOPED_SCHEMA_OPERATIONS =
-            FLAG_PREFIX + "enable_database_scoped_schema_operations";
-
-    /**
      * Enable retrying the critical section of initialization before resetting as a last resort.
      */
     public static final String FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET =
@@ -293,12 +286,6 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_SKIP_SET_SCHEMA_TYPE_EQUALITY_CHECK =
             FLAG_PREFIX + "enable_skip_set_schema_type_equality_check";
-
-    /**
-     * Whether to enable the query optimization to rewrite AND'd embedding queries.
-     */
-    public static final String FLAG_ENABLE_EMBED_QUERY_OPTIMIZATION =
-            FLAG_PREFIX + "enable_embed_query_optimization";
 
     /** Enables set SearchFeatures and RankingFeatures APIs. */
     public static final String FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE =
@@ -534,13 +521,6 @@ public final class Flags {
     }
 
     /**
-     * Whether to enable database-scoped set and get schema operations for AppSearch internal impl.
-     */
-    public static boolean enableDatabaseScopedSchemaOperations() {
-        return true;
-    }
-
-    /**
      * Whether to enable retrying the critical section of initialization before resetting as a
      * last resort.
      */
@@ -651,13 +631,6 @@ public final class Flags {
      * Whether to enable skipping the unnecessary schema type equality check.
      */
     public static boolean enableSkipSetSchemaTypeEqualityCheck() {
-        return true;
-    }
-
-    /**
-     * Whether to enable the query optimization to rewrite AND'd embedding queries.
-     */
-    public static boolean enableEmbedQueryOptimization() {
         return true;
     }
 
