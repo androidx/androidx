@@ -114,7 +114,6 @@ internal constructor(
         return timeSource.markNow()
     }
 
-    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun configure(config: Config) {
         val arConfig = _session.config
 
@@ -268,7 +267,6 @@ internal constructor(
         return _session.isDepthModeSupported(arCoreDepthMode)
     }
 
-    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     private fun isGeoSpatialModeSupportedInArCore1x(geospatialMode: GeospatialMode): Boolean {
         val arCoreGeospatialMode =
             when (geospatialMode) {
