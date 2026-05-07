@@ -1751,6 +1751,7 @@ package androidx.compose.foundation.lazy.staggeredgrid {
     method @InaccessibleFromKotlin public int getBeforeContentPadding();
     method @InaccessibleFromKotlin public int getMainAxisItemSpacing();
     method @InaccessibleFromKotlin public androidx.compose.foundation.gestures.Orientation getOrientation();
+    method @InaccessibleFromKotlin public boolean getReverseLayout();
     method @InaccessibleFromKotlin public int getTotalItemsCount();
     method @InaccessibleFromKotlin public int getViewportEndOffset();
     method @BytecodeOnly public long getViewportSize-YbymL2g();
@@ -1760,6 +1761,7 @@ package androidx.compose.foundation.lazy.staggeredgrid {
     property public abstract int beforeContentPadding;
     property public abstract int mainAxisItemSpacing;
     property public abstract androidx.compose.foundation.gestures.Orientation orientation;
+    property public abstract boolean reverseLayout;
     property public abstract int totalItemsCount;
     property public abstract int viewportEndOffset;
     property public abstract androidx.compose.ui.unit.IntSize viewportSize;

@@ -1334,6 +1334,23 @@ class ScrollTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun scrollIndicatorState_reverseLayout() {
+        val initialScroll = 0
+        val state = ScrollState(initialScroll)
+        val contentSize = defaultCellSize * colors.size
+        val scrollerSize = contentSize - 10
+
+        composeScroller(scrollState = state, mainAxisSize = scrollerSize, isReversed = true)
+
+        rule.runOnIdle {
+            assertNotNull(state.scrollIndicatorState)
+            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(10)
+            assertThat(state.scrollIndicatorState?.contentSize).isEqualTo(contentSize)
+            assertThat(state.scrollIndicatorState?.viewportSize).isEqualTo(scrollerSize)
+        }
+    }
+
     private fun Modifier.intrinsicMainAxisSize(size: IntrinsicSize): Modifier =
         if (config.orientation == Horizontal) {
             width(size)

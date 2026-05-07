@@ -217,7 +217,7 @@ class PagerScrollIndicatorTest(val config: ParamConfig) : BasePagerTest(config) 
 
         rule.runOnIdle {
             assertNotNull(pagerState.scrollIndicatorState)
-            assertThat(pagerState.scrollIndicatorState?.scrollOffset).isEqualTo(0)
+            assertThat(pagerState.scrollIndicatorState?.scrollOffset).isEqualTo(100)
             assertThat(pagerState.scrollIndicatorState?.contentSize)
                 .isEqualTo(fixedPageSizePx * pageCount)
             assertThat(pagerState.scrollIndicatorState?.viewportSize).isEqualTo(pagerSizePx)
