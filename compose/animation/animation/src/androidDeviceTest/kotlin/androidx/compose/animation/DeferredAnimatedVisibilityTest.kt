@@ -19,7 +19,9 @@ package androidx.compose.animation
 import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -29,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -327,6 +330,8 @@ class DeferredAnimatedVisibilityTest {
 
     @Test
     fun visibility_previewScaleSustained_whenNoScaleInTransitions() {
+        testTimeSource = { rule.mainClock.currentTime }
+
         lateinit var state: DeferredTransitionState<Boolean>
         var previewScale by mutableStateOf(1f)
 
@@ -385,12 +390,14 @@ class DeferredAnimatedVisibilityTest {
         rule.mainClock.advanceTimeBy(80L)
         rule.waitForIdle()
 
-        // Assert that the scale is SUSTAINED at 0.5f
-        assertEquals(initialWidth * 0.5f, measuredWidth, 1f)
+        // Assert that the scale is SUSTAINED at 0.5f (use delta of 5f due to velocity absorption)
+        assertEquals(initialWidth * 0.5f, measuredWidth, 5f)
 
         // 5. Run to completion
         rule.mainClock.advanceTimeBy(1000L)
         rule.waitForIdle()
+
+        testTimeSource = null
     }
 
     @Test
@@ -411,7 +418,7 @@ class DeferredAnimatedVisibilityTest {
                 exit = fadeOut(tween(160)),
                 mutableTransform =
                     remember {
-                        MutableTransform { _ ->
+                        MutableTransform(offsetVelocityProvider = { Offset.Zero }) { _ ->
                             if (state.pendingTargetState != null) {
                                 offset = IntOffset(previewOffset, 0)
                             }
@@ -843,5 +850,168 @@ class DeferredAnimatedVisibilityTest {
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
         assertEquals(fullWidth, measuredWidth, 1f)
+    }
+
+    @Test
+    fun visibility_previewScale_handoffVelocity() {
+        testTimeSource = { rule.mainClock.currentTime }
+
+        lateinit var state: DeferredTransitionState<Boolean>
+        var previewScale by mutableStateOf(1f)
+
+        var measuredWidth = 0f
+
+        rule.setContent {
+            state = remember { DeferredTransitionState(true) }
+            val transition = rememberTransition(state)
+
+            transition.DeferredAnimatedVisibility(
+                visible = { it },
+                enter = fadeIn(tween(160)),
+                exit = scaleOut(spring(stiffness = Spring.StiffnessVeryLow)),
+                mutableTransform =
+                    remember {
+                        MutableTransform { _ ->
+                            if (state.pendingTargetState != null) {
+                                scale = previewScale
+                            }
+                        }
+                    },
+            ) {
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        measuredWidth = coords.boundsInRoot().width
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        fun simulateGesture(isFast: Boolean): Float {
+            rule.runOnIdle { state.defer(false) }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+
+            val steps =
+                if (isFast) {
+                    listOf(0.9f, 0.7f, 0.5f)
+                } else {
+                    listOf(0.9f, 0.8f, 0.7f, 0.6f, 0.5f)
+                }
+            for (s in steps) {
+                previewScale = s
+                rule.mainClock.advanceTimeByFrame()
+                rule.waitForIdle()
+            }
+
+            val lastGestureWidth = measuredWidth
+
+            rule.runOnIdle { state.animateTo(false) }
+            repeat(3) { rule.mainClock.advanceTimeByFrame() }
+            rule.waitForIdle()
+
+            return lastGestureWidth - measuredWidth
+        }
+
+        // Scenario 1: Slow gesture
+        val widthDropSlow = simulateGesture(isFast = false)
+
+        // Reset
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { state.animateTo(true) }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        previewScale = 1f
+
+        // Scenario 2: Fast gesture
+        val widthDropFast = simulateGesture(isFast = true)
+
+        assertTrue(
+            "Expected width drop with fast gesture ($widthDropFast) to be greater than with slow gesture ($widthDropSlow)",
+            widthDropFast > widthDropSlow,
+        )
+
+        testTimeSource = null
+    }
+
+    @Test
+    fun visibility_previewOffset_handoffVelocity() {
+        lateinit var state: DeferredTransitionState<Boolean>
+        var previewVelocity by mutableStateOf(Offset.Zero)
+        var previewOffset = 100
+
+        var measuredX = 0
+
+        rule.setContent {
+            state = remember { DeferredTransitionState(true) }
+            val transition = rememberTransition(state)
+
+            transition.DeferredAnimatedVisibility(
+                visible = { it },
+                enter = fadeIn(tween(160)),
+                exit = slideOutHorizontally(spring(stiffness = Spring.StiffnessVeryLow)) { it },
+                mutableTransform =
+                    remember {
+                        MutableTransform(
+                            offsetVelocityProvider = {
+                                Offset(previewVelocity.x, previewVelocity.y)
+                            }
+                        ) { _ ->
+                            if (state.pendingTargetState != null) {
+                                offset = IntOffset(previewOffset, 0)
+                            }
+                        }
+                    },
+            ) {
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        measuredX = coords.positionInRoot().x.toInt()
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // Scenario 1: Zero velocity
+        rule.runOnIdle { state.defer(false) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(previewOffset, measuredX)
+
+        rule.runOnIdle { state.animateTo(false) }
+        repeat(3) { rule.mainClock.advanceTimeByFrame() }
+        rule.waitForIdle()
+
+        val xNoVelocity = measuredX
+
+        // Reset
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { state.animateTo(true) }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // Scenario 2: Large positive velocity
+        rule.runOnIdle {
+            previewVelocity = Offset(2000f, 0f) // Move right very fast
+            state.defer(false)
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(previewOffset, measuredX)
+
+        rule.runOnIdle { state.animateTo(false) }
+        repeat(3) { rule.mainClock.advanceTimeByFrame() }
+        rule.waitForIdle()
+
+        val xWithVelocity = measuredX
+
+        assertTrue(
+            "Expected X with positive velocity ($xWithVelocity) to be greater than with zero velocity ($xNoVelocity)",
+            xWithVelocity > xNoVelocity,
+        )
     }
 }

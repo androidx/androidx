@@ -16,6 +16,9 @@
 
 package androidx.compose.animation
 
+import androidx.annotation.VisibleForTesting
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.DeferredTransition
 import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
@@ -23,10 +26,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.VelocityTracker1D
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
+import kotlin.time.TimeSource
+
+@VisibleForTesting internal var testTimeSource: (() -> Long)? = null
 
 /**
  * An object that allows manual manipulation of the visual transformations (alpha, scale, offset,
@@ -45,12 +56,16 @@ import androidx.compose.ui.unit.IntSize
  * the deferred phase ends.
  *
  * @param veilMatchParentSize Whether the veil should match the size of the parent.
+ * @param offsetVelocityProvider The velocity of the offset change in pixels/sec. The
+ *   [offsetVelocityProvider] lambda is evaluated exactly once when the deferred phase ends to
+ *   ensure a seamless handoff to the automatic transition.
  * @param block A lambda that applies transformations to the provided [TransformScope]. This block
  *   executes dynamically to reflect state changes.
  */
 @ExperimentalDeferredTransitionApi
 public class MutableTransform(
     internal var veilMatchParentSize: Boolean = false,
+    internal var offsetVelocityProvider: (() -> Offset)? = null,
     internal var block: (TransformScope.(fullSize: IntSize) -> Unit)? = null,
 ) {
 
@@ -67,6 +82,7 @@ public class MutableTransform(
     internal fun clear() {
         block = null
         veilMatchParentSize = false
+        offsetVelocityProvider = null
     }
 }
 
@@ -163,9 +179,22 @@ internal class SharedMutableTransformState {
     var isHandoffActive by mutableStateOf(false)
         private set
 
+    private var lastMutableData: MutableTransform? = null
+
     var mutableData: MutableTransform? = null
+        set(value) {
+            if (value != null) {
+                lastMutableData = value
+            }
+            field = value
+        }
 
     internal val transformScope = TransformScopeImpl()
+
+    private val timeSource = TimeSource.Monotonic
+    private val startTime = timeSource.markNow()
+    private val currentMillis: Long
+        get() = testTimeSource?.invoke() ?: startTime.elapsedNow().inWholeMilliseconds
 
     var lastVeil: Color = Color.Transparent
     var lastAlpha: Float = 1f
@@ -209,6 +238,48 @@ internal class SharedMutableTransformState {
     val slideHandoffValue: IntOffset?
         get() = if (isHandoffActive) lastSlide else null
 
+    private var scaleVelocityTracker: VelocityTracker1D? = null
+    private var offsetVelocityTracker: VelocityTracker? = null
+
+    val scaleHandoffVelocity: AnimationVector1D?
+        get() =
+            if (isHandoffActive) {
+                val vel = scaleVelocityTracker?.calculateVelocity()?.takeUnless { it.isNaN() } ?: 0f
+                AnimationVector1D(vel)
+            } else null
+
+    val slideHandoffVelocity: AnimationVector2D?
+        get() =
+            if (isHandoffActive) {
+                val v = lastMutableData?.offsetVelocityProvider?.invoke()
+                if (v != null && v.isSpecified) {
+                    AnimationVector2D(v.x, v.y)
+                } else {
+                    val vel = offsetVelocityTracker?.calculateVelocity() ?: Velocity.Zero
+                    AnimationVector2D(
+                        vel.x.takeUnless { it.isNaN() } ?: 0f,
+                        vel.y.takeUnless { it.isNaN() } ?: 0f,
+                    )
+                }
+            } else null
+
+    private fun trackScaleVelocity(value: Float) {
+        if (scaleVelocityTracker == null) {
+            scaleVelocityTracker = VelocityTracker1D(isDataDifferential = false)
+        }
+        scaleVelocityTracker?.addDataPoint(currentMillis, value)
+    }
+
+    private fun trackSlideVelocity(value: IntOffset) {
+        if (offsetVelocityTracker == null) {
+            offsetVelocityTracker = VelocityTracker()
+        }
+        offsetVelocityTracker?.addPosition(
+            currentMillis,
+            Offset(value.x.toFloat(), value.y.toFloat()),
+        )
+    }
+
     fun evaluateTransformBlock(fullSize: IntSize) {
         if (isMutating) {
             mutableData?.block?.invoke(transformScope, fullSize)
@@ -231,6 +302,7 @@ internal class SharedMutableTransformState {
 
         if (isMutating) {
             lastScale = combined
+            if (isMutated) trackScaleVelocity(combined)
         }
         return combined
     }
@@ -250,6 +322,7 @@ internal class SharedMutableTransformState {
 
         if (isMutating) {
             lastSlide = combined
+            if (isMutated) trackSlideVelocity(combined)
         }
         return combined
     }
@@ -269,8 +342,11 @@ internal class SharedMutableTransformState {
         lastVeil = Color.Transparent
         lastAlpha = 1f
         lastScale = 1f
+        scaleVelocityTracker?.resetTracking()
         lastTransformOrigin = TransformOrigin.Center
         lastSlide = IntOffset.Zero
+        offsetVelocityTracker?.resetTracking()
+        lastMutableData = null
         mutableData = null
     }
 }

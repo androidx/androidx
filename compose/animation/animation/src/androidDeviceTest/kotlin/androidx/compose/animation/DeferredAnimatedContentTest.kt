@@ -20,8 +20,10 @@ import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
@@ -830,5 +833,104 @@ class DeferredAnimatedContentTest {
         assertEquals("A", capturedInitialState)
         assertEquals("B", capturedTargetState)
         assertEquals(invocationCountAfterFirstNavigation, previewInvocationCount)
+    }
+
+    @Test
+    fun animatedContent_previewTransforms_handoffVelocity() {
+        testTimeSource = { rule.mainClock.currentTime }
+
+        val state = DeferredTransitionState("A")
+        var previewScale by mutableStateOf(1f)
+
+        var enterWidth = 0f
+        var exitWidth = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    scaleIn(
+                        spring(stiffness = Spring.StiffnessVeryLow),
+                        initialScale = 0.2f,
+                    ) togetherWith
+                        scaleOut(spring(stiffness = Spring.StiffnessVeryLow), targetScale = 0.2f)
+                },
+                mutableTransformSpec = {
+                    if (targetState != "A") {
+                        MutableContentTransform {
+                            targetContentTransform { scale = previewScale }
+                            initialContentTransform { scale = previewScale }
+                        }
+                    } else {
+                        null
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "A") {
+                            exitWidth = coords.boundsInRoot().width
+                        } else if (target == "B") {
+                            enterWidth = coords.boundsInRoot().width
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        fun simulateGesture(isFast: Boolean): Pair<Float, Float> {
+            rule.runOnIdle { state.defer("B") }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+
+            val steps =
+                if (isFast) {
+                    listOf(0.9f, 0.7f, 0.5f)
+                } else {
+                    listOf(0.9f, 0.8f, 0.7f, 0.6f, 0.5f)
+                }
+            for (s in steps) {
+                previewScale = s
+                rule.mainClock.advanceTimeByFrame()
+                rule.waitForIdle()
+            }
+
+            val lastGestureEnterWidth = enterWidth
+            val lastGestureExitWidth = exitWidth
+
+            rule.runOnIdle { state.animateTo("B") }
+            repeat(3) { rule.mainClock.advanceTimeByFrame() }
+            rule.waitForIdle()
+
+            return (lastGestureEnterWidth - enterWidth) to (lastGestureExitWidth - exitWidth)
+        }
+
+        // Scenario 1: Slow gesture
+        val (enterDropSlow, exitDropSlow) = simulateGesture(isFast = false)
+
+        // Reset
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { state.animateTo("A") }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        previewScale = 1f
+
+        // Scenario 2: Fast gesture
+        val (enterDropFast, exitDropFast) = simulateGesture(isFast = true)
+
+        assertTrue(
+            "Expected enterWidth drop with fast gesture ($enterDropFast) to be greater than with slow gesture ($enterDropSlow)",
+            enterDropFast > enterDropSlow,
+        )
+        assertTrue(
+            "Expected exitWidth drop with fast gesture ($exitDropFast) to be greater than with slow gesture ($exitDropSlow)",
+            exitDropFast > exitDropSlow,
+        )
+
+        testTimeSource = null
     }
 }

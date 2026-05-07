@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
@@ -726,16 +727,26 @@ private val UnspecifiedSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
  * @param initialVeilMatchParentSize Whether the initial content's veil should match the parent
  *   size.
  * @param targetVeilMatchParentSize Whether the target content's veil should match the parent size.
+ * @param initialOffsetVelocityProvider The velocity of the offset change for the exiting content in
+ *   pixels/sec. The [initialOffsetVelocityProvider] lambda is evaluated exactly once when the
+ *   deferred phase ends to ensure a seamless handoff to the automatic transition.
+ * @param targetOffsetVelocityProvider The velocity of the offset change for the entering content in
+ *   pixels/sec. The [targetOffsetVelocityProvider] lambda is evaluated exactly once when the
+ *   deferred phase ends to ensure a seamless handoff to the automatic transition.
  * @param block A configuration block to set up the transformations for initial and target content.
  */
 @ExperimentalDeferredTransitionApi
 public class MutableContentTransform(
     initialVeilMatchParentSize: Boolean = false,
     targetVeilMatchParentSize: Boolean = false,
+    initialOffsetVelocityProvider: (() -> Offset)? = null,
+    targetOffsetVelocityProvider: (() -> Offset)? = null,
     block: MutableContentTransform.() -> Unit = {},
 ) {
-    internal val targetTransform: MutableTransform = MutableTransform(targetVeilMatchParentSize)
-    internal val initialTransform: MutableTransform = MutableTransform(initialVeilMatchParentSize)
+    internal val targetTransform: MutableTransform =
+        MutableTransform(targetVeilMatchParentSize, targetOffsetVelocityProvider)
+    internal val initialTransform: MutableTransform =
+        MutableTransform(initialVeilMatchParentSize, initialOffsetVelocityProvider)
 
     init {
         block()

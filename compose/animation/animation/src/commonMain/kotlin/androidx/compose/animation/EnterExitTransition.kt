@@ -1152,7 +1152,6 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                     }
                 },
                 forcedInitialValue = mutableTransformState.alphaHandoffValue,
-                // TODO: pass forcedInitialVelocity here
             ) {
                 when (it) {
                     EnterExitState.Visible -> 1f
@@ -1174,7 +1173,7 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                     }
                 },
                 forcedInitialValue = mutableTransformState.scaleHandoffValue,
-                // TODO: pass forcedInitialVelocity here
+                forcedInitialVelocity = mutableTransformState.scaleHandoffVelocity,
             ) {
                 when (it) {
                     EnterExitState.Visible -> 1f
@@ -1195,7 +1194,6 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
             transformOriginAnimation?.animate(
                 transitionSpec = { spring() },
                 forcedInitialValue = mutableTransformState.transformOriginHandoffValue,
-                // TODO: pass forcedInitialVelocity here
             ) {
                 when (it) {
                     EnterExitState.Visible -> transformOriginWhenVisible
@@ -1357,7 +1355,7 @@ private class EnterExitTransitionModifierNode(
                 slideAnimation?.animate(
                     transitionSpec = slideSpec,
                     forcedInitialValue = mutableTransformState.slideHandoffValue,
-                    // TODO: pass forcedInitialVelocity here
+                    forcedInitialVelocity = mutableTransformState.slideHandoffVelocity,
                 ) {
                     if (it == EnterExitState.PostExit && exit.data.slide == null) {
                         mutableTransformState.lastSlide
@@ -1538,7 +1536,6 @@ private class VeilModifierNode(
                     }
                 },
                 forcedInitialValue = mutableTransformState.veilHandoffValue,
-                // TODO: pass forcedInitialVelocity here
             ) {
                 when (it) {
                     EnterExitState.Visible ->

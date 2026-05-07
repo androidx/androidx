@@ -213,16 +213,16 @@ package androidx.compose.animation {
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalDeferredTransitionApi public final class MutableContentTransform {
     ctor public MutableContentTransform();
-    ctor @BytecodeOnly public MutableContentTransform(boolean, boolean, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public MutableContentTransform(optional boolean initialVeilMatchParentSize, optional boolean targetVeilMatchParentSize, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.MutableContentTransform,kotlin.Unit> block);
+    ctor @BytecodeOnly public MutableContentTransform(boolean, boolean, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public MutableContentTransform(optional boolean initialVeilMatchParentSize, optional boolean targetVeilMatchParentSize, optional kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset>? initialOffsetVelocityProvider, optional kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset>? targetOffsetVelocityProvider, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.MutableContentTransform,kotlin.Unit> block);
     method public void initialContentTransform(kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit> block);
     method public void targetContentTransform(kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit> block);
   }
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalDeferredTransitionApi public final class MutableTransform {
     ctor public MutableTransform();
-    ctor @BytecodeOnly public MutableTransform(boolean, kotlin.jvm.functions.Function2!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public MutableTransform(optional boolean veilMatchParentSize, optional kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit>? block);
+    ctor @BytecodeOnly public MutableTransform(boolean, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function2!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public MutableTransform(optional boolean veilMatchParentSize, optional kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset>? offsetVelocityProvider, optional kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit>? block);
     method public operator void invoke(kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit> block);
   }
 
