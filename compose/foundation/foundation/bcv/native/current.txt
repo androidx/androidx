@@ -659,6 +659,8 @@ sealed interface androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGri
         abstract fun <get-mainAxisItemSpacing>(): kotlin/Int // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.mainAxisItemSpacing.<get-mainAxisItemSpacing>|<get-mainAxisItemSpacing>(){}[0]
     abstract val orientation // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.orientation|{}orientation[0]
         abstract fun <get-orientation>(): androidx.compose.foundation.gestures/Orientation // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.orientation.<get-orientation>|<get-orientation>(){}[0]
+    abstract val reverseLayout // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.reverseLayout|{}reverseLayout[0]
+        abstract fun <get-reverseLayout>(): kotlin/Boolean // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.reverseLayout.<get-reverseLayout>|<get-reverseLayout>(){}[0]
     abstract val totalItemsCount // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.totalItemsCount|{}totalItemsCount[0]
         abstract fun <get-totalItemsCount>(): kotlin/Int // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.totalItemsCount.<get-totalItemsCount>|<get-totalItemsCount>(){}[0]
     abstract val viewportEndOffset // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.viewportEndOffset|{}viewportEndOffset[0]

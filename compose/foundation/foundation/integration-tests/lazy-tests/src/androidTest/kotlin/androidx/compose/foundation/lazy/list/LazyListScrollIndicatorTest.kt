@@ -298,7 +298,8 @@ class LazyListScrollIndicatorTest(orientation: Orientation) :
 
         rule.runOnIdle {
             assertNotNull(state.scrollIndicatorState)
-            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(0)
+            assertThat(state.scrollIndicatorState?.scrollOffset)
+                .isEqualTo(expectedContentSize - (itemSizePx * itemsInViewport))
             assertThat(state.scrollIndicatorState?.contentSize).isEqualTo(expectedContentSize)
             assertThat(state.scrollIndicatorState?.viewportSize)
                 .isEqualTo(itemSizePx * itemsInViewport)
@@ -397,7 +398,10 @@ class LazyListScrollIndicatorTest(orientation: Orientation) :
 
         rule.runOnIdle {
             assertNotNull(state.scrollIndicatorState)
-            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(expectedScrollOffset)
+            assertThat(state.scrollIndicatorState?.scrollOffset)
+                .isEqualTo(
+                    expectedContentSize - (itemSizePx * itemsInViewport) - expectedScrollOffset
+                )
             assertThat(state.scrollIndicatorState?.contentSize).isEqualTo(expectedContentSize)
             assertThat(state.scrollIndicatorState?.viewportSize)
                 .isEqualTo(itemSizePx * itemsInViewport)
