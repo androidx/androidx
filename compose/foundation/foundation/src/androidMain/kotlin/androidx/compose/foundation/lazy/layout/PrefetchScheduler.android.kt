@@ -35,8 +35,10 @@ import kotlin.math.max
 @ExperimentalFoundationApi
 @Composable
 internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
-    return if (RobolectricImpl != null) {
-        RobolectricImpl
+    return if (isRobolectric) {
+        // Robolectric is reporting incorrect frame start time, so we have to completely
+        // disable prefetch on it.
+        remember { noopScheduler() }
     } else {
         val view = LocalView.current
         remember(view) {
@@ -277,18 +279,16 @@ internal class AndroidPrefetchScheduler(private val view: View) :
     }
 }
 
+private val isRobolectric
+    get() = Build.FINGERPRINT != null && Build.FINGERPRINT == "robolectric"
+
 @Suppress("DEPRECATION") // b/420551535
 @ExperimentalFoundationApi
-private val RobolectricImpl =
-    if (Build.FINGERPRINT != null && Build.FINGERPRINT.lowercase() == "robolectric") {
-        object : PrefetchScheduler {
-            override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
-                // Robolectric is reporting incorrect frame start time, so we have to completely
-                // disable prefetch on it.
-            }
+private fun noopScheduler() =
+    object : PrefetchScheduler {
+        override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
+            // do nothing
         }
-    } else {
-        null
     }
 
 @Suppress("DEPRECATION") // b/420551535
