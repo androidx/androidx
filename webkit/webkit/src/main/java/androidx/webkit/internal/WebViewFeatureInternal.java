@@ -35,6 +35,7 @@ import androidx.core.content.pm.PackageInfoCompat;
 import androidx.webkit.BackForwardCacheSettings;
 import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
+import androidx.webkit.NavigationParameters;
 import androidx.webkit.Page;
 import androidx.webkit.PrerenderOperationCallback;
 import androidx.webkit.Profile;
@@ -1017,6 +1018,16 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(
                     WebViewFeature.JS_INJECTION_IN_FRAME_AND_WORLD,
                     Features.JS_INJECTION_IN_FRAME_AND_WORLD);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers:
+     * {@link WebViewCompat#navigate(WebView, String, NavigationParameters)}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework WEBVIEW_NAVIGATE_V1 =
+            new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
+                    Features.WEBVIEW_NAVIGATE_V1);
 
     // --- Add new feature constants above this line ---
 

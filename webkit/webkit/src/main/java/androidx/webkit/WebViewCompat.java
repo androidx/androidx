@@ -131,6 +131,16 @@ public class WebViewCompat {
     }
 
     /**
+     * Denotes that the Navigate API surface is experimental.
+     * It may change without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface ExperimentalNavigate {}
+
+    /**
      * This listener receives messages sent on the JavaScript object which was injected by {@link
      * #addWebMessageListener(WebView, String, Set, WebMessageListener)}.
      */
@@ -1834,6 +1844,38 @@ public class WebViewCompat {
             getProvider(webView).prerenderUrlAsync(url, cancellationSignal, callbackExecutor,
                     params,
                     callback);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Navigates the provided WebView to the given url, with configuration
+     * provided by {@link NavigationParameters}.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#WEBVIEW_NAVIGATE_EXPERIMENTAL_V1}.
+     *
+     * @param webview The WebView to perform the navigation on.
+     * @param url The URL to load.
+     * @param params The navigation parameters.
+     * @return Navigation object that can be used to track progress through
+     *         NavigationListener callbacks.
+     * @throws UnsupportedOperationException if the
+     *                                       {@link WebViewFeature#WEBVIEW_NAVIGATE_EXPERIMENTAL_V1}
+     *                                       feature is not supported.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalNavigate
+    public static @NonNull Navigation navigate(@NonNull WebView webview,
+            @NonNull String url, @NonNull NavigationParameters params) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.WEBVIEW_NAVIGATE_V1;
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webview).navigate(url, params);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
