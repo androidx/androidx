@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
+import androidx.xr.arcore.testing.FakePerceptionRuntime
+import androidx.xr.arcore.testing.FakeRuntimeAnchor
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SceneManager
 import androidx.xr.compose.subspace.ArDeviceTarget
@@ -104,6 +106,7 @@ import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.RenderingEntityFactory
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
@@ -2267,6 +2270,39 @@ class SubspaceTest {
 
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenRecenterOccurs_reloadsSubspace() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val followingSubspaceTag = "FollowingSubspace"
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    modifier = SubspaceModifier.testTag(followingSubspaceTag),
+                ) {}
+            }
+
+            translateDevice(fakeRuntime, Vector3(x = 1F, y = 2F, z = 3F))
+
+            // Verify the subspace has moved from the origin.
+            assertThat(assertExistenceAndGetNodeWorldPose(followingSubspaceTag).translation)
+                .isNotEqualTo(Pose.Identity.translation)
+
+            // Trigger recenter
+            val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
+            val fakeActivitySpace = fakeSceneRuntime.activitySpace
+            fakeActivitySpace.onOriginChanged()
+
+            // After a recenter, the FollowingSubspace should consider its new position as origin.
+            assertThat(assertExistenceAndGetNodeWorldPose("FollowingSubspace").translation)
+                .isEqualTo(Pose.Identity.translation)
+        }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Suppress("DEPRECATION")
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenAnchorUsesStaticFollow_movesOnlyOnce() {
@@ -2316,4 +2352,57 @@ class SubspaceTest {
             composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
         }
     }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenTargetChanges_recenterUsesNewTarget() =
+        runTest(context = testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(actual = composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
+
+            val anchorPose =
+                Pose(
+                    translation = Vector3(x = 10f, y = 20f, z = 30f),
+                    rotation = Quaternion.Identity,
+                )
+            val runtimeAnchor =
+                fakeRuntime.perceptionManager.createAnchor(anchorPose) as FakeRuntimeAnchor
+            val anchorTarget =
+                FollowTarget.Anchor(
+                    anchorEntity =
+                        assertNotNull(
+                            actual = AnchorEntity.create(session, anchor = Anchor(runtimeAnchor))
+                        )
+                )
+
+            // Start with the Anchor as the follow target
+            var targetState by mutableStateOf(value = anchorTarget)
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = targetState,
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            translateDevice(fakeRuntime, offset = Vector3(x = 1f, y = 2f, z = 3f))
+
+            // Swap the target to ArDevice.
+            targetState = FollowTarget.ArDevice(session)
+            composeTestRule.waitForIdle()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            var subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+            assertThat(subspacePose.translation).isEqualTo(Vector3(x = 1f, y = 2f, z = 3f))
+
+            // Trigger recenter (Origin Change)
+            val fakeActivitySpace = fakeSceneRuntime.activitySpace
+            fakeActivitySpace.onOriginChanged()
+
+            subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspace")
+            assertThat(subspacePose.translation).isEqualTo(Pose.Identity.translation)
+        }
 }
