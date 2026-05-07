@@ -139,7 +139,7 @@ fun shaderFireworks(): RemoteComposeContext {
 }
 
 @SuppressLint("RestrictedApiAndroidX")
-fun fireworksEngine(
+private fun fireworksEngine(
     rcDoc: RemoteComposeWriterAndroid,
     event: Float,
     width: RFloat,

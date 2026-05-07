@@ -25,13 +25,13 @@ import java.util.Set;
 /** The base communication buffer capable of encoding and decoding various types */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WireBuffer {
-    private static final int BUFFER_SIZE = 1024 * 1024;
     int mMaxSize;
     byte @NonNull [] mBuffer;
     int mIndex = 0;
     int mStartingIndex = 0;
     int mSize = 0;
     boolean[] mValidOperations = new boolean[256];
+    @NonNull SystemInfo mSystemInfo = new SystemInfo();
 
     /**
      * Create a wire buffer
@@ -46,7 +46,7 @@ public class WireBuffer {
 
     /** Create a wire buffer of default size */
     public WireBuffer() {
-        this(BUFFER_SIZE);
+        this(Limits.BUFFER_SIZE);
     }
 
     private void resize(int need) {
@@ -54,6 +54,24 @@ public class WireBuffer {
             mMaxSize = Math.max(mMaxSize * 2, mSize + need);
             mBuffer = Arrays.copyOf(mBuffer, mMaxSize);
         }
+    }
+
+    /**
+     * get the system info
+     *
+     * @return system information that can be used during parsing of the buffer
+     */
+    public @NonNull SystemInfo getSystemInfo() {
+        return mSystemInfo;
+    }
+
+    /**
+     * set the system info
+     *
+     * @param systemInfo information that can be used during parsing of the buffer
+     */
+    public void setSystemInfo(@NonNull SystemInfo systemInfo) {
+        mSystemInfo = systemInfo;
     }
 
     /**
@@ -165,6 +183,44 @@ public class WireBuffer {
      */
     public boolean available() {
         return mSize - mIndex > 0;
+    }
+
+    /**
+     * Declare an ID read from the buffer. Default implementation just returns readInt().
+     *
+     * @return the declared ID
+     */
+    public int declareId() {
+        return readInt();
+    }
+
+    /**
+     * Resolve an ID read from the buffer. Default implementation just returns readInt().
+     *
+     * @return the resolved ID
+     */
+    public int readId() {
+        return readInt();
+    }
+
+    /**
+     * Resolve an ID encoded as a NaN float read from the buffer. Default implementation returns
+     * readFloat().
+     *
+     * @return the resolved float value
+     */
+    public float readNanId() {
+        return readFloat();
+    }
+
+    /**
+     * Resolve an ID encoded as a NaN long read from the buffer. Default implementation returns
+     * readLong().
+     *
+     * @return the resolved long value
+     */
+    public long readLongNanId() {
+        return readLong();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -384,6 +440,19 @@ public class WireBuffer {
     }
 
     /**
+     * overwrite an integer at a specific position a int (4 byte) value
+     *
+     * @param position position to write
+     * @param value value to write
+     */
+    public void overwriteInt(int position, int value) {
+        mBuffer[position++] = (byte) (value >>> 24 & 0xFF);
+        mBuffer[position++] = (byte) (value >>> 16 & 0xFF);
+        mBuffer[position++] = (byte) (value >>> 8 & 0xFF);
+        mBuffer[position] = (byte) (value & 0xFF);
+    }
+
+    /**
      * Write a long (8 byte) value
      *
      * @param value value to write
@@ -435,6 +504,18 @@ public class WireBuffer {
     }
 
     /**
+     * Write a byte array to the wirebuffer
+     *
+     * @param b byte array
+     */
+    public void write(byte @NonNull [] b) {
+        resize(b.length);
+        System.arraycopy(b, 0, mBuffer, mIndex, b.length);
+        mIndex += b.length;
+        mSize += b.length;
+    }
+
+    /**
      * Write a string is encoded as UTF8
      *
      * @param content the string to write
@@ -476,15 +557,15 @@ public class WireBuffer {
      *     Any operation code not in this set will be considered invalid.
      */
     public void setValidOperations(@NonNull Set<Integer> supportedOperations) {
+        Arrays.fill(mValidOperations, false);
         for (Integer o : supportedOperations) {
             mValidOperations[o] = true;
         }
     }
 
     /**
-     * Move the commands from beyond to mSize to insertLocation.
-     * The support pushing commands to earlier in the buffer
-     * <code><br>
+     * Move the commands from beyond to mSize to insertLocation. The support pushing commands to
+     * earlier in the buffer <code><br>
      *  before:  0..... ........ xxxxxxxx mSize<br>
      *  insertLocation ^ beyond ^<br>
      *  after: 0..... xxxxxxxx ........  mSize>br>
@@ -506,8 +587,12 @@ public class WireBuffer {
             byte[] temp = new byte[lengthOfBlockB];
             System.arraycopy(mBuffer, beyond, temp, 0, lengthOfBlockB);
             // System.arraycopy handles overlapping regions safely.
-            System.arraycopy(mBuffer, insertLocation, mBuffer,
-                    insertLocation + lengthOfBlockB, lengthOfBlockA);
+            System.arraycopy(
+                    mBuffer,
+                    insertLocation,
+                    mBuffer,
+                    insertLocation + lengthOfBlockB,
+                    lengthOfBlockA);
             System.arraycopy(temp, 0, mBuffer, insertLocation, lengthOfBlockB);
 
         } else {

@@ -19,11 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
-import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.isUnspecified
 
 internal class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
     RemoteModifier.Element {
@@ -43,26 +39,12 @@ internal class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = n
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.widthIn(
-    min: Dp = Dp.Unspecified,
-    max: Dp = Dp.Unspecified,
-): RemoteModifier {
-    return then(
-        WidthInModifier(
-            min = if (min.isUnspecified) null else min.asRdp(),
-            max = if (max.isUnspecified) null else max.asRdp(),
-        )
-    )
-}
-
 /**
  * Sets the minimum and maximum width of the content.
  *
  * @param min The minimum width.
  * @param max The maximum width.
  */
-@Composable
 public fun RemoteModifier.widthIn(min: RemoteDp? = null, max: RemoteDp? = null): RemoteModifier {
     return then(WidthInModifier(min = min, max = max))
 }

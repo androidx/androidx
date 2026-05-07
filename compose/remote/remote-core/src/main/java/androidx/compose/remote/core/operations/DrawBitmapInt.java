@@ -181,7 +181,7 @@ public class DrawBitmapInt extends PaintOperation implements AccessibleComponent
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int imageId = buffer.readInt();
+        int imageId = buffer.readId();
         int sLeft = buffer.readInt();
         int srcTop = buffer.readInt();
         int srcRight = buffer.readInt();
@@ -190,7 +190,7 @@ public class DrawBitmapInt extends PaintOperation implements AccessibleComponent
         int dstTop = buffer.readInt();
         int dstRight = buffer.readInt();
         int dstBottom = buffer.readInt();
-        int cdId = buffer.readInt();
+        int cdId = buffer.readId();
         DrawBitmapInt op =
                 new DrawBitmapInt(
                         imageId, sLeft, srcTop, srcRight, srcBottom, dstLeft, dstTop, dstRight,

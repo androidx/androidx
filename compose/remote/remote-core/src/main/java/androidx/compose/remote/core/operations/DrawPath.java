@@ -60,7 +60,7 @@ public class DrawPath extends PaintOperation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         DrawPath op = new DrawPath(id);
         operations.add(op);
     }

@@ -20,9 +20,6 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.BOO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
-import static androidx.compose.remote.core.operations.utilities.touch.CommandParameters.PA_FLOAT;
-import static androidx.compose.remote.core.operations.utilities.touch.CommandParameters.PA_INT;
-import static androidx.compose.remote.core.operations.utilities.touch.CommandParameters.param;
 
 import static java.lang.Math.floor;
 
@@ -41,6 +38,8 @@ import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.operations.utilities.touch.CommandParameters;
@@ -88,64 +87,6 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
     public static final int JUSTIFICATION_MODE_INTER_WORD = 1;
     public static final int JUSTIFICATION_MODE_INTER_CHARACTER = 2;
 
-    private static final byte P_COMPONENT_ID = 1;
-    private static final byte P_ANIMATION_ID = 2;
-
-    private static final byte P_COLOR = 3;
-    private static final byte P_COLOR_ID = 4;
-    private static final byte P_FONT_SIZE = 5;
-    private static final byte P_FONT_STYLE = 6;
-    private static final byte P_FONT_WEIGHT = 7;
-    private static final byte P_FONT_FAMILY = 8;
-    private static final byte P_TEXT_ALIGN = 9;
-    private static final byte P_OVERFLOW = 10;
-    private static final byte P_MAX_LINES = 11;
-    private static final byte P_LETTER_SPACING = 12;
-    private static final byte P_LINE_HEIGHT_ADD = 13;
-    private static final byte P_LINE_HEIGHT_MULTIPLIER = 14;
-    private static final byte P_BREAK_STRATEGY = 15;
-    private static final byte P_HYPHENATION_FREQUENCY = 16;
-    private static final byte P_JUSTIFICATION_MODE = 17;
-    private static final byte P_UNDERLINE = 18;
-    private static final byte P_STRIKETHROUGH = 19;
-    private static final byte P_FONT_AXIS = 20;
-    private static final byte P_FONT_AXIS_VALUES = 21;
-    private static final byte P_AUTOSIZE = 22;
-    private static final byte P_FLAGS = 23;
-    private static final byte P_TEXT_STYLE_ID = 24;
-
-    private static final byte P_MIN_FONT_SIZE = 25;
-    private static final byte P_MAX_FONT_SIZE = 26;
-    private static final CommandParameters PARAMETERS =
-            new CommandParameters(
-                    param("componentId", P_COMPONENT_ID, -1),
-                    param("animationId", P_ANIMATION_ID, -1),
-                    param("color", P_COLOR, 0xFF000000),
-                    param("color", P_COLOR_ID, -1),
-                    param("fontSize", P_FONT_SIZE, 16f),
-                    param("fontStyle", P_FONT_STYLE, 0),
-                    param("fontWeight", P_FONT_WEIGHT, 400f),
-                    param("fontFamily", P_FONT_FAMILY, -1),
-                    param("textAlign", P_TEXT_ALIGN, 1),
-                    param("overflow", P_OVERFLOW, 1),
-                    param("maxLines", P_MAX_LINES, Integer.MAX_VALUE),
-                    param("letterSpacing", P_LETTER_SPACING, 0f),
-                    param("lineHeightAdd", P_LINE_HEIGHT_ADD, 0f),
-                    param("lineHeightMultiplier", P_LINE_HEIGHT_MULTIPLIER, 1f),
-                    param("lineBreakStrategy", P_BREAK_STRATEGY, 0),
-                    param("hyphenationFrequency", P_HYPHENATION_FREQUENCY, 0),
-                    param("justificationMode", P_JUSTIFICATION_MODE, 0),
-                    param("underline", P_UNDERLINE, false),
-                    param("strikethrough", P_STRIKETHROUGH, false),
-                    param("autosize", P_AUTOSIZE, false),
-                    param("fontAxis", P_FONT_AXIS, PA_INT),
-                    param("fontAxisValues", P_FONT_AXIS_VALUES, PA_FLOAT),
-                    param("flags", P_FLAGS, 0),
-                    param("textStyleId", P_TEXT_STYLE_ID, -1),
-                    param("minFontSize", P_MIN_FONT_SIZE, -1f),
-                    param("maxFontSize", P_MAX_FONT_SIZE, -1f)
-            );
-
     private static final boolean DEBUG = false;
     private int[] mFontAxis;
     private float[] mFontAxisValues;
@@ -163,13 +104,13 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
     private int mColor = 0;
     private int mColorId = -1;
     private int mColorValue = -1;
-    private float mFontSize = 16f;
+    private float mFontSize = TextStyle.DEFAULT_FONT_SIZE;
     private float mMinFontSize = -1f;
     private float mMaxFontSize = -1f;
-    private float mFontSizeValue = 16f;
+    private float mFontSizeValue = TextStyle.DEFAULT_FONT_SIZE;
     private int mFontStyle = 0;
-    private float mFontWeight = 400f;
-    private float mFontWeightValue = 400f;
+    private float mFontWeight = TextStyle.DEFAULT_FONT_WEIGHT;
+    private float mFontWeightValue = TextStyle.DEFAULT_FONT_WEIGHT;
     private int mFontFamilyId = -1;
     private int mTextAlign = 1;
     private int mTextAlignValue = -1;
@@ -179,6 +120,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
     private int mLineBreakStrategy = 0;
     private int mHyphenationFrequency = 0;
     private int mJustificationMode = 0;
+
+    private int mTextStyleId = -1;
 
     private int mType = -1;
     private float mTextX;
@@ -190,11 +133,97 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
 
     private final Size mCachedSize = new Size(0f, 0f);
 
+    /** Apply the style to the component */
+    public void applyStyle(@NonNull TextStyle style) {
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_COLOR, mColor) && style.mColor != null) {
+            mColor = style.mColor;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_COLOR_ID, mColorId)
+                && style.mColorId != null) {
+            mColorId = style.mColorId;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_FONT_SIZE, mFontSize)
+                && style.mFontSize != null) {
+            mFontSize = style.mFontSize;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_MIN_FONT_SIZE, mMinFontSize)
+                && style.mMinFontSize != null) {
+            mMinFontSize = style.mMinFontSize;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_MAX_FONT_SIZE, mMaxFontSize)
+                && style.mMaxFontSize != null) {
+            mMaxFontSize = style.mMaxFontSize;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_FONT_STYLE, mFontStyle)
+                && style.mFontStyle != null) {
+            mFontStyle = style.mFontStyle;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_FONT_WEIGHT, mFontWeight)
+                && style.mFontWeight != null) {
+            mFontWeight = style.mFontWeight;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_FONT_FAMILY, mFontFamilyId)
+                && style.mFontFamilyId != null) {
+            mFontFamilyId = style.mFontFamilyId;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_TEXT_ALIGN, mTextAlign)
+                && style.mTextAlign != null) {
+            mTextAlign = style.mTextAlign;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_OVERFLOW, mOverflow)
+                && style.mOverflow != null) {
+            mOverflow = style.mOverflow;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_MAX_LINES, mMaxLines)
+                && style.mMaxLines != null) {
+            mMaxLines = style.mMaxLines;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_LETTER_SPACING, mLetterSpacing)
+                && style.mLetterSpacing != null) {
+            mLetterSpacing = style.mLetterSpacing;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_LINE_HEIGHT_ADD, mLineHeightAdd)
+                && style.mLineHeightAdd != null) {
+            mLineHeightAdd = style.mLineHeightAdd;
+        }
+        if (TextStyle.PARAMETERS.isDefault(
+                        TextStyle.P_LINE_HEIGHT_MULTIPLIER, mLineHeightMultiplier)
+                && style.mLineHeightMultiplier != null) {
+            mLineHeightMultiplier = style.mLineHeightMultiplier;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_BREAK_STRATEGY, mLineBreakStrategy)
+                && style.mLineBreakStrategy != null) {
+            mLineBreakStrategy = style.mLineBreakStrategy;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_HYPHENATION_FREQUENCY, mHyphenationFrequency)
+                && style.mHyphenationFrequency != null) {
+            mHyphenationFrequency = style.mHyphenationFrequency;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_JUSTIFICATION_MODE, mJustificationMode)
+                && style.mJustificationMode != null) {
+            mJustificationMode = style.mJustificationMode;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_UNDERLINE, mUnderline)
+                && style.mUnderline != null) {
+            mUnderline = style.mUnderline;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_STRIKETHROUGH, mStrikethrough)
+                && style.mStrikethrough != null) {
+            mStrikethrough = style.mStrikethrough;
+        }
+        if (mFontAxis == null && style.mFontAxis != null) {
+            mFontAxis = style.mFontAxis;
+            mFontAxisValues = style.mFontAxisValues;
+        }
+        if (TextStyle.PARAMETERS.isDefault(TextStyle.P_AUTOSIZE, mAutosize)
+                && style.mAutosize != null) {
+            mAutosize = style.mAutosize;
+        }
+        mIsDynamicColorEnabled = mColorId != -1;
+    }
 
-    @Nullable
-    private String mCachedString;
-    @Nullable
-    private String mNewString;
+    @Nullable private String mCachedString;
+    @Nullable private String mNewString;
 
     private int mFlags;
 
@@ -228,25 +257,32 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
+        if (mTextStyleId != -1) {
+            Object styleObj = context.getObject(mTextStyleId);
+            if (styleObj instanceof TextStyle) {
+                applyStyle((TextStyle) styleObj);
+            }
+        }
         mFontSizeValue =
-                Float.isNaN(mFontSize)
-                        ? context.getFloat(Utils.idFromNan(mFontSize))
-                        : mFontSize;
+                Float.isNaN(mFontSize) ? context.getFloat(Utils.idFromNan(mFontSize)) : mFontSize;
         mFontWeightValue =
                 Float.isNaN(mFontWeight)
                         ? context.getFloat(Utils.idFromNan(mFontWeight))
                         : mFontWeight;
         mTextAlignValue = (short) (mTextAlign & 0xFFFF);
         if (mIsDynamicColorEnabled) {
-            mColorValue = context.getColor(mColorId);
+            int color = context.getColor(mColorId);
+            if (color != mColorValue) {
+                invalidateMeasure();
+            }
+            mColorValue = color;
         } else {
             mColorValue = mColor;
         }
 
         String cachedString = context.getText(mTextId);
         if (cachedString != null && cachedString.equalsIgnoreCase(mCachedString) && mType != -1) {
-            if (mMeasureFontSize != mFontSizeValue
-                    || mFontWeightValue != mFontWeight) {
+            if (mMeasureFontSize != mFontSizeValue || mMeasureFontWeight != mFontWeightValue) {
                 invalidateMeasure();
             }
             return;
@@ -313,7 +349,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             int @Nullable [] fontAxis,
             float @Nullable [] fontAxisValues,
             boolean autosize,
-            int flags) {
+            int flags,
+            int textStyleId) {
         super(parent, componentId, animationId, x, y, width, height);
         mTextId = textId;
         mColor = color;
@@ -347,6 +384,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         mFontAxis = fontAxis;
         mFontAxisValues = fontAxisValues;
         mFlags = flags;
+        mTextStyleId = textStyleId;
     }
 
     public CoreText(
@@ -376,7 +414,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             int @Nullable [] fontAxis,
             float @Nullable [] fontAxisValues,
             boolean autosize,
-            int flags) {
+            int flags,
+            int textStyleId) {
         this(
                 parent,
                 componentId,
@@ -408,20 +447,20 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                 fontAxis,
                 fontAxisValues,
                 autosize,
-                flags);
+                flags,
+                textStyleId);
     }
 
-    @NonNull
-    public PaintBundle mPaint = new PaintBundle();
+    @NonNull public PaintBundle mPaint = new PaintBundle();
 
     @Override
     public float getAlignValue(@NonNull PaintContext context, float line) {
         if (Float.isNaN(line)) {
             int id = Utils.idFromNan(line);
-            if (id == RemoteContext.ID_FIRST_BASELINE) {
+            if (id == AlignByModifierOperation.ID_FIRST_BASELINE) {
                 return mBaseline;
             }
-            if (id == RemoteContext.ID_LAST_BASELINE) {
+            if (id == AlignByModifierOperation.ID_LAST_BASELINE) {
                 // TODO add support for last baseline
                 return mBaseline;
             }
@@ -606,29 +645,41 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             float maxHeight,
             @NonNull MeasurePass measure) {
         super.computeSize(context, minWidth, maxWidth, minHeight, maxHeight, measure);
-        computeWrapSize(context, minWidth, maxWidth, minHeight, maxHeight,
-                true, true, measure, mCachedSize);
+        computeWrapSize(
+                context,
+                minWidth,
+                maxWidth,
+                minHeight,
+                maxHeight,
+                true,
+                true,
+                measure,
+                mCachedSize);
         ComponentMeasure m = measure.get(this);
         m.setW(mCachedSize.getWidth());
         m.setH(mCachedSize.getHeight());
     }
 
-    private float mMeasureFontSize = 16f;
+    private float mMeasureFontSize = TextStyle.DEFAULT_FONT_SIZE;
+    private float mMeasureFontWeight = TextStyle.DEFAULT_FONT_WEIGHT;
 
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
             @NonNull Size size) {
         mMeasureFontSize = mFontSizeValue;
+        mMeasureFontWeight = mFontWeightValue;
         context.savePaint();
         mPaint.reset();
         mPaint.setTextSize(mMeasureFontSize);
-        mPaint.setTextStyle(mType == -1 ? 0 : mType, (int) mFontWeightValue, mFontStyle == 1);
+        mPaint.setTextStyle(mType == -1 ? 0 : mType, (int) mMeasureFontWeight, mFontStyle == 1);
         if (mFontAxis != null && mFontAxis.length > 0) {
             float[] values = new float[mFontAxis.length];
             for (int i = 0; i < mFontAxis.length; i++) {
@@ -704,13 +755,21 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         mTextH = h;
     }
 
-    private void textLayout(@NonNull PaintContext context, float maxWidth,
-            float maxHeight, float @NonNull [] bounds) {
+    private void textLayout(
+            @NonNull PaintContext context,
+            float maxWidth,
+            float maxHeight,
+            float @NonNull [] bounds) {
         textLayout(context, maxWidth, maxHeight, bounds, false, false);
     }
 
-    private void textLayout(@NonNull PaintContext context, float maxWidth, float maxHeight,
-            float @NonNull [] bounds, boolean forceComplex, boolean inAutosize) {
+    private void textLayout(
+            @NonNull PaintContext context,
+            float maxWidth,
+            float maxHeight,
+            float @NonNull [] bounds,
+            boolean forceComplex,
+            boolean inAutosize) {
         if (maxWidth < 0 || maxHeight < 0) {
             return;
         }
@@ -724,9 +783,13 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             flags |= PaintContext.TEXT_COMPLEX;
             forceComplex = true;
         }
-        if (mLetterSpacing != 0f || mLineHeightMultiplier != 1f || mLineHeightAdd > 0f
-                || mUnderline || mStrikethrough
-                || mJustificationMode > 0 || mLineBreakStrategy > 0
+        if (mLetterSpacing != 0f
+                || mLineHeightMultiplier != 1f
+                || mLineHeightAdd > 0f
+                || mUnderline
+                || mStrikethrough
+                || mJustificationMode > 0
+                || mLineBreakStrategy > 0
                 || mHyphenationFrequency > 0) {
             flags |= PaintContext.TEXT_COMPLEX;
             forceComplex = true;
@@ -836,16 +899,16 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
     /**
      * Write the operation in the buffer
      *
-     * @param buffer       the WireBuffer we write on
-     * @param componentId  the component id
-     * @param animationId  the animation id (-1 if not set)
-     * @param textId       the text id
-     * @param color        the text color
-     * @param fontSize     the font size
-     * @param fontStyle    the font style
-     * @param fontWeight   the font weight
+     * @param buffer the WireBuffer we write on
+     * @param componentId the component id
+     * @param animationId the animation id (-1 if not set)
+     * @param textId the text id
+     * @param color the text color
+     * @param fontSize the font size
+     * @param fontStyle the font style
+     * @param fontWeight the font weight
      * @param fontFamilyId the font family id
-     * @param textAlign    the alignment rules
+     * @param textAlign the alignment rules
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -874,32 +937,40 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             int @Nullable [] fontAxis,
             float @Nullable [] fontAxisValues,
             boolean autosize,
-            int flags) {
+            int flags,
+            int textStyleId) {
         buffer.start(id());
         buffer.writeInt(textId);
         int count = 0;
-        count += PARAMETERS.countIfNotDefault(P_COMPONENT_ID, componentId);
-        count += PARAMETERS.countIfNotDefault(P_ANIMATION_ID, animationId);
-        count += PARAMETERS.countIfNotDefault(P_COLOR, color);
-        count += PARAMETERS.countIfNotDefault(P_COLOR_ID, colorId);
-        count += PARAMETERS.countIfNotDefault(P_FONT_SIZE, fontSize);
-        count += PARAMETERS.countIfNotDefault(P_MIN_FONT_SIZE, minFontSize);
-        count += PARAMETERS.countIfNotDefault(P_MAX_FONT_SIZE, maxFontSize);
-        count += PARAMETERS.countIfNotDefault(P_FONT_STYLE, fontStyle);
-        count += PARAMETERS.countIfNotDefault(P_FONT_WEIGHT, fontWeight);
-        count += PARAMETERS.countIfNotDefault(P_FONT_FAMILY, fontFamilyId);
-        count += PARAMETERS.countIfNotDefault(P_TEXT_ALIGN, textAlign);
-        count += PARAMETERS.countIfNotDefault(P_OVERFLOW, overflow);
-        count += PARAMETERS.countIfNotDefault(P_MAX_LINES, maxLines);
-        count += PARAMETERS.countIfNotDefault(P_LETTER_SPACING, letterSpacing);
-        count += PARAMETERS.countIfNotDefault(P_LINE_HEIGHT_ADD, lineHeightAdd);
-        count += PARAMETERS.countIfNotDefault(P_LINE_HEIGHT_MULTIPLIER, lineHeightMultiplier);
-        count += PARAMETERS.countIfNotDefault(P_BREAK_STRATEGY, lineBreakStrategy);
-        count += PARAMETERS.countIfNotDefault(P_HYPHENATION_FREQUENCY, hyphenationFrequency);
-        count += PARAMETERS.countIfNotDefault(P_JUSTIFICATION_MODE, justificationMode);
-        count += PARAMETERS.countIfNotDefault(P_UNDERLINE, underline);
-        count += PARAMETERS.countIfNotDefault(P_STRIKETHROUGH, strikethrough);
-        count += PARAMETERS.countIfNotDefault(P_AUTOSIZE, autosize);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_ID, componentId);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_ANIMATION_ID, animationId);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_COLOR, color);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_COLOR_ID, colorId);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_FONT_SIZE, fontSize);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_MIN_FONT_SIZE, minFontSize);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_MAX_FONT_SIZE, maxFontSize);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_FONT_STYLE, fontStyle);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_FONT_WEIGHT, fontWeight);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_FONT_FAMILY, fontFamilyId);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_TEXT_ALIGN, textAlign);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_OVERFLOW, overflow);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_MAX_LINES, maxLines);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_LETTER_SPACING, letterSpacing);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_LINE_HEIGHT_ADD, lineHeightAdd);
+        count +=
+                TextStyle.PARAMETERS.countIfNotDefault(
+                        TextStyle.P_LINE_HEIGHT_MULTIPLIER, lineHeightMultiplier);
+        count +=
+                TextStyle.PARAMETERS.countIfNotDefault(
+                        TextStyle.P_BREAK_STRATEGY, lineBreakStrategy);
+        count +=
+                TextStyle.PARAMETERS.countIfNotDefault(
+                        TextStyle.P_HYPHENATION_FREQUENCY, hyphenationFrequency);
+        count +=
+                TextStyle.PARAMETERS.countIfNotDefault(
+                        TextStyle.P_JUSTIFICATION_MODE, justificationMode);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_UNDERLINE, underline);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_STRIKETHROUGH, strikethrough);
         boolean hasFontAxis = fontAxis != null && fontAxis.length > 0;
 
         if (fontAxis != null && fontAxis.length != fontAxisValues.length) {
@@ -909,178 +980,216 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         if (hasFontAxis) {
             count += 2;
         }
-        count += PARAMETERS.countIfNotDefault(P_FLAGS, flags);
-        // TODO: text style id
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_AUTOSIZE, autosize);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_FLAGS, flags);
+        count += TextStyle.PARAMETERS.countIfNotDefault(TextStyle.P_PARENT_ID, textStyleId);
         buffer.writeShort(count);
-        PARAMETERS.write(buffer, P_COMPONENT_ID, componentId);
-        PARAMETERS.write(buffer, P_ANIMATION_ID, animationId);
-        PARAMETERS.write(buffer, P_COLOR, color);
-        PARAMETERS.write(buffer, P_COLOR_ID, colorId);
-        PARAMETERS.write(buffer, P_FONT_SIZE, fontSize);
-        PARAMETERS.write(buffer, P_MIN_FONT_SIZE, minFontSize);
-        PARAMETERS.write(buffer, P_MAX_FONT_SIZE, maxFontSize);
-        PARAMETERS.write(buffer, P_FONT_STYLE, fontStyle);
-        PARAMETERS.write(buffer, P_FONT_WEIGHT, fontWeight);
-        PARAMETERS.write(buffer, P_FONT_FAMILY, fontFamilyId);
-        PARAMETERS.write(buffer, P_TEXT_ALIGN, textAlign);
-        PARAMETERS.write(buffer, P_OVERFLOW, overflow);
-        PARAMETERS.write(buffer, P_MAX_LINES, maxLines);
-        PARAMETERS.write(buffer, P_LETTER_SPACING, letterSpacing);
-        PARAMETERS.write(buffer, P_LINE_HEIGHT_ADD, lineHeightAdd);
-        PARAMETERS.write(buffer, P_LINE_HEIGHT_MULTIPLIER, lineHeightMultiplier);
-        PARAMETERS.write(buffer, P_BREAK_STRATEGY, lineBreakStrategy);
-        PARAMETERS.write(buffer, P_HYPHENATION_FREQUENCY, hyphenationFrequency);
-        PARAMETERS.write(buffer, P_JUSTIFICATION_MODE, justificationMode);
-        PARAMETERS.write(buffer, P_UNDERLINE, underline);
-        PARAMETERS.write(buffer, P_STRIKETHROUGH, strikethrough);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_ID, componentId);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_ANIMATION_ID, animationId);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_COLOR, color);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_COLOR_ID, colorId);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_FONT_SIZE, fontSize);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_MIN_FONT_SIZE, minFontSize);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_MAX_FONT_SIZE, maxFontSize);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_FONT_STYLE, fontStyle);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_FONT_WEIGHT, fontWeight);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_FONT_FAMILY, fontFamilyId);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_TEXT_ALIGN, textAlign);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_OVERFLOW, overflow);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_MAX_LINES, maxLines);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_LETTER_SPACING, letterSpacing);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_LINE_HEIGHT_ADD, lineHeightAdd);
+        TextStyle.PARAMETERS.write(
+                buffer, TextStyle.P_LINE_HEIGHT_MULTIPLIER, lineHeightMultiplier);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_BREAK_STRATEGY, lineBreakStrategy);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_HYPHENATION_FREQUENCY, hyphenationFrequency);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_JUSTIFICATION_MODE, justificationMode);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_UNDERLINE, underline);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_STRIKETHROUGH, strikethrough);
         if (hasFontAxis) {
-            PARAMETERS.write(buffer, P_FONT_AXIS, fontAxis);
-            PARAMETERS.write(buffer, P_FONT_AXIS_VALUES, fontAxisValues);
+            TextStyle.PARAMETERS.write(buffer, TextStyle.P_FONT_AXIS, fontAxis);
+            TextStyle.PARAMETERS.write(buffer, TextStyle.P_FONT_AXIS_VALUES, fontAxisValues);
         }
-        PARAMETERS.write(buffer, P_AUTOSIZE, autosize);
-        PARAMETERS.write(buffer, P_FLAGS, flags);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_AUTOSIZE, autosize);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_FLAGS, flags);
+        TextStyle.PARAMETERS.write(buffer, TextStyle.P_PARENT_ID, textStyleId);
     }
 
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
+        int textId = buffer.readId();
         int paramsLength = buffer.readShort();
-        final int[] intAttributes =
-                {-1, -1, 0xFF000000, -1, 0, -1, 1, 1, Integer.MAX_VALUE, 0, 0, 0, 0, 0, 0, 0};
-        final float[] floatAttributes = {16f, -1f, -1f, 400f, 0f, 0f, 1f};
+        final int[] intAttributes = {
+            -1, -1, 0xFF000000, -1, 0, -1, 1, 1, Integer.MAX_VALUE, 0, 0, 0, 0, 0, 0, 0, -1
+        };
+        final float[] floatAttributes = {
+            TextStyle.DEFAULT_FONT_SIZE, -1f, -1f, TextStyle.DEFAULT_FONT_WEIGHT, 0f, 0f, 1f
+        };
         final ArrayList<Integer> fontAxisList = new ArrayList<>();
         final ArrayList<Float> fontAxisValuesList = new ArrayList<>();
         for (int i = 0; i < paramsLength; i++) {
-            PARAMETERS.read(buffer, new CommandParameters.Callback() {
-                @Override
-                public void value(int id, int value) {
-                    switch (id) {
-                        case P_COMPONENT_ID:
-                            intAttributes[0] = value;
-                            break;
-                        case P_ANIMATION_ID:
-                            intAttributes[1] = value;
-                            break;
-                        case P_COLOR:
-                            intAttributes[2] = value;
-                            break;
-                        case P_COLOR_ID:
-                            intAttributes[3] = value;
-                            break;
-                        case P_FONT_STYLE:
-                            intAttributes[4] = value;
-                            break;
-                        case P_FONT_FAMILY:
-                            intAttributes[5] = value;
-                            break;
-                        case P_TEXT_ALIGN:
-                            intAttributes[6] = value;
-                            break;
-                        case P_OVERFLOW:
-                            intAttributes[7] = value;
-                            break;
-                        case P_MAX_LINES:
-                            intAttributes[8] = value;
-                            break;
-                        case P_BREAK_STRATEGY:
-                            intAttributes[9] = value;
-                            break;
-                        case P_HYPHENATION_FREQUENCY:
-                            intAttributes[10] = value;
-                            break;
-                        case P_JUSTIFICATION_MODE:
-                            intAttributes[11] = value;
-                            break;
-                        case P_FLAGS:
-                            intAttributes[15] = value;
-                            break;
-                    }
-                }
-
-                @Override
-                public void value(int id, float value) {
-                    switch (id) {
-                        case P_FONT_SIZE:
-                            floatAttributes[0] = value;
-                            break;
-                        case P_MIN_FONT_SIZE:
-                            floatAttributes[1] = value;
-                            break;
-                        case P_MAX_FONT_SIZE:
-                            floatAttributes[2] = value;
-                            break;
-                        case P_FONT_WEIGHT:
-                            floatAttributes[3] = value;
-                            break;
-                        case P_LETTER_SPACING:
-                            floatAttributes[4] = value;
-                            break;
-                        case P_LINE_HEIGHT_ADD:
-                            floatAttributes[5] = value;
-                            break;
-                        case P_LINE_HEIGHT_MULTIPLIER:
-                            floatAttributes[6] = value;
-                            break;
-                    }
-                }
-
-                @Override
-                public void value(int id, short value) {
-
-                }
-
-                @Override
-                public void value(int id, byte value) {
-
-                }
-
-                @Override
-                public void value(int id, boolean value) {
-                    switch (id) {
-                        case P_UNDERLINE:
-                            intAttributes[12] = value ? 1 : 0;
-                            break;
-                        case P_STRIKETHROUGH:
-                            intAttributes[13] = value ? 1 : 0;
-                            break;
-                        case P_AUTOSIZE:
-                            intAttributes[14] = value ? 1 : 0;
-                            break;
-                    }
-                }
-
-                @Override
-                public void value(int id, @NonNull String value) {
-
-                }
-
-                @Override
-                public void value(int id, int @NonNull [] value) {
-                    switch (id) {
-                        case P_FONT_AXIS:
-                            for (int axis : value) {
-                                fontAxisList.add(axis);
+            TextStyle.PARAMETERS.read(
+                    buffer,
+                    new CommandParameters.Callback() {
+                        @Override
+                        public void value(int id, int value) {
+                            switch (id) {
+                                case TextStyle.P_ID:
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[0] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[0] = value;
+                                    }
+                                    break;
+                                case TextStyle.P_ANIMATION_ID:
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[1] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[1] = value;
+                                    }
+                                    break;
+                                case TextStyle.P_COLOR:
+                                    intAttributes[2] = value;
+                                    break;
+                                case TextStyle.P_COLOR_ID:
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[3] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[3] = value;
+                                    }
+                                    break;
+                                case TextStyle.P_FONT_STYLE:
+                                    intAttributes[4] = value;
+                                    break;
+                                case TextStyle.P_FONT_FAMILY:
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[5] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[5] = value;
+                                    }
+                                    break;
+                                case TextStyle.P_TEXT_ALIGN:
+                                    intAttributes[6] = value;
+                                    break;
+                                case TextStyle.P_OVERFLOW:
+                                    intAttributes[7] = value;
+                                    break;
+                                case TextStyle.P_MAX_LINES:
+                                    intAttributes[8] = value;
+                                    break;
+                                case TextStyle.P_BREAK_STRATEGY:
+                                    intAttributes[9] = value;
+                                    break;
+                                case TextStyle.P_HYPHENATION_FREQUENCY:
+                                    intAttributes[10] = value;
+                                    break;
+                                case TextStyle.P_JUSTIFICATION_MODE:
+                                    intAttributes[11] = value;
+                                    break;
+                                case TextStyle.P_FLAGS:
+                                    intAttributes[15] = value;
+                                    break;
+                                case TextStyle.P_PARENT_ID:
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        intAttributes[16] =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(value);
+                                    } else {
+                                        intAttributes[16] = value;
+                                    }
+                                    break;
                             }
-                            break;
-                    }
-                }
+                        }
 
-                @Override
-                public void value(int id, float @NonNull [] value) {
-                    switch (id) {
-                        case P_FONT_AXIS_VALUES:
-                            for (float v : value) {
-                                fontAxisValuesList.add(v);
+                        @Override
+                        public void value(int id, float value) {
+                            switch (id) {
+                                case TextStyle.P_FONT_SIZE:
+                                    floatAttributes[0] = value;
+                                    break;
+                                case TextStyle.P_MIN_FONT_SIZE:
+                                    floatAttributes[1] = value;
+                                    break;
+                                case TextStyle.P_MAX_FONT_SIZE:
+                                    floatAttributes[2] = value;
+                                    break;
+                                case TextStyle.P_FONT_WEIGHT:
+                                    floatAttributes[3] = value;
+                                    break;
+                                case TextStyle.P_LETTER_SPACING:
+                                    floatAttributes[4] = value;
+                                    break;
+                                case TextStyle.P_LINE_HEIGHT_ADD:
+                                    floatAttributes[5] = value;
+                                    break;
+                                case TextStyle.P_LINE_HEIGHT_MULTIPLIER:
+                                    floatAttributes[6] = value;
+                                    break;
                             }
-                            break;
-                    }
-                }
-            });
+                        }
+
+                        @Override
+                        public void value(int id, short value) {}
+
+                        @Override
+                        public void value(int id, byte value) {}
+
+                        @Override
+                        public void value(int id, boolean value) {
+                            switch (id) {
+                                case TextStyle.P_UNDERLINE:
+                                    intAttributes[12] = value ? 1 : 0;
+                                    break;
+                                case TextStyle.P_STRIKETHROUGH:
+                                    intAttributes[13] = value ? 1 : 0;
+                                    break;
+                                case TextStyle.P_AUTOSIZE:
+                                    intAttributes[14] = value ? 1 : 0;
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        public void value(int id, @NonNull String value) {}
+
+                        @Override
+                        public void value(int id, int @NonNull [] value) {
+                            switch (id) {
+                                case TextStyle.P_FONT_AXIS:
+                                    for (int axis : value) {
+                                        fontAxisList.add(axis);
+                                    }
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        public void value(int id, float @NonNull [] value) {
+                            if (id == TextStyle.P_FONT_AXIS_VALUES) {
+                                for (float v : value) {
+                                    fontAxisValuesList.add(v);
+                                }
+                            }
+                        }
+                    });
         }
         int[] fontAxis = null;
         float[] fontAxisValues = null;
@@ -1097,6 +1206,10 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                         null,
                         intAttributes[0],
                         intAttributes[1],
+                        0f,
+                        0f,
+                        0f,
+                        0f,
                         textId,
                         intAttributes[2],
                         intAttributes[3],
@@ -1120,7 +1233,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                         fontAxis,
                         fontAxisValues,
                         intAttributes[14] == 1,
-                        intAttributes[15]));
+                        intAttributes[15],
+                        intAttributes[16]));
     }
 
     /**
@@ -1159,7 +1273,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                 .field(INT_ARRAY, "fontAxis", "Font axis tags")
                 .field(DocumentedOperation.FLOAT_ARRAY, "fontAxisValues", "Font axis values")
                 .field(BOOLEAN, "autosize", "Whether to enable autosize")
-                .field(INT, "flags", "Behavior flags");
+                .field(INT, "flags", "Behavior flags")
+                .field(INT, "textStyleId", "The ID of the text style to apply");
     }
 
     @Override
@@ -1188,10 +1303,11 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                 mJustificationMode,
                 mUnderline,
                 mStrikethrough,
-                null,
-                null,
+                mFontAxis,
+                mFontAxisValues,
                 mAutosize,
-                mFlags);
+                mFlags,
+                mTextStyleId);
     }
 
     @Override

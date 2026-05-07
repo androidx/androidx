@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -145,8 +146,8 @@ public class CollapsibleRowLayout extends RowLayout {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         int horizontalPositioning = buffer.readInt();
         int verticalPositioning = buffer.readInt();
         float spacedBy = buffer.readFloat();
@@ -166,7 +167,8 @@ public class CollapsibleRowLayout extends RowLayout {
         if (!mChildrenComponents.isEmpty()) {
             Component c;
             if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
-                c = CollapsiblePriority.findLastStanding(
+                c =
+                        CollapsiblePriority.findLastStanding(
                                 mChildrenComponents, CollapsiblePriority.HORIZONTAL);
             } else {
                 c = mChildrenComponents.get(0);
@@ -184,7 +186,8 @@ public class CollapsibleRowLayout extends RowLayout {
         if (!mChildrenComponents.isEmpty()) {
             Component c;
             if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
-                c = CollapsiblePriority.findLastStanding(
+                c =
+                        CollapsiblePriority.findLastStanding(
                                 mChildrenComponents, CollapsiblePriority.HORIZONTAL);
             } else {
                 c = mChildrenComponents.get(0);
@@ -204,8 +207,10 @@ public class CollapsibleRowLayout extends RowLayout {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -273,7 +278,11 @@ public class CollapsibleRowLayout extends RowLayout {
             }
         }
         if (!mChildrenComponents.isEmpty() && size != null) {
-            size.setWidth(size.getWidth() + (mSpacedBy * (visibleChildren - 1)));
+            float spacedBy = mSpacedBy;
+            if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+                spacedBy *= context.getDensity();
+            }
+            size.setWidth(size.getWidth() + (spacedBy * (visibleChildren - 1)));
         }
 
         float childrenWidth = 0f;

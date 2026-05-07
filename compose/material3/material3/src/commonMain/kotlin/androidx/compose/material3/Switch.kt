@@ -148,8 +148,7 @@ private fun SwitchImpl(
 
     val focusRingModifier =
         if (
-            LocalRippleThemeConfiguration.current ==
-                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
         ) {
             Modifier.indication(
                 interactionSource = interactionSource,
@@ -190,8 +189,8 @@ private fun SwitchImpl(
                                 bounded = false,
                                 radius = SwitchTokens.StateLayerSize / 2,
                                 enableFocusIndication =
-                                    (LocalRippleThemeConfiguration.current ==
-                                        RippleDefaults.OpacityFocusRippleThemeConfiguration),
+                                    LocalRippleThemeConfiguration.current.focus
+                                        !is RippleThemeConfiguration.Focus.InsetRing,
                             ),
                     )
                     .background(resolvedThumbColor, thumbShape),

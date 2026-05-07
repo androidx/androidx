@@ -26,6 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastForEachIndexed
 
+@Suppress("TypealiasDefinition")
 actual typealias Shader = android.graphics.Shader
 
 internal actual fun ActualLinearGradientShader(

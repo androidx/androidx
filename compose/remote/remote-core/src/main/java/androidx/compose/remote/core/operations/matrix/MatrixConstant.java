@@ -20,9 +20,11 @@ import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -33,12 +35,23 @@ import java.util.List;
 
 /** This is for a constant matrix */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MatrixConstant extends Operation implements Serializable, MatrixAccess {
+public class MatrixConstant extends Operation
+        implements Serializable, MatrixAccess, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.MATRIX_CONSTANT;
     private static final String CLASS_NAME = "MatrixConstant";
-    private final int mMatrixId;
+    private int mMatrixId;
     private final int mType;
     private float @NonNull [] mValues;
+
+    @Override
+    public int getId() {
+        return mMatrixId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mMatrixId = id;
+    }
 
     public MatrixConstant(int matrixId, int type, float @NonNull [] values) {
         this.mMatrixId = matrixId;
@@ -88,10 +101,10 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer   write command to this buffer
+     * @param buffer write command to this buffer
      * @param matrixId the id
-     * @param type     the type of matrix it is
-     * @param values   the value of the float
+     * @param type the type of matrix it is
+     * @param values the value of the float
      */
     public static void apply(
             @NonNull WireBuffer buffer, int matrixId, int type, float @NonNull [] values) {
@@ -107,11 +120,11 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.readId();
         int type = buffer.readInt();
         int len = buffer.readInt();
         if (len > 16 || len < 0) {
@@ -119,7 +132,7 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
         }
         float[] matrix = new float[len];
         for (int i = 0; i < len; i++) {
-            matrix[i] = buffer.readFloat();
+            matrix[i] = buffer.readNanId();
         }
         operations.add(new MatrixConstant(id, type, matrix));
     }

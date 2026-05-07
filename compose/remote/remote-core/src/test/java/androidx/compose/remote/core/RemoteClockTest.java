@@ -24,9 +24,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-/**
- * Common tests for RemoteClock.TimeSnapshot implementations.
- */
+/** Common tests for RemoteClock.TimeSnapshot implementations. */
 public abstract class RemoteClockTest {
 
     protected abstract RemoteClock getClock(ZoneId zoneId);
@@ -55,8 +53,8 @@ public abstract class RemoteClockTest {
     @Test
     public void testSnapshotWithOffset() {
         // 2024-05-20T15:30:45.123+02:00
-        long millis = ZonedDateTime.parse(
-                "2024-05-20T15:30:45.123+02:00").toInstant().toEpochMilli();
+        long millis =
+                ZonedDateTime.parse("2024-05-20T15:30:45.123+02:00").toInstant().toEpochMilli();
         ZoneId zoneId = ZoneId.of("Europe/Paris"); // UTC+2 in summer
         RemoteClock clock = getClock(zoneId);
         RemoteClock.TimeSnapshot snapshot = clock.snapshot(millis);

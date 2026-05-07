@@ -102,11 +102,11 @@ public class DrawTweenPath extends PaintOperation implements VariableSupport {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int path1Id = buffer.readInt();
-        int path2Id = buffer.readInt();
-        float tween = buffer.readFloat();
-        float start = buffer.readFloat();
-        float stop = buffer.readFloat();
+        int path1Id = buffer.readId();
+        int path2Id = buffer.readId();
+        float tween = buffer.readNanId();
+        float start = buffer.readNanId();
+        float stop = buffer.readNanId();
         DrawTweenPath op = new DrawTweenPath(path1Id, path2Id, tween, start, stop);
         operations.add(op);
     }

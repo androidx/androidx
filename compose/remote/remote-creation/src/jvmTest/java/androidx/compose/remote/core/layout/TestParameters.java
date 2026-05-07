@@ -20,14 +20,13 @@ import androidx.compose.remote.core.RemoteClock;
 
 import org.jspecify.annotations.NonNull;
 
-
 public class TestParameters {
     boolean mCaptureGoldFiles = false;
     @NonNull String mName = "Unknown";
     private @NonNull RemoteClock mClock;
 
-    public TestParameters(@NonNull String name, boolean captureGoldFiles,
-            @NonNull RemoteClock clock) {
+    public TestParameters(
+            @NonNull String name, boolean captureGoldFiles, @NonNull RemoteClock clock) {
         mName = name;
         mCaptureGoldFiles = captureGoldFiles;
         mClock = clock;
@@ -35,6 +34,7 @@ public class TestParameters {
 
     /**
      * Returns true if we should generate gold files
+     *
      * @return
      */
     public boolean captureGoldFiles() {

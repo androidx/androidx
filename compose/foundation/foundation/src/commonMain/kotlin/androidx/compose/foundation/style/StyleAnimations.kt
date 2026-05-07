@@ -125,8 +125,24 @@ internal class StyleAnimations {
                 // The color and brush properties form one logical property so if either base
                 // or target sets a brush the brush version must be animated. This fixes the
                 // bit sets to give priority to the brush over a color
-                val objectsSet = target.objectsSet or (base.objectsSet and BrushPropertiesMask)
-                val primitivesSet = removeColorForBrushProperties(target.primitivesSet, objectsSet)
+                var objectsSet = target.objectsSet
+                var primitivesSet = target.primitivesSet
+                if (base.hasId(BackgroundBrushId) && target.hasId(BackgroundColorId)) {
+                    objectsSet = objectsSet.withId(BackgroundBrushId)
+                    primitivesSet = primitivesSet.withoutId(BackgroundColorId)
+                }
+                if (base.hasId(BorderBrushId) && target.hasId(BorderColorId)) {
+                    objectsSet = objectsSet.withId(BorderBrushId)
+                    primitivesSet = primitivesSet.withoutId(BorderColorId)
+                }
+                if (base.hasId(ContentBrushId) && target.hasId(ContentColorId)) {
+                    objectsSet = objectsSet.withId(ContentBrushId)
+                    primitivesSet = primitivesSet.withoutId(ContentColorId)
+                }
+                if (base.hasId(ForegroundBrushId) && target.hasId(ForegroundColorId)) {
+                    objectsSet = objectsSet.withId(ForegroundBrushId)
+                    primitivesSet = primitivesSet.withoutId(ForegroundColorId)
+                }
 
                 // For all the target properties, record an animation
                 forEachSetPropertyId(primitivesSet, objectsSet) { id ->
@@ -232,5 +248,5 @@ private inline fun forEachSetPropertyId(
     block: (id: Int) -> Unit,
 ) {
     forEachBitOf(primitivesSet, block)
-    forEachBitOf(objectsSet) { block(PrimitivePropertyCount + it) }
+    forEachBitOf(objectsSet) { block(FirstObjectProperty + it) }
 }

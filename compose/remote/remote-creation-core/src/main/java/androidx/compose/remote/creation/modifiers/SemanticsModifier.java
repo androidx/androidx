@@ -38,7 +38,6 @@ public class SemanticsModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().getBuffer().start(mSemantics.getOpCode());
         mSemantics.write(writer.getBuffer().getBuffer());
 //      TODO change to use writer
 //        writer.addSemanticsModifier(

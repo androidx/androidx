@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
@@ -33,14 +34,13 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-/**
- * This implement color theme. It supports two colors dark and light modes
- */
+/** This implement color theme. It supports two colors dark and light modes */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorTheme extends Operation implements Serializable, ComponentData {
+public class ColorTheme extends Operation implements Serializable, ComponentData, VariableProvider {
     private static final int OP_CODE = Operations.COLOR_THEME;
     private static final String CLASS_NAME = "ColorTheme";
-    public final int mId;
+    public int mId;
+
     public @Nullable String mColorGroupName;
     public int mColorGroupId; // The id of the name of the color group
     public short mDarkModeIndex;
@@ -51,7 +51,18 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
     public int mDarkMode;
     public int mLightMode;
 
-    public ColorTheme(int id,
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
+
+    public ColorTheme(
+            int id,
             int colorGroupId,
             short lightModeIndex,
             short darkModeIndex,
@@ -71,12 +82,6 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
      * @param theme the theme to set
      */
     public void setTheme(@NonNull RemoteContext context, int theme) {
-        if (mId == 44) {
-            Utils.logStack(" " + theme, 10);
-        } else {
-            Utils.log("(" + mId + ") set  " + theme);
-        }
-
         if (mCurrentTheme != theme) {
             Utils.log("(" + mId + ") update  " + theme);
             mCurrentTheme = theme;
@@ -98,19 +103,33 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         }
     }
 
-
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mId, mColorGroupId, mLightModeIndex, mDarkModeIndex, mLightModeFallback,
+        apply(
+                buffer,
+                mId,
+                mColorGroupId,
+                mLightModeIndex,
+                mDarkModeIndex,
+                mLightModeFallback,
                 mDarkModeFallback);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "ColorTheme;id=" + mId + ";group=" + mColorGroupName + ";lightId=" + mLightModeIndex
-                + ";darkId=" + mDarkModeIndex + ";lightFallback=" + mLightModeFallback
-                + ";darkFallback=" + mDarkModeFallback;
+        return "ColorTheme;id="
+                + mId
+                + ";group="
+                + mColorGroupName
+                + ";lightId="
+                + mLightModeIndex
+                + ";darkId="
+                + mDarkModeIndex
+                + ";lightFallback="
+                + mLightModeFallback
+                + ";darkFallback="
+                + mDarkModeFallback;
     }
 
     /**
@@ -132,10 +151,9 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         return OP_CODE;
     }
 
-    /**
-     * Call to write a ColorExpression object on the buffer
-     */
-    public static void apply(@NonNull WireBuffer buffer,
+    /** Call to write a ColorExpression object on the buffer */
+    public static void apply(
+            @NonNull WireBuffer buffer,
             int id,
             int groupId,
             short lightMode,
@@ -154,18 +172,24 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int groupId = buffer.readInt();
+        int id = buffer.readId();
+        int groupId = buffer.readId();
         short lightModeIndex = (short) buffer.readShort();
         short darkModeIndex = (short) buffer.readShort();
         int lightModeFallback = buffer.readInt();
         int darkModeFallback = buffer.readInt();
-        operations.add(new ColorTheme(id, groupId, lightModeIndex, darkModeIndex, lightModeFallback,
-                darkModeFallback));
+        operations.add(
+                new ColorTheme(
+                        id,
+                        groupId,
+                        lightModeIndex,
+                        darkModeIndex,
+                        lightModeFallback,
+                        darkModeFallback));
     }
 
     /**
@@ -200,7 +224,5 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         serializer.add("darkId", mDarkModeIndex);
         serializer.add("lightFallback", mLightModeFallback);
         serializer.add("darkFallback", mDarkModeFallback);
-
     }
-
 }

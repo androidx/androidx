@@ -51,7 +51,9 @@ import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteC
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -216,7 +218,7 @@ class RemoteBrushTest {
             val topLeftX = 50f
             val topLeftY = 50f
             val matrix33 =
-                RemoteMatrix3x3.createTranslateXY(RemoteFloat(topLeftX), RemoteFloat(topLeftY))
+                RemoteMatrix3x3.createTranslateXy(RemoteFloat(topLeftX), RemoteFloat(topLeftY))
             RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow)) {
                 RemoteBox(
                     modifier =
@@ -224,15 +226,12 @@ class RemoteBrushTest {
                             .background(
                                 object : RemotePainter() {
                                     override fun RemoteDrawScope.onDraw() {
-                                        val paint =
-                                            RemotePaint().apply {
-                                                applyRemoteBrush(
-                                                    RemoteBrush.bitmap(image),
-                                                    remoteSize,
-                                                    matrix33,
-                                                )
+                                        val paint = RemotePaint {
+                                            with(RemoteBrush.bitmap(image)) {
+                                                applyTo(this@RemotePaint, size, matrix33)
                                             }
-                                        this.drawRoundRect(
+                                        }
+                                        drawRoundRect(
                                             paint,
                                             RemoteOffset(topLeftX.rf, topLeftY.rf),
                                             imageSize,
@@ -249,6 +248,56 @@ class RemoteBrushTest {
         }
     }
 
+    @Test
+    fun bitmapBrushContentScaleFitTest() {
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.Fit) }
+    }
+
+    @Test
+    fun bitmapBrushContentScaleCropTest() {
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.Crop) }
+    }
+
+    @Test
+    fun bitmapBrushContentScaleFillBoundsTest() {
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.FillBounds) }
+    }
+
+    @Test
+    fun bitmapBrushContentScaleFillWidthTest() {
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.FillWidth) }
+    }
+
+    @Test
+    fun bitmapBrushContentScaleFillHeightTest() {
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.FillHeight) }
+    }
+
+    @Test
+    fun bitmapBrushContentScaleInsideTest() {
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.Inside) }
+    }
+
+    @Test
+    fun bitmapBrushContentScaleNoneTest() {
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.None) }
+    }
+
+    @Composable
+    @RemoteComposable
+    private fun BitmapBrushBox(contentScale: ContentScale) {
+        val backgroundImage =
+            rememberNamedRemoteBitmap(name = "background") { createImage(300, 400).asImageBitmap() }
+        val backgroundBrush =
+            RemoteBrush.bitmap(
+                bitmap = backgroundImage,
+                tileModeX = TileMode.Decal,
+                tileModeY = TileMode.Decal,
+                contentScale = contentScale,
+            )
+        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(backgroundBrush))
+    }
+
     @Composable
     @RemoteComposable
     private fun Container(
@@ -257,8 +306,7 @@ class RemoteBrushTest {
     ) {
         RemoteBox(
             modifier = modifier.size(ContainerSize).background(ContainerColor),
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-            verticalArrangement = RemoteArrangement.Center,
+            contentAlignment = RemoteAlignment.Center,
             content = content,
         )
     }

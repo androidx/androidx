@@ -17,10 +17,9 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import android.content.Context
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -49,6 +48,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
+import java.text.DecimalFormat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,12 +68,9 @@ class BackgroundModifierTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     val size = Size(200f, 200f)
-    private val creationDisplayInfo =
-        CreationDisplayInfo(
-            size.width.toInt(),
-            size.height.toInt(),
-            context.resources.displayMetrics.densityDpi,
-        )
+    private val creationDisplayInfo = createCreationDisplayInfo(context, size)
+
+    val hexDecimalFormat = DecimalFormat("0")
 
     fun RemoteInt.toHexDigit(): RemoteString {
         return eq(15.ri)
@@ -92,7 +89,12 @@ class BackgroundModifierTest {
                                             .select(
                                                 "B".rs,
                                                 eq(10.ri)
-                                                    .select("A".rs, absoluteValue.toRemoteString(1)),
+                                                    .select(
+                                                        "A".rs,
+                                                        absoluteValue.toRemoteString(
+                                                            hexDecimalFormat
+                                                        ),
+                                                    ),
                                             ),
                                     ),
                             ),
@@ -245,14 +247,12 @@ class BackgroundModifierTest {
     private fun DemoBox(title: RemoteString, content: @RemoteComposable @Composable () -> Unit) {
         RemoteBox(
             modifier = RemoteModifier.fillMaxSize(),
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-            verticalArrangement = RemoteArrangement.Center,
+            contentAlignment = RemoteAlignment.Center,
         ) {
             content()
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize(),
-                verticalArrangement = RemoteArrangement.Bottom,
-                horizontalAlignment = RemoteAlignment.CenterHorizontally,
+                contentAlignment = RemoteAlignment.BottomCenter,
             ) {
                 RemoteText(title, color = RemoteColor(Color.White), fontSize = 8.rsp)
             }

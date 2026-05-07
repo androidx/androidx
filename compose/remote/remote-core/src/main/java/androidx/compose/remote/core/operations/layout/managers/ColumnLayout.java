@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -30,7 +31,7 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
-import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -131,8 +132,10 @@ public class ColumnLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -201,7 +204,11 @@ public class ColumnLayout extends LayoutManager {
             }
         }
         if (!mChildrenComponents.isEmpty()) {
-            size.setHeight(size.getHeight() + (mSpacedBy * (visibleChildrens - 1)));
+            float spacedBy = mSpacedBy;
+            if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+                spacedBy *= context.getDensity();
+            }
+            size.setHeight(size.getHeight() + (spacedBy * (visibleChildrens - 1)));
         }
         DebugLog.e();
     }
@@ -347,7 +354,7 @@ public class ColumnLayout extends LayoutManager {
                         }
                         float weight = ((LayoutComponent) child).getHeightModifier().getValue();
                         float childHeight = (weight * availableSpace) / totalWeights;
-                        HeightInModifierOperation heightInConstraints =
+                        DimensionInModifierOperation heightInConstraints =
                                 ((LayoutComponent) child).getHeightModifier().getHeightIn();
                         if (heightInConstraints != null) {
                             float min = heightInConstraints.getMin();
@@ -387,7 +394,11 @@ public class ColumnLayout extends LayoutManager {
             childrenHeight += childMeasure.getH();
             visibleChildrens++;
         }
-        childrenHeight += mSpacedBy * (visibleChildrens - 1);
+        float spacedBy = mSpacedBy;
+        if (context.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+            spacedBy *= context.getDensity();
+        }
+        childrenHeight += spacedBy * (visibleChildrens - 1);
 
         float tx = 0f;
         float ty = 0f;
@@ -467,14 +478,14 @@ public class ColumnLayout extends LayoutManager {
                     || mVerticalPositioning == SPACE_EVENLY) {
                 ty += verticalGap;
             }
-            ty += mSpacedBy;
+            ty += spacedBy;
         }
         DebugLog.e();
     }
 
     @Override
-    public void getLocationInWindow(@NonNull RemoteContext context, float @NonNull [] value,
-            boolean forSelf) {
+    public void getLocationInWindow(
+            @NonNull RemoteContext context, float @NonNull [] value, boolean forSelf) {
         super.getLocationInWindow(context, value, forSelf);
         if (context.getTouchVersion() != LayoutManager.FIX_TOUCH_EVENT) {
             if (!forSelf && mVerticalScrollDelegate instanceof ScrollModifierOperation) {
@@ -507,12 +518,12 @@ public class ColumnLayout extends LayoutManager {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer                wire buffer
-     * @param componentId           component id
-     * @param animationId           animation id (-1 if not set)
+     * @param buffer wire buffer
+     * @param componentId component id
+     * @param animationId animation id (-1 if not set)
      * @param horizontalPositioning horizontal positioning rules
-     * @param verticalPositioning   vertical positioning rules
-     * @param spacedBy              spaced by value
+     * @param verticalPositioning vertical positioning rules
+     * @param spacedBy spaced by value
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -532,12 +543,12 @@ public class ColumnLayout extends LayoutManager {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         int horizontalPositioning = buffer.readInt();
         int verticalPositioning = buffer.readInt();
         float spacedBy = buffer.readFloat();
@@ -571,10 +582,7 @@ public class ColumnLayout extends LayoutManager {
                 .exampleImage("SpaceAround", "layout-ColumnLayout-start-space-around.png")
                 .exampleImage("SpaceBetween", "layout-ColumnLayout-start-space-between.png")
                 .field(INT, "componentId", "Unique ID for this component")
-                .field(
-                        INT,
-                        "animationId",
-                        "ID used to match components for animation purposes")
+                .field(INT, "animationId", "ID used to match components for animation purposes")
                 .field(INT, "horizontalPositioning", "Horizontal positioning value")
                 .possibleValues("START", START)
                 .possibleValues("CENTER", CENTER)

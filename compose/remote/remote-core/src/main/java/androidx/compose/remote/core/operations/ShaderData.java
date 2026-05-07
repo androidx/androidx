@@ -21,9 +21,11 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.INT
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -44,21 +46,28 @@ import java.util.List;
  * compressed and saved in playback the image is decompressed
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ShaderData extends Operation implements VariableSupport, Serializable {
+public class ShaderData extends Operation
+        implements VariableSupport, Serializable, VariableProvider, ComponentData {
     private static final int OP_CODE = Operations.DATA_SHADER;
     private static final String CLASS_NAME = "ShaderData";
-    private static final int MAX_FLOAT_LEN = 200;
     int mShaderTextId; // the actual text of a shader
     int mShaderID; // allows shaders to be referenced by number
-    @Nullable
-    HashMap<String, float[]> mUniformRawFloatMap = null;
-    @Nullable
-    HashMap<String, float[]> mUniformFloatMap = null;
-    @Nullable
-    HashMap<String, int[]> mUniformIntMap;
-    @Nullable
-    HashMap<String, Integer> mUniformBitmapMap = null;
+
+    @Nullable HashMap<String, float[]> mUniformRawFloatMap = null;
+    @Nullable HashMap<String, float[]> mUniformFloatMap = null;
+    @Nullable HashMap<String, int[]> mUniformIntMap;
+    @Nullable HashMap<String, Integer> mUniformBitmapMap = null;
     private boolean mShaderValid = false;
+
+    @Override
+    public int getId() {
+        return mShaderID;
+    }
+
+    @Override
+    public void setId(int id) {
+        mShaderID = id;
+    }
 
     public ShaderData(
             int shaderID,
@@ -191,8 +200,8 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
                     float[] dynamicValues = null;
                     CollectionsAccess collectionsAccess = context.getCollectionsAccess();
                     if (collectionsAccess != null) {
-                        dynamicValues = collectionsAccess
-                                .getDynamicFloats(Utils.idFromNan(value[i]));
+                        dynamicValues =
+                                collectionsAccess.getDynamicFloats(Utils.idFromNan(value[i]));
                     }
                     if (out == null) { // need to copy
                         out = Arrays.copyOf(value, value.length);
@@ -245,12 +254,12 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer       buffer to write into
-     * @param shaderID     id of shader
+     * @param buffer buffer to write into
+     * @param shaderID id of shader
      * @param shaderTextId id of text of shader
-     * @param floatMap     the map of float uniforms
-     * @param intMap       the map of int uniforms
-     * @param bitmapMap    the map of bitmap uniforms
+     * @param floatMap the map of float uniforms
+     * @param intMap the map of int uniforms
+     * @param bitmapMap the map of bitmap uniforms
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -304,12 +313,12 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int shaderID = buffer.readInt();
-        int shaderTextId = buffer.readInt();
+        int shaderID = buffer.declareId();
+        int shaderTextId = buffer.readId();
         HashMap<String, float[]> floatMap = null;
         HashMap<String, int[]> intMap = null;
         HashMap<String, Integer> bitmapMap = null;
@@ -322,13 +331,13 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
             for (int i = 0; i < floatMapSize; i++) {
                 String name = buffer.readUTF8();
                 int len = buffer.readInt();
-                if (len > MAX_FLOAT_LEN) {
+                if (len > Limits.MAX_SHADER_FLOAT_COUNT) {
                     throw new RuntimeException("Float array too long");
                 }
                 float[] val = new float[len];
 
                 for (int j = 0; j < len; j++) {
-                    val[j] = buffer.readFloat();
+                    val[j] = buffer.readNanId();
                 }
 
                 floatMap.put(name, val);
@@ -342,7 +351,7 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
             for (int i = 0; i < intMapSize; i++) {
                 String name = buffer.readUTF8();
                 int len = buffer.readInt();
-                if (len > MAX_FLOAT_LEN) {
+                if (len > Limits.MAX_SHADER_FLOAT_COUNT) {
                     throw new RuntimeException("int array too long");
                 }
                 int[] val = new int[len];
@@ -358,7 +367,7 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
             bitmapMap = new HashMap<>();
             for (int i = 0; i < bitmapMapSize; i++) {
                 String name = buffer.readUTF8();
-                int val = buffer.readInt();
+                int val = buffer.readId();
                 bitmapMap.put(name, val);
             }
         }
@@ -376,7 +385,9 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
                 .description("Define a shader with associated uniforms")
                 .field(DocumentedOperation.INT, "shaderID", "The ID of the shader")
                 .field(DocumentedOperation.INT, "shaderTextId", "The ID of the shader source text")
-                .field(DocumentedOperation.INT, "sizes",
+                .field(
+                        DocumentedOperation.INT,
+                        "sizes",
                         "Encoded sizes of uniform maps (float, int, bitmap)")
                 .field(UTF8, "floatUniformName[0..n]", "Name of float uniform")
                 .field(INT, "floatUniformLength[0..n]", "Length of float uniform")

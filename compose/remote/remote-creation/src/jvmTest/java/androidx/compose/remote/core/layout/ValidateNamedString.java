@@ -38,8 +38,11 @@ public class ValidateNamedString extends TestOperation {
     }
 
     @Override
-    public boolean apply(@NonNull RemoteContext context, @NonNull CoreDocument document,
-            @NonNull TestParameters testParameters, @Nullable List<Map<String, Object>> commands) {
+    public boolean apply(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull TestParameters testParameters,
+            @Nullable List<Map<String, Object>> commands) {
         if (!(context instanceof MockRemoteContext)) {
             return false;
         }

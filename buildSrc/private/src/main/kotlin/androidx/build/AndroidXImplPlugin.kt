@@ -668,6 +668,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 34 -> "8.1.1"
                 35 -> "8.6.0"
                 36 -> "8.9.1"
+                37 -> "9.1.0"
                 else -> throw Exception("Unknown compileSdk to minAgpVersion mapping")
             }
         }

@@ -25,24 +25,24 @@ import java.util.Arrays;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StringUtils {
     public static final byte GROUPING_NONE = 0; // e.g. 1234567890.12
-    public static final byte GROUPING_BY3 = 1;   // e.g. 1,234,567,890.12
-    public static final byte GROUPING_BY4 = 2;  // e.g. 12,3456,7890.12
+    public static final byte GROUPING_BY3 = 1; // e.g. 1,234,567,890.12
+    public static final byte GROUPING_BY4 = 2; // e.g. 12,3456,7890.12
     public static final byte GROUPING_BY32 = 3; // e.g. 1,23,45,67,890.12
 
     public static final byte SEPARATOR_COMMA_PERIOD = 0; // e.g. 123,456.12
     public static final byte SEPARATOR_PERIOD_COMMA = 1; // e.g. 123.456,12
-    public static final byte SEPARATOR_SPACE_COMMA = 2;  // e.g. 123 456,12
+    public static final byte SEPARATOR_SPACE_COMMA = 2; // e.g. 123 456,12
     public static final byte SEPARATOR_UNDER_PERIOD = 3; // e.g. 123_456.12
 
-    public static final int NO_OPTIONS = 0;         // e.g. -890.12
+    public static final int NO_OPTIONS = 0; // e.g. -890.12
     public static final int NEGATIVE_PARENTHESES = 1; // e.g. (890.12)
     public static final int ROUNDING = 2; // Default is simple clipping
     public static final int POINT_ZERO = 4; // Default is simple clipping
 
-
     public static final char PAD_NONE = 0;
     public static final char PAD_ZERO = '0';
     public static final char PAD_SPACE = ' ';
+
     private StringUtils() {}
 
     /**
@@ -116,17 +116,15 @@ public class StringUtils {
         return (isNeg ? "-" : "") + integerPartString + "." + fact;
     }
 
-
     /**
-     * Converts a float into a string. Providing a defined number of characters
-     * before and after the
+     * Converts a float into a string. Providing a defined number of characters before and after the
      * decimal point.
      *
-     * @param value              The value to convert to string
+     * @param value The value to convert to string
      * @param beforeDecimalPoint digits before the decimal point
-     * @param afterDecimalPoint  digits after the decimal point
-     * @param pre                character to pad width 0 = no pad typically ' ' or '0'
-     * @param post               character to pad width 0 = no pad typically ' ' or '0'
+     * @param afterDecimalPoint digits after the decimal point
+     * @param pre character to pad width 0 = no pad typically ' ' or '0'
+     * @param post character to pad width 0 = no pad typically ' ' or '0'
      * @return The formatted string representation of the float.
      */
     @NonNull
@@ -154,7 +152,7 @@ public class StringUtils {
                 groupSep = '_';
                 decSep = '.';
                 break;
-            // default is SEPARATOR_COMMA_PERIOD
+                // default is SEPARATOR_COMMA_PERIOD
         }
         boolean useParenthesesForNeg = (options & NEGATIVE_PARENTHESES) != 0;
         boolean rounding = (options & ROUNDING) != 0;
@@ -173,20 +171,26 @@ public class StringUtils {
             switch (grouping) {
                 case GROUPING_BY3:
                     for (int i = len - 3; i > 0; i -= 3) {
-                        integerPartString = integerPartString.substring(0, i)
-                                + groupSep + integerPartString.substring(i);
+                        integerPartString =
+                                integerPartString.substring(0, i)
+                                        + groupSep
+                                        + integerPartString.substring(i);
                     }
                     break;
                 case GROUPING_BY4:
                     for (int i = len - 4; i > 0; i -= 4) {
-                        integerPartString = integerPartString.substring(0, i)
-                                + groupSep + integerPartString.substring(i);
+                        integerPartString =
+                                integerPartString.substring(0, i)
+                                        + groupSep
+                                        + integerPartString.substring(i);
                     }
                     break;
                 case GROUPING_BY32:
                     for (int i = len - 3; i > 0; i -= 2) {
-                        integerPartString = integerPartString.substring(0, i)
-                                + groupSep + integerPartString.substring(i);
+                        integerPartString =
+                                integerPartString.substring(0, i)
+                                        + groupSep
+                                        + integerPartString.substring(i);
                     }
                     break;
             }
@@ -203,6 +207,13 @@ public class StringUtils {
         } else if (iLen > beforeDecimalPoint) {
             integerPartString = integerPartString.substring(iLen - beforeDecimalPoint);
         }
+        int trimAfter = afterDecimalPoint;
+        if (iLen + afterDecimalPoint > 9) {
+            trimAfter = Math.max(1, 9 - iLen);
+        }
+        if (post == 0) {
+            afterDecimalPoint = trimAfter;
+        }
 
         if (afterDecimalPoint == 0) {
             if (!isNeg) {
@@ -215,12 +226,12 @@ public class StringUtils {
         }
         // Convert fractional part to string and pad with zeros
 
-        for (int i = 0; i < afterDecimalPoint; i++) {
+        for (int i = 0; i < trimAfter; i++) {
             fractionalPart *= 10;
         }
         fractionalPart = Math.round(fractionalPart);
 
-        for (int i = 0; i < afterDecimalPoint; i++) {
+        for (int i = 0; i < trimAfter; i++) {
             fractionalPart *= .1F;
         }
 
@@ -251,10 +262,8 @@ public class StringUtils {
         return "-" + integerPartString + decSep + fact;
     }
 
-    private static char[] tochars(float value,
-            int beforeDecimalPoint,
-            int afterDecimalPoint,
-            boolean rounding) {
+    private static char[] tochars(
+            float value, int beforeDecimalPoint, int afterDecimalPoint, boolean rounding) {
         boolean isNegative = false;
         if (value < 0) {
             isNegative = true;

@@ -21,9 +21,11 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -33,12 +35,22 @@ import java.util.List;
 
 /** Used to represent a long */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LongConstant extends Operation implements Serializable {
+public class LongConstant extends Operation
+        implements Serializable, VariableProvider, ComponentData {
     private static final String CLASS_NAME = "LongConstant";
-
     private static final int OP_CODE = Operations.DATA_LONG;
     private long mValue;
-    public final int mId;
+    public int mId;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     /**
      * @param id the id of the constant
@@ -118,9 +130,8 @@ public class LongConstant extends Operation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-
-        long value = buffer.readLong();
+        int id = buffer.declareId();
+        long value = buffer.readLongNanId();
         operations.add(new LongConstant(id, value));
     }
 

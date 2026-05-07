@@ -69,4 +69,18 @@ class RemoteComposeWriterTest {
         assertThat(id1).isEqualTo(id2)
         assertThat(sizeAfterFirstCall).isEqualTo(sizeAfterSecondCall)
     }
+
+    @Test
+    fun testConstructorWithTagsSetsFields() {
+        assertThat(writer.mPlatform).isEqualTo(profile.platform)
+        assertThat(writer.mApiLevel).isEqualTo(profile.apiLevel)
+    }
+
+    @Test
+    fun testConstructorWithoutTagsSetsFields() {
+        writer = RemoteComposeWriter(creationDisplayInfo, null, profile)
+
+        assertThat(writer.mPlatform).isEqualTo(profile.platform)
+        assertThat(writer.mApiLevel).isEqualTo(profile.apiLevel)
+    }
 }

@@ -26,6 +26,9 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Header;
+import androidx.compose.remote.core.operations.layout.animation.RootAnimateMeasure;
+import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.Measurable;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
@@ -44,6 +47,8 @@ import java.util.List;
 public class RootLayoutComponent extends Component {
     private int mCurrentId = -1;
     private boolean mHasTouchListeners = false;
+    protected float mLastReportedOriginX = Float.NaN;
+    protected float mLastReportedOriginY = Float.NaN;
 
     public RootLayoutComponent(
             int componentId,
@@ -129,11 +134,11 @@ public class RootLayoutComponent extends Component {
     }
 
     private void assignId(@NonNull Component component) {
-        if (component.mComponentId == -1) {
+        if (component.getId() == -1) {
             mCurrentId--;
-            component.mComponentId = mCurrentId;
+            component.setId(mCurrentId);
         }
-        for (Operation op : component.mList) {
+        for (Operation op : component.getList()) {
             if (op instanceof Component) {
                 assignId((Component) op);
             }
@@ -150,39 +155,60 @@ public class RootLayoutComponent extends Component {
         }
         mNeedsMeasure = false;
         context.mLastComponent = this;
-        setWidth(context.mWidth);
-        setHeight(context.mHeight);
-        context.mViewportWidth = context.mWidth;
-        context.mViewportHeight = context.mHeight;
+        float newWidth = context.mWidth;
+        float newHeight = context.mHeight;
+        context.mViewportWidth = newWidth;
+        context.mViewportHeight = newHeight;
 
         // TODO: reuse MeasurePass
         MeasurePass measurePass = new MeasurePass();
+        ComponentMeasure self = measurePass.get(this);
+        self.setX(0f);
+        self.setY(0f);
+        self.setW(mWidth);
+        self.setH(mHeight);
+
         for (Operation op : mList) {
             if (op instanceof Measurable) {
                 Measurable m = (Measurable) op;
-                m.measure(context.getPaintContext(), 0f, mWidth, 0f, mHeight, measurePass);
+                m.measure(context.getPaintContext(), 0f, newWidth, 0f, newHeight, measurePass);
                 m.layout(context, measurePass);
             }
         }
+
+        // Before calling super.layout, we need to ensure 'self' has the *target* state.
+        self = measurePass.get(this);
+        self.setW(newWidth);
+        self.setH(newHeight);
+
+        layout(context, measurePass);
         if (context.isLayoutDebug()) {
             DebugLog.display();
         }
     }
 
-    /**
-     * Measure the document and layout the components
-     */
-    public void measure(@NonNull RemoteContext context, float minWidth, float maxWidth,
-            float minHeight, float maxHeight) {
+    /** Measure the document and layout the components */
+    public void measure(
+            @NonNull RemoteContext context,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight) {
         mNeedsMeasure = false;
         context.mLastComponent = this;
-        setWidth(context.mWidth);
-        setHeight(context.mHeight);
-        context.mViewportWidth = context.mWidth;
-        context.mViewportHeight = context.mHeight;
+        float newWidth = context.mWidth;
+        float newHeight = context.mHeight;
+        context.mViewportWidth = newWidth;
+        context.mViewportHeight = newHeight;
 
         // TODO: reuse MeasurePass
         MeasurePass measurePass = new MeasurePass();
+        ComponentMeasure self = measurePass.get(this);
+        self.setX(0f);
+        self.setY(0f);
+        self.setW(mWidth);
+        self.setH(mHeight);
+
         LayoutComponent firstComponent = null;
         for (Operation op : mList) {
             if (op instanceof Measurable) {
@@ -190,7 +216,12 @@ public class RootLayoutComponent extends Component {
                 if (firstComponent == null && op instanceof LayoutComponent) {
                     firstComponent = (LayoutComponent) op;
                 }
-                m.measure(context.getPaintContext(), minWidth, maxWidth, minHeight, maxHeight,
+                m.measure(
+                        context.getPaintContext(),
+                        minWidth,
+                        maxWidth,
+                        minHeight,
+                        maxHeight,
                         measurePass);
                 m.layout(context, measurePass);
             }
@@ -199,15 +230,94 @@ public class RootLayoutComponent extends Component {
             setWidth(firstComponent.getWidth());
             setHeight(firstComponent.getHeight());
         }
+
+        self = measurePass.get(this);
+        self.setW(mWidth);
+        self.setH(mHeight);
+
+        layout(context, measurePass);
+    }
+
+    @Override
+    public void layout(@NonNull RemoteContext context, @NonNull MeasurePass measure) {
+        ComponentMeasure m = measure.get(this);
+        if (mFirstLayout) {
+            mX = 0f;
+            mY = 0f;
+            mLastReportedOriginX = context.getDocument().getOriginX();
+            mLastReportedOriginY = context.getDocument().getOriginY();
+        }
+        if (!mFirstLayout
+                && context.isAnimationEnabled()
+                && mAnimationSpec.isAnimationEnabled()
+                && m.getAllowsAnimation()) {
+            if (mAnimateMeasure == null) {
+                ComponentMeasure origin =
+                        new ComponentMeasure(mComponentId, mX, mY, mWidth, mHeight, mVisibility);
+                ComponentMeasure target =
+                        new ComponentMeasure(
+                                mComponentId,
+                                m.getX(),
+                                m.getY(),
+                                m.getW(),
+                                m.getH(),
+                                m.getVisibility());
+                float targetOriginX = context.getDocument().getOriginX();
+                float targetOriginY = context.getDocument().getOriginY();
+                float lastOriginX = mLastReportedOriginX;
+                float lastOriginY = mLastReportedOriginY;
+                boolean sizeChanged = mWidth != m.getW() || mHeight != m.getH();
+                boolean originChanged =
+                        !Float.isNaN(lastOriginX)
+                                && (lastOriginX != targetOriginX || lastOriginY != targetOriginY);
+
+                if (sizeChanged && originChanged && context.useFeature(Header.FEATURE_LT_RESIZE)) {
+                    mAnimateMeasure =
+                            new RootAnimateMeasure(
+                                    context.currentTime,
+                                    this,
+                                    origin,
+                                    target,
+                                    lastOriginX,
+                                    lastOriginY,
+                                    targetOriginX,
+                                    targetOriginY,
+                                    mAnimationSpec.getMotionDuration(),
+                                    mAnimationSpec.getVisibilityDuration(),
+                                    mAnimationSpec.getEnterAnimation(),
+                                    mAnimationSpec.getExitAnimation(),
+                                    mAnimationSpec.getMotionEasingType(),
+                                    mAnimationSpec.getVisibilityEasingType());
+                } else {
+                    mLastReportedOriginX = targetOriginX;
+                    mLastReportedOriginY = targetOriginY;
+                }
+            }
+        }
+        super.layout(context, measure);
     }
 
     @Override
     public void paint(@NonNull PaintContext context) {
+        float originX = context.getContext().getDocument().getOriginX();
+        float originY = context.getContext().getDocument().getOriginY();
+        if (applyAnimationAsNeeded(context)) {
+            mLastReportedOriginX = originX;
+            mLastReportedOriginY = originY;
+            return;
+        }
+        if (isGone() || isInvisible()) {
+            return;
+        }
         mNeedsRepaint = false;
         RemoteContext remoteContext = context.getContext();
         remoteContext.mLastComponent = this;
 
         context.save();
+
+        if (mX != 0f || mY != 0f) {
+            context.translate(mX, mY);
+        }
 
         if (mParent == null) { // root layout
             context.clipRect(0f, 0f, mWidth, mHeight);
@@ -221,6 +331,8 @@ public class RootLayoutComponent extends Component {
         }
 
         context.restore();
+        mLastReportedOriginX = originX;
+        mLastReportedOriginY = originY;
     }
 
     /**
@@ -238,8 +350,8 @@ public class RootLayoutComponent extends Component {
     /**
      * Display the component hierarchy
      *
-     * @param component  the current component
-     * @param indent     the current indentation level
+     * @param component the current component
+     * @param indent the current indentation level
      * @param serializer the serializer we write to
      */
     public void displayHierarchy(
@@ -275,9 +387,7 @@ public class RootLayoutComponent extends Component {
         return Operations.LAYOUT_ROOT;
     }
 
-    /**
-     * Write the operation on the buffer
-     */
+    /** Write the operation on the buffer */
     public static void apply(@NonNull WireBuffer buffer, int componentId) {
         buffer.start(Operations.LAYOUT_ROOT);
         buffer.writeInt(componentId);
@@ -286,11 +396,11 @@ public class RootLayoutComponent extends Component {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
+        int componentId = buffer.declareId();
         operations.add(new RootLayoutComponent(componentId, 0, 0, 0, 0, null, -1));
     }
 

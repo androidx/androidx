@@ -19,6 +19,7 @@ package androidx.compose.foundation
 import android.os.Build.VERSION.SDK_INT
 import android.os.Looper
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -72,10 +73,14 @@ import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectional
 import androidx.compose.ui.input.indirect.IndirectPointerEventType
 import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
@@ -109,6 +114,7 @@ import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -1608,11 +1614,11 @@ class ClickableTest {
 
         rule.mainClock.advanceTimeBy(halfTapIndicationDelay)
 
-        // Haven't reached the tap delay yet, so we shouldn't have started a press, we should only
-        // see the hover
+        // Scrollables don't process Mouse Press Events, so there's no need to delay.
         rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
+            assertThat(interactions).hasSize(2)
             assertThat(interactions[0]).isInstanceOf(HoverInteraction.Enter::class.java)
+            assertThat(interactions[1]).isInstanceOf(PressInteraction.Press::class.java)
         }
 
         // Advance past the tap delay
@@ -7816,6 +7822,174 @@ class ClickableTest {
         }
     }
 
+    @Test
+    fun gestureState_shouldReflectClickableBehavior_regularBehavior() {
+        class InspectingNode(val isParent: Boolean) : DelegatingNode(), PointerInputModifierNode {
+            var gestureStateOnInitialPass: GestureState? = null
+            var gestureStateOnMainPass: GestureState? = null
+            var gestureStateOnFinalPass: GestureState? = null
+
+            val suspendingPointerInput =
+                delegate(
+                    SuspendingPointerInputModifierNode {
+                        // for each pointer event, save what was the gesture state in each pass.
+                        awaitEachGesture {
+                            while (true) {
+                                awaitPointerEvent(pass = PointerEventPass.Initial)
+                                gestureStateOnInitialPass =
+                                    if (isParent) {
+                                        getChildGestureConnection()?.gestureState
+                                    } else {
+                                        getParentGestureConnection()?.gestureState
+                                    }
+
+                                awaitPointerEvent(pass = PointerEventPass.Main)
+                                gestureStateOnMainPass =
+                                    if (isParent) {
+                                        getChildGestureConnection()?.gestureState
+                                    } else {
+                                        getParentGestureConnection()?.gestureState
+                                    }
+
+                                awaitPointerEvent(pass = PointerEventPass.Final)
+                                gestureStateOnFinalPass =
+                                    if (isParent) {
+                                        getChildGestureConnection()?.gestureState
+                                    } else {
+                                        getParentGestureConnection()?.gestureState
+                                    }
+                            }
+                        }
+                    }
+                )
+
+            override fun onPointerEvent(
+                pointerEvent: PointerEvent,
+                pass: PointerEventPass,
+                bounds: IntSize,
+            ) {
+                suspendingPointerInput.onPointerEvent(pointerEvent, pass, bounds)
+            }
+
+            override fun onCancelPointerInput() {
+                suspendingPointerInput.onCancelPointerInput()
+            }
+        }
+
+        val childNode = InspectingNode(false)
+        val parentNode = InspectingNode(true)
+
+        var enabled by mutableStateOf(true)
+
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.testTag("myClickable").size(300.dp).elementFor(parentNode).clickable(
+                        enabled = enabled
+                    ) {}
+            ) {
+                Box(Modifier.size(300.dp).elementFor(childNode))
+            }
+        }
+
+        // haven't received any input yet so node isn't initialized
+        rule.runOnIdle { assertThat(childNode.getParentGestureConnection()).isNull() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        assertThat(parentNode.gestureStateOnInitialPass).isEqualTo(null)
+        assertThat(childNode.gestureStateOnInitialPass).isEqualTo(GestureState.Idle)
+
+        assertThat(parentNode.gestureStateOnMainPass).isEqualTo(GestureState.Waiting)
+        assertThat(childNode.gestureStateOnMainPass).isEqualTo(GestureState.Idle)
+
+        assertThat(parentNode.gestureStateOnFinalPass).isEqualTo(GestureState.Waiting)
+        assertThat(childNode.gestureStateOnFinalPass).isEqualTo(GestureState.Waiting)
+
+        rule.onNodeWithTag("myClickable").performTouchInput { up() }
+
+        assertThat(parentNode.gestureStateOnInitialPass).isEqualTo(GestureState.Waiting)
+        assertThat(childNode.gestureStateOnInitialPass).isEqualTo(GestureState.Waiting)
+
+        assertThat(parentNode.gestureStateOnMainPass).isEqualTo(GestureState.Recognized)
+        assertThat(childNode.gestureStateOnMainPass).isEqualTo(GestureState.Waiting)
+
+        assertThat(parentNode.gestureStateOnFinalPass).isEqualTo(GestureState.Recognized)
+        assertThat(childNode.gestureStateOnFinalPass).isEqualTo(GestureState.Idle)
+
+        enabled = false
+
+        rule.runOnIdle { assertThat(childNode.getParentGestureConnection()).isNull() }
+
+        enabled = true
+
+        // need to receive a new event after enabled to get it back to reporting.
+        rule.runOnIdle { assertThat(childNode.getParentGestureConnection()).isNull() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        assertThat(parentNode.gestureStateOnInitialPass).isEqualTo(null)
+        assertThat(childNode.gestureStateOnInitialPass).isEqualTo(GestureState.Idle)
+
+        assertThat(parentNode.gestureStateOnMainPass).isEqualTo(GestureState.Waiting)
+        assertThat(childNode.gestureStateOnMainPass).isEqualTo(GestureState.Idle)
+
+        assertThat(parentNode.gestureStateOnFinalPass).isEqualTo(GestureState.Waiting)
+        assertThat(childNode.gestureStateOnFinalPass).isEqualTo(GestureState.Waiting)
+    }
+
+    @Test
+    fun gestureState_shouldReflectClickableBehavior_cancelledByMove() {
+        val node = object : DelegatingNode() {}
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.testTag("myClickable").size(30.dp).clickable(enabled = enabled) {}
+            ) {
+                Box(Modifier.size(30.dp).elementFor(node))
+            }
+        }
+
+        // haven't received any input yet so node isn't initialized
+        rule.runOnIdle { assertThat(node.getParentGestureConnection()).isNull() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        assertThat(node.getParentGestureConnection()?.gestureState).isEqualTo(GestureState.Waiting)
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            moveBy(Offset(0f, 2f * with(rule.density) { 30.dp.roundToPx() }))
+        }
+
+        rule.runOnIdle {
+            assertThat(node.getParentGestureConnection()?.gestureState).isEqualTo(GestureState.Idle)
+        }
+    }
+
+    @Test
+    fun gestureState_shouldReflectClickableBehavior_cancelledByConsumption() {
+        val node = object : DelegatingNode() {}
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.testTag("myClickable").size(30.dp).clickable(enabled = enabled) {}
+            ) {
+                Box(Modifier.size(30.dp).elementFor(node).clickable() {})
+            }
+        }
+
+        // haven't received any input yet so node isn't initialized
+        rule.runOnIdle { assertThat(node.getParentGestureConnection()).isNull() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(node.getParentGestureConnection()?.gestureState).isEqualTo(GestureState.Idle)
+        }
+    }
+
     /**
      * Test to ensure that indirect pointer cancellation (triggered when we lose focus, such as when
      * a clickable loses focus when moving to touch mode) doesn't also cancel ongoing clicks from
@@ -7972,4 +8146,22 @@ internal fun SemanticsNodeInteraction.assertOnClickLabelMatches(
             it.config.getOrElseNullable(SemanticsActions.OnClick) { null }?.label == expectedValue
         }
     )
+}
+
+private fun DelegatingNode.getParentGestureConnection(): GestureConnection? {
+    var gestureConnection: GestureConnection? = null
+    traverseAncestorGestures {
+        gestureConnection = it
+        false
+    }
+    return gestureConnection
+}
+
+private fun DelegatingNode.getChildGestureConnection(): GestureConnection? {
+    var gestureConnection: GestureConnection? = null
+    traverseChildrenGestures {
+        gestureConnection = it
+        false
+    }
+    return gestureConnection
 }

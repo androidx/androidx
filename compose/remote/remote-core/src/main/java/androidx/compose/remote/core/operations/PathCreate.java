@@ -23,6 +23,7 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -36,18 +37,25 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * A path create operation.
- * Works with PathAppend.
- * TODO implement winding rule
- */
+/** A path create operation. Works with PathAppend. TODO implement winding rule */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PathCreate extends PaintOperation implements VariableSupport, Serializable {
+public class PathCreate extends PaintOperation
+        implements VariableSupport, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.PATH_CREATE;
     private static final String CLASS_NAME = "PathCreate";
     int mInstanceId;
     float[] mFloatPath;
     float[] mOutputPath;
+
+    @Override
+    public int getId() {
+        return mInstanceId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mInstanceId = id;
+    }
 
     public PathCreate(int instanceId, float startX, float startY) {
         mInstanceId = instanceId;
@@ -162,10 +170,9 @@ public class PathCreate extends PaintOperation implements VariableSupport, Seria
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-
-        int id = buffer.readInt();
-        float startX = buffer.readFloat();
-        float startY = buffer.readFloat();
+        int id = buffer.declareId();
+        float startX = buffer.readNanId();
+        float startY = buffer.readNanId();
         operations.add(new PathCreate(id, startX, startY));
     }
 

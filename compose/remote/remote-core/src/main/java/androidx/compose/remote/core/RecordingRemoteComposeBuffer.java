@@ -95,6 +95,7 @@ import androidx.compose.remote.core.operations.TextLookupInt;
 import androidx.compose.remote.core.operations.TextMeasure;
 import androidx.compose.remote.core.operations.TextMerge;
 import androidx.compose.remote.core.operations.TextSubtext;
+import androidx.compose.remote.core.operations.TextTransform;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
@@ -110,6 +111,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseOperation;
 import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
+import androidx.compose.remote.core.operations.layout.MultiClickModifier;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
@@ -126,12 +128,14 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
@@ -153,6 +157,11 @@ import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChang
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation;
+import androidx.compose.remote.core.operations.loom.PatternArgument;
+import androidx.compose.remote.core.operations.loom.PatternBlock;
+import androidx.compose.remote.core.operations.loom.PatternDefine;
+import androidx.compose.remote.core.operations.loom.PatternForEach;
+import androidx.compose.remote.core.operations.loom.PatternInflation;
 import androidx.compose.remote.core.operations.matrix.MatrixConstant;
 import androidx.compose.remote.core.operations.matrix.MatrixExpression;
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath;
@@ -315,7 +324,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     private interface OperationBlock {
-        void run(WireBuffer buffer, ArrayList<Operation> operations);
+        void run(WireBuffer buffer, List<Operation> operations);
     }
 
     private void addOperation(int id, @NonNull OperationBlock block) {
@@ -420,7 +429,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addDrawBitmap(
-            int imageId, float left, float top, float right, float bottom,
+            int imageId,
+            float left,
+            float top,
+            float right,
+            float bottom,
             int contentDescriptionId) {
         addOperation(new DrawBitmap(imageId, left, top, right, bottom, contentDescriptionId));
     }
@@ -568,14 +581,24 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addDrawBitmapFontTextRun(
-            int textId, int bitmapFontId, int start, int end, float x, float y,
+            int textId,
+            int bitmapFontId,
+            int start,
+            int end,
+            float x,
+            float y,
             float glyphSpacing) {
         addOperation(new DrawBitmapFontText(textId, bitmapFontId, start, end, x, y, glyphSpacing));
     }
 
     @Override
     public void addDrawBitmapFontTextRunOnPath(
-            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj,
+            int textId,
+            int bitmapFontId,
+            int pathId,
+            int start,
+            int end,
+            float yAdj,
             float glyphSpacing) {
         addOperation(
                 new DrawBitmapFontTextOnPath(
@@ -880,6 +903,61 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
+    public int definePattern(@NonNull String name, int @NonNull [] paramIds) {
+        int id = name.hashCode();
+        addText(id, name);
+        addOperation(new PatternDefine(id, paramIds));
+        return id;
+    }
+
+    @Override
+    public int definePatternParameter(@NonNull String name) {
+        int id = name.hashCode();
+        addText(id, name);
+        return id;
+    }
+
+    @Override
+    public void inflatePattern(int id, int @NonNull [] argIds) {
+        addOperation(new PatternInflation(id, argIds));
+    }
+
+    @Override
+    public void addPatternBlock(int paramIndex) {
+        addOperation(new PatternBlock(paramIndex));
+    }
+
+    @Override
+    public void addPatternArgument(int paramIndex) {
+        addOperation(new PatternArgument(paramIndex));
+    }
+
+    @Override
+    public void addPatternForEach(int collectionId, int localItemId) {
+        addOperation(new PatternForEach(collectionId, localItemId));
+    }
+
+    @Override
+    public void endPatternForEach() {
+        addContainerEnd();
+    }
+
+    @Override
+    public void endPatternDefine() {
+        addContainerEnd();
+    }
+
+    @Override
+    public void endPatternInflation() {
+        addContainerEnd();
+    }
+
+    @Override
+    public void endPatternBlock() {
+        addContainerEnd();
+    }
+
+    @Override
     public void addContainerEnd() {
         addOperation(new ContainerEnd());
     }
@@ -1007,16 +1085,14 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     @Override
     public void addFitBoxStart(int componentId, int animationId, int horizontal, int vertical) {
         mLastComponentId = getComponentId(componentId);
-        addOperation(
-                new FitBoxLayout(null, mLastComponentId, animationId, horizontal, vertical));
+        addOperation(new FitBoxLayout(null, mLastComponentId, animationId, horizontal, vertical));
     }
 
     @Override
     public void addImage(
             int componentId, int animationId, int bitmapId, int scaleType, float alpha) {
         mLastComponentId = getComponentId(componentId);
-        addOperation(
-                new ImageLayout(null, componentId, animationId, bitmapId, scaleType, alpha));
+        addOperation(new ImageLayout(null, componentId, animationId, bitmapId, scaleType, alpha));
     }
 
     @Override
@@ -1136,6 +1212,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             int componentId,
             int animationId,
             int textId,
+            int textStyleId,
             int color,
             int colorId,
             float fontSize,
@@ -1188,7 +1265,98 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
                         fontAxis,
                         fontAxisValues,
                         autosize,
-                        flags));
+                        flags,
+                        textStyleId));
+    }
+
+    @Override
+    public void addTextStyle(
+            int id,
+            @Nullable Integer color,
+            @Nullable Integer colorId,
+            @Nullable Float fontSize,
+            @Nullable Float minFontSize,
+            @Nullable Float maxFontSize,
+            @Nullable Integer fontStyle,
+            @Nullable Float fontWeight,
+            @Nullable Integer fontFamilyId,
+            @Nullable Integer textAlign,
+            @Nullable Integer overflow,
+            @Nullable Integer maxLines,
+            @Nullable Float letterSpacing,
+            @Nullable Float lineHeightAdd,
+            @Nullable Float lineHeightMultiplier,
+            @Nullable Integer lineBreakStrategy,
+            @Nullable Integer hyphenationFrequency,
+            @Nullable Integer justificationMode,
+            @Nullable Boolean underline,
+            @Nullable Boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            @Nullable Boolean autosize,
+            @Nullable Integer parentId) {
+        addOperation(
+                new TextStyle(
+                        id,
+                        color,
+                        colorId,
+                        fontSize,
+                        minFontSize,
+                        maxFontSize,
+                        fontStyle,
+                        fontWeight,
+                        fontFamilyId,
+                        textAlign,
+                        overflow,
+                        maxLines,
+                        letterSpacing,
+                        lineHeightAdd,
+                        lineHeightMultiplier,
+                        lineBreakStrategy,
+                        hyphenationFrequency,
+                        justificationMode,
+                        underline,
+                        strikethrough,
+                        fontAxis,
+                        fontAxisValues,
+                        autosize,
+                        parentId));
+    }
+
+    @Override
+    public void addTextComponentStart(
+            int componentId, int animationId, int textId, int textStyleId, int flags) {
+        mLastComponentId = getComponentId(componentId);
+        addOperation(
+                new CoreText(
+                        null,
+                        mLastComponentId,
+                        animationId,
+                        textId,
+                        0,
+                        -1,
+                        16f,
+                        -1f,
+                        -1f,
+                        0,
+                        400f,
+                        -1,
+                        1,
+                        1,
+                        Integer.MAX_VALUE,
+                        0f,
+                        0f,
+                        1f,
+                        0,
+                        0,
+                        0,
+                        false,
+                        false,
+                        null,
+                        null,
+                        false,
+                        flags,
+                        textStyleId));
     }
 
     @Override
@@ -1311,14 +1479,14 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
-    public int storeBitmapUrl(int imageId, @NonNull String url) {
+    public int storeBitmapUrl(int imageId, @NonNull String url, int width, int height) {
         addOperation(
                 new BitmapData(
                         imageId,
                         BitmapData.TYPE_PNG,
-                        (short) 1,
+                        (short) width,
                         BitmapData.ENCODING_URL,
-                        (short) 1,
+                        (short) height,
                         url.getBytes(StandardCharsets.UTF_8)));
         return imageId;
     }
@@ -1376,6 +1544,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
+    public void textTransform(int id, int txtId, float start, float len, int operation) {
+        addOperation(new TextTransform(id, txtId, start, len, operation), id);
+    }
+
+    @Override
     public void bitmapTextMeasure(int id, int textId, int bmFontId, int type, float glyphSpacing) {
         addOperation(new BitmapTextMeasure(id, textId, bmFontId, type, glyphSpacing), id);
     }
@@ -1391,7 +1564,9 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
-    public void setVersion(int documentApiLevel, int operationsProfiles,
+    public void setVersion(
+            int documentApiLevel,
+            int operationsProfiles,
             @NonNull Set<Integer> supportedOperations) {
         throw new UnsupportedOperationException("setVersion is not supported");
     }
@@ -1478,6 +1653,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
+    public void addDimensionConstraintsModifierOperation(int type, float min, float max) {
+        addOperation(new DimensionConstraintsModifierOperation(type, min, max));
+    }
+
+    @Override
     public void addDrawContentOperation() {
         addOperation(new DrawContentOperation());
     }
@@ -1510,6 +1690,16 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
                         mode,
                         enabled,
                         clickable));
+    }
+
+    /**
+     * Add a click modifier operation
+     *
+     * @param clickType type of click (0=single, 1=long, 2=double)
+     */
+    @Override
+    public void addClickModifierOperation(int clickType) {
+        addOperation(new MultiClickModifier(clickType));
     }
 
     @Override
@@ -1668,7 +1858,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
         @Override
         public void addCollection(int id, @NonNull ArrayAccess collection) {
-            throw new UnsupportedOperationException("Not yet implemented");
+            // Ignore, called by RecordingRemoteComposeBuffer.addDynamicFloatArray.
         }
 
         @Override

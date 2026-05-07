@@ -32,6 +32,7 @@ public class ApplyComponentTouchDown extends TestComponentOperation {
 
     private final float mX;
     private final float mY;
+
     public ApplyComponentTouchDown(int id, float x, float y) {
         super(id);
         mX = x;
@@ -45,12 +46,12 @@ public class ApplyComponentTouchDown extends TestComponentOperation {
         for (int i = 0; i < ops.size(); i++) {
             Operation op = ops.get(i);
             if (op instanceof ComponentModifiers) {
-                ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getList();
+                ArrayList<ModifierOperation> mods = ((ComponentModifiers) op).getModifiersList();
                 for (int j = 0; j < mods.size(); j++) {
-                    ModifierOperation m = mods.get(j);
-                    if (m instanceof TouchDownModifierOperation) {
-                        ((TouchDownModifierOperation) m)
-                                .onTouchDown(getContext(), getDocument(), component, mX, mY);
+                    ModifierOperation mod = (ModifierOperation) mods.get(j);
+                    if (mod instanceof TouchDownModifierOperation) {
+                        ((TouchDownModifierOperation) mod)
+                                .onTouchDown(null, null, component, mX, mY);
                         forceRepaint = true;
                     }
                 }

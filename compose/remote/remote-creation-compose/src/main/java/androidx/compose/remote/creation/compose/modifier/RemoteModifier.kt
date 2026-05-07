@@ -19,9 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.Modifier
 
 /**
  * An ordered, immutable collection of modifier elements for Remote Compose.
@@ -36,10 +34,6 @@ public sealed interface RemoteModifier {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteStateScope.toRecordingModifier(): RecordingModifier
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Composable
-    public fun Modifier.toComposeUi(): Modifier = this
 
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
@@ -134,18 +128,7 @@ public sealed interface RemoteModifier {
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun RemoteStateScope.toRecordingModifier(): RecordingModifier = RecordingModifier()
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Composable
-        override fun Modifier.toComposeUi(): Modifier = this
     }
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@Suppress("ModifierFactoryExtensionFunction")
-public fun RemoteModifier.toComposeUi(): Modifier {
-    return Modifier.toComposeUi()
 }
 
 /**
@@ -156,16 +139,6 @@ public fun RemoteModifier.toComposeUi(): Modifier {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): RecordingModifier =
     with(modifier) { toRecordingModifier() }
-
-/**
- * Filter the Layout relevant [RemoteModifier.Element]s and then convert to Compose UI [Modifier].
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@Suppress("ModifierFactoryExtensionFunction")
-public fun RemoteModifier.toComposeUiLayout(): Modifier {
-    return this.foldIn<RemoteModifier>(RemoteModifier) { r, n -> r.then(n) }.toComposeUi()
-}
 
 /**
  * A node in a [RemoteModifier] chain. A CombinedModifier always contains at least two elements; a
@@ -194,17 +167,6 @@ internal class CombinedRemoteModifier(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        var result = this
-
-        result = with(outer) { result.toComposeUi() }
-        result = with(inner) { result.toComposeUi() }
-
-        return result
-    }
-
     override fun <R> foldIn(initial: R, operation: (R, RemoteModifier.Element) -> R): R =
         inner.foldIn(outer.foldIn(initial, operation), operation)
 
@@ -228,4 +190,9 @@ internal class CombinedRemoteModifier(
                 if (acc.isEmpty()) element.toString() else "$acc, $element"
             } +
             "]"
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public inline fun <reified T : RemoteModifier.Element> RemoteModifier.find(): T? {
+    return this.foldIn<T?>(null) { result, element -> result ?: element as? T }
 }

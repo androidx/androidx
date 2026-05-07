@@ -21,9 +21,11 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.REP
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
@@ -48,7 +50,7 @@ import java.util.Objects;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FloatExpression extends Operation
-        implements ComponentData, VariableSupport, Serializable {
+        implements ComponentData, VariableSupport, Serializable, VariableProvider {
     private static final int OP_CODE = Operations.ANIMATED_FLOAT;
     private static final String CLASS_NAME = "FloatExpression";
     public int mId;
@@ -60,7 +62,16 @@ public class FloatExpression extends Operation
     private float mLastChange = Float.NaN;
     private float mLastCalculatedValue = Float.NaN;
     @NonNull AnimatedFloatExpression mExp = new AnimatedFloatExpression();
-    public static final int MAX_EXPRESSION_SIZE = 32;
+
+    @Override
+    public int getId() {
+        return mId;
+    }
+
+    @Override
+    public void setId(int id) {
+        mId = id;
+    }
 
     public FloatExpression(int id, float @NonNull [] value, float @Nullable [] animation) {
         this.mId = id;
@@ -285,7 +296,7 @@ public class FloatExpression extends Operation
         buffer.writeInt(id);
 
         int len = value.length;
-        if (len > MAX_EXPRESSION_SIZE) {
+        if (len > Limits.MAX_EXPRESSION_SIZE) {
             throw new RuntimeException(AnimatedFloatExpression.toString(value, null) + " to long");
         }
         if (animation != null) {
@@ -310,23 +321,24 @@ public class FloatExpression extends Operation
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
+        int id = buffer.declareId();
         int len = buffer.readInt();
         int valueLen = len & 0xFFFF;
-        if (valueLen > MAX_EXPRESSION_SIZE) {
+        int animLen = (len >> 16) & 0xFFFF;
+
+        if (valueLen > Limits.MAX_EXPRESSION_SIZE) {
             throw new RuntimeException("Float expression too long");
         }
-        int animLen = (len >> 16) & 0xFFFF;
         float[] values = new float[valueLen];
         for (int i = 0; i < values.length; i++) {
-            values[i] = buffer.readFloat();
+            values[i] = buffer.readNanId();
         }
 
         float[] animation;
         if (animLen != 0) {
             animation = new float[animLen];
             for (int i = 0; i < animation.length; i++) {
-                animation[i] = buffer.readFloat();
+                animation[i] = buffer.readNanId();
             }
         } else {
             animation = null;

@@ -25,6 +25,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ParticleAnimation {
     @NonNull HashMap<Integer, ArrayList<Particle>> mAllParticles = new HashMap<>();

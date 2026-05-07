@@ -205,9 +205,9 @@ public final class androidx/compose/ui/KeepScreenOnKt {
 public final class androidx/compose/ui/MediaQueryKt {
 	public static final fun derivedMediaQuery (Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
 	public static final fun getLocalUiMediaScope ()Landroidx/compose/runtime/ProvidableCompositionLocal;
-	public static final fun mediaQuery (Landroidx/compose/runtime/CompositionLocalAccessorScope;Lkotlin/jvm/functions/Function1;)Z
-	public static final fun mediaQuery (Landroidx/compose/ui/node/CompositionLocalConsumerModifierNode;Lkotlin/jvm/functions/Function1;)Z
-	public static final fun mediaQuery (Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Z
+	public static final fun mediaQuery (Landroidx/compose/runtime/CompositionLocalAccessorScope;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun mediaQuery (Landroidx/compose/ui/node/CompositionLocalConsumerModifierNode;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun mediaQuery (Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Ljava/lang/Object;
 }
 
 public abstract interface class androidx/compose/ui/Modifier {
@@ -1297,6 +1297,29 @@ public final class androidx/compose/ui/graphics/GraphicsLayerScopeKt {
 	public static final fun GraphicsLayerScope ()Landroidx/compose/ui/graphics/GraphicsLayerScope;
 	public static final fun getDefaultShadowColor ()J
 	public static final fun rememberGraphicsLayer (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/layer/GraphicsLayer;
+}
+
+public final class androidx/compose/ui/graphics/MeshGradientKt {
+	public static final fun meshGradient (Landroidx/compose/ui/Modifier;IIZLkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun meshGradient$default (Landroidx/compose/ui/Modifier;IIZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public abstract interface class androidx/compose/ui/graphics/MeshGradientRenderer {
+	public abstract fun draw (Landroidx/compose/ui/graphics/drawscope/DrawScope;II[F[I[F[F[F[FZ)V
+	public static synthetic fun draw$default (Landroidx/compose/ui/graphics/MeshGradientRenderer;Landroidx/compose/ui/graphics/drawscope/DrawScope;II[F[I[F[F[F[FZILjava/lang/Object;)V
+}
+
+public final class androidx/compose/ui/graphics/MeshGradientRenderer_skikoKt {
+	public static final fun MeshGradientRenderer ()Landroidx/compose/ui/graphics/MeshGradientRenderer;
+}
+
+public final class androidx/compose/ui/graphics/MeshGradientScope {
+	public static final field $stable I
+	public fun <init> (II)V
+	public final fun getColumns ()I
+	public final fun getRows ()I
+	public final fun setVertex-6uS4IUQ (IIJJJJJJ)V
+	public static synthetic fun setVertex-6uS4IUQ$default (Landroidx/compose/ui/graphics/MeshGradientScope;IIJJJJJJILjava/lang/Object;)V
 }
 
 public final class androidx/compose/ui/graphics/TransformOrigin {

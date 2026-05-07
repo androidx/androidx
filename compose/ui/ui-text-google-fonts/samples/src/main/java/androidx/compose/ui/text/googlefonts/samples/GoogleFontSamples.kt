@@ -26,16 +26,18 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.text.googlefonts.R
 
 @Sampled
 @Composable
-fun GoogleFontSample() {
+fun GoogleFontWithoutVariationSettingsSample() {
     val fontFamily =
         FontFamily(
             Font(
                 googleFont = GoogleFont("Lobster Two"),
                 weight = FontWeight.W600,
                 style = FontStyle.Italic,
+                variationSettings = FontVariation.Settings(),
             )
         )
 
@@ -57,6 +59,58 @@ fun GoogleFontWithVariationSettingsSample() {
         FontFamily(
             Font(
                 googleFont = GoogleFont("Google Sans Flex"),
+                variationSettings = fontVariationSettings,
+            )
+        )
+
+    Text("Hello World", style = TextStyle(fontFamily = fontFamily))
+}
+
+@Sampled
+@Composable
+fun GoogleFontWithCustomFontProviderSample() {
+    val fontProvider =
+        GoogleFont.Provider(
+            providerAuthority = "com.google.android.gms.fonts",
+            providerPackage = "com.google.android.gms",
+            certificates = R.array.com_google_android_gms_fonts_certs,
+        )
+
+    val fontFamily =
+        FontFamily(
+            Font(
+                googleFont = GoogleFont("Google Sans Flex"),
+                weight = FontWeight.W600,
+                fontProvider = fontProvider,
+            )
+        )
+
+    Text("Hello World", style = TextStyle(fontFamily = fontFamily))
+}
+
+@Sampled
+@Composable
+fun GoogleFontWithCustomFontProviderAndVariationSettingsSample() {
+    val fontVariationSettings =
+        FontVariation.Settings(
+            FontVariation.grade(0),
+            FontVariation.weight(900),
+            FontVariation.slant(0f),
+            FontVariation.width(100f),
+        )
+
+    val fontProvider =
+        GoogleFont.Provider(
+            providerAuthority = "com.google.android.gms.fonts",
+            providerPackage = "com.google.android.gms",
+            certificates = R.array.com_google_android_gms_fonts_certs,
+        )
+
+    val fontFamily =
+        FontFamily(
+            Font(
+                googleFont = GoogleFont("Google Sans Flex"),
+                fontProvider = fontProvider,
                 variationSettings = fontVariationSettings,
             )
         )

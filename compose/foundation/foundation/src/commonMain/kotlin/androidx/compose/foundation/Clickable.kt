@@ -59,7 +59,6 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
@@ -892,6 +891,10 @@ internal open class ClickableNode(
             }
         } else if (pass == PointerEventPass.Final) {
             checkForCancellation(pointerEvent)
+            // The first final pass after the click was recognized, reset.
+            if (gestureState == GestureState.Recognized) {
+                gestureState = GestureState.Idle
+            }
         }
     }
 
@@ -913,6 +916,10 @@ internal open class ClickableNode(
             }
         } else if (pass == PointerEventPass.Final) {
             checkForCancellation(event)
+            // The first final pass after the click was recognized, reset.
+            if (gestureState == GestureState.Recognized) {
+                gestureState = GestureState.Idle
+            }
         }
     }
 
@@ -922,6 +929,7 @@ internal open class ClickableNode(
         this.downEvent = down
         if (enabled) {
             requestFocusWhenInMouseInputMode()
+            gestureState = GestureState.Waiting
             handlePressInteractionStart(down)
         }
     }
@@ -932,6 +940,7 @@ internal open class ClickableNode(
         this.indirectDownEvent = down
         if (enabled) {
             requestFocusWhenInMouseInputMode()
+            gestureState = GestureState.Waiting
             handlePressInteractionStart(down)
         }
     }
@@ -939,6 +948,7 @@ internal open class ClickableNode(
     private fun handleUpEvent(up: PointerInputChange) {
         up.consume()
         if (enabled) {
+            gestureState = GestureState.Recognized
             handlePressInteractionRelease(downEvent!!.position, indirectPointer = false)
             onClick()
         }
@@ -948,6 +958,7 @@ internal open class ClickableNode(
     private fun handleUpEvent(up: IndirectPointerInputChange) {
         up.consume()
         if (enabled) {
+            gestureState = GestureState.Recognized
             handlePressInteractionRelease(indirectDownEvent!!.position, indirectPointer = true)
             onClick()
         }
@@ -1014,6 +1025,7 @@ internal open class ClickableNode(
             downEvent = null
         }
         handlePressInteractionCancel(indirectPointer = indirectPointer)
+        gestureState = GestureState.Idle
     }
 
     fun update(
@@ -1627,7 +1639,6 @@ internal abstract class AbstractClickableNode(
     KeyInputModifierNode,
     FocusRequesterModifierNode,
     SemanticsModifierNode,
-    TraversableNode,
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode,
     IndirectPointerInputModifierNode,
@@ -1650,6 +1661,9 @@ internal abstract class AbstractClickableNode(
     private var localIndicationNodeFactory: IndicationNodeFactory? = null
 
     private var gestureNode: DelegatableNode? = null
+
+    override var gestureState: GestureState = GestureState.Idle
+
     private var indicationNode: DelegatableNode? = null
 
     private var pressInteraction: PressInteraction.Press? = null
@@ -1709,6 +1723,11 @@ internal abstract class AbstractClickableNode(
                 disposeInteractions()
             }
             invalidateSemantics()
+            if (!enabled) {
+                gestureNode?.let { undelegate(it) }
+                gestureNode = null
+                gestureState = GestureState.Idle
+            }
             this.enabled = enabled
         }
         if (this.onClickLabel != onClickLabel) {
@@ -1988,7 +2007,7 @@ internal abstract class AbstractClickableNode(
     protected fun handlePressInteractionStart(event: IndirectPointerInputChange) {
         interactionSource?.let { interactionSource ->
             val press = PressInteraction.Press(event.position)
-            if (delayPressInteraction(event)) {
+            if (delayPressInteraction()) {
                 delayJob =
                     coroutineScope.launch {
                         delay(TapIndicationDelay)
@@ -2005,7 +2024,7 @@ internal abstract class AbstractClickableNode(
     protected fun handlePressInteractionStart(event: PointerInputChange) {
         interactionSource?.let { interactionSource ->
             val press = PressInteraction.Press(event.position)
-            if (delayPressInteraction(event)) {
+            if (delayPressInteraction()) {
                 delayJob =
                     coroutineScope.launch {
                         delay(TapIndicationDelay)
@@ -2115,12 +2134,8 @@ internal abstract class AbstractClickableNode(
         }
     }
 
-    private fun delayPressInteraction(event: PointerInputChange): Boolean {
-        return hasInterestedParent(event) || isComposeRootInScrollableContainer()
-    }
-
-    private fun delayPressInteraction(event: IndirectPointerInputChange): Boolean =
-        hasInterestedParent(event) || isComposeRootInScrollableContainer()
+    private fun delayPressInteraction(): Boolean =
+        hasWaitingParent() || isComposeRootInScrollableContainer()
 
     private fun emitHoverEnter() {
         if (hoverInteraction == null) {
@@ -2141,30 +2156,19 @@ internal abstract class AbstractClickableNode(
             hoverInteraction = null
         }
     }
-
-    override val traverseKey: Any = TraverseKey
-
-    companion object TraverseKey
 }
 
-internal fun DelegatingNode.hasInterestedParent(event: IndirectPointerInputChange): Boolean {
-    var hasInterestedParent = false
-    traverseAncestorGestureConnections { coordinator ->
-        val isCoordinatorInterested = coordinator.isInterested(event)
-        hasInterestedParent = hasInterestedParent || isCoordinatorInterested
-        !hasInterestedParent
+internal fun DelegatingNode.hasWaitingParent(): Boolean {
+    var gestureConnection: GestureConnection? = null
+    traverseAncestorGestures { coordinator ->
+        if (coordinator.gestureState == GestureState.Waiting) {
+            gestureConnection = coordinator
+            false
+        } else {
+            true
+        }
     }
-    return hasInterestedParent
-}
-
-internal fun DelegatingNode.hasInterestedParent(event: PointerInputChange): Boolean {
-    var hasInterestedParent = false
-    traverseAncestorGestureConnections { coordinator ->
-        val isCoordinatorInterested = coordinator.isInterested(event)
-        hasInterestedParent = hasInterestedParent || isCoordinatorInterested
-        !hasInterestedParent
-    }
-    return hasInterestedParent
+    return gestureConnection != null
 }
 
 private fun unsupportedIndicationExceptionMessage(indication: Indication): String {

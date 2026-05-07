@@ -125,6 +125,29 @@ internal class SkikoInputDispatcher(
         // desktop don't have cancel events as Android does
     }
 
+    override fun PartialIndirectGesture.enqueueIndirectDown(pointerId: Int) {
+        TODO("https://youtrack.jetbrains.com/issue/CMP-10168")
+    }
+
+    override fun PartialIndirectGesture.enqueueIndirectMove() {
+        TODO("https://youtrack.jetbrains.com/issue/CMP-10168")
+    }
+
+    override fun PartialIndirectGesture.enqueueIndirectMoves(
+        relativeHistoricalTimes: List<Long>,
+        historicalCoordinates: List<List<Offset>>
+    ) {
+        TODO("https://youtrack.jetbrains.com/issue/CMP-10168")
+    }
+
+    override fun PartialIndirectGesture.enqueueIndirectUp(pointerId: Int) {
+        TODO("https://youtrack.jetbrains.com/issue/CMP-10168")
+    }
+
+    override fun PartialIndirectGesture.enqueueIndirectCancel() {
+        TODO("https://youtrack.jetbrains.com/issue/CMP-10168")
+    }
+
     override fun CursorInputState.enqueueMousePress(buttonId: Int) {
         val position = lastPosition
         val timeMillis = currentTime

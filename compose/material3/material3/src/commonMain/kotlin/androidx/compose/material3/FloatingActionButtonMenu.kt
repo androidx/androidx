@@ -110,7 +110,6 @@ import kotlinx.coroutines.launch
  * @param horizontalAlignment the horizontal alignment of the FAB Menu Items
  * @param content the content of this FAB Menu, typically a list of [FloatingActionButtonMenuItem]s
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun FloatingActionButtonMenu(
     expanded: Boolean,
@@ -189,7 +188,6 @@ fun FloatingActionButtonMenu(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun FloatingActionButtonMenuItemColumn(
     modifier: Modifier,
@@ -307,7 +305,6 @@ private fun FloatingActionButtonMenuItemColumn(
 }
 
 /** Scope for the children of [FloatingActionButtonMenu] */
-@ExperimentalMaterial3ExpressiveApi
 interface FloatingActionButtonMenuScope {
     val horizontalAlignment: Alignment.Horizontal
 }
@@ -327,7 +324,6 @@ interface FloatingActionButtonMenuScope {
  *   the matching content color for [containerColor], or to the current [LocalContentColor] if
  *   [containerColor] is not a color from the theme.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
     onClick: () -> Unit,
@@ -440,7 +436,6 @@ private val MenuItemRuler = HorizontalRuler()
  * @param content the content of this Toggleable FAB, typically an [Icon] that switches from an Add
  *   to a Close sign at 50% checked progress
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun ToggleFloatingActionButton(
     checked: Boolean,
@@ -501,7 +496,6 @@ fun ToggleFloatingActionButton(
  * @param content the content of this Toggleable FAB, typically an [Icon] that switches from an Add
  *   to a Close sign at 50% checked progress
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 private fun ToggleFloatingActionButton(
     checked: Boolean,
@@ -576,7 +570,6 @@ private fun ToggleFloatingActionButton(
 }
 
 /** Contains the default values used by [ToggleFloatingActionButton] */
-@ExperimentalMaterial3ExpressiveApi
 object ToggleFloatingActionButtonDefaults {
 
     @Composable
@@ -653,7 +646,6 @@ object ToggleFloatingActionButtonDefaults {
 }
 
 /** Scope for the children of [ToggleFloatingActionButton] */
-@ExperimentalMaterial3ExpressiveApi
 interface ToggleFloatingActionButtonScope {
 
     val checkedProgress: Float

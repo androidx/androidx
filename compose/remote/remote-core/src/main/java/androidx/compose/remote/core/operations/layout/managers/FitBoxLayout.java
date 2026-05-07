@@ -29,9 +29,8 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
-import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
-import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -114,8 +113,10 @@ public class FitBoxLayout extends LayoutManager {
     @SuppressWarnings("UnusedVariable")
     private void computeWrapSizeOriginal(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -130,14 +131,14 @@ public class FitBoxLayout extends LayoutManager {
                 LayoutComponent lc = (LayoutComponent) c;
                 WidthModifierOperation widthModifier = lc.getWidthModifier();
                 if (widthModifier != null) {
-                    WidthInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
+                    DimensionInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
                     if (widthIn != null) {
                         cw = widthIn.getMin();
                     }
                 }
                 HeightModifierOperation heightModifier = lc.getHeightModifier();
                 if (heightModifier != null) {
-                    HeightInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
+                    DimensionInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
                     if (heightIn != null) {
                         ch = heightIn.getMin();
                     }
@@ -164,27 +165,47 @@ public class FitBoxLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
             @NonNull Size size) {
 
         if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
-            computeWrapSizePriorityFix(context, minWidth, maxWidth, minHeight, maxHeight,
-                    horizontalWrap, verticalWrap, measure, size);
+            computeWrapSizePriorityFix(
+                    context,
+                    minWidth,
+                    maxWidth,
+                    minHeight,
+                    maxHeight,
+                    horizontalWrap,
+                    verticalWrap,
+                    measure,
+                    size);
         } else {
-            computeWrapSizeOriginal(context, minWidth, maxWidth, minHeight, maxHeight,
-                    horizontalWrap, verticalWrap, measure, size);
+            computeWrapSizeOriginal(
+                    context,
+                    minWidth,
+                    maxWidth,
+                    minHeight,
+                    maxHeight,
+                    horizontalWrap,
+                    verticalWrap,
+                    measure,
+                    size);
         }
     }
 
     @SuppressWarnings("UnusedVariable")
     private void computeWrapSizePriorityFix(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -232,8 +253,10 @@ public class FitBoxLayout extends LayoutManager {
     @Override
     public void computeSize(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             @NonNull MeasurePass measure) {
         if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
             computeSizePriorityFix(context, minWidth, maxWidth, minHeight, maxHeight, measure);
@@ -241,7 +264,6 @@ public class FitBoxLayout extends LayoutManager {
             computeSizeOriginal(context, minWidth, maxWidth, minHeight, maxHeight, measure);
         }
     }
-
 
     private void computeSizeOriginal(
             @NonNull PaintContext context,
@@ -258,14 +280,14 @@ public class FitBoxLayout extends LayoutManager {
                 LayoutComponent lc = (LayoutComponent) c;
                 WidthModifierOperation widthModifier = lc.getWidthModifier();
                 if (widthModifier != null) {
-                    WidthInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
+                    DimensionInModifierOperation widthIn = lc.getWidthModifier().getWidthIn();
                     if (widthIn != null) {
                         cw = widthIn.getMin();
                     }
                 }
                 HeightModifierOperation heightModifier = lc.getHeightModifier();
                 if (heightModifier != null) {
-                    HeightInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
+                    DimensionInModifierOperation heightIn = lc.getHeightModifier().getHeightIn();
                     if (heightIn != null) {
                         ch = heightIn.getMin();
                     }
@@ -292,8 +314,10 @@ public class FitBoxLayout extends LayoutManager {
     @SuppressWarnings("UnusedVariable")
     private void computeSizePriorityFix(
             @NonNull PaintContext context,
-            float minWidth, float maxWidth,
-            float minHeight, float maxHeight,
+            float minWidth,
+            float maxWidth,
+            float minHeight,
+            float maxHeight,
             @NonNull MeasurePass measure) {
         boolean found = false;
         ComponentMeasure self = measure.get(this);
@@ -390,11 +414,11 @@ public class FitBoxLayout extends LayoutManager {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer                a WireBuffer
-     * @param componentId           the component id
-     * @param animationId           the component animation id
+     * @param buffer a WireBuffer
+     * @param componentId the component id
+     * @param animationId the component animation id
      * @param horizontalPositioning the horizontal positioning rules
-     * @param verticalPositioning   the vertical positioning rules
+     * @param verticalPositioning the vertical positioning rules
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -412,12 +436,12 @@ public class FitBoxLayout extends LayoutManager {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int componentId = buffer.readInt();
-        int animationId = buffer.readInt();
+        int componentId = buffer.declareId();
+        int animationId = buffer.declareId();
         int horizontalPositioning = buffer.readInt();
         int verticalPositioning = buffer.readInt();
         operations.add(
@@ -443,10 +467,7 @@ public class FitBoxLayout extends LayoutManager {
                                 + "available"
                                 + " space.")
                 .field(INT, "componentId", "Unique ID for this component")
-                .field(
-                        INT,
-                        "animationId",
-                        "ID used to match components for animation purposes")
+                .field(INT, "animationId", "ID used to match components for animation purposes")
                 .field(INT, "horizontalPositioning", "Horizontal positioning value")
                 .possibleValues("START", START)
                 .possibleValues("CENTER", CENTER)

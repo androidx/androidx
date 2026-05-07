@@ -50,37 +50,43 @@ public class RemoteComposeWriterAndroid extends RemoteComposeWriter {
         super(profile, tags);
     }
 
-    public RemoteComposeWriterAndroid(int width, int height,
+    public RemoteComposeWriterAndroid(
+            int width,
+            int height,
             @Nullable String contentDescription,
             @NonNull RcPlatformServices platform) {
         super(width, height, contentDescription, platform);
     }
 
-    public RemoteComposeWriterAndroid(int width, int height, @NonNull String contentDescription,
-            int apiLevel, int profiles, @NonNull RcPlatformServices platform) {
+    public RemoteComposeWriterAndroid(
+            int width,
+            int height,
+            @NonNull String contentDescription,
+            int apiLevel,
+            int profiles,
+            @NonNull RcPlatformServices platform) {
         super(width, height, contentDescription, apiLevel, profiles, platform);
     }
 
-    public RemoteComposeWriterAndroid(@NonNull RcPlatformServices platform, int apiLevel,
-            HTag @NonNull ... tags) {
+    public RemoteComposeWriterAndroid(
+            @NonNull RcPlatformServices platform, int apiLevel, HTag @NonNull ... tags) {
         super(platform, apiLevel, tags);
     }
 
-    public RemoteComposeWriterAndroid(@NonNull RcPlatformServices platform,
-            HTag @NonNull ... tags) {
+    public RemoteComposeWriterAndroid(
+            @NonNull RcPlatformServices platform, HTag @NonNull ... tags) {
         super(platform, tags);
     }
 
     protected RemoteComposeWriterAndroid(
-            @NonNull Profile profile,
-            @NonNull RemoteComposeBuffer buffer, HTag @NonNull ... tags) {
+            @NonNull Profile profile, @NonNull RemoteComposeBuffer buffer, HTag @NonNull ... tags) {
         super(profile, buffer, tags);
     }
 
     /**
      * Add a bitmap to the document
      *
-     * @param image              a Bitmap object
+     * @param image a Bitmap object
      * @param contentDescription a description for the image
      */
     public void drawBitmap(@NonNull Bitmap image, @Nullable String contentDescription) {
@@ -100,7 +106,6 @@ public class RemoteComposeWriterAndroid extends RemoteComposeWriter {
         mBuffer.addMatrixConst(id, values);
         return Utils.asNan(id);
     }
-
 
     /**
      * Reuse the painter associated with this connection

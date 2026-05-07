@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteComposeBuffer;
+import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.serialization.yaml.YAMLSerializer;
@@ -44,29 +45,80 @@ public class LayoutTestPlayer {
     /**
      * Utility test function executing TestOperation on a document
      *
+     * @param writer
+     * @param ops
+     * @param testParameters
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            RemoteComposeWriter writer,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters) {
+        play(writer, ops, testParameters, 1000, 1000);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document
+     *
+     * @param writer
+     * @param ops
+     * @param testParameters
+     * @param tw1
+     * @param th1
+     */
+    @SuppressWarnings("unchecked")
+    public static void play(
+            RemoteComposeWriter writer,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1) {
+        play(writer, ops, testParameters, tw1, th1, false);
+    }
+
+    /**
+     * Utility test function executing TestOperation on a document
+     *
      * @param writer the writer generating the tested document
      * @param ops a list of TestOperation
      * @param testParameters parameters for the test
+     * @param tw1 document width
+     * @param th1 document height
+     * @param overridePlayerSize if true, set the player size to tw1, th1
      */
     @SuppressWarnings("unchecked")
-    public static void play(RemoteComposeWriter writer, ArrayList<TestOperation> ops,
-            TestParameters testParameters) {
+    public static void play(
+            RemoteComposeWriter writer,
+            ArrayList<TestOperation> ops,
+            TestParameters testParameters,
+            int tw1,
+            int th1,
+            boolean overridePlayerSize) {
         List<Map<String, Object>> commands = new ArrayList<>();
 
-        int tw1 = 1000;
-        int th1 = 1000;
         byte[] byteBuffer = writer.buffer();
         int bufferSize = writer.bufferSize();
         CoreDocument doc = new CoreDocument(testParameters.getClock());
-        RemoteComposeBuffer buffer = RemoteComposeBuffer.fromInputStream(
-                new ByteArrayInputStream(byteBuffer, 0, bufferSize));
+        RemoteComposeBuffer buffer =
+                RemoteComposeBuffer.fromInputStream(
+                        new ByteArrayInputStream(byteBuffer, 0, bufferSize));
         doc.initFromBuffer(buffer);
         MockRemoteContext debugContext = new MockRemoteContext();
         debugContext.setAnimationEnabled(false);
-        debugContext.setDensity(1f);
-        debugContext.mWidth = tw1;
-        debugContext.mHeight = th1;
+        debugContext.setDensity(doc.getDensity());
+        if (overridePlayerSize) {
+            debugContext.mWidth = tw1;
+            debugContext.mHeight = th1;
+        } else {
+            debugContext.mWidth = 0;
+            debugContext.mHeight = 0;
+        }
         doc.initializeContext(debugContext);
+        // Ensure ID_WINDOW_WIDTH/HEIGHT match debugContext size (which might be 0)
+        // rather than the header size from initializeContext.
+        debugContext.loadFloat(RemoteContext.ID_WINDOW_WIDTH, debugContext.mWidth);
+        debugContext.loadFloat(RemoteContext.ID_WINDOW_HEIGHT, debugContext.mHeight);
+        doc.measure(debugContext, 0, tw1, 0, th1);
 
         doc.paint(debugContext, Theme.UNSPECIFIED);
         int needsRepaint = doc.needsRepaint();

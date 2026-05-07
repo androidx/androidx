@@ -237,6 +237,46 @@ class MediaQueryTest {
         rule.runOnIdle { assertThat(result).isTrue() }
     }
 
+    @Test
+    fun derivedMediaQuery_returnsGenericType() {
+        scope.windowWidth = 100.dp
+        var result = "unknown"
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val state by derivedMediaQuery { if (windowWidth > 150.dp) "large" else "small" }
+                result = state
+            }
+        }
+
+        assertThat(result).isEqualTo("small")
+
+        scope.windowWidth = 200.dp
+        rule.waitForIdle()
+
+        assertThat(result).isEqualTo("large")
+    }
+
+    @Test
+    fun mediaQuery_returnsGenericType() {
+        scope.windowWidth = 100.dp
+        var result = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val state = mediaQuery { if (windowWidth > 150.dp) 100 else 50 }
+                result = state
+            }
+        }
+
+        assertThat(result).isEqualTo(50)
+
+        scope.windowWidth = 200.dp
+        rule.waitForIdle()
+
+        assertThat(result).isEqualTo(100)
+    }
+
     @Composable
     private fun TestComponent(threshold: Dp, onResult: (Boolean) -> Unit) {
         val value by derivedMediaQuery { windowWidth > threshold }

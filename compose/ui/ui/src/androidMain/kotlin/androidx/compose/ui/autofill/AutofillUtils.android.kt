@@ -192,9 +192,9 @@ internal object AutofillApi26Helper {
 }
 
 /** Trim the text to a safe length to prevent sending too much data, which will cause crash . */
-private fun trimToSafeLength(text: String): String {
+internal fun trimToSafeLength(text: CharSequence): CharSequence {
     val size = MAX_AUTOFILL_TEXT_LENGTH
-    if (text.length < size) {
+    if (text.length <= size) {
         return text
     }
     // Don't break a surrogate pair when trimming the text.

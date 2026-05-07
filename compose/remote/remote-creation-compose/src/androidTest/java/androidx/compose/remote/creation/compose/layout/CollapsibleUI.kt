@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 
 /** Class to provide a list of UIs, using the collapsible layout provided, to be used in tests. */
 class CollapsibleUI(
@@ -104,16 +103,12 @@ class CollapsibleUI(
     ) {
         val appliedModifier =
             modifier
-                .padding(5.dp)
+                .padding(5.rdp)
                 .size(20.rdp)
                 .background(Color.Blue)
                 .then(priorityModifier ?: RemoteModifier)
 
-        RemoteBox(
-            modifier = appliedModifier,
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-            verticalArrangement = RemoteArrangement.Center,
-        ) {
+        RemoteBox(modifier = appliedModifier, contentAlignment = RemoteAlignment.Center) {
             RemoteText(letter.toString())
         }
     }

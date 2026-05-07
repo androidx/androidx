@@ -632,7 +632,7 @@ class TouchEventsTest : InputDispatcherTest() {
     }
 
     private fun AndroidInputDispatcher.generateCancelAndCheckPointers() {
-        generateTouchCancelAndCheck()
+        generatePointerCancelAndCheck()
         assertThat(getCurrentTouchPosition(pointer1)).isNull()
         assertThat(getCurrentTouchPosition(pointer2)).isNull()
         assertThat(getCurrentTouchPosition(pointer3)).isNull()

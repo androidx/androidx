@@ -23,6 +23,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.ActionOperation;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
@@ -71,17 +72,17 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
     }
 
     @Override
-    public void apply(@NonNull RemoteContext context) {
-    }
+    public void apply(@NonNull RemoteContext context) {}
 
     @NonNull
     @Override
     public String deepToString(@NonNull String indent) {
-        return (indent != null ? indent : "") + toString();
+        return (indent != null ? indent : "") + this;
     }
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValueExpressionId);
     }
 
     @Override
@@ -91,15 +92,16 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
             @NonNull Component component,
             float x,
             float y) {
-        document.evaluateIntExpression(mValueExpressionId, (int) mTargetValueId, context);
+        document.evaluateIntExpression(
+                Utils.idFromLong(mValueExpressionId), (int) mTargetValueId, context);
     }
 
     /**
      * Write the operation to the buffer
      *
-     * @param buffer  a WireBuffer
+     * @param buffer a WireBuffer
      * @param valueId the long id pointing to an int value
-     * @param value   the value to set (long id)`
+     * @param value the value to set (long id)`
      */
     public static void apply(@NonNull WireBuffer buffer, long valueId, long value) {
         buffer.start(OP_CODE);
@@ -110,12 +112,12 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        long valueId = buffer.readLong();
-        long value = buffer.readLong();
+        long valueId = buffer.readLongNanId();
+        long value = buffer.readLongNanId();
         operations.add(new ValueIntegerExpressionChangeActionOperation(valueId, value));
     }
 
@@ -127,9 +129,13 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Actions & Events Operations", OP_CODE, CLASS_NAME)
                 .description("Action that updates an integer variable via a dynamic expression")
-                .field(DocumentedOperation.LONG, "targetValueId",
+                .field(
+                        DocumentedOperation.LONG,
+                        "targetValueId",
                         "The ID of the integer variable to update")
-                .field(DocumentedOperation.LONG, "valueExpressionId",
+                .field(
+                        DocumentedOperation.LONG,
+                        "valueExpressionId",
                         "The ID of the expression to evaluate");
     }
 

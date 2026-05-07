@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 @Composable
 public fun rememberRemoteStringList(vararg items: String): RemoteStringList {
     val state = LocalRemoteComposeCreationState.current
+    // TODO: This writes to the document during composition!
     return RemoteStringList(state.document.addStringList(*items))
 }
 
@@ -38,6 +39,7 @@ public class RemoteStringList(public var listId: Float) {
         val state = LocalRemoteComposeCreationState.current
 
         val valueId = value.getIdForCreationState(state)
+        // TODO: This writes to the document during composition!
         return RemoteIntReference(state.document.textLookup(listId, valueId))
     }
 
@@ -46,6 +48,7 @@ public class RemoteStringList(public var listId: Float) {
         val state = LocalRemoteComposeCreationState.current
 
         val index = rememberMutableRemoteInt(value).getIdForCreationState(state)
+        // TODO: This writes to the document during composition!
         return RemoteIntReference(state.document.textLookup(listId, index))
     }
 }

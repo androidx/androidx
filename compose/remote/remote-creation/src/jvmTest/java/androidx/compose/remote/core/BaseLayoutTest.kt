@@ -19,6 +19,7 @@ package androidx.compose.remote.core
 import androidx.compose.remote.core.layout.LayoutTestPlayer
 import androidx.compose.remote.core.layout.TestOperation
 import androidx.compose.remote.core.layout.TestParameters
+import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.RemoteComposeContext
 import java.time.Clock
 import java.time.Instant
@@ -38,8 +39,21 @@ open class BaseLayoutTest : LayoutTestPlayer() {
         apiLevel: Int,
         profile: Int,
         description: String,
-        ops: ArrayList<TestOperation?>,
+        ops: ArrayList<TestOperation>,
         testClock: RemoteClock = TestClock(1234),
+    ) {
+        checkLayout(w, h, apiLevel, profile, description, ops, testClock, false)
+    }
+
+    fun checkLayout(
+        w: Int,
+        h: Int,
+        apiLevel: Int,
+        profile: Int,
+        description: String,
+        ops: ArrayList<TestOperation>,
+        testClock: RemoteClock = TestClock(1234),
+        overridePlayerSize: Boolean = false,
     ) {
         if (ops.size == 0) {
             return
@@ -60,7 +74,11 @@ open class BaseLayoutTest : LayoutTestPlayer() {
                     { root { function.invoke(this) } },
                 )
                 .writer
-        play(writer, ops, testParameters)
+        if (overridePlayerSize) {
+            play(writer, ops as ArrayList<TestOperation>, testParameters, w, h, true)
+        } else {
+            play(writer, ops as ArrayList<TestOperation>, testParameters)
+        }
     }
 
     data class TestLayout(var layout: RemoteComposeContext.() -> Unit) : TestOperation() {
@@ -68,12 +86,162 @@ open class BaseLayoutTest : LayoutTestPlayer() {
             context: RemoteContext,
             document: CoreDocument,
             testParameters: TestParameters,
-            commands: List<Map<String?, Any?>?>?,
+            commands: MutableList<Map<String, Any>>?,
         ): Boolean {
             // Nothing here
             return false
         }
     }
+
+    class ValidateX(val expectedX: Float) : TestOperation() {
+        override fun apply(
+            context: RemoteContext,
+            document: CoreDocument,
+            testParameters: TestParameters,
+            commands: MutableList<Map<String, Any>>?,
+        ): Boolean {
+            val root = document.rootLayoutComponent
+            if (root!!.getX() != expectedX) {
+                throw AssertionError("Expected X: $expectedX, actual X: ${root.getX()}")
+            }
+            return false
+        }
+    }
+
+    class ValidateY(val expectedY: Float) : TestOperation() {
+        override fun apply(
+            context: RemoteContext,
+            document: CoreDocument,
+            testParameters: TestParameters,
+            commands: MutableList<Map<String, Any>>?,
+        ): Boolean {
+            val root = document.rootLayoutComponent
+            if (root!!.getY() != expectedY) {
+                throw AssertionError("Expected Y: $expectedY, actual Y: ${root.getY()}")
+            }
+            return false
+        }
+    }
+
+    class ValidatePosition(val expectedX: Float, val expectedY: Float) : TestOperation() {
+        override fun apply(
+            context: RemoteContext,
+            document: CoreDocument,
+            testParameters: TestParameters,
+            commands: MutableList<Map<String, Any>>?,
+        ): Boolean {
+            val root = document.rootLayoutComponent
+            if (root!!.getX() != expectedX || root.getY() != expectedY) {
+                throw AssertionError(
+                    "Expected ($expectedX, $expectedY), actual (${root.getX()}, ${root.getY()})"
+                )
+            }
+            return false
+        }
+    }
+
+    class ValidateBounds(
+        val id: Int,
+        val expectedX: Float,
+        val expectedY: Float,
+        val expectedW: Float,
+        val expectedH: Float,
+    ) : TestOperation() {
+        override fun apply(
+            context: RemoteContext,
+            document: CoreDocument,
+            testParameters: TestParameters,
+            commands: MutableList<Map<String, Any>>?,
+        ): Boolean {
+            val component =
+                document.getComponent(id) ?: throw AssertionError("Component with id $id not found")
+            if (
+                component.getX() != expectedX ||
+                    component.getY() != expectedY ||
+                    component.getWidth() != expectedW ||
+                    component.getHeight() != expectedH
+            ) {
+                throw AssertionError(
+                    "Component $id: Expected bounds ($expectedX, $expectedY, $expectedW, $expectedH), " +
+                        "actual (${component.getX()}, ${component.getY()}, ${component.getWidth()}, ${component.getHeight()})"
+                )
+            }
+            return false
+        }
+    }
+
+    class ValidateChildCount(val id: Int, val expectedCount: Int) : TestOperation() {
+        override fun apply(
+            context: RemoteContext,
+            document: CoreDocument,
+            testParameters: TestParameters,
+            commands: MutableList<Map<String, Any>>?,
+        ): Boolean {
+            val component =
+                document.getComponent(id) ?: throw AssertionError("Component with id $id not found")
+            val children = ArrayList<Component>()
+            component.getComponents(children)
+            val visibleCount = children.count { it.isVisible }
+            if (visibleCount != expectedCount) {
+                throw AssertionError(
+                    "Component $id: Expected $expectedCount visible children, " +
+                        "actual $visibleCount"
+                )
+            }
+            return false
+        }
+    }
+
+    class ValidateSize(val id: Int, val expectedW: Float, val expectedH: Float) : TestOperation() {
+        override fun apply(
+            context: RemoteContext,
+            document: CoreDocument,
+            testParameters: TestParameters,
+            commands: MutableList<Map<String, Any>>?,
+        ): Boolean {
+            val component =
+                document.getComponent(id) ?: throw AssertionError("Component with id $id not found")
+            if (component.getWidth() != expectedW || component.getHeight() != expectedH) {
+                throw AssertionError(
+                    "Component $id: Expected size ($expectedW, $expectedH), " +
+                        "actual (${component.getWidth()}, ${component.getHeight()})"
+                )
+            }
+            return false
+        }
+    }
+
+    fun validateX(expectedX: Float): TestOperation = ValidateX(expectedX)
+
+    fun validateY(expectedY: Float): TestOperation = ValidateY(expectedY)
+
+    fun validatePosition(expectedX: Float, expectedY: Float): TestOperation =
+        ValidatePosition(expectedX, expectedY)
+
+    fun validateBounds(id: Int, x: Float, y: Float, w: Float, h: Float): TestOperation =
+        ValidateBounds(id, x, y, w, h)
+
+    fun validateSize(id: Int, w: Float, h: Float): TestOperation = ValidateSize(id, w, h)
+
+    fun validateChildCount(id: Int, expectedCount: Int): TestOperation =
+        ValidateChildCount(id, expectedCount)
+
+    class ValidateNoAnimation() : TestOperation() {
+        override fun apply(
+            context: RemoteContext,
+            document: CoreDocument,
+            testParameters: TestParameters,
+            commands: MutableList<Map<String, Any>>?,
+        ): Boolean {
+            val root = document.rootLayoutComponent
+            if (root!!.mAnimateMeasure != null) {
+                throw AssertionError("Expected no animation, but mAnimateMeasure is not null")
+            }
+            return false
+        }
+    }
+
+    fun validateNoAnimation(): TestOperation = ValidateNoAnimation()
 
     internal fun TestClock(time: Int): RemoteClock {
         return SystemClock(Clock.fixed(Instant.ofEpochMilli(time.toLong()), ZoneId.of("UTC")))

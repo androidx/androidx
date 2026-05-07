@@ -18,7 +18,8 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.compose.remote.core.RemotePathBase
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.ui.graphics.vector.PathNode
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import java.util.ArrayList
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -28,6 +29,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RemotePathParserTest {
 
+    val testRemoteStateScope = NoRemoteCompose()
+
     @Test
     fun testRelativeReflectiveQuadTo() {
         // M 100 100
@@ -36,12 +39,12 @@ class RemotePathParserTest {
 
         val nodes =
             listOf(
-                PathNode.MoveTo(100f, 100f),
-                PathNode.RelativeQuadTo(-10f, 0f, -20f, 0f),
-                PathNode.RelativeReflectiveQuadTo(-20f, 0f),
+                RemotePathNode.MoveTo(100f.rf, 100f.rf),
+                RemotePathNode.RelativeQuadTo((-10f).rf, 0f.rf, (-20f).rf, 0f.rf),
+                RemotePathNode.RelativeReflectiveQuadTo((-20f).rf, 0f.rf),
             )
 
-        val remotePath = nodes.toRemotePath()
+        val remotePath = nodes.toRemotePath(creationState = testRemoteStateScope)
         val pathArray = remotePath.createFloatArray()
 
         // Expected commands:

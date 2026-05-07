@@ -107,12 +107,11 @@ public class TextSubtext extends Operation implements VariableSupport, Serializa
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textId = buffer.readInt();
-        int srcId1 = buffer.readInt();
-        float start = buffer.readFloat();
-        float len = buffer.readFloat();
-
-        operations.add(new TextSubtext(textId, srcId1, start, len));
+        int id = buffer.declareId();
+        int textId = buffer.readId();
+        float start = buffer.readNanId();
+        float end = buffer.readNanId();
+        operations.add(new TextSubtext(id, textId, start, end));
     }
 
     /**

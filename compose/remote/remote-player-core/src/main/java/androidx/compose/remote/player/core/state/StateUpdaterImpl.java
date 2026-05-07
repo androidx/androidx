@@ -40,7 +40,7 @@ public class StateUpdaterImpl implements StateUpdater {
         if (value != null) {
             mRemoteContext.setNamedLong(name, value);
         } else {
-//            mRemoteContext.clearNamedLong(name);
+            //            mRemoteContext.clearNamedLong(name);
         }
     }
 
@@ -69,7 +69,8 @@ public class StateUpdaterImpl implements StateUpdater {
         if (value != null) {
             mRemoteContext.setNamedColorOverride(StateUpdater.getUserDomainString(name), value);
         } else {
-//            mRemoteContext.clearNamedColorOverride(StateUpdater.getUserDomainString(name));
+            //
+            // mRemoteContext.clearNamedColorOverride(StateUpdater.getUserDomainString(name));
         }
     }
 
@@ -85,8 +86,8 @@ public class StateUpdaterImpl implements StateUpdater {
     @Override
     public void setUserLocalString(@NonNull String stringName, @Nullable String value) {
         if (value != null) {
-            mRemoteContext.setNamedStringOverride(StateUpdater.getUserDomainString(stringName),
-                    value);
+            mRemoteContext.setNamedStringOverride(
+                    StateUpdater.getUserDomainString(stringName), value);
         } else {
             mRemoteContext.clearNamedStringOverride(StateUpdater.getUserDomainString(stringName));
         }

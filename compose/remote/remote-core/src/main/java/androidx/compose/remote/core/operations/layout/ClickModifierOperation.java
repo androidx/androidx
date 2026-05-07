@@ -48,10 +48,10 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickModifierOperation extends PaintOperation
         implements Container,
-        ModifierOperation,
-        DecoratorComponent,
-        ClickHandler,
-        AccessibleComponent {
+                ModifierOperation,
+                DecoratorComponent,
+                ClickHandler,
+                AccessibleComponent {
     private static final int OP_CODE = Operations.MODIFIER_CLICK;
 
     long mAnimateRippleStart = 0;
@@ -94,8 +94,7 @@ public class ClickModifierOperation extends PaintOperation
         mAnimateRippleY = y;
     }
 
-    @NonNull
-    public ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -219,7 +218,8 @@ public class ClickModifierOperation extends PaintOperation
             component.getLocationInWindow(context, locationInWindow);
             if (context.isAnimationEnabled()) {
                 animateRipple(
-                        x - locationInWindow[0], y - locationInWindow[1],
+                        x - locationInWindow[0],
+                        y - locationInWindow[1],
                         context.getClock().millis());
             }
         }
@@ -232,6 +232,26 @@ public class ClickModifierOperation extends PaintOperation
         return true;
     }
 
+    @Override
+    public boolean onLongPress(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull Component component,
+            float x,
+            float y) {
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleClick(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull Component component,
+            float x,
+            float y) {
+        return false;
+    }
+
     /**
      * The name of the class
      *
@@ -242,9 +262,7 @@ public class ClickModifierOperation extends PaintOperation
         return "ClickModifier";
     }
 
-    /**
-     * Write the operation on the buffer
-     */
+    /** Write the operation on the buffer */
     public static void apply(@NonNull WireBuffer buffer) {
         buffer.start(OP_CODE);
     }
@@ -252,7 +270,7 @@ public class ClickModifierOperation extends PaintOperation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer     the buffer to read
+     * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

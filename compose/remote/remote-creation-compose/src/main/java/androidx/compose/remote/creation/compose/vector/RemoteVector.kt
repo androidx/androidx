@@ -16,51 +16,48 @@
 
 package androidx.compose.remote.creation.compose.vector
 
-import android.graphics.Paint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.capture.DefaultGroupName
+import androidx.compose.remote.creation.compose.capture.DefaultPathName
+import androidx.compose.remote.creation.compose.capture.DefaultPivotX
+import androidx.compose.remote.creation.compose.capture.DefaultPivotY
+import androidx.compose.remote.creation.compose.capture.DefaultRotation
+import androidx.compose.remote.creation.compose.capture.DefaultScaleX
+import androidx.compose.remote.creation.compose.capture.DefaultScaleY
+import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineCap
+import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineJoin
+import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineMiter
+import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineWidth
+import androidx.compose.remote.creation.compose.capture.DefaultTranslationX
+import androidx.compose.remote.creation.compose.capture.DefaultTranslationY
+import androidx.compose.remote.creation.compose.capture.DefaultTrimPathEnd
+import androidx.compose.remote.creation.compose.capture.DefaultTrimPathOffset
+import androidx.compose.remote.creation.compose.capture.DefaultTrimPathStart
 import androidx.compose.remote.creation.compose.capture.toRemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.creationState
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
-import androidx.compose.ui.graphics.vector.DefaultGroupName
-import androidx.compose.ui.graphics.vector.DefaultPathName
-import androidx.compose.ui.graphics.vector.DefaultPivotX
-import androidx.compose.ui.graphics.vector.DefaultPivotY
-import androidx.compose.ui.graphics.vector.DefaultRotation
-import androidx.compose.ui.graphics.vector.DefaultScaleX
-import androidx.compose.ui.graphics.vector.DefaultScaleY
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineCap
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineJoin
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineMiter
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineWidth
-import androidx.compose.ui.graphics.vector.DefaultTranslationX
-import androidx.compose.ui.graphics.vector.DefaultTranslationY
-import androidx.compose.ui.graphics.vector.DefaultTrimPathEnd
-import androidx.compose.ui.graphics.vector.DefaultTrimPathOffset
-import androidx.compose.ui.graphics.vector.DefaultTrimPathStart
-import androidx.compose.ui.graphics.vector.EmptyPath
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 
 /** DSL for building a vector with [RemotePathBuilder]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public inline fun RemotePathData(
-    scope: RemoteStateScope,
-    block: RemotePathBuilder.() -> Unit,
-): List<PathNode> =
-    with(RemotePathBuilder(scope)) {
+public fun RemotePathData(block: RemotePathBuilder.() -> Unit): List<RemotePathNode> =
+    with(RemotePathBuilder()) {
         block()
         nodes
     }
@@ -84,8 +81,8 @@ internal class RemoteVectorComponent(val root: RemoteGroupComponent) : RemoteVNo
     }
 
     override fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
-        rootScaleX = remoteWidth / viewportSize.width
-        rootScaleY = remoteHeight / viewportSize.height
+        rootScaleX = width / viewportSize.width
+        rootScaleY = height / viewportSize.height
         val targetFilter = colorFilter ?: intrinsicColorFilter
         drawVector(targetFilter)
     }
@@ -103,9 +100,9 @@ internal class RemoteVectorComponent(val root: RemoteGroupComponent) : RemoteVNo
 internal class RemotePathComponent : RemoteVNode() {
     var name = DefaultPathName
     var fill: Brush? = null
-    var fillAlpha = 1.0f
-    var pathData: List<PathNode> = EmptyPath
-    var strokeAlpha = 1.0f
+    var fillAlpha = 1.0f.rf
+    var pathData: List<RemotePathNode> = androidx.compose.remote.creation.compose.capture.EmptyPath
+    var strokeAlpha = 1.0f.rf
     var strokeLineWidth = DefaultStrokeLineWidth
     var stroke: Brush? = null
     var strokeLineCap = DefaultStrokeLineCap
@@ -118,25 +115,20 @@ internal class RemotePathComponent : RemoteVNode() {
     private val path = RemotePath()
     private var renderPath = path
 
-    private fun updatePath() {
-        // The call below resets the path
-        pathData.toRemotePath(path)
-    }
-
     override fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
-        updatePath()
+        // The call below resets the path
+        pathData.toRemotePath(path, this.remoteCanvas.creationState)
 
-        val paint = RemotePaint().apply { remoteColorFilter = colorFilter }
+        val paint = RemotePaint { this.colorFilter = colorFilter }
         fill?.let {
-            paint.style = Paint.Style.FILL
+            paint.style = PaintingStyle.Fill
             drawPath(renderPath, paint)
         }
         stroke?.let {
-            paint.style = Paint.Style.STROKE
+            paint.style = PaintingStyle.Stroke
             paint.strokeWidth = strokeLineWidth
-            paint.strokeMiter = strokeLineMiter
-            paint.strokeCap = strokeLineCap.toAndroidCap()
-            paint.strokeJoin = strokeLineJoin.toAndroidJoin()
+            paint.strokeCap = strokeLineCap
+            paint.strokeJoin = strokeLineJoin
             drawPath(renderPath, paint)
         }
     }
@@ -228,19 +220,19 @@ internal class RemoteGroupComponent : RemoteVNode() {
     // be modified based off of this name parameter.
     var name: String = DefaultGroupName
 
-    var rotation: Float = DefaultRotation
+    var rotation: RemoteFloat = DefaultRotation
 
-    var pivotX: Float = DefaultPivotX
+    var pivotX: RemoteFloat = DefaultPivotX
 
-    var pivotY: Float = DefaultPivotY
+    var pivotY: RemoteFloat = DefaultPivotY
 
-    var scaleX: Float = DefaultScaleX
+    var scaleX: RemoteFloat = DefaultScaleX
 
-    var scaleY: Float = DefaultScaleY
+    var scaleY: RemoteFloat = DefaultScaleY
 
-    var translationX: Float = DefaultTranslationX
+    var translationX: RemoteFloat = DefaultTranslationX
 
-    var translationY: Float = DefaultTranslationY
+    var translationY: RemoteFloat = DefaultTranslationY
 
     val numChildren: Int
         get() = children.size
@@ -274,20 +266,73 @@ internal class RemoteGroupComponent : RemoteVNode() {
 internal fun Color.rgbEqual(other: Color) =
     this.red == other.red && this.green == other.green && this.blue == other.blue
 
-internal fun StrokeJoin.toAndroidJoin(): Paint.Join {
-    return when (this) {
-        StrokeJoin.Miter -> Paint.Join.MITER
-        StrokeJoin.Round -> Paint.Join.ROUND
-        StrokeJoin.Bevel -> Paint.Join.BEVEL
-        else -> Paint.Join.MITER
-    }
+internal fun List<PathNode>.toRemotePathNodes(): List<RemotePathNode> {
+    return this.fastMap { it.toRemotePathNode() }
 }
 
-internal fun StrokeCap.toAndroidCap(): Paint.Cap {
+private fun PathNode.toRemotePathNode(): RemotePathNode {
     return when (this) {
-        StrokeCap.Butt -> Paint.Cap.BUTT
-        StrokeCap.Round -> Paint.Cap.ROUND
-        StrokeCap.Square -> Paint.Cap.SQUARE
-        else -> Paint.Cap.BUTT
+        is PathNode.MoveTo -> RemotePathNode.MoveTo(this.x.rf, this.y.rf)
+        is PathNode.LineTo -> RemotePathNode.LineTo(this.x.rf, this.y.rf)
+        is PathNode.CurveTo ->
+            RemotePathNode.CurveTo(
+                this.x1.rf,
+                this.y1.rf,
+                this.x2.rf,
+                this.y2.rf,
+                this.x3.rf,
+                this.y3.rf,
+            )
+        is PathNode.RelativeMoveTo -> RemotePathNode.RelativeMoveTo(this.dx.rf, this.dy.rf)
+        is PathNode.QuadTo -> RemotePathNode.QuadTo(this.x1.rf, this.y1.rf, this.x2.rf, this.y2.rf)
+        is PathNode.ArcTo ->
+            RemotePathNode.ArcTo(
+                this.horizontalEllipseRadius.rf,
+                this.verticalEllipseRadius.rf,
+                this.theta.rf,
+                this.isMoreThanHalf.rb,
+                this.isPositiveArc.rb,
+                this.arcStartX.rf,
+                this.arcStartY.rf,
+            )
+        is PathNode.HorizontalTo -> RemotePathNode.HorizontalTo(this.x.rf)
+        is PathNode.VerticalTo -> RemotePathNode.VerticalTo(this.y.rf)
+        is PathNode.Close -> RemotePathNode.Close
+        is PathNode.RelativeHorizontalTo -> RemotePathNode.RelativeHorizontalTo(this.dx.rf)
+        is PathNode.RelativeVerticalTo -> RemotePathNode.RelativeVerticalTo(this.dy.rf)
+        is PathNode.ReflectiveQuadTo -> RemotePathNode.ReflectiveQuadTo(this.x.rf, this.y.rf)
+        is PathNode.ReflectiveCurveTo ->
+            RemotePathNode.ReflectiveCurveTo(this.x1.rf, this.y1.rf, this.x2.rf, this.y2.rf)
+        is PathNode.RelativeArcTo ->
+            RemotePathNode.RelativeArcTo(
+                this.horizontalEllipseRadius.rf,
+                this.verticalEllipseRadius.rf,
+                this.theta.rf,
+                this.isMoreThanHalf.rb,
+                this.isPositiveArc.rb,
+                this.arcStartDx.rf,
+                this.arcStartDy.rf,
+            )
+        is PathNode.RelativeCurveTo ->
+            RemotePathNode.RelativeCurveTo(
+                this.dx1.rf,
+                this.dy1.rf,
+                this.dx2.rf,
+                this.dy2.rf,
+                this.dx3.rf,
+                this.dy3.rf,
+            )
+        is PathNode.RelativeLineTo -> RemotePathNode.RelativeLineTo(this.dx.rf, this.dy.rf)
+        is PathNode.RelativeQuadTo ->
+            RemotePathNode.RelativeQuadTo(this.dx1.rf, this.dy1.rf, this.dx2.rf, this.dy2.rf)
+        is PathNode.RelativeReflectiveCurveTo ->
+            RemotePathNode.RelativeReflectiveCurveTo(
+                this.dx1.rf,
+                this.dy1.rf,
+                this.dx2.rf,
+                this.dy2.rf,
+            )
+        is PathNode.RelativeReflectiveQuadTo ->
+            RemotePathNode.RelativeReflectiveQuadTo(this.dx.rf, this.dy.rf)
     }
 }

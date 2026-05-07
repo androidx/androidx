@@ -34,9 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * Public API to create a new RemoteComposeDocument coming from an input stream
- */
+/** Public API to create a new RemoteComposeDocument coming from an input stream */
 @RestrictTo(LIBRARY_GROUP)
 public class RemoteDocument {
 
@@ -84,30 +82,27 @@ public class RemoteDocument {
      * them.
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void initializeContext(@NonNull RemoteContext context,
-                                  @Nullable Map<Integer, Object> map) {
+    public void initializeContext(
+            @NonNull RemoteContext context, @Nullable Map<Integer, Object> map) {
         mDocument.initializeContext(context, map);
     }
 
     /**
      * Apply operations in data mode. Used in the initialization phase.
+     *
      * @param context
      */
     public void applyDataOperations(@NonNull RemoteContext context) {
         mDocument.applyDataOperations(context);
     }
 
-    /**
-     * Returns the width of the document in pixels
-     */
+    /** Returns the width of the document in pixels */
     @RestrictTo(LIBRARY_GROUP)
     public int getWidth() {
         return mDocument.getWidth();
     }
 
-    /**
-     * Returns the height of the document in pixels
-     */
+    /** Returns the height of the document in pixels */
     @RestrictTo(LIBRARY_GROUP)
     public int getHeight() {
         return mDocument.getHeight();
@@ -121,7 +116,7 @@ public class RemoteDocument {
      * Paint the document
      *
      * @param context the provided PaintContext
-     * @param theme   the theme we want to use for this document.
+     * @param theme the theme we want to use for this document.
      */
     @RestrictTo(LIBRARY_GROUP)
     public void paint(@NonNull RemoteContext context, int theme) {
@@ -167,7 +162,7 @@ public class RemoteDocument {
     }
 
     /**
-     * Gets a array of Names of the  Themed Colors defined in the loaded doc.
+     * Gets a array of Names of the Themed Colors defined in the loaded doc.
      *
      * @return
      */
@@ -201,9 +196,7 @@ public class RemoteDocument {
         return mDocument.getComponent(id);
     }
 
-    /**
-     * Invalidate the document for layout measures. This will trigger a layout remeasure pass.
-     */
+    /** Invalidate the document for layout measures. This will trigger a layout remeasure pass. */
     @RestrictTo(LIBRARY_GROUP)
     public void invalidate() {
         mDocument.invalidateMeasure();
@@ -270,5 +263,10 @@ public class RemoteDocument {
      */
     public boolean useFeature(short featureId) {
         return mDocument.useFeature(featureId);
+    }
+
+    /** Re-inflate the document */
+    public void reinflate() {
+        mDocument.reinflate();
     }
 }

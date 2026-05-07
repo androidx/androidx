@@ -193,8 +193,8 @@ public class TimeAttribute extends PaintOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int textId = buffer.readInt();
+        int id = buffer.readId();
+        int textId = buffer.readId();
         short type = (short) buffer.readShort();
         short len = (short) buffer.readShort();
         if (len > MAX_ARG_LEN) {
@@ -204,7 +204,7 @@ public class TimeAttribute extends PaintOperation {
         if (len != 0) {
             args = new int[len];
             for (int i = 0; i < len; i++) {
-                args[i] = buffer.readInt();
+                args[i] = buffer.readId();
             }
         }
         operations.add(new TimeAttribute(id, textId, type, args));

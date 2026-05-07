@@ -18,12 +18,11 @@ package androidx.compose.remote.core.operations.utilities.touch;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 
 import org.jspecify.annotations.NonNull;
 
-/**
- * Utility to read a arbitrary parameter set in a command in a compact format
- */
+/** Utility to read a arbitrary parameter set in a command in a compact format */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CommandParameters {
     public static final byte P_INT = 1;
@@ -51,9 +50,7 @@ public class CommandParameters {
         mParamsCount = params.length;
     }
 
-    /**
-     * Returns the number of known parameters
-     */
+    /** Returns the number of known parameters */
     public int getParamsCount() {
         return mParamsCount;
     }
@@ -62,7 +59,7 @@ public class CommandParameters {
      * Create a parameter with the given name, id and type
      *
      * @param name the name of the parameter
-     * @param id   the id of the parameter
+     * @param id the id of the parameter
      * @param type the type of the parameter
      */
     public static @NonNull Param param(@NonNull String name, byte id, byte type) {
@@ -183,9 +180,7 @@ public class CommandParameters {
         return 1;
     }
 
-    /**
-     * A parameter
-     */
+    /** A parameter */
     public static class Param {
         String mName;
         byte mId;
@@ -227,8 +222,8 @@ public class CommandParameters {
      * Write a parameter to a buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the parameter
-     * @param value  the value of the parameter
+     * @param id the id of the parameter
+     * @param value the value of the parameter
      */
     public boolean write(@NonNull WireBuffer buffer, byte id, int value) {
         Param param = mParams[0xFF & id];
@@ -259,8 +254,8 @@ public class CommandParameters {
      * Write a parameter to a buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the parameter
-     * @param value  the value of the parameter
+     * @param id the id of the parameter
+     * @param value the value of the parameter
      */
     public boolean write(@NonNull WireBuffer buffer, byte id, float value) {
         Param param = mParams[0xFF & id];
@@ -279,8 +274,8 @@ public class CommandParameters {
      * Write a parameter to a buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the parameter
-     * @param value  the value of the parameter
+     * @param id the id of the parameter
+     * @param value the value of the parameter
      */
     public void write(@NonNull WireBuffer buffer, byte id, float @NonNull [] value) {
         Param param = mParams[0xFF & id];
@@ -298,8 +293,8 @@ public class CommandParameters {
      * Write a parameter to a buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the parameter
-     * @param value  the value of the parameter
+     * @param id the id of the parameter
+     * @param value the value of the parameter
      */
     public void write(@NonNull WireBuffer buffer, byte id, int @NonNull [] value) {
         Param param = mParams[0xFF & id];
@@ -317,8 +312,8 @@ public class CommandParameters {
      * Write a parameter to a buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the parameter
-     * @param value  the value of the parameter
+     * @param id the id of the parameter
+     * @param value the value of the parameter
      */
     public void write(@NonNull WireBuffer buffer, byte id, @NonNull String value) {
         Param param = mParams[0xFF & id];
@@ -333,8 +328,8 @@ public class CommandParameters {
      * Write a parameter to a buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the parameter
-     * @param value  the value of the parameter
+     * @param id the id of the parameter
+     * @param value the value of the parameter
      */
     public void write(@NonNull WireBuffer buffer, byte id, byte value) {
         Param param = mParams[0xFF & id];
@@ -350,8 +345,8 @@ public class CommandParameters {
      * Write a parameter to a buffer
      *
      * @param buffer the buffer to write to
-     * @param id     the id of the parameter
-     * @param value  the value of the parameter
+     * @param id the id of the parameter
+     * @param value the value of the parameter
      */
     public boolean write(@NonNull WireBuffer buffer, byte id, boolean value) {
         Param param = mParams[0xFF & id];
@@ -367,14 +362,12 @@ public class CommandParameters {
         return true;
     }
 
-    /**
-     * Callback for reading parameters from a buffer
-     */
+    /** Callback for reading parameters from a buffer */
     public interface Callback {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, int value);
@@ -382,7 +375,7 @@ public class CommandParameters {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, float value);
@@ -390,7 +383,7 @@ public class CommandParameters {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, short value);
@@ -398,7 +391,7 @@ public class CommandParameters {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, byte value);
@@ -406,7 +399,7 @@ public class CommandParameters {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, boolean value);
@@ -414,7 +407,7 @@ public class CommandParameters {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, @NonNull String value);
@@ -422,7 +415,7 @@ public class CommandParameters {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, int @NonNull [] value);
@@ -430,55 +423,44 @@ public class CommandParameters {
         /**
          * Called when a parameter is read from a buffer
          *
-         * @param id    the id of the parameter
+         * @param id the id of the parameter
          * @param value the value of the parameter
          */
         void value(int id, float @NonNull [] value);
     }
 
-    /**
-     * Abstract callback for reading parameters from a buffer
-     */
+    /** Abstract callback for reading parameters from a buffer */
     public abstract static class AbstractCallback implements Callback {
 
         @Override
-        public void value(int id, int value) {
-        }
+        public void value(int id, int value) {}
 
         @Override
-        public void value(int id, float value) {
-        }
+        public void value(int id, float value) {}
 
         @Override
-        public void value(int id, short value) {
-        }
+        public void value(int id, short value) {}
 
         @Override
-        public void value(int id, byte value) {
-        }
+        public void value(int id, byte value) {}
 
         @Override
-        public void value(int id, boolean value) {
-        }
+        public void value(int id, boolean value) {}
 
         @Override
-        public void value(int id, @NonNull String value) {
-        }
+        public void value(int id, @NonNull String value) {}
 
         @Override
-        public void value(int id, int @NonNull [] value) {
-        }
+        public void value(int id, int @NonNull [] value) {}
 
         @Override
-        public void value(int id, float @NonNull [] value) {
-
-        }
+        public void value(int id, float @NonNull [] value) {}
     }
 
     /**
      * Read a parameter from a buffer
      *
-     * @param buffer   the buffer to read from
+     * @param buffer the buffer to read from
      * @param callback the callback to call when a parameter is read
      */
     public void read(@NonNull WireBuffer buffer, @NonNull Callback callback) {
@@ -489,7 +471,11 @@ public class CommandParameters {
                 callback.value(id, buffer.readInt());
                 break;
             case P_FLOAT:
-                callback.value(id, Float.intBitsToFloat(buffer.readInt()));
+                float fv = Float.intBitsToFloat(buffer.readInt());
+                if (buffer instanceof LoomWireBuffer) {
+                    fv = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(fv);
+                }
+                callback.value(id, fv);
                 break;
             case P_SHORT:
                 callback.value(id, (short) buffer.readShort());
@@ -512,7 +498,11 @@ public class CommandParameters {
                 count = buffer.readShort();
                 float[] floats = new float[count];
                 for (int i = 0; i < count; i++) {
-                    floats[i] = buffer.readFloat();
+                    float fav = buffer.readFloat();
+                    if (buffer instanceof LoomWireBuffer) {
+                        fav = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(fav);
+                    }
+                    floats[i] = fav;
                 }
                 callback.value(id, floats);
                 break;

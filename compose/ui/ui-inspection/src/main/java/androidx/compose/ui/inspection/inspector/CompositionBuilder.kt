@@ -28,14 +28,12 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.NO_ANCHOR_ID
-import androidx.compose.ui.inspection.util.isPrimitiveClass
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.layout.view
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.InteroperableComposeUiNode
 import androidx.compose.ui.tooling.data.ContextCache
-import androidx.compose.ui.tooling.data.ParameterInformation
 import androidx.compose.ui.tooling.data.SourceContext
 import androidx.compose.ui.tooling.data.SourceLocation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
@@ -310,7 +308,7 @@ internal class CompositionBuilder(
         if (isHiddenSystemNode(node)) {
             return node.markUnwanted()
         }
-        node.anchorId = anchorMap[group.identity]
+        node.anchorId = anchorMap[group.identity, node.key]
         node.id = syntheticId(node.anchorId)
         if (includeAllParameters) {
             addParameters(context, node)
@@ -532,16 +530,7 @@ internal class CompositionBuilder(
     }
 
     private fun addParameters(context: SourceContext, node: MutableInspectorNode) {
-        context.parameters.forEach {
-            val castedValue = castValue(it)
-            node.parameters.add(RawParameter(it.name, castedValue))
-        }
-    }
-
-    private fun castValue(parameter: ParameterInformation): Any? {
-        val value = parameter.value ?: return null
-        if (parameter.inlineClass == null || !value.javaClass.isPrimitiveClass()) return value
-        return inlineClassConverter.castParameterValue(parameter.inlineClass, value)
+        context.parameters.mapTo(node.parameters) { inlineClassConverter.toRawParameter(it) }
     }
 
     private fun isHiddenSystemNode(node: MutableInspectorNode): Boolean =

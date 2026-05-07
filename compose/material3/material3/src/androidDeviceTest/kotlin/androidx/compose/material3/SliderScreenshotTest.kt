@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -92,7 +93,7 @@ class SliderScreenshotTest {
                     RippleDefaults.InsetFocusRingRippleThemeConfiguration
             ) {
                 localInputModeManager = LocalInputModeManager.current
-                Box(wrap.testTag(wrapperTestTag)) {
+                Box(wrap.testTag(wrapperTestTag).padding(vertical = 4.dp)) {
                     Slider(
                         state = remember { SliderState(0.5f) },
                         modifier = Modifier.focusRequester(focusRequester),

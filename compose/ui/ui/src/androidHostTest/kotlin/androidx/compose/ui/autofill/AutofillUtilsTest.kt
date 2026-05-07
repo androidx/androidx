@@ -64,4 +64,25 @@ class AutofillUtilsTest {
         assertThat(autofillValue.textValue.length).isEqualTo(maxLength - 1)
         assertThat(autofillValue.textValue.toString()).isEqualTo(prefix)
     }
+
+    @Test
+    fun createFromText_moreThanMax() {
+        val text = "a".repeat(maxLength + 1)
+        val fillableData = checkNotNull(FillableData.createFromText(text))
+        assertThat(fillableData.textValue?.length).isEqualTo(maxLength)
+        assertThat(fillableData.textValue?.toString()).isEqualTo(text.take(maxLength))
+    }
+
+    @Test
+    fun createFromText_surrogatePairAtMax() {
+        // High surrogate: \uD83D, Low surrogate: \uDE00. Emoji: 😀
+        val prefix = "a".repeat(maxLength - 1)
+        val surrogatePair = "\uD83D\uDE00"
+        val text = prefix + surrogatePair + "b"
+
+        val fillableData = checkNotNull(FillableData.createFromText(text))
+
+        assertThat(fillableData.textValue?.length).isEqualTo(maxLength - 1)
+        assertThat(fillableData.textValue?.toString()).isEqualTo(prefix)
+    }
 }

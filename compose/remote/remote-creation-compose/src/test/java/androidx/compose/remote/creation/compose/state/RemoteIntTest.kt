@@ -26,9 +26,12 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
+import java.text.DecimalFormat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 fun RemoteInt.computeValue(creationState: RemoteComposeCreationState): Int? {
     val array = arrayForCreationState(creationState)
@@ -44,14 +47,20 @@ fun RemoteInt.computeValue(creationState: RemoteComposeCreationState): Int? {
 }
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class RemoteIntTest {
     val context =
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
-    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
     val time = RemoteInt.createNamedRemoteInt("time", 100).createReference()
+    lateinit var creationState: RemoteComposeCreationState
+
+    @Before
+    fun setUp() {
+        // Necessary for test isolation.
+        creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+    }
 
     @Test
     fun addition() {
@@ -105,7 +114,7 @@ class RemoteIntTest {
     @Test
     fun toRemoteString() {
         val sum = RemoteInt(100) + 20
-        val sumString = sum.toRemoteString(3)
+        val sumString = sum.toRemoteString(DecimalFormat("##0"))
         val sumStringId = sumString.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
@@ -375,7 +384,7 @@ class RemoteIntTest {
                     .hasConstantValue
             )
             .isTrue()
-        assertThat(RemoteInt(10).toRemoteString(2).hasConstantValue).isTrue()
+        assertThat(RemoteInt(10).toRemoteString(DecimalFormat("#0")).hasConstantValue).isTrue()
         assertThat(RemoteFloat(10f).toRemoteInt().hasConstantValue).isTrue()
     }
 
@@ -386,7 +395,7 @@ class RemoteIntTest {
         assertThat(
                 RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
                     .toRemoteInt()
-                    .toRemoteString(2)
+                    .toRemoteString(DecimalFormat("#0"))
                     .hasConstantValue
             )
             .isFalse()
@@ -447,6 +456,20 @@ class RemoteIntTest {
     fun extensionFunctionMatches() {
         assertThat(10.ri.constantValue).isEqualTo(10)
         assertThat((-10).ri.constantValue).isEqualTo(-10)
+    }
+
+    @Test
+    fun cacheKeys() {
+        val constant = RemoteInt(10)
+        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(10))
+
+        val named = RemoteInt.createNamedRemoteInt("test", 5)
+        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
+
+        val op = constant + named
+        // flipped because of peephole optimisation
+        assertThat(op.cacheKey)
+            .isEqualTo(RemoteOperationCacheKey.create(RemoteInt.OperationKey.Add, named, constant))
     }
 
     @Test
@@ -615,6 +638,50 @@ class RemoteIntTest {
             .inOrder()
         assertThat(expr.getIdForCreationState(creationState))
             .isEqualTo(time.getIdForCreationState(creationState))
+    }
+
+    @Test
+    fun mutableRemoteInt_applyExpression() {
+        val timeId = time.getIdForCreationState(creationState)
+        val mutableTime = MutableRemoteInt.createMutableForId(timeId.toLong())
+
+        val expr = (mutableTime + 2) / 2
+        val exprId = expr.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(exprId)).isEqualTo(51)
+    }
+
+    @Test
+    fun sharedExpressionReferenced() {
+        val a = (time + 123) * 456
+        val b = a + 789
+
+        // Write 'a' to document first to ensure it's in the document and hasBeenWrittenToDoc
+        // returns true
+        a.getIdForCreationState(creationState)
+        assertThat(a.hasBeenWrittenToDoc(creationState)).isTrue()
+
+        // Now 'b' should reference 'a' instead of inlining it
+        val bArray = b.arrayForCreationState(creationState)
+
+        // Expected bArray: [ID_A, 789, ADD] -> size 3
+        // If inlined: [TIME, 123, ADD, 456, MUL, 789, ADD] -> size 7
+        assertThat(bArray.size).isEqualTo(3)
+        assertThat(bArray[0]).isEqualTo(a.getLongIdForCreationState(creationState))
+    }
+
+    @Test
+    fun unsharedExpressionInlined() {
+        val a = (time + 123) * 456
+        val b = a + 789
+
+        // 'b' should inline 'a' instead
+        val bArray = b.arrayForCreationState(creationState)
+
+        // Expected bArray: [TIME, 123, ADD, 456, MUL, 789, ADD] -> size 7
+        assertThat(bArray.size).isEqualTo(7)
     }
 
     private fun getOperationsStrings(): List<String> =

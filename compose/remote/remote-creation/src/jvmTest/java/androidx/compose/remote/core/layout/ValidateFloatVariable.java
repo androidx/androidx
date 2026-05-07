@@ -37,8 +37,11 @@ public class ValidateFloatVariable extends TestOperation {
     }
 
     @Override
-    public boolean apply(@NonNull RemoteContext context, @NonNull CoreDocument document,
-            @NonNull TestParameters testParameters, @Nullable List<Map<String, Object>> commands) {
+    public boolean apply(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull TestParameters testParameters,
+            @Nullable List<Map<String, Object>> commands) {
         int id = Utils.idFromNan(mIdNan);
         float actualValue = context.getFloat(id);
         if (commands != null) {
@@ -51,7 +54,11 @@ public class ValidateFloatVariable extends TestOperation {
         }
         if (Math.abs(actualValue - mExpected) > 0.001f) {
             throw new AssertionError(
-                    "Variable " + id + " actual value " + actualValue + " != expected "
+                    "Variable "
+                            + id
+                            + " actual value "
+                            + actualValue
+                            + " != expected "
                             + mExpected);
         }
         return false;

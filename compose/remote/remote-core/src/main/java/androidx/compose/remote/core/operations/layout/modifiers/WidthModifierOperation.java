@@ -36,7 +36,7 @@ import java.util.List;
 public class WidthModifierOperation extends DimensionModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_WIDTH;
     public static final String CLASS_NAME = "WidthModifierOperation";
-    private @Nullable WidthInModifierOperation mWidthIn = null;
+    private @Nullable DimensionInModifierOperation mWidthIn = null;
 
     /**
      * The name of the class
@@ -78,7 +78,7 @@ public class WidthModifierOperation extends DimensionModifierOperation {
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         Type type = Type.fromInt(buffer.readInt());
-        float value = buffer.readFloat();
+        float value = buffer.readNanId();
         Operation op = new WidthModifierOperation(type, value);
         operations.add(op);
     }
@@ -129,7 +129,7 @@ public class WidthModifierOperation extends DimensionModifierOperation {
      *
      * @param widthInConstraints width constraints
      */
-    public void setWidthIn(@NonNull WidthInModifierOperation widthInConstraints) {
+    public void setWidthIn(@NonNull DimensionInModifierOperation widthInConstraints) {
         mWidthIn = widthInConstraints;
     }
 
@@ -138,7 +138,7 @@ public class WidthModifierOperation extends DimensionModifierOperation {
      *
      * @return width in constraints
      */
-    public @Nullable WidthInModifierOperation getWidthIn() {
+    public @Nullable DimensionInModifierOperation getWidthIn() {
         return mWidthIn;
     }
 

@@ -33,7 +33,7 @@ class LayoutCollapsibleTest : BaseLayoutTest() {
     @Test
     fun testCollapsibleRowPriority() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         collapsibleRow(
@@ -103,7 +103,7 @@ class LayoutCollapsibleTest : BaseLayoutTest() {
     @Test
     fun testCollapsibleColumnPriority() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         collapsibleColumn(
@@ -166,7 +166,7 @@ class LayoutCollapsibleTest : BaseLayoutTest() {
     @Test
     fun testCollapsibleMixedPriority() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         collapsibleRow(
@@ -211,7 +211,7 @@ class LayoutCollapsibleTest : BaseLayoutTest() {
     @Test
     fun testCollapsiblePriorityDisappearOrder() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         collapsibleRow(
@@ -270,7 +270,7 @@ class LayoutCollapsibleTest : BaseLayoutTest() {
     @Test
     fun testCollapsibleWeight() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize()) {
                         collapsibleRow(

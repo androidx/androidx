@@ -239,7 +239,7 @@ private fun Context.getActivityWindow(): Window {
     return getActivity().window
 }
 
-private val SemanticsNode.view: View
+internal val SemanticsNode.view: View
     get() = (root as ViewRootForTest).view
 
 private val SemanticsNode.isInsidePopup: Boolean

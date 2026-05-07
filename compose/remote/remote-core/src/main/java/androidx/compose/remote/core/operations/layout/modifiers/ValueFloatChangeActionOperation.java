@@ -77,7 +77,9 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValue);
+    }
 
     @Override
     public void runAction(
@@ -109,8 +111,8 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
-        float value = buffer.readFloat();
+        int valueId = buffer.readId();
+        float value = buffer.readNanId();
         operations.add(new ValueFloatChangeActionOperation(valueId, value));
     }
 

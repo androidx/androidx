@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -28,6 +29,7 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -57,6 +59,7 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
     boolean mUseColorId = false;
     int mColorId;
     int mShapeType = ShapeType.RECTANGLE;
+
     /** Color is through and ID */
     public static final int COLOR_REF = 2;
 
@@ -128,19 +131,7 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(
-                buffer,
-                0,
-                0,
-                0,
-                0,
-                mBorderWidth,
-                mRoundedCorner,
-                mR,
-                mG,
-                mB,
-                mA,
-                mShapeType);
+        apply(buffer, 0, 0, 0, 0, mBorderWidth, mRoundedCorner, mR, mG, mB, mA, mShapeType);
     }
 
     @Override
@@ -251,19 +242,25 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int flags = buffer.readInt();
         int colorId = buffer.readInt();
+        if ((flags & COLOR_REF) != 0) {
+            // Manual remapping since we already read it
+            if (buffer instanceof LoomWireBuffer) {
+                colorId = ((LoomWireBuffer) buffer).getRemapContext().resolveId(colorId);
+            }
+        }
         int reserve1 = buffer.readInt();
         int reserve2 = buffer.readInt();
-        float bw = buffer.readFloat();
-        float rc = buffer.readFloat();
-        float r = buffer.readFloat();
-        float g = buffer.readFloat();
-        float b = buffer.readFloat();
-        float a = buffer.readFloat();
+        float bw = buffer.readNanId();
+        float rc = buffer.readNanId();
+        float r = buffer.readNanId();
+        float g = buffer.readNanId();
+        float b = buffer.readNanId();
+        float a = buffer.readNanId();
         // shape type
         int shapeType = buffer.readInt();
         operations.add(
-                new BorderModifierOperation(flags,
-                        colorId, reserve1, reserve2, bw, rc, r, g, b, a, shapeType));
+                new BorderModifierOperation(
+                        flags, colorId, reserve1, reserve2, bw, rc, r, g, b, a, shapeType));
     }
 
     @Override
@@ -277,17 +274,31 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
         } else {
             mPaint.setColor(mR, mG, mB, mA);
         }
-        if (isAtLeastVersion7(context.getContext())) {
-            mPaint.setStrokeWidth(mBorderWidthValue);
-        } else {
-            mPaint.setStrokeWidth(mBorderWidth * context.getContext().getDensity());
+
+        float borderWidth = mBorderWidthValue;
+        float roundedCorner = mRoundedCorner;
+        switch (context.getDensityBehavior()) {
+            case CoreDocument.DENSITY_BEHAVIOR_DP:
+                float density = context.getDensity();
+                borderWidth *= density;
+                roundedCorner *= density;
+                break;
+            case CoreDocument.DENSITY_BEHAVIOR_LEGACY:
+                if (!isAtLeastVersion7(context.getContext())) {
+                    borderWidth = mBorderWidth * context.getContext().getDensity();
+                }
+                break;
+            case CoreDocument.DENSITY_BEHAVIOR_PIXELS:
+                // nothing to do
         }
+
+        mPaint.setStrokeWidth(borderWidth);
         mPaint.setStyle(PaintBundle.STYLE_STROKE);
         context.replacePaint(mPaint);
         if (mShapeType == ShapeType.RECTANGLE) {
             context.drawRect(0f, 0f, mWidth, mHeight);
         } else {
-            float size = mRoundedCorner;
+            float size = roundedCorner;
             if (mShapeType == ShapeType.CIRCLE) {
                 size = Math.min(mWidth, mHeight) / 2f;
             }

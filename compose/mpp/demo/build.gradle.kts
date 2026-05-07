@@ -132,6 +132,7 @@ kotlin {
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-geometry"))
                 implementation(project(":compose:ui:ui-graphics"))
                 implementation(project(":compose:ui:ui-text"))
                 implementation(project(":compose:ui:ui-backhandler"))

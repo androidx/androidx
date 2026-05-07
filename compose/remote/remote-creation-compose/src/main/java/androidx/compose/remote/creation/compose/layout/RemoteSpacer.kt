@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
@@ -25,7 +24,6 @@ import androidx.compose.runtime.Composable
  *
  * This delegates to [RemoteBox] which handles the layout recording or foundation Box dispatching.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteSpacer(modifier: RemoteModifier = RemoteModifier) {

@@ -62,7 +62,6 @@ class FloatingActionButtonMenuTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun fabMenu_childrenCount_collapsed() {
         val items =
@@ -85,7 +84,6 @@ class FloatingActionButtonMenuTest {
         rule.onRoot().performKeyInput { repeat(items.size) { pressKey(Key.Tab) } }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun fabMenu_childrenCount_expanded() {
         val items =
@@ -105,7 +103,6 @@ class FloatingActionButtonMenuTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun fabMenu_keyboardNavigation_fromFabToFirstItem() {
         rule.setContent {
@@ -159,7 +156,6 @@ class FloatingActionButtonMenuTest {
     }
 
     @Composable
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     private fun FabMenuTest(initialExpanded: Boolean, items: List<Pair<ImageVector, String>>) {
         Box(Modifier.fillMaxSize()) {
             var fabMenuExpanded by rememberSaveable { mutableStateOf(initialExpanded) }

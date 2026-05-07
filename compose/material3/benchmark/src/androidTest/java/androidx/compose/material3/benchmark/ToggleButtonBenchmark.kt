@@ -17,7 +17,6 @@
 package androidx.compose.material3.benchmark
 
 import androidx.compose.material3.ElevatedToggleButton
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.Text
@@ -66,7 +65,6 @@ class ToggleButtonBenchmark(private val type: ToggleButtonType) {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class ToggleButtonTestCase(private val type: ToggleButtonType) :
     LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var checked: MutableState<Boolean>

@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.widget.EdgeEffect;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.ScrollingEdgeEffect;
@@ -44,7 +45,6 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 /**
  * An implementation of Context for Android.
@@ -59,8 +59,7 @@ public class AndroidRemoteContext extends RemoteContext {
 
     private boolean mA11yAnimationEnabled = true;
 
-    @NonNull
-    private BitmapLoader mBitmapLoader = BitmapLoader.UNSUPPORTED;
+    @NonNull private BitmapLoader mBitmapLoader = BitmapLoader.UNSUPPORTED;
 
     /** Default constructor, uses a {@link RemoteClock#SYSTEM} as the clock. */
     public AndroidRemoteContext() {
@@ -112,20 +111,20 @@ public class AndroidRemoteContext extends RemoteContext {
     // Edge effect handling
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * EdgeEffectBuilder interface
-     */
+    /** EdgeEffectBuilder interface */
     public interface EdgeEffectBuilder {
         /**
          * Create a new EdgeEffect
-         * @return
+         *
+         * @return EdgeEffect
          */
         @NonNull EdgeEffect create();
     }
 
     /**
      * Set a builder for EdgeEffects
-     * @param builder
+     *
+     * @param builder EdgeEffectBuilder
      */
     public void setEdgeEffectBuilder(@NonNull EdgeEffectBuilder builder) {
         mEdgeEffectBuilder = builder;
@@ -166,21 +165,27 @@ public class AndroidRemoteContext extends RemoteContext {
         }
     }
 
-    HashMap<String, VarName> mVarNameHashMap = new HashMap<>();
+    HashMap<String, ArrayList<VarName>> mVarNameHashMap = new HashMap<>();
 
     /**
      * Returns the id of a variable
-     * @param name
-     * @return
+     *
+     * @param name name of variable
+     * @return id of variable
      */
     public int getVariableId(@NonNull String name) {
-        return Objects.requireNonNull(mVarNameHashMap.get(name)).mId;
+        ArrayList<VarName> list = mVarNameHashMap.get(name);
+        if (list == null || list.isEmpty()) {
+            throw new java.util.NoSuchElementException("Variable " + name + " not found");
+        }
+        return list.get(0).mId;
     }
 
     /**
      * Returns the content of a name variable
-     * @param name
-     * @return
+     *
+     * @param name name of variable
+     * @return content of variable
      */
     public @Nullable String getStringVariableName(@NonNull String name) {
         int id = getVariableId(name);
@@ -189,24 +194,38 @@ public class AndroidRemoteContext extends RemoteContext {
 
     @Override
     public void loadVariableName(@NonNull String varName, int varId, int varType) {
-        mVarNameHashMap.put(varName, new VarName(varName, varId, varType));
+        ArrayList<VarName> list = mVarNameHashMap.get(varName);
+        if (list == null) {
+            list = new ArrayList<>();
+            mVarNameHashMap.put(varName, list);
+        }
+        // Avoid duplicates if re-initializing the same document
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).mId == varId) {
+                return;
+            }
+        }
+        list.add(new VarName(varName, varId, varType));
     }
 
     @Override
     public void setNamedStringOverride(@NonNull String stringName, @NonNull String value) {
-        if (mVarNameHashMap.get(stringName) != null) {
-            int id = mVarNameHashMap.get(stringName).mId;
-            overrideText(id, value);
+        ArrayList<VarName> list = mVarNameHashMap.get(stringName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideText(var.mId, value);
+            }
         }
     }
 
     @Override
     public void clearNamedStringOverride(@NonNull String stringName) {
-        if (mVarNameHashMap.get(stringName) != null) {
-            int id = mVarNameHashMap.get(stringName).mId;
-            clearDataOverride(id);
+        ArrayList<VarName> list = mVarNameHashMap.get(stringName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearDataOverride(var.mId);
+            }
         }
-        mVarNameHashMap.put(stringName, null);
     }
 
     @Override
@@ -221,63 +240,73 @@ public class AndroidRemoteContext extends RemoteContext {
 
     @Override
     public void setNamedIntegerOverride(@NonNull String integerName, int value) {
-        if (mVarNameHashMap.get(integerName) != null) {
-            int id = mVarNameHashMap.get(integerName).mId;
-            overrideInt(id, value);
+        ArrayList<VarName> list = mVarNameHashMap.get(integerName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideInt(var.mId, value);
+            }
         }
     }
 
     @Override
     public void clearNamedIntegerOverride(@NonNull String integerName) {
-        if (mVarNameHashMap.get(integerName) != null) {
-            int id = mVarNameHashMap.get(integerName).mId;
-            clearIntegerOverride(id);
+        ArrayList<VarName> list = mVarNameHashMap.get(integerName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearIntegerOverride(var.mId);
+            }
         }
-        mVarNameHashMap.put(integerName, null);
     }
 
     @Override
     public void setNamedFloatOverride(@NonNull String floatName, float value) {
-        if (mVarNameHashMap.get(floatName) != null) {
-            int id = mVarNameHashMap.get(floatName).mId;
-            overrideFloat(id, value);
+        ArrayList<VarName> list = mVarNameHashMap.get(floatName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideFloat(var.mId, value);
+            }
         }
     }
 
     @Override
     public void clearNamedFloatOverride(@NonNull String floatName) {
-        if (mVarNameHashMap.get(floatName) != null) {
-            int id = mVarNameHashMap.get(floatName).mId;
-            clearFloatOverride(id);
+        ArrayList<VarName> list = mVarNameHashMap.get(floatName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearFloatOverride(var.mId);
+            }
         }
-        mVarNameHashMap.put(floatName, null);
     }
 
     @Override
     public void setNamedLong(@NonNull String name, long value) {
-        VarName entry = mVarNameHashMap.get(name);
-        if (entry != null) {
-            int id = entry.mId;
-            LongConstant longConstant = (LongConstant) mRemoteComposeState.getObject(id);
-            longConstant.setValue(value);
+        ArrayList<VarName> list = mVarNameHashMap.get(name);
+        if (list != null) {
+            for (VarName var : list) {
+                LongConstant longConstant = (LongConstant) mRemoteComposeState.getObject(var.mId);
+                longConstant.setValue(value);
+            }
         }
     }
 
     @Override
     public void setNamedDataOverride(@NonNull String dataName, @NonNull Object value) {
-        if (mVarNameHashMap.get(dataName) != null) {
-            int id = mVarNameHashMap.get(dataName).mId;
-            overrideData(id, value);
+        ArrayList<VarName> list = mVarNameHashMap.get(dataName);
+        if (list != null) {
+            for (VarName var : list) {
+                overrideData(var.mId, value);
+            }
         }
     }
 
     @Override
     public void clearNamedDataOverride(@NonNull String dataName) {
-        if (mVarNameHashMap.get(dataName) != null) {
-            int id = mVarNameHashMap.get(dataName).mId;
-            clearDataOverride(id);
+        ArrayList<VarName> list = mVarNameHashMap.get(dataName);
+        if (list != null) {
+            for (VarName var : list) {
+                clearDataOverride(var.mId);
+            }
         }
-        mVarNameHashMap.put(dataName, null);
     }
 
     /**
@@ -287,9 +316,11 @@ public class AndroidRemoteContext extends RemoteContext {
      */
     @Override
     public void setNamedColorOverride(@NonNull String colorName, int color) {
-        if (mVarNameHashMap.get(colorName) != null) {
-            int id = mVarNameHashMap.get(colorName).mId;
-            mRemoteComposeState.overrideColor(id, color);
+        ArrayList<VarName> list = mVarNameHashMap.get(colorName);
+        if (list != null) {
+            for (VarName var : list) {
+                mRemoteComposeState.overrideColor(var.mId, color);
+            }
         }
     }
 
@@ -325,12 +356,12 @@ public class AndroidRemoteContext extends RemoteContext {
     /**
      * Decode a byte array into an image and cache it using the given imageId
      *
-     * @param imageId  the id of the image
+     * @param imageId the id of the image
      * @param encoding how the data is encoded 0 = png, 1 = raw, 2 = url
-     * @param type     the type of the data 0 = RGBA 8888, 1 = 888, 2 = 8 gray
-     * @param width    with of image to be loaded largest dimension is 32767
-     * @param height   height of image to be loaded
-     * @param data     a byte array containing the image information
+     * @param type the type of the data 0 = RGBA 8888, 1 = 888, 2 = 8 gray
+     * @param width with of image to be loaded largest dimension is 32767
+     * @param height height of image to be loaded
+     * @param data a byte array containing the image information
      */
     @Override
     public void loadBitmap(
@@ -408,9 +439,13 @@ public class AndroidRemoteContext extends RemoteContext {
                     image = BitmapFactory.decodeFile(new String(data));
                     break;
                 case BitmapData.ENCODING_URL:
+                    if (!Limits.ENABLE_IMAGE_URLS) {
+                        throw new RuntimeException("URL image not supported [" + imageId + "]");
+                    }
                     try {
-                        image = BitmapFactory.decodeStream(
-                                mBitmapLoader.loadBitmap(new String(data)));
+                        image =
+                                BitmapFactory.decodeStream(
+                                        mBitmapLoader.loadBitmap(new String(data)));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -440,7 +475,7 @@ public class AndroidRemoteContext extends RemoteContext {
     /**
      * Overrides the text associated with a given ID.
      *
-     * @param id   The ID of the text to override.
+     * @param id The ID of the text to override.
      * @param text The new text value.
      */
     public void overrideText(int id, @NonNull String text) {
@@ -450,7 +485,7 @@ public class AndroidRemoteContext extends RemoteContext {
     /**
      * Overrides the integer value associated with a given ID.
      *
-     * @param id    The ID of the integer to override.
+     * @param id The ID of the integer to override.
      * @param value The new integer value.
      */
     public void overrideInt(int id, int value) {
@@ -460,7 +495,7 @@ public class AndroidRemoteContext extends RemoteContext {
     /**
      * Overrides the data associated with a given ID.
      *
-     * @param id    The ID of the data to override.
+     * @param id The ID of the data to override.
      * @param value The new data value.
      */
     public void overrideData(int id, @NonNull Object value) {
@@ -523,7 +558,7 @@ public class AndroidRemoteContext extends RemoteContext {
     /**
      * Overrides the integer value associated with a given ID.
      *
-     * @param id    The ID of the integer to override.
+     * @param id The ID of the integer to override.
      * @param value The new integer value.
      */
     @Override
@@ -534,7 +569,7 @@ public class AndroidRemoteContext extends RemoteContext {
     /**
      * Overrides the text associated with a given ID, using a text value from another ID.
      *
-     * @param id      The ID of the text to override.
+     * @param id The ID of the text to override.
      * @param valueId The ID of the text value to use for the override.
      */
     @Override

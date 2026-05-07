@@ -122,13 +122,13 @@ public class ImageAttribute extends PaintOperation {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int id = buffer.readInt();
-        int imageId = buffer.readInt();
+        int id = buffer.readId();
+        int imageId = buffer.readId();
         short type = (short) buffer.readShort();
         short len = (short) buffer.readShort();
         int[] args = new int[len];
         for (int i = 0; i < args.length; i++) {
-            args[i] = buffer.readInt();
+            args[i] = buffer.readId();
         }
         operations.add(new ImageAttribute(id, imageId, type, args));
     }

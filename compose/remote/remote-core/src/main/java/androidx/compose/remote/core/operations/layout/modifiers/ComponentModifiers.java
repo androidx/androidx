@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
@@ -29,7 +30,10 @@ import androidx.compose.remote.core.operations.layout.ClickHandler;
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.DecoratorComponent;
+import androidx.compose.remote.core.operations.layout.MultiClickModifier;
 import androidx.compose.remote.core.operations.layout.TouchHandler;
+import androidx.compose.remote.core.operations.loom.ExpansionContext;
+import androidx.compose.remote.core.operations.loom.LoomManager;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
@@ -49,8 +53,42 @@ public class ComponentModifiers extends PaintOperation
                 Serializable {
     @NonNull ArrayList<ModifierOperation> mList = new ArrayList<>();
 
+    @Override
+    public void materialize(
+            @NonNull ExpansionContext context,
+            @NonNull ArrayList<Operation> result,
+            @NonNull LoomManager loomManager) {
+        ArrayList<Operation> modifierOps = new ArrayList<>(mList.size());
+        for (ModifierOperation m : mList) {
+            modifierOps.add((Operation) m);
+        }
+        ArrayList<Operation> expanded = new ArrayList<>();
+        context.expandRecursive(modifierOps, expanded, loomManager);
+        ArrayList<Operation> nested =
+                CoreDocument.nestContainers(expanded, true, context.getDocument());
+
+        mList.clear();
+        for (Operation op : nested) {
+            mList.add((ModifierOperation) op);
+        }
+        result.add(this);
+    }
+
+    /**
+     * returns the list of modifiers
+     *
+     * @return
+     */
+    public @NonNull ArrayList<Operation> getList() {
+        ArrayList<Operation> list = new ArrayList<>(mList.size());
+        for (ModifierOperation op : mList) {
+            list.add((Operation) op);
+        }
+        return list;
+    }
+
     @NonNull
-    public ArrayList<ModifierOperation> getList() {
+    public ArrayList<ModifierOperation> getModifiersList() {
         return mList;
     }
 
@@ -126,6 +164,10 @@ public class ComponentModifiers extends PaintOperation
                 context.translate(-tx, -ty);
                 ((ClickModifierOperation) op).paint(context);
                 context.translate(tx, ty);
+            } else if (op instanceof MultiClickModifier) {
+                context.translate(-tx, -ty);
+                ((MultiClickModifier) op).paint(context);
+                context.translate(tx, ty);
             } else if (op instanceof PaintOperation) {
                 ((PaintOperation) op).paint(context);
             }
@@ -144,12 +186,17 @@ public class ComponentModifiers extends PaintOperation
         float w = width;
         float h = height;
         for (ModifierOperation op : mList) {
+            if (op instanceof DecoratorComponent) {
+                ((DecoratorComponent) op).layout(context, component, w, h);
+            }
             if (op instanceof PaddingModifierOperation) {
                 PaddingModifierOperation pop = (PaddingModifierOperation) op;
                 w -= pop.getLeft() + pop.getRight();
                 h -= pop.getTop() + pop.getBottom();
             }
             if (op instanceof ClickModifierOperation) {
+                ((DecoratorComponent) op).layout(context, component, width, height);
+            } else if (op instanceof MultiClickModifier) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof DecoratorComponent) {
                 ((DecoratorComponent) op).layout(context, component, w, h);
@@ -173,11 +220,63 @@ public class ComponentModifiers extends PaintOperation
             @NonNull Component component,
             float x,
             float y) {
+        float tx = 0f;
+        float ty = 0f;
+        for (ModifierOperation op : mList) {
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx += pop.getLeft();
+                ty += pop.getTop();
+            }
+        }
+        boolean handled = false;
+        for (int i = mList.size() - 1; i >= 0; i--) {
+            ModifierOperation op = mList.get(i);
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx -= pop.getLeft();
+                ty -= pop.getTop();
+            }
+            if (op instanceof ClickHandler) {
+                if (((ClickHandler) op).onClick(context, document, component, x - tx, y - ty)) {
+                    handled = true;
+                }
+            }
+        }
+        return handled;
+    }
+
+    @Override
+    public boolean onLongPress(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull Component component,
+            float x,
+            float y) {
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
             if (op instanceof ClickHandler) {
-                if (((ClickHandler) op).onClick(context, document, component, x, y)) {
+                if (((ClickHandler) op).onLongPress(context, document, component, x, y)) {
+                    handled = true;
+                }
+            }
+        }
+        return handled;
+    }
+
+    @Override
+    public boolean onDoubleClick(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            @NonNull Component component,
+            float x,
+            float y) {
+        boolean handled = false;
+        for (int i = mList.size() - 1; i >= 0; i--) {
+            ModifierOperation op = mList.get(i);
+            if (op instanceof ClickHandler) {
+                if (((ClickHandler) op).onDoubleClick(context, document, component, x, y)) {
                     handled = true;
                 }
             }
@@ -192,11 +291,25 @@ public class ComponentModifiers extends PaintOperation
             @NonNull Component component,
             float x,
             float y) {
+        float tx = 0f;
+        float ty = 0f;
+        for (ModifierOperation op : mList) {
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx += pop.getLeft();
+                ty += pop.getTop();
+            }
+        }
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx -= pop.getLeft();
+                ty -= pop.getTop();
+            }
             if (op instanceof TouchHandler) {
-                if (((TouchHandler) op).onTouchDown(context, document, component, x, y)) {
+                if (((TouchHandler) op).onTouchDown(context, document, component, x - tx, y - ty)) {
                     handled = true;
                 }
             }
@@ -213,11 +326,26 @@ public class ComponentModifiers extends PaintOperation
             float y,
             float dx,
             float dy) {
+        float tx = 0f;
+        float ty = 0f;
+        for (ModifierOperation op : mList) {
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx += pop.getLeft();
+                ty += pop.getTop();
+            }
+        }
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx -= pop.getLeft();
+                ty -= pop.getTop();
+            }
             if (op instanceof TouchHandler) {
-                if (((TouchHandler) op).onTouchUp(context, document, component, x, y, dx, dy)) {
+                if (((TouchHandler) op)
+                        .onTouchUp(context, document, component, x - tx, y - ty, dx, dy)) {
                     handled = true;
                 }
             }
@@ -251,11 +379,25 @@ public class ComponentModifiers extends PaintOperation
             @NonNull Component component,
             float x,
             float y) {
+        float tx = 0f;
+        float ty = 0f;
+        for (ModifierOperation op : mList) {
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx += pop.getLeft();
+                ty += pop.getTop();
+            }
+        }
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx -= pop.getLeft();
+                ty -= pop.getTop();
+            }
             if (op instanceof TouchHandler) {
-                if (((TouchHandler) op).onTouchDrag(context, document, component, x, y)) {
+                if (((TouchHandler) op).onTouchDrag(context, document, component, x - tx, y - ty)) {
                     handled = true;
                 }
             }

@@ -115,10 +115,10 @@ public class FontData extends Operation implements SerializableToString, Seriali
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int imageId = buffer.readInt();
+        int fontId = buffer.readId();
         int type = buffer.readInt();
         byte[] fontData = buffer.readBuffer();
-        FontData bitmapData = new FontData(imageId, type, fontData);
+        FontData bitmapData = new FontData(fontId, type, fontData);
         operations.add(bitmapData);
     }
 

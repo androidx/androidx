@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
 @Stable
-public fun RemoteBrush.Companion.solidColor(color: RemoteColor): RemoteSolidColor =
+public fun RemoteBrush.Companion.solidColor(color: RemoteColor): RemoteBrush =
     RemoteSolidColor(color)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-public data class RemoteSolidColor(val color: RemoteColor) : RemoteBrush() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteSolidColor(public val color: RemoteColor) : RemoteBrush() {
 
     override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
         throw UnsupportedOperationException(
             "SolidColor not supported for Shader, use Color directly"
         )
+    }
+
+    override fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize) {
+        paint.color = color
+        paint.shader = null
     }
 
     override val hasShader: Boolean

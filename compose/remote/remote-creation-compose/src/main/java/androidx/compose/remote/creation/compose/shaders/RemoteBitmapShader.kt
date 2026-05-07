@@ -23,12 +23,15 @@ import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.TileMode as ComposeTileMode
 import androidx.compose.ui.graphics.toAndroidTileMode
+import androidx.compose.ui.layout.ContentScale
 
 /**
  * Creates a texture brush with a specified [bitmap].
@@ -38,13 +41,15 @@ import androidx.compose.ui.graphics.toAndroidTileMode
  *   [ComposeTileMode.Clamp] to repeat the edge pixels
  * @param tileModeY The [ComposeTileMode] to use for the bitmap in the y-axis. Defaults to
  *   [ComposeTileMode.Clamp] to repeat the edge pixels
+ * @param contentScale The [ContentScale] to use when scaling the bitmap.
  */
 @Stable
 public fun RemoteBrush.Companion.bitmap(
     bitmap: RemoteBitmap,
     tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
     tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
-): RemoteBitmapBrush = RemoteBitmapBrush(bitmap, tileModeX, tileModeY)
+    contentScale: ContentScale = ContentScale.None,
+): RemoteBitmapBrush = RemoteBitmapBrush(bitmap, tileModeX, tileModeY, contentScale)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteBitmapShader(
@@ -71,9 +76,64 @@ public data class RemoteBitmapBrush(
     public var bitmap: RemoteBitmap,
     public var tileModeX: ComposeTileMode,
     public var tileModeY: ComposeTileMode,
+    public var contentScale: ContentScale,
 ) : RemoteBrush() {
 
     override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
-        return RemoteBitmapShader(bitmap, tileModeX, tileModeY)
+        return RemoteBitmapShader(bitmap, tileModeX, tileModeY).apply {
+            remoteMatrix3x3 = createScaleMatrix(size)
+        }
+    }
+
+    private fun createScaleMatrix(size: RemoteSize): RemoteMatrix3x3? {
+        val intrinsicWidth = bitmap.width
+        val intrinsicHeight = bitmap.height
+        val scaleX = size.width / intrinsicWidth
+        val scaleY = size.height / intrinsicHeight
+
+        val finalScaleX: RemoteFloat
+        val finalScaleY: RemoteFloat
+        when (contentScale) {
+            ContentScale.Fit -> {
+                val scale = scaleX.lt(scaleY).select(scaleX, scaleY)
+                finalScaleX = scale
+                finalScaleY = scale
+            }
+            ContentScale.Crop -> {
+                val scale = scaleX.gt(scaleY).select(scaleX, scaleY)
+                finalScaleX = scale
+                finalScaleY = scale
+            }
+            ContentScale.FillBounds -> {
+                finalScaleX = scaleX
+                finalScaleY = scaleY
+            }
+            ContentScale.FillWidth -> {
+                finalScaleX = scaleX
+                finalScaleY = scaleX
+            }
+            ContentScale.FillHeight -> {
+                finalScaleX = scaleY
+                finalScaleY = scaleY
+            }
+            ContentScale.Inside -> {
+                val minScale = scaleX.lt(scaleY).select(scaleX, scaleY)
+                val scale = minScale.lt(1.rf).select(minScale, 1.rf)
+                finalScaleX = scale
+                finalScaleY = scale
+            }
+            ContentScale.None -> {
+                finalScaleX = 1.rf
+                finalScaleY = 1.rf
+            }
+            else -> return null
+        }
+
+        val dx = (size.width - (intrinsicWidth * finalScaleX)) / 2f
+        val dy = (size.height - (intrinsicHeight * finalScaleY)) / 2f
+
+        return RemoteMatrix3x3.createTranslateXy(dx, dy) *
+            RemoteMatrix3x3.createScaleX(finalScaleX) *
+            RemoteMatrix3x3.createScaleY(finalScaleY)
     }
 }

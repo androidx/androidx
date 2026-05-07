@@ -21,6 +21,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ColorSpace
 import android.graphics.PixelFormat
+import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.media.MediaCodec
@@ -28,6 +29,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.Bundle
+import android.view.SurfaceView
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -41,14 +43,12 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.CreationDisplayInfo
-import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.capture.RememberRemoteDocumentInline
-import androidx.compose.remote.creation.compose.capture.rememberVirtualDisplay
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableTarget
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -61,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
@@ -170,6 +171,7 @@ private class VideoEncodeThread(
     private val width: Int,
     private val height: Int,
     private val fps: Int,
+    private val bitrate: Int,
     private val durationMillis: Long,
     private val videoDocument: RemoteDocument,
     private val virtualDisplay: VirtualDisplay,
@@ -201,7 +203,11 @@ private class VideoEncodeThread(
                         MediaFormat.KEY_COLOR_FORMAT,
                         MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface,
                     )
-                    setInteger(MediaFormat.KEY_BIT_RATE, 2_000_000)
+                    setInteger(
+                        MediaFormat.KEY_BITRATE_MODE,
+                        MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR,
+                    )
+                    setInteger(MediaFormat.KEY_BIT_RATE, bitrate)
                     setInteger(MediaFormat.KEY_FRAME_RATE, fps)
                     setFloat(MediaFormat.KEY_MAX_FPS_TO_ENCODER, fps.toFloat())
                     setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
@@ -214,10 +220,11 @@ private class VideoEncodeThread(
             imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 3)
 
             val durationSeconds = durationMillis / 1000
+            val bitrateKbps = bitrate / 1000
             val outputFile =
                 File(
                     context.cacheDir,
-                    "${sampleName}_${width}x${height}_${durationSeconds}s_${fps}fps.mp4",
+                    "${sampleName}_${width}x${height}_${durationSeconds}s_${fps}fps_${bitrateKbps}kbps.mp4",
                 )
             mediaMuxer =
                 MediaMuxer(outputFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
@@ -386,9 +393,8 @@ private class VideoEncodeThread(
     }
 }
 
-@OptIn(ExperimentalRemoteCreationComposeApi::class)
 @Suppress("RestrictedApiAndroidX", "COMPOSE_APPLIER_CALL_MISMATCH")
-@androidx.compose.runtime.ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+@ComposableTarget(applier = "androidx.compose.ui.UiComposable")
 @Composable
 fun mediaH264Preview(
     context: Context,
@@ -397,13 +403,16 @@ fun mediaH264Preview(
     height: Int,
     durationMillis: Long,
     fps: Int,
+    bitrate: Int,
 ): DumperOutputData? {
     var status by remember { mutableStateOf("Initializing...") }
     var outputData by remember { mutableStateOf<DumperOutputData?>(null) }
 
     val config = LocalConfiguration.current
     val creationDisplayInfo =
-        remember(sample, width, height) { CreationDisplayInfo(width, height, config.densityDpi) }
+        remember(sample, width, height) {
+            RemoteCreationDisplayInfo(width, height, config.densityDpi, config.fontScale)
+        }
     val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
 
     var videoDocument by remember(sample) { mutableStateOf<RemoteDocument?>(null) }
@@ -416,19 +425,16 @@ fun mediaH264Preview(
 
     // Use a cleaner capture mechanism that disposes itself properly
     if (sample is DumperSample.ComposableSample && videoDocument == null) {
-        RememberRemoteDocumentInline(
-            profile = RcPlatformProfiles.ANDROIDX,
-            onDocument = { doc ->
-                val wireBuffer = doc.buffer.buffer
-                val bytes = wireBuffer.getBuffer().copyOf(wireBuffer.size())
-                val vDoc = CoreDocument(ManualRemoteClock())
-                vDoc.initFromBuffer(
-                    RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
-                )
-                videoDocument = RemoteDocument(vDoc)
-            },
-            content = { sample.content() },
-        )
+        LaunchedEffect(sample) {
+            val doc =
+                captureSingleRemoteDocument(
+                    creationDisplayInfo = creationDisplayInfo,
+                    context = context,
+                ) {
+                    sample.content()
+                }
+            videoDocument = RemoteDocument(ByteArrayInputStream(doc.bytes), ManualRemoteClock())
+        }
     } else if (sample is DumperSample.Context && videoDocument == null) {
         LaunchedEffect(sample) {
             val rcContext = sample.getContext()
@@ -452,6 +458,7 @@ fun mediaH264Preview(
                 width,
                 height,
                 fps,
+                bitrate,
                 durationMillis,
                 videoDocument!!,
                 virtualDisplay,
@@ -487,4 +494,33 @@ fun mediaH264Preview(
     }
 
     return outputData
+}
+
+@Suppress("RestrictedApiAndroidX")
+@Composable
+fun rememberVirtualDisplay(creationDisplayInfo: RemoteCreationDisplayInfo): VirtualDisplay {
+    val context = LocalContext.current
+    val virtualDisplay = remember { DisplayPool.allocate(context, creationDisplayInfo) }
+    DisposableEffect(Unit) { onDispose { DisplayPool.release(virtualDisplay) } }
+    return virtualDisplay
+}
+
+/** API for managing a pool of [VirtualDisplay] objects. The current implementation does not */
+@Suppress("RestrictedApiAndroidX")
+object DisplayPool {
+    fun allocate(context: Context, creationDisplayInfo: RemoteCreationDisplayInfo): VirtualDisplay {
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        return displayManager.createVirtualDisplay(
+            "Projection",
+            creationDisplayInfo.size.width.toInt(),
+            creationDisplayInfo.size.height.toInt(),
+            (creationDisplayInfo.density.density * 160f).toInt(),
+            SurfaceView(context).holder.surface,
+            0,
+        )
+    }
+
+    public fun release(virtualDisplay: VirtualDisplay) {
+        virtualDisplay.release()
+    }
 }

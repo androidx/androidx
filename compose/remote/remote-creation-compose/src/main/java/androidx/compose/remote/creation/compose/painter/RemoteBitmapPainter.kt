@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.painter
 
@@ -55,7 +54,6 @@ public class RemoteBitmapPainter(
  *
  * @param image The [RemoteBitmap] to create the painter for.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun painterRemoteBitmap(image: RemoteBitmap): RemoteBitmapPainter {
+public fun painterRemoteBitmap(image: RemoteBitmap): RemotePainter {
     return RemoteBitmapPainter(image)
 }

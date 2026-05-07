@@ -14,54 +14,26 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
-import androidx.compose.remote.creation.compose.layout.RemoteDrawWithContentScope
+import androidx.compose.remote.creation.compose.layout.RemoteContentDrawScope
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.nativeCanvas
 
 /**
  * Creates a [RemoteModifier] that allows drawing with the component's content.
  *
- * @param onDraw The drawing block that provides access to [RemoteDrawWithContentScope].
+ * @param onDraw The drawing block that provides access to [RemoteContentDrawScope].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.drawWithContent(
-    onDraw: RemoteDrawWithContentScope.() -> Unit
+    onDraw: RemoteContentDrawScope.() -> Unit
 ): RemoteModifier = then(DrawWithContentModifier(onDraw))
 
-internal class DrawWithContentModifier(val onDraw: RemoteDrawWithContentScope.() -> Unit) :
+internal class DrawWithContentModifier(val onDraw: RemoteContentDrawScope.() -> Unit) :
     RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.DrawWithContentModifier()
-    }
-
-    @Composable
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun Modifier.toComposeUi(): Modifier {
-        val captureMode = LocalRemoteComposeCreationState.current
-        return this.drawBehind {
-            val drawScope =
-                RemoteDrawWithContentScope(
-                    remoteCanvas =
-                        RemoteCanvas(
-                            internalCanvas = drawContext.canvas.nativeCanvas as RecordingCanvas
-                        )
-                )
-            captureMode.document.startCanvasOperations()
-            drawScope.onDraw()
-            captureMode.document.endCanvasOperations()
-        }
     }
 }

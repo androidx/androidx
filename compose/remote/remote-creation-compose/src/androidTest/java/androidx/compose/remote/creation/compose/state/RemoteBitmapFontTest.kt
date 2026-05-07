@@ -39,6 +39,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -252,7 +253,7 @@ private fun renderGlyph(paint: Paint, text: String, textSize: Float): RemoteBitm
     canvas.drawText(text, /* x= */ -bounds.left.toFloat(), /* y= */ -bounds.top.toFloat(), paint)
     return RemoteBitmapFont.Glyph(
         text,
-        resultBitmap,
+        resultBitmap.asImageBitmap(),
         bounds.left.toShort(),
         bounds.top.toShort(),
         0,

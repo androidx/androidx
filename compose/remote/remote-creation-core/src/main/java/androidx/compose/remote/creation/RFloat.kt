@@ -490,7 +490,7 @@ public fun pingPong(max: Number, x: Number): RFloat {
     val maxr = max as? RFloat ?: RFloat(null, max.toFloat())
     var writer = xr.writer
     if (writer == null) {
-        writer = xr.writer
+        writer = maxr.writer
     }
 
     if (writer == null) {
@@ -759,7 +759,7 @@ public fun RemoteComposeWriter.windowWidth(): RFloat {
 
 /** The height of the document on screen */
 public fun RemoteComposeWriter.windowHeight(): RFloat {
-    return RFloat(this, Rc.System.WINDOW_WIDTH)
+    return RFloat(this, Rc.System.WINDOW_HEIGHT)
 }
 
 public val RemoteComposeWriter.var1: RFloat

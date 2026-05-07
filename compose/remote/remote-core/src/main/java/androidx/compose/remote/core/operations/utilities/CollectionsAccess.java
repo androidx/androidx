@@ -53,6 +53,7 @@ public interface CollectionsAccess {
 
     /**
      * Get the array operation for the given id
+     *
      * @param id
      * @return
      */

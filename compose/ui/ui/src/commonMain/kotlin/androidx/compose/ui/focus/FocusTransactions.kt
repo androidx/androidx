@@ -19,7 +19,6 @@ package androidx.compose.ui.focus
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
@@ -103,15 +102,16 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
     }
 
     if (shouldClearFocusFromPreviousActiveNode) {
-        if (previousActiveNode?.clearFocus(refreshFocusEvents = true) == false) {
+        if (previousActiveNode?.prepareToClearFocus(refreshFocusEvents = true) == false) {
             return false // Don't grant focus if clearing focus from the previous node was rejected
         }
     }
 
     grantFocus()
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    if (isOptimizedFocusEventDispatchEnabled && shouldClearFocusFromPreviousActiveNode) {
+    // We've granted focus to the new node, so now we can actually dispatch the direct focus
+    // loss and gain callback
+    if (shouldClearFocusFromPreviousActiveNode) {
         previousActiveNode?.dispatchFocusCallbacks(Active, Inactive)
     }
 
@@ -216,35 +216,27 @@ internal fun FocusTargetNode.freeFocus() =
     }
 
 /**
- * This function clears focus from this node.
+ * This function prepares to clear focus from this node by clearing any intermediate parent focus,
+ * if clearing focus is allowed.
  *
  * Note: This function should only be called by a parent [focus node][FocusTargetNode] to clear
  * focus from one of its child [focus node][FocusTargetNode]s. It does not change the state of the
  * parent.
+ *
+ * @return `true` if the focus can be cleared from this node.
  */
-internal fun FocusTargetNode.clearFocus(
+internal fun FocusTargetNode.prepareToClearFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean,
 ): Boolean =
     when (focusState) {
-        Active -> {
-            // TODO: Once this flag is removed, this is no longer clearing focus, so this function
-            //  should be renamed to something else.
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (!isOptimizedFocusEventDispatchEnabled) {
-                requireOwner().focusOwner.activeFocusTargetNode = null
-                if (refreshFocusEvents) {
-                    dispatchFocusCallbacks(previousState = Active, newState = Inactive)
-                }
-            }
-            true
-        }
+        Active -> true
         /**
-         * If the node is [ActiveParent], we need to clear focus from the [Active] descendant first,
-         * before clearing focus from this node.
+         * If the node is [ActiveParent], we need to prepare clearing focus from any potential
+         * [ActiveParent] descendants as well.
          */
         ActiveParent ->
-            if (clearChildFocus(forced, refreshFocusEvents)) {
+            if (prepareToClearChildFocus(forced, refreshFocusEvents)) {
                 if (refreshFocusEvents) {
                     dispatchFocusCallbacks(previousState = ActiveParent, newState = Inactive)
                 }
@@ -255,15 +247,6 @@ internal fun FocusTargetNode.clearFocus(
 
         /** If the node is [Captured], deny requests to clear focus, except for a forced clear. */
         Captured -> {
-            if (forced) {
-                @OptIn(ExperimentalComposeUiApi::class)
-                if (!isOptimizedFocusEventDispatchEnabled) {
-                    requireOwner().focusOwner.activeFocusTargetNode = null
-                    if (refreshFocusEvents) {
-                        dispatchFocusCallbacks(previousState = Captured, newState = Inactive)
-                    }
-                }
-            }
             forced
         }
         /** Nothing to do if the node is not focused. */
@@ -293,11 +276,17 @@ private fun FocusTargetNode.grantFocus(): Boolean {
     return true
 }
 
-/** This function clears any focus from the focused child. */
-private fun FocusTargetNode.clearChildFocus(
+/**
+ * This function prepares to clear focus from the children of this node by clearing any intermediate
+ * parent focus, if clearing focus is allowed.
+ *
+ * @return `true` if the focus can be cleared from this node.
+ * @see prepareToClearFocus
+ */
+private fun FocusTargetNode.prepareToClearChildFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean = true,
-): Boolean = activeChild?.clearFocus(forced, refreshFocusEvents) ?: true
+): Boolean = activeChild?.prepareToClearFocus(forced, refreshFocusEvents) ?: true
 
 private fun FocusTargetNode.requestOwnerFocus(
     focusDirection: FocusDirection? = null,

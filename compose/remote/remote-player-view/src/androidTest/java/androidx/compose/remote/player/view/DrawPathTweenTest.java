@@ -389,13 +389,28 @@ public class DrawPathTweenTest {
         path1.lineTo(shift + 30, th / 2);
         path1.close();
 
-        RcPlatformServices.RcPathArrayCreator badpath = () -> new float[]{
-                Utils.asNan(10), 0f, 0f,
-                Utils.asNan(11), 100f, 0f,
-                Utils.asNan(11), 0f, 100f,
-                Utils.asNan(15), 100f, 100f,
-                Utils.asNan(18), 0f, 0f, 0f, 0f, 0f,
-        };
+        RcPlatformServices.RcPathArrayCreator badpath =
+                () ->
+                        new float[] {
+                            Utils.asNan(10),
+                            0f,
+                            0f,
+                            Utils.asNan(11),
+                            100f,
+                            0f,
+                            Utils.asNan(11),
+                            0f,
+                            100f,
+                            Utils.asNan(15),
+                            100f,
+                            100f,
+                            Utils.asNan(18),
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                        };
 
         TestUtils.Callback cb =
                 rdoc -> {
@@ -418,5 +433,4 @@ public class DrawPathTweenTest {
         // this should complete without crashing or hanging
 
     }
-
 }

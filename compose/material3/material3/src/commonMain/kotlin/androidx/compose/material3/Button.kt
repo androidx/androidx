@@ -72,7 +72,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /**
  * [Material Design button](https://m3.material.io/components/buttons/overview)
@@ -233,7 +232,6 @@ fun Button(
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun Button(
     onClick: () -> Unit,
     shapes: ButtonShapes,
@@ -410,7 +408,6 @@ fun ElevatedButton(
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun ElevatedButton(
     onClick: () -> Unit,
     shapes: ButtonShapes,
@@ -561,7 +558,6 @@ fun FilledTonalButton(
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun FilledTonalButton(
     onClick: () -> Unit,
     shapes: ButtonShapes,
@@ -710,7 +706,6 @@ fun OutlinedButton(
  * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun OutlinedButton(
     onClick: () -> Unit,
     shapes: ButtonShapes,
@@ -860,7 +855,6 @@ fun TextButton(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun TextButton(
     onClick: () -> Unit,
@@ -939,38 +933,24 @@ object ButtonDefaults {
         )
 
     /** The default content padding used for small [Button] */
-    @Deprecated("For binary compatibility", level = DeprecationLevel.HIDDEN)
-    @ExperimentalMaterial3ExpressiveApi
-    val SmallButtonContentPadding
-        get() =
-            PaddingValues(
-                start = SmallStartPadding,
-                top = ButtonVerticalPadding,
-                end = SmallEndPadding,
-                bottom = ButtonVerticalPadding,
-            )
-
-    /** The default content padding used for small [Button] */
-    @ExperimentalMaterial3ExpressiveApi
     val SmallContentPadding
         get() =
             PaddingValues(
                 start = SmallStartPadding,
-                top = SmallVerticalPadding,
+                top = smallVerticalPadding,
                 end = SmallEndPadding,
-                bottom = SmallVerticalPadding,
+                bottom = smallVerticalPadding,
             )
 
     private fun getSmallContentPadding(hasStartIcon: Boolean, hasEndIcon: Boolean) =
         PaddingValues(
-            start = if (hasStartIcon) IconSmallHorizontalPadding else SmallStartPadding,
-            top = SmallVerticalPadding,
-            end = if (hasEndIcon) IconSmallHorizontalPadding else SmallEndPadding,
-            bottom = SmallVerticalPadding,
+            start = if (hasStartIcon) iconSmallHorizontalPadding else SmallStartPadding,
+            top = smallVerticalPadding,
+            end = if (hasEndIcon) iconSmallHorizontalPadding else SmallEndPadding,
+            bottom = smallVerticalPadding,
         )
 
     /** Default content padding for an extra small button. */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraSmallContentPadding
         get() =
             PaddingValues(
@@ -982,7 +962,6 @@ object ButtonDefaults {
             )
 
     /** Default content padding for a medium button. */
-    @ExperimentalMaterial3ExpressiveApi
     val MediumContentPadding
         get() =
             PaddingValues(
@@ -1001,7 +980,6 @@ object ButtonDefaults {
         )
 
     /** Default content padding for a large button. */
-    @ExperimentalMaterial3ExpressiveApi
     val LargeContentPadding
         get() =
             PaddingValues(
@@ -1020,7 +998,6 @@ object ButtonDefaults {
         )
 
     /** Default content padding for an extra large button. */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraLargeContentPadding
         get() =
             PaddingValues(
@@ -1074,37 +1051,24 @@ object ButtonDefaults {
      * The default min height applied for small buttons. Note that you can override it by applying
      * Modifier.heightIn directly on the button composable.
      */
-    val MinHeight =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            36.dp
-        } else {
-            ButtonSmallTokens.ContainerHeight
-        }
+    val MinHeight
+        get() =
+            if (shouldUsePrecisionPointerComponentSizing.value) {
+                36.dp
+            } else {
+                ButtonSmallTokens.ContainerHeight
+            }
 
     /** The default height for a extra small button container. */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraSmallContainerHeight = ButtonXSmallTokens.ContainerHeight
 
     /** The default height for a medium button container. */
-    @ExperimentalMaterial3ExpressiveApi
-    val MediumContainerHeight =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            46.dp
-        } else {
-            ButtonMediumTokens.ContainerHeight
-        }
+    val MediumContainerHeight = ButtonMediumTokens.ContainerHeight
 
     /** The default height for a large button container. */
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeContainerHeight =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            54.dp
-        } else {
-            ButtonLargeTokens.ContainerHeight
-        }
+    val LargeContainerHeight = ButtonLargeTokens.ContainerHeight
 
     /** The default height for a extra large button container. */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraLargeContainerHeight = ButtonXLargeTokens.ContainerHeight
 
     /** The default size of the icon when used inside a small button. */
@@ -1112,25 +1076,19 @@ object ButtonDefaults {
     val IconSize = 18.dp
 
     /** The default size of the icon used inside an extra small button. */
-    @ExperimentalMaterial3ExpressiveApi val ExtraSmallIconSize = ButtonXSmallTokens.IconSize
+    val ExtraSmallIconSize = ButtonXSmallTokens.IconSize
 
     /** The expressive size of the icon used inside a small button. */
-    @ExperimentalMaterial3ExpressiveApi val SmallIconSize = ButtonSmallTokens.IconSize
+    val SmallIconSize = ButtonSmallTokens.IconSize
 
     /** The default size of the icon used inside a medium button. */
-    @ExperimentalMaterial3ExpressiveApi val MediumIconSize = ButtonMediumTokens.IconSize
+    val MediumIconSize = ButtonMediumTokens.IconSize
 
     /** The default size of the icon used inside a large button. */
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeIconSize =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            24.dp
-        } else {
-            ButtonLargeTokens.IconSize
-        }
+    val LargeIconSize = ButtonLargeTokens.IconSize
 
     /** The default size of the icon used inside an extra large button. */
-    @ExperimentalMaterial3ExpressiveApi val ExtraLargeIconSize = ButtonXLargeTokens.IconSize
+    val ExtraLargeIconSize = ButtonXLargeTokens.IconSize
 
     /**
      * The default size of the spacing between an icon and a text when they used inside a small
@@ -1142,53 +1100,40 @@ object ButtonDefaults {
      * The default spacing between an icon and a text when they used inside any extra small button.
      */
     // TODO use the value from ButtonXSmallTokens.kt once it's been corrected
-    @ExperimentalMaterial3ExpressiveApi val ExtraSmallIconSpacing = 4.dp
+    val ExtraSmallIconSpacing = 4.dp
 
     /** The default spacing between an icon and a text when they're inside any medium button. */
-    @ExperimentalMaterial3ExpressiveApi val MediumIconSpacing = ButtonMediumTokens.IconLabelSpace
+    val MediumIconSpacing = ButtonMediumTokens.IconLabelSpace
 
     /** The default spacing between an icon and a text when they're inside any large button. */
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeIconSpacing =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            8.dp
-        } else {
-            ButtonLargeTokens.IconLabelSpace
-        }
+    val LargeIconSpacing = ButtonLargeTokens.IconLabelSpace
 
     /**
      * The default spacing between an icon and a text when they used inside any extra large button.
      */
-    @ExperimentalMaterial3ExpressiveApi
     val ExtraLargeIconSpacing = ButtonXLargeTokens.IconLabelSpace
 
     /** Square shape for default buttons. */
-    @ExperimentalMaterial3ExpressiveApi
     val squareShape: Shape
         @Composable get() = ButtonSmallTokens.ContainerShapeSquare.value
 
     /** Pressed shape for default buttons. */
-    @ExperimentalMaterial3ExpressiveApi
     val pressedShape: Shape
         @Composable get() = ButtonSmallTokens.PressedContainerShape.value
 
     /** Pressed shape for extra small buttons. */
-    @ExperimentalMaterial3ExpressiveApi
     val extraSmallPressedShape: Shape
         @Composable get() = ButtonXSmallTokens.PressedContainerShape.value
 
     /** Pressed shape for medium buttons. */
-    @ExperimentalMaterial3ExpressiveApi
     val mediumPressedShape: Shape
         @Composable get() = ButtonMediumTokens.PressedContainerShape.value
 
     /** Pressed shape for large buttons. */
-    @ExperimentalMaterial3ExpressiveApi
     val largePressedShape: Shape
         @Composable get() = ButtonLargeTokens.PressedContainerShape.value
 
     /** Pressed shape for extra large buttons. */
-    @ExperimentalMaterial3ExpressiveApi
     val extraLargePressedShape: Shape
         @Composable get() = ButtonXLargeTokens.PressedContainerShape.value
 
@@ -1216,9 +1161,7 @@ object ButtonDefaults {
      * Creates a [ButtonShapes] that represents the default shape and pressed shape used in a
      * button.
      */
-    @ExperimentalMaterial3ExpressiveApi
-    @Composable
-    fun shapes() = MaterialTheme.shapes.defaultButtonShapes
+    @Composable fun shapes() = MaterialTheme.shapes.defaultButtonShapes
 
     /**
      * Creates a [ButtonShapes] that represents the default shape and pressedShape used in a
@@ -1228,11 +1171,9 @@ object ButtonDefaults {
      * @param pressedShape the unchecked shape for [ButtonShapes]
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun shapes(shape: Shape? = null, pressedShape: Shape? = null): ButtonShapes =
         MaterialTheme.shapes.defaultButtonShapes.copy(shape = shape, pressedShape = pressedShape)
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultButtonShapes: ButtonShapes
         get() {
             return defaultButtonShapesCached
@@ -1591,7 +1532,6 @@ object ButtonDefaults {
      * @param buttonHeight The height of the button
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun shapesFor(buttonHeight: Dp): ButtonShapes {
         val xSmallHeight = ExtraSmallContainerHeight
         val smallHeight = MinHeight
@@ -1617,7 +1557,6 @@ object ButtonDefaults {
      * @param hasStartIcon Whether the button has a leading icon
      * @param hasEndIcon Whether the button has a trailing icon
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     fun contentPaddingFor(
         buttonHeight: Dp,
         hasStartIcon: Boolean = false,
@@ -1665,7 +1604,6 @@ object ButtonDefaults {
      *
      * @param buttonHeight The height of the button
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun iconSizeFor(buttonHeight: Dp): Dp {
         val smallHeight = MinHeight
         val mediumHeight = MediumContainerHeight
@@ -1685,7 +1623,6 @@ object ButtonDefaults {
      *
      * @param buttonHeight The height of the button
      */
-    @ExperimentalMaterial3ExpressiveApi
     fun iconSpacingFor(buttonHeight: Dp): Dp {
         val smallHeight = MinHeight
         val mediumHeight = MediumContainerHeight
@@ -1706,78 +1643,34 @@ object ButtonDefaults {
      * @param buttonHeight The height of the button
      */
     @Composable
-    @ExperimentalMaterial3ExpressiveApi
     fun textStyleFor(buttonHeight: Dp): TextStyle {
         val mediumHeight = MediumContainerHeight
         val largeHeight = LargeContainerHeight
         val xLargeHeight = ExtraLargeContainerHeight
         return when {
             buttonHeight < mediumHeight -> MaterialTheme.typography.labelLarge
-            buttonHeight < largeHeight ->
-                if (shouldUsePrecisionPointerComponentSizing.value) {
-                    MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp, lineHeight = 22.sp)
-                } else {
-                    MaterialTheme.typography.titleMedium
-                }
-            buttonHeight < xLargeHeight ->
-                if (shouldUsePrecisionPointerComponentSizing.value) {
-                    MaterialTheme.typography.headlineSmall.copy(
-                        fontSize = 18.sp,
-                        lineHeight = 26.sp,
-                    )
-                } else {
-                    MaterialTheme.typography.headlineSmall
-                }
+            buttonHeight < largeHeight -> MaterialTheme.typography.titleMedium
+            buttonHeight < xLargeHeight -> MaterialTheme.typography.headlineSmall
             else -> MaterialTheme.typography.headlineLarge
         }
     }
 
-    private val SmallVerticalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 8.dp else 10.dp
-    private val IconSmallHorizontalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else SmallStartPadding
+    private val smallVerticalPadding
+        get() = if (shouldUsePrecisionPointerComponentSizing.value) 8.dp else 10.dp
+
+    private val iconSmallHorizontalPadding
+        get() = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else SmallStartPadding
+
     private val MediumLeadingPadding = ButtonMediumTokens.LeadingSpace
     private val MediumTrailingPadding = ButtonMediumTokens.TrailingSpace
-    private val MediumVerticalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 16.dp
-    private val IconMediumLeadingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            20.dp
-        } else {
-            ButtonMediumTokens.LeadingSpace
-        }
-    private val IconMediumTrailingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            20.dp
-        } else {
-            ButtonMediumTokens.TrailingSpace
-        }
-    private val LargeVerticalPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) 14.dp else 32.dp
-    private val LargeLeadingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            32.dp
-        } else {
-            ButtonLargeTokens.LeadingSpace
-        }
-    private val LargeTrailingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            32.dp
-        } else {
-            ButtonLargeTokens.TrailingSpace
-        }
-    private val IconLargeLeadingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            28.dp
-        } else {
-            ButtonLargeTokens.LeadingSpace
-        }
-    private val IconLargeTrailingPadding =
-        if (shouldUsePrecisionPointerComponentSizing.value) {
-            28.dp
-        } else {
-            ButtonLargeTokens.TrailingSpace
-        }
+    private val MediumVerticalPadding = 16.dp
+    private val IconMediumLeadingPadding = ButtonMediumTokens.LeadingSpace
+    private val IconMediumTrailingPadding = ButtonMediumTokens.TrailingSpace
+    private val LargeVerticalPadding = 32.dp
+    private val LargeLeadingPadding = ButtonLargeTokens.LeadingSpace
+    private val LargeTrailingPadding = ButtonLargeTokens.TrailingSpace
+    private val IconLargeLeadingPadding = ButtonLargeTokens.LeadingSpace
+    private val IconLargeTrailingPadding = ButtonLargeTokens.TrailingSpace
 }
 
 /**
@@ -1993,7 +1886,6 @@ constructor(
  * @property shape is the active shape.
  * @property pressedShape is the pressed shape.
  */
-@ExperimentalMaterial3ExpressiveApi
 @Immutable
 class ButtonShapes(val shape: Shape, val pressedShape: Shape) {
     /** Returns a copy of this ButtonShapes, optionally overriding some of the values. */
@@ -2023,15 +1915,12 @@ class ButtonShapes(val shape: Shape, val pressedShape: Shape) {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val ButtonShapes.hasRoundedCornerShapes: Boolean
     get() = shape is RoundedCornerShape && pressedShape is RoundedCornerShape
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val ButtonShapes.hasCornerBasedShapes: Boolean
     get() = shape is CornerBasedShape && pressedShape is CornerBasedShape
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun shapeByInteraction(
     shapes: ButtonShapes,

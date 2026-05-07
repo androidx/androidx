@@ -56,7 +56,8 @@
             - {type: TextData, textId: 42, text: Constrained Large}
             - type: ComponentModifiers
               modifiers:
-              - type: WidthInModifierOperation
+              - type: DimensionConstraintsModifierOperation
+                constraints: REQUIRED_HORIZONTAL
                 min: {type: Value, value: 400.0}
                 max: {type: Value, value: 500.0}
               - type: HeightModifierOperation
@@ -210,7 +211,8 @@
             - {type: TextData, textId: 42, text: Constrained Large}
             - type: ComponentModifiers
               modifiers:
-              - type: WidthInModifierOperation
+              - type: DimensionConstraintsModifierOperation
+                constraints: REQUIRED_HORIZONTAL
                 min: {type: Value, value: 400.0}
                 max: {type: Value, value: 500.0}
               - type: HeightModifierOperation
@@ -364,7 +366,8 @@
             - {type: TextData, textId: 42, text: Constrained Large}
             - type: ComponentModifiers
               modifiers:
-              - type: WidthInModifierOperation
+              - type: DimensionConstraintsModifierOperation
+                constraints: REQUIRED_HORIZONTAL
                 min: {type: Value, value: 400.0}
                 max: {type: Value, value: 500.0}
               - type: HeightModifierOperation
@@ -518,7 +521,8 @@
             - {type: TextData, textId: 42, text: Constrained Large}
             - type: ComponentModifiers
               modifiers:
-              - type: WidthInModifierOperation
+              - type: DimensionConstraintsModifierOperation
+                constraints: REQUIRED_HORIZONTAL
                 min: {type: Value, value: 400.0}
                 max: {type: Value, value: 500.0}
               - type: HeightModifierOperation

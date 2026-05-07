@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
@@ -29,13 +28,26 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * A remote-aware text style that mirrors [androidx.compose.ui.text.TextStyle] but uses remote types
  * where applicable.
+ *
+ * @param color The color of the text
+ * @param fontSize the size of glyphs to use when painting the text in [RemoteTextUnit] .
+ * @param fontWeight the typeface thickness to use when painting the text (e.g., [FontWeight.Bold]).
+ * @param fontStyle The indentation of the paragraph.
+ * @param fontFamily the font family to be used when rendering the text.
+ * @param letterSpacing the amount of space to add between each letter in [RemoteTextUnit] .
+ * @param background The background color for the text.
+ * @param textAlign the alignment of the text within the lines of the paragraph.
+ * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
+ * @param textDecoration The configuration of hyphenation.
  */
+public class RemoteTextStyle
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteTextStyle(
+constructor(
     public val color: RemoteColor? = null,
     public val fontSize: RemoteTextUnit? = null,
     public val fontWeight: FontWeight? = null,
@@ -48,7 +60,16 @@ public class RemoteTextStyle(
     public val textDecoration: TextDecoration? = null,
 ) {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Returns a new [RemoteTextStyle] that is a combination of this style and the given [other]
+     * style.
+     *
+     * If [other] is null, this style is returned. If [other] has any null properties, the values
+     * from this style are used for those properties.
+     *
+     * @param other The style to merge into this style.
+     * @return A new [RemoteTextStyle] with properties from [other] taking precedence.
+     */
     public fun merge(other: RemoteTextStyle?): RemoteTextStyle {
         if (other == null) return this
         return RemoteTextStyle(
@@ -92,7 +113,9 @@ public class RemoteTextStyle(
         )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Creates a copy of this [RemoteTextStyle] with the ability to override individual attributes.
+     */
     public fun copy(
         color: RemoteColor? = this.color,
         fontSize: RemoteTextUnit? = this.fontSize,
@@ -119,27 +142,37 @@ public class RemoteTextStyle(
         )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
-        @SuppressLint("RestrictedApiAndroidX")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        /** Creates a [RemoteTextStyle] from a [TextStyle]. */
         public fun fromTextStyle(style: TextStyle): RemoteTextStyle {
             // Maps unspecified color into null as it's not supported in remote compose.
             val color = if (style.color == Color.Unspecified) null else style.color.rc
+            val background =
+                if (style.background == Color.Unspecified) null else style.background.rc
+            val fontSize =
+                if (style.fontSize == TextUnit.Unspecified) null
+                else style.fontSize.asRemoteTextUnit()
+            val letterSpacing =
+                if (style.letterSpacing == TextUnit.Unspecified) null
+                else style.letterSpacing.asRemoteTextUnit()
+            val lineHeight =
+                if (style.lineHeight == TextUnit.Unspecified) null
+                else style.lineHeight.asRemoteTextUnit()
             return RemoteTextStyle(
                 color = color,
-                fontSize = style.fontSize.asRemoteTextUnit(),
+                fontSize = fontSize,
                 fontWeight = style.fontWeight,
                 fontStyle = style.fontStyle,
                 fontFamily = style.fontFamily,
-                letterSpacing = style.letterSpacing.asRemoteTextUnit(),
-                background = style.background.rc,
+                letterSpacing = letterSpacing,
+                background = background,
                 textAlign = style.textAlign,
-                lineHeight = style.lineHeight.asRemoteTextUnit(),
+                lineHeight = lineHeight,
                 textDecoration = style.textDecoration,
             )
         }
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val Default: RemoteTextStyle = RemoteTextStyle()
     }
 }

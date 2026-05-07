@@ -39,8 +39,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import org.junit.Ignore
 import org.junit.Test
 
-open class LayoutTest : BaseLayoutTest() {
-
+class LayoutTest : BaseLayoutTest() {
     init {
         GENERATE_GOLD_FILES = false
     }
@@ -48,7 +47,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testTouchDownVisibilityChange() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     val visibilityId = writer.addInteger(Component.Visibility.GONE)
                     row(
@@ -85,7 +84,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testBaselineRowLayout() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     row(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(8),
@@ -112,7 +111,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testLayoutComputeModifier() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     box(Modifier.fillMaxSize().padding(8)) {
                         val size = 50f
@@ -133,13 +132,15 @@ open class LayoutTest : BaseLayoutTest() {
             RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             "Layout",
             ops,
+            TestClock(1234),
+            false,
         )
     }
 
     @Test
     fun testLayoutComputeModifier2() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     box(Modifier.fillMaxSize().padding(8)) {
                         val size = 50f
@@ -164,13 +165,15 @@ open class LayoutTest : BaseLayoutTest() {
             RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             "Layout",
             ops,
+            TestClock(1234),
+            true,
         )
     }
 
     @Test
     fun testLayoutTextFromFloat1() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     box(
                         RecordingModifier().fillMaxSize().background(Color.YELLOW),
@@ -208,7 +211,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testLayoutTextOverflow() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     row(
                         Modifier.background(Color.GREEN).padding(8).fillMaxWidth(),
@@ -274,7 +277,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testLayoutInfiniteDrawContent() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     box(
                         RecordingModifier().fillMaxSize().background(Color.YELLOW),
@@ -296,7 +299,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testCanvasComponents() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(Modifier.fillMaxSize().background(Color.YELLOW).padding(16)) {
                         canvas(Modifier.fillMaxSize().background(Color.BLUE)) {
@@ -338,7 +341,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testScrollComponents() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(16).verticalScroll()
@@ -385,9 +388,25 @@ open class LayoutTest : BaseLayoutTest() {
     }
 
     @Test
+    fun testOffset() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    box(Modifier.fillMaxSize()) {
+                        box(Modifier.size(300, 200).background(Color.RED))
+                        box(Modifier.offset(100f, 100f).size(300, 200).background(Color.RED))
+                        box(Modifier.offset(250f, 350f).size(300, 200).background(Color.RED))
+                    }
+                },
+                CaptureComponentTree(),
+            )
+        checkLayout(1000, 1000, 8, RcProfiles.PROFILE_ANDROIDX, "Layout", ops, TestClock(1234))
+    }
+
+    @Test
     fun testMeasure1() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.background(Color.YELLOW).padding(16),
@@ -414,7 +433,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testMeasure2() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxWidth().background(Color.YELLOW).padding(16),
@@ -441,7 +460,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testMeasure3() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxHeight().background(Color.YELLOW).padding(16),
@@ -468,7 +487,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testMeasure4() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
@@ -495,7 +514,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testComponentsValues1() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
@@ -530,7 +549,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testComponentsValues2() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
@@ -573,7 +592,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testComponentsValues3() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
@@ -611,7 +630,7 @@ open class LayoutTest : BaseLayoutTest() {
     @Test
     fun testComponentsValues4() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     column(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(16),

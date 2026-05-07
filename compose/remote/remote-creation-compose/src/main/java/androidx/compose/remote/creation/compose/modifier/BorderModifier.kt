@@ -73,7 +73,6 @@ internal class BorderModifier(
  *   [RemoteRoundedCornerShape.topStart] corner size is currently taken into consideration for all
  *   corners.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.border(
     width: RemoteDp,
     color: RemoteColor,

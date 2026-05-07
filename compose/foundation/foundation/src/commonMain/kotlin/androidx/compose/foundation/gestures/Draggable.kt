@@ -16,8 +16,11 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.annotation.FloatRange
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.GestureConnection
+import androidx.compose.foundation.GestureState
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestureNode
@@ -28,7 +31,7 @@ import androidx.compose.foundation.gestures.DragEvent.DragStopped
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
-import androidx.compose.foundation.parentGestureConnection
+import androidx.compose.foundation.traverseAncestorGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -37,14 +40,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
-import androidx.compose.ui.input.indirect.IndirectPointerInputChange
 import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -67,6 +68,9 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.PI
+import kotlin.math.absoluteValue
+import kotlin.math.atan2
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
@@ -301,7 +305,7 @@ internal class DraggableElement(
 internal class DraggableNode(
     private var state: DraggableState,
     canDrag: (PointerType) -> Boolean,
-    private var orientation: Orientation,
+    orientation: Orientation,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
     private var startDragImmediately: Boolean,
@@ -313,10 +317,11 @@ internal class DraggableNode(
         canDrag = canDrag,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = orientation,
+        orientation = orientation,
     ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
+        val orientation = orientation ?: return
         state.drag(MutatePriority.UserInput) {
             forEachDelta { dragDelta ->
                 dragBy(dragDelta.delta.reverseIfNeeded().toFloat(orientation))
@@ -333,6 +338,7 @@ internal class DraggableNode(
 
     override fun onDragStopped(event: DragStopped) {
         if (!isAttached || onDragStopped == NoOpOnDragStopped) return
+        val orientation = orientation ?: return
         coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
             this@DraggableNode.onDragStopped(
                 this,
@@ -359,10 +365,6 @@ internal class DraggableNode(
             this.state = state
             resetPointerInputHandling = true
         }
-        if (this.orientation != orientation) {
-            this.orientation = orientation
-            resetPointerInputHandling = true
-        }
         if (this.reverseDirection != reverseDirection) {
             this.reverseDirection = reverseDirection
             resetPointerInputHandling = true
@@ -386,24 +388,22 @@ internal abstract class DragGestureNode(
     canDrag: (PointerType) -> Boolean,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    var orientationLock: Orientation?,
+    override var orientation: Orientation?,
 ) :
     DelegatingNode(),
     PointerInputModifierNode,
     IndirectPointerInputModifierNode,
     CompositionLocalConsumerModifierNode,
-    GestureConnection {
+    DraggableGestureConnection {
 
     var canDrag = canDrag
         private set
 
-    protected var enabled = enabled
+    var enabled = enabled
         private set
 
     protected var interactionSource = interactionSource
         private set
-
-    private var gestureNode: DelegatableNode? = null
 
     // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
     // we point to the new reference when we invoke them. startDragImmediately is a lambda since we
@@ -416,6 +416,13 @@ internal abstract class DragGestureNode(
 
     /** Store non-initialized states for re-use */
     private var _awaitDownState: DragDetectionState.AwaitDown? = null
+
+    private var dragAccumulator = Offset.Zero
+
+    private var pointerInputGestureNode: DelegatableNode? = null
+
+    private var indirectTouchGestureNode: DelegatableNode? = null
+
     private val awaitDownState: DragDetectionState.AwaitDown
         get() = _awaitDownState ?: DragDetectionState.AwaitDown().also { _awaitDownState = it }
 
@@ -436,6 +443,7 @@ internal abstract class DragGestureNode(
                 ?: DragDetectionState.AwaitGesturePickup().also { _awaitGesturePickupState = it }
 
     private var currentDragState: DragDetectionState? = null
+
     private var velocityTracker: VelocityTracker? = null
     private var previousPositionOnScreen = Offset.Unspecified
     private var touchSlopDetector: TouchSlopDetector? = null
@@ -525,25 +533,44 @@ internal abstract class DragGestureNode(
         }
     }
 
+    override val gestureState: GestureState
+        get() =
+            if (enabled) {
+                when (val state = currentDragState) {
+                    is DragDetectionState.AwaitDown ->
+                        if (state.hasSeenInitialEvent) GestureState.Waiting else GestureState.Idle
+                    is DragDetectionState.AwaitTouchSlop -> GestureState.Waiting
+                    is DragDetectionState.AwaitGesturePickup -> GestureState.Waiting
+                    is DragDetectionState.Dragging -> GestureState.Recognized
+                    else -> GestureState.Idle
+                }
+            } else {
+                GestureState.Idle
+            }
+
     override fun onDetach() {
         isListeningForEvents = false
         disposeInteractionSource()
-        nodeOffset = Offset.Zero
+        if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
+            nodeOffset = Offset.Zero
+        }
 
-        gestureNode?.let { undelegate(it) }
-        gestureNode = null
+        resetGestureNodes()
     }
 
-    protected fun initializeGestureCoordination() {
-        if (gestureNode == null) {
-            gestureNode = delegate(gestureNode(this))
+    protected fun initializePointerInputGestureCoordination() {
+        if (pointerInputGestureNode == null) {
+            pointerInputGestureNode = delegate(gestureNode(this))
         }
     }
 
-    override fun isInterested(event: IndirectPointerInputChange): Boolean {
-        // for now, if this is a down event it may become a drag so we're
-        // interested.
-        return event.changedToDownIgnoreConsumed() && enabled
+    protected fun initializeIndirectTouchGestureCoordination() {
+        if (indirectTouchGestureNode == null) {
+            indirectTouchGestureNode =
+                delegate(
+                    gestureNode(indirectPointerInputDragCycleDetector as DraggableGestureConnection)
+                )
+        }
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -553,8 +580,8 @@ internal abstract class DragGestureNode(
         bounds: IntSize,
     ) {
         isListeningForPointerInputEvents = true
-        initializeGestureCoordination()
         if (enabled) {
+            initializePointerInputGestureCoordination()
             // initialize current state
             if (currentDragState == null) currentDragState = awaitDownState
             processRawPointerEvent(pointerEvent, pass)
@@ -562,44 +589,17 @@ internal abstract class DragGestureNode(
     }
 
     override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
-        initializeGestureCoordination()
         if (enabled) {
             if (indirectPointerInputDragCycleDetector == null) {
                 indirectPointerInputDragCycleDetector = IndirectPointerInputDragCycleDetector(this)
             }
+            initializeIndirectTouchGestureCoordination()
             indirectPointerInputDragCycleDetector?.processIndirectPointerInputEvent(event, pass)
         }
     }
 
     override fun onCancelIndirectPointerInput() {
         indirectPointerInputDragCycleDetector?.resetDragDetectionState()
-    }
-
-    /**
-     * Draggable containers will be interested in the following events:
-     * 1) DOWN events. They may become a drag gesture later.
-     * 2) The touch slop trigger event if the preceding deltas form an angle of interest. The touch
-     *    slop trigger event is when, effectively, draggables will start consuming. So at this
-     *    point, we look at the collected deltas since the first down event, and we decide if we're
-     *    interested based on the angle that those deltas form. We will favor vertical drags over
-     *    horizontal drags more because UX-wise there's more freedom and uncertainty when a user
-     *    performs a vertical gesture vs. a horizontal gesture.
-     */
-    override fun isInterested(event: PointerInputChange): Boolean {
-        if (event.changedToDownIgnoreConsumed()) return enabled
-        if (event.changedToUpIgnoreConsumed()) return false
-
-        if (touchSlopDetector == null) {
-            touchSlopDetector = TouchSlopDetector(orientationLock)
-        }
-
-        val touchSlop = currentValueOf(LocalViewConfiguration).touchSlop
-        val positionChange = event.positionChange()
-
-        return with(requireTouchSlopDetector()) {
-            getPostSlopOffset(positionChange, touchSlop, false) != Offset.Unspecified &&
-                isDeltaAtAngleOfInterest(positionChange)
-        }
     }
 
     override fun onCancelPointerInput() {
@@ -644,7 +644,7 @@ internal abstract class DragGestureNode(
         canDrag: (PointerType) -> Boolean = this.canDrag,
         enabled: Boolean = this.enabled,
         interactionSource: MutableInteractionSource? = this.interactionSource,
-        orientationLock: Orientation? = this.orientationLock,
+        orientation: Orientation? = this.orientation,
         shouldResetPointerInputHandling: Boolean = false,
     ) {
         var resetPointerInputHandling = shouldResetPointerInputHandling
@@ -653,6 +653,7 @@ internal abstract class DragGestureNode(
         if (this.enabled != enabled) {
             this.enabled = enabled
             if (!enabled) {
+                resetGestureNodes()
                 disposeInteractionSource()
                 indirectPointerInputDragCycleDetector = null
             }
@@ -663,8 +664,8 @@ internal abstract class DragGestureNode(
             this.interactionSource = interactionSource
         }
 
-        if (this.orientationLock != orientationLock) {
-            this.orientationLock = orientationLock
+        if (this.orientation != orientation) {
+            this.orientation = orientation
             resetPointerInputHandling = true
         }
 
@@ -687,6 +688,13 @@ internal abstract class DragGestureNode(
         }
     }
 
+    private fun resetGestureNodes() {
+        indirectTouchGestureNode?.let { undelegate(it) }
+        pointerInputGestureNode?.let { undelegate(it) }
+        indirectTouchGestureNode = null
+        pointerInputGestureNode = null
+    }
+
     private fun resetDragDetectionState() {
         moveToAwaitDownState()
         if (isListeningForEvents) sendDragCancelled()
@@ -704,9 +712,9 @@ internal abstract class DragGestureNode(
                 this.initialDown = initialDown
                 this.pointerId = pointerId
                 if (touchSlopDetector == null) {
-                    touchSlopDetector = TouchSlopDetector(orientationLock)
+                    touchSlopDetector = TouchSlopDetector(orientation)
                 } else {
-                    touchSlopDetector?.orientation = orientationLock
+                    touchSlopDetector?.orientation = orientation
                     touchSlopDetector?.reset(initialTouchSlopPositionChange)
                 }
                 this.verifyConsumptionInFinalPass = verifyConsumptionInFinalPass
@@ -718,10 +726,12 @@ internal abstract class DragGestureNode(
     }
 
     private fun moveToAwaitDownState() {
+        dragAccumulator = Offset.Zero
         currentDragState =
             awaitDownState.apply {
                 awaitTouchSlop = DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized
                 consumedOnInitial = false
+                hasSeenInitialEvent = false
             }
     }
 
@@ -773,6 +783,9 @@ internal abstract class DragGestureNode(
                 // behavior where dispatching only happened during the main pass
                 state.consumedOnInitial = true
             }
+            // Draggable should start reporting that is waiting for touch slop as soon as it gets
+            // the first down event.
+            state.hasSeenInitialEvent = true
         }
 
         if (pass == PointerEventPass.Main) {
@@ -846,23 +859,76 @@ internal abstract class DragGestureNode(
                     val postSlopOffset =
                         requireTouchSlopDetector()
                             .getPostSlopOffset(dragEvent.positionChangeIgnoreConsumed(), touchSlop)
-
                     /**
-                     * Here we use the [gestureNode] and [GestureConnection] APIs to make a
-                     * decision. About this gesture. At this point we have all the triggers to start
-                     * a recognizing a gesture in this current
+                     * Here we use the [gestureNode] and [GestureConnection] APIs to make a decision
+                     * about this gesture. At this point we have all the triggers to start
+                     * recognizing a gesture in this current
                      * [androidx.compose.foundation.gestures.DragGestureNode]. This is the moment
                      * that touch slop is recognized here in this node. During this time, before we
-                     * start consuming drag events we check the interested of the parent and our
-                     * self-interest. If the parent is interested and we're not (for this specific
-                     * event), we will give the parent a chance to do something by postponing the
-                     * remaining consumption to the final pass.
+                     * start consuming drag events we will decide to start recognizing in this node
+                     * or to allow the parent to take over. See below for chosen criteria.
                      */
                     if (postSlopOffset.isSpecified) {
-                        val isSelfInterested = isInterested(dragEvent)
-                        val isParentInterested =
-                            parentGestureConnection?.isInterested(dragEvent) == true
-                        if (!isSelfInterested && isParentInterested) {
+                        val delta = dragEvent.positionChange()
+
+                        dragAccumulator += delta
+
+                        /**
+                         * Represents the angle of the start of this gesture (the user intention).
+                         * For simplicity this uses the absolute gesture coordinates meaning an
+                         * angle between 0 and 90 will be used.
+                         */
+                        val gestureAngle =
+                            atan2(
+                                x = dragAccumulator.x.absoluteValue,
+                                y = dragAccumulator.y.absoluteValue,
+                            ) * (180.0f / PI).toFloat()
+
+                        /**
+                         * Represents the alignment of this gesture's accumulated delta until now
+                         * and this node's orientation.
+                         *
+                         * 2D children (orientation is null) have higher priority
+                         */
+                        val isDragAngleAlignedWithSelfOrientation =
+                            if (orientation == null) {
+                                true
+                            } else {
+                                isDragAngleAlignedWithOrientation(orientation!!, gestureAngle)
+                            }
+
+                        /**
+                         * The alignment of the parent follows the criteria:
+                         * 1) The parent is a drag gesture component (DragGestureConnection)
+                         * 2) The parent is in a waiting state.
+                         * 3) The parent has an angle aligment with the offsets accumulated so far.
+                         */
+                        var hasDragAngleAlignedWithParentOrientation = false
+                        traverseParentDraggableGestures { coordinator ->
+                            val isParentWaiting = coordinator.gestureState == GestureState.Waiting
+                            val isDragAngleAlignedWithParentOrientation =
+                                if (coordinator.orientation == null) {
+                                    false
+                                } else {
+                                    isDragAngleAlignedWithOrientation(
+                                        coordinator.orientation!!,
+                                        gestureAngle,
+                                    )
+                                }
+                            hasDragAngleAlignedWithParentOrientation =
+                                hasDragAngleAlignedWithParentOrientation ||
+                                    isParentWaiting && isDragAngleAlignedWithParentOrientation
+                            !hasDragAngleAlignedWithParentOrientation
+                        }
+
+                        /**
+                         * We will only yield to any parent if the current node has less priority
+                         * based on the angle of the gesture.
+                         */
+                        if (
+                            !isDragAngleAlignedWithSelfOrientation &&
+                                hasDragAngleAlignedWithParentOrientation
+                        ) {
                             state.verifyConsumptionInFinalPass = true
                         } else {
                             dragEvent.consume()
@@ -872,6 +938,8 @@ internal abstract class DragGestureNode(
                         }
                     } else {
                         state.verifyConsumptionInFinalPass = true
+                        // touch slop was not crossed, accumulate pre slop deltas
+                        dragAccumulator += dragEvent.positionChangeIgnoreConsumed()
                     }
                 }
             } else {
@@ -1004,10 +1072,12 @@ internal abstract class DragGestureNode(
         if (velocityTracker == null) velocityTracker = VelocityTracker()
         requireVelocityTracker().addPointerInputChange(down)
         val dragStartedOffset = slopTriggerChange.position - overSlopOffset
-        // the drag start event offset is the down event + touch slop value
-        // or in this case the event that triggered the touch slop minus
-        // the post slop offset
-        nodeOffset = Offset.Zero // restart node offset
+        if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
+            // the drag start event offset is the down event + touch slop value
+            // or in this case the event that triggered the touch slop minus
+            // the post slop offset
+            nodeOffset = Offset.Zero // restart node offset
+        }
         if (canDrag(down.type)) {
             if (!isListeningForEvents) {
                 if (channel == null) {
@@ -1015,23 +1085,30 @@ internal abstract class DragGestureNode(
                 }
                 startListeningForEvents()
             }
-            previousPositionOnScreen = requireLayoutCoordinates().positionOnScreen()
+            if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
+                previousPositionOnScreen = requireLayoutCoordinates().positionOnScreen()
+            }
             requireChannel().trySend(DragStarted(dragStartedOffset))
         }
     }
 
     private fun sendDragEvent(change: PointerInputChange, dragAmount: Offset) {
-        val currentPositionOnScreen = node.requireLayoutCoordinates().positionOnScreen()
-        // container changed positions
-        if (
-            previousPositionOnScreen != Offset.Unspecified &&
-                currentPositionOnScreen != previousPositionOnScreen
-        ) {
-            val delta = currentPositionOnScreen - previousPositionOnScreen
-            nodeOffset += delta
+        dragAccumulator += dragAmount
+        if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
+            val currentPositionOnScreen = node.requireLayoutCoordinates().positionOnScreen()
+            // container changed positions
+            if (
+                previousPositionOnScreen != Offset.Unspecified &&
+                    currentPositionOnScreen != previousPositionOnScreen
+            ) {
+                val delta = currentPositionOnScreen - previousPositionOnScreen
+                nodeOffset += delta
+            }
+            previousPositionOnScreen = currentPositionOnScreen
+            requireVelocityTracker().addPointerInputChange(event = change, offset = nodeOffset)
+        } else {
+            requireVelocityTracker().addPointerInputChange(change)
         }
-        previousPositionOnScreen = currentPositionOnScreen
-        requireVelocityTracker().addPointerInputChange(event = change, offset = nodeOffset)
         requireChannel().trySend(DragDelta(dragAmount, false))
     }
 
@@ -1110,6 +1187,7 @@ private sealed class DragDetectionState {
     class AwaitDown(
         var awaitTouchSlop: AwaitTouchSlop = AwaitTouchSlop.NotInitialized,
         var consumedOnInitial: Boolean = false,
+        var hasSeenInitialEvent: Boolean = false,
     ) : DragDetectionState() {
 
         enum class AwaitTouchSlop {
@@ -1144,3 +1222,75 @@ private sealed class DragDetectionState {
     /** State where dragging is happening. */
     class Dragging(var pointerId: PointerId = PointerId(Long.MAX_VALUE)) : DragDetectionState()
 }
+
+/** A specialized [GestureConnection] to allow high level coordination between drag gestures. */
+internal interface DraggableGestureConnection : GestureConnection {
+
+    /**
+     * The orientation on which this connection recognizes events. If null this means this is a
+     * 2-dimensional draggable.
+     */
+    val orientation: Orientation?
+}
+
+internal fun DelegatableNode.traverseParentDraggableGestures(
+    block: (DraggableGestureConnection) -> Boolean
+) {
+    traverseAncestorGestures {
+        if (it is DraggableGestureConnection) {
+            block(it)
+        } else {
+            true
+        }
+    }
+}
+
+/**
+ * We compare the angle's gesture [dragAngle] with the angle represented here to show that a node is
+ * aligned with a given gesture. We also traverse the tree and compare the angle of aligment of the
+ * parents when run against this angle criteria. An angle is aligned when it is with an angle range
+ * for [orientation]. This allows for multi-orientation dragging hierarchies to coordinate and let
+ * the component that matches the direction the user is dragging to process the gesture, even if the
+ * user has crossed touch slop in both directions.
+ *
+ * The behavior will change from the regular hierarchical (pointer input) behavior when a node is
+ * not aligned but one of its parent is. This means the gesture performed up until now will not
+ * trigger the angle bound of the current node (is aligned with [orientation], but will trigger the
+ * angle bound of one of its parents. Here are a few examples:
+ *
+ * Example 1: Gesture is mostly horizontal (the angle of the gesture is < 30). In the case where we
+ * have a vertical detector as a parent and a horizontal detector as a child. The horizontal
+ * detector is aligned because the angle of the gesture is smaller than [HorizontalAngleUpperBounds]
+ * so the horizontal detector wins.
+ *
+ * Example 2: Gesture is mostly vertical (the angle of the gesture is > 30 and < 90). In the case
+ * where we have a vertical detector as a parent and a horizontal detector as a child. The
+ * horizontal detector is not aligned because the angle of the gesture is larger than
+ * [HorizontalAngleUpperBounds]. The vertical detector is aligned because the gesture angle is
+ * smaller than [VerticalAngleUpperBounds] and larger than [HorizontalAngleUpperBounds]. The
+ * vertical takes over.
+ *
+ * Example 3: In the case where we have a parent vertical detector and a 2D child. The 2D child will
+ * be aligned since it cares about both angles.
+ *
+ * Example 4: For cases where we have detectors on the same direction we will never find a case
+ * where the inner one is not aligned whilst the outer one is aligned so the previous behavior
+ * remains.
+ *
+ * Example 5: When the parent is a horizontal detector and the child is vertical. Whichever crosses
+ * the touch slop first wins: If the parent crosses the touch slop first, the child loses the
+ * gesture if the child crosses first, the child will be aligned in the gesture so it wins. Note
+ * that if the gesture is fully horizontal, it means the parent will cross the touch slop first.
+ */
+private fun isDragAngleAlignedWithOrientation(
+    orientation: Orientation,
+    @FloatRange(from = 0.0, to = 90.0) dragAngle: Float,
+): Boolean =
+    if (orientation == Orientation.Horizontal) {
+        dragAngle <= HorizontalAngleUpperBounds
+    } else {
+        dragAngle > HorizontalAngleUpperBounds && dragAngle <= VerticalAngleUpperBounds
+    }
+
+private const val HorizontalAngleUpperBounds = 30
+private const val VerticalAngleUpperBounds = 90

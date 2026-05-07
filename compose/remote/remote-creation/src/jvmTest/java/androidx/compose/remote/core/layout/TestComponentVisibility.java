@@ -42,7 +42,9 @@ public class TestComponentVisibility extends TestComponentOperation {
             testResult.put("result", component.mVisibility);
             getCommands().add(command("Test Visibility", testVisibility, testResult));
         }
-        assertEquals("Checking Component " + getId() + " visibility", mVisibility,
+        assertEquals(
+                "Checking Component " + getId() + " visibility",
+                mVisibility,
                 component.mVisibility);
         return false;
     }

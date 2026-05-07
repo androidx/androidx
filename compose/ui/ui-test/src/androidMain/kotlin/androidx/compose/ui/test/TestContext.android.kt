@@ -16,8 +16,11 @@
 
 package androidx.compose.ui.test
 
+import android.view.MotionEvent
+
 internal actual fun createPlatformTestContext(): PlatformTestContext = PlatformTestContext()
 
 internal actual class PlatformTestContext(
-    var composeAccessibilityValidator: ComposeAccessibilityValidator? = null
+    var composeAccessibilityValidator: ComposeAccessibilityValidator? = null,
+    var previousMotionEventForIndirectPointerEventCreation: MotionEvent? = null,
 )

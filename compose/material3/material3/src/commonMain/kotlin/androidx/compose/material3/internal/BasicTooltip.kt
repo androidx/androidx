@@ -482,8 +482,5 @@ private fun rememberTouchExplorationOrSwitchAccessServiceState(): State<Boolean>
         listenToVoiceAccessState = false,
     )
 
-private val KeyEvent.isTab: Boolean
-    get() = type == KeyDown && key == Key.Tab
-
 private val KeyEvent.isEscape: Boolean
     get() = type == KeyDown && key == Key.Escape

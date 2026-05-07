@@ -40,7 +40,6 @@ public class ValueIntegerChangeActionOperation extends Operation implements Acti
     private static final int OP_CODE = Operations.VALUE_INTEGER_CHANGE_ACTION;
     private static final String CLASS_NAME = "ValueIntegerChangeActionOperation";
 
-
     int mTargetValueId = -1;
     int mValue = -1;
 
@@ -80,7 +79,9 @@ public class ValueIntegerChangeActionOperation extends Operation implements Acti
     }
 
     @Override
-    public void write(@NonNull WireBuffer buffer) {}
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mTargetValueId, mValue);
+    }
 
     @Override
     public void runAction(
@@ -112,7 +113,7 @@ public class ValueIntegerChangeActionOperation extends Operation implements Acti
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int valueId = buffer.readInt();
+        int valueId = buffer.readId();
         int value = buffer.readInt();
         operations.add(new ValueIntegerChangeActionOperation(valueId, value));
     }

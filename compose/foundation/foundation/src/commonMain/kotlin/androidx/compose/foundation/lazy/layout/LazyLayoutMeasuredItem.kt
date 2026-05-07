@@ -22,22 +22,80 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastForEach
 
+/**
+ * Represents a Lazy Layout item that has been measured, called [LazyLayoutMeasureScope.compose] and
+ * measured.
+ */
 internal interface LazyLayoutMeasuredItem {
+    /** The index of the item */
     val index: Int
+
+    /** A key associated with this item */
     val key: Any
-    val isVertical: Boolean
-    val mainAxisSizeWithSpacings: Int
-    val placeablesCount: Int
-    var nonScrollableItem: Boolean
+
+    /**
+     * The placeables resulted in this item's measurement. Items may have multiple pleaceables
+     * because [LazyLayoutItemProvider.Item] can emit multiple composables.
+     */
+    val placeables: List<Placeable>
+
+    /**
+     * The size of the pleceables when combined in the horizontal axis in accordance with this
+     * Layout's policy (e.g. if it's a list with arrangements).
+     */
+    val horizontalAxisSize: Int
+
+    /**
+     * The size of the pleceables when combined in the vertical axis in accordance with this
+     * Layout's policy (e.g. if it's a list with arrangements).
+     */
+    val verticalAxisSize: Int
+
+    /** The spacing used on the horizontal axis in this layout. */
+    val horizontalAxisSpacing: Int
+
+    /** The spacing used on the vertical axis in this layout. */
+    val verticalAxisSpacing: Int
+
+    /** The constraints that were used to measure this item. */
     val constraints: Constraints
+
+    /**
+     * In a 1 dimensional space, a lane is an item's position along the main axis (e.g. in a column
+     * it's the column number, in the row it's the row number and so on). In a 2-dimensional space
+     * the implementor decides the convention.
+     */
     val lane: Int
+
+    /** The number of lanes this item's spans. */
     val span: Int
 
-    fun getOffset(index: Int): IntOffset
+    /**
+     * The offset applied to the placeable in [placeableIndex].
+     *
+     * @throws IllegalStateException If this is called before [position].
+     */
+    fun getOffset(placeableIndex: Int): IntOffset
 
-    fun position(mainAxisOffset: Int, crossAxisOffset: Int, layoutWidth: Int, layoutHeight: Int)
+    /**
+     * Calculate the offset of [placeables] based on the layout information.
+     *
+     * @param horizontalAxisOffset The horizontal offset where the placeables will be placed in the
+     *   layout.
+     * @param verticalAxisOffset The vertical offset where the placeables will be placed in the
+     *   layout.
+     * @param layoutWidth The layout width
+     * @param layoutHeight The layout height
+     */
+    fun position(
+        horizontalAxisOffset: Int,
+        verticalAxisOffset: Int,
+        layoutWidth: Int,
+        layoutHeight: Int,
+    )
 
-    fun getParentData(index: Int): Any?
+    /** Disable this item's scrollability. Scroll deltas won't be applied to this item's offset. */
+    fun makeNonScrollable()
 }
 
 internal abstract class LazyLayoutMeasuredItemProvider<T : LazyLayoutMeasuredItem> {
@@ -84,8 +142,18 @@ internal fun <T : LazyLayoutMeasuredItem> updatedVisibleItems(
     return finalVisibleItems
 }
 
-private val LazyLayoutMeasuredItem.mainAxisOffset
-    get() = getOffset(0).let { if (isVertical) it.y else it.x }
-
 private val LazyLayoutMeasuredItemIndexComparator =
     Comparator<LazyLayoutMeasuredItem> { a, b -> a.index.compareTo(b.index) }
+
+internal val LazyLayoutMeasuredItem.placeablesCount: Int
+    get() = placeables.size
+
+internal fun LazyLayoutMeasuredItem.mainAxisSizeWithSpacings(isVertical: Boolean): Int {
+    return if (isVertical) {
+        verticalAxisSize + verticalAxisSpacing
+    } else {
+        horizontalAxisSize + horizontalAxisSpacing
+    }
+}
+
+internal fun LazyLayoutMeasuredItem.getParentData(index: Int) = placeables[index].parentData

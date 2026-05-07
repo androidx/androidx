@@ -17,18 +17,21 @@
 package androidx.compose.foundation
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.indirect.IndirectPointerInputChange
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.TraversableNode
-import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.node.traverseAncestors
+import androidx.compose.ui.node.traverseChildren
+import kotlin.jvm.JvmInline
 
 /**
  * Creates a [DelegatableNode] that attaches [gestureConnection] to allow high level gesture
  * coordination. A [gestureConnection] can be used by nodes that perform input handling (e.g. use
  * [androidx.compose.ui.node.PointerInputModifierNode] to allow further communication between
  * complex high level gestures.
+ *
+ * Gesture Nodes should be used with nodes that are currently enabled and ready to recognize
+ * gestures. In case the node is not enabled, a [GestureConnection] should not be attached. If a
+ * gesture changes from enabled to disabled, the gestureNode should be detached (undelegated).
  *
  * @param gestureConnection The [GestureConnection] to attach to the nodes tree.
  */
@@ -39,47 +42,51 @@ internal fun gestureNode(gestureConnection: GestureConnection): DelegatableNode 
  * Allows high level gesture coordination between gesture handlers (e.g. clicks, drags, scrolls).
  */
 internal interface GestureConnection {
-    /**
-     * Allows this connection to demonstrate interest over a pointer event change. Interest signals
-     * that a connection is interested in this event, and it needs additional information (e.g. time
-     * or more events) in order to decide if it will consume it. At a given moment in a gesture
-     * handler recognition process they can query their parent to see if they're also interested in
-     * this specific change. If so they can decide to give priority to the other gestures in the
-     * chain.
-     *
-     * @param event The [PointerInputChange] this connection will react to.
-     */
-    fun isInterested(event: PointerInputChange): Boolean = false
 
     /**
-     * Allows this connection to demonstrate interest over an indirect pointer event change.
-     * Interest signals that a connection is interested in this event, and it needs additional
-     * information (e.g. time or more events) in order to decide if it will consume it. At a given
-     * moment in a gesture handler recognition process they can query their parent to see if they're
-     * also interested in this specific change. If so they can decide to give priority to the other
-     * gestures in the chain.
-     *
-     * @param event The [IndirectPointerInputChange] this connection will react to.
+     * Provides information regarding the gesture recognition process for this connection. Because
+     * all gestures are backed by the pointer input system, this state should be set as soon as the
+     * gesture starts its recognition process (i.e. the initial pass). Similarly, resetting the
+     * state should happen when the gesture finishes its recognition process (i.e. final pass)
      */
-    fun isInterested(event: IndirectPointerInputChange): Boolean = false
+    val gestureState: GestureState
 }
 
-/** Searches the tree for a parent [GestureConnection]. Returns null if there isn't one. */
-internal val DelegatableNode.parentGestureConnection: GestureConnection?
-    get() = (findNearestAncestor(GestureNode.TraverseKey) as? GestureNode)?.gestureConnection
-
-/**
+/*
  * Executes [block] for all ancestors with a registered [GestureConnection].
  *
  * Note: The parameter [block]'s return boolean value will determine if the traversal will continue
  * (true = continue, false = cancel).
  */
-internal fun DelegatableNode.traverseAncestorGestureConnections(
-    block: (GestureConnection) -> Boolean
-) {
+@Suppress("UNCHECKED_CAST")
+internal fun DelegatableNode.traverseAncestorGestures(block: (GestureConnection) -> Boolean) {
     traverseAncestors(GestureNode.TraverseKey) { node ->
         check(node is GestureNode) { "Node is not a GestureNode instance" }
-        block(node.gestureConnection)
+        val connection = node.gestureConnection as? GestureConnection
+        if (connection == null) {
+            true
+        } else {
+            block(connection)
+        }
+    }
+}
+
+/*
+ * Executes [block] for all children with a registered [GestureConnection].
+ *
+ * Note: The parameter [block]'s return boolean value will determine if the traversal will continue
+ * (true = continue, false = cancel).
+ */
+@Suppress("UNCHECKED_CAST")
+internal fun DelegatableNode.traverseChildrenGestures(block: (GestureConnection) -> Boolean) {
+    traverseChildren(GestureNode.TraverseKey) { node ->
+        check(node is GestureNode) { "Node is not a GestureNode instance" }
+        val connection = node.gestureConnection as? GestureConnection
+        if (connection == null) {
+            true
+        } else {
+            block(connection)
+        }
     }
 }
 
@@ -90,4 +97,22 @@ private class GestureNode(val gestureConnection: GestureConnection) :
         get() = TraverseKey
 
     companion object TraverseKey
+}
+
+/**
+ * Represents the current status of a high level gesture, if the gesture is enabled. No
+ * [GestureConnection] should be attached in case a gesture is not enabled.
+ */
+@JvmInline
+internal value class GestureState private constructor(private val status: String) {
+    companion object {
+        /** Gesture is enabled but no gesture is in progress. */
+        val Idle = GestureState("idle")
+
+        /** Gesture is waiting for a trigger condition (e.g. touch slop) */
+        val Waiting = GestureState("waiting")
+
+        /** Gesture is ongoing (e.g. dragging) */
+        val Recognized = GestureState("recognized")
+    }
 }

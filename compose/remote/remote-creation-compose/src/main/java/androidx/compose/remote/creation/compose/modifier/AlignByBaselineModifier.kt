@@ -17,7 +17,7 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RemoteContext.FIRST_BASELINE
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation.FIRST_BASELINE
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.AlignByModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier

@@ -19,7 +19,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
     id("AndroidXComposePlugin")
 }
 
@@ -39,6 +39,8 @@ android {
 }
 
 dependencies {
+    api(project(":compose:remote:remote-testing"))
+    api(project(":compose:remote:remote-player-view"))
     implementation(libs.junit)
     implementation(libs.testRunner)
     implementation("androidx.compose.runtime:runtime:1.8.3")
@@ -50,7 +52,6 @@ dependencies {
     implementation(project(":compose:remote:remote-creation-core"))
     implementation(project(":compose:remote:remote-creation-compose"))
     implementation(project(":compose:remote:remote-player-core"))
-    implementation(project(":compose:remote:remote-player-view"))
     implementation(project(":compose:remote:remote-player-compose"))
     implementation(project(":compose:ui:ui-test"))
     implementation(project(":test:screenshot:screenshot"))

@@ -32,7 +32,7 @@ class LayoutFlowTest : BaseLayoutTest() {
     @Test
     fun testFlowLayoutBasic() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     flow(
                         Modifier.fillMaxSize().background(Color.YELLOW).padding(8),
@@ -59,7 +59,7 @@ class LayoutFlowTest : BaseLayoutTest() {
     @Test
     fun testFlowLayoutOverflow() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     flow(
                         Modifier.width(300).background(Color.YELLOW).padding(8),
@@ -89,7 +89,7 @@ class LayoutFlowTest : BaseLayoutTest() {
     @Test
     fun testFlowLayoutSpacing() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     flow(
                         Modifier.fillMaxWidth().spacedBy(10f).background(Color.LTGRAY).padding(10),
@@ -115,7 +115,7 @@ class LayoutFlowTest : BaseLayoutTest() {
     @Test
     fun testFlowLayoutMixedSizing() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     flow(
                         Modifier.width(400).background(Color.YELLOW).padding(8),
@@ -142,7 +142,7 @@ class LayoutFlowTest : BaseLayoutTest() {
     @Test
     fun testFlowLayoutWeightsSimple() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     flow(Modifier.width(600).background(Color.YELLOW).padding(8)) {
                         box(Modifier.horizontalWeight(1f).height(50).background(Color.RED))
@@ -164,7 +164,7 @@ class LayoutFlowTest : BaseLayoutTest() {
     @Test
     fun testFlowLayoutWeightsMixed() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     flow(Modifier.width(600).background(Color.YELLOW).padding(8)) {
                         box(Modifier.width(100).height(50).background(Color.RED))
@@ -187,7 +187,7 @@ class LayoutFlowTest : BaseLayoutTest() {
     @Test
     fun testFlowLayoutWeightsMultipleRows() {
         val ops =
-            arrayListOf<TestOperation?>(
+            arrayListOf<TestOperation>(
                 TestLayout {
                     flow(Modifier.width(300).background(Color.YELLOW).padding(8)) {
                         // First row: 100 + weight(1) + 100 -> weight takes remaining space in row
@@ -200,6 +200,110 @@ class LayoutFlowTest : BaseLayoutTest() {
                     }
                 },
                 CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "FlowLayout",
+            ops,
+        )
+    }
+
+    @Test
+    fun testFlowLayoutMaxItems() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    flow(
+                        Modifier.width(1000).background(Color.YELLOW).padding(8),
+                        maxItemsInEachRow = 2,
+                    ) {
+                        box(Modifier.size(100).background(Color.RED))
+                        box(Modifier.size(100).background(Color.GREEN))
+                        box(Modifier.size(100).background(Color.BLUE))
+                        box(Modifier.size(100).background(Color.CYAN))
+                    }
+                },
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "FlowLayout",
+            ops,
+        )
+    }
+
+    @Test
+    fun testFlowLayoutMaxLines() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    flow(Modifier.width(250).background(Color.YELLOW).padding(8), maxLines = 2) {
+                        box(Modifier.size(100).background(Color.RED))
+                        box(Modifier.size(100).background(Color.GREEN))
+                        box(Modifier.size(100).background(Color.BLUE))
+                        box(Modifier.size(100).background(Color.CYAN))
+                    }
+                },
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "FlowLayout",
+            ops,
+        )
+    }
+
+    @Test
+    fun testFlowLayoutMaxLinesValidation() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    flow(
+                        Modifier.componentId(42).width(250).background(Color.YELLOW).padding(8),
+                        maxLines = 2,
+                    ) {
+                        box(Modifier.size(100).background(Color.RED))
+                        box(Modifier.size(100).background(Color.GREEN))
+                        box(Modifier.width(150).height(100).background(Color.BLUE))
+                        box(Modifier.size(100).background(Color.CYAN))
+                    }
+                },
+                validateChildCount(42, 3),
+            )
+        checkLayout(
+            1000,
+            1000,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "FlowLayout",
+            ops,
+        )
+    }
+
+    @Test
+    fun testFlowLayoutMaxHeightValidation() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    flow(
+                        Modifier.componentId(42).size(250, 100).background(Color.YELLOW).padding(8)
+                    ) {
+                        box(Modifier.size(100).background(Color.RED))
+                        box(Modifier.size(100).background(Color.GREEN))
+                        box(Modifier.size(100).background(Color.BLUE)) // Should overflow vertically
+                        box(Modifier.size(100).background(Color.CYAN))
+                    }
+                },
+                validateChildCount(42, 2),
             )
         checkLayout(
             1000,

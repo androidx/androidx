@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.INT
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -39,7 +40,6 @@ public class NamedVariable extends Operation implements Serializable {
     public final int mVarId;
     public final @NonNull String mVarName;
     public final int mVarType;
-    public static final int MAX_STRING_SIZE = 4000;
     public static final int COLOR_TYPE = 2;
     public static final int FLOAT_TYPE = 1;
     public static final int STRING_TYPE = 0;
@@ -65,7 +65,7 @@ public class NamedVariable extends Operation implements Serializable {
         return "VariableName["
                 + mVarId
                 + "] = \""
-                + Utils.trimString(mVarName, 10)
+                + Utils.trimString(mVarName, 30)
                 + "\" type="
                 + mVarType;
     }
@@ -112,10 +112,10 @@ public class NamedVariable extends Operation implements Serializable {
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int varId = buffer.readInt();
-        int varType = buffer.readInt();
-        String text = buffer.readUTF8(MAX_STRING_SIZE);
-        operations.add(new NamedVariable(varId, varType, text));
+        int id = buffer.declareId();
+        int type = buffer.readInt();
+        String name = buffer.readUTF8(Limits.MAX_STRING_SIZE);
+        operations.add(new NamedVariable(id, type, name));
     }
 
     /**

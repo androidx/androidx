@@ -21,10 +21,9 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas0
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -42,18 +41,22 @@ import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.abs
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import java.text.DecimalFormat
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
@@ -101,15 +104,13 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
         verticalArrangement = RemoteArrangement.Center,
     ) {
-        //        CaptureAsDraw {
         RemoteText(
             monthNames[month],
             fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.Bold,
             fontSize = 32.rsp,
-            modifier = RemoteModifier.padding(bottom = 24.dp),
+            modifier = RemoteModifier.padding(bottom = 24.rdp),
         )
-        //        CaptureAsDraw {
         RemoteRow(modifier = RemoteModifier.height(IntrinsicSize.Min)) {
             var done = false
             for (j in 0 until 7) {
@@ -119,20 +120,22 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                             RemoteModifier.fillMaxHeight().width(1.rdp).background(Color.DarkGray)
                     )
                 }
-                var modifier = RemoteModifier.padding(left = 8.rf, right = 8.rf)
+                var modifier = RemoteModifier.padding(start = 8.rf, end = 8.rf)
                 RemoteColumn(modifier = modifier, horizontalAlignment = RemoteAlignment.End) {
-                    RemoteCanvas0(modifier = RemoteModifier.size(20.rdp)) {
+                    RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
                         drawAnchoredText(
-                            "${dayNames[j]}",
-                            Color.Black,
-                            RemoteOffset(40f, 20f),
+                            dayNames[j].rs,
+                            40f.rf,
+                            20f.rf,
                             1f.rf,
                             0f.rf,
-                            typeface = android.graphics.Typeface.DEFAULT_BOLD,
+                            paint =
+                                RemotePaint().apply {
+                                    color = Color.White.rc
+                                    typeface = android.graphics.Typeface.DEFAULT_BOLD
+                                },
                         )
                     }
-                    //                    RemoteText("${dayNames[j]}", fontWeight = FontWeight.Bold,
-                    //                        modifier = RemoteModifier.padding(bottom = 10.dp))
                     for (i in 0 until 6) {
                         val index = j + i * 7
                         var number = index + start
@@ -157,40 +160,32 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                             continue
                         }
                         if (stage == 0 || stage == 2) {
-                            //                            RemoteText(
-                            //                                "$number",
-                            //                                color = Color.LightGray,
-                            //                                fontStyle = FontStyle.Italic,
-                            //                                fontSize = 20.sp
-                            //          )
-                            RemoteCanvas0(modifier = RemoteModifier.size(20.rdp)) {
+                            RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
                                 drawAnchoredText(
-                                    "$number",
-                                    Color.White,
-                                    RemoteOffset(40f, 20f),
+                                    "$number".rs,
+                                    40f.rf,
+                                    20f.rf,
                                     1f.rf,
                                     0f.rf,
-                                    1f.rf,
+                                    paint = RemotePaint().apply { color = Color.White.rc },
                                 )
                             }
                         } else {
-                            RemoteCanvas0(modifier = RemoteModifier.size(20.rdp)) {
+                            RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
                                 drawAnchoredText(
-                                    "$number",
-                                    Color.Black,
-                                    RemoteOffset(40f, 20f),
+                                    "$number".rs,
+                                    40f.rf,
+                                    20f.rf,
                                     1f.rf,
                                     0f.rf,
-                                    1f.rf,
+                                    paint = RemotePaint().apply { color = Color.Black.rc },
                                 )
                             }
-                            //                            RemoteText("$number", fontSize = 20.sp)
                         }
                     }
                 }
             }
         }
-        //        }
     }
 }
 
@@ -202,11 +197,8 @@ fun ScrollViewDemo() {
     val numElements = 12
     val scrollState = rememberRemoteScrollState(evenNotches = numElements)
     val dimensionCard = 280.rdp
-    RemoteBox(
-        modifier = RemoteModifier,
-        verticalArrangement = RemoteArrangement.Bottom,
-        horizontalAlignment = RemoteAlignment.End,
-    ) {
+    val decimalFormat = remember { DecimalFormat("####0.00") }
+    RemoteBox(modifier = RemoteModifier, contentAlignment = RemoteAlignment.BottomEnd) {
         val height = dimensionCard.toPx()
         val h2 = 280.rdp
         RemoteColumn(
@@ -214,7 +206,6 @@ fun ScrollViewDemo() {
                 RemoteModifier.fillMaxWidth()
                     .height(h2)
                     .clip(RemoteRectangleShape)
-                    // .background(Color.LightGray)
                     .verticalScroll(scrollState),
             verticalArrangement = RemoteArrangement.Center,
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
@@ -226,7 +217,6 @@ fun ScrollViewDemo() {
                             0.2f
                 val rotation =
                     (abs(scrollState.positionState - (height * i.toFloat())) / height) * 40f
-                //                Box(horizontalAlignment = Alignment.End) {
                 CanvasCalendarMonth(
                     modifier =
                         RemoteModifier.graphicsLayer(
@@ -236,14 +226,9 @@ fun ScrollViewDemo() {
                             )
                             .width(h2)
                             .height(h2)
-                            .padding(0.dp)
-                    //    .background(Color.White)
-                    ,
+                            .padding(0.rdp),
                     i,
                 )
-                //                    val value = rememberRemoteString(scrollState.position.rf)
-                //                    RemoteText(value, fontSize = 34.sp, color = Color.Blue)
-                //                }
             }
         }
         val debug = false
@@ -254,15 +239,13 @@ fun ScrollViewDemo() {
             ) {
                 val blue = RemoteColor(Color.Blue.toArgb())
                 RemoteText(
-                    scrollState.positionState.toRemoteString(5),
+                    scrollState.positionState.toRemoteString(decimalFormat),
                     fontSize = 34.rsp,
                     color = blue,
                 )
-                RemoteText(height.toRemoteString(5), fontSize = 34.rsp, color = blue)
+                RemoteText(height.toRemoteString(decimalFormat), fontSize = 34.rsp, color = blue)
             }
         }
-        //            val value = rememberRemoteString(RemoteFloat(scrollState.position))
-        //            RemoteText(value, fontSize = 34.sp, color = Color.Blue)
     }
 }
 

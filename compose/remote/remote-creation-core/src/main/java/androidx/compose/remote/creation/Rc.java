@@ -26,6 +26,12 @@ import static androidx.compose.remote.core.operations.PathExpression.LINEAR;
 import static androidx.compose.remote.core.operations.PathExpression.LOOP;
 import static androidx.compose.remote.core.operations.PathExpression.MONOTONIC;
 import static androidx.compose.remote.core.operations.PathExpression.POLAR;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_EQUAL_TO;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_GREATER_THAN;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_LESS_THAN;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_NOT_EQUAL_TO;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_PROFILE_EXCLUDES;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_PROFILE_INCLUDES;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.PaintOperation;
@@ -37,6 +43,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.ImageScaling;
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator;
@@ -582,13 +589,13 @@ public class Rc {
         public static final int STOP_ABSOLUTE_POS = TouchExpression.STOP_ABSOLUTE_POS;
         /** Stop only at the start or end */
         public static final int STOP_ENDS = TouchExpression.STOP_ENDS;
-        /** Stop at a series of notch positions expressed as a percent of the range*/
+        /** Stop at a series of notch positions expressed as a percent of the range */
         public static final int STOP_NOTCHES_PERCENTS = TouchExpression.STOP_NOTCHES_PERCENTS;
         /** Stop by decelerating */
         public static final int STOP_GENTLY = TouchExpression.STOP_GENTLY;
         /** Stop at a collection of point described in absolute cordnates */
         public static final int STOP_NOTCHES_ABSOLUTE = TouchExpression.STOP_NOTCHES_ABSOLUTE;
-        /** Stop at a series of evenly spaced notches  */
+        /** Stop at a series of evenly spaced notches */
         public static final int STOP_NOTCHES_EVEN = TouchExpression.STOP_NOTCHES_EVEN;
         /** Stop at evenly spaced single step notches */
         public static final int STOP_NOTCHES_SINGLE_EVEN =
@@ -704,7 +711,7 @@ public class Rc {
         /** (value - doc_load_time) * 1E-3 */
         public static final short TIME_FROM_LOAD_SEC = TimeAttribute.TIME_FROM_LOAD_SEC;
 
-        /**  The day of the year */
+        /** The day of the year */
         public static final short TIME_DAY_OF_YEAR = TimeAttribute.TIME_DAY_OF_YEAR;
     }
 
@@ -862,6 +869,11 @@ public class Rc {
         /** Legacy compatibility mode grouping & separator ignored */
         public static final int LEGACY_MODE =
                 androidx.compose.remote.core.operations.TextFromFloat.LEGACY_MODE;
+
+        /** Legacy compatibility mode grouping & separator ignored */
+        public static final int FULL_FORMAT =
+                androidx.compose.remote.core.operations.TextFromFloat.FULL_FORMAT;
+
     }
 
     /** Used in Texture */
@@ -889,8 +901,8 @@ public class Rc {
     }
 
     public static class Layout {
-        public static final float FIRST_BASELINE = RemoteContext.FIRST_BASELINE;
-        public static final float LAST_BASELINE = RemoteContext.LAST_BASELINE;
+        public static final float FIRST_BASELINE = AlignByModifierOperation.FIRST_BASELINE;
+        public static final float LAST_BASELINE = AlignByModifierOperation.LAST_BASELINE;
     }
 
     public static class PathEffect {
@@ -927,7 +939,7 @@ public class Rc {
     }
 
     /**
-     *  defining standard system color identifiers.
+     * defining standard system color identifiers.
      */
     public static final class AndroidColors {
         /** The android color group name. */
@@ -975,59 +987,59 @@ public class Rc {
         /** The light holo red color identifier. */
         public static final short HOLO_RED_LIGHT = 13;
 
-        /** The system accent14 0 color identifier. */
-        public static final short SYSTEM_ACCENT14_0 = 14;
+        /** The system accent1 0 color identifier. */
+        public static final short SYSTEM_ACCENT1_0 = 14;
 
-        /** The system accent15 150 color identifier. */
-        public static final short SYSTEM_ACCENT15_150 = 15;
+        /** The system accent5 10 color identifier. */
+        public static final short SYSTEM_ACCENT1_10 = 15;
 
-        /** The system accent16 1600 color identifier. */
-        public static final short SYSTEM_ACCENT16_1600 = 16;
+        /** The system accent1 100 color identifier. */
+        public static final short SYSTEM_ACCENT1_100 = 16;
 
-        /** The system accent17 17000 color identifier. */
-        public static final short SYSTEM_ACCENT17_17000 = 17;
+        /** The system accent1 1000 color identifier. */
+        public static final short SYSTEM_ACCENT1_1000 = 17;
 
-        /** The system accent18 200 color identifier. */
-        public static final short SYSTEM_ACCENT18_200 = 18;
+        /** The system accent1 200 color identifier. */
+        public static final short SYSTEM_ACCENT1_200 = 18;
 
-        /** The system accent19 300 color identifier. */
-        public static final short SYSTEM_ACCENT19_300 = 19;
+        /** The system accent1 300 color identifier. */
+        public static final short SYSTEM_ACCENT1_300 = 19;
 
-        /** The system accent20 400 color identifier. */
-        public static final short SYSTEM_ACCENT20_400 = 20;
+        /** The system accent1 400 color identifier. */
+        public static final short SYSTEM_ACCENT1_400 = 20;
 
-        /** The system accent21 50 color identifier. */
-        public static final short SYSTEM_ACCENT21_50 = 21;
+        /** The system accent1 50 color identifier. */
+        public static final short SYSTEM_ACCENT1_50 = 21;
 
-        /** The system accent22 500 color identifier. */
-        public static final short SYSTEM_ACCENT22_500 = 22;
+        /** The system accent1 500 color identifier. */
+        public static final short SYSTEM_ACCENT1_500 = 22;
 
-        /** The system accent23 600 color identifier. */
-        public static final short SYSTEM_ACCENT23_600 = 23;
+        /** The system accent1 600 color identifier. */
+        public static final short SYSTEM_ACCENT1_600 = 23;
 
-        /** The system accent24 700 color identifier. */
-        public static final short SYSTEM_ACCENT24_700 = 24;
+        /** The system accent1 700 color identifier. */
+        public static final short SYSTEM_ACCENT1_700 = 24;
 
-        /** The system accent25 800 color identifier. */
-        public static final short SYSTEM_ACCENT25_800 = 25;
+        /** The system accent1 800 color identifier. */
+        public static final short SYSTEM_ACCENT1_800 = 25;
 
-        /** The system accent26 900 color identifier. */
-        public static final short SYSTEM_ACCENT26_900 = 26;
+        /** The system accent1 900 color identifier. */
+        public static final short SYSTEM_ACCENT1_900 = 26;
 
         /** The system accent2 0 color identifier. */
         public static final short SYSTEM_ACCENT2_0 = 27;
 
-        /** The system accent2 280 color identifier. */
-        public static final short SYSTEM_ACCENT2_280 = 28;
+        /** The system accent2 10 color identifier. */
+        public static final short SYSTEM_ACCENT2_10 = 28;
 
-        /** The system accent2 2900 color identifier. */
-        public static final short SYSTEM_ACCENT2_2900 = 29;
+        /** The system accent2 100 color identifier. */
+        public static final short SYSTEM_ACCENT2_100 = 29;
 
-        /** The system accent2 30000 color identifier. */
-        public static final short SYSTEM_ACCENT2_30000 = 30;
+        /** The system accent2 1000 color identifier. */
+        public static final short SYSTEM_ACCENT2_1000 = 30;
 
         /** The system accent2 200 color identifier. */
-        public static final short SYSTEM_ACCENT2_200 = 31;
+        public static final short SYSTEM_ACCENT2_200 = 30;
 
         /** The system accent2 300 color identifier. */
         public static final short SYSTEM_ACCENT2_300 = 32;
@@ -1056,14 +1068,14 @@ public class Rc {
         /** The system accent3 0 color identifier. */
         public static final short SYSTEM_ACCENT3_0 = 40;
 
-        /** The system accent3 410 color identifier. */
-        public static final short SYSTEM_ACCENT3_410 = 41;
+        /** The system accent3 10 color identifier. */
+        public static final short SYSTEM_ACCENT3_10 = 41;
 
-        /** The system accent3 4200 color identifier. */
-        public static final short SYSTEM_ACCENT3_4200 = 42;
+        /** The system accent3 100 color identifier. */
+        public static final short SYSTEM_ACCENT3_100 = 42;
 
-        /** The system accent3 43000 color identifier. */
-        public static final short SYSTEM_ACCENT3_43000 = 43;
+        /** The system accent3 1000 color identifier. */
+        public static final short SYSTEM_ACCENT3_1000 = 43;
 
         /** The system accent3 200 color identifier. */
         public static final short SYSTEM_ACCENT3_200 = 44;
@@ -1520,6 +1532,26 @@ public class Rc {
 
         /** The tab indicator text color identifier. */
         public static final short TAB_INDICATOR_TEXT = 195;
+    }
+
+    public static final class Skip {
+        /** skip if the API level is less than the specified value */
+        public static final short IF_API_LESS_THAN = SKIP_IF_API_LESS_THAN;
+
+        /** skip if the API level is greater than or equal to the specified value */
+        public static final short IF_API_GREATER_THAN = SKIP_IF_API_GREATER_THAN;
+
+        /** skip if the API level is equal to the specified value */
+        public static final short IF_API_EQUAL_TO = SKIP_IF_API_EQUAL_TO;
+
+        /** skip if the API level is not equal to the specified value */
+        public static final short IF_API_NOT_EQUAL_TO = SKIP_IF_API_NOT_EQUAL_TO;
+
+        /** skip if the profile includes the specified value */
+        public static final short IF_PROFILE_INCLUDES = SKIP_IF_PROFILE_INCLUDES;
+
+        /** skip if the profile excludes the specified value */
+        public static final short IF_PROFILE_EXCLUDES = SKIP_IF_PROFILE_EXCLUDES;
     }
 
 }

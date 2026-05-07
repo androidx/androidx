@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.inspection.SPAM_LOG_TAG
 import androidx.compose.ui.inspection.inspector.ParameterType.DimensionDp
 import androidx.compose.ui.inspection.util.copy
+import androidx.compose.ui.inspection.util.isPrimitiveClass
 import androidx.compose.ui.inspection.util.removeLast
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
@@ -259,7 +260,7 @@ internal class ParameterFactory(inlineClassConverter: InlineClassConverter) {
     private fun ignoredValue(value: Any?): Boolean =
         value == null ||
             ignoredClasses.any { ignored -> ignored.isInstance(value) } ||
-            value::class.java.isPrimitive
+            value.javaClass.isPrimitiveClass()
 
     /** Convenience class for building [NodeParameter]s. */
     private inner class ParameterCreator {

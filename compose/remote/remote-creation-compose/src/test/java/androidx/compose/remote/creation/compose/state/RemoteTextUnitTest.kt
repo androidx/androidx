@@ -17,9 +17,10 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.util.RemoteDocumentTestRule
 import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -40,9 +41,6 @@ class RemoteTextUnitTest {
 
     private val context: RemoteContext
         get() = remoteComposeTestRule.context
-
-    private val testScope =
-        NoRemoteCompose().apply { remoteDensity = remoteComposeTestRule.density }
 
     @Test
     fun constructor_createsCorrectly() {
@@ -73,7 +71,7 @@ class RemoteTextUnitTest {
         val (resultId, resultPxId) =
             remoteComposeTestRule.initialise {
                 val remoteTextUnit = intValue.rsp
-                val remoteFloatPx = remoteTextUnit.toPx(testScope.remoteDensity)
+                val remoteFloatPx = remoteTextUnit.toPx()
 
                 val resultId = remoteTextUnit.value.getIdForCreationState(it)
                 val resultPxId = remoteFloatPx.getIdForCreationState(it)
@@ -92,5 +90,37 @@ class RemoteTextUnitTest {
 
         assertThat(textUnit?.type).isEqualTo(TextUnitType.Em)
         assertThat(textUnit?.value).isEqualTo(floatValue)
+    }
+
+    @Test
+    fun toRsp_isNonScalableWithFontSize() {
+        val dpValue = 12.dp
+        val density = 2f
+        val fontScale = 2.5f
+
+        // Set up a custom density/fontScale on the creation state
+        val customDensity = RemoteDensity(density.rf, fontScale.rf)
+        val originalDensity = remoteComposeTestRule.creationState.remoteDensity
+        remoteComposeTestRule.creationState.remoteDensity = customDensity
+
+        val (nonScalableTextId, scalableTextId) =
+            remoteComposeTestRule.initialise {
+                val nonScalable = dpValue.toRsp() // font-scale independent
+                val scalable = 12.rsp // font-scale dependent
+
+                Pair(
+                    nonScalable.toPx().getIdForCreationState(it),
+                    scalable.toPx().getIdForCreationState(it),
+                )
+            }
+
+        // 12.dp * 2.0 = 24.0 px (regardless of font scale)
+        assertThat(context.getFloat(nonScalableTextId)).isEqualTo(24f)
+
+        // 12.rsp * 2.0 (density) * 2.5 (fontScale) = 60.0 px
+        assertThat(context.getFloat(scalableTextId)).isEqualTo(60f)
+
+        // Reset density
+        remoteComposeTestRule.creationState.remoteDensity = originalDensity
     }
 }
