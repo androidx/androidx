@@ -17,10 +17,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.savedstate.compose"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     desktop()
     mingwX64()
@@ -72,6 +68,13 @@ androidXMultiplatform {
 
 dependencies {
     constraints {
+        // Prevents runtime resolution failures. The reflection fallback for Compose 1.7.*
+        // was removed to eliminate brittle cross-package coupling. This constraint ensures
+        // the runtime provides the statically defined LocalLifecycleOwner.
+        androidMainImplementation("androidx.compose.ui:ui:1.8.0") {
+            because "Requires Compose 1.8+ to resolve LocalLifecycleOwner without reflection"
+        }
+
         // Prevents symbols duplication with old versions of JetBrains' fork.
         // Starting with version 1.3.5, this module is published as empty artifact with dependency
         // to this androidx module.
