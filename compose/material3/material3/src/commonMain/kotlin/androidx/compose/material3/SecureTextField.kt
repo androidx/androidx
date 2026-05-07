@@ -98,7 +98,8 @@ import androidx.compose.ui.unit.Density
  * @param keyboardOptions software keyboard options that contains configuration such as
  *   [KeyboardType] and [ImeAction]. This component by default configures [KeyboardOptions] for a
  *   secure text field by disabling auto correct and setting [KeyboardType] to
- *   [KeyboardType.Password].
+ *   [KeyboardType.Password]. If using [TextObfuscationMode.Visible], consider passing
+ *   [KeyboardType.PasswordVisible] instead to indicate to the IME that the input is visible.
  * @param onKeyboardAction called when the user presses the action button in the input method editor
  *   (IME), or by pressing the enter key on a hardware keyboard. By default this parameter is null,
  *   and would execute the default behavior for a received IME Action e.g., [ImeAction.Done] would

@@ -41,7 +41,7 @@ dependencies {
     api("androidx.compose.material:material-icons-core:1.6.7")
     implementation("androidx.compose.runtime:runtime:1.7.5")
     implementation("androidx.compose.ui:ui:1.7.5")
-    implementation("androidx.compose.ui:ui-text:1.7.5")
+    implementation(project(":compose:ui:ui-text"))
 }
 
 androidx {
