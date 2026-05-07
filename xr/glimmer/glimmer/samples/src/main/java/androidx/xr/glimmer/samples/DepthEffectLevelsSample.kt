@@ -33,12 +33,12 @@ import androidx.xr.glimmer.DepthEffect
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.depthEffect
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun DepthEffectLevelsSample() {
     val depthEffectLevels = GlimmerTheme.depthEffectLevels
-    VerticalList(
+    GlimmerLazyColumn(
         modifier = Modifier.fillMaxWidth().wrapContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

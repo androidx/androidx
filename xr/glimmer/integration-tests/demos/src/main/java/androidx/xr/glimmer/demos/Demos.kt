@@ -42,7 +42,7 @@ val Demos =
             ComposableDemo("ListItems") { ListItemSampleUsage() },
             ComposableDemo("TitleChips") { TitleChipSampleUsage() },
             DemoCategory("Focus", FocusDemos),
-            DemoCategory("Lists", ListDemos),
+            DemoCategory("LazyLists", LazyListDemos),
             DemoCategory("Stack", StackDemos),
             DemoCategory("VoiceInputIndicator", VoiceInputIndicatorDemos),
             ComposableDemo("Gesture") { OnIndirectPointerGestureSampleUsage() },

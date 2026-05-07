@@ -36,11 +36,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 internal fun DemoSettings() {
-    VerticalList(horizontalAlignment = Alignment.CenterHorizontally) {
+    GlimmerLazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
         item {
             val overlayOnBackground = OverlayOnBackgroundSetting.asState().value
             val context = LocalContext.current

@@ -29,7 +29,7 @@ import androidx.compose.foundation.gestures.scrollBy
  *
  * In mathematical terms, it converts `Sc -> Su` and applies `Su` to the state.
  */
-internal suspend fun ListState.scrollContentBy(value: Float) {
+internal suspend fun GlimmerLazyListState.scrollContentBy(value: Float) {
     val layoutInfo = layoutInfoState.value
     val fullViewport =
         if (layoutInfo.orientation == Orientation.Vertical) {

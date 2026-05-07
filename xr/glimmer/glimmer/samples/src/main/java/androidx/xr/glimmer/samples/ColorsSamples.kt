@@ -30,13 +30,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 import androidx.xr.glimmer.surface
 
 @Composable
 fun ColorsSample() {
     val colors = GlimmerTheme.colors
-    VerticalList {
+    GlimmerLazyColumn {
         item { ColorItem(colors.primary, colorName = "primary") }
         item { ColorItem(colors.secondary, colorName = "secondary") }
         item { ColorItem(colors.negative, colorName = "negative") }

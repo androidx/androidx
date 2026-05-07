@@ -28,11 +28,11 @@ import androidx.xr.glimmer.ButtonSize
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun ButtonSampleUsage() {
-    VerticalList(
+    GlimmerLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
     ) {

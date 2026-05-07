@@ -33,12 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 import androidx.xr.glimmer.surface
 
 @Composable
 fun IconSampleUsage() {
-    VerticalList(
+    GlimmerLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

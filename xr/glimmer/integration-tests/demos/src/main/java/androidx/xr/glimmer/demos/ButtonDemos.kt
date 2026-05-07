@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 import androidx.xr.glimmer.samples.ButtonSampleUsage
 import androidx.xr.glimmer.samples.IconButtonSample
 import androidx.xr.glimmer.samples.IconToggleButtonSample
@@ -40,7 +40,7 @@ internal val ButtonDemos =
 
 @Composable
 fun ToggleButtonsDemo() {
-    VerticalList(
+    GlimmerLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
     ) {
@@ -53,7 +53,7 @@ fun ToggleButtonsDemo() {
 
 @Composable
 fun IconToggleButtonsDemo() {
-    VerticalList(
+    GlimmerLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
     ) {

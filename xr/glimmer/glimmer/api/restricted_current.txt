@@ -398,7 +398,23 @@ package androidx.xr.glimmer {
 
 package androidx.xr.glimmer.list {
 
-  public interface LazyListItemInfo {
+  public final class GlimmerLazyColumnDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.xr.glimmer.list.GlimmerLazyListState state);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.xr.glimmer.list.GlimmerLazyListState, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPaddingWithTitle(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getItemSpacing(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly public float getScrimMaxHeight-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement(androidx.compose.runtime.Composer?, int);
+    property public androidx.compose.ui.unit.Dp ScrimMaxHeight;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPaddingWithTitle;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp itemSpacing;
+    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement;
+    field public static final androidx.xr.glimmer.list.GlimmerLazyColumnDefaults INSTANCE;
+  }
+
+  public interface GlimmerLazyListItemInfo {
     method @InaccessibleFromKotlin public Object? getContentType();
     method @InaccessibleFromKotlin public int getIndex();
     method @InaccessibleFromKotlin public Object getKey();
@@ -411,21 +427,17 @@ package androidx.xr.glimmer.list {
     property public abstract int size;
   }
 
-  public final class ListFocusSnapFlingBehaviorKt {
-    method public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.xr.glimmer.list.ListState state);
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface GlimmerLazyListItemScope {
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface ListItemScope {
+  public final class GlimmerLazyListKt {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void GlimmerLazyColumn(androidx.compose.ui.Modifier?, androidx.xr.glimmer.list.GlimmerLazyListState?, androidx.compose.foundation.layout.PaddingValues?, boolean, androidx.compose.foundation.OverscrollEffect?, androidx.compose.foundation.gestures.FlingBehavior?, boolean, androidx.compose.ui.Alignment.Horizontal?, androidx.compose.foundation.layout.Arrangement.Vertical?, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.GlimmerLazyListScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void GlimmerLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.xr.glimmer.list.GlimmerLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean userScrollEnabled, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean reverseLayout, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, kotlin.jvm.functions.Function1<androidx.xr.glimmer.list.GlimmerLazyListScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void GlimmerLazyColumn(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional androidx.xr.glimmer.list.GlimmerLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean userScrollEnabled, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean reverseLayout, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, kotlin.jvm.functions.Function1<androidx.xr.glimmer.list.GlimmerLazyListScope,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void GlimmerLazyColumn(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.xr.glimmer.list.GlimmerLazyListState?, androidx.compose.foundation.layout.PaddingValues?, boolean, androidx.compose.foundation.OverscrollEffect?, androidx.compose.foundation.gestures.FlingBehavior?, boolean, androidx.compose.ui.Alignment.Horizontal?, androidx.compose.foundation.layout.Arrangement.Vertical?, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.GlimmerLazyListScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
   }
 
-  public final class ListKt {
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void VerticalList(androidx.compose.ui.Modifier?, androidx.xr.glimmer.list.ListState?, androidx.compose.foundation.layout.PaddingValues?, boolean, androidx.compose.foundation.OverscrollEffect?, androidx.compose.foundation.gestures.FlingBehavior?, boolean, androidx.compose.ui.Alignment.Horizontal?, androidx.compose.foundation.layout.Arrangement.Vertical?, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.ListScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void VerticalList(optional androidx.compose.ui.Modifier modifier, optional androidx.xr.glimmer.list.ListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean userScrollEnabled, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean reverseLayout, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, kotlin.jvm.functions.Function1<androidx.xr.glimmer.list.ListScope,kotlin.Unit> content);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void VerticalList(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional androidx.xr.glimmer.list.ListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean userScrollEnabled, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean reverseLayout, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, kotlin.jvm.functions.Function1<androidx.xr.glimmer.list.ListScope,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void VerticalList(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.xr.glimmer.list.ListState?, androidx.compose.foundation.layout.PaddingValues?, boolean, androidx.compose.foundation.OverscrollEffect?, androidx.compose.foundation.gestures.FlingBehavior?, boolean, androidx.compose.ui.Alignment.Horizontal?, androidx.compose.foundation.layout.Arrangement.Vertical?, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.ListScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
-  }
-
-  public interface ListLayoutInfo {
+  public interface GlimmerLazyListLayoutInfo {
     method @InaccessibleFromKotlin public int getAfterContentPadding();
     method @InaccessibleFromKotlin public int getBeforeContentPadding();
     method @InaccessibleFromKotlin public int getMainAxisItemSpacing();
@@ -435,7 +447,7 @@ package androidx.xr.glimmer.list {
     method @InaccessibleFromKotlin public int getViewportEndOffset();
     method @BytecodeOnly public long getViewportSize-YbymL2g();
     method @InaccessibleFromKotlin public int getViewportStartOffset();
-    method @InaccessibleFromKotlin public java.util.List<androidx.xr.glimmer.list.LazyListItemInfo> getVisibleItemsInfo();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.glimmer.list.GlimmerLazyListItemInfo> getVisibleItemsInfo();
     property public abstract int afterContentPadding;
     property public abstract int beforeContentPadding;
     property public abstract int mainAxisItemSpacing;
@@ -445,80 +457,68 @@ package androidx.xr.glimmer.list {
     property public abstract int viewportEndOffset;
     property public abstract androidx.compose.ui.unit.IntSize viewportSize;
     property public abstract int viewportStartOffset;
-    property public abstract java.util.List<androidx.xr.glimmer.list.LazyListItemInfo> visibleItemsInfo;
+    property public abstract java.util.List<androidx.xr.glimmer.list.GlimmerLazyListItemInfo> visibleItemsInfo;
   }
 
-  @androidx.xr.glimmer.list.ListScopeMarker public sealed nonexhaustive interface ListScope {
-    method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.ListItemScope,kotlin.Unit> content);
-    method @BytecodeOnly public void item(Object?, Object?, kotlin.jvm.functions.Function3<? super androidx.xr.glimmer.list.ListItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void item$default(androidx.xr.glimmer.list.ListScope!, Object!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
-    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.list.ListItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
-    method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.list.ListItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void items$default(androidx.xr.glimmer.list.ListScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
+  @androidx.xr.glimmer.list.GlimmerLazyListScopeMarker public sealed nonexhaustive interface GlimmerLazyListScope {
+    method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope,kotlin.Unit> content);
+    method @BytecodeOnly public void item(Object?, Object?, kotlin.jvm.functions.Function3<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void item$default(androidx.xr.glimmer.list.GlimmerLazyListScope!, Object!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
+    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
+    method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.xr.glimmer.list.GlimmerLazyListScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface ListScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface GlimmerLazyListScopeMarker {
   }
 
-  public final class ListScopesKt {
-    method public static inline <T> void items(androidx.xr.glimmer.list.ListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.list.ListItemScope,? super T,kotlin.Unit> itemContent);
-    method @BytecodeOnly public static <T> void items(androidx.xr.glimmer.list.ListScope, java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.list.ListItemScope!,? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void items$default(androidx.xr.glimmer.list.ListScope!, java.util.List!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
-    method public static inline <T> void itemsIndexed(androidx.xr.glimmer.list.ListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.xr.glimmer.list.ListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-    method @BytecodeOnly public static <T> void itemsIndexed(androidx.xr.glimmer.list.ListScope, java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T,? extends java.lang.Object!>?, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T,? extends java.lang.Object!>, kotlin.jvm.functions.Function5<? super androidx.xr.glimmer.list.ListItemScope!,? super java.lang.Integer!,? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void itemsIndexed$default(androidx.xr.glimmer.list.ListScope!, java.util.List!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function5!, int, Object!);
+  public final class GlimmerLazyListScopesKt {
+    method public static inline <T> void items(androidx.xr.glimmer.list.GlimmerLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope,? super T,kotlin.Unit> itemContent);
+    method @BytecodeOnly public static <T> void items(androidx.xr.glimmer.list.GlimmerLazyListScope, java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope!,? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.xr.glimmer.list.GlimmerLazyListScope!, java.util.List!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
+    method public static inline <T> void itemsIndexed(androidx.xr.glimmer.list.GlimmerLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+    method @BytecodeOnly public static <T> void itemsIndexed(androidx.xr.glimmer.list.GlimmerLazyListScope, java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T,? extends java.lang.Object!>?, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T,? extends java.lang.Object!>, kotlin.jvm.functions.Function5<? super androidx.xr.glimmer.list.GlimmerLazyListItemScope!,? super java.lang.Integer!,? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void itemsIndexed$default(androidx.xr.glimmer.list.GlimmerLazyListScope!, java.util.List!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function5!, int, Object!);
   }
 
-  public final class ListState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public ListState();
-    ctor public ListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
-    ctor @BytecodeOnly public ListState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  public final class GlimmerLazyListSnapLayoutInfoProviderKt {
+    method public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.xr.glimmer.list.GlimmerLazyListState state);
+  }
+
+  public final class GlimmerLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor public GlimmerLazyListState();
+    ctor public GlimmerLazyListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
+    ctor @BytecodeOnly public GlimmerLazyListState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.xr.glimmer.list.ListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.xr.glimmer.list.GlimmerLazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getFirstVisibleItemIndex();
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getFirstVisibleItemScrollOffset();
     method @InaccessibleFromKotlin public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
-    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.xr.glimmer.list.ListLayoutInfo getLayoutInfo();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.xr.glimmer.list.GlimmerLazyListLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @BytecodeOnly public static Object! scrollToItem$default(androidx.xr.glimmer.list.ListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! scrollToItem$default(androidx.xr.glimmer.list.GlimmerLazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int firstVisibleItemIndex;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int firstVisibleItemScrollOffset;
     property public androidx.compose.foundation.interaction.InteractionSource interactionSource;
     property public boolean isScrollInProgress;
-    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.xr.glimmer.list.ListLayoutInfo layoutInfo;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.xr.glimmer.list.GlimmerLazyListLayoutInfo layoutInfo;
     property public androidx.compose.foundation.ScrollIndicatorState scrollIndicatorState;
-    field public static final androidx.xr.glimmer.list.ListState.Companion Companion;
+    field public static final androidx.xr.glimmer.list.GlimmerLazyListState.Companion Companion;
   }
 
-  public static final class ListState.Companion {
-    method @InaccessibleFromKotlin public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.list.ListState,java.lang.Object> getSaver();
-    property public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.list.ListState,java.lang.Object> Saver;
+  public static final class GlimmerLazyListState.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.list.GlimmerLazyListState,java.lang.Object> getSaver();
+    property public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.list.GlimmerLazyListState,java.lang.Object> Saver;
   }
 
-  public final class ListStateKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.ListState rememberListState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.ListState rememberListState(int, int, androidx.compose.runtime.Composer?, int, int);
-  }
-
-  public final class VerticalListDefaults {
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.xr.glimmer.list.ListState state);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.xr.glimmer.list.ListState, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPaddingWithTitle(androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public float getItemSpacing(androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly public float getScrimMaxHeight-D9Ej5fM();
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement(androidx.compose.runtime.Composer?, int);
-    property public androidx.compose.ui.unit.Dp ScrimMaxHeight;
-    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
-    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPaddingWithTitle;
-    property @androidx.compose.runtime.Composable public androidx.compose.ui.unit.Dp itemSpacing;
-    property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement;
-    field public static final androidx.xr.glimmer.list.VerticalListDefaults INSTANCE;
+  public final class GlimmerLazyListStateKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.GlimmerLazyListState rememberGlimmerLazyListState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.GlimmerLazyListState rememberGlimmerLazyListState(int, int, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

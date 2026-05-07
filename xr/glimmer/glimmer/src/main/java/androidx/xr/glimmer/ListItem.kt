@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.dp
 
 /**
  * ListItem is a component used to represent a single item in a
- * [androidx.xr.glimmer.list.VerticalList]. A ListItem has a primary label [content], and may also
- * have any combination of [supportingLabel], [leadingIcon], and [trailingIcon]. The supporting
+ * [androidx.xr.glimmer.list.GlimmerLazyColumn]. A ListItem has a primary label [content], and may
+ * also have any combination of [supportingLabel], [leadingIcon], and [trailingIcon]. The supporting
  * label is displayed below the primary label and can be used to provide additional information. A
  * ListItem fills the maximum width available by default.
  *
@@ -110,8 +110,8 @@ public fun ListItem(
 
 /**
  * ListItem is a component used to represent a single item in a
- * [androidx.xr.glimmer.list.VerticalList]. A ListItem has a primary label [content], and may also
- * have any combination of [supportingLabel], [leadingIcon], and [trailingIcon]. The supporting
+ * [androidx.xr.glimmer.list.GlimmerLazyColumn]. A ListItem has a primary label [content], and may
+ * also have any combination of [supportingLabel], [leadingIcon], and [trailingIcon]. The supporting
  * label is displayed below the primary label and can be used to provide additional information. A
  * ListItem fills the maximum width available by default.
  *

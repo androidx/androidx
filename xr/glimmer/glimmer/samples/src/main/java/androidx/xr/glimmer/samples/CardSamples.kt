@@ -33,11 +33,11 @@ import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun CardSampleUsage() {
-    VerticalList {
+    GlimmerLazyColumn {
         item { CardSample() }
         item { CardWithTrailingIconSample() }
         item { CardWithTitleAndSubtitleAndLeadingIconSample() }
