@@ -25,8 +25,17 @@ import androidx.compose.foundation.layout.safeContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.HorizontalRuler
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.VerticalRuler
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import kotlin.math.roundToInt
 
@@ -133,5 +142,61 @@ fun DerivedHorizontalRulerUsage() {
                     rulerValue - padding.toPx()
                 }
             }
+    }
+}
+
+// This is an example of how to provide ruler values where it may be somewhat expensive
+// to provide always and only makes sense to provide when the developer requests it.
+@Sampled
+fun ProvideRulerOnlyWhenUsed() {
+    // Position of the left side of the screen
+    val ScreenLeftRuler = VerticalRuler()
+    // Position of the top of the screen
+    val ScreenTopRuler = HorizontalRuler()
+    // Position of the right side of the screen
+    val ScreenRightRuler = VerticalRuler()
+    // Position of the bottom of the screen
+    val ScreenBottomRuler = HorizontalRuler()
+
+    class ScreenRulerNode :
+        Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            return layout(
+                placeable.width,
+                placeable.height,
+                isRulerProvided = { ruler ->
+                    ruler === ScreenLeftRuler ||
+                        ruler === ScreenTopRuler ||
+                        ruler === ScreenRightRuler ||
+                        ruler === ScreenBottomRuler
+                },
+                rulerProvider = {
+                    // Because these rulers are updated when the View or Window moves, this may be
+                    // expensive if the ComposeView is in a RecyclerView, for example. If no
+                    // content has requested a screen position ruler, this won't be called and
+                    // the calculation can be avoided.
+                    val positionOnScreen = coordinates.positionOnScreen()
+
+                    // Once we've calculated the position on screen, we may as well provide
+                    // all values since it doesn't cost much to provide everything. The developer
+                    // is likely to request multiple values if they request one.
+                    ScreenLeftRuler provides -positionOnScreen.x
+                    ScreenTopRuler provides -positionOnScreen.y
+
+                    // We have to find the screen size from the DisplayMetrics
+                    val displayMetrics = currentValueOf(LocalContext).resources.displayMetrics
+                    val screenHeight = displayMetrics.heightPixels
+                    val screenWidth = displayMetrics.widthPixels
+                    ScreenRightRuler provides screenWidth - positionOnScreen.x
+                    ScreenBottomRuler provides screenHeight - positionOnScreen.y
+                },
+            ) {
+                placeable.place(0, 0)
+            }
+        }
     }
 }

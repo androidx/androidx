@@ -71,11 +71,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectList
-import androidx.collection.ScatterMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectListOf
-import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -154,6 +151,7 @@ import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.layout.AllWindowInsetsRulersLookup
 import androidx.compose.ui.layout.InsetsListener
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
@@ -161,15 +159,13 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.PlacementScope
-import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.layout.RootMeasurePolicy
+import androidx.compose.ui.layout.Ruler
 import androidx.compose.ui.layout.RulerKey
 import androidx.compose.ui.layout.RulerScope
 import androidx.compose.ui.layout.WindowInsetsRulerProvider
-import androidx.compose.ui.layout.WindowWindowInsetsAnimationValues
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.provideWindowInsetsRulers
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutModifierNode
@@ -3358,31 +3354,11 @@ internal open class AndroidComposeView(context: Context, composeViewContext: Com
         LayoutModifierNode,
         TraversableNode,
         WindowInsetsRulerProvider {
-        override val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues>
-            get() = insetsListener.insetsValues
-
-        val generation: MutableIntState
-            get() = insetsListener.generation
-
-        var previousGeneration = -1
-
-        override val cutoutRects: MutableObjectList<MutableState<Rect>>
-            get() = insetsListener.displayCutouts
-
-        override val cutoutRulers: List<RectRulers>
-            get() = insetsListener.displayCutoutRulers
-
         override val insetsListener: InsetsListener
             get() = this@AndroidComposeView.insetsListener
 
-        @OptIn(ExperimentalComposeUiApi::class)
-        val rulerLambda: RulerScope.() -> Unit = {
-            previousGeneration = generation.intValue // just read the value so it is observed
-            // When generation is 0, no updateInsets() has been called yet, so we don't need to
-            // provide any insets.
-            if (previousGeneration > 0 && areWindowInsetsRulersEnabled) {
-                provideWindowInsetsRulers(this@RootModifierNode)
-            }
+        val rulerLambda: RulerScope.(Ruler) -> Unit = { ruler ->
+            insetsListener.provideInset(this, ruler)
         }
 
         override fun MeasureScope.measure(
@@ -3392,7 +3368,14 @@ internal open class AndroidComposeView(context: Context, composeViewContext: Com
             val placeable = measurable.measure(constraints)
             val width = placeable.width
             val height = placeable.height
-            return layout(width, height, rulers = rulerLambda) { placeable.place(0, 0) }
+            return layout(
+                width,
+                height,
+                isRulerProvided = AllWindowInsetsRulersLookup,
+                rulerProvider = rulerLambda,
+            ) {
+                placeable.place(0, 0)
+            }
         }
 
         override val traverseKey: Any

@@ -17,21 +17,15 @@
 
 package androidx.compose.ui.layout
 
-import android.graphics.Rect
+import android.annotation.SuppressLint
 import android.os.Build
 import android.view.View
 import android.view.View.OnAttachStateChangeListener
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
-import androidx.collection.MutableObjectList
 import androidx.collection.MutableScatterMap
-import androidx.collection.ScatterMap
-import androidx.compose.runtime.MutableState
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -49,71 +43,21 @@ import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
+import androidx.core.graphics.Insets
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
 import androidx.core.view.WindowInsetsCompat
 
-internal class WindowWindowInsetsAnimationValues(name: String) : PlatformWindowInsetsAnimation {
-    override var isVisible: Boolean by mutableStateOf(true)
-    override var isAnimating: Boolean by mutableStateOf(false)
-    override var fraction: Float by mutableFloatStateOf(0f)
-    override var durationMillis: Long by mutableLongStateOf(0L)
-    override var alpha: Float by mutableFloatStateOf(1f)
-    override val source: RectRulers = RectRulers("$name source")
-    override val target: RectRulers = RectRulers("$name target")
-
-    /** The current Window Insets values. */
-    var current = UnsetValueInsets
-
-    /**
-     * The value of the Window Insets when they are visible. [WindowInsetsRulers.Ime] never provides
-     * this value.
-     */
-    var maximum = UnsetValueInsets
-
-    /** The starting insets value of the animation when [isAnimating] is `true`. */
-    var sourceValueInsets = UnsetValueInsets
-
-    /** The ending insets value of the animation when [isAnimating] is `true`. */
-    var targetValueInsets = UnsetValueInsets
-}
-
-internal fun RulerScope.provideWindowInsetsRulers(rulerProvider: WindowInsetsRulerProvider) {
-    val size = coordinates.size
-    val insetsValues = rulerProvider.insetsListener.insetsValues
-    val (width, height) = size
-    AnimatableInsetsRulers.forEach { rulers ->
-        val values = insetsValues[rulers]!!
-        provideInsetsValues(rulers.current, values.current, width, height)
-        if (values.isAnimating) {
-            provideInsetsValues(values.source, values.sourceValueInsets, width, height)
-            provideInsetsValues(values.target, values.targetValueInsets, width, height)
-        }
-        provideInsetsValues(rulers.maximum, values.maximum, width, height)
-    }
-    val cutoutRects = rulerProvider.cutoutRects
-    if (cutoutRects.isNotEmpty()) {
-        val cutoutRulers = rulerProvider.cutoutRulers
-        cutoutRects.forEachIndexed { index, rectState ->
-            val rulers = cutoutRulers[index]
-            val rect = rectState.value
-            rulers.left provides rect.left.toFloat()
-            rulers.top provides rect.top.toFloat()
-            rulers.right provides rect.right.toFloat()
-            rulers.bottom provides rect.bottom.toFloat()
-        }
-    }
-}
-
 internal actual fun findDisplayCutouts(placementScope: Placeable.PlacementScope): List<RectRulers> {
     var node = placementScope.coordinates?.findRootCoordinates() as? NodeCoordinator
     while (node != null) {
         node.visitNodes(Nodes.Traversable) { traversableNode ->
             if (traversableNode.traverseKey === RulerKey) {
-                return (traversableNode as WindowInsetsRulerProvider).cutoutRulers
+                return (traversableNode as WindowInsetsRulerProvider)
+                    .insetsListener
+                    .displayCutoutRulers
             }
         }
         node = node.wrapped
@@ -130,7 +74,8 @@ internal actual fun findInsetsAnimationProperties(
         node.visitNodes(Nodes.Traversable) { traversableNode ->
             if (traversableNode.traverseKey === RulerKey) {
                 return (traversableNode as WindowInsetsRulerProvider)
-                    .insetsValues[windowInsetsRulers] ?: NoWindowInsetsAnimation
+                    .insetsListener
+                    .findWindowInsetsAnimation(windowInsetsRulers) ?: NoWindowInsetsAnimation
             }
         }
         node = node.wrapped
@@ -141,33 +86,7 @@ internal actual fun findInsetsAnimationProperties(
 internal const val RulerKey = "androidx.compose.ui.layout.WindowInsetsRulers"
 
 internal interface WindowInsetsRulerProvider {
-    val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues>
-
-    val cutoutRulers: List<RectRulers>
-
     val insetsListener: InsetsListener
-
-    val cutoutRects: MutableObjectList<MutableState<Rect>>
-}
-
-/** Provide values for a [RectRulers]. */
-private fun RulerScope.provideInsetsValues(
-    rulers: RectRulers,
-    insets: ValueInsets,
-    width: Int,
-    height: Int,
-) {
-    if (insets != UnsetValueInsets) {
-        val left = insets.left.toFloat()
-        val top = insets.top.toFloat()
-        val right = (width - insets.right).toFloat()
-        val bottom = (height - insets.bottom).toFloat()
-
-        rulers.left provides left
-        rulers.top provides top
-        rulers.right provides right
-        rulers.bottom provides bottom
-    }
 }
 
 /**
@@ -196,27 +115,58 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
     private var savedInsets: WindowInsetsCompat? = null
 
     /**
-     * A mapping of [RectRulers] to the actual values [WindowWindowInsetsAnimationValues] that back
-     * them. Each [AndroidComposeView] will have different values.
+     * A mapping of [RectRulers] to the actual values [WindowInsetsAnimationValues] that back them.
+     * Each [AndroidComposeView] will have different values.
      */
-    val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues> =
-        MutableScatterMap<Any, WindowWindowInsetsAnimationValues>(9).also {
-            it[CaptionBar] = WindowWindowInsetsAnimationValues("caption bar")
-            it[DisplayCutout] = WindowWindowInsetsAnimationValues("display cutout")
-            it[Ime] = WindowWindowInsetsAnimationValues("ime")
-            it[MandatorySystemGestures] =
-                WindowWindowInsetsAnimationValues("mandatory system gestures")
-            it[NavigationBars] = WindowWindowInsetsAnimationValues("navigation bars")
-            it[StatusBars] = WindowWindowInsetsAnimationValues("status bars")
-            it[SystemGestures] = WindowWindowInsetsAnimationValues("system gestures")
-            it[TappableElement] = WindowWindowInsetsAnimationValues("tappable element")
-            it[Waterfall] = WindowWindowInsetsAnimationValues("waterfall")
+    private var insetsValues: MutableScatterMap<WindowInsetsRulers, WindowInsetsAnimationValues>? =
+        null
+
+    private val _displayCutoutRulers = mutableObjectListOf<RectRulers>()
+    val displayCutoutRulers: List<RectRulers>
+        @SuppressLint("AsCollectionCall")
+        get() {
+            val displayCutout = currentInsets?.displayCutout
+            if (displayCutout == null) {
+                _displayCutoutRulers.clear()
+            } else {
+                val boundingRects = displayCutout.boundingRects
+                if (_displayCutoutRulers.size > boundingRects.size) {
+                    _displayCutoutRulers.removeRange(boundingRects.size, _displayCutoutRulers.size)
+                } else if (_displayCutoutRulers.size < boundingRects.size) {
+                    for (i in
+                        _displayCutoutRulers.size until
+                            maxOf(AllDisplayCutoutRulers.size, boundingRects.size)) {
+                        _displayCutoutRulers += AllDisplayCutoutRulers[i]
+                    }
+                }
+            }
+            return _displayCutoutRulers.asList()
         }
 
-    val generation = mutableIntStateOf(0)
+    private var currentInsets by mutableStateOf<WindowInsetsCompat?>(null)
 
-    val displayCutouts = MutableObjectList<MutableState<Rect>>(4)
-    val displayCutoutRulers = mutableStateListOf<RectRulers>()
+    private var waterfallAnimation: WindowInsetsAnimation? = null
+
+    fun findWindowInsetsAnimation(windowInsetsRulers: WindowInsetsRulers): WindowInsetsAnimation? {
+        if (windowInsetsRulers === Waterfall) {
+            return waterfallAnimation ?: WaterfallAnimation().also { waterfallAnimation = it }
+        }
+        return findWindowInsetsAnimationValue(windowInsetsRulers)
+    }
+
+    fun findWindowInsetsAnimationValue(
+        windowInsetsRulers: WindowInsetsRulers
+    ): WindowInsetsAnimationValues? {
+        val insetsValues =
+            insetsValues
+                ?: MutableScatterMap<WindowInsetsRulers, WindowInsetsAnimationValues>(10).also {
+                    insetsValues = it
+                    WindowInsetsTypeMap.forEach { type, windowInsetsRulers ->
+                        it[windowInsetsRulers] = WindowInsetsAnimationValues(type)
+                    }
+                }
+        return insetsValues[windowInsetsRulers]
+    }
 
     override fun onPrepare(animation: WindowInsetsAnimationCompat) {
         prepared = true
@@ -237,31 +187,20 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
             // This is the animation's target value
             val rulers = WindowInsetsTypeMap[type]
             if (rulers != null) {
-                val insetsValue = insetsValues[rulers]!!
-                val target = ValueInsets(insets.getInsets(type))
-                val current = insetsValue.current
+                val insetsValue = findWindowInsetsAnimationValue(rulers)!!
+                val target = insets.getInsets(type)
+                val current = currentInsets?.getInsets(type)
                 if (target != current) {
                     // It is really animating. The target is different from the current value
                     insetsValue.sourceValueInsets = current
                     insetsValue.targetValueInsets = target
-                    insetsValue.isAnimating = true
-                    updateInsetAnimationInfo(insetsValue, animation)
-                    generation.intValue++
+                    insetsValue.windowInsetsAnimationValues = animation
                     Snapshot.sendApplyNotifications()
                 }
             }
         }
 
         return super.onStart(animation, bounds)
-    }
-
-    private fun updateInsetAnimationInfo(
-        insetsValue: WindowWindowInsetsAnimationValues,
-        animation: WindowInsetsAnimationCompat,
-    ) {
-        insetsValue.fraction = animation.interpolatedFraction
-        insetsValue.alpha = animation.alpha
-        insetsValue.durationMillis = animation.durationMillis
     }
 
     override fun onProgress(
@@ -272,11 +211,11 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
             val typeMask = animation.typeMask
             val rulers = WindowInsetsTypeMap[typeMask]
             if (rulers != null) {
-                val insetsValue = insetsValues[rulers]!!
+                val insetsValue = findWindowInsetsAnimationValue(rulers)!!
                 if (insetsValue.isAnimating) {
                     // It is really animating. It could be animating to the same value, so there
                     // is no need to pretend that it is animating.
-                    updateInsetAnimationInfo(insetsValue, animation)
+                    insetsValue.windowInsetsAnimationValues = animation
                 }
             }
         }
@@ -291,22 +230,13 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
         savedInsets = null
         val rulers = WindowInsetsTypeMap[type]
         if (rulers != null) {
-            val insetsValue = insetsValues[rulers]!!
-            insetsValue.fraction = 0f
-            insetsValue.alpha = 1f
-            insetsValue.durationMillis = 0L
-            insetsValue.fraction = 0f
-            stopAnimationForRuler(insetsValue)
-            generation.intValue++
+            val insetsValue = findWindowInsetsAnimationValue(rulers)!!
+            insetsValue.sourceValueInsets = null
+            insetsValue.targetValueInsets = null
+            insetsValue.windowInsetsAnimationValues = null
             Snapshot.sendApplyNotifications()
         }
         super.onEnd(animation)
-    }
-
-    private fun stopAnimationForRuler(insetsValue: WindowWindowInsetsAnimationValues) {
-        insetsValue.isAnimating = false
-        insetsValue.sourceValueInsets = UnsetValueInsets
-        insetsValue.targetValueInsets = UnsetValueInsets
     }
 
     override fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
@@ -332,82 +262,80 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
     }
 
     private fun updateInsets(insets: WindowInsetsCompat) {
-        var changed = false
-        var hasInsets = false
-        WindowInsetsTypeMap.forEach { type, rulers ->
-            val insetsValue = ValueInsets(insets.getInsets(type))
-            val values = insetsValues[rulers]!!
-            if (insetsValue != values.current) {
-                values.current = insetsValue
-                changed = true
-                if (insetsValue != ZeroValueInsets) {
-                    hasInsets = true
-                }
-            }
-            if (type != WindowInsetsCompat.Type.ime()) {
-                val insetsValue = ValueInsets(insets.getInsetsIgnoringVisibility(type))
-                if (values.maximum != insetsValue) {
-                    values.maximum = insetsValue
-                    changed = true
-                    if (insetsValue != ZeroValueInsets) {
-                        hasInsets = true
+        if (currentInsets == null) {
+            // if we're setting insets with no values, we treat this as not setting any insets
+            var hasValue = false
+            WindowInsetsTypeMap.forEachKey { type ->
+                if (type == WindowInsetsCompat.Type.ime()) {
+                    if (insets.getInsets(type) != Insets.NONE) {
+                        hasValue = true
+                        return@forEachKey
                     }
+                } else if (insets.getInsetsIgnoringVisibility(type) != Insets.NONE) {
+                    hasValue = true
+                    return@forEachKey
                 }
             }
-            values.isVisible = insets.isVisible(type)
-        }
-        val cutout = insets.displayCutout
-        val waterfall =
-            if (cutout == null) {
-                ZeroValueInsets
-            } else {
-                ValueInsets(cutout.waterfallInsets)
-            }
-        val waterfallInsets = insetsValues[Waterfall]!!
-        waterfallInsets.isVisible = waterfall != ZeroValueInsets
-        if (waterfallInsets.current != waterfall) {
-            waterfallInsets.current = waterfall
-            waterfallInsets.maximum = waterfall
-            changed = true
-            if (waterfall != ZeroValueInsets) {
-                hasInsets = true
+            if (!hasValue) {
+                return
             }
         }
-        if (cutout == null) {
-            if (displayCutouts.size > 0) {
-                displayCutouts.clear()
-                displayCutoutRulers.clear()
-                changed = true
-            }
-        } else {
-            val boundingRects = cutout.boundingRects
-            if (boundingRects.size < displayCutouts.size) {
-                displayCutouts.removeRange(boundingRects.size, displayCutouts.size)
-                displayCutoutRulers.removeRange(boundingRects.size, displayCutoutRulers.size)
-                changed = true
-            } else {
-                repeat(boundingRects.size - displayCutouts.size) {
-                    displayCutouts += mutableStateOf(boundingRects[displayCutouts.size])
-                    displayCutoutRulers += RectRulers("display cutout rect ${displayCutouts.size}")
-                    changed = true
-                }
-            }
+        currentInsets = insets
+        Snapshot.sendApplyNotifications()
+    }
 
-            boundingRects.fastForEachIndexed { index, rect ->
-                val cutout = displayCutouts[index]
-                if (cutout.value != rect) {
-                    cutout.value = rect
-                    changed = true
+    /**
+     * Provides the value for [ruler], if possible, along with all other Rulers in the same
+     * [RectRulers].
+     */
+    fun provideInset(rulerScope: RulerScope, ruler: Ruler) {
+        findWindowInsetsRuler(ruler) { windowInsetsRulers, rectRulers, whichRectRulers, type ->
+            if (windowInsetsRulers == null) {
+                // Display cutout bounds rulers
+                val currentInsets = currentInsets ?: return
+                val cutout = currentInsets.displayCutout ?: return
+                val boundingRects = cutout.boundingRects
+                val rect = boundingRects[whichRectRulers]
+                with(rulerScope) {
+                    rectRulers.left provides rect.left.toFloat()
+                    rectRulers.top provides rect.top.toFloat()
+                    rectRulers.right provides rect.right.toFloat()
+                    rectRulers.bottom provides rect.bottom.toFloat()
+                }
+            } else if (windowInsetsRulers === Waterfall) {
+                // Need special handling for Waterfall rulers because they don't use getInsets()
+                val currentInsets = currentInsets ?: return
+                val waterfall = currentInsets.displayCutout?.waterfallInsets ?: Insets.NONE
+                rulerScope.provideInsetsValue(rectRulers, waterfall)
+            } else {
+                val insets =
+                    when (whichRectRulers) {
+                        // 0 is current value
+                        0 -> currentInsets?.getInsets(type)
+                        // 1 is maximum value
+                        1 ->
+                            if (windowInsetsRulers === Ime) {
+                                null
+                            } else {
+                                currentInsets?.getInsetsIgnoringVisibility(type)
+                            }
+                        // 2 == animation source
+                        // 3 == animation target
+                        else -> {
+                            val animation = insetsValues?.get(windowInsetsRulers)
+                            if (animation?.isAnimating != true) {
+                                null
+                            } else if (whichRectRulers == 2) {
+                                animation.sourceValueInsets
+                            } else {
+                                animation.targetValueInsets
+                            }
+                        }
+                    }
+                if (insets != null) {
+                    rulerScope.provideInsetsValue(rectRulers, insets)
                 }
             }
-            if (boundingRects.isNotEmpty()) {
-                hasInsets = true
-            }
-        }
-        // Don't invalidate the rulers if there have never been insets or if there isn't a change
-        if ((hasInsets || generation.intValue != 0) && changed) {
-            generation.intValue++
-            Snapshot.sendApplyNotifications()
         }
     }
 
@@ -446,7 +374,90 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
         ViewCompat.setOnApplyWindowInsetsListener(listenerView, null)
         ViewCompat.setWindowInsetsAnimationCallback(listenerView, null)
     }
+
+    inner class WindowInsetsAnimationValues(val type: Int) : PlatformWindowInsetsAnimation {
+        var windowInsetsAnimationValues by mutableStateOf<WindowInsetsAnimationCompat?>(null)
+        override val source: RectRulers
+            get() = WindowInsetsAnimationSources[type]!!
+
+        override val target: RectRulers
+            get() = WindowInsetsAnimationTargets[type]!!
+
+        override val isVisible: Boolean
+            get() = currentInsets?.isVisible(type) ?: false
+
+        override val isAnimating: Boolean
+            get() = windowInsetsAnimationValues != null
+
+        override val fraction: Float
+            get() = windowInsetsAnimationValues?.interpolatedFraction ?: 0f
+
+        override val durationMillis: Long
+            get() = windowInsetsAnimationValues?.durationMillis ?: 0L
+
+        override val alpha: Float
+            get() = windowInsetsAnimationValues?.alpha ?: 1f
+
+        /** The starting insets value of the animation when [isAnimating] is `true`. */
+        var sourceValueInsets by mutableStateOf<Insets?>(null)
+
+        /** The ending insets value of the animation when [isAnimating] is `true`. */
+        var targetValueInsets by mutableStateOf<Insets?>(null)
+    }
+
+    inner class WaterfallAnimation : PlatformWindowInsetsAnimation {
+        override val source: RectRulers
+            get() = NeverProvidedRectRulers
+
+        override val target: RectRulers
+            get() = NeverProvidedRectRulers
+
+        override val isVisible: Boolean
+            get() = currentInsets?.displayCutout?.waterfallInsets?.equals(Insets.NONE) == false
+
+        override val isAnimating: Boolean
+            get() = false
+
+        override val fraction: Float
+            get() = 0f
+
+        override val durationMillis: Long
+            get() = 0L
+
+        override val alpha: Float
+            get() = 1f
+    }
 }
+
+// We define all display cutout rulers in advance. It is unlikely that there will be more than
+// 4 holes in the screen.
+private val AllDisplayCutoutRulers = Array(4) { RectRulers("display cutout rect ${it + 1}") }
+
+private val WindowInsetsAnimationSources: IntObjectMap<RectRulers> =
+    MutableIntObjectMap<RectRulers>(8).also { map ->
+        map[WindowInsetsCompat.Type.statusBars()] = RectRulers("status bars source")
+        map[WindowInsetsCompat.Type.navigationBars()] = RectRulers("navigation bars source")
+        map[WindowInsetsCompat.Type.captionBar()] = RectRulers("caption bar source")
+        map[WindowInsetsCompat.Type.ime()] = RectRulers("IME source")
+        map[WindowInsetsCompat.Type.systemGestures()] = RectRulers("system gestures source")
+        map[WindowInsetsCompat.Type.mandatorySystemGestures()] =
+            RectRulers("mandatory system gestures source")
+        map[WindowInsetsCompat.Type.tappableElement()] = RectRulers("tappable element source")
+        map[WindowInsetsCompat.Type.displayCutout()] = RectRulers("display cutout source")
+    }
+
+private val WindowInsetsAnimationTargets: IntObjectMap<RectRulers> =
+    MutableIntObjectMap<RectRulers>(8).also { map ->
+        map[WindowInsetsCompat.Type.statusBars()] = RectRulers("status bars target")
+        map[WindowInsetsCompat.Type.navigationBars()] = RectRulers("navigation bars target")
+        map[WindowInsetsCompat.Type.captionBar()] = RectRulers("caption bar target")
+        map[WindowInsetsCompat.Type.ime()] = RectRulers("IME target")
+        map[WindowInsetsCompat.Type.systemGestures()] = RectRulers("system gestures target")
+        map[WindowInsetsCompat.Type.mandatorySystemGestures()] =
+            RectRulers("mandatory system gestures target")
+        map[WindowInsetsCompat.Type.tappableElement()] = RectRulers("tappable element target")
+        map[WindowInsetsCompat.Type.displayCutout()] = RectRulers("display cutout target")
+    }
 
 /** Mapping the [WindowInsetsCompat.Type] to the [RectRulers] for all single insets types. */
 private val WindowInsetsTypeMap: IntObjectMap<WindowInsetsRulers> =
@@ -461,16 +472,94 @@ private val WindowInsetsTypeMap: IntObjectMap<WindowInsetsRulers> =
         it[WindowInsetsCompat.Type.displayCutout()] = DisplayCutout
     }
 
-/** Rulers that can animate, but don't always animate with the IME */
-private val AnimatableInsetsRulers =
-    arrayOf(
-        StatusBars,
-        NavigationBars,
-        CaptionBar,
-        TappableElement,
-        SystemGestures,
-        MandatorySystemGestures,
-        Ime,
-        Waterfall,
-        DisplayCutout,
-    )
+internal val AllWindowInsetsRulersLookup: (Ruler) -> Boolean = { ruler ->
+    var found = false
+    findWindowInsetsRuler(ruler) { _, _, _, _ -> found = true }
+    found
+}
+
+/** Provide all Ruler values for [insets] */
+private fun RulerScope.provideInsetsValue(rectRulers: RectRulers, insets: Insets) {
+    val size = coordinates.size
+    rectRulers.left provides insets.left.toFloat()
+    rectRulers.top provides insets.top.toFloat()
+    rectRulers.right provides (size.width - insets.right).toFloat()
+    rectRulers.bottom provides (size.height - insets.bottom).toFloat()
+}
+
+/**
+ * If this Ruler is the left, top, right, or bottom Ruler in [rectRuler], then `true` will be
+ * returned. Otherwise, `false` is returned.
+ */
+private fun Ruler.isIn(rectRuler: RectRulers): Boolean =
+    this === rectRuler.left ||
+        this === rectRuler.top ||
+        this === rectRuler.right ||
+        this === rectRuler.bottom
+
+private inline fun checkWindowInsetsRuler(
+    ruler: Ruler,
+    windowInsetsRulers: WindowInsetsRulers,
+    type: Int,
+    block: (WindowInsetsRulers?, rectRulers: RectRulers, whichRectRulers: Int, type: Int) -> Unit,
+): Boolean {
+    var found = true
+    if (ruler.isIn(windowInsetsRulers.current)) {
+        block(windowInsetsRulers, windowInsetsRulers.current, 0, type)
+    } else if (ruler.isIn(windowInsetsRulers.maximum)) {
+        block(windowInsetsRulers, windowInsetsRulers.maximum, 1, type)
+    } else if (type == -1) {
+        // Waterfall never animates
+        found = false
+    } else {
+        val source = WindowInsetsAnimationSources[type] ?: return false
+        if (ruler.isIn(source)) {
+            block(windowInsetsRulers, source, 2, type)
+        } else {
+            val target = WindowInsetsAnimationTargets[type] ?: return false
+            if (ruler.isIn(target)) {
+                block(windowInsetsRulers, target, 3, type)
+            } else {
+                found = false
+            }
+        }
+    }
+    return found
+}
+
+/**
+ * Finds which WindowInsetsRulers that [ruler] is part of and passes it to [block]. The parameters
+ * to [block] are the [WindowInsetsRulers] that the Ruler is part of (if any), which ruler it is (0
+ * = current, 1 = maximum, 2 = source animation, 3 = target animation), the position in the
+ * RectRulers (0 = left, 1 = top, 2 = right, 3 = bottom), and the type of the windowInsetsRulers. If
+ * [ruler] is part of the display cutout bounds, `windowInsetsRulers` is `null`, `whichRectRulers`
+ * is the index of the displayCutoutBounds, and `type` is `null`.
+ */
+private inline fun findWindowInsetsRuler(
+    ruler: Ruler,
+    block:
+        (
+            windowInsetsRulers: WindowInsetsRulers?,
+            rectRulers: RectRulers,
+            whichRectRulers: Int,
+            type: Int,
+        ) -> Unit,
+) {
+    // This is a linear lookup rather than a hashtable lookup and is slower.
+    // The creation of a hashtable is a relatively expensive startup cost, so I've eliminated it.
+    // WindowInsetsRulers aren't used often yet, so this is the better performance trade-off.
+    WindowInsetsTypeMap.forEach { type, windowInsetsRulers ->
+        if (checkWindowInsetsRuler(ruler, windowInsetsRulers, type, block)) {
+            return
+        }
+    }
+    if (checkWindowInsetsRuler(ruler, Waterfall, -1, block)) {
+        return
+    }
+    AllDisplayCutoutRulers.forEachIndexed { index, boundsRectRulers ->
+        if (ruler.isIn(boundsRectRulers)) {
+            block(null, boundsRectRulers, index, -1)
+            return
+        }
+    }
+}
