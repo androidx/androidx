@@ -211,6 +211,59 @@ class SnapshotFlowTests {
         collector2.cancel()
     }
 
+    /**
+     * We previously encountered crashes in scenarios like the following:
+     *
+     * Setup: Two `snapshotFlow`s, `snapshotFlowA` and `snapshotFlowB`, are managed by the same
+     * manager and watch the same state object
+     *
+     * Crash trace:
+     * 1. The state object is changed and the manager's apply observer is run
+     * 2. The manager's apply observer signals `snapshotFlowA` to rerun its block
+     * 3. The block of `snapshotFlowA` modifies the state object again and runs the manager's apply
+     *    observer again, which causes the blocks of `snapshotFlowA` and `snapshotFlowB` to be rerun
+     * 4. The apply observer invocation started in step 1 still needs to signal `snapshotFlowB` to
+     *    rerun its block, but when attempting to do so, encounters state that was corrupted by the
+     *    other invocation started in step 3
+     *
+     * This test serves as a regression test against such crashes, e.g. b/508270881.
+     */
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    @Test
+    fun snapshotFlowManagerApplyObserverCorruption() = runTest {
+        val state = mutableIntStateOf(0)
+
+        val manager = SnapshotFlowManager()
+
+        val collector1 = snapshotFlow(manager) { state.intValue }.launchIn(this)
+
+        val collector2Done = Latch().also { it.closeLatch() }
+        val collector2 =
+            snapshotFlow(manager) { state.intValue }
+                .onEach {
+                    if (it == 1) {
+                        state.intValue = 2
+                        Snapshot.sendApplyNotifications()
+                    }
+                    if (it == 2) {
+                        collector2Done.openLatch()
+                    }
+                }
+                .launchIn(this + Dispatchers.Unconfined)
+
+        // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
+        // flushed to observers until we `yield()` intentionally.
+        yield()
+
+        state.intValue = 1
+        Snapshot.sendApplyNotifications()
+
+        collector2Done.await()
+
+        collector1.cancel()
+        collector2.cancel()
+    }
+
     @OptIn(ExperimentalComposeRuntimeApi::class)
     @Test
     fun cancelSoleManagedSnapshotFlowThenReuseManager() = runTest {
