@@ -65,6 +65,11 @@ public sealed interface GlimmerPagerLayoutInfo {
      * all the content paddings.
      */
     public val viewportSize: IntSize
+
+    /** True if the direction of scrolling and layout is reversed. */
+    @Suppress("GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
+    public val reverseLayout: Boolean
 }
 
 internal class DefaultGlimmerPagerLayoutInfo(val state: FoundationPagerState) :
@@ -89,4 +94,7 @@ internal class DefaultGlimmerPagerLayoutInfo(val state: FoundationPagerState) :
 
     override val viewportSize: IntSize
         get() = state.layoutInfo.viewportSize
+
+    override val reverseLayout: Boolean
+        get() = state.layoutInfo.reverseLayout
 }

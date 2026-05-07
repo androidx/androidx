@@ -535,6 +535,7 @@ package androidx.xr.glimmer.pager {
     method @InaccessibleFromKotlin public int getBeforeContentPadding();
     method @InaccessibleFromKotlin public int getPageSize();
     method @InaccessibleFromKotlin public int getPageSpacing();
+    method @InaccessibleFromKotlin public boolean getReverseLayout();
     method @InaccessibleFromKotlin public int getViewportEndOffset();
     method @BytecodeOnly public long getViewportSize-YbymL2g();
     method @InaccessibleFromKotlin public int getViewportStartOffset();
@@ -542,6 +543,7 @@ package androidx.xr.glimmer.pager {
     property public abstract int beforeContentPadding;
     property public abstract int pageSize;
     property public abstract int pageSpacing;
+    property public abstract boolean reverseLayout;
     property public abstract int viewportEndOffset;
     property public abstract androidx.compose.ui.unit.IntSize viewportSize;
     property public abstract int viewportStartOffset;
