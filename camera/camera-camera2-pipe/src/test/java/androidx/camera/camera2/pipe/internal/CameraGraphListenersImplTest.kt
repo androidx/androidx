@@ -37,13 +37,11 @@ import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
-import junit.framework.TestCase.assertEquals
-import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -93,9 +91,9 @@ class CameraGraphListenersImplTest {
             listeners.add(newListener)
             advanceUntilIdle()
 
-            assertEquals(2, csp.events.size)
-            assertTrue(csp.events[1].isRepeating)
-            assertEquals(2, csp.events[1].listeners.size)
+            assertThat(csp.events.size).isEqualTo(2)
+            assertThat(csp.events[1].isRepeating).isTrue()
+            assertThat(csp.events[1].listeners.size).isEqualTo(2)
             assertThat(csp.events[1].listeners).contains(graphListener)
             assertThat(csp.events[1].listeners).contains(newListener)
         }

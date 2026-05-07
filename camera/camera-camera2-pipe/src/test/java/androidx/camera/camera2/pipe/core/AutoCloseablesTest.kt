@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.core
 import androidx.camera.camera2.pipe.core.AutoCloseables.useEachIndexed
 import androidx.camera.camera2.pipe.core.AutoCloseables.useEachIndexedAsync
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.Test
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +26,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.runBlocking
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.robolectric.annotation.Config

@@ -38,14 +38,14 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -92,9 +92,9 @@ class FrameGraphBuffersTest {
             val frame = simulator.simulateNextFrame()
             val parameters: Map<CaptureRequest.Key<*>, Any> = mapOf(CAPTURE_REQUEST_KEY to 2)
             val extras: Map<Metadata.Key<*>, Any> = mapOf(TEST_KEY to 5)
-            assertEquals(listOf(streamId1, streamId2), frame.request.streams)
-            assertEquals(parameters, frame.request.parameters)
-            assertEquals(extras, frame.request.extras)
+            assertThat(frame.request.streams).isEqualTo(listOf(streamId1, streamId2))
+            assertThat(frame.request.parameters).isEqualTo(parameters)
+            assertThat(frame.request.extras).isEqualTo(extras)
         }
 
     @Test
@@ -113,20 +113,19 @@ class FrameGraphBuffersTest {
             val extras: Map<Metadata.Key<*>, Any> = mapOf(TEST_KEY to 5)
             advanceUntilIdle()
 
-            assertEquals(
-                listOf(streamId1, streamId2),
-                simulator.simulateNextFrame().request.streams,
-            )
-            assertEquals(parameters, simulator.simulateNextFrame().request.parameters)
-            assertEquals(extras, simulator.simulateNextFrame().request.extras)
+            assertThat(simulator.simulateNextFrame().request.streams)
+                .isEqualTo(listOf(streamId1, streamId2))
+            assertThat(simulator.simulateNextFrame().request.parameters).isEqualTo(parameters)
+            assertThat(simulator.simulateNextFrame().request.extras).isEqualTo(extras)
 
             frameBuffer1.close()
             advanceUntilIdle()
 
             parameters = mapOf(TEST_NULLABLE_KEY to 42)
-            assertEquals(listOf(streamId2), simulator.simulateNextFrame().request.streams)
-            assertEquals(parameters, simulator.simulateNextFrame().request.parameters)
-            assertEquals(emptyMap(), simulator.simulateNextFrame().request.extras)
+            assertThat(simulator.simulateNextFrame().request.streams).isEqualTo(listOf(streamId2))
+            assertThat(simulator.simulateNextFrame().request.parameters).isEqualTo(parameters)
+            assertThat(simulator.simulateNextFrame().request.extras)
+                .isEqualTo(emptyMap<Metadata.Key<*>, Any>())
 
             frameBuffer2.close()
         }
@@ -143,20 +142,20 @@ class FrameGraphBuffersTest {
                 frameGraphBuffers.onFrameStarted(frame)
             }
             advanceUntilIdle()
-            assertEquals(5, buffer1.size.value)
-            assertEquals(5, buffer2.size.value)
+            assertThat(buffer1.size.value).isEqualTo(5)
+            assertThat(buffer2.size.value).isEqualTo(5)
 
             frameGraphBuffers.trimAll(streamId1)
             advanceUntilIdle()
 
-            assertEquals(0, buffer1.size.value)
-            assertEquals(5, buffer2.size.value)
+            assertThat(buffer1.size.value).isEqualTo(0)
+            assertThat(buffer2.size.value).isEqualTo(5)
 
             frameGraphBuffers.trimAll(streamId2)
             advanceUntilIdle()
 
-            assertEquals(0, buffer1.size.value)
-            assertEquals(0, buffer2.size.value)
+            assertThat(buffer1.size.value).isEqualTo(0)
+            assertThat(buffer2.size.value).isEqualTo(0)
         }
 
     @Test
@@ -170,13 +169,13 @@ class FrameGraphBuffersTest {
                 frameGraphBuffers.onFrameStarted(frame)
             }
             advanceUntilIdle()
-            assertEquals(3, buffer1.size.value)
+            assertThat(buffer1.size.value).isEqualTo(3)
 
             frameGraphBuffers.trimAll(streamId2)
             advanceUntilIdle()
 
             // buffer1 should be unaffected.
-            assertEquals(3, buffer1.size.value)
+            assertThat(buffer1.size.value).isEqualTo(3)
         }
 
     @Test
@@ -184,12 +183,12 @@ class FrameGraphBuffersTest {
         testScope.runTest {
             val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
             advanceUntilIdle()
-            assertEquals(0, buffer1.size.value)
+            assertThat(buffer1.size.value).isEqualTo(0)
 
             frameGraphBuffers.trimAll(streamId1)
             advanceUntilIdle()
 
-            assertEquals(0, buffer1.size.value)
+            assertThat(buffer1.size.value).isEqualTo(0)
         }
 
     @After

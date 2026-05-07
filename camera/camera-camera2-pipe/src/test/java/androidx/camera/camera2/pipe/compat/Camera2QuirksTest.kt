@@ -27,7 +27,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.Test
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 

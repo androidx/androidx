@@ -16,9 +16,9 @@
 
 package androidx.camera.camera2.pipe.core
 
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CancellationException
-import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -125,7 +125,7 @@ class CoroutineMutexTest {
 
         mutex.unlock()
         runBlocking {
-            assertFailsWith(CancellationException::class) { second.await() }
+            assertThrows<CancellationException> { second.await() }
             assertThat(first.await()).isEqualTo(1)
             assertThat(third.await()).isEqualTo(2)
         }
@@ -144,7 +144,7 @@ class CoroutineMutexTest {
 
         runBlocking {
             assertThat(first.await()).isEqualTo(1)
-            assertFailsWith(ExpectedException::class) { second.await() }
+            assertThrows<ExpectedException> { second.await() }
             assertThat(third.await()).isEqualTo(2)
         }
     }

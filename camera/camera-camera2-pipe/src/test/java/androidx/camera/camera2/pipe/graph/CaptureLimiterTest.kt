@@ -21,10 +21,10 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.Test
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.robolectric.annotation.Config
