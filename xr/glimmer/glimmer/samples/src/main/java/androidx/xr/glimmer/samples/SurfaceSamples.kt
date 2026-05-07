@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.SurfaceDefaults
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 import androidx.xr.glimmer.surface
 
 @Composable
 fun SurfaceSampleUsage() {
-    VerticalList {
+    GlimmerLazyColumn {
         item { SurfaceSample() }
         item { FocusableSurfaceSample() }
         item { ClickableSurfaceSample() }

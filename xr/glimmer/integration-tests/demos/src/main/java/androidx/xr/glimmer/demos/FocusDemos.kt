@@ -38,15 +38,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 import kotlinx.coroutines.delay
 
 internal val FocusDemos =
     listOf(
         ComposableDemo("List") { FocusableListSample() },
         ComposableDemo("List + Initial Focus") { FocusableListInitialFocusSample() },
-        ComposableDemo("VerticalList") { VerticalListFocusSample() },
-        ComposableDemo("VerticalList + Initial Focus") { ListFocusInitialFocusSample() },
+        ComposableDemo("GlimmerLazyColumn") { GlimmerLazyColumnFocusSample() },
+        ComposableDemo("GlimmerLazyColumn + Initial Focus") { ListFocusInitialFocusSample() },
         ComposableDemo("Focus Restoration") { FocusRestorationSample() },
         ComposableDemo("Nested Focus Restoration") { NestedFocusRestorationSample() },
         ComposableDemo("Show/Hide + Focus Restoration") { ShowHideFocusRestorationSample() },
@@ -81,8 +81,8 @@ private fun FocusableListInitialFocusSample() {
 }
 
 @Composable
-private fun VerticalListFocusSample() {
-    VerticalList { items(20) { ListItem { Text("Button ${it + 1}") } } }
+private fun GlimmerLazyColumnFocusSample() {
+    GlimmerLazyColumn { items(20) { ListItem { Text("Button ${it + 1}") } } }
 }
 
 @Composable
@@ -90,7 +90,7 @@ private fun ListFocusInitialFocusSample() {
     Column {
         Text("Initial Focus on Button 3")
         val initialFocus = remember { FocusRequester() }
-        VerticalList(
+        GlimmerLazyColumn(
             Modifier.focusProperties {
                 onEnter = {
                     initialFocus.requestFocus()
@@ -171,5 +171,5 @@ private fun FocusableList() {
 @Preview
 @Composable
 private fun LazyList() {
-    GlimmerTheme { VerticalListFocusSample() }
+    GlimmerTheme { GlimmerLazyColumnFocusSample() }
 }

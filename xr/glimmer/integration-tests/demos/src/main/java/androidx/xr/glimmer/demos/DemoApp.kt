@@ -39,7 +39,7 @@ import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.googlefonts.createGoogleSansFlexTypography
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun DemoApp(demoAppState: DemoAppState) {
@@ -115,7 +115,7 @@ private fun DisplayDemo(demo: Demo, onNavigate: (Demo) -> Unit) {
 
 @Composable
 private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Unit) {
-    VerticalList(horizontalAlignment = Alignment.CenterHorizontally) {
+    GlimmerLazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
         items(category.demos.size) { index ->
             val demo = category.demos[index]
             ListItem(onClick = { onNavigate(demo) }) { Text(demo.title) }

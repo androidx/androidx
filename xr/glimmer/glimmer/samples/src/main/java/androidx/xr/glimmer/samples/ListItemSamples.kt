@@ -23,11 +23,11 @@ import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun ListItemSampleUsage() {
-    VerticalList {
+    GlimmerLazyColumn {
         item { ListItemSample() }
         item { ListItemWithSupportingLabelSample() }
         item { ListItemWithSupportingLabelAndLeadingIconSample() }

@@ -29,12 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
 fun TypographyDefaultUsage() {
     val typography = GlimmerTheme.typography
-    VerticalList {
+    GlimmerLazyColumn {
         item { TypeItem("titleLarge", style = typography.titleLarge) }
         item { TypeItem("titleMedium", style = typography.titleMedium) }
         item { TypeItem("titleSmall", style = typography.titleSmall) }
