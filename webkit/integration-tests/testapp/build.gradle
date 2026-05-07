@@ -50,7 +50,6 @@ dependencies {
     androidTestImplementation(libs.espressoWeb)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
-    androidTestUtil(libs.testOrchestrator)
 }
 
 // We want to publish a release apk of this project for webkit team's use
@@ -69,12 +68,6 @@ android {
             minifyEnabled = true
         }
     }
-    defaultConfig {
-        testInstrumentationRunnerArguments clearPackageData: "true"
-    }
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-    }
     namespace = "com.example.androidx.webkit"
 }
 
@@ -84,7 +77,4 @@ androidx {
     inceptionYear = "2017"
     description = "The Jetpack Webkit Library test application is a demonstration of the APIs provided in the androidx.webkit library."
     additionalDeviceTestApkKeys.add("chrome")
-    deviceTests {
-        useOrchestrator = true
-    }
 }

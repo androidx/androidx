@@ -430,8 +430,7 @@ public class AsyncStartUpTest {
      */
     @Test
     @MediumTest
-    public void
-    testAsyncStartUp_withoutRunningUiThreadStartUpLoadsWebViewWithoutStartingChromium()
+    public void testAsyncStartUp_withoutRunningUiThreadStartUpLoadsWebViewWithoutStartingChromium()
             throws Throwable {
         Assume.assumeFalse(webViewCurrentlyLoaded());
 
@@ -519,7 +518,7 @@ public class AsyncStartUpTest {
     @Test
     @MediumTest
     public void
-    testAsyncStartUp_withoutRunningUiThreadStartUpReturnsBlockingLocationWithProviderInit()
+            testAsyncStartUp_withoutRunningUiThreadStartUpReturnsBlockingLocationWithProviderInit()
             throws Throwable {
         Assume.assumeFalse(webViewCurrentlyLoaded());
 
