@@ -1033,22 +1033,32 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         measurables: List<IntrinsicMeasurable>,
         height: Int,
     ): Int {
-        val resolvedFlexBoxConfig =
+        if (measurables.isEmpty()) return 0
+        val config =
             resolveFlexBoxConfig(flexBoxConfigState.value, this, Constraints(maxHeight = height))
-
-        return if (resolvedFlexBoxConfig.isHorizontal) {
-            intrinsicMainAxisSize(resolvedFlexBoxConfig, measurables, height) { h ->
-                minIntrinsicWidth(h)
+        return if (config.isHorizontal) {
+            // Main axis. Min = narrowest without clipping.
+            // Wrap: widest child (each child could be its own line).
+            // NoWrap: sum of all children (they must all fit on one line).
+            val gap = config.mainAxisGap()
+            if (config.isWrapEnabled) {
+                var maxSize = 0
+                measurables.fastForEach { maxSize = max(maxSize, it.minIntrinsicWidth(height)) }
+                maxSize
+            } else {
+                measurables.fastSumBy { it.minIntrinsicWidth(height) } +
+                    (measurables.size - 1).coerceAtLeast(0) * gap
             }
         } else {
+            // Cross axis. Simulate line breaks along the vertical main axis,
+            // then take the widest line.
             intrinsicCrossAxisSize(
-                resolvedFlexBoxConfig,
-                measurables,
-                height,
-                mainAxisSize = { h -> minIntrinsicHeight(h) },
-            ) { w ->
-                minIntrinsicWidth(w)
-            }
+                config = config,
+                measurables = measurables,
+                mainAxisAvailable = height,
+                mainAxisSize = { it.minIntrinsicHeight(Constraints.Infinity) },
+                crossAxisSize = { measurable, mainSize -> measurable.minIntrinsicWidth(mainSize) },
+            )
         }
     }
 
@@ -1056,21 +1066,29 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ): Int {
-        val resolvedFlexBoxConfig =
+        if (measurables.isEmpty()) return 0
+        val config =
             resolveFlexBoxConfig(flexBoxConfigState.value, this, Constraints(maxWidth = width))
-
-        return if (resolvedFlexBoxConfig.isHorizontal) {
+        return if (config.isHorizontal) {
+            // Cross axis. Simulate line breaks along the horizontal main axis,
+            // then sum the tallest-child-per-line heights + cross gaps.
             intrinsicCrossAxisSize(
-                resolvedFlexBoxConfig,
-                measurables,
-                width,
-                mainAxisSize = { w -> minIntrinsicWidth(w) },
-            ) { h ->
-                minIntrinsicHeight(h)
-            }
+                config = config,
+                measurables = measurables,
+                mainAxisAvailable = width,
+                mainAxisSize = { it.minIntrinsicWidth(Constraints.Infinity) },
+                crossAxisSize = { measurable, mainSize -> measurable.minIntrinsicHeight(mainSize) },
+            )
         } else {
-            intrinsicMainAxisSize(resolvedFlexBoxConfig, measurables, width) { w ->
-                minIntrinsicHeight(w)
+            // Main axis.
+            val gap = config.mainAxisGap()
+            if (config.isWrapEnabled) {
+                var maxSize = 0
+                measurables.fastForEach { maxSize = max(maxSize, it.minIntrinsicHeight(width)) }
+                maxSize
+            } else {
+                measurables.fastSumBy { it.minIntrinsicHeight(width) } +
+                    (measurables.size - 1).coerceAtLeast(0) * gap
             }
         }
     }
@@ -1079,22 +1097,23 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         measurables: List<IntrinsicMeasurable>,
         height: Int,
     ): Int {
-        val resolvedFlexBoxConfig =
+        if (measurables.isEmpty()) return 0
+        val config =
             resolveFlexBoxConfig(flexBoxConfigState.value, this, Constraints(maxHeight = height))
-
-        return if (resolvedFlexBoxConfig.isHorizontal) {
-            intrinsicMainAxisSize(resolvedFlexBoxConfig, measurables, height) { h ->
-                maxIntrinsicWidth(h)
-            }
+        return if (config.isHorizontal) {
+            // Main axis. Max = preferred unwrapped size, regardless of wrap setting.
+            val gap = config.mainAxisGap()
+            measurables.fastSumBy { it.maxIntrinsicWidth(height) } +
+                (measurables.size - 1).coerceAtLeast(0) * gap
         } else {
+            // Cross axis.
             intrinsicCrossAxisSize(
-                resolvedFlexBoxConfig,
-                measurables,
-                height,
-                mainAxisSize = { h -> maxIntrinsicHeight(h) },
-            ) { w ->
-                maxIntrinsicWidth(w)
-            }
+                config = config,
+                measurables = measurables,
+                mainAxisAvailable = height,
+                mainAxisSize = { it.maxIntrinsicHeight(Constraints.Infinity) },
+                crossAxisSize = { measurable, mainSize -> measurable.maxIntrinsicWidth(mainSize) },
+            )
         }
     }
 
@@ -1102,23 +1121,80 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ): Int {
-        val resolvedFlexBoxConfig =
+        if (measurables.isEmpty()) return 0
+        val config =
             resolveFlexBoxConfig(flexBoxConfigState.value, this, Constraints(maxWidth = width))
-
-        return if (resolvedFlexBoxConfig.isHorizontal) {
+        return if (config.isHorizontal) {
+            // Cross axis.
             intrinsicCrossAxisSize(
-                resolvedFlexBoxConfig,
-                measurables,
-                width,
-                mainAxisSize = { w -> maxIntrinsicWidth(w) },
-            ) { h ->
-                maxIntrinsicHeight(h)
-            }
+                config = config,
+                measurables = measurables,
+                mainAxisAvailable = width,
+                mainAxisSize = { it.maxIntrinsicWidth(Constraints.Infinity) },
+                crossAxisSize = { measurable, mainSize -> measurable.maxIntrinsicHeight(mainSize) },
+            )
         } else {
-            intrinsicMainAxisSize(resolvedFlexBoxConfig, measurables, width) { w ->
-                maxIntrinsicHeight(w)
+            // Main axis. Max = preferred unwrapped size.
+            val gap = config.mainAxisGap()
+            measurables.fastSumBy { it.maxIntrinsicHeight(width) } +
+                (measurables.size - 1).coerceAtLeast(0) * gap
+        }
+    }
+
+    /**
+     * Simulates line-breaking along the main axis and sums up per-line cross-axis sizes to compute
+     * the total cross-axis intrinsic size.
+     *
+     * This is an approximation: child cross sizes are queried at their unconstrained main-axis size
+     * rather than their post-flex-resolution size, since the full flex algorithm cannot run during
+     * intrinsic measurement.
+     */
+    private inline fun intrinsicCrossAxisSize(
+        config: ResolvedFlexBoxConfig,
+        measurables: List<IntrinsicMeasurable>,
+        mainAxisAvailable: Int,
+        mainAxisSize: (IntrinsicMeasurable) -> Int,
+        crossAxisSize: (IntrinsicMeasurable, Int) -> Int,
+    ): Int {
+        val mainAxisGap = config.mainAxisGap()
+        val crossAxisGap = config.crossAxisGap()
+
+        var currentLineMainAxisSize = 0
+        var currentLineCrossAxisSize = 0
+        var totalCrossAxisSize = 0
+        var isFirstItemInLine = true
+
+        measurables.fastForEach { measurable ->
+            val itemMainAxisSize = mainAxisSize(measurable)
+            val itemCrossAxisSize = crossAxisSize(measurable, itemMainAxisSize)
+
+            // Would adding this item (plus the gap before it) overflow the line?
+            val projectedLineSize =
+                if (isFirstItemInLine) {
+                    itemMainAxisSize
+                } else {
+                    currentLineMainAxisSize + mainAxisGap + itemMainAxisSize
+                }
+
+            if (
+                config.isWrapEnabled && !isFirstItemInLine && projectedLineSize > mainAxisAvailable
+            ) {
+                // Finalize current line and start a new one.
+                totalCrossAxisSize += currentLineCrossAxisSize + crossAxisGap
+                currentLineMainAxisSize = itemMainAxisSize
+                currentLineCrossAxisSize = itemCrossAxisSize
+                // remains false for the next iteration, which will be the second item of this new
+                // line
+            } else {
+                currentLineMainAxisSize = projectedLineSize
+                currentLineCrossAxisSize = max(currentLineCrossAxisSize, itemCrossAxisSize)
+                isFirstItemInLine = false
             }
         }
+
+        // Add the last line (no trailing crossAxisGap).
+        totalCrossAxisSize += currentLineCrossAxisSize
+        return totalCrossAxisSize
     }
 
     /** Resolves and snapshots the container configuration. */
@@ -1131,63 +1207,6 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         with(flexBoxConfig) { resolvedFlexBoxConfig.configure() }
         return resolvedFlexBoxConfig
     }
-}
-
-private inline fun intrinsicMainAxisSize(
-    flexBoxConfig: ResolvedFlexBoxConfig,
-    measurables: List<IntrinsicMeasurable>,
-    crossAxisAvailable: Int,
-    mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
-): Int {
-    if (measurables.isEmpty()) return 0
-
-    val mainAxisGap = flexBoxConfig.mainAxisGap()
-
-    return if (!flexBoxConfig.isWrapEnabled) {
-        measurables.fastSumBy { it.mainAxisSize(crossAxisAvailable) } +
-            (measurables.size - 1).coerceAtLeast(0) * mainAxisGap
-    } else {
-        var maxSize = 0
-        measurables.fastForEach { maxSize = max(maxSize, it.mainAxisSize(crossAxisAvailable)) }
-        maxSize
-    }
-}
-
-private inline fun intrinsicCrossAxisSize(
-    flexBoxConfig: ResolvedFlexBoxConfig,
-    measurables: List<IntrinsicMeasurable>,
-    mainAxisAvailable: Int,
-    mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
-    crossAxisSize: IntrinsicMeasurable.(Int) -> Int,
-): Int {
-    if (measurables.isEmpty()) return 0
-
-    val mainAxisGap = flexBoxConfig.mainAxisGap()
-    val crossAxisGap = flexBoxConfig.crossAxisGap()
-
-    var currentLineMainAxisSize = 0
-    var currentLineCrossAxisSize = 0
-    var totalCrossAxisSize = 0
-
-    measurables.fastForEach { measurable ->
-        val itemMainAxisSize = measurable.mainAxisSize(Constraints.Infinity)
-        val itemCrossAxisSize = measurable.crossAxisSize(itemMainAxisSize)
-
-        if (
-            flexBoxConfig.isWrapEnabled &&
-                currentLineMainAxisSize != 0 &&
-                currentLineMainAxisSize + itemMainAxisSize > mainAxisAvailable
-        ) {
-            totalCrossAxisSize += currentLineCrossAxisSize + crossAxisGap
-            currentLineMainAxisSize = itemMainAxisSize + mainAxisGap
-            currentLineCrossAxisSize = itemCrossAxisSize
-        } else {
-            currentLineMainAxisSize += itemMainAxisSize + mainAxisGap
-            currentLineCrossAxisSize = max(currentLineCrossAxisSize, itemCrossAxisSize)
-        }
-    }
-    totalCrossAxisSize += currentLineCrossAxisSize
-    return totalCrossAxisSize
 }
 
 /**
