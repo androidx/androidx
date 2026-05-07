@@ -32,7 +32,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.Space
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.scene
 import kotlin.math.atan2
 import kotlinx.coroutines.Job
@@ -96,7 +96,7 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
     private var headPoseJob: Job? = null
     private var currentHeadPose: Pose = Pose()
 
-    private inline val density: Density
+    private inline val localDensity: Density
         get() = currentValueOf(LocalDensity)
 
     @Suppress("RestrictedApiAndroidX")
@@ -127,25 +127,25 @@ internal class RotateToLookAtUserNode(var upDirection: Vector3) :
         val placeable: SubspacePlaceable = measurable.measure(constraints = constraints)
 
         return layout(width = placeable.width, height = placeable.height, depth = placeable.depth) {
-            // Get the pose of the root node in the ActivitySpace.
-            // Transform from Root space to Activity space (dst_From_src notation).
-            val activitySpaceFromRoot: Pose =
-                currentValueOf(LocalSubspaceRootNode)?.getPose(relativeTo = Space.ACTIVITY)
-                    ?: Pose.Identity
-
             // Get the pose of the node in the Compose root space.
             // Transform from Node space to root space.
             val rootFromNodePixels: Pose = coordinates?.poseInRoot ?: Pose.Identity
 
             // Convert the node's pose in Compose root from pixels to meters.
             val rootFromNodeMeters: Pose =
-                rootFromNodePixels.convertPixelsToMeters(
-                    density = this@RotateToLookAtUserNode.density
-                )
+                rootFromNodePixels.convertPixelsToMeters(density = localDensity)
+
+            // Fetch the root node directly from composition locals.
+            val rootNode: Entity? = currentValueOf(LocalSubspaceRootNode)
 
             // Chain (compose) the transforms: Node -> Root -> Activity.
+            // Using transformPoseTo() which automatically handle the positioning, rotation, AND
+            // accumulated scale
             val activitySpaceFromNode: Pose =
-                activitySpaceFromRoot.compose(other = rootFromNodeMeters)
+                rootNode?.transformPoseTo(
+                    pose = rootFromNodeMeters,
+                    destination = session.scene.activitySpace,
+                ) ?: rootFromNodeMeters
 
             // Extract Payloads in Activity Space.
             val nodeActivitySpaceTranslation: Vector3 = activitySpaceFromNode.translation
