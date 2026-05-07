@@ -35,6 +35,7 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioned
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.ProgressBarDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SectionHeaderDemoScreen
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SimpleListDemoScreen
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates.SpotlightSectionDemoScreen
 import androidx.car.app.versioning.CarAppApiLevels
 
 @RequiresCarApi(8)
@@ -89,6 +90,16 @@ class SectionedItemTemplateDemoScreen(carContext: CarContext) : Screen(carContex
                             R.string.section_header_demo_title,
                         )
                     )
+                    .apply {
+                        if (carContext.getCarAppApiLevel() >= CarAppApiLevels.LEVEL_9) {
+                            addItem(
+                                buildRowForTemplate(
+                                    SpotlightSectionDemoScreen(carContext),
+                                    R.string.spotlight_section_demo_title,
+                                )
+                            )
+                        }
+                    }
                     .build()
             )
             .setHeader(
