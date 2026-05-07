@@ -43,7 +43,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -535,8 +534,9 @@ class ComposeViewTest {
     }
 
     @Test
-    fun changedCoroutineContextThrows() {
+    fun disposedCompositionOnContextChange() {
         lateinit var composeView: AndroidComposeView
+        var compositionCount = 0
         rule.setContent {
             AndroidView(
                 factory = {
@@ -544,28 +544,27 @@ class ComposeViewTest {
                         it.setContent {
                             composeView = LocalView.current as AndroidComposeView
                             Box(Modifier.fillMaxSize())
+                            val _x: Int = remember { compositionCount++ }
                         }
                     }
                 }
             )
         }
-        val coroutineContext = runBlocking { coroutineContext }
         rule.runOnIdle {
+            compositionCount = 0
             val oldCVC = composeView.composeViewContext
-            try {
-                composeView.composeViewContext =
-                    ComposeViewContext(
-                        oldCVC.view,
-                        Recomposer(coroutineContext),
-                        oldCVC.lifecycleOwner,
-                        oldCVC.savedStateRegistryOwner,
-                        oldCVC.viewModelStoreOwner,
-                    )
-                fail("IllegalArgumentException is expected")
-            } catch (_: IllegalArgumentException) {
-                // expected result
-            }
+            val wrapper = (composeView.parent as ComposeView)
+            wrapper.composeViewContext =
+                ComposeViewContext(
+                    oldCVC.view,
+                    oldCVC.compositionContext,
+                    oldCVC.lifecycleOwner,
+                    oldCVC.savedStateRegistryOwner,
+                    oldCVC.viewModelStoreOwner,
+                )
         }
+
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(1) }
     }
 
     @Test
