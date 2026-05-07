@@ -86,7 +86,10 @@ public fun GlimmerHorizontalPager(
     FoundationHorizontalPager(
         state = state.foundationPagerState,
         modifier =
-            modifier.horizontalPagerScrim(state).nestedScroll(singleItemScrollConstraintConnection),
+            modifier
+                .horizontalPagerScrim(state)
+                .nestedScroll(singleItemScrollConstraintConnection)
+                .pagerAutoFocus(state),
         contentPadding = contentPadding,
         pageSize = PageSize.Fill,
         beyondViewportPageCount = beyondViewportPageCount,
