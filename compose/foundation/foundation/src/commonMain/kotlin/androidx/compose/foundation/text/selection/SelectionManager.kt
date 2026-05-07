@@ -392,6 +392,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             // the original selection drag.
             draggingHandle = null
             currentDragPosition = null
+            previousSelectionLayout = null
 
             if (isLongPressOrClickSelection && isNonEmptySelection()) {
                 suggestSelectionForLongPressOrDoubleClick()
