@@ -173,6 +173,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
     private fun TestPanelContainer(
         title: String,
         isFeatureOn: Boolean,
+        modifier: SubspaceModifier = SubspaceModifier,
         upVector: Vector3? = null,
         width: Int = 400,
         height: Int = 200,
@@ -181,7 +182,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
             @SubspaceComposable
             (SubspaceModifier, @Composable () -> Unit) -> Unit,
     ) {
-        var finalModifier = SubspaceModifier.width(width.dp).height(height.dp)
+        var finalModifier = modifier.width(width.dp).height(height.dp)
         if (isFeatureOn) {
             finalModifier =
                 when {
@@ -201,7 +202,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 Text(
                     text = title,
                     color = Color.White,
-                    fontSize = 18.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
@@ -215,7 +216,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
     @Composable
     private fun TestGrid(isFeatureOn: Boolean) {
         SpatialRow(horizontalArrangement = SpatialArrangement.spacedBy(20.dp)) {
-            // Column 1: Standard Composables
+            // Column 1: Core Spatial Components
             SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
                 TestPanelContainer(title = "SpatialPanel", isFeatureOn = isFeatureOn) {
                     modifier,
@@ -248,7 +249,37 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 }
             }
 
-            // Column 2: Advanced Configurations
+            // Column 2: Specialized Configurations & Edge Cases
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(60.dp)) {
+                // Billboard: Horizontal tracking only (upright)
+                TestPanelContainer(
+                    title = "Billboard (Look + Gravity)",
+                    isFeatureOn = isFeatureOn,
+                ) { modifier, content ->
+                    SpatialPanel(modifier = modifier.gravityAligned(), content = content)
+                }
+
+                // Custom up vector: Tracking with a specific 'up' orientation
+                TestPanelContainer(
+                    title = "Up Vector (1, 0, 0)",
+                    isFeatureOn = isFeatureOn,
+                    upVector = Vector3(1f, 0f, 0f),
+                    width = 300,
+                ) { modifier, content ->
+                    SpatialPanel(modifier = modifier, content = content)
+                }
+
+                // Panel with massive manual offset
+                TestPanelContainer(
+                    title = "Large Offset",
+                    isFeatureOn = isFeatureOn,
+                    modifier = SubspaceModifier.offset(x = 1000.dp, y = 500.dp, z = 2000.dp),
+                ) { modifier, content ->
+                    SpatialPanel(modifier = modifier, content = content)
+                }
+            }
+
+            // Column 3: Hierarchy & Nesting Tests
             SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(60.dp)) {
                 // Nested rotation test: Demonstrates a tracking child within a fixed rotated parent
                 val parentRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 0f, roll = 10f)
@@ -277,22 +308,30 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                     }
                 }
 
-                // Custom up vector: Tracking with a specific 'up' orientation
-                TestPanelContainer(
-                    title = "Custom Up Vector (1, 0, 0)",
-                    isFeatureOn = isFeatureOn,
-                    upVector = Vector3(1f, 0f, 0f),
-                    width = 300,
-                ) { modifier, content ->
-                    SpatialPanel(modifier = modifier, content = content)
-                }
+                // Nested offset test: Child tracks user inside a translated parent
+                SpatialBox(
+                    modifier = SubspaceModifier.width(400.dp).height(200.dp).offset(x = 200.dp)
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.fillMaxSize()) {
+                        Box(modifier = Modifier.fillMaxSize().background(PurpleGrey40)) {
+                            Text(
+                                "PARENT (Offset)",
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(8.dp).align(Alignment.TopStart),
+                            )
+                        }
+                    }
 
-                // Billboard: Horizontal tracking only (upright)
-                TestPanelContainer(
-                    title = "Billboard (Look + Gravity)",
-                    isFeatureOn = isFeatureOn,
-                ) { modifier, content ->
-                    SpatialPanel(modifier = modifier.gravityAligned(), content = content)
+                    TestPanelContainer(
+                        title = "CHILD (TRACKING)",
+                        isFeatureOn = isFeatureOn,
+                        width = 300,
+                        height = 100,
+                    ) { modifier, content ->
+                        // Offset by 5dp on Z axis to prevent clipping with parent panel
+                        SpatialPanel(modifier = modifier.offset(z = 5.dp), content = content)
+                    }
                 }
             }
         }
