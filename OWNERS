@@ -24,7 +24,7 @@ per-file *settings.gradle = aurimas@google.com, omarismail@google.com
 # Core-Telecom
 per-file *libraryversions.toml = breadley@google.com, tgunn@google.com, tjstuart@google.com
 # Wear
-per-file *libraryversions.toml = ashleyingram@google.com, flerda@google.com, gregbullock@google.com
+per-file *libraryversions.toml = ashleyingram@google.com, flerda@google.com, gregbullock@google.com, tneda@google.com
 per-file *libraryversions.toml = diegovela@google.com, akulian@google.com, kchyn@google.com
 # WebKit
 per-file *libraryversions.toml = pbirk@google.com, elabadysayed@google.com
