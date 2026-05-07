@@ -319,9 +319,6 @@ package androidx.xr.compose.subspace {
   }
 
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public abstract sealed nonexhaustive class FollowBehavior {
-    method @InaccessibleFromKotlin protected final androidx.xr.runtime.math.Pose getTargetCurrentPose();
-    method @InaccessibleFromKotlin protected final void setTargetCurrentPose(androidx.xr.runtime.math.Pose);
-    property protected final androidx.xr.runtime.math.Pose targetCurrentPose;
     field public static final androidx.xr.compose.subspace.FollowBehavior.Companion Companion;
     field public static final int DEFAULT_SOFT_DURATION_MS = 1500; // 0x5dc
     field public static final int MIN_SOFT_DURATION_MS = 100; // 0x64
