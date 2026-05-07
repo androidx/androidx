@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.window.density
 import java.awt.Component
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
@@ -89,13 +90,13 @@ internal class SwingInteropViewHolder<T : Component>(
     override fun layoutAccordingTo(layoutCoordinates: LayoutCoordinates) {
         val rootCoordinates = layoutCoordinates.findRootCoordinates()
 
+        val awtToComposeScale = container.root.density
         val clippedBounds = rootCoordinates
             .localBoundingBoxOf(layoutCoordinates, clipBounds = true)
-            .round(density)
-
+            .round(awtToComposeScale)
         val bounds = rootCoordinates
             .localBoundingBoxOf(layoutCoordinates, clipBounds = false)
-            .round(density)
+            .round(awtToComposeScale)
 
         clipBounds = clippedBounds // Clipping area for skia canvas
 
