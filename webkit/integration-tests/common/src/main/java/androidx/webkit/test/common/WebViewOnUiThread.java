@@ -38,6 +38,7 @@ import androidx.annotation.CallSuper;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.webkit.JavaScriptExecutionWorld;
+import androidx.webkit.NavigationParameters;
 import androidx.webkit.ScriptHandler;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
@@ -354,6 +355,19 @@ public class WebViewOnUiThread implements AutoCloseable {
 
     public void loadUrl(final @NonNull String url) {
         WebkitUtils.onMainThreadSync(() -> mWebView.loadUrl(url));
+    }
+
+    /**
+     * Calls navigate on the WebView and then waits for onPageFinished
+     * and onProgressChange to reach 100.
+     * Test fails if the load timeout elapses.
+     *
+     * @param url The URL to load.
+     */
+    @WebViewCompat.ExperimentalNavigate
+    public void navigateAndWaitForCompletion(final @NonNull String url,
+            final @NonNull NavigationParameters navigationParameters) {
+        callAndWait(() -> WebViewCompat.navigate(mWebView, url, navigationParameters));
     }
 
     /**

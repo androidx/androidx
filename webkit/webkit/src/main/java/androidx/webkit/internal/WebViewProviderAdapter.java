@@ -26,7 +26,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.UiThread;
+import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
+import androidx.webkit.NavigationParameters;
 import androidx.webkit.PrerenderException;
 import androidx.webkit.PrerenderOperationCallback;
 import androidx.webkit.Profile;
@@ -252,6 +254,17 @@ public class WebViewProviderAdapter {
                 paramsBoundaryInterface,
                 activationCallback,
                 errorCallback);
+    }
+
+    /**
+     * @see WebViewCompat#navigate(WebView, String, NavigationParameters)
+     */
+    @WebViewCompat.ExperimentalNavigate
+    public @NonNull Navigation navigate(@NonNull String url, @NonNull NavigationParameters params) {
+        return Navigation.forInvocationHandler(mImpl.navigate(
+                url,
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new NavigationParametersAdapter(params))));
     }
 
     /**

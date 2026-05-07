@@ -141,6 +141,7 @@ public class WebViewFeature {
             SET_MAX_PRERENDERS_V1,
             JS_INJECTION_IN_FRAME_AND_WORLD,
             NAVIGATION_LISTENER,
+            WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -953,6 +954,15 @@ public class WebViewFeature {
      * {@link JavaScriptReplyProxy#executeJavaScript(String, WebViewOutcomeReceiver)}.
      */
     public static final String JS_INJECTION_IN_FRAME_AND_WORLD = "JS_INJECTION_IN_FRAME_AND_WORLD";
+
+    /**
+     * This feature covers
+     * {@link WebViewCompat#navigate(WebView, String, NavigationParameters)}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WebViewCompat.ExperimentalNavigate
+    public static final String WEBVIEW_NAVIGATE_EXPERIMENTAL_V1 =
+            "WEBVIEW_NAVIGATE_EXPERIMENTAL_V1";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is
