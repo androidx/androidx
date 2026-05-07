@@ -18,6 +18,9 @@ package androidx.xr.compose.subspace
 
 import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.tween
 import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
@@ -31,7 +34,6 @@ import androidx.xr.scenecore.scene
 import java.lang.Runnable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -51,8 +53,6 @@ import org.jetbrains.annotations.TestOnly
  */
 @ExperimentalFollowingSubspaceApi
 public sealed class FollowBehavior protected constructor() {
-    protected var targetCurrentPose: Pose = Pose.Identity
-
     internal abstract suspend fun configure(
         session: Session,
         trailingEntity: CoreGroupEntity,
@@ -111,15 +111,9 @@ public sealed class FollowBehavior protected constructor() {
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DURATION_MS) :
     FollowBehavior() {
-
-    private var currentAnimationJob: Job? = null
+    private val animationDurationMs: Int = durationMs.coerceAtLeast(MIN_SOFT_DURATION_MS)
     private var trailingEntity: CoreGroupEntity? = null
-    private var startPose: Pose = Pose.Identity
-    private var endPose: Pose = Pose.Identity
-    // Ensure at least one frame of animation
-    private val totalFrames: Int =
-        (durationMs / TIME_BETWEEN_ANIMATION_TICKS).toInt().coerceAtLeast(1)
-    private var currentFrame: Int = 0
+    private val animationProgress = Animatable(initialValue = ANIMATION_START_VALUE)
 
     override suspend fun configure(
         session: Session,
@@ -136,27 +130,64 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
                 // animation to the trailingEntity, it will instantly appear at the device location.
                 // It will also be made visible, enabled, at this time.
                 val pose = target.poseUpdates.first()
-                targetCurrentPose = applyTrackedDimensions(pose, dimensions, initialPose)
-                trailingEntity.poseInMeters = targetCurrentPose
-                endPose = targetCurrentPose
+                var currentTargetPoseMeter: Pose =
+                    applyTrackedDimensions(
+                        pose = pose,
+                        dimensions = dimensions,
+                        fallbackPose = initialPose,
+                    )
+                trailingEntity.poseInMeters = currentTargetPoseMeter
                 trailingEntity.enabled = true
+                var lastIntendedEndPoseMeter: Pose = currentTargetPoseMeter
 
                 target.poseUpdates.collect { pose ->
                     // Determine the target pose using the source pose but ignoring the
                     // dimensions we are not tracking.
-                    targetCurrentPose = applyTrackedDimensions(pose, dimensions, initialPose)
+                    currentTargetPoseMeter =
+                        applyTrackedDimensions(
+                            pose = pose,
+                            dimensions = dimensions,
+                            fallbackPose = initialPose,
+                        )
 
                     // If the target has moved significantly enough, start the animation over.
-                    if (shouldStartAnimation()) {
-                        currentAnimationJob?.cancel()
-                        startPose = trailingEntity.poseInMeters
-                        endPose = targetCurrentPose
-                        currentFrame = 1
-                        currentAnimationJob = this.launch { animate() }
+                    if (
+                        hasSignificantPoseChange(
+                            pose1 = lastIntendedEndPoseMeter,
+                            pose2 = currentTargetPoseMeter,
+                        )
+                    ) {
+                        lastIntendedEndPoseMeter = currentTargetPoseMeter
+                        launch {
+                            animationProgress.snapTo(targetValue = ANIMATION_START_VALUE)
+                            animate(endPoseMeter = lastIntendedEndPoseMeter)
+                        }
                     }
                 }
             }
         }
+    }
+
+    private suspend fun animate(endPoseMeter: Pose) {
+        val startPoseMeter = trailingEntity?.poseInMeters ?: return
+
+        animationProgress.animateTo(
+            targetValue = ANIMATION_END_VALUE,
+            animationSpec =
+                tween(durationMillis = animationDurationMs, easing = Easing { smoothstep(it) }),
+        ) {
+            val nextPoseMeters =
+                Pose.lerp(start = startPoseMeter, end = endPoseMeter, ratio = this.value)
+            trailingEntity?.poseInMeters = nextPoseMeters
+        }
+    }
+
+    private fun hasSignificantPoseChange(pose1: Pose, pose2: Pose): Boolean {
+        // Check the translation and rotation difference between two poses.
+        val translationDelta = (pose1.translation - pose2.translation).length
+        val rotationDelta = Quaternion.angle(pose1.rotation, pose2.rotation)
+
+        return translationDelta > TRANSLATION_THRESHOLD || rotationDelta > ROTATION_THRESHOLD
     }
 
     private fun applyTrackedDimensions(
@@ -222,30 +253,6 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
         return if (isTracked) currentValue else fallbackValue
     }
 
-    // TODO(b/451647909): Investigate if Compose's built in animation APIs could handle the logic.
-    private suspend fun animate() {
-        while (currentFrame <= totalFrames) {
-            // Calculate the raw and linear progress of the animation (a value from 0.0 to 1.0).
-            val linearProgress: Float = currentFrame.toFloat() / totalFrames
-            val easedProgress: Float = smoothstep(linearProgress)
-
-            val nextPose = Pose.lerp(startPose, endPose, easedProgress)
-            trailingEntity?.poseInMeters = nextPose
-            currentFrame++
-
-            delay(TIME_BETWEEN_ANIMATION_TICKS)
-        }
-    }
-
-    private fun shouldStartAnimation(): Boolean {
-        // Check the current position of the target entity compared to where the trailingEntity
-        // is planning to be (endPose).
-        val translationDelta = (endPose.translation - targetCurrentPose.translation).length
-        val rotationDelta = Quaternion.angle(endPose.rotation, targetCurrentPose.rotation)
-
-        return translationDelta > TRANSLATION_THRESHOLD || rotationDelta > ROTATION_THRESHOLD
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SoftFollowBehavior) return false
@@ -259,9 +266,10 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
     }
 
     private companion object {
-        private const val TIME_BETWEEN_ANIMATION_TICKS: Long = 10
         private const val TRANSLATION_THRESHOLD: Float = 0.1f
         private const val ROTATION_THRESHOLD: Float = 3f
+        private const val ANIMATION_START_VALUE: Float = 0f
+        private const val ANIMATION_END_VALUE: Float = 1f
 
         /**
          * Applies Smoothstep function (a specific implementation of a Cubic Hermite interpolation
@@ -444,7 +452,11 @@ public sealed interface FollowTarget {
          * By designating content to follow the AR device, it will keep that content near the device
          * camera and typically within the field of view, even as the device moves around.
          *
-         * @param session The current [Session] instance.
+         * The [Session] is required to access the device's tracking state and to perform pose
+         * transformations between coordinate spaces.
+         *
+         * @param session The current [Session] instance used to track the device and transform
+         *   poses.
          */
         public fun ArDevice(session: Session): FollowTarget = ArDeviceTarget(session)
 
