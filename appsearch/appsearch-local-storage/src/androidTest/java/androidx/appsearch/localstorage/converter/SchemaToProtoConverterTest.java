@@ -443,6 +443,17 @@ public class SchemaToProtoConverterTest {
                                                 .QUANTIZATION_TYPE_NONE)
                                 .build())
                 .addProperty(
+                        new AppSearchSchema.EmbeddingPropertyConfig.Builder("annEmbedding")
+                                .setCardinality(
+                                        AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.EmbeddingPropertyConfig
+                                                .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                                .setQuantizationType(
+                                        AppSearchSchema.EmbeddingPropertyConfig
+                                                .QUANTIZATION_TYPE_NONE)
+                                .build())
+                .addProperty(
                         new AppSearchSchema.EmbeddingPropertyConfig.Builder("quantizedEmbedding")
                                 .setCardinality(
                                         AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -496,6 +507,19 @@ public class SchemaToProtoConverterTest {
                                         .setEmbeddingIndexingType(
                                                 EmbeddingIndexingConfig.EmbeddingIndexingType.Code
                                                         .LINEAR_SEARCH)
+                                        .setQuantizationType(
+                                                EmbeddingIndexingConfig.QuantizationType.Code.NONE)
+                        )
+                ).addProperties(PropertyConfigProto.newBuilder()
+                        .setPropertyName("annEmbedding")
+                        .setDescription("")
+                        .setDataType(PropertyConfigProto.DataType.Code.VECTOR)
+                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
+                        .setEmbeddingIndexingConfig(
+                                EmbeddingIndexingConfig.newBuilder()
+                                        .setEmbeddingIndexingType(
+                                                EmbeddingIndexingConfig.EmbeddingIndexingType.Code
+                                                        .APPROXIMATE_NEAREST_NEIGHBOR)
                                         .setQuantizationType(
                                                 EmbeddingIndexingConfig.QuantizationType.Code.NONE)
                         )

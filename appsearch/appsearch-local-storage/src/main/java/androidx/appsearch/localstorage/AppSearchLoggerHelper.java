@@ -193,6 +193,7 @@ public final class AppSearchLoggerHelper {
                         fromNativeStats.getNumQuantizedEmbeddingsScored())
                 .setNativeNumEmbeddingShardsRead(fromNativeStats.getNumEmbeddingShardsRead())
                 .setNativeNumEmbeddingBytesRead(fromNativeStats.getNumEmbeddingBytesRead())
+                .setNativeNumAnnEmbeddingsScored(fromNativeStats.getNumAnnEmbeddingsScored())
                 .build();
     }
 

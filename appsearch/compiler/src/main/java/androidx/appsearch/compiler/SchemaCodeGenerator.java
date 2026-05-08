@@ -440,6 +440,9 @@ class SchemaCodeGenerator {
             case 1:
                 enumName = "INDEXING_TYPE_SIMILARITY";
                 break;
+            case 2:
+                enumName = "INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR";
+                break;
             default:
                 throw new XProcessingException(
                         "Unknown indexing type " + annotation.getIndexingType(),

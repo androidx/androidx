@@ -255,4 +255,12 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_CLIENT_SIDE_PAGINATION)
                 .isEqualTo("com.android.appsearch.flags.enable_client_side_pagination");
     }
+
+    @Test
+    public void testFlagValue_enableEmbeddingApproximateNearestNeighbor() {
+        assertThat(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".enable_embedding_approximate_nearest_neighbor");
+    }
 }

@@ -270,6 +270,7 @@ public class AppSearchLoggerTest {
         int numQuantizedEmbeddingsScored = 15;
         int numEmbeddingShardsRead = 16;
         long numEmbeddingBytesRead = 17L;
+        int numAnnEmbeddingsScored = 18;
 
         QueryStatsProto.SearchStats searchStats = QueryStatsProto.SearchStats.newBuilder()
                 .setQueryLength(nativeQueryLength)
@@ -294,6 +295,7 @@ public class AppSearchLoggerTest {
                 .setNumQuantizedEmbeddingsScored(numQuantizedEmbeddingsScored)
                 .setNumEmbeddingShardsRead(numEmbeddingShardsRead)
                 .setNumEmbeddingBytesRead(numEmbeddingBytesRead)
+                .setNumAnnEmbeddingsScored(numAnnEmbeddingsScored)
                 .build();
 
         boolean nativeIsFirstPage = true;
@@ -397,6 +399,8 @@ public class AppSearchLoggerTest {
                 numEmbeddingShardsRead);
         assertThat(parentSearchStats.getNativeNumEmbeddingBytesRead()).isEqualTo(
                 numEmbeddingBytesRead);
+        assertThat(parentSearchStats.getNativeNumAnnEmbeddingsScored()).isEqualTo(
+                numAnnEmbeddingsScored);
 
         SearchStats childSearchStats = sStats.getParentSearchStats();
 
@@ -434,6 +438,8 @@ public class AppSearchLoggerTest {
                 numEmbeddingShardsRead);
         assertThat(childSearchStats.getNativeNumEmbeddingBytesRead()).isEqualTo(
                 numEmbeddingBytesRead);
+        assertThat(childSearchStats.getNativeNumAnnEmbeddingsScored()).isEqualTo(
+                numAnnEmbeddingsScored);
     }
 
     @Test

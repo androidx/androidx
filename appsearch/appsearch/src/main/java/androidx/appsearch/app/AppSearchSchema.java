@@ -1956,10 +1956,12 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          */
         @IntDef(value = {
                 INDEXING_TYPE_NONE,
-                INDEXING_TYPE_SIMILARITY
+                INDEXING_TYPE_SIMILARITY,
+                INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR
         })
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public @interface IndexingType {
         }
 
@@ -1973,6 +1975,22 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * of embedding vectors within the index.
          */
         public static final int INDEXING_TYPE_SIMILARITY = 1;
+
+        /**
+         * Embedding vectors in this property will be indexed for Approximate Nearest Neighbor
+         * (ANN) search.
+         *
+         * <p>The index maintains clusters of embedding vectors to offer faster search latency
+         * than a full linear scan, but does not guarantee 100% recall. This allows tuning the
+         * trade-off between search latency and recall at search time by configuring the number
+         * of clusters to search via {@link SearchSpec.Builder#setEmbeddingQueryProbeCount(int)}.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+        @FlaggedApi(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+        @ExperimentalAppSearchApi
+        public static final int INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR = 2;
 
         /**
          * Indicates whether the vector contents of this property should be quantized.
@@ -2091,7 +2109,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             public @NonNull EmbeddingPropertyConfig.Builder setIndexingType(
                     @EmbeddingPropertyConfig.IndexingType int indexingType) {
                 Preconditions.checkArgumentInRange(
-                        indexingType, INDEXING_TYPE_NONE, INDEXING_TYPE_SIMILARITY,
+                        indexingType, INDEXING_TYPE_NONE,
+                        INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR,
                         "indexingType");
                 mIndexingType = indexingType;
                 return this;

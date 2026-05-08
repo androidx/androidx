@@ -50,6 +50,7 @@ import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -108,6 +109,8 @@ import com.google.android.icing.proto.GetSchemaResultProto;
 import com.google.android.icing.proto.HandleExpiredDocumentsResultProto;
 import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
+import com.google.android.icing.proto.MaintainAnnIndexOptions;
+import com.google.android.icing.proto.MaintainAnnIndexResultProto;
 import com.google.android.icing.proto.PersistToDiskResultProto;
 import com.google.android.icing.proto.PersistType;
 import com.google.android.icing.proto.PropertyProto;
@@ -13042,6 +13045,125 @@ public class AppSearchImplTest {
         // One document was expired and purged. NeedsPersistToDisk should be set to true.
         assertThat(resultProto2.getNumExpiredDocuments()).isEqualTo(1);
         assertThat(mAppSearchImpl.getAndResetNeedPersistToDisk()).isTrue();
+    }
+
+    @Test
+    public void testMaintainAnnIndex() throws Exception {
+        // Reset the flag just in case a previous test left it true.
+        mAppSearchImpl.getAndResetNeedPersistToDisk();
+
+        // Call maintainAnnIndex with default options.
+        MaintainAnnIndexOptions options = MaintainAnnIndexOptions.getDefaultInstance();
+        MaintainAnnIndexResultProto resultProto = mAppSearchImpl.maintainAnnIndex(options);
+
+        // Verify that it completes successfully.
+        assertThat(resultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
+
+        // Since we didn't add any embeddings, actual_iterations should be 0.
+        assertThat(resultProto.getActualIterations()).isEqualTo(0);
+
+        // NeedsPersistToDisk should be false because actual_iterations is 0.
+        assertThat(mAppSearchImpl.getAndResetNeedPersistToDisk()).isFalse();
+    }
+
+    @Test
+    public void testAnnEmbeddingSearch() throws Exception {
+        // 1. Set schema with ANN embedding property
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder(
+                                "annEmbedding")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.EmbeddingPropertyConfig
+                                                .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                                .build())
+                        .build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ false,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // 2. Put documents with embeddings
+        EmbeddingVector embedding1 =
+                new EmbeddingVector(
+                        new float[]{1.0f, 2.0f, 3.0f}, "model_v1");
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1", "Type")
+                .setPropertyEmbedding("annEmbedding", embedding1)
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document1,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+
+        EmbeddingVector embedding2 =
+                new EmbeddingVector(
+                        new float[]{-1.0f, -2.0f, -3.0f}, "model_v1");
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id2", "Type")
+                .setPropertyEmbedding("annEmbedding", embedding2)
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document2,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+
+        // 3. Query before maintainAnnIndex
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addEmbeddingParameters(embedding1)
+                .setListFilterQueryLanguageEnabled(true)
+                .build();
+
+        SearchResultPage searchResultPage = mAppSearchImpl.query(
+                "package",
+                "database",
+                "semanticSearch(getEmbeddingParameter(0))",
+                searchSpec,
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument().getId()).isEqualTo(
+                "id2");
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument().getId()).isEqualTo(
+                "id1");
+
+        // 4. Call maintainAnnIndex
+        MaintainAnnIndexOptions options = MaintainAnnIndexOptions.newBuilder()
+                .setMinSizeForIvf(1)
+                .build();
+        MaintainAnnIndexResultProto resultProto = mAppSearchImpl.maintainAnnIndex(options);
+        assertThat(resultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
+        assertThat(resultProto.getActualIterations()).isGreaterThan(0);
+
+        // 5. Query after maintainAnnIndex
+        searchResultPage = mAppSearchImpl.query(
+                "package",
+                "database",
+                "semanticSearch(getEmbeddingParameter(0))",
+                searchSpec,
+                /*logger=*/ null,
+                /*callStatsBuilder=*/ null);
+
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument().getId()).isEqualTo(
+                "id2");
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument().getId()).isEqualTo(
+                "id1");
     }
 
     private SchemaProto getSchemaProtoWithDatabase(SchemaProto schema) throws AppSearchException {

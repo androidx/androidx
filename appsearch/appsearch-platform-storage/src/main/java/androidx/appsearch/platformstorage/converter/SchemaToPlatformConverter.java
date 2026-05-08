@@ -567,6 +567,14 @@ public final class SchemaToPlatformConverter {
         static android.app.appsearch.AppSearchSchema.PropertyConfig
                 createPlatformEmbeddingPropertyConfig(
                 AppSearchSchema.@NonNull EmbeddingPropertyConfig jetpackEmbeddingProperty) {
+            if (jetpackEmbeddingProperty.getIndexingType()
+                    == AppSearchSchema.EmbeddingPropertyConfig
+                    .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR) {
+                // TODO(b/448886757) : Update once this features is supported.
+                throw new UnsupportedOperationException(
+                        Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR
+                                + " is not available on this AppSearch implementation.");
+            }
             return new android.app.appsearch.AppSearchSchema.EmbeddingPropertyConfig.Builder(
                     jetpackEmbeddingProperty.getName())
                     .setCardinality(jetpackEmbeddingProperty.getCardinality())

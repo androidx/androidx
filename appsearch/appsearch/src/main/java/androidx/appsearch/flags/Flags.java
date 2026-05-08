@@ -293,6 +293,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_CLIENT_SIDE_PAGINATION =
             FLAG_PREFIX + "enable_client_side_pagination";
 
+    /** Enables embedding approximate nearest neighbor. */
+    public static final String FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR =
+            FLAG_PREFIX + "enable_embedding_approximate_nearest_neighbor";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -637,5 +641,10 @@ public final class Flags {
         // TODO(b/492234192): Enable this feature only after it rolls out to Nextfood in
         // platform and localstorage/SearchResultsImpl.java has been updated.
         return false;
+    }
+
+    /** Whether embedding approximate nearest neighbor should be enabled. */
+    public static boolean enableEmbeddingApproximateNearestNeighbor() {
+        return true;
     }
 }
