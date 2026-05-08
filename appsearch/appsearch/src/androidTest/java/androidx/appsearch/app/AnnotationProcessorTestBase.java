@@ -2966,6 +2966,45 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
+    @Document(name = "EmailWithAnnEmbedding")
+    static class EmailWithAnnEmbedding extends EmailWithEmbedding {
+        @Document.EmbeddingProperty(indexingType =
+                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+        EmbeddingVector mTitleAnnEmbedding;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            EmailWithAnnEmbedding email = (EmailWithAnnEmbedding) o;
+            return Objects.equals(mTitleAnnEmbedding, email.mTitleAnnEmbedding);
+        }
+
+        public static EmailWithAnnEmbedding createSampleDoc() {
+            EmbeddingVector embedding1 =
+                    new EmbeddingVector(new float[]{1, 2, 3}, "model1");
+            EmbeddingVector embedding2 =
+                    new EmbeddingVector(new float[]{-1, -2, -3}, "model2");
+            EmbeddingVector embedding3 =
+                    new EmbeddingVector(new float[]{0.1f, 0.2f, 0.3f, 0.4f}, "model3");
+            EmbeddingVector embedding4 =
+                    new EmbeddingVector(new float[]{-0.1f, -0.2f, -0.3f, -0.4f}, "model3");
+            EmbeddingVector embedding5 =
+                    new EmbeddingVector(new float[]{1, 2}, "model4");
+            EmailWithAnnEmbedding email = new EmailWithAnnEmbedding();
+            email.mNamespace = "namespace";
+            email.mId = "id";
+            email.mCreationTimestampMillis = 1000;
+            email.mSender = "sender";
+            email.mSenderEmbedding = embedding1;
+            email.mTitleEmbedding = embedding2;
+            email.mReceiverEmbeddings = Collections.singletonList(embedding3);
+            email.mBodyEmbeddings = new EmbeddingVector[]{embedding3, embedding4};
+            email.mTitleAnnEmbedding = embedding5;
+            return email;
+        }
+    }
+
     @Test
     public void testEmbeddingGenericDocumentConversion() throws Exception {
         EmailWithEmbedding inEmail = EmailWithEmbedding.createSampleDoc();
@@ -3120,6 +3159,33 @@ public abstract class AnnotationProcessorTestBase {
         // Convert GenericDocument to EmailWithQuantizedEmbedding and check values.
         outputDocument = results.get(0).getDocument(EmailWithQuantizedEmbedding.class);
         assertThat(outputDocument).isEqualTo(email);
+    }
+
+    @Test
+    public void testEmbeddingAnnIndexing() throws Exception {
+        AppSearchSchema schema = AppSearchSchema.fromDocumentClass(EmailWithAnnEmbedding.class);
+        assertThat(schema.getSchemaType()).isEqualTo("EmailWithAnnEmbedding");
+        List<AppSearchSchema.PropertyConfig> properties = schema.getProperties();
+
+        AppSearchSchema.PropertyConfig titleAnnEmbeddingProp = null;
+        for (AppSearchSchema.PropertyConfig prop : properties) {
+            if (prop.getName().equals("titleAnnEmbedding")) {
+                titleAnnEmbeddingProp = prop;
+                break;
+            }
+        }
+        assertThat(titleAnnEmbeddingProp).isNotNull();
+        assertThat(
+                ((AppSearchSchema.EmbeddingPropertyConfig) titleAnnEmbeddingProp).getIndexingType())
+                .isEqualTo(AppSearchSchema.EmbeddingPropertyConfig
+                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR);
+
+        // Also test document conversion
+        EmailWithAnnEmbedding inEmail = EmailWithAnnEmbedding.createSampleDoc();
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(inEmail);
+        EmailWithAnnEmbedding outEmail = genericDocument.toDocumentClass(
+                EmailWithAnnEmbedding.class);
+        assertThat(inEmail).isEqualTo(outEmail);
     }
 
     @Document

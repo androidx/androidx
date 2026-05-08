@@ -358,6 +358,7 @@ public class AppSearchStatsTest {
         int numQuantizedEmbeddingsScored = 16;
         int numEmbeddingShardsRead = 17;
         long numEmbeddingBytesRead = 18L;
+        int numAnnEmbeddingsScored = 19;
 
         final SearchStats.Builder sStatsBuilder = new SearchStats.Builder()
                 .setNativeQueryLength(nativeQueryLength)
@@ -383,7 +384,8 @@ public class AppSearchStatsTest {
                 .setNativeNumUnquantizedEmbeddingsScored(numUnquantizedEmbeddingsScored)
                 .setNativeNumQuantizedEmbeddingsScored(numQuantizedEmbeddingsScored)
                 .setNativeNumEmbeddingShardsRead(numEmbeddingShardsRead)
-                .setNativeNumEmbeddingBytesRead(numEmbeddingBytesRead);
+                .setNativeNumEmbeddingBytesRead(numEmbeddingBytesRead)
+                .setNativeNumAnnEmbeddingsScored(numAnnEmbeddingsScored);
         final SearchStats sStats = sStatsBuilder.build();
 
         assertThat(sStats.getNativeQueryLength()).isEqualTo(nativeQueryLength);
@@ -413,6 +415,7 @@ public class AppSearchStatsTest {
                 numQuantizedEmbeddingsScored);
         assertThat(sStats.getNativeNumEmbeddingShardsRead()).isEqualTo(numEmbeddingShardsRead);
         assertThat(sStats.getNativeNumEmbeddingBytesRead()).isEqualTo(numEmbeddingBytesRead);
+        assertThat(sStats.getNativeNumAnnEmbeddingsScored()).isEqualTo(numAnnEmbeddingsScored);
         String expectedString = "SearchStats {\n"
                 + "  nativeQueryLength=1,\n"
                 + "  nativeNumTerms=2,\n"
@@ -433,6 +436,7 @@ public class AppSearchStatsTest {
                 + "  nativeNumQuantizedEmbeddingsScored=16\n"
                 + "  nativeNumEmbeddingShardsRead=17\n"
                 + "  nativeNumEmbeddingBytesRead=18\n"
+                + "  nativeNumAnnEmbeddingsScored=19\n"
                 + "}";
         assertThat(sStats.toString()).isEqualTo(expectedString);
     }
@@ -458,6 +462,7 @@ public class AppSearchStatsTest {
         int numQuantizedEmbeddingsScored = 116;
         int numEmbeddingShardsRead = 117;
         long numEmbeddingBytesRead = 118L;
+        int numAnnEmbeddingsScored = 119;
 
         SearchStats searchStats = new SearchStats.Builder()
                 .setNativeQueryLength(nativeQueryLength)
@@ -484,6 +489,7 @@ public class AppSearchStatsTest {
                 .setNativeNumQuantizedEmbeddingsScored(numQuantizedEmbeddingsScored)
                 .setNativeNumEmbeddingShardsRead(numEmbeddingShardsRead)
                 .setNativeNumEmbeddingBytesRead(numEmbeddingBytesRead)
+                .setNativeNumAnnEmbeddingsScored(numAnnEmbeddingsScored)
                 .build();
 
         int enabledFeatures = 3; //0b0011
@@ -653,6 +659,7 @@ public class AppSearchStatsTest {
                 + "    nativeNumQuantizedEmbeddingsScored=116\n"
                 + "    nativeNumEmbeddingShardsRead=117\n"
                 + "    nativeNumEmbeddingBytesRead=118\n"
+                + "    nativeNumAnnEmbeddingsScored=119\n"
                 + "  },\n"
                 + "  childSearchStats=SearchStats {\n"
                 + "    nativeQueryLength=101,\n"
@@ -674,6 +681,7 @@ public class AppSearchStatsTest {
                 + "    nativeNumQuantizedEmbeddingsScored=116\n"
                 + "    nativeNumEmbeddingShardsRead=117\n"
                 + "    nativeNumEmbeddingBytesRead=118\n"
+                + "    nativeNumAnnEmbeddingsScored=119\n"
                 + "  },\n"
                 + "  liteIndexHitBufferByteSize=215,\n"
                 + "  liteIndexHitBufferUnsortedByteSize=216,\n"

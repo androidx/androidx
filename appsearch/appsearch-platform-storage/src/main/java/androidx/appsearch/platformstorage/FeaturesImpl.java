@@ -194,6 +194,8 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT:
                 // TODO(b/457496944) : Update when feature is ready in service-appsearch.
                 // fall through
+            case Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR:
+                // TODO(b/448886757) : Update when feature is ready in service-appsearch.
                 return false;
 
             default:

@@ -4548,6 +4548,7 @@ class AppSearchCompilerTest : CompilerTestBase() {
                   @EmbeddingProperty(indexingType=1) List<EmbeddingVector> listVec;
                   @EmbeddingProperty(indexingType=1) Collection<EmbeddingVector> collectVec;
                   @EmbeddingProperty(indexingType=1) EmbeddingVector[] arrVec;
+                  @EmbeddingProperty(indexingType=2) EmbeddingVector annVec;
                 }
                 """
                     .trimIndent()
@@ -4558,6 +4559,10 @@ class AppSearchCompilerTest : CompilerTestBase() {
         checkResultContains(
             "Gift.java",
             "AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY",
+        )
+        checkResultContains(
+            "Gift.java",
+            "AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR",
         )
         checkResultContains(
             "Gift.java",

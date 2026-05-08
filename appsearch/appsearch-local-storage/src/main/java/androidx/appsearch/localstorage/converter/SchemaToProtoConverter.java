@@ -460,6 +460,7 @@ public final class SchemaToProtoConverter {
         return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
     }
 
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private static EmbeddingIndexingConfig.EmbeddingIndexingType.@NonNull Code
             convertEmbeddingIndexingTypeToProto(
             @AppSearchSchema.EmbeddingPropertyConfig.IndexingType int indexingType) {
@@ -468,12 +469,16 @@ public final class SchemaToProtoConverter {
                 return EmbeddingIndexingConfig.EmbeddingIndexingType.Code.UNKNOWN;
             case AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY:
                 return EmbeddingIndexingConfig.EmbeddingIndexingType.Code.LINEAR_SEARCH;
+            case AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR:
+                return EmbeddingIndexingConfig.EmbeddingIndexingType.Code
+                        .APPROXIMATE_NEAREST_NEIGHBOR;
             default:
                 throw new IllegalArgumentException("Invalid indexingType: " + indexingType);
         }
     }
 
     @AppSearchSchema.EmbeddingPropertyConfig.IndexingType
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private static int convertEmbeddingIndexingTypeFromProto(
             EmbeddingIndexingConfig.EmbeddingIndexingType.@NonNull Code indexingType) {
         switch (indexingType) {
@@ -482,8 +487,8 @@ public final class SchemaToProtoConverter {
             case LINEAR_SEARCH:
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY;
             case APPROXIMATE_NEAREST_NEIGHBOR:
-                throw new IllegalArgumentException(
-                        "APPROXIMATE_NEAREST_NEIGHBOR indexing type is not supported yet");
+                return AppSearchSchema.EmbeddingPropertyConfig
+                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR;
         }
         // Avoid crashing in the 'read' path; we should try to interpret the document to the
         // extent possible.

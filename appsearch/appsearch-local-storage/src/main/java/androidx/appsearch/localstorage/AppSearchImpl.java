@@ -120,6 +120,8 @@ import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
 import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.LogSeverity;
+import com.google.android.icing.proto.MaintainAnnIndexOptions;
+import com.google.android.icing.proto.MaintainAnnIndexResultProto;
 import com.google.android.icing.proto.NamespaceBlobStorageInfoProto;
 import com.google.android.icing.proto.NamespaceStorageInfoProto;
 import com.google.android.icing.proto.OptimizeResultProto;
@@ -3656,6 +3658,36 @@ public final class AppSearchImpl implements Closeable {
             // PersistToDisk is needed if any document was purged.
             if (resultProto.getNumExpiredDocuments() > 0
                     || resultProto.getNumPropagatedDeletedDocuments() > 0) {
+                mNeedsPersistToDisk.set(true);
+            }
+
+            return resultProto;
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Triggers the maintenance process for all IVF based embedding search indexes.
+     *
+     * @param options options for maintaining ANN index.
+     * @return a {@link MaintainAnnIndexResultProto} object with success code.
+     * @throws AppSearchException if Icing failed to maintain ANN index.
+     */
+    public @NonNull MaintainAnnIndexResultProto maintainAnnIndex(
+            @NonNull MaintainAnnIndexOptions options)
+            throws AppSearchException {
+        mReadWriteLock.writeLock().lock();
+        try {
+            throwIfClosedLocked();
+
+            MaintainAnnIndexResultProto resultProto =
+                    mIcingSearchEngineLocked.maintainAnnIndex(options);
+            checkSuccess(resultProto.getStatus());
+
+            // PersistToDisk is needed if any iterations were performed, meaning the index
+            // was modified.
+            if (resultProto.getActualIterations() > 0) {
                 mNeedsPersistToDisk.set(true);
             }
 

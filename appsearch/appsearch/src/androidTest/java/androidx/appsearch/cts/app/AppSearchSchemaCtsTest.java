@@ -1194,13 +1194,32 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+    public void testEmbeddingPropertyConfig_setIndexingType_ann() {
+        AppSearchSchema schema =
+                new AppSearchSchema.Builder("Test")
+                        .addProperty(
+                                new EmbeddingPropertyConfig.Builder("titleAnnEmbedding")
+                                        .setIndexingType(EmbeddingPropertyConfig
+                                                .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                                        .build())
+                        .build();
+
+        List<AppSearchSchema.PropertyConfig> properties = schema.getProperties();
+        assertThat(properties).hasSize(1);
+        assertThat(properties.get(0).getName()).isEqualTo("titleAnnEmbedding");
+        assertThat(((EmbeddingPropertyConfig) properties.get(0)).getIndexingType())
+                .isEqualTo(EmbeddingPropertyConfig.INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR);
+    }
+
+    @Test
     public void testEmbeddingPropertyConfig_setIndexingType() {
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
                         .setIndexingType(5).build());
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
-                        .setIndexingType(2).build());
+                        .setIndexingType(3).build());
         assertThrows(IllegalArgumentException.class, () ->
                 new EmbeddingPropertyConfig.Builder("titleEmbedding")
                         .setIndexingType(-1).build());

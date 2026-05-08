@@ -11867,6 +11867,90 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+    public void testEmbeddingSearch_ann() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig
+                                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                        new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"),
+                                new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
+                                        "my_model_v1"))
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setPropertyString("body", "bar")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
+                                new float[]{-0.1f, 0.2f, -0.3f, -0.4f, 0.5f}, "my_model_v1"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{1, -1, -1, 1, -1}, "my_model_v1");
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addEmbeddingParameters(searchEmbedding)
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingQueryProbeCount(10)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getEmbeddingParameter(0), -1, 1)", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(-0.2);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal()).isWithin(0.00001).of(-0.9);
+
+        // Test with probe count 0. If probe count is <= 0, embeddings in properties marked with
+        // INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR will be skipped.
+        SearchSpec searchSpecProbeCountZero = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addEmbeddingParameters(searchEmbedding)
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingQueryProbeCount(0)
+                .build();
+        searchResults = mDb1.search(
+                "semanticSearch(getEmbeddingParameter(0), -1, 1)", searchSpecProbeCountZero);
+        results = retrieveAllSearchResults(searchResults);
+        assertThat(results).isEmpty();
+    }
+
+    @Test
     public void testEmbeddingSearch_propertyRestriction() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
@@ -12136,6 +12220,36 @@ public abstract class AppSearchSessionCtsTestBase {
                         searchSpec).getNextPageAsync().get());
         assertThat(exception).hasMessageThat().contains(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
                 + " is not available on this AppSearch implementation.");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+    public void testEmbeddingSearch_ann_notSupported() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeFalse(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR));
+
+        // Test that setSchema throws UnsupportedOperationException when using
+        // INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig
+                                        .INDEXING_TYPE_APPROXIMATE_NEAREST_NEIGHBOR)
+                        .build())
+                .build();
+        UnsupportedOperationException schemaException = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.setSchemaAsync(
+                        new SetSchemaRequest.Builder().addSchemas(schema).build()).get());
+        assertThat(schemaException).hasMessageThat().contains(
+                Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR
+                        + " is not available on this AppSearch implementation.");
     }
 
     @Test

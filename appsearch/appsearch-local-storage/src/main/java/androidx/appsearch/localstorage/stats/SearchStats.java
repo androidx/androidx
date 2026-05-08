@@ -76,6 +76,8 @@ public final class SearchStats {
     private final int mNativeNumEmbeddingShardsRead;
     /** Number of raw embedding bytes read from the embedding index. */
     private final long mNativeNumEmbeddingBytesRead;
+    /** Number of ANN embeddings scored. */
+    private final int mNativeNumAnnEmbeddingsScored;
 
     SearchStats(@NonNull Builder builder) {
         mNativeQueryLength = builder.mNativeQueryLength;
@@ -100,6 +102,7 @@ public final class SearchStats {
         mNativeNumQuantizedEmbeddingsScored = builder.mNativeNumQuantizedEmbeddingsScored;
         mNativeNumEmbeddingShardsRead = builder.mNativeNumEmbeddingShardsRead;
         mNativeNumEmbeddingBytesRead = builder.mNativeNumEmbeddingBytesRead;
+        mNativeNumAnnEmbeddingsScored = builder.mNativeNumAnnEmbeddingsScored;
     }
 
     /** Returns the length of the search string. */
@@ -201,6 +204,11 @@ public final class SearchStats {
         return mNativeNumEmbeddingBytesRead;
     }
 
+    /** Returns number of ANN embeddings scored. */
+    public int getNativeNumAnnEmbeddingsScored() {
+        return mNativeNumAnnEmbeddingsScored;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -226,6 +234,7 @@ public final class SearchStats {
                         + "  nativeNumQuantizedEmbeddingsScored=%d\n"
                         + "  nativeNumEmbeddingShardsRead=%d\n"
                         + "  nativeNumEmbeddingBytesRead=%d\n"
+                        + "  nativeNumAnnEmbeddingsScored=%d\n"
                         + "}",
                 mNativeQueryLength,
                 mNativeNumTerms,
@@ -245,7 +254,8 @@ public final class SearchStats {
                 mNativeNumUnquantizedEmbeddingsScored,
                 mNativeNumQuantizedEmbeddingsScored,
                 mNativeNumEmbeddingShardsRead,
-                mNativeNumEmbeddingBytesRead);
+                mNativeNumEmbeddingBytesRead,
+                mNativeNumAnnEmbeddingsScored);
     }
 
     /** Builder for {@link SearchStats} */
@@ -270,6 +280,7 @@ public final class SearchStats {
         int mNativeNumQuantizedEmbeddingsScored;
         int mNativeNumEmbeddingShardsRead;
         long mNativeNumEmbeddingBytesRead;
+        int mNativeNumAnnEmbeddingsScored;
 
         /** Sets length of the search string. */
         @CanIgnoreReturnValue
@@ -421,6 +432,14 @@ public final class SearchStats {
         public @NonNull Builder setNativeNumEmbeddingBytesRead(
                 long nativeNumEmbeddingBytesRead) {
             mNativeNumEmbeddingBytesRead = nativeNumEmbeddingBytesRead;
+            return this;
+        }
+
+        /** Sets number of ANN embeddings scored. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeNumAnnEmbeddingsScored(
+                int nativeNumAnnEmbeddingsScored) {
+            mNativeNumAnnEmbeddingsScored = nativeNumAnnEmbeddingsScored;
             return this;
         }
 

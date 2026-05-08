@@ -942,18 +942,28 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
     public void testBuildSearchSpec_embeddingSearch() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setNumericSearchEnabled(true)
                 .setVerbatimSearchEnabled(true)
                 .setListFilterQueryLanguageEnabled(true)
                 .setListFilterHasPropertyFunctionEnabled(true)
+                .setEmbeddingQueryProbeCount(5)
                 .build();
 
         assertThat(searchSpec.isNumericSearchEnabled()).isTrue();
         assertThat(searchSpec.isVerbatimSearchEnabled()).isTrue();
         assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
         assertThat(searchSpec.isListFilterHasPropertyFunctionEnabled()).isTrue();
+        assertThat(searchSpec.getEmbeddingQueryProbeCount()).isEqualTo(5);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR)
+    public void testBuildSearchSpec_defaultEmbeddingQueryProbeCount() {
+        SearchSpec searchSpec = new SearchSpec.Builder().build();
+        assertThat(searchSpec.getEmbeddingQueryProbeCount()).isEqualTo(10);
     }
 
     @Test
