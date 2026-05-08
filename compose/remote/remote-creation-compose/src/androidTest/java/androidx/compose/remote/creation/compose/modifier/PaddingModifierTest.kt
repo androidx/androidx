@@ -22,10 +22,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -39,12 +41,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PaddingModifierTest {
     @get:Rule
-    val remoteComposeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
             matcher = MSSIMMatcher(threshold = 0.999),
         )
-    }
 
     private val gridScreenshotUI = GridScreenshotUI()
 
@@ -119,7 +121,9 @@ class PaddingModifierTest {
     @Test
     fun rtl() =
         // b(/500955051): should not pass layoutDirection runScreenshotTest only to GridContent
-        remoteComposeTestRule.runScreenshotTest(layoutDirection = LayoutDirection.Rtl) {
+        remoteComposeTestRule.runScreenshotTest(
+            creationComposableWrapper = ComposableWrappers.rtl
+        ) {
             gridScreenshotUI.GridContent(
                 listOf(
                     "padding start" to

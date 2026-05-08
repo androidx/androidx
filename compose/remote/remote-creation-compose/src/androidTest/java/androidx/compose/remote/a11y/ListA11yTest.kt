@@ -17,7 +17,6 @@
 package androidx.compose.remote.a11y
 
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction
-import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -41,9 +40,10 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteInteractionTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -62,11 +62,11 @@ import org.junit.runner.RunWith
 class ListA11yTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteInteractionTestRule(ApplicationProvider.getApplicationContext())
 
     @Test
     fun listSemantics() {
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 0)
         }
 
@@ -102,7 +102,7 @@ class ListA11yTest {
 
     @Test
     fun listWithSnapSemantics() {
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 29)
         }
 
@@ -122,7 +122,7 @@ class ListA11yTest {
 
     @Test
     fun getComponentIdAt() {
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 0)
         }
 

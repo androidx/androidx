@@ -28,10 +28,11 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -44,9 +45,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ClipModifierTest {
     @get:Rule
-    val composeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
-    }
+    val composeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
     private val gridScreenshotUI = GridScreenshotUI()
 
@@ -94,7 +97,7 @@ class ClipModifierTest {
 
     @Test
     fun clipWithRemoteRoundedCornerShape_rtl() =
-        composeTestRule.runScreenshotTest(layoutDirection = LayoutDirection.Rtl) {
+        composeTestRule.runScreenshotTest(creationComposableWrapper = ComposableWrappers.rtl) {
             val shapes =
                 listOf(
                     "topStart" to RemoteRoundedCornerShape(topStart = 20.rdp),
