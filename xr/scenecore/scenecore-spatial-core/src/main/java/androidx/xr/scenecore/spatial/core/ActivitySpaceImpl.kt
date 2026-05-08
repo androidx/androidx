@@ -176,6 +176,8 @@ public class ActivitySpaceImpl(
 
     internal var sceneParentScaleAbs: Vector3 = Vector3.One
 
+    private val lastSceneParentTransform = AtomicReference<Matrix4?>(null)
+
     /**
      * Handles the updates to scene core root transform.
      * <pre>
@@ -201,7 +203,7 @@ public class ActivitySpaceImpl(
      * @param newTransform New scene parent transform relative to OpenXR unbounded reference space.
      */
     public fun handleOriginUpdate(newTransform: Matrix4) {
-        if (openXrReferenceSpaceTransform.getAndSet(newTransform) == newTransform) {
+        if (lastSceneParentTransform.getAndSet(newTransform) == newTransform) {
             return
         }
         var activitySpaceRotation = Quaternion.Identity
