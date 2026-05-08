@@ -64,7 +64,7 @@ import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayoutDraw
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -102,7 +102,7 @@ class StyleBenchmark(val isStyle: Boolean) {
     @Test
     fun basic_box_border_change() {
         textFlag(isStyle) {
-            benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            benchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
                 { BasicBoxTestCase(isStyle) },
                 assertOneRecomposition = false,
                 requireRecomposition = false,
