@@ -107,11 +107,3 @@ androidx {
     samples(project(":compose:material3:material3:material3-samples"))
     addGoldenImageAssets()
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    def dirToDelete = new File(project.buildDir, "kotlin/${it.name}/cacheable")
-    it.doFirst {
-        dirToDelete.deleteDir()
-    }
-}
-
