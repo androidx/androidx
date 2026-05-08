@@ -44,6 +44,9 @@ import androidx.wear.compose.material3.tokens.OutlinedCardTokens
  *
  * @sample androidx.wear.compose.material3.samples.NonClickableCardSample
  *
+ * ![NonClickableCardSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_NonClickableCardSample_CompositeImage.png)
+ *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards) Wear OS Material
  * design guide.
@@ -112,6 +115,10 @@ public fun Card(
  * Example of a non-clickable [Card] with an image background:
  *
  * @sample androidx.wear.compose.material3.samples.NonClickableImageCardSample
+ *
+ * ![NonClickableImageCardSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_NonClickableImageCardSample_CompositeImage.png)
+ *
  * @param containerPainter The [Painter] to use to draw the container image of the [Card], such as
  *   returned by [CardDefaults.containerPainter].
  * @param modifier Modifier to be applied to the card
@@ -189,6 +196,9 @@ public fun Card(
  *
  * @sample androidx.wear.compose.material3.samples.NonClickableAppCardSample
  *
+ * ![NonClickableAppCardSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_NonClickableAppCardSample_CompositeImage.png)
+ *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards) guide.
  *
@@ -263,6 +273,9 @@ public fun AppCard(
  * Example of a non-clickable [TitleCard] with [time], [title] and [content]:
  *
  * @sample androidx.wear.compose.material3.samples.NonClickableTitleCardSample
+ *
+ * ![NonClickableTitleCardSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_NonClickableTitleCardSample_CompositeImage.png)
  *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards) guide.
@@ -348,6 +361,9 @@ public fun TitleCard(
  *
  * @sample androidx.wear.compose.material3.samples.NonClickableTitleCardWithImageWithTimeAndTitleSample
  *
+ * ![NonClickableTitleCardWithImageWithTimeAndTitleSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_NonClickableTitleCardWithImageWithTimeAndTitleSample_CompositeImage.png)
+ *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards) guide.
  *
@@ -422,6 +438,9 @@ public fun TitleCard(
  * Example of a non-clickable [OutlinedCard]:
  *
  * @sample androidx.wear.compose.material3.samples.NonClickableOutlinedCardSample
+ *
+ * ![NonClickableOutlinedCardSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_NonClickableOutlinedCardSample_CompositeImage.png)
  *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards) Wear OS Material

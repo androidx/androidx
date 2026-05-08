@@ -110,6 +110,8 @@ public fun HorizontalPageIndicator(
  * Example usage with [VerticalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.VerticalPageIndicatorWithPagerSample
+ *   ![VerticalPageIndicatorWithPagerSample
+ *   CompositeImage](https://developer.android.com/wear/images/design/WearComposeM3_VerticalPageIndicatorWithPagerSample_CompositeImage.png)
  * @param pagerState State of the [VerticalPager] used to control this indicator
  * @param modifier Modifier to be applied to the [VerticalPageIndicator]
  * @param selectedColor The color which will be used for a selected indicator item.

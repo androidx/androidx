@@ -87,6 +87,9 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  *
  * @sample androidx.wear.compose.material3.samples.RadioButtonSample
  *
+ * ![RadioButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_RadioButtonSample_CompositeImage.png)
+ *
  * [RadioButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
  * The recommended set of [RadioButton] colors can be obtained from [RadioButtonDefaults], e.g.
