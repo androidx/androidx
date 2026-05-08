@@ -61,17 +61,29 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
  *
+ *   ![FullScreenProgressIndicatorSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FullScreenProgressIndicatorSample_CompositeImage.png)
+ *
  * Example of progress showing overflow value (more than 1) by [CircularProgressIndicator]:
  *
  * @sample androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
+ *
+ *   ![OverflowProgressIndicatorSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_OverflowProgressIndicatorSample_CompositeImage.png)
  *
  * Example of progress indicator wrapping media control by [CircularProgressIndicator]:
  *
  * @sample androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
  *
+ *   ![MediaButtonProgressIndicatorSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_MediaButtonProgressIndicatorSample_CompositeImage.png)
+ *
  * Example of a [CircularProgressIndicator] with small progress values:
  *
  * @sample androidx.wear.compose.material3.samples.SmallValuesProgressIndicatorSample
+ *
+ *   ![SmallValuesProgressIndicatorSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SmallValuesProgressIndicatorSample_CompositeImage.png)
  *
  * Progress indicators express the proportion of completion of an ongoing task.
  *
