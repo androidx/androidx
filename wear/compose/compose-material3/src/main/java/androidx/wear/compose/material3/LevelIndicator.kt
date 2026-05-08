@@ -36,6 +36,10 @@ import kotlin.math.sin
  * Example of [LevelIndicator]:
  *
  * @sample androidx.wear.compose.material3.samples.LevelIndicatorSample
+ *
+ * ![LevelIndicatorSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_LevelIndicatorSample_CompositeImage.png)
+ *
  * @param value Value of the indicator as a fraction in the range [0,1]. Values outside of the range
  *   [0,1] will be coerced.
  * @param modifier Modifier to be applied to the component
@@ -84,6 +88,10 @@ public fun LevelIndicator(
  * Example of [LevelIndicator] with a [Stepper]:
  *
  * @sample androidx.wear.compose.material3.samples.StepperSample
+ *
+ * ![StepperSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_StepperSample_CompositeImage.png)
+ *
  * @param value Value of the indicator in the [valueRange].
  * @param modifier Modifier to be applied to the component
  * @param valueRange range of values that [value] can take
@@ -123,6 +131,10 @@ public fun StepperLevelIndicator(
  * Example of [LevelIndicator] with a [Stepper] working on an [IntProgression]:
  *
  * @sample androidx.wear.compose.material3.samples.StepperWithIntegerSample
+ *
+ * ![StepperWithIntegerSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_StepperWithIntegerSample_CompositeImage.png)
+ *
  * @param value Current value of the Stepper. If outside of [valueProgression] provided, value will
  *   be coerced to this range.
  * @param modifier Modifier to be applied to the component
