@@ -33,7 +33,7 @@ import java.io.IOException;
  * place of the original file after the write has successfully completed.
  * <p>
  * Atomic file guarantees file integrity by ensuring that a file has been completely written and
- * sync'd to disk before renaming it to the original file. Previously this is done by renaming the
+ * sync'd to disk before renaming it to the original file. Previously this was done by renaming the
  * original file to a backup file beforehand, but this approach couldn't handle the case where the
  * file is created for the first time. This class will also handle the backup file created by the
  * old implementation properly.
