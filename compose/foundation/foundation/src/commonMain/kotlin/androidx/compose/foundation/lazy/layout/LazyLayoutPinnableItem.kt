@@ -75,6 +75,9 @@ class LazyLayoutPinnedItemList private constructor(private val items: MutableLis
         items.remove(item)
     }
 
+    // helper for more efficient access to the snapshot of the list
+    internal fun toList(): List<PinnedItem> = (items as SnapshotStateList<PinnedItem>).toList()
+
     /**
      * Item pinned in a lazy layout. Pinned item should be always measured and laid out, even if the
      * item is beyond the boundaries of the layout.

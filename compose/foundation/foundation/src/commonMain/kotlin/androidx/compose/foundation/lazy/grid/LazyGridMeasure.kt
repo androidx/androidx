@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.collection.IntList
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
@@ -68,7 +69,7 @@ internal fun measureLazyGrid(
     density: Density,
     itemAnimator: LazyLayoutItemAnimator<LazyGridMeasuredItem>,
     slotsPerLine: Int,
-    pinnedItems: List<Int>,
+    pinnedItems: IntList,
     isInLookaheadScope: Boolean,
     isLookingAhead: Boolean,
     approachLayoutInfo: LazyGridLayoutInfo?,
@@ -465,14 +466,14 @@ internal fun measureLazyGrid(
 }
 
 private inline fun calculateExtraItems(
-    pinnedItems: List<Int>,
+    pinnedItems: IntList,
     measuredItemProvider: LazyGridMeasuredItemProvider,
     measuredLineProvider: LazyGridMeasuredLineProvider,
     filter: (Int) -> Boolean,
 ): List<LazyGridMeasuredItem> {
     var items: MutableList<LazyGridMeasuredItem>? = null
 
-    pinnedItems.fastForEach { index ->
+    pinnedItems.forEach { index ->
         if (filter(index)) {
             val span = measuredLineProvider.spanOf(index)
             val constraints = measuredLineProvider.childConstraints(0, span)
