@@ -95,6 +95,9 @@ import androidx.wear.compose.materialcore.isLayoutDirectionRtl
  *
  * @sample androidx.wear.compose.material3.samples.SwitchButtonSample
  *
+ * ![SwitchButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SwitchButtonSample_CompositeImage.png)
+ *
  * [SwitchButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
  * The recommended set of [SwitchButton] colors can be obtained from [SwitchButtonDefaults], e.g.
@@ -255,6 +258,9 @@ public fun SwitchButton(
  * Example of a SplitSwitchButton:
  *
  * @sample androidx.wear.compose.material3.samples.SplitSwitchButtonSample
+ *
+ * ![SplitSwitchButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SplitSwitchButtonSample_CompositeImage.png)
  *
  * For a SplitSwitchButton the background of the tappable background area behind the switch will
  * have a visual effect applied to provide a "divider" between the two tappable areas.
