@@ -55,6 +55,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 
+@OptIn(ExperimentalRotateToLookAtUserApi::class)
 @RunWith(AndroidJUnit4::class)
 class RotateToLookAtUserTest {
     private val testDispatcher = StandardTestDispatcher()

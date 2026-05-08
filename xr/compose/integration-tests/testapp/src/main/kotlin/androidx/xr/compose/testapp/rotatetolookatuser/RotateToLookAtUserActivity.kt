@@ -51,6 +51,7 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
@@ -93,6 +94,7 @@ import androidx.xr.runtime.math.Vector3
  * - Move the headset or camera around the spatial environment to verify that all panels actively
  *   rotate to maintain a front-facing orientation toward the user.
  */
+@OptIn(ExperimentalRotateToLookAtUserApi::class)
 class RotateToLookAtUserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
