@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.projected
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.ArDevice
 import androidx.xr.arcore.runtime.ConversationState
@@ -155,7 +154,7 @@ internal constructor(private val timeSource: ProjectedTimeSource) : PerceptionMa
 
     override val monoDepth: Depth? = null
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val userFace: Face? = null
+    override val userFace: Face? = null
 
     override val conversationSceneSignal: ConversationState? = null
 

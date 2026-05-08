@@ -262,7 +262,7 @@ public class FaceTrackingMode private constructor(public val mode: Int) : Config
          * Required permissions:
          * - [CAMERA][android.Manifest.permission.CAMERA]
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmField
         public val MESHES: FaceTrackingMode = FaceTrackingMode(2)
     }
@@ -390,10 +390,8 @@ public class EyeTrackingMode private constructor(public val mode: Int) : Config.
 }
 
 /** Declare whether the Session should use the world-facing or user-facing camera. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class CameraFacingDirection
-private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int) :
-    Config.ConfigMode() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CameraFacingDirection private constructor(public val mode: Int) : Config.ConfigMode() {
     public companion object {
         /**
          * Use the world-facing camera. This is the default behavior across all devices.
