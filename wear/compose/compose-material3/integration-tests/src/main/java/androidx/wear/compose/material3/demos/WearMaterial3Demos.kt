@@ -266,6 +266,7 @@ val WearMaterial3Demos =
                 Material3DemoCategory(
                     title = "Transforming Lazy Column",
                     listOf(
+                        ComposableDemo("Border Colors") { BorderColors() },
                         ComposableDemo("Notifications") {
                             TransformingLazyColumnNotificationsDemo()
                         },
