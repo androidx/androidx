@@ -682,6 +682,10 @@ abstract interface androidx.compose.ui.layout/MeasureResult { // androidx.compos
         abstract fun <get-height>(): kotlin/Int // androidx.compose.ui.layout/MeasureResult.height.<get-height>|<get-height>(){}[0]
     abstract val width // androidx.compose.ui.layout/MeasureResult.width|{}width[0]
         abstract fun <get-width>(): kotlin/Int // androidx.compose.ui.layout/MeasureResult.width.<get-width>|<get-width>(){}[0]
+    open val isRulerProvided // androidx.compose.ui.layout/MeasureResult.isRulerProvided|{}isRulerProvided[0]
+        open fun <get-isRulerProvided>(): kotlin/Function1<androidx.compose.ui.layout/Ruler, kotlin/Boolean>? // androidx.compose.ui.layout/MeasureResult.isRulerProvided.<get-isRulerProvided>|<get-isRulerProvided>(){}[0]
+    open val rulerProvider // androidx.compose.ui.layout/MeasureResult.rulerProvider|{}rulerProvider[0]
+        open fun <get-rulerProvider>(): kotlin/Function2<androidx.compose.ui.layout/RulerScope, androidx.compose.ui.layout/Ruler, kotlin/Unit>? // androidx.compose.ui.layout/MeasureResult.rulerProvider.<get-rulerProvider>|<get-rulerProvider>(){}[0]
     open val rulers // androidx.compose.ui.layout/MeasureResult.rulers|{}rulers[0]
         open fun <get-rulers>(): kotlin/Function1<androidx.compose.ui.layout/RulerScope, kotlin/Unit>? // androidx.compose.ui.layout/MeasureResult.rulers.<get-rulers>|<get-rulers>(){}[0]
 
@@ -691,6 +695,7 @@ abstract interface androidx.compose.ui.layout/MeasureResult { // androidx.compos
 abstract interface androidx.compose.ui.layout/MeasureScope : androidx.compose.ui.layout/IntrinsicMeasureScope { // androidx.compose.ui.layout/MeasureScope|null[0]
     open fun layout(kotlin/Int, kotlin/Int, kotlin.collections/Map<androidx.compose.ui.layout/AlignmentLine, kotlin/Int> = ..., kotlin/Function1<androidx.compose.ui.layout/Placeable.PlacementScope, kotlin/Unit>): androidx.compose.ui.layout/MeasureResult // androidx.compose.ui.layout/MeasureScope.layout|layout(kotlin.Int;kotlin.Int;kotlin.collections.Map<androidx.compose.ui.layout.AlignmentLine,kotlin.Int>;kotlin.Function1<androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit>){}[0]
     open fun layout(kotlin/Int, kotlin/Int, kotlin.collections/Map<androidx.compose.ui.layout/AlignmentLine, kotlin/Int> = ..., kotlin/Function1<androidx.compose.ui.layout/RulerScope, kotlin/Unit>? = ..., kotlin/Function1<androidx.compose.ui.layout/Placeable.PlacementScope, kotlin/Unit>): androidx.compose.ui.layout/MeasureResult // androidx.compose.ui.layout/MeasureScope.layout|layout(kotlin.Int;kotlin.Int;kotlin.collections.Map<androidx.compose.ui.layout.AlignmentLine,kotlin.Int>;kotlin.Function1<androidx.compose.ui.layout.RulerScope,kotlin.Unit>?;kotlin.Function1<androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit>){}[0]
+    open fun layout(kotlin/Int, kotlin/Int, kotlin/Function1<androidx.compose.ui.layout/Ruler, kotlin/Boolean>, kotlin/Function2<androidx.compose.ui.layout/RulerScope, androidx.compose.ui.layout/Ruler, kotlin/Unit>, kotlin.collections/Map<androidx.compose.ui.layout/AlignmentLine, kotlin/Int> = ..., kotlin/Function1<androidx.compose.ui.layout/Placeable.PlacementScope, kotlin/Unit>): androidx.compose.ui.layout/MeasureResult // androidx.compose.ui.layout/MeasureScope.layout|layout(kotlin.Int;kotlin.Int;kotlin.Function1<androidx.compose.ui.layout.Ruler,kotlin.Boolean>;kotlin.Function2<androidx.compose.ui.layout.RulerScope,androidx.compose.ui.layout.Ruler,kotlin.Unit>;kotlin.collections.Map<androidx.compose.ui.layout.AlignmentLine,kotlin.Int>;kotlin.Function1<androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit>){}[0]
 }
 
 abstract interface androidx.compose.ui.layout/Measured { // androidx.compose.ui.layout/Measured|null[0]

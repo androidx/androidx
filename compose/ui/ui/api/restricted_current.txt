@@ -3187,11 +3187,15 @@ package androidx.compose.ui.layout {
   public interface MeasureResult {
     method @InaccessibleFromKotlin public java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> getAlignmentLines();
     method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public default kotlin.jvm.functions.Function2<androidx.compose.ui.layout.RulerScope,androidx.compose.ui.layout.Ruler,kotlin.Unit>? getRulerProvider();
     method @InaccessibleFromKotlin public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.RulerScope,kotlin.Unit>? getRulers();
     method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.Ruler,java.lang.Boolean>? isRulerProvided();
     method public void placeChildren();
     property public abstract java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines;
     property public abstract int height;
+    property public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.Ruler,java.lang.Boolean>? isRulerProvided;
+    property public default kotlin.jvm.functions.Function2<androidx.compose.ui.layout.RulerScope,androidx.compose.ui.layout.Ruler,kotlin.Unit>? rulerProvider;
     property public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.RulerScope,kotlin.Unit>? rulers;
     property public abstract int width;
   }
@@ -3199,8 +3203,10 @@ package androidx.compose.ui.layout {
   @androidx.compose.ui.layout.MeasureScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface MeasureScope extends androidx.compose.ui.layout.IntrinsicMeasureScope {
     method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
     method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.RulerScope,kotlin.Unit>? rulers, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Ruler,java.lang.Boolean> isRulerProvided, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.RulerScope,? super androidx.compose.ui.layout.Ruler,kotlin.Unit> rulerProvider, optional java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
     method @BytecodeOnly public static androidx.compose.ui.layout.MeasureResult! layout$default(androidx.compose.ui.layout.MeasureScope!, int, int, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
     method @BytecodeOnly public static androidx.compose.ui.layout.MeasureResult! layout$default(androidx.compose.ui.layout.MeasureScope!, int, int, java.util.Map!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.ui.layout.MeasureResult! layout$default(androidx.compose.ui.layout.MeasureScope!, int, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function2!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface MeasureScopeMarker {

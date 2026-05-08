@@ -29,6 +29,25 @@ interface MeasureResult {
         get() = null
 
     /**
+     * Works in conjunction with [rulerProvider] to [provide][RulerScope.provides] Ruler values
+     * individually. A return value of `true` indicates that [rulerProvider] might be able to
+     * provide a value for the passed-in [Ruler]. A value of `false` means it can never provide the
+     * value.
+     */
+    val isRulerProvided: ((Ruler) -> Boolean)?
+        get() = null
+
+    /**
+     * A lambda that can [provide][RulerScope.provides] [Ruler] values. When [isRulerProvided]
+     * returns `true` for a [Ruler], [rulerProvider] will be called to provide its value.
+     * [rulerProvider] can choose not to provide the value if it isn't available. It can also
+     * provide more [Ruler] values if it is convenient to provide them. For example, it may be
+     * convenient to provide all values for a [RectRulers] when one is provided.
+     */
+    val rulerProvider: (RulerScope.(Ruler) -> Unit)?
+        get() = null
+
+    /**
      * A method used to place children of this layout. It may also be used to measure children that
      * were not needed for determining the size of this layout.
      */
