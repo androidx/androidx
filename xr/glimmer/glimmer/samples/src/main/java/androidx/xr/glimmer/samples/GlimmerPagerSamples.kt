@@ -27,10 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
+import androidx.xr.glimmer.LocalTextStyle
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.pager.GlimmerHorizontalPager
 import androidx.xr.glimmer.pager.GlimmerPagerState
@@ -43,7 +45,12 @@ fun GlimmerHorizontalPagerSample() {
     val pagerState = rememberGlimmerPagerState(pageCount = { 10 })
 
     GlimmerHorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
-        Card(modifier = Modifier.fillMaxWidth()) { Text(text = "Page: $page") }
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "Page: $page",
+                style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
+            )
+        }
     }
 }
 
@@ -58,7 +65,12 @@ fun GlimmerPagerStateAnimateScrollToPageSample() {
         }
 
         GlimmerHorizontalPager(modifier = Modifier.fillMaxSize(), state = state) { page ->
-            Card { Text(text = "Page: $page") }
+            Card {
+                Text(
+                    text = "Page: $page",
+                    style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
+                )
+            }
         }
     }
 }
@@ -74,7 +86,12 @@ fun GlimmerPagerStateScrollToPageSample() {
         }
 
         GlimmerHorizontalPager(modifier = Modifier.fillMaxSize(), state = state) { page ->
-            Card { Text(text = "Page: $page") }
+            Card {
+                Text(
+                    text = "Page: $page",
+                    style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
+                )
+            }
         }
     }
 }
@@ -113,7 +130,12 @@ fun GlimmerPagerStateCustomAnimateScrollToPageSample() {
         }
 
         GlimmerHorizontalPager(modifier = Modifier.fillMaxSize(), state = state) { page ->
-            Card { Text(text = "Page: $page") }
+            Card {
+                Text(
+                    text = "Page: $page",
+                    style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
+                )
+            }
         }
     }
 }

@@ -44,6 +44,7 @@ val Demos =
             DemoCategory("Focus", FocusDemos),
             DemoCategory("LazyLists", LazyListDemos),
             DemoCategory("Stack", StackDemos),
+            DemoCategory("Pagers", PagerDemos),
             DemoCategory("VoiceInputIndicator", VoiceInputIndicatorDemos),
             ComposableDemo("Gesture") { OnIndirectPointerGestureSampleUsage() },
             ComposableDemo("Settings") { DemoSettings() },
