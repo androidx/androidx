@@ -51,6 +51,10 @@ import androidx.wear.compose.material3.VerticalPagerScaffold
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 
 @Sampled
@@ -73,7 +77,7 @@ fun OneHandedGestureButtonSample() {
                     onGesture = onClick,
                 ),
         ) {
-            OneHandedGestureDefaults.GestureIndicator(
+            OneHandedGestureIndicator(
                 gestureIndicatorVisible,
                 { gestureIndicatorVisible = false },
             ) {
@@ -121,7 +125,7 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                             overscrollEffect = rememberOverscrollEffect(),
                         ),
             ) {
-                OneHandedGestureDefaults.GestureIndicator(
+                OneHandedGestureIndicator(
                     buttonGestureIndicatorVisible,
                     { buttonGestureIndicatorVisible = false },
                 ) {
@@ -130,7 +134,7 @@ fun OneHandedGestureTransformingLazyColumnSample() {
             }
         },
         scrollIndicator = {
-            OneHandedGestureDefaults.ScrollGestureIndicator(
+            OneHandedGestureScrollIndicator(
                 scrollGestureIndicatorVisible,
                 onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
                 tlcState,
@@ -164,7 +168,7 @@ fun OneHandedGestureHorizontalPagerSample() {
     HorizontalPagerScaffold(
         pagerState = pagerState,
         pageIndicator = {
-            OneHandedGestureDefaults.HorizontalPageGestureIndicator(
+            OneHandedGestureHorizontalPageIndicator(
                 pagerState = pagerState,
                 gestureIndicatorVisible = pageGestureIndicatorVisible,
                 onGestureIndicatorFinished = { pageGestureIndicatorVisible = false },
@@ -207,7 +211,7 @@ fun OneHandedGestureVerticalPagerSample() {
     VerticalPagerScaffold(
         pagerState = pagerState,
         pageIndicator = {
-            OneHandedGestureDefaults.VerticalPageGestureIndicator(
+            OneHandedGestureVerticalPageIndicator(
                 pagerState = pagerState,
                 gestureIndicatorVisible = pageGestureIndicatorVisible,
                 onGestureIndicatorFinished = { pageGestureIndicatorVisible = false },

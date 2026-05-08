@@ -83,6 +83,8 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 
 // Confirm and dismiss buttons
@@ -812,7 +814,7 @@ public fun AlertDialogContent(
             modifier = modifier,
             contentPadding = contentPadding,
             scrollIndicator = {
-                OneHandedGestureDefaults.ScrollGestureIndicator(
+                OneHandedGestureScrollIndicator(
                     scrollGestureIndicatorVisible,
                     onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
                     state,
@@ -1011,7 +1013,7 @@ public fun AlertDialogContent(
             modifier = modifier,
             contentPadding = contentPadding(true),
             scrollIndicator = {
-                OneHandedGestureDefaults.ScrollGestureIndicator(
+                OneHandedGestureScrollIndicator(
                     scrollGestureIndicatorVisible,
                     onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
                     state,
@@ -1210,7 +1212,7 @@ public fun AlertDialogContent(
         edgeButton = edgeButton,
         contentPadding = contentPadding,
         scrollIndicator = {
-            OneHandedGestureDefaults.ScrollGestureIndicator(
+            OneHandedGestureScrollIndicator(
                 scrollGestureIndicatorVisible,
                 onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
                 state,
@@ -1303,9 +1305,10 @@ public object AlertDialogDefaults {
             colors = colors,
             buttonSize = buttonSize,
             content = {
-                OneHandedGestureDefaults.GestureIndicator(
+                OneHandedGestureIndicator(
                     gestureIndicatorVisible,
                     { gestureIndicatorVisible = false },
+                    gestureIndicatorTint = colors.iconColor,
                 ) {
                     // wrap content() in a Row because EdgeButton's content parameter is as
                     // RowScope.() -> Unit.
@@ -1361,10 +1364,10 @@ public object AlertDialogDefaults {
             colors = colors,
             shapes = IconButtonDefaults.shapes(confirmShape),
         ) {
-            OneHandedGestureDefaults.GestureIndicator(
+            OneHandedGestureIndicator(
                 gestureIndicatorVisible,
                 { gestureIndicatorVisible = false },
-                modifier = Modifier.rotate(45f),
+                modifier = Modifier.graphicsLayer { rotationZ = 45f },
             ) {
                 Row(
                     modifier =
@@ -1378,7 +1381,6 @@ public object AlertDialogDefaults {
                                 role = Role.Button
                             }
                             .align(Alignment.Center)
-                            .graphicsLayer { rotationZ = 45f }
                             .padding(10.dp),
                     content = content,
                 )

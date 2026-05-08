@@ -18,8 +18,8 @@ package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -40,6 +40,8 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
@@ -104,7 +106,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
     ScreenScaffold(
         scrollState = tlcState,
         scrollIndicator = {
-            OneHandedGestureDefaults.ScrollGestureIndicator(
+            OneHandedGestureScrollIndicator(
                 scrollGestureIndicatorVisible,
                 onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
                 tlcState,
@@ -147,7 +149,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                                 Modifier
                             },
                 ) {
-                    OneHandedGestureDefaults.GestureIndicator(
+                    OneHandedGestureIndicator(
                         buttonGestureIndicatorVisible,
                         { buttonGestureIndicatorVisible = false },
                     ) {
@@ -160,7 +162,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
 }
 
 @Composable
-private fun OneHandedGestureButton(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
+private fun OneHandedGestureButton(onClick: () -> Unit, content: @Composable BoxScope.() -> Unit) {
     var gestureIndicatorVisible by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -175,11 +177,10 @@ private fun OneHandedGestureButton(onClick: () -> Unit, content: @Composable Row
                 onGesture = onClick,
             ),
     ) {
-        OneHandedGestureDefaults.GestureIndicator(
+        OneHandedGestureIndicator(
             gestureIndicatorVisible,
             onGestureIndicatorFinished = { gestureIndicatorVisible = false },
-        ) {
-            content()
-        }
+            content = content,
+        )
     }
 }
