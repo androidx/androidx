@@ -85,6 +85,9 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.wear.compose.material3.samples.SliderSample
  *
+ * ![SliderSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SliderSample_CompositeImage.png)
+ *
  * A segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.SliderSegmentedSample
@@ -257,6 +260,9 @@ public fun Slider(
  * A continuous non-segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.SliderWithIntegerSample
+ *
+ * ![SliderWithIntegerSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SliderWithIntegerSample_CompositeImage.png)
  *
  * A segmented slider sample:
  *

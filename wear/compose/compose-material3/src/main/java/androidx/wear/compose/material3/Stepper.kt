@@ -70,6 +70,9 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.wear.compose.material3.samples.StepperSample
  *
+ * ![StepperSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_StepperSample_CompositeImage.png)
+ *
  * Example of a [Stepper] with range semantics:
  *
  * @sample androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
@@ -77,6 +80,10 @@ import kotlin.math.roundToInt
  * Example of a [Stepper] with Custom icons and Button content:
  *
  * @sample androidx.wear.compose.material3.samples.StepperWithButtonSample
+ *
+ * ![StepperWithButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_StepperWithButtonSample_CompositeImage.png)
+ *
  * @param value Current value of the Stepper. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated.
@@ -132,6 +139,9 @@ public fun Stepper(
  * Example of a [Stepper] with integer values:
  *
  * @sample androidx.wear.compose.material3.samples.StepperWithIntegerSample
+ *
+ * ![StepperWithIntegerSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_StepperWithIntegerSample_CompositeImage.png)
  *
  * A number of steps is calculated as the difference between max and min values of
  * [valueProgression] divided by [valueProgression].step - 1. For example, with a range of 100..120
