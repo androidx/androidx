@@ -73,7 +73,7 @@ class RemoteDocScreenshotTestRule(moduleDirectory: String, val matcher: BitmapMa
         coreDocument: CoreDocument,
         context: Context,
         goldenScreenshotName: GoldenScreenshotName? = null,
-        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)? = null,
+        composableWrapper: ComposableWrapper = ComposableWrappers.noop,
     ) {
         runScreenshotTestInternal(
             coreDocument = coreDocument,
@@ -91,7 +91,7 @@ class RemoteDocScreenshotTestRule(moduleDirectory: String, val matcher: BitmapMa
         coreDocument: CoreDocument,
         size: Size,
         goldenScreenshotName: GoldenScreenshotName? = null,
-        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)? = null,
+        composableWrapper: ComposableWrapper = ComposableWrappers.noop,
     ) {
         runScreenshotTestInternal(
             coreDocument = coreDocument,
@@ -105,7 +105,7 @@ class RemoteDocScreenshotTestRule(moduleDirectory: String, val matcher: BitmapMa
         coreDocument: CoreDocument,
         size: Size,
         goldenScreenshotName: GoldenScreenshotName,
-        composableWrapper: (@Composable (content: @Composable () -> Unit) -> Unit)?,
+        composableWrapper: ComposableWrapper,
     ) {
         remoteContentTestRule.setContent(
             coreDocument = coreDocument,
@@ -134,9 +134,8 @@ class RemoteDocScreenshotTestRule(moduleDirectory: String, val matcher: BitmapMa
         const val ROOT_TEST_TAG: String = "ROOT_TEST_TAG"
     }
 
-    private class PlayerImpl(
-        private val composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit)?
-    ) : RemoteBaseDocContentTestRule.Player {
+    private class PlayerImpl(private val composableWrapper: ComposableWrapper) :
+        RemoteBaseDocContentTestRule.Player {
         @Composable
         override fun Play(coreDocument: CoreDocument, size: Size) {
             Box(
@@ -152,11 +151,7 @@ class RemoteDocScreenshotTestRule(moduleDirectory: String, val matcher: BitmapMa
                         documentHeight = size.height.toInt(),
                     )
                 }
-                if (composableWrapper == null) {
-                    composable()
-                } else {
-                    composableWrapper { composable() }
-                }
+                composableWrapper { composable() }
             }
         }
     }

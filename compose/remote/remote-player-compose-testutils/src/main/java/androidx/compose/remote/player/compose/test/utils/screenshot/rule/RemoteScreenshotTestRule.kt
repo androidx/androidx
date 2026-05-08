@@ -106,15 +106,11 @@ class RemoteScreenshotTestRule(
     fun runScreenshotTest(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo? = null,
         profile: Profile = RcPlatformProfiles.ANDROIDX,
-        creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
-            it()
-        },
+        creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
         goldenScreenshotName: GoldenScreenshotName? = null,
         update: (RemoteComposePlayer) -> Unit = {},
-        playComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
-            it()
-        },
+        playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         setContent(
@@ -161,10 +157,10 @@ class RemoteScreenshotTestRule(
     private fun setContentInternal(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile,
-        creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit),
+        creationComposableWrapper: ComposableWrapper,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)?,
         update: (RemoteComposePlayer) -> Unit,
-        playComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit),
+        playComposableWrapper: ComposableWrapper,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         remoteContentTestRule.setContent(
