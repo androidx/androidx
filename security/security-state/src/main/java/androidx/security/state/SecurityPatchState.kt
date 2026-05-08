@@ -642,6 +642,51 @@ constructor(
             ?.let { latestDate -> DateBasedSecurityPatchLevel.fromString(latestDate) }
     }
 
+    private fun getMaxComponentSecurityPatchLevel(
+        component: String,
+        declaredSpl: DateBasedSecurityPatchLevel,
+    ): DateBasedSecurityPatchLevel {
+        val report = vulnerabilityReport ?: return declaredSpl
+
+        val oldestReportKey = report.vulnerabilities.keys.minOrNull()
+        if (oldestReportKey != null) {
+            val oldestReportSpl = DateBasedSecurityPatchLevel.fromString(oldestReportKey)
+            if (declaredSpl < oldestReportSpl) {
+                // The device is older than the report's historical records.
+                // We cannot mathematically guarantee the gap is clean, so we must safely return the
+                // device's actual SPL.
+                return declaredSpl
+            }
+        }
+
+        val globalMax = getLatestBulletinDate() ?: return declaredSpl
+        if (declaredSpl > globalMax) return globalMax
+
+        val sortedDates =
+            report.vulnerabilities.keys
+                .map { DateBasedSecurityPatchLevel.fromString(it) }
+                .filter { it > declaredSpl }
+                .sorted()
+
+        var currentSpl = declaredSpl
+        for (date in sortedDates) {
+            val hasVulnerability =
+                report.vulnerabilities[date.toString()]?.any { group ->
+                    when (component) {
+                        COMPONENT_SYSTEM_MODULES ->
+                            group.components.any { it in getSystemModules() }
+                        else -> group.components.contains(componentToString(component))
+                    }
+                } ?: false
+
+            if (hasVulnerability) {
+                break
+            }
+            currentSpl = date
+        }
+        return currentSpl
+    }
+
     private fun componentToString(@Component component: String): String {
         return component.lowercase(Locale.US)
     }
@@ -667,54 +712,47 @@ constructor(
      * This "Global Max" behavior ensures that in months where the Bulletin does not list specific
      * Mainline updates (e.g., due to Risk Based Update System (RBUS) policies), the reported SPL
      * "upgrades" to the current Bulletin date to signal ongoing compliance.
-     *
-     * @throws IllegalStateException if the vulnerability report is not loaded or contains no data.
      */
     private fun getSystemModulesSecurityPatchLevel(): DateBasedSecurityPatchLevel {
-        checkVulnerabilityReport()
+        if (vulnerabilityReport == null) {
+            // If no report is loaded, we can't determine mainline SPL accurately.
+            // However, we should return the lowest version among the monitored modules
+            // as a conservative estimate of the device state.
+            return getSystemModules()
+                .map { module ->
+                    try {
+                        DateBasedSecurityPatchLevel.fromString(
+                            securityStateManagerCompat.getPackageVersion(module)
+                        )
+                    } catch (e: Exception) {
+                        // If a package returns a malformed version string, treat it as
+                        // being extremely outdated to ensure a conservative compliance estimate.
+                        DateBasedSecurityPatchLevel(1970, 1, 1)
+                    }
+                }
+                .minOrNull() ?: DateBasedSecurityPatchLevel(1970, 1, 1)
+        }
 
         val modules: List<String> = getSystemModules()
-        var minSpl = DateBasedSecurityPatchLevel(1970, 1, 1)
-        var unpatched = false
-
-        // Determine the target "Upgraded" SPL (Global Max) from the Bulletin
-        val globalMaxSpl =
-            getLatestBulletinDate()
-                ?: throw IllegalStateException("No SPL data available for system modules.")
+        var minAdvancedSpl: DateBasedSecurityPatchLevel? = null
 
         modules.forEach { module ->
-            val maxComponentSpl = getMaxComponentSecurityPatchLevel(module) ?: return@forEach
+            val packageSplString = securityStateManagerCompat.getPackageVersion(module)
             val packageSpl: DateBasedSecurityPatchLevel
             try {
-                packageSpl =
-                    DateBasedSecurityPatchLevel.fromString(
-                        securityStateManagerCompat.getPackageVersion(module)
-                    )
+                packageSpl = DateBasedSecurityPatchLevel.fromString(packageSplString)
             } catch (e: Exception) {
                 // Prevent malformed package versions from interrupting the loop.
                 return@forEach
             }
 
-            // Check if the specific module is outdated relative to its last KNOWN update
-            if (packageSpl < maxComponentSpl) {
-                if (unpatched) {
-                    if (minSpl > packageSpl) minSpl = packageSpl
-                } else {
-                    minSpl = packageSpl
-                    unpatched = true
-                }
+            val advancedSpl = getMaxComponentSecurityPatchLevel(module, packageSpl)
+            if (minAdvancedSpl == null || advancedSpl < minAdvancedSpl) {
+                minAdvancedSpl = advancedSpl
             }
         }
 
-        // If any module is outdated, return the lowest version found (Device State).
-        if (unpatched) {
-            return minSpl
-        }
-
-        // If all modules meet their requirements, "Upgrade" the reported SPL to the
-        // Global Max (Bulletin Date). This handles Risk Based Update System (RBUS) months
-        // (hidden patches) and empty bulletins correctly.
-        return globalMaxSpl
+        return minAdvancedSpl ?: DateBasedSecurityPatchLevel(1970, 1, 1)
     }
 
     /**
@@ -743,6 +781,30 @@ constructor(
     }
 
     /**
+     * Returns the effective Security Patch Level (SPL) for the System image.
+     *
+     * This method determines the SPL based on the compliance of the device's
+     * ro.build.security_patch property against the loaded Vulnerability Report.
+     *
+     * Behavior:
+     * 1. **Compliant:** If the system SPL is up-to-date with its specific requirements in the
+     *    Vulnerability Report, this returns the **Latest SPL from the entire Vulnerability Report
+     *    (Global Max)**.
+     * 2. **Outdated:** If the system SPL is older than its required version, this returns the
+     *    actual device SPL.
+     *
+     * This "Global Max" behavior ensures that in months where the Bulletin does not list specific
+     * System updates (e.g., due to Risk Based Update System (RBUS) policies), the reported SPL
+     * "upgrades" to the current Bulletin date to signal ongoing compliance.
+     */
+    private fun getSystemSecurityPatchLevel(systemSplString: String): DateBasedSecurityPatchLevel {
+        val systemSpl = DateBasedSecurityPatchLevel.fromString(systemSplString)
+        if (vulnerabilityReport == null) return systemSpl
+
+        return getMaxComponentSecurityPatchLevel(COMPONENT_SYSTEM, systemSpl)
+    }
+
+    /**
      * Retrieves the current security patch level for a specified component.
      *
      * @param component The component for which the security patch level is requested.
@@ -766,11 +828,10 @@ constructor(
                 VersionedSecurityPatchLevel.fromString(kernelVersion)
             }
             COMPONENT_SYSTEM -> {
-                val systemSpl =
+                val systemSplString =
                     globalSecurityState.getString(KEY_SYSTEM_SPL)
                         ?: throw IllegalStateException("System SPL not available.")
-
-                DateBasedSecurityPatchLevel.fromString(systemSpl)
+                getSystemSecurityPatchLevel(systemSplString)
             }
             COMPONENT_VENDOR -> {
                 val vendorSpl =
