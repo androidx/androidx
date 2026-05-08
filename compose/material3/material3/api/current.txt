@@ -2958,10 +2958,6 @@ package androidx.compose.material3 {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void OutlinedTextField(String value, kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? prefix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? suffix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingText, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional int minLines, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.TextFieldColors colors);
   }
 
-  public final class PrecisionPointer {
-    method public static boolean shouldUsePrecisionPointerComponentSizing();
-  }
-
   public final class ProgressIndicatorDefaults {
     method @KotlinOnly public void drawStopIndicator(androidx.compose.ui.graphics.drawscope.DrawScope drawScope, androidx.compose.ui.unit.Dp stopSize, androidx.compose.ui.graphics.Color color, androidx.compose.ui.graphics.StrokeCap strokeCap);
     method @BytecodeOnly public void drawStopIndicator-EgI2THU(androidx.compose.ui.graphics.drawscope.DrawScope, float, long, int);
