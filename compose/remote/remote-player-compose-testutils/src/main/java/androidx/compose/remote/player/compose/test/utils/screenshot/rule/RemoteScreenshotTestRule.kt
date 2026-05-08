@@ -168,13 +168,9 @@ class RemoteScreenshotTestRule(
             profile = profile,
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
-            player =
-                PlayerImpl(
-                    remoteCreationDisplayInfo = remoteCreationDisplayInfo,
-                    update = update,
-                    bitmapLoader = bitmapLoader,
-                ),
-            playComposableWrapper = playComposableWrapper,
+            player = PlayerImpl(update = update, bitmapLoader = bitmapLoader),
+            playComposableWrapper =
+                customPlayComposableWrapper(remoteCreationDisplayInfo, playComposableWrapper),
             composable = composable,
         )
     }
@@ -197,31 +193,37 @@ class RemoteScreenshotTestRule(
     private fun getGoldenScreenshotName(goldenScreenshotName: GoldenScreenshotName?) =
         goldenScreenshotName ?: GoldenScreenshotName(testDescription)
 
+    private fun customPlayComposableWrapper(
+        remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
+        playComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit),
+    ): (@Composable (composable: @Composable () -> Unit) -> Unit) = { content ->
+        Box(
+            modifier =
+                Modifier.width(remoteCreationDisplayInfo.widthDp)
+                    .height(remoteCreationDisplayInfo.heightDp)
+                    .testTag(ROOT_TEST_TAG)
+        ) {
+            playComposableWrapper { content() }
+        }
+    }
+
     companion object {
         const val ROOT_TEST_TAG: String = "ROOT_TEST_TAG"
     }
 
     private class PlayerImpl(
-        private val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         private val update: (RemoteComposePlayer) -> Unit = {},
         private val bitmapLoader: BitmapLoader? = null,
     ) : Player {
         @Composable
         override fun Play(coreDocument: CoreDocument, size: Size) {
-            Box(
-                modifier =
-                    Modifier.width(remoteCreationDisplayInfo.widthDp)
-                        .height(remoteCreationDisplayInfo.heightDp)
-                        .testTag(ROOT_TEST_TAG)
-            ) {
-                RemoteDocumentPlayer(
-                    document = coreDocument,
-                    documentWidth = size.width.toInt(),
-                    documentHeight = size.height.toInt(),
-                    update = update,
-                    bitmapLoader = bitmapLoader,
-                )
-            }
+            RemoteDocumentPlayer(
+                document = coreDocument,
+                documentWidth = size.width.toInt(),
+                documentHeight = size.height.toInt(),
+                update = update,
+                bitmapLoader = bitmapLoader,
+            )
         }
     }
 }
