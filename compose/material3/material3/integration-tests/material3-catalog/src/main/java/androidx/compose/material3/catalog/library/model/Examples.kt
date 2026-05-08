@@ -160,6 +160,7 @@ import androidx.compose.material3.samples.MediumFloatingActionButtonSample
 import androidx.compose.material3.samples.MediumRoundWideIconButtonSample
 import androidx.compose.material3.samples.MediumToggleButtonWithIconSample
 import androidx.compose.material3.samples.MenuSample
+import androidx.compose.material3.samples.MenuWithCascadingMenusSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
@@ -1732,6 +1733,14 @@ val MenusExamples =
             isExpressive = true,
         ) {
             GroupedMenuSample()
+        },
+        Example(
+            name = "MenuWithCascadingMenusSample",
+            description = MenusExampleDescription,
+            sourceUrl = MenusExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            MenuWithCascadingMenusSample()
         },
         Example(
             name = "MenuWithScrollStateSample",
