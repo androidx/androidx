@@ -202,12 +202,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enablePassingFilterToChildren() {
-        assertThat(Flags.FLAG_ENABLE_PASSING_FILTER_TO_CHILDREN)
-                .isEqualTo("com.android.appsearch.flags.enable_passing_filter_to_children");
-    }
-
-    @Test
     public void testFlagValue_enableEarlySetSchemaExit() {
         assertThat(Flags.FLAG_ENABLE_EARLY_SET_SCHEMA_EXIT)
                 .isEqualTo("com.android.appsearch.flags.enable_early_set_schema_exit");
