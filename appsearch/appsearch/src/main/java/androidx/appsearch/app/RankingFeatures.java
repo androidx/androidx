@@ -34,6 +34,7 @@ import java.util.Objects;
  * search operations.
  * @exportToFramework:hide
  */
+// @exportToFramework:skipFile()
 //TODO(b/387291182) unhide this class when it is supported in SearchSpec
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalAppSearchApi
