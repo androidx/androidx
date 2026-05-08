@@ -240,6 +240,27 @@ class ProjectedRuntimeTest {
     }
 
     @Test
+    @OptIn(PreviewSpatialApi::class)
+    fun configure_withGeospatialInertial_sendsLowPowerModeAnd6Dof() {
+        underTest.initialize()
+        underTest.running.set(true)
+        val config =
+            Config(
+                deviceTracking = DeviceTrackingMode.SPATIAL,
+                geospatial = GeospatialMode.INERTIAL,
+            )
+
+        underTest.configure(config)
+
+        verify(mockPerceptionService, times(1))
+            .startWithConfiguration(projectedConfigCaptor.capture())
+        assertThat(projectedConfigCaptor.value.geospatialMode)
+            .isEqualTo(ProjectedGeospatialMode.INERTIAL)
+        assertThat(projectedConfigCaptor.value.trackingMode)
+            .isEqualTo(ProjectedTrackingMode.PROJECTED_TRACKING_6DOF)
+    }
+
+    @Test
     fun create_never_startsService() {
         underTest.initialize()
 

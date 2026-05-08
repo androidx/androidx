@@ -53,6 +53,7 @@ import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
 import androidx.xr.runtime.math.GeospatialPose
+import java.util.Locale
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -96,6 +97,11 @@ class ProjectedTestAppActivity : ComponentActivity() {
                     geospatial = GeospatialMode.SPATIAL,
                     deviceTracking = DeviceTrackingMode.DISABLED,
                 ),
+            "Geospatial Low Power" to
+                Config(
+                    geospatial = GeospatialMode.INERTIAL,
+                    deviceTracking = DeviceTrackingMode.SPATIAL,
+                ),
         )
     private var currentConfigIndex = 0
     private val currentConfig: Config
@@ -134,6 +140,8 @@ class ProjectedTestAppActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.i("JetpackXR", "onCreate")
         textView = TextView(this)
+        textView.setBackgroundColor(android.graphics.Color.BLACK)
+        textView.setTextColor(android.graphics.Color.WHITE)
         textView.text = "\n\n\n\nWaiting for Geospatial Pose..."
         setContentView(textView)
         if (!hasPermissions()) {
@@ -212,7 +220,9 @@ class ProjectedTestAppActivity : ComponentActivity() {
             return
         }
 
-        val geoOn = currentConfig.geospatial == GeospatialMode.SPATIAL
+        val geoOn =
+            currentConfig.geospatial == GeospatialMode.SPATIAL ||
+                currentConfig.geospatial == GeospatialMode.INERTIAL
         val trackingOn = currentConfig.deviceTracking != DeviceTrackingMode.DISABLED
 
         if (geoOn && trackingOn) {
@@ -229,9 +239,11 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private fun getDevicePoseText(): String {
         val state = ArDevice.getInstance(session).state.value
         val pose = state.devicePose
+        val t = pose.translation
+        val r = pose.rotation
         return "\nTracking State: ${state.trackingState}" +
-            "\nDevicePose translation: ${pose.translation.x}, ${pose.translation.y}, ${pose.translation.z}" +
-            "\nDevicePose rotation: ${pose.rotation.x}, ${pose.rotation.y}, ${pose.rotation.z}, ${pose.rotation.w}"
+            "\nDevicePose translation: ${t.x.fmt()}, ${t.y.fmt()}, ${t.z.fmt()}" +
+            "\nDevicePose rotation: ${r.x.fmt()}, ${r.y.fmt()}, ${r.z.fmt()}, ${r.w.fmt()}"
     }
 
     private fun getGeospatialPoseText(): String {
@@ -243,30 +255,29 @@ class ProjectedTestAppActivity : ComponentActivity() {
 
         when (val geospatialPoseResult = geospatial.createGeospatialPoseFromPose(devicePose)) {
             is CreateGeospatialPoseFromPoseSuccess -> {
-                val currentGeospatialPose = geospatialPoseResult.pose
-                val isCurrentPoseValid =
-                    currentGeospatialPose.latitude != 0.0 && currentGeospatialPose.longitude != 0.0
-
-                if (!isCurrentPoseValid) {
+                val geoPose = geospatialPoseResult.pose
+                val lat = geoPose.latitude
+                val lon = geoPose.longitude
+                val alt = geoPose.altitude
+                val eus = geoPose.eastUpSouthQuaternion
+                if (lat == 0.0 && lon == 0.0) {
                     Log.w("JetpackXR", "Skipping frame due to invalid currentGeospatialPose.")
                     return "\nWaiting for a valid Geospatial Pose..."
                 }
 
                 if (initialGeospatialPose == null) {
-                    initialGeospatialPose = currentGeospatialPose
+                    initialGeospatialPose = geoPose
                 }
 
-                Log.i("JetpackXR", "GeospatialPose from device pose: ${currentGeospatialPose}")
+                Log.i("JetpackXR", "GeospatialPose from device pose: $geoPose")
 
-                checkVpsAvailability(
-                    currentGeospatialPose.latitude,
-                    currentGeospatialPose.longitude,
-                )
-                val comparisonMessage = testGeospatialConversions(currentGeospatialPose)
+                checkVpsAvailability(lat, lon)
+                val comparisonMessage = testGeospatialConversions(geoPose)
 
                 var text =
                     "\nGeospatial GeospatialState: ${getGeospatialStateMessage(geospatialState)}"
-                text += "\nGeospatialPose: ${currentGeospatialPose}"
+                text += "\nGeospatialPose: Lat/Lon: ${lat.fmt(6)}, ${lon.fmt(6)}, Alt: ${alt.fmt()}"
+                text += "\nEUS Quat: ${eus.x.fmt()}, ${eus.y.fmt()}, ${eus.z.fmt()}, ${eus.w.fmt()}"
                 text += "\nVPS availability: $vpsStatusMessage"
                 text += "\nComparison:\n$comparisonMessage"
                 return text
@@ -357,13 +368,10 @@ class ProjectedTestAppActivity : ComponentActivity() {
 
                 val message =
                     """
-                Lat diff: $latDiff
-                Lon diff: $lonDiff
-                Alt diff: $altDiff
+                ΔLat/Lon: ${latDiff.fmt(6)}, ${lonDiff.fmt(6)}
+                ΔAlt: ${altDiff.fmt()}
                 ---
-                X diff: $xDiff
-                Y diff: $yDiff
-                Z diff: $zDiff
+                ΔXYZ: ${xDiff.fmt()}, ${yDiff.fmt()}, ${zDiff.fmt()}
             """
                         .trimIndent()
                 Log.i("JetpackXR", "Conversion comparison:\n$message")
@@ -460,4 +468,8 @@ class ProjectedTestAppActivity : ComponentActivity() {
         }
         return true
     }
+
+    private fun Float.fmt(digits: Int = 3) = String.format(Locale.US, "%.${digits}f", this)
+
+    private fun Double.fmt(digits: Int = 3) = String.format(Locale.US, "%.${digits}f", this)
 }

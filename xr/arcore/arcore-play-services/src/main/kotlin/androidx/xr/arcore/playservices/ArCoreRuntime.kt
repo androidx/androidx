@@ -188,12 +188,18 @@ internal constructor(
         arConfig.geospatialMode =
             when (config.geospatial) {
                 GeospatialMode.SPATIAL -> ArGeospatialMode.ENABLED
-                GeospatialMode.INERTIAL ->
-                    throw UnsupportedOperationException(
-                        "Failed to configure session, runtime does not support GeospatialMode.INERTIAL"
-                    )
                 else -> ArGeospatialMode.DISABLED
             }
+
+        // TODO: b/510879776 - Remove this code once GeospatialMode.INERTIAL is out in ARCore 1.55
+        if (config.geospatial == GeospatialMode.INERTIAL) {
+            if (!isPrototypeGeospatialModeSupported(ARCORE_GEOSPATIAL_MODE_INERTIAL)) {
+                throw UnsupportedOperationException(
+                    "Failed to configure session, runtime does not support GeospatialMode.INERTIAL"
+                )
+            }
+            setPrototypeGeospatialMode(arConfig, ARCORE_GEOSPATIAL_MODE_INERTIAL)
+        }
 
         try {
             _session.configure(arConfig)
@@ -268,17 +274,97 @@ internal constructor(
     }
 
     private fun isGeoSpatialModeSupportedInArCore1x(geospatialMode: GeospatialMode): Boolean {
+
+        // TODO: b/510879776 - Remove this code once GeospatialMode.INERTIAL is out in ARCore 1.55
+        if (geospatialMode == GeospatialMode.INERTIAL) {
+            return isPrototypeGeospatialModeSupported(ARCORE_GEOSPATIAL_MODE_INERTIAL)
+        }
+
         val arCoreGeospatialMode =
             when (geospatialMode) {
                 GeospatialMode.SPATIAL -> ArCoreConfig.GeospatialMode.ENABLED
-                GeospatialMode.INERTIAL -> return false
                 else -> ArCoreConfig.GeospatialMode.DISABLED
             }
         return _session.isGeospatialModeSupported(arCoreGeospatialMode)
     }
 
+    // TODO: b/510879776 - Remove this method once GeospatialMode.INERTIAL is out in ARCore 1.55
+    @Suppress("BanUncheckedReflection") // Using reflection to access unreleased ARCore 1.55 API
+    internal fun setPrototypeGeospatialMode(config: ArConfig, mode: Int) {
+        try {
+            val nativeSymbolTableHandleField =
+                config.javaClass.getDeclaredField("nativeSymbolTableHandle").apply {
+                    isAccessible = true
+                }
+            val nativeSymbolTableHandle = nativeSymbolTableHandleField.getLong(config)
+
+            val nativeHandleField =
+                config.javaClass.getDeclaredField("nativeHandle").apply { isAccessible = true }
+            val nativeHandle = nativeHandleField.getLong(config)
+
+            val nativeSessionField =
+                _session.javaClass.getDeclaredField("nativeWrapperHandle").apply {
+                    isAccessible = true
+                }
+            val nativeSession = nativeSessionField.getLong(_session)
+
+            val nativeSetGeospatialMode =
+                config.javaClass
+                    .getDeclaredMethod(
+                        "nativeSetGeospatialMode",
+                        Long::class.java,
+                        Long::class.java,
+                        Long::class.java,
+                        Int::class.java,
+                    )
+                    .apply { isAccessible = true }
+
+            nativeSetGeospatialMode.invoke(
+                config,
+                nativeSymbolTableHandle,
+                nativeSession,
+                nativeHandle,
+                mode,
+            )
+        } catch (e: Exception) {
+            throw UnsupportedOperationException(
+                "GeospatialMode.INERTIAL is not supported on this device or ARCore version.",
+                e,
+            )
+        }
+    }
+
+    // TODO: b/510879776 - Remove this method once GeospatialMode.INERTIAL is out in ARCore 1.55
+    @Suppress("BanUncheckedReflection") // Using reflection to access unreleased ARCore 1.55 API
+    internal fun isPrototypeGeospatialModeSupported(mode: Int): Boolean {
+        return try {
+            val nativeHandleField =
+                _session.javaClass.getDeclaredField("nativeWrapperHandle").apply {
+                    isAccessible = true
+                }
+            val nativeHandle = nativeHandleField.getLong(_session)
+
+            val nativeCheckMethod =
+                _session.javaClass
+                    .getDeclaredMethod(
+                        "nativeIsGeospatialModeSupported",
+                        Long::class.java,
+                        Int::class.java,
+                    )
+                    .apply { isAccessible = true }
+
+            nativeCheckMethod.invoke(_session, nativeHandle, mode) as Boolean
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     internal companion object {
-        const private val ARCORE_PACKAGE_NAME = "com.google.ar.core"
+        // TODO: b/510879776 - Remove this constant once GeospatialMode.INERTIAL is out in ARCore
+        // 1.55
+        private const val ARCORE_GEOSPATIAL_MODE_INERTIAL =
+            3 /* com.google.ar.core.Config.GeospatialMode.INERTIAL */
+        private const val ARCORE_PACKAGE_NAME = "com.google.ar.core"
 
         internal val SUPPORTED_CONFIG_MODES: Set<ConfigMode> =
             setOf(
