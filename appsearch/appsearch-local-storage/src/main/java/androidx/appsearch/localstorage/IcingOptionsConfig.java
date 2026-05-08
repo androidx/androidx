@@ -339,8 +339,6 @@ public interface IcingOptionsConfig {
                         (Flags.enableCompressionThreshold() || isVmEnabled)
                                 ? Math.max(0, getCompressionThresholdBytes()) : 0)
                 .setCompressionMemLevel(getCompressionMemLevel())
-                .setEnablePassingFilterToChildren(
-                        Flags.enablePassingFilterToChildren() || isVmEnabled)
                 .setEnableProtoLogNewHeaderFormat(true)
                 .setEnableReusableDecompressionBuffer(true)
                 .setEmbeddingIndexNumShards(Math.max(1, getEmbeddingIndexNumShards()))
