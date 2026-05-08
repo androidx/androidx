@@ -41,6 +41,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayoutDraw
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,8 +94,16 @@ class StyledButtonBenchmark(private val type: StyledButtonType) {
     }
 
     @Test
-    fun toggle_recomposeMeasureLayout() {
+    fun toggle_recompose() {
         benchmarkRule.toggleStateBenchmarkRecompose(
+            testCaseFactory,
+            assertOneRecomposition = type == StyledButtonType.Material3Button,
+        )
+    }
+
+    @Test
+    fun toggle_recomposeMeasureLayoutDraw() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
             testCaseFactory,
             assertOneRecomposition = type == StyledButtonType.Material3Button,
         )
