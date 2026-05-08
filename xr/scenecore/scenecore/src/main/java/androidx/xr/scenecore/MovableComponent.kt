@@ -479,6 +479,12 @@ private constructor(
          * This component cannot be attached to an AnchorEntity or to the ActivitySpace. Calling
          * [Entity.addComponent] to an Entity with these types will return false.
          *
+         * This functionality requires [Session] to be called with
+         * [androidx.xr.runtime.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL]. This configuration
+         * requires that the `SCENE_UNDERSTANDING_COARSE` Android permission is granted. If not
+         * granted, the `anchorable` functionality will be disabled, and the element will behave as
+         * if the anchoring functionality was not applied.
+         *
          * @param session The [Session] instance.
          * @param anchorPlacement A Set containing different [AnchorPlacement] for how to anchor the
          *   Entity with a MovableComponent. When empty this Entity will not be anchored.

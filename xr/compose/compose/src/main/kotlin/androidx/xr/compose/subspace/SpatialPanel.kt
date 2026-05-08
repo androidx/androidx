@@ -126,10 +126,11 @@ public abstract class DragPolicy internal constructor()
  * This class defines properties that control how anchoring behaves, such as whether it's enabled
  * and what types of planes it can anchor to.
  *
- * This functionality requires the
- * [android.permission.SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
- * permission. If this permission is not granted, anchoring will be disabled and the element will
- * behave as if this policy was not applied.
+ * This functionality requires [androidx.xr.runtime.Session.configure] to be called with
+ * [androidx.xr.runtime.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL]. This configuration requires that
+ * the `SCENE_UNDERSTANDING_COARSE` Android permission is granted. If not granted, the `anchorable`
+ * functionality will be disabled, and the element will behave as if the anchorable modifier was not
+ * applied.
  *
  * @property isEnabled Whether anchoring is enabled for this object. If `false`, the object will not
  *   be able to anchor to surfaces. Defaults to `true`.
