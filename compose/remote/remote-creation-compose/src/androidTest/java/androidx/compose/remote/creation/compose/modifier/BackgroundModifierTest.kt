@@ -38,7 +38,8 @@ import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -59,12 +60,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BackgroundModifierTest {
     @get:Rule
-    val remoteComposeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
             matcher = MSSIMMatcher(threshold = 0.999),
         )
-    }
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     val size = Size(200f, 200f)
@@ -117,8 +118,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundRemoteColor() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val blue = Color.Blue.rc
             DemoBox("background(".rs + blue.toHexString() + ".rc)") {
@@ -130,8 +131,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundSolidColorNamedRemote() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val blue = rememberNamedRemoteColor("ABC", Color.Blue)
             DemoBox("background(".rs + blue.toHexString() + ".rc named)") {
@@ -143,8 +144,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundSolidColor() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val blue = Color.Blue
             DemoBox("background(0x".rs + Integer.toHexString(blue.toArgb()) + ")") {
@@ -156,8 +157,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundVerticalGradient() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             DemoBox("verticalGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
@@ -174,8 +175,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundHorizontalGradient() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             DemoBox("horizontalGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
@@ -192,8 +193,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundRadialGradient() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             DemoBox("radialGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
@@ -210,8 +211,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundSweepGradient() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             DemoBox("sweepGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
@@ -228,8 +229,8 @@ class BackgroundModifierTest {
     @Test
     fun backgroundRemotePainter() {
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo = creationDisplayInfo,
-            backgroundColor = Color.Black,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val blue = Color.Blue.rc
             DemoBox("background(painterRemoteColor(Color.Blue))".rs) {

@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.a11y
 
-import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.action.ValueChange
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -36,9 +35,10 @@ import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteInteractionTestRule
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -56,11 +56,11 @@ import org.junit.runner.RunWith
 class BasicA11yTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteInteractionTestRule(ApplicationProvider.getApplicationContext())
 
     @Test
     fun textSemantics() {
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize(),
                 contentAlignment = RemoteAlignment.Center,
@@ -74,7 +74,7 @@ class BasicA11yTest {
 
     @Test
     fun textSemanticHierarchy() {
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             RemoteColumn(
                 modifier = RemoteModifier.fillMaxSize().semantics { text = "Item 1".rs },
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
@@ -119,7 +119,7 @@ class BasicA11yTest {
 
     @Test
     fun textValueChange() {
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             val text = rememberMutableRemoteString("Initial")
             RemoteBox(
                 modifier =
@@ -143,7 +143,7 @@ class BasicA11yTest {
 
     @Test
     fun intValueChange() {
-        remoteComposeTestRule.runTest {
+        remoteComposeTestRule.setContent {
             val decimalFormat = remember { DecimalFormat("##0") }
             val remoteInt = rememberMutableRemoteInt(0)
             RemoteBox(

@@ -29,10 +29,10 @@ import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.test.R
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -50,21 +50,25 @@ import org.junit.runners.JUnit4
 class RemoteImageTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY).apply {
-            bitmapLoader = BitmapLoader {
-                val resources = ApplicationProvider.getApplicationContext<Context>().resources
-                resources.openRawResource(R.drawable.clear)
-            }
-        }
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+            bitmapLoader =
+                BitmapLoader {
+                    val resources = ApplicationProvider.getApplicationContext<Context>().resources
+                    resources.openRawResource(R.drawable.clear)
+                },
+        )
+
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
     fun remoteImage() {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
+            remoteCreationDisplayInfo =
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
-            backgroundColor = Color.Black,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val avatarImage =
                 rememberNamedRemoteBitmap(name = "avatarImage") {
@@ -84,9 +88,9 @@ class RemoteImageTest {
     fun remoteImage_withAlpha() {
         val size = 227
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
+            remoteCreationDisplayInfo =
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
-            backgroundColor = Color.Black,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val backgroundImage =
                 rememberNamedRemoteBitmap(name = "backgroundImage") {
@@ -106,7 +110,7 @@ class RemoteImageTest {
     fun remoteImageWithDefaultUrl() {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
+            remoteCreationDisplayInfo =
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
         ) {
             // Without PlayerState API, will be blank
@@ -129,7 +133,7 @@ class RemoteImageTest {
     fun remoteImageWithImageBitmap() {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
+            remoteCreationDisplayInfo =
                 createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
         ) {
             val backgroundImage = createImage(size, size)

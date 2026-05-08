@@ -27,7 +27,8 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontVariation
 import androidx.test.core.app.ApplicationProvider
@@ -44,7 +45,10 @@ import org.junit.runners.JUnit4
 class RemoteCanvasScreenshotTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
@@ -53,14 +57,14 @@ class RemoteCanvasScreenshotTest {
         val width = 300
         val height = 200
         remoteComposeTestRule.runScreenshotTest(
-            creationDisplayInfo =
+            remoteCreationDisplayInfo =
                 RemoteCreationDisplayInfo(
                     width,
                     height,
                     context.resources.displayMetrics.densityDpi,
                     context.resources.configuration.fontScale,
                 ),
-            backgroundColor = Color.Black,
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val paintNull =
                 RemotePaint().apply {
