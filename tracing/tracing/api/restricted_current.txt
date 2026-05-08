@@ -11,6 +11,10 @@ package androidx.tracing {
     property public abstract androidx.tracing.Tracer tracer;
   }
 
+  public static interface AbstractTraceDriver.Factory<T extends androidx.tracing.AbstractTraceDriver> {
+    method public T create();
+  }
+
   public abstract class AbstractTraceSink implements java.lang.AutoCloseable {
     ctor public AbstractTraceSink();
     method public abstract void close();

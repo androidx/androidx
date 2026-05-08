@@ -39,6 +39,9 @@ androidXMultiplatform {
             implementation(libs.wireRuntime)
             implementation(libs.okio)
         }
+        androidMain.dependencies {
+            api("androidx.startup:startup-runtime:1.2.0")
+        }
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesCore)

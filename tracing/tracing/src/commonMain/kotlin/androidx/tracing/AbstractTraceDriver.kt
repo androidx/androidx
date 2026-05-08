@@ -40,4 +40,15 @@ public abstract class AbstractTraceDriver : AutoCloseable {
      * [AbstractTraceSink].
      */
     public abstract override fun close()
+
+    /**
+     * Provide the instance of [AbstractTraceDriver] that can be used for in-process-tracing.
+     *
+     * On Android, The `android.app.Application` subtype should implement this, to provide a
+     * canonical process wide [AbstractTraceDriver].
+     */
+    public interface Factory<out T : AbstractTraceDriver> {
+        /** @return The [AbstractTraceDriver] instance that can be used for in-process tracing. */
+        public fun create(): T
+    }
 }

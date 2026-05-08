@@ -24,16 +24,19 @@ import android.content.res.Configuration
 import java.io.File
 import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import okio.BufferedSink
 import okio.appendingSink
 import okio.buffer
 import okio.sink
 
+@JvmOverloads
 public fun TraceSink(
     context: Context,
-    sequenceId: Int,
-    coroutineContext: CoroutineContext,
     outputStream: OutputStream,
+    sequenceId: Int = 1,
+    coroutineContext: CoroutineContext = Dispatchers.IO + NonCancellable,
 ): TraceSink =
     TraceSink(
         context = context,
@@ -45,9 +48,9 @@ public fun TraceSink(
 @JvmOverloads
 public fun TraceSink(
     context: Context,
-    sequenceId: Int,
-    coroutineContext: CoroutineContext,
-    traceFile: File = context.filesDir.createPerfettoFile(),
+    sequenceId: Int = 1,
+    coroutineContext: CoroutineContext = Dispatchers.IO + NonCancellable,
+    traceFile: File = context.createPerfettoFile(),
 ): TraceSink {
     val sink =
         TraceSink(
@@ -57,6 +60,23 @@ public fun TraceSink(
             coroutineContext = coroutineContext,
         )
     return sink
+}
+
+// The designated directory for all traces on Android.
+// Makes it easy for Profilers to pull the traces.
+private const val TRACES_DIRECTORY = "perfetto_traces"
+
+internal fun Context.getOrCreateTracesDirectory(): File {
+    val directory = File(noBackupFilesDir, TRACES_DIRECTORY)
+    if (!directory.exists()) {
+        directory.mkdirs()
+    }
+    return directory
+}
+
+private fun Context.createPerfettoFile(): File {
+    val directory = getOrCreateTracesDirectory()
+    return directory.createPerfettoFile()
 }
 
 @JvmInline
