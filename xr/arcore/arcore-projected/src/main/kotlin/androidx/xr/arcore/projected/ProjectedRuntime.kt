@@ -114,14 +114,10 @@ internal constructor(
 
     @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
     override fun configure(config: Config) {
-        if (config.geospatial == GeospatialMode.INERTIAL) {
-            throw UnsupportedOperationException(
-                "Failed to configure session, runtime does not support GeospatialMode.INERTIAL"
-            )
-        }
         if (
             config.deviceTracking == DeviceTrackingMode.DISABLED &&
-                config.geospatial == GeospatialMode.SPATIAL
+                (config.geospatial == GeospatialMode.SPATIAL ||
+                    config.geospatial == GeospatialMode.INERTIAL)
         ) {
             throw UnsupportedOperationException(
                 "Geospatial mode is not supported when device tracking is disabled."
@@ -293,7 +289,8 @@ internal constructor(
         // I.E. if no features are needed from the service we don't require it.
         return config.deviceTracking == DeviceTrackingMode.SPATIAL ||
             config.deviceTracking == DeviceTrackingMode.INERTIAL ||
-            config.geospatial == GeospatialMode.SPATIAL
+            config.geospatial == GeospatialMode.SPATIAL ||
+            config.geospatial == GeospatialMode.INERTIAL
     }
 
     @OptIn(PreviewSpatialApi::class)
@@ -304,6 +301,9 @@ internal constructor(
         // TODO: b/455872882 - Currently, Geo is not compatible with 3DoF tracking stack.
         if (config.geospatial == GeospatialMode.SPATIAL) {
             serviceConfig.geospatialMode = ProjectedGeospatialMode.SPATIAL
+            serviceConfig.trackingMode = ProjectedTrackingMode.PROJECTED_TRACKING_6DOF
+        } else if (config.geospatial == GeospatialMode.INERTIAL) {
+            serviceConfig.geospatialMode = ProjectedGeospatialMode.INERTIAL
             serviceConfig.trackingMode = ProjectedTrackingMode.PROJECTED_TRACKING_6DOF
         } else {
             serviceConfig.geospatialMode = ProjectedGeospatialMode.DISABLED
@@ -358,6 +358,7 @@ internal constructor(
                 FaceTrackingMode.DISABLED,
                 GeospatialMode.DISABLED,
                 GeospatialMode.SPATIAL,
+                GeospatialMode.INERTIAL,
                 EyeTrackingMode.DISABLED,
             )
     }

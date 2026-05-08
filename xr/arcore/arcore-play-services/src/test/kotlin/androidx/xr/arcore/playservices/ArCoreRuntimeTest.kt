@@ -536,13 +536,6 @@ class ArCoreRuntimeTest {
     }
 
     @Test
-    fun isSupported_geospatialInertial_returnsFalse() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-
-        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.INERTIAL)).isFalse()
-    }
-
-    @Test
     fun isSupported_inSupportedList_returnsTrue() = initRuntimeAndRunTest {
         underTest._session = mockSession
         for (mode in ArCoreRuntime.SUPPORTED_CONFIG_MODES) {

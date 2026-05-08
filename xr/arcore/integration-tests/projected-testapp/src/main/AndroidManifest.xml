@@ -22,10 +22,17 @@
     <application android:label="JXR ARCore Projected Tests">
         <meta-data android:name="com.google.ar.core" android:value="optional" />
         <activity
-            android:name="androidx.xr.arcore.projected.testapp.ProjectedTestAppActivity"
+            android:name=".ProjectedTestAppActivity"
             android:exported="true"
             android:label="Geospatial and Tracking testcase"
             android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".ConfigProjectedGeospatialActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected"
+            android:label="Projected Geospatial Dashboard">
         </activity>
         <activity
             android:name=".tiltgesture.TiltGestureTrackingActivity"

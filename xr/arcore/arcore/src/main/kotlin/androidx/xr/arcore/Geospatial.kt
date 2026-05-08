@@ -366,8 +366,8 @@ internal constructor(
     }
 
     private fun checkGeospatialModeEnabled() {
-        check(xrResourcesManager.perceptionRuntime.config.geospatial == GeospatialMode.SPATIAL) {
-            "To use this function, Config.GeospatialMode must be set to SPATIAL."
+        check(xrResourcesManager.perceptionRuntime.config.geospatial != GeospatialMode.DISABLED) {
+            "To use this function, Config.GeospatialMode must be set to SPATIAL or INERTIAL."
         }
     }
 
