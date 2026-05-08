@@ -137,6 +137,7 @@ fun ModalBottomSheet(
         properties = properties,
         contentColor = contentColor,
         onDismissRequest = settleToDismiss,
+        animateToHidden = { sheetState.hide() },
     ) {
         Box(modifier = Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
             val sheetWindowInsets = remember(sheetState) { SheetWindowInsets(sheetState) }
@@ -277,6 +278,9 @@ internal class SheetWindowInsets(private val state: SheetState) : WindowInsets {
  * @param contentColor The content color of this dialog. Used to inform the default behavior of the
  *   windows' system bars and content.
  * @param properties [ModalBottomSheetProperties] for further customization of this dialog.
+ * @param animateToHidden Suspend hook invoked once the dialog is being removed from the composition
+ *   hierarchy. Runs the bottom sheet exit animation before the underlying window is dismissed, so
+ *   the sheet does not disappear abruptly when its host is removed (e.g. during navigation).
  * @param content The content displayed in this [ModalBottomSheetDialog]. Usually [BottomSheet].
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -285,5 +289,6 @@ internal expect fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit = {},
     contentColor: Color = contentColorFor(BottomSheetDefaults.ContainerColor),
     properties: ModalBottomSheetProperties = ModalBottomSheetProperties(),
+    animateToHidden: suspend () -> Unit = {},
     content: @Composable () -> Unit,
 )

@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -64,6 +65,7 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
+import kotlinx.coroutines.NonCancellable
 
 // Logic forked from androidx.compose.ui.window.DialogProperties. Removed dismissOnClickOutside
 // and usePlatformDefaultWidth as they are not relevant for fullscreen experience.
@@ -226,6 +228,7 @@ internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
     contentColor: Color,
     properties: ModalBottomSheetProperties,
+    animateToHidden: suspend () -> Unit,
     content: @Composable () -> Unit,
 ) {
     val view = LocalView.current
@@ -234,6 +237,8 @@ internal actual fun ModalBottomSheetDialog(
     val composition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val dialogId = rememberSaveable { UUID.randomUUID() }
+    val coroutineScope = rememberCoroutineScope()
+
     val dialog =
         remember(view, density) {
             ModalBottomSheetDialogWrapper(
@@ -256,8 +261,13 @@ internal actual fun ModalBottomSheetDialog(
         dialog.show()
 
         onDispose {
-            dialog.dismiss()
-            dialog.disposeComposition()
+            coroutineScope.launch(context = NonCancellable) {
+                dialog.disposeComposition()
+
+                animateToHidden()
+
+                dialog.dismiss()
+            }
         }
     }
 
