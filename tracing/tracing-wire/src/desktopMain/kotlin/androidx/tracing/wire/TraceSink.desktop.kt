@@ -21,6 +21,7 @@ package androidx.tracing.wire
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import okio.appendingSink
 import okio.buffer
 
@@ -30,8 +31,8 @@ import okio.buffer
 @JvmOverloads
 public fun TraceSink(
     directory: File,
-    sequenceId: Int,
-    coroutineContext: CoroutineContext = Dispatchers.IO,
+    sequenceId: Int = 1,
+    coroutineContext: CoroutineContext = Dispatchers.IO + NonCancellable,
 ): TraceSink =
     TraceSink(
         sequenceId = sequenceId,
