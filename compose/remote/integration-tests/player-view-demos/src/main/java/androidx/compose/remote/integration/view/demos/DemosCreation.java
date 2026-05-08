@@ -25,7 +25,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import androidx.compose.remote.integration.view.demos.dsl.DslDemoAnchorTextKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDemoAttributedStringKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDemoGraphsKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslSmallAnimatedKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslClockKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
@@ -157,18 +161,20 @@ public abstract class DemosCreation {
         Bitmap bitmap = simpleBitmap(100);
 
         return new ArrayList<>(Arrays.asList(
-
-
-                get("0/0/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),
-                get("0/1/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
-                get("0/2/00dslCountdown1", RcDslCountdownKt::dslCountdown),
-                getpc("0/3/00dslCountdown2", CountdownKt::countDown),
-
-                get("0/4/00dslTheme1", RcDslDemoKt::dslTheme1),
-                get("0/5/00dslTheme2", RcDslDemoKt::dslTheme2),
-                get("0/6/dslSimpleClock", RcDslDemoKt::dslSimpleClock),
-
-                get("0/7/dslSimpleDemo", RcDslDemoKt::dslSimpleDemo),
+                get("0/00/dslAttributeString", DslDemoAttributedStringKt::demoAttributedString),
+                getp("0/01/AttributeString", DemoAttributedString::demo),
+                get("0/02/demoAnchorText", DslDemoAnchorTextKt::demoAnchorText),
+                get("0/03/demoImageColor", DslHostileActorKt::demoImageColor),
+                get("0/04/demoImage", DslHostileActorKt::demoImage),
+                get("0/05/smallAnimated", DslSmallAnimatedKt::smallAnimated),
+                get("0/06/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),
+                get("0/07/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
+                get("0/08/00dslCountdown1", RcDslCountdownKt::dslCountdown),
+                getpc("0/09/00dslCountdown2", CountdownKt::countDown),
+                get("0/10/00dslTheme1", RcDslDemoKt::dslTheme1),
+                get("0/11/00dslTheme2", RcDslDemoKt::dslTheme2),
+                get("0/12/dslSimpleClock", RcDslDemoKt::dslSimpleClock),
+                get("0/13/dslSimpleDemo", RcDslDemoKt::dslSimpleDemo),
 
                 //get("0/0/00dslCalenda", RcDslCalendarDemoKt::dslCalendarDayAgenda),
                 //get("0/0/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),

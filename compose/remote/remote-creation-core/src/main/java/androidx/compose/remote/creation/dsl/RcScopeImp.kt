@@ -18,6 +18,9 @@ package androidx.compose.remote.creation.dsl
 
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_DELTA_TIME
+import androidx.compose.remote.core.RemoteContext.FLOAT_CALENDAR_MONTH
+import androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC
+import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.Utils
@@ -316,6 +319,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         fontWeight: Float,
         textAlign: RcTextAlign,
         overflow: RcTextOverflow,
+        content: RcScope.() -> Unit,
     ) {
         val textId = writer.addText(text)
         Text(RcText(textId), modifier, color, fontSize, fontWeight, textAlign, overflow)
@@ -329,6 +333,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         fontWeight: Float,
         textAlign: RcTextAlign,
         overflow: RcTextOverflow,
+        content: RcScope.() -> Unit,
     ) {
         if (color is RcColorValue) {
             writer.textComponent(
@@ -358,7 +363,9 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 null, // fontAxisValues
                 false, // autosize
                 0, // flags
-            ) {}
+            ) {
+                RcScopeImpl(writer).content()
+            }
         } else {
             val colorInt =
                 when (color) {
@@ -377,7 +384,9 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 textAlign.value,
                 overflow.value,
                 1,
-            ) {}
+            ) {
+                RcScopeImpl(writer).content()
+            }
         }
     }
 
@@ -395,6 +404,18 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.startCanvas(modifier.toRecordingModifier())
         RcCanvasScopeImpl(writer).content()
         writer.endCanvas()
+    }
+
+    override fun startCanvasOperations() {
+        writer.startCanvasOperations()
+    }
+
+    override fun endCanvasOperations() {
+        writer.endCanvasOperations()
+    }
+
+    override fun drawComponentContent() {
+        writer.drawComponentContent()
     }
 
     override fun applyPaint(block: RcPaint.() -> Unit) {
@@ -584,9 +605,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun arrayAvg(a: RcFloat): RcFloat =
         RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_AVG))
 
-    override fun RcFloat.get(index: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*this.toArray(), *index.toArray(), Rc.FloatExpression.A_DEREF))
-
     override fun remotePolarPath(
         expression: RcFloat,
         start: Float,
@@ -631,6 +649,22 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         val arg = RcFloat(writer, floatArrayOf(Rc.FloatExpression.VAR1))
         return block.invoke(arg)
     }
+
+    override fun density(): RcFloat = RcFloat(writer, Rc.System.DENSITY)
+
+    override fun fontSize(): RcFloat = RcFloat(writer, Rc.System.FONT_SIZE)
+
+    override fun apiLevel(): RcFloat = RcFloat(writer, Rc.System.API_LEVEL)
+
+    override fun windowWidth(): RcFloat = RcFloat(writer, Rc.System.WINDOW_WIDTH)
+
+    override fun windowHeight(): RcFloat = RcFloat(writer, Rc.System.WINDOW_HEIGHT)
+
+    override fun continuousSec(): RcFloat = RcFloat(writer, FLOAT_CONTINUOUS_SEC)
+
+    override fun utcOffset(): RcFloat = RcFloat(writer, FLOAT_OFFSET_TO_UTC)
+
+    override fun month(): RcFloat = RcFloat(writer, FLOAT_CALENDAR_MONTH)
 
     override fun componentWidth(): RcFloat = RcFloat(writer, writer.addComponentWidthValue())
 
@@ -1343,6 +1377,24 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun RcDynamicPath.reset() {
         writer.pathAppendReset(id)
+    }
+
+    override fun remoteIntArray(array: IntArray): RcFloat = RcFloat(writer, writer.addList(array))
+
+    override fun remoteDynamicFloatArray(size: Float): RcFloat =
+        RcFloat(writer, writer.addDynamicFloatArray(size))
+
+    override fun remoteFloatList(values: FloatArray): RcFloat =
+        RcFloat(writer, writer.addFloatList(values))
+
+    override fun remoteFloatMap(keys: Array<String>, values: FloatArray): RcFloat =
+        RcFloat(writer, writer.addFloatMap(keys, values))
+
+    override fun setArrayValue(array: RcFloat, index: RcFloat, value: RcFloat) {
+        val arrayId = Utils.idFromNan(array.id)
+        val indexVal = index.withWriter(writer).toFloat()
+        val valueVal = value.withWriter(writer).toFloat()
+        writer.setArrayValue(arrayId, indexVal, valueVal)
     }
 }
 
