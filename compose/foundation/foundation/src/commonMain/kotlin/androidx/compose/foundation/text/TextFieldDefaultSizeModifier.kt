@@ -41,13 +41,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.resolveDefaults
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.compose.ui.util.fastCoerceIn
-import kotlin.math.roundToInt
 
 /**
  * This is a modifier to calculate a text field's height in the number of lines and minimum width.
@@ -277,15 +277,16 @@ private class TextFieldSizeConstrainerNode(
         }
         if (dirty) {
             val lines = if (minLines == 1 && (maxLines == 1 || maxLines == Int.MAX_VALUE)) 1 else 3
+            /** Setting Ltr helps preserve the legacy behavior */
             val defaultParagraph =
                 paragraphForDefaultText(
-                    style = requireResolvedStyle(),
+                    style = requireResolvedStyle().copy(textDirection = TextDirection.Ltr),
                     density = requireDensity(),
                     fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
                     lines = lines,
                 )
             if (lines == 1) {
-                precomputedMinLinesHeight = defaultParagraph.height.roundToInt()
+                precomputedMinLinesHeight = defaultParagraph.height.ceilToIntPx()
                 precomputedMaxLinesHeight =
                     if (maxLines == 1) precomputedMinLinesHeight else Constraints.Infinity
             } else {
@@ -303,7 +304,7 @@ private class TextFieldSizeConstrainerNode(
             // maxIntrinsicsWidth is ~40x quicker than the minIntrinsicsWidth. Moreover, for case
             // when lines == 1 above, the maxIntrinsicsWidth is already pre-calculated and cached
             // as part of the Boring metrics evaluation.
-            precomputedMinWidth = defaultParagraph.maxIntrinsicWidth.roundToInt()
+            precomputedMinWidth = defaultParagraph.maxIntrinsicWidth.ceilToIntPx()
             dirty = false
         }
     }
@@ -370,7 +371,7 @@ private fun computeHeightFromThreeLines(
             // only when there's a soft wrap. In case of 1 line without a soft wrap ("single line")
             // case we have a separate calculation to ensure that tall scripts like Burmese are not
             // clipped.
-            (topLine + bottomLine - middleLine).roundToInt()
+            (topLine + bottomLine - middleLine).ceilToIntPx()
         }
         Int.MAX_VALUE -> {
             // this is to handle the default maxLines. Note that setting minLines to this value
@@ -381,7 +382,7 @@ private fun computeHeightFromThreeLines(
             (topLine +
                     middleLine * (linesLimit - 2).fastCoerceAtLeast(0) +
                     bottomLine * (linesLimit - 1).fastCoerceAtMost(1))
-                .roundToInt()
+                .ceilToIntPx()
         }
     }
 }
