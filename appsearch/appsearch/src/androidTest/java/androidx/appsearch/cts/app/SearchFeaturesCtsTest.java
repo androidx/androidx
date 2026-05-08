@@ -24,6 +24,8 @@ import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import org.junit.Test;
 
+// @exportToFramework:skipFile()
+//TODO(b/387291182) sync this class when the API is supported
 public class SearchFeaturesCtsTest {
 
     @Test

@@ -259,6 +259,8 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .build()).get();
     }
 
+    // @exportToFramework:startStrip()
+    // TODO(384981085): remove strip once partial migration is supported in Framework
     @Test
     public void testForceOverride_BackwardsIncompatible_Trigger_PartiallyMigrateIncompatibleTypes()
             throws Exception {
@@ -343,6 +345,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(expectedDoc);
     }
+    // @exportToFramework:endStrip()
 
     @Test
     public void testNoForceOverride_BackwardsCompatible_Trigger_MigrateIncompatibleType()

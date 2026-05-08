@@ -722,6 +722,11 @@ public final class AppSearchImpl implements Closeable {
         return mLaunchVmFeatures.isVmEnabled();
     }
 
+    /** Returns whether Ai Seal is enabled in this AppSearchImpl instance. */
+    public boolean isAiSealEnabled() {
+        return mLaunchVmFeatures.isAiSealEnabled();
+    }
+
     public boolean enableEarlySetSchemaExit() {
         // isAiSealEnabled will only be true if isVmEnabled is true, only verify isVmEnabled should
         // be sufficient.

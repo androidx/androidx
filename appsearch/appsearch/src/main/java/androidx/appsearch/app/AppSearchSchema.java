@@ -230,11 +230,11 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
     @Override
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public int hashCode() {
-        return ObjectsCompat.hash(
-            getSchemaType(),
-            getProperties(),
-            getParentTypes(),
-            getDescription());
+        int result = mSchemaType.hashCode();
+        result = 31 * result + mPropertyConfigParcels.hashCode();
+        result = 31 * result + mParentTypes.hashCode();
+        result = 31 * result + mDescription.hashCode();
+        return result;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

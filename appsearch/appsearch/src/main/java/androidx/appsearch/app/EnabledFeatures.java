@@ -30,6 +30,8 @@ import java.util.List;
  *
  * @exportToFramework:hide
  */
+// @exportToFramework:skipFile()
+//TODO(b/387291182) sync this class when the API is supported
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class EnabledFeatures extends AbstractSafeParcelable {
 
