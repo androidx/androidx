@@ -107,10 +107,17 @@ public fun HorizontalPagerScaffold(
  *
  * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
  *
+ * ![VerticalPagerScaffoldSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_VerticalPagerScaffoldSample_CompositeImage.png)
+ *
  * Example of using [AppScaffold] and [VerticalPagerScaffold] with low snap sensitivity, for screens
  * where gross motor control is limited:
  *
  * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
+ *
+ * ![VerticalPagerScaffoldWithLowSensitivitySample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_VerticalPagerScaffoldWithLowSensitivitySample_CompositeImage.png)
+ *
  * @param pagerState The state of the pager controlling the page content.
  * @param modifier The modifier to be applied to the scaffold.
  * @param pageIndicator A composable function that defines the page indicator to be displayed. By

@@ -83,6 +83,10 @@ import kotlinx.coroutines.launch
  * Example of an [OpenOnPhoneDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
+ *
+ * ![OpenOnPhoneDialogSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_OpenOnPhoneDialogSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -157,6 +161,10 @@ public fun OpenOnPhoneDialog(
  * Example of an [OpenOnPhoneDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
+ *
+ * ![OpenOnPhoneDialogSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_OpenOnPhoneDialogSample_CompositeImage.png)
+ *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [openOnPhoneDialogCurvedText] for this parameter, which
  *   will give the default sweep angle and padding, and [OpenOnPhoneDialogDefaults.curvedTextStyle]
