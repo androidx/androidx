@@ -90,6 +90,10 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  * Example of a [Button]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleButtonSample
+ *
+ * ![SimpleButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SimpleButtonSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -170,6 +174,10 @@ public fun Button(
  * Example of a [Button] with an image background:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonWithImageSample
+ *
+ * ![ButtonWithImageSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ButtonWithImageSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param containerPainter The [Painter] to use to draw the container image of the [Button], such as
  *   returned by [ButtonDefaults.containerPainter].
@@ -263,6 +271,10 @@ public fun Button(
  * Example of a [FilledTonalButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
+ *
+ *   ![SimpleFilledTonalButtonSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SimpleFilledTonalButtonSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -346,6 +358,10 @@ public fun FilledTonalButton(
  * Example of an [OutlinedButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
+ *
+ *   ![SimpleOutlinedButtonSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SimpleOutlinedButtonSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -429,6 +445,10 @@ public fun OutlinedButton(
  * Example of a [ChildButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleChildButtonSample
+ *
+ * ![SimpleChildButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SimpleChildButtonSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -515,13 +535,23 @@ public fun ChildButton(
  *
  * @sample androidx.wear.compose.material3.samples.ButtonSample
  *
+ * ![ButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ButtonSample_CompositeImage.png)
+ *
  * Example of a [Button] with a large icon and adjusted content padding:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonLargeIconSample
  *
+ * ![ButtonLargeIconSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ButtonLargeIconSample_CompositeImage.png)
+ *
  * Example of a [Button] with an extra large icon and adjusted content padding:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonExtraLargeIconSample
+ *
+ *   ![ButtonExtraLargeIconSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_ButtonExtraLargeIconSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -641,6 +671,10 @@ public fun Button(
  * Example of a [Button] with an image background, an icon and a secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonWithImageSample
+ *
+ * ![ButtonWithImageSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ButtonWithImageSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param containerPainter The [Painter] to use to draw the container image of the [Button], such as
  *   returned by [ButtonDefaults.containerPainter].
@@ -775,6 +809,10 @@ public fun Button(
  * Example of a [FilledTonalButton] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.FilledTonalButtonSample
+ *
+ * ![FilledTonalButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_FilledTonalButtonSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -896,6 +934,10 @@ public fun FilledTonalButton(
  * Example of an [OutlinedButton] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.OutlinedButtonSample
+ *
+ * ![OutlinedButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_OutlinedButtonSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -1017,6 +1059,10 @@ public fun OutlinedButton(
  * Example of a [ChildButton] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.ChildButtonSample
+ *
+ * ![ChildButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_ChildButtonSample_CompositeImage.png)
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -1147,16 +1193,25 @@ public fun ChildButton(
  *
  * @sample androidx.wear.compose.material3.samples.CompactButtonSample
  *
+ * ![CompactButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_CompactButtonSample_CompositeImage.png)
+ *
  * Example of a [CompactButton] with an icon and label and with
  * [ButtonDefaults.filledTonalButtonColors]
  *
  * @sample androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
+ *
+ *   ![FilledTonalCompactButtonSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FilledTonalCompactButtonSample_CompositeImage.png)
  *
  * Example of a [CompactButton] with an icon and label and with
  * [ButtonDefaults.outlinedButtonBorder] and [ButtonDefaults.outlinedButtonColors]. The example
  * includes a [Text] that expands and collapses when the [CompactButton] is clicked.
  *
  * @sample androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
+ *
+ *   ![OutlinedCompactButtonSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_OutlinedCompactButtonSample_CompositeImage.png)
  *
  * Example of a [CompactButton] with onLongClick:
  *
@@ -1353,6 +1408,9 @@ public object ButtonDefaults {
      * Example of a [Button] with [filledVariantButtonColors]:
      *
      * @sample androidx.wear.compose.material3.samples.SimpleFilledVariantButtonSample
+     *
+     *   ![SimpleFilledVariantButtonSample Composite
+     *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SimpleFilledVariantButtonSample_CompositeImage.png)
      */
     @Composable
     public fun filledVariantButtonColors(): ButtonColors =
@@ -1370,6 +1428,10 @@ public object ButtonDefaults {
      * Example of a [Button] with [filledVariantButtonColors]:
      *
      * @sample androidx.wear.compose.material3.samples.FilledVariantButtonSample
+     *
+     *   ![FilledVariantButtonSample Composite
+     *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FilledVariantButtonSample_CompositeImage.png)
+     *
      * @param containerColor The background color of this [Button] when enabled
      * @param contentColor The content color of this [Button] when enabled
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
@@ -1512,6 +1574,10 @@ public object ButtonDefaults {
      * Example of a Button with an image background:
      *
      * @sample androidx.wear.compose.material3.samples.ButtonWithImageSample
+     *
+     * ![ButtonWithImageSample Composite
+     * Image](https://developer.android.com/wear/images/design/WearComposeM3_ButtonWithImageSample_CompositeImage.png)
+     *
      * @param contentColor The content color of this [Button] when enabled
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
      *   for secondaryLabel content
@@ -1549,6 +1615,10 @@ public object ButtonDefaults {
      * Example of a Button with an image background:
      *
      * @sample androidx.wear.compose.material3.samples.ButtonWithImageSample
+     *
+     * ![ButtonWithImageSample Composite
+     * Image](https://developer.android.com/wear/images/design/WearComposeM3_ButtonWithImageSample_CompositeImage.png)
+     *
      * @param image The [Painter] to use to draw the container background of the [Button].
      * @param scrim The [Brush] to use to paint a scrim over the container image to ensure that any
      *   text drawn over the image is legible.
@@ -2038,6 +2108,9 @@ public object CompactButtonDefaults {
      * padding values and its own contentPadding parameter.
      *
      * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
+     *
+     *   ![TransformingLazyColumnMinimumVerticalContentPaddingSample Composite
+     *   Image](https://developer.android.com/wear/images/design/WearComposeM3_TransformingLazyColumnMinimumVerticalContentPaddingSample_CompositeImage.png)
      */
     public val minimumVerticalListContentPadding: Dp
         @Composable get() = screenHeightFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
