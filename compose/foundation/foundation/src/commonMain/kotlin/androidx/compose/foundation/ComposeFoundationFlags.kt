@@ -136,7 +136,9 @@ object ComposeFoundationFlags {
      * [androidx.compose.foundation.text.BasicTextField] into one.
      */
     // TODO: Remove this flag after 1.12 (b/507967106)
-    @field:Suppress("MutableBareField") @JvmField var isBasicTextFieldSizeOptimizationEnabled = true
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isBasicTextFieldSizeOptimizationEnabled = false
 
     /**
      * This flag controls the fix where item placement animation in
