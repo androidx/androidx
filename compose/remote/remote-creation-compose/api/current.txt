@@ -823,7 +823,12 @@ package androidx.compose.remote.creation.compose.state {
     property public static androidx.compose.remote.creation.compose.state.RemoteInt int.ri;
   }
 
-  @androidx.compose.runtime.Stable public abstract class RemoteLong extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Long> {
+  @androidx.compose.runtime.Stable public class RemoteLong extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Long> {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Long? getConstantValueOrNull();
+    method public final operator androidx.compose.remote.creation.compose.state.RemoteLong minus(androidx.compose.remote.creation.compose.state.RemoteLong v);
+    method public final operator androidx.compose.remote.creation.compose.state.RemoteLong plus(androidx.compose.remote.creation.compose.state.RemoteLong v);
+    method public final operator androidx.compose.remote.creation.compose.state.RemoteLong times(androidx.compose.remote.creation.compose.state.RemoteLong v);
+    method public final androidx.compose.remote.creation.compose.state.RemoteInt toRemoteInt();
   }
 
   public final class RemoteLongKt {
