@@ -167,6 +167,7 @@ public class TestFace public constructor() : TestTrackable() {
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
+    @SuppressWarnings("RestrictedApiAndroidX")
     internal fun isConfiguredForMeshing() =
         if (isAddedToTestRule) arCoreTestRule.runtime.config.faceTracking == FaceTrackingMode.MESHES
         else false

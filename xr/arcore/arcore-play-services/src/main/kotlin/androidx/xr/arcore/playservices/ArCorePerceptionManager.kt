@@ -318,6 +318,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         xrResources.depth.dispose()
     }
 
+    @SuppressWarnings("RestrictedApiAndroidX")
     internal fun setCameraFacingDirection(facingDirection: CameraFacingDirection) {
         val arCoreFacingDirection =
             when (facingDirection) {

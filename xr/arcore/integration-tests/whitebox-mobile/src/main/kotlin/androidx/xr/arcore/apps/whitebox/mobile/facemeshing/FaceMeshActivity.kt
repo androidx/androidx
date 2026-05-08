@@ -98,6 +98,7 @@ class FaceMeshActivity : ComponentActivity(), SampleRender.Companion.Renderer {
 
     private var renderStyle: RenderStyle = RenderStyle.MASK
 
+    @SuppressWarnings("RestrictedApiAndroidX")
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ComponentActivity>.onCreate(savedInstanceState)
 

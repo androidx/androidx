@@ -42,7 +42,7 @@ import androidx.annotation.RestrictTo
  *   image tracking feature will be enabled.
  */
 public class Config
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     public val planeTracking: PlaneTrackingMode = PlaneTrackingMode.DISABLED,
     public val handTracking: HandTrackingMode = HandTrackingMode.DISABLED,
@@ -52,9 +52,8 @@ constructor(
     public val faceTracking: FaceTrackingMode = FaceTrackingMode.DISABLED,
     public val geospatial: GeospatialMode = GeospatialMode.DISABLED,
     public val augmentedObjectCategories: Set<AugmentedObjectCategory> = setOf(),
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val eyeTracking: EyeTrackingMode = EyeTrackingMode.DISABLED,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val cameraFacingDirection: CameraFacingDirection = CameraFacingDirection.WORLD,
     public val augmentedImageDatabase: AugmentedImageDatabase? = null,
 ) {
@@ -86,6 +85,7 @@ constructor(
      *   environment. See [AugmentedObjectCategory].
      * @param augmentedImageDatabase Feature that allows tracking of recognizable images in the
      *   environment. See [AugmentedImageDatabase].
+     * @param eyeTracking Feature that allows tracking of user eye movements. See [EyeTrackingMode].
      */
     @JvmOverloads
     public constructor(
@@ -98,6 +98,7 @@ constructor(
         geospatial: GeospatialMode = GeospatialMode.DISABLED,
         augmentedObjectCategories: Set<AugmentedObjectCategory> = setOf(),
         augmentedImageDatabase: AugmentedImageDatabase? = null,
+        eyeTracking: EyeTrackingMode = EyeTrackingMode.DISABLED,
     ) : this(
         planeTracking,
         handTracking,
@@ -107,8 +108,9 @@ constructor(
         faceTracking,
         geospatial,
         augmentedObjectCategories,
-        eyeTracking = EyeTrackingMode.DISABLED,
-        augmentedImageDatabase = augmentedImageDatabase,
+        eyeTracking,
+        CameraFacingDirection.WORLD,
+        augmentedImageDatabase,
     )
 
     /**
@@ -214,7 +216,7 @@ constructor(
     }
 
     @Suppress("MissingJvmstatic")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
     public fun copy(
         planeTracking: PlaneTrackingMode = this.planeTracking,

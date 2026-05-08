@@ -173,6 +173,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     }
 
     @OptIn(PreviewSpatialApi::class)
+    @SuppressWarnings("RestrictedApiAndroidX")
     internal fun updateTrackingStates(config: Config) {
         fakeArDevice.trackingState =
             when (config.deviceTracking) {
