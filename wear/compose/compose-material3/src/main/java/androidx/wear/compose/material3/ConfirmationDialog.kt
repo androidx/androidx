@@ -90,6 +90,10 @@ import kotlinx.coroutines.launch
  * Example of a [ConfirmationDialog] with an icon and a curved text content:
  *
  * @sample androidx.wear.compose.material3.samples.ConfirmationDialogSample
+ *
+ *   ![ConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -144,6 +148,10 @@ public fun ConfirmationDialog(
  * Example of a [ConfirmationDialog] with an icon and a curved text content:
  *
  * @sample androidx.wear.compose.material3.samples.ConfirmationDialogSample
+ *
+ *   ![ConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.png)
+ *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
  *   will give the default sweep angle and padding.
@@ -189,6 +197,10 @@ public fun ConfirmationDialogContent(
  * Example of a [ConfirmationDialog] with an icon and a text which fits into 3 lines:
  *
  * @sample androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
+ *
+ *   ![LongTextConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -239,6 +251,10 @@ public fun ConfirmationDialog(
  * Example of a [ConfirmationDialog] with an icon and a text which fits into 3 lines:
  *
  * @sample androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
+ *
+ *   ![LongTextConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.png)
+ *
  * @param text A slot for displaying text below the icon. It should not exceed 3 lines.
  * @param modifier Modifier to be applied to the confirmation content.
  * @param colors A [ConfirmationDialogColors] object for customizing the colors used in this
@@ -314,6 +330,10 @@ public fun ConfirmationDialogContent(
  * Example of a [SuccessConfirmationDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
+ *
+ *   ![SuccessConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -377,6 +397,10 @@ public fun SuccessConfirmationDialog(
  * Example of a [SuccessConfirmationDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
+ *
+ *   ![SuccessConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.png)
+ *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
  *   will give the default sweep angle and padding, and [ConfirmationDialogDefaults.curvedTextStyle]
@@ -424,9 +448,16 @@ public fun SuccessConfirmationDialogContent(
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
  *
+ *   ![FailureConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.png)
+ *
  * Example of [FailureConfirmationDialog] with the variant failure icon for a generic error.
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGenericFailureIconSample
+ *
+ *   ![FailureConfirmationDialogWithGenericFailureIconSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.png)
+ *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
@@ -485,6 +516,20 @@ public fun FailureConfirmationDialog(
  *
  * Where user input is required, such as choosing to ok or cancel an action, use [AlertDialog]
  * instead of [FailureConfirmationDialog].
+ *
+ * Example of [FailureConfirmationDialog] usage with default icon:
+ *
+ * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
+ *
+ *   ![FailureConfirmationDialogSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.png)
+ *
+ * Example of [FailureConfirmationDialog] with the variant failure icon for a generic error.
+ *
+ * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGenericFailureIconSample
+ *
+ *   ![FailureConfirmationDialogWithGenericFailureIconSample Composite
+ *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.png)
  *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which

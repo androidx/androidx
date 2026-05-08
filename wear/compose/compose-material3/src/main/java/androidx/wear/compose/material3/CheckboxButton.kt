@@ -93,6 +93,9 @@ import androidx.wear.compose.materialcore.isLayoutDirectionRtl
  *
  * @sample androidx.wear.compose.material3.samples.CheckboxButtonSample
  *
+ * ![CheckboxButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_CheckboxButtonSample_CompositeImage.png)
+ *
  * [CheckboxButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
  * The recommended set of [CheckboxButton] colors can be obtained from [CheckboxButtonDefaults],
@@ -239,6 +242,9 @@ public fun CheckboxButton(
  * Samples: Example of a SplitCheckboxButton:
  *
  * @sample androidx.wear.compose.material3.samples.SplitCheckboxButtonSample
+ *
+ * ![SplitCheckboxButtonSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SplitCheckboxButtonSample_CompositeImage.png)
  *
  * For a SplitCheckboxButton the background of the tappable background area behind the toggle
  * control will have a visual effect applied to provide a "divider" between the two tappable areas.
