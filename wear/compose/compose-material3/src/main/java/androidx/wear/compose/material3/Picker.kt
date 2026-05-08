@@ -105,6 +105,9 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.SimplePicker
  *
+ * ![SimplePicker Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_SimplePicker_CompositeImage.png)
+ *
  * Example of a sample picker group with an hour and minute picker (24 hour format):
  *
  * @sample androidx.wear.compose.material3.samples.PickerGroupSample
