@@ -150,6 +150,16 @@ internal constructor(
     }
 
     /**
+     * Converts this [RemoteInt] to a [RemoteLong].
+     *
+     * @return A [RemoteLong] representing this integer as a long.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toRemoteLong(): RemoteLong {
+        return RemoteLong.fromLowHigh(this, selectIfLt(this, 0.ri, (-1).ri, 0.ri))
+    }
+
+    /**
      * Converts this RemoteInt to a RemoteString. The conversion includes formatting options such as
      * the number of digits to display and padding flags.
      *
