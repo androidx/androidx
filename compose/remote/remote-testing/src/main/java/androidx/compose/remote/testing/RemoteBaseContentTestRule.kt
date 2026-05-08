@@ -21,7 +21,8 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.test.captureToImage
@@ -51,22 +52,32 @@ public class RemoteBaseContentTestRule : TestRule {
 
     public fun setContent(
         creation: Creation,
+        creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
+            it()
+        },
+        onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
         player: Player,
         size: Size,
-        onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
-        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = { it() },
+        playComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
+            it()
+        },
         composable: @RemoteComposable @Composable () -> Unit,
     ) {
         composeTestRule.setContent {
-            val coreDocument: CoreDocument? by
-                creation.rememberRemoteDocument(composable = composable)
-            coreDocument?.let {
+            val coreDocumentState = remember { mutableStateOf<CoreDocument?>(null) }
+            val creationContent: @Composable () -> Unit = {
+                val docState = creation.rememberRemoteDocument(composable = composable)
+                coreDocumentState.value = docState.value
+            }
+            creationComposableWrapper(creationContent)
+
+            coreDocumentState.value?.let {
                 onCoreDocumentCreated?.invoke(it)
 
                 val composable: @Composable () -> Unit = {
                     player.Play(coreDocument = it, size = size)
                 }
-                composableWrapper { composable() }
+                playComposableWrapper { composable() }
             }
         }
     }

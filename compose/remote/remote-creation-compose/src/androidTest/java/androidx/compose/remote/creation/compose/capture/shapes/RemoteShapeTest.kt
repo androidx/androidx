@@ -34,12 +34,10 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -133,16 +131,9 @@ class RemoteShapeTest {
 
     @Test
     fun roundedDifferentPercentRadiusRTL() {
-        val wrapper: @Composable (content: @Composable () -> Unit) -> Unit = { content ->
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
-            ) {
-                content()
-            }
-        }
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfoRtl,
-            composableWrapper = wrapper,
+            creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             val topStart = 50
             val topEnd = 25

@@ -26,14 +26,12 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection as TestLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -72,13 +70,7 @@ class RemoteTextButtonTest {
     fun remote_text_button_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            composableWrapper = { composable ->
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.TestLayoutDirection(LayoutDirection.Rtl)
-                ) {
-                    composable()
-                }
-            },
+            creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             ComponentContainer { RemoteTextButtonEnabled() }
         }

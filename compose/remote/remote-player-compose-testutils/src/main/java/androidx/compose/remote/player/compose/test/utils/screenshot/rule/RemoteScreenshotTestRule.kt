@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -90,22 +91,31 @@ class RemoteScreenshotTestRule(
         return delegateChain.apply(base, description)
     }
 
+    /** [ComposeContentTestRule] used by this [TestRule]. */
+    val composeTestRule: ComposeContentTestRule = remoteContentTestRule.composeTestRule
+
     fun runScreenshotTest(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo? = null,
         profile: Profile = RcPlatformProfiles.ANDROIDX,
-        composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = { it() },
+        creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
+            it()
+        },
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
         goldenScreenshotName: GoldenScreenshotName? = null,
         update: (RemoteComposePlayer) -> Unit = {},
+        playComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
+            it()
+        },
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         runScreenshotTestInternal(
             remoteCreationDisplayInfo = remoteCreationDisplayInfo ?: this.remoteCreationDisplayInfo,
             profile = profile,
-            composableWrapper = composableWrapper,
+            creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
             goldenScreenshotName = getGoldenScreenshotName(goldenScreenshotName),
             update = update,
+            playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
     }
@@ -113,23 +123,21 @@ class RemoteScreenshotTestRule(
     private fun runScreenshotTestInternal(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile,
-        composableWrapper: (@Composable (content: @Composable () -> Unit) -> Unit) = { it() },
+        creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit),
         onCoreDocumentCreated: ((CoreDocument) -> Unit)?,
         goldenScreenshotName: GoldenScreenshotName,
         update: (RemoteComposePlayer) -> Unit,
+        playComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit),
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         remoteContentTestRule.setContent(
             remoteCreationDisplayInfo = remoteCreationDisplayInfo,
             profile = profile,
-            creationComposableWrapper = composableWrapper,
+            creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
             player =
-                PlayerImpl(
-                    remoteCreationDisplayInfo = remoteCreationDisplayInfo,
-                    update = update,
-                    composableWrapper = composableWrapper,
-                ),
+                PlayerImpl(remoteCreationDisplayInfo = remoteCreationDisplayInfo, update = update),
+            playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
 
@@ -157,10 +165,6 @@ class RemoteScreenshotTestRule(
     private class PlayerImpl(
         private val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         private val update: (RemoteComposePlayer) -> Unit = {},
-        private val composableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) =
-            {
-                it()
-            },
     ) : Player {
         @Composable
         override fun Play(coreDocument: CoreDocument, size: Size) {
@@ -170,15 +174,12 @@ class RemoteScreenshotTestRule(
                         .height(remoteCreationDisplayInfo.heightDp)
                         .testTag(ROOT_TEST_TAG)
             ) {
-                val composable: @Composable () -> Unit = {
-                    RemoteDocumentPlayer(
-                        document = coreDocument,
-                        documentWidth = size.width.toInt(),
-                        documentHeight = size.height.toInt(),
-                        update = update,
-                    )
-                }
-                composableWrapper { composable() }
+                RemoteDocumentPlayer(
+                    document = coreDocument,
+                    documentWidth = size.width.toInt(),
+                    documentHeight = size.height.toInt(),
+                    update = update,
+                )
             }
         }
     }

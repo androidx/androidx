@@ -18,19 +18,14 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.collection.buildObjectIntMap
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.remote.player.view.RemoteComposePlayer
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -73,13 +68,7 @@ class RemoteCircularProgressIndicatorTest {
     fun indicator_enabled_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            composableWrapper = { composable ->
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
-                ) {
-                    composable()
-                }
-            },
+            creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             ComponentContainer { RemoteCircularProgressEnabled() }
         }
@@ -124,14 +113,12 @@ class RemoteCircularProgressIndicatorTest {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            composableWrapper = { composable ->
-                Box(modifier = Modifier.background(Color.Black)) { composable() }
-            },
             update = { player: RemoteComposePlayer ->
                 colorOverrides.forEach { name, colorInt ->
                     player.setUserLocalColor(name, colorInt)
                 }
             },
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             ComponentContainer { RemoteCircularProgressEnabled() }
         }

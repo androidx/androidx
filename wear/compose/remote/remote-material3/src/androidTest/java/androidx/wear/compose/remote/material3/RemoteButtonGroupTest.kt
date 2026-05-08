@@ -20,13 +20,11 @@ import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection as TestLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -64,13 +62,7 @@ class RemoteButtonGroupTest {
     fun buttonGroup_threeButton_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            composableWrapper = { composable ->
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.TestLayoutDirection(LayoutDirection.Rtl)
-                ) {
-                    composable()
-                }
-            },
+            creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             ComponentContainer { RemoteButtonGroupThreeButtons() }
         }

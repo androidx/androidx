@@ -18,7 +18,6 @@ package androidx.wear.compose.remote.material3
 
 import androidx.collection.buildObjectIntMap
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -29,9 +28,9 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.GridScreenshotUI
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -96,14 +95,12 @@ class DynamicColorTest {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = RcPlatformProfiles.WEAR_WIDGETS,
-            composableWrapper = { composable ->
-                Box(modifier = Modifier.background(Color.Black)) { composable() }
-            },
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
                     player.setUserLocalColor(name, colorInt)
                 }
             },
+            playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val gridUI = GridScreenshotUI(itemsPerRow = 4, ContainerSize = 50.rdp)
             val colorScheme = RemoteMaterialTheme.colorScheme
