@@ -778,6 +778,9 @@ package androidx.xr.compose.subspace.layout {
     property public abstract androidx.xr.compose.subspace.layout.SubspaceModifier.Node node;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalRotateToLookAtUserApi {
+  }
+
   public final class GravityAlignedKt {
     method public static androidx.xr.compose.subspace.layout.SubspaceModifier gravityAligned(androidx.xr.compose.subspace.layout.SubspaceModifier);
   }
@@ -897,9 +900,9 @@ package androidx.xr.compose.subspace.layout {
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! rotate$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, float, float, float, int, Object!);
   }
 
-  public final class RotateToLookAtUserKt {
-    method public static androidx.xr.compose.subspace.layout.SubspaceModifier rotateToLookAtUser(androidx.xr.compose.subspace.layout.SubspaceModifier, optional androidx.xr.runtime.math.Vector3 upDirection);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! rotateToLookAtUser$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, androidx.xr.runtime.math.Vector3!, int, Object!);
+  @SuppressCompatibility public final class RotateToLookAtUserKt {
+    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier rotateToLookAtUser(androidx.xr.compose.subspace.layout.SubspaceModifier, optional androidx.xr.runtime.math.Vector3 upDirection);
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier! rotateToLookAtUser$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, androidx.xr.runtime.math.Vector3!, int, Object!);
   }
 
   public final class SizeKt {

@@ -39,6 +39,21 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
+ * Marks RotateToLookAtUser APIs that are experimental and likely to change or be removed in the
+ * future.
+ *
+ * Any usage of a declaration annotated with `@ExperimentalRotateToLookAtUserApi` must be accepted
+ * either by annotating that usage with `@OptIn(ExperimentalRotateToLookAtUserApi::class)` or by
+ * propagating the annotation to the containing declaration.
+ */
+@RequiresOptIn(
+    level = RequiresOptIn.Level.ERROR,
+    message = "This is an experimental API. It may be changed or removed in the future.",
+)
+@Retention(AnnotationRetention.BINARY)
+public annotation class ExperimentalRotateToLookAtUserApi
+
+/**
  * A [SubspaceModifier] that continuously rotates content so that it faces the user at all times.
  *
  * A user of this API should configure the activity's Session object with
@@ -65,6 +80,7 @@ import kotlinx.coroutines.launch
  */
 // TODO(b/461808266): RotateToLookAtUser and FollowingSubspace not compatible with each other
 // TODO(b/487087894): [Moohan Emulator] ARCore ArDevice emit identity pose until user moves
+@ExperimentalRotateToLookAtUserApi
 public fun SubspaceModifier.rotateToLookAtUser(
     upDirection: Vector3 = Vector3.Up
 ): SubspaceModifier = this.then(RotateToLookAtUserElement(upDirection))

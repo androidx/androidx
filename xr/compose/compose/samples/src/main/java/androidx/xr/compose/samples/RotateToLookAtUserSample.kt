@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.gravityAligned
 import androidx.xr.compose.subspace.layout.rotate
@@ -36,6 +37,7 @@ import androidx.xr.runtime.math.Vector3
  * user views it from a high or low angle.
  */
 @Sampled
+@OptIn(ExperimentalRotateToLookAtUserApi::class)
 @Composable
 public fun RotateToLookAtUserBillboardSample() {
     Subspace {
@@ -50,6 +52,7 @@ public fun RotateToLookAtUserBillboardSample() {
  * change the reference frame for the content's orientation.
  */
 @Sampled
+@OptIn(ExperimentalRotateToLookAtUserApi::class)
 @Composable
 public fun RotateToLookAtUserWithUpVectorSample() {
     Subspace {
@@ -70,6 +73,7 @@ public fun RotateToLookAtUserWithUpVectorSample() {
  * independently calculate its local rotation to ensure it remains facing the user.
  */
 @Sampled
+@OptIn(ExperimentalRotateToLookAtUserApi::class)
 @Composable
 public fun RotateToLookAtUserUnderParentContainerSample() {
     val parentRotation = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
