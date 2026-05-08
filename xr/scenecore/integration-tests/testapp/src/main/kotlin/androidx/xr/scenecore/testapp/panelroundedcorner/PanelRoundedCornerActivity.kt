@@ -79,10 +79,22 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
                 panelEntityView,
                 IntSize2d(640, 600),
                 "panel_entity",
-                Pose(Vector3(0.1f, -0.5f, 0.1f)),
                 parent = session!!.scene.activitySpace,
             )
         panelEntity?.parent = session!!.scene.mainPanelEntity
+
+        // layout control panel under main panel to avoid overlapping
+        panelEntity!!.setPose(
+            Pose(
+                Vector3(
+                    0.1f,
+                    -session!!.scene.mainPanelEntity.size.height / 2f -
+                        panelEntity!!.size.height / 2f -
+                        0.05f,
+                    0.1f,
+                )
+            )
+        )
 
         val mainPanelSeekBar = panelEntityView.findViewById<SeekBar>(R.id.main_panel_seekbar)
         mainPanelSeekBar.setOnSeekBarChangeListener(
@@ -207,9 +219,21 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
             val intent = Intent(this, ActivityPanel::class.java)
             intent.putExtra("NAV_ICON", false)
             activityPanelEntity!!.startActivity(intent)
-            activityPanelEntity!!.setPose(Pose(Vector3(0.75f, 0.0f, 0.0f)))
             activityPanelCreated = true
             activityPanelEntity?.parent = session!!.scene.mainPanelEntity
+
+            // layout activity panel to the right of main panel to avoid overlapping
+            activityPanelEntity!!.setPose(
+                Pose(
+                    Vector3(
+                        session!!.scene.mainPanelEntity.size.width / 2f +
+                            activityPanelEntity!!.size.width / 2f +
+                            0.05f,
+                        0f,
+                        0f,
+                    )
+                )
+            )
         }
     }
 
