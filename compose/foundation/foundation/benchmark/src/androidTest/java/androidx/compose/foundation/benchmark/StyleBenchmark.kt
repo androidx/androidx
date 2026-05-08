@@ -40,10 +40,15 @@ import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
 import androidx.compose.foundation.style.MutableStyleState
 import androidx.compose.foundation.style.Style
 import androidx.compose.foundation.style.StyleScope
+import androidx.compose.foundation.style.animate
+import androidx.compose.foundation.style.border
+import androidx.compose.foundation.style.contentPadding
 import androidx.compose.foundation.style.disabled
+import androidx.compose.foundation.style.externalPadding
 import androidx.compose.foundation.style.focused
 import androidx.compose.foundation.style.hovered
 import androidx.compose.foundation.style.pressed
+import androidx.compose.foundation.style.size
 import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.Button

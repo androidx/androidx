@@ -2188,7 +2188,150 @@ package androidx.compose.foundation.shape {
 
 package androidx.compose.foundation.style {
 
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface AlphaScope {
+    method public void alpha(@FloatRange(from=0.0, to=1.0) float value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface AnimateStyleScope {
+    method public void animate(androidx.compose.animation.core.AnimationSpec<java.lang.Float> toSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> fromSpec, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface BackgroundScope {
+    method public void background(androidx.compose.ui.graphics.Brush value);
+    method @KotlinOnly public void background(androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly public void background-8_81llA(long);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface BaselineShiftScope {
+    method @KotlinOnly public void baselineShift(androidx.compose.ui.text.style.BaselineShift value);
+    method @BytecodeOnly public void baselineShift-4Dl_Bck(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface BorderScope {
+    method public void borderBrush(androidx.compose.ui.graphics.Brush value);
+    method @KotlinOnly public void borderColor(androidx.compose.ui.graphics.Color value);
+    method @BytecodeOnly public void borderColor-8_81llA(long);
+    method @KotlinOnly public void borderWidth(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void borderWidth-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ClipScope {
+    method public void clip(optional boolean value);
+    method @BytecodeOnly public static void clip$default(androidx.compose.foundation.style.ClipScope!, boolean, int, Object!);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ColorFilterScope {
+    method public void colorFilter(androidx.compose.ui.graphics.ColorFilter? value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ContentColorScope {
+    method public void contentBrush(androidx.compose.ui.graphics.Brush value);
+    method @KotlinOnly public void contentColor(androidx.compose.ui.graphics.Color value);
+    method @BytecodeOnly public void contentColor-8_81llA(long);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ContentPaddingScope {
+    method @KotlinOnly public void contentPaddingBottom(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void contentPaddingBottom-0680j_4(float);
+    method @KotlinOnly public void contentPaddingEnd(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void contentPaddingEnd-0680j_4(float);
+    method @KotlinOnly public void contentPaddingStart(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void contentPaddingStart-0680j_4(float);
+    method @KotlinOnly public void contentPaddingTop(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void contentPaddingTop-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public fun interface CustomStyle<ScopeT extends androidx.compose.foundation.style.CustomStyleScope> {
+    method public void applyStyle(ScopeT);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CustomStyleScope extends androidx.compose.ui.unit.Density androidx.compose.runtime.CompositionLocalAccessorScope {
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface DrawStyleScope extends androidx.compose.foundation.style.BorderScope androidx.compose.foundation.style.BackgroundScope androidx.compose.foundation.style.ForegroundScope androidx.compose.foundation.style.ShadowScope androidx.compose.foundation.style.ShapeScope {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This foundation style API is experimental and is likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalFoundationStyleApi {
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ExternalPaddingScope {
+    method @KotlinOnly public void externalPaddingBottom(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void externalPaddingBottom-0680j_4(float);
+    method @KotlinOnly public void externalPaddingEnd(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void externalPaddingEnd-0680j_4(float);
+    method @KotlinOnly public void externalPaddingStart(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void externalPaddingStart-0680j_4(float);
+    method @KotlinOnly public void externalPaddingTop(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void externalPaddingTop-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface FontFamilyScope {
+    method public void fontFamily(androidx.compose.ui.text.font.FontFamily value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface FontSizeScope {
+    method @KotlinOnly public void fontSize(androidx.compose.ui.unit.TextUnit value);
+    method @BytecodeOnly public void fontSize--R2X_6o(long);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface FontStyleScope {
+    method @KotlinOnly public void fontStyle(androidx.compose.ui.text.font.FontStyle value);
+    method @BytecodeOnly public void fontStyle-nzbMABs(int);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface FontSynthesisScope {
+    method @KotlinOnly public void fontSynthesis(androidx.compose.ui.text.font.FontSynthesis value);
+    method @BytecodeOnly public void fontSynthesis-6p3vJLY(int);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface FontWeightScope {
+    method public void fontWeight(androidx.compose.ui.text.font.FontWeight value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ForegroundScope {
+    method public void foreground(androidx.compose.ui.graphics.Brush value);
+    method @KotlinOnly public void foreground(androidx.compose.ui.graphics.Color value);
+    method @BytecodeOnly public void foreground-8_81llA(long);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface HyphensScope {
+    method @KotlinOnly public void hyphens(androidx.compose.ui.text.style.Hyphens value);
+    method @BytecodeOnly public void hyphens--3fSNIE(int);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface LayerStyleScope extends androidx.compose.foundation.style.AlphaScope androidx.compose.foundation.style.ClipScope androidx.compose.foundation.style.ColorFilterScope androidx.compose.foundation.style.RotationScope androidx.compose.foundation.style.ScaleScope androidx.compose.foundation.style.TransformOriginScope androidx.compose.foundation.style.TranslationScope androidx.compose.foundation.style.ZIndexScope {
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface LayoutStyleScope extends androidx.compose.foundation.style.ContentPaddingScope androidx.compose.foundation.style.ExternalPaddingScope androidx.compose.foundation.style.MaxSizeScope androidx.compose.foundation.style.MinSizeScope androidx.compose.foundation.style.PositionScope androidx.compose.foundation.style.SizeScope {
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface LetterSpacingScope {
+    method @KotlinOnly public void letterSpacing(androidx.compose.ui.unit.TextUnit value);
+    method @BytecodeOnly public void letterSpacing--R2X_6o(long);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface LineBreakScope {
+    method @KotlinOnly public void lineBreak(androidx.compose.ui.text.style.LineBreak value);
+    method @BytecodeOnly public void lineBreak-CZqVlQI(int);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface LineHeightScope {
+    method @KotlinOnly public void lineHeight(androidx.compose.ui.unit.TextUnit value);
+    method @BytecodeOnly public void lineHeight--R2X_6o(long);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface MaxSizeScope {
+    method @KotlinOnly public void maxHeight(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void maxHeight-0680j_4(float);
+    method @KotlinOnly public void maxWidth(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void maxWidth-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface MinSizeScope {
+    method @KotlinOnly public void minHeight(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void minHeight-0680j_4(float);
+    method @KotlinOnly public void minWidth(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void minWidth-0680j_4(float);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public final class MutableStyleState extends androidx.compose.foundation.style.StyleState {
@@ -2219,8 +2362,49 @@ package androidx.compose.foundation.style {
     property public androidx.compose.ui.state.ToggleableState triStateToggle;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public fun interface Style {
-    method public void applyStyle(androidx.compose.foundation.style.StyleScope);
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface PositionScope {
+    method @KotlinOnly public void bottom(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void bottom-0680j_4(float);
+    method @KotlinOnly public void left(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void left-0680j_4(float);
+    method @KotlinOnly public void right(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void right-0680j_4(float);
+    method @KotlinOnly public void top(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void top-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface RotationScope {
+    method public void rotationX(float value);
+    method public void rotationY(float value);
+    method public void rotationZ(float value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ScaleScope {
+    method public void scaleX(@FloatRange(from=0.0) float value);
+    method public void scaleY(@FloatRange(from=0.0) float value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ShadowScope {
+    method public void dropShadow(androidx.compose.ui.graphics.shadow.Shadow value);
+    method public void dropShadow(androidx.compose.ui.graphics.shadow.Shadow... value);
+    method public void innerShadow(androidx.compose.ui.graphics.shadow.Shadow value);
+    method public void innerShadow(androidx.compose.ui.graphics.shadow.Shadow... value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ShapeScope {
+    method public void shape(androidx.compose.ui.graphics.Shape value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface SizeScope {
+    method @KotlinOnly public void height(androidx.compose.ui.unit.Dp value);
+    method public void height(@FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly public void height-0680j_4(float);
+    method @KotlinOnly public void width(androidx.compose.ui.unit.Dp value);
+    method public void width(@FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly public void width-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public fun interface Style extends androidx.compose.foundation.style.CustomStyle<androidx.compose.foundation.style.StyleScope> {
     field public static final androidx.compose.foundation.style.Style.Companion Companion;
   }
 
@@ -2242,161 +2426,65 @@ package androidx.compose.foundation.style {
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier! styleable$default(androidx.compose.ui.Modifier!, androidx.compose.foundation.style.StyleState!, androidx.compose.foundation.style.Style!, int, Object!);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public sealed nonexhaustive interface StyleScope extends androidx.compose.runtime.CompositionLocalAccessorScope androidx.compose.ui.unit.Density {
-    method public void alpha(@FloatRange(from=0.0, to=1.0) float value);
-    method public void animate(androidx.compose.animation.core.AnimationSpec<java.lang.Float> toSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> fromSpec, androidx.compose.foundation.style.Style value);
-    method public void animate(androidx.compose.animation.core.AnimationSpec<java.lang.Float> spec, androidx.compose.foundation.style.Style value);
-    method public void animate(androidx.compose.foundation.style.Style value);
-    method public void background(androidx.compose.ui.graphics.Brush value);
-    method @KotlinOnly public void background(androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly public void background-8_81llA(long);
-    method @KotlinOnly public void baselineShift(androidx.compose.ui.text.style.BaselineShift value);
-    method @BytecodeOnly public void baselineShift-4Dl_Bck(float);
-    method @KotlinOnly public void border(androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Brush brush);
-    method @KotlinOnly public void border(androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly public void border-D5KLDUw(float, androidx.compose.ui.graphics.Brush);
-    method @BytecodeOnly public void border-cXLIe8U(float, long);
-    method public void borderBrush(androidx.compose.ui.graphics.Brush value);
-    method @KotlinOnly public void borderColor(androidx.compose.ui.graphics.Color value);
-    method @BytecodeOnly public void borderColor-8_81llA(long);
-    method @KotlinOnly public void borderWidth(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void borderWidth-0680j_4(float);
-    method @KotlinOnly public void bottom(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void bottom-0680j_4(float);
-    method public void clip(optional boolean value);
-    method @BytecodeOnly public static void clip$default(androidx.compose.foundation.style.StyleScope!, boolean, int, Object!);
-    method public void colorFilter(androidx.compose.ui.graphics.ColorFilter? value);
-    method public void contentBrush(androidx.compose.ui.graphics.Brush value);
-    method @KotlinOnly public void contentColor(androidx.compose.ui.graphics.Color value);
-    method @BytecodeOnly public void contentColor-8_81llA(long);
-    method @KotlinOnly public void contentPadding(androidx.compose.ui.unit.Dp value);
-    method @KotlinOnly public void contentPadding(androidx.compose.ui.unit.Dp horizontal, androidx.compose.ui.unit.Dp vertical);
-    method @KotlinOnly public void contentPadding(androidx.compose.ui.unit.Dp start, androidx.compose.ui.unit.Dp top, androidx.compose.ui.unit.Dp end, androidx.compose.ui.unit.Dp bottom);
-    method @BytecodeOnly public void contentPadding-0680j_4(float);
-    method @BytecodeOnly public void contentPadding-YgX7TsA(float, float);
-    method @BytecodeOnly public void contentPadding-a9UjIt4(float, float, float, float);
-    method @KotlinOnly public void contentPaddingBottom(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void contentPaddingBottom-0680j_4(float);
-    method @KotlinOnly public void contentPaddingEnd(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void contentPaddingEnd-0680j_4(float);
-    method @KotlinOnly public void contentPaddingHorizontal(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void contentPaddingHorizontal-0680j_4(float);
-    method @KotlinOnly public void contentPaddingStart(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void contentPaddingStart-0680j_4(float);
-    method @KotlinOnly public void contentPaddingTop(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void contentPaddingTop-0680j_4(float);
-    method @KotlinOnly public void contentPaddingVertical(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void contentPaddingVertical-0680j_4(float);
-    method public void dropShadow(androidx.compose.ui.graphics.shadow.Shadow value);
-    method public void dropShadow(androidx.compose.ui.graphics.shadow.Shadow... value);
-    method @KotlinOnly public void externalPadding(androidx.compose.ui.unit.Dp value);
-    method @KotlinOnly public void externalPadding(androidx.compose.ui.unit.Dp horizontal, androidx.compose.ui.unit.Dp vertical);
-    method @KotlinOnly public void externalPadding(androidx.compose.ui.unit.Dp start, androidx.compose.ui.unit.Dp top, androidx.compose.ui.unit.Dp end, androidx.compose.ui.unit.Dp bottom);
-    method @BytecodeOnly public void externalPadding-0680j_4(float);
-    method @BytecodeOnly public void externalPadding-YgX7TsA(float, float);
-    method @BytecodeOnly public void externalPadding-a9UjIt4(float, float, float, float);
-    method @KotlinOnly public void externalPaddingBottom(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void externalPaddingBottom-0680j_4(float);
-    method @KotlinOnly public void externalPaddingEnd(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void externalPaddingEnd-0680j_4(float);
-    method @KotlinOnly public void externalPaddingHorizontal(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void externalPaddingHorizontal-0680j_4(float);
-    method @KotlinOnly public void externalPaddingStart(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void externalPaddingStart-0680j_4(float);
-    method @KotlinOnly public void externalPaddingTop(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void externalPaddingTop-0680j_4(float);
-    method @KotlinOnly public void externalPaddingVertical(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void externalPaddingVertical-0680j_4(float);
-    method public void fontFamily(androidx.compose.ui.text.font.FontFamily value);
-    method @KotlinOnly public void fontSize(androidx.compose.ui.unit.TextUnit value);
-    method @BytecodeOnly public void fontSize--R2X_6o(long);
-    method @KotlinOnly public void fontStyle(androidx.compose.ui.text.font.FontStyle value);
-    method @BytecodeOnly public void fontStyle-nzbMABs(int);
-    method @KotlinOnly public void fontSynthesis(androidx.compose.ui.text.font.FontSynthesis value);
-    method @BytecodeOnly public void fontSynthesis-6p3vJLY(int);
-    method public void fontWeight(androidx.compose.ui.text.font.FontWeight value);
-    method public void foreground(androidx.compose.ui.graphics.Brush value);
-    method @KotlinOnly public void foreground(androidx.compose.ui.graphics.Color value);
-    method @BytecodeOnly public void foreground-8_81llA(long);
-    method @InaccessibleFromKotlin public androidx.compose.foundation.style.StyleState getState();
-    method @KotlinOnly public void height(androidx.compose.ui.unit.Dp value);
-    method public void height(@FloatRange(from=0.0, to=1.0) float fraction);
-    method @BytecodeOnly public void height-0680j_4(float);
-    method @KotlinOnly public void hyphens(androidx.compose.ui.text.style.Hyphens value);
-    method @BytecodeOnly public void hyphens--3fSNIE(int);
-    method public void innerShadow(androidx.compose.ui.graphics.shadow.Shadow value);
-    method public void innerShadow(androidx.compose.ui.graphics.shadow.Shadow... value);
-    method @KotlinOnly public void left(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void left-0680j_4(float);
-    method @KotlinOnly public void letterSpacing(androidx.compose.ui.unit.TextUnit value);
-    method @BytecodeOnly public void letterSpacing--R2X_6o(long);
-    method @KotlinOnly public void lineBreak(androidx.compose.ui.text.style.LineBreak value);
-    method @BytecodeOnly public void lineBreak-CZqVlQI(int);
-    method @KotlinOnly public void lineHeight(androidx.compose.ui.unit.TextUnit value);
-    method @BytecodeOnly public void lineHeight--R2X_6o(long);
-    method @KotlinOnly public void maxHeight(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void maxHeight-0680j_4(float);
-    method @KotlinOnly public void maxSize(androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
-    method @KotlinOnly public void maxSize(androidx.compose.ui.unit.DpSize size);
-    method @BytecodeOnly public void maxSize-EaSLcWc(long);
-    method @BytecodeOnly public void maxSize-YgX7TsA(float, float);
-    method @KotlinOnly public void maxWidth(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void maxWidth-0680j_4(float);
-    method @KotlinOnly public void minHeight(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void minHeight-0680j_4(float);
-    method @KotlinOnly public void minSize(androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
-    method @KotlinOnly public void minSize(androidx.compose.ui.unit.DpSize size);
-    method @BytecodeOnly public void minSize-EaSLcWc(long);
-    method @BytecodeOnly public void minSize-YgX7TsA(float, float);
-    method @KotlinOnly public void minWidth(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void minWidth-0680j_4(float);
-    method @KotlinOnly public void right(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void right-0680j_4(float);
-    method public void rotationX(float value);
-    method public void rotationY(float value);
-    method public void rotationZ(float value);
-    method public void scale(@FloatRange(from=0.0) float value);
-    method public void scaleX(@FloatRange(from=0.0) float value);
-    method public void scaleY(@FloatRange(from=0.0) float value);
-    method public void shape(androidx.compose.ui.graphics.Shape value);
-    method @KotlinOnly public void size(androidx.compose.ui.unit.Dp value);
-    method @KotlinOnly public void size(androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
-    method @KotlinOnly public void size(androidx.compose.ui.unit.DpSize value);
-    method @BytecodeOnly public void size-0680j_4(float);
-    method @BytecodeOnly public void size-EaSLcWc(long);
-    method @BytecodeOnly public void size-YgX7TsA(float, float);
-    method public <T> void state(androidx.compose.foundation.style.StyleStateKey<T> key, androidx.compose.foundation.style.Style value, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.style.StyleStateKey<T>,? super androidx.compose.foundation.style.StyleState,java.lang.Boolean> active);
-    method @KotlinOnly public void textAlign(androidx.compose.ui.text.style.TextAlign value);
-    method @BytecodeOnly public void textAlign-aXe7zB0(int);
-    method public void textDecoration(androidx.compose.ui.text.style.TextDecoration value);
-    method @KotlinOnly public void textDirection(androidx.compose.ui.text.style.TextDirection value);
-    method @BytecodeOnly public void textDirection-Hejc4pk(int);
-    method public void textIndent(androidx.compose.ui.text.style.TextIndent value);
-    method public void textMotion(androidx.compose.ui.text.style.TextMotion value);
-    method public void textStyle(androidx.compose.ui.text.TextStyle value);
-    method @KotlinOnly public void top(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public void top-0680j_4(float);
-    method @KotlinOnly public void transformOrigin(androidx.compose.ui.graphics.TransformOrigin value);
-    method @BytecodeOnly public void transformOrigin-__ExYCQ(long);
-    method @KotlinOnly public void translation(androidx.compose.ui.geometry.Offset offset);
-    method public void translation(@FloatRange(from=0.0) float x, @FloatRange(from=0.0) float y);
-    method @BytecodeOnly public void translation-k-4lQ0M(long);
-    method public void translationX(@FloatRange(from=0.0) float value);
-    method public void translationY(@FloatRange(from=0.0) float value);
-    method @KotlinOnly public void width(androidx.compose.ui.unit.Dp value);
-    method public void width(@FloatRange(from=0.0, to=1.0) float fraction);
-    method @BytecodeOnly public void width-0680j_4(float);
-    method public void zIndex(@FloatRange(from=0.0) float value);
-    property public abstract androidx.compose.foundation.style.StyleState state;
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface StyleScope extends androidx.compose.foundation.style.CustomStyleScope androidx.compose.foundation.style.AnimateStyleScope androidx.compose.foundation.style.DrawStyleScope androidx.compose.foundation.style.LayerStyleScope androidx.compose.foundation.style.LayoutStyleScope androidx.compose.foundation.style.StyleStateScope androidx.compose.foundation.style.TextStyleStyleScope {
   }
 
   @SuppressCompatibility public final class StyleScopeKt {
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void apply(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style style);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPadding(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.layout.PaddingValues paddingValues);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPadding(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.layout.PaddingValues paddingValues);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void fillHeight(androidx.compose.foundation.style.StyleScope);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void fillSize(androidx.compose.foundation.style.StyleScope);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void fillWidth(androidx.compose.foundation.style.StyleScope);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void animate(androidx.compose.foundation.style.AnimateStyleScope, androidx.compose.animation.core.AnimationSpec<java.lang.Float> spec, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void animate(androidx.compose.foundation.style.AnimateStyleScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static <ScopeT extends androidx.compose.foundation.style.CustomStyleScope, StyleT extends androidx.compose.foundation.style.CustomStyle<ScopeT>> void apply(ScopeT, StyleT style);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void border(androidx.compose.foundation.style.BorderScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Brush brush);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void border(androidx.compose.foundation.style.BorderScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void border-H2RKhps(androidx.compose.foundation.style.BorderScope, float, long);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void border-lG28NQ4(androidx.compose.foundation.style.BorderScope, float, androidx.compose.ui.graphics.Brush);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPadding(androidx.compose.foundation.style.ContentPaddingScope, androidx.compose.ui.unit.Dp value);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPadding(androidx.compose.foundation.style.ContentPaddingScope, androidx.compose.ui.unit.Dp horizontal, androidx.compose.ui.unit.Dp vertical);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPadding(androidx.compose.foundation.style.ContentPaddingScope, androidx.compose.ui.unit.Dp start, androidx.compose.ui.unit.Dp top, androidx.compose.ui.unit.Dp end, androidx.compose.ui.unit.Dp bottom);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static <T extends androidx.compose.foundation.style.ContentPaddingScope & androidx.compose.runtime.CompositionLocalAccessorScope> void contentPadding(T, androidx.compose.foundation.layout.PaddingValues paddingValues);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPadding-3ABfNKs(androidx.compose.foundation.style.ContentPaddingScope, float);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPadding-VpY3zN4(androidx.compose.foundation.style.ContentPaddingScope, float, float);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPadding-qDBjuR0(androidx.compose.foundation.style.ContentPaddingScope, float, float, float, float);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPaddingHorizontal(androidx.compose.foundation.style.ContentPaddingScope, androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPaddingHorizontal-3ABfNKs(androidx.compose.foundation.style.ContentPaddingScope, float);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPaddingVertical(androidx.compose.foundation.style.ContentPaddingScope, androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void contentPaddingVertical-3ABfNKs(androidx.compose.foundation.style.ContentPaddingScope, float);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPadding(androidx.compose.foundation.style.ExternalPaddingScope, androidx.compose.ui.unit.Dp value);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPadding(androidx.compose.foundation.style.ExternalPaddingScope, androidx.compose.ui.unit.Dp horizontal, androidx.compose.ui.unit.Dp vertical);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPadding(androidx.compose.foundation.style.ExternalPaddingScope, androidx.compose.ui.unit.Dp start, androidx.compose.ui.unit.Dp top, androidx.compose.ui.unit.Dp end, androidx.compose.ui.unit.Dp bottom);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static <T extends androidx.compose.foundation.style.ExternalPaddingScope & androidx.compose.runtime.CompositionLocalAccessorScope> void externalPadding(T, androidx.compose.foundation.layout.PaddingValues paddingValues);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPadding-3ABfNKs(androidx.compose.foundation.style.ExternalPaddingScope, float);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPadding-VpY3zN4(androidx.compose.foundation.style.ExternalPaddingScope, float, float);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPadding-qDBjuR0(androidx.compose.foundation.style.ExternalPaddingScope, float, float, float, float);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPaddingHorizontal(androidx.compose.foundation.style.ExternalPaddingScope, androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPaddingHorizontal-3ABfNKs(androidx.compose.foundation.style.ExternalPaddingScope, float);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPaddingVertical(androidx.compose.foundation.style.ExternalPaddingScope, androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void externalPaddingVertical-3ABfNKs(androidx.compose.foundation.style.ExternalPaddingScope, float);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void fillHeight(androidx.compose.foundation.style.SizeScope);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void fillSize(androidx.compose.foundation.style.SizeScope);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void fillWidth(androidx.compose.foundation.style.SizeScope);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void maxSize(androidx.compose.foundation.style.MaxSizeScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void maxSize(androidx.compose.foundation.style.MaxSizeScope, androidx.compose.ui.unit.DpSize size);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void maxSize-6HolHcs(androidx.compose.foundation.style.MaxSizeScope, long);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void maxSize-VpY3zN4(androidx.compose.foundation.style.MaxSizeScope, float, float);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void minSize(androidx.compose.foundation.style.MinSizeScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void minSize(androidx.compose.foundation.style.MinSizeScope, androidx.compose.ui.unit.DpSize size);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void minSize-6HolHcs(androidx.compose.foundation.style.MinSizeScope, long);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void minSize-VpY3zN4(androidx.compose.foundation.style.MinSizeScope, float, float);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void rotation(androidx.compose.foundation.style.RotationScope, float x, float y, float z);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void scale(androidx.compose.foundation.style.ScaleScope, @FloatRange(from=0.0) float value);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void scale(androidx.compose.foundation.style.ScaleScope, @FloatRange(from=0.0) float x, @FloatRange(from=0.0) float y);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void size(androidx.compose.foundation.style.SizeScope, androidx.compose.ui.unit.Dp value);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void size(androidx.compose.foundation.style.SizeScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void size(androidx.compose.foundation.style.SizeScope, androidx.compose.ui.unit.DpSize value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void size-3ABfNKs(androidx.compose.foundation.style.SizeScope, float);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void size-6HolHcs(androidx.compose.foundation.style.SizeScope, long);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void size-VpY3zN4(androidx.compose.foundation.style.SizeScope, float, float);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void state(androidx.compose.foundation.style.StyleStateScope, androidx.compose.foundation.style.StyleStateKey<java.lang.Boolean> key, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void transformOrigin(androidx.compose.foundation.style.TransformOriginScope, androidx.compose.ui.graphics.TransformOrigin value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void transformOrigin-DV65GgE(androidx.compose.foundation.style.TransformOriginScope, long);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void translation(androidx.compose.foundation.style.TranslationScope, androidx.compose.ui.geometry.Offset offset);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void translation(androidx.compose.foundation.style.TranslationScope, @FloatRange(from=0.0) float x, @FloatRange(from=0.0) float y);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void translation-Uv8p0NA(androidx.compose.foundation.style.TranslationScope, long);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public abstract sealed exhaustive class StyleState {
@@ -2439,17 +2527,66 @@ package androidx.compose.foundation.style {
   }
 
   @SuppressCompatibility public final class StyleStateKt {
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void checked(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void disabled(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void focused(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void hovered(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void pressed(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void checked(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void disabled(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void focused(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void hovered(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void pressed(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Composable public static inline androidx.compose.foundation.style.StyleState rememberUpdatedStyleState(androidx.compose.foundation.interaction.InteractionSource? interactionSource, optional kotlin.jvm.functions.Function1<androidx.compose.foundation.style.MutableStyleState,kotlin.Unit> block);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.style.StyleState rememberUpdatedStyleState(androidx.compose.foundation.interaction.InteractionSource?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.style.MutableStyleState!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void selected(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleIndeterminate(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleOff(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleOn(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void selected(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleIndeterminate(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleOff(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleOn(androidx.compose.foundation.style.StyleStateScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface StyleStateScope {
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.StyleState getState();
+    method public <T> void state(androidx.compose.foundation.style.StyleStateKey<T> key, kotlin.jvm.functions.Function0<kotlin.Unit> block, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.style.StyleStateKey<T>,? super androidx.compose.foundation.style.StyleState,java.lang.Boolean> active);
+    property public abstract androidx.compose.foundation.style.StyleState state;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TextAlignScope {
+    method @KotlinOnly public void textAlign(androidx.compose.ui.text.style.TextAlign value);
+    method @BytecodeOnly public void textAlign-aXe7zB0(int);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TextDecorationScope {
+    method public void textDecoration(androidx.compose.ui.text.style.TextDecoration value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TextDirectionScope {
+    method @KotlinOnly public void textDirection(androidx.compose.ui.text.style.TextDirection value);
+    method @BytecodeOnly public void textDirection-Hejc4pk(int);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TextIndentScope {
+    method public void textIndent(androidx.compose.ui.text.style.TextIndent value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TextMotionScope {
+    method public void textMotion(androidx.compose.ui.text.style.TextMotion value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TextStyleScope {
+    method public void textStyle(androidx.compose.ui.text.TextStyle value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TextStyleStyleScope extends androidx.compose.foundation.style.TextStyleScope androidx.compose.foundation.style.BaselineShiftScope androidx.compose.foundation.style.ContentColorScope androidx.compose.foundation.style.FontFamilyScope androidx.compose.foundation.style.FontSizeScope androidx.compose.foundation.style.FontStyleScope androidx.compose.foundation.style.FontSynthesisScope androidx.compose.foundation.style.FontWeightScope androidx.compose.foundation.style.HyphensScope androidx.compose.foundation.style.LetterSpacingScope androidx.compose.foundation.style.LineBreakScope androidx.compose.foundation.style.LineHeightScope androidx.compose.foundation.style.TextAlignScope androidx.compose.foundation.style.TextDecorationScope androidx.compose.foundation.style.TextDirectionScope androidx.compose.foundation.style.TextIndentScope androidx.compose.foundation.style.TextMotionScope {
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TransformOriginScope {
+    method public void transformOriginX(float value);
+    method public void transformOriginY(float value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface TranslationScope {
+    method public void translationX(@FloatRange(from=0.0) float value);
+    method public void translationY(@FloatRange(from=0.0) float value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ZIndexScope {
+    method public void zIndex(@FloatRange(from=0.0) float value);
   }
 
 }

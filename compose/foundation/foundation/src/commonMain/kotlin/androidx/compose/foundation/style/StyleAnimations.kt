@@ -91,8 +91,8 @@ internal class StyleAnimations {
     private var entries: MutableIntObjectMap<Entry> = mutableIntObjectMapOf()
 
     fun phaseFlags(): Int {
-        var primitivesSet: Long = 0
-        var objectsSet: Int = 0
+        var primitivesSet = 0L
+        var objectsSet = 0
         entries.forEach { it, _ ->
             if (it < PrimitivePropertyCount) primitivesSet = primitivesSet.withId(it.toByte())
             else objectsSet = objectsSet.withId(it)
