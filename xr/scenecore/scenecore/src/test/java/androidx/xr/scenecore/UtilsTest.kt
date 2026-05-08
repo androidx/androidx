@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-
 package androidx.xr.scenecore
 
 import androidx.xr.arcore.PlaneLabel
@@ -574,7 +572,6 @@ class UtilsTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun planeTypeToSceneCoreOrientation_convertsCorrectly() {
         assertThat(
                 listOf(
@@ -592,8 +589,9 @@ class UtilsTest {
             .inOrder()
     }
 
-    @Test
+    // TODO: b/500464864 - Cleanup when PlaneSemanticType.ANY is removed.
     @Suppress("DEPRECATION")
+    @Test
     fun planeLabelToSceneCoreSemanticType_convertsCorrectly() {
         assertThat(
                 listOf(

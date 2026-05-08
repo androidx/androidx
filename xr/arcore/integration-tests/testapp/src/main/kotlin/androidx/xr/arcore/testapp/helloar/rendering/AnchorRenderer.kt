@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-
 package androidx.xr.arcore.testapp.helloar.rendering
 
 import android.app.Activity
@@ -79,7 +77,6 @@ internal class AnchorRenderer(
         renderedAnchors.clear()
     }
 
-    @Suppress("DEPRECATION")
     private fun attachInteractableComponents(planeModels: Collection<PlaneModel>) {
         for (planeModel in planeModels) {
             if (planeModel.modelEntity.getComponents().isEmpty()) {

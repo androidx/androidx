@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION", "TYPEALIAS_EXPANSION_DEPRECATION")
-
 package androidx.xr.arcore.testing
 
 import android.util.Range
@@ -118,8 +116,7 @@ public class TestGeospatial internal constructor(private val arCoreTestRule: ArC
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    @Deprecated("Convert to androidx.xr.arcore.GeospatialState")
-    public var state: Geospatial.State = GeospatialState.NOT_RUNNING
+    public var state: GeospatialState = GeospatialState.NOT_RUNNING
         set(value) {
             field = value
             if (isConfigured()) {

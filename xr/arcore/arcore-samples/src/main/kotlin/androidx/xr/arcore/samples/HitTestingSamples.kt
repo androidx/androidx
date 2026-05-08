@@ -36,7 +36,6 @@ import androidx.xr.scenecore.scene
  * @param hitDirection the [Vector3] direction of the hit test ray
  */
 @Sampled
-@Suppress("DEPRECATION")
 fun callHitTest(session: Session, hitOrigin: Vector3, hitDirection: Vector3) {
     val arDevice = ArDevice.getInstance(session)
 

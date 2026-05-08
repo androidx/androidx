@@ -273,7 +273,6 @@ class XrResourcesManagerTest {
         }
 
     @Test
-    @Suppress("DEPRECATION")
     fun update_geospatialUpdated() =
         runTest(testDispatcher) {
             val runtimeGeospatial = StubRuntimeGeospatial()

@@ -17,5 +17,15 @@
 package androidx.xr.arcore
 
 /** A simple summary of the normal vector of a [Plane]. */
-@Suppress("DEPRECATION", "TypealiasDefinition")
-public typealias PlaneType = Plane.Type
+public class PlaneType private constructor(internal val value: Int) {
+    public companion object {
+        /** A horizontal plane facing upward (e.g. floor or tabletop). */
+        @JvmField public val HORIZONTAL_UPWARD_FACING: PlaneType = PlaneType(0)
+
+        /** A horizontal plane facing downward (e.g. a ceiling). */
+        @JvmField public val HORIZONTAL_DOWNWARD_FACING: PlaneType = PlaneType(1)
+
+        /** A vertical plane (e.g. a wall). */
+        @JvmField public val VERTICAL: PlaneType = PlaneType(2)
+    }
+}

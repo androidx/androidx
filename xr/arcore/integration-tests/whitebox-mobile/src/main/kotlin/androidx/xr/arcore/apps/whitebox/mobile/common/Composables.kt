@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-
 package androidx.xr.arcore.apps.whitebox.mobile.common
 
 import android.app.Activity
@@ -85,7 +83,6 @@ fun PlaneStateInfo(state: Plane.State) {
     Text(text = "Plane Vertices: ${state.vertices}")
 }
 
-@Suppress("DEPRECATION")
 private fun convertPlaneLabelToColor(label: PlaneLabel): Color =
     when (label) {
         PlaneLabel.WALL -> Color.Green

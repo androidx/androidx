@@ -45,7 +45,6 @@ import org.robolectric.android.controller.ActivityController
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-@Suppress("DEPRECATION")
 class GeospatialTest {
 
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
@@ -68,7 +67,7 @@ class GeospatialTest {
         activityController.create().start().resume()
 
         session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
-        session.configure(Config(geospatial = GeospatialMode.VPS_AND_GPS))
+        session.configure(Config(geospatial = GeospatialMode.SPATIAL))
 
         arCoreTestRule.geospatial.state = GeospatialState.NOT_RUNNING
     }

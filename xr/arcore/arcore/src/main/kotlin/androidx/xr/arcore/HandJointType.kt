@@ -79,22 +79,5 @@ public enum class HandJointType {
     /** The third joint of the little finger, closest to the fingertip. */
     LITTLE_DISTAL,
     /** The tip of the little finger (pinky). */
-    LITTLE_TIP;
-
-    public companion object {
-        @JvmField
-        @Deprecated(
-            "HandJointType values have been renamed.",
-            ReplaceWith("HandJointType.THUMB_TIP"),
-        )
-        // TODO b/489797124 Remove when no longer used by G3 1P apps
-        public val HAND_JOINT_TYPE_THUMB_TIP: HandJointType = THUMB_TIP
-        @JvmField
-        @Deprecated(
-            "HandJointType values have been renamed.",
-            ReplaceWith("HandJointType.INDEX_TIP"),
-        )
-        // TODO b/489797124 Remove when no longer used by G3 1P apps
-        public val HAND_JOINT_TYPE_INDEX_TIP: HandJointType = INDEX_TIP
-    }
+    LITTLE_TIP,
 }

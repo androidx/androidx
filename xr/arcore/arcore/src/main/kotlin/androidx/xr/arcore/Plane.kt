@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.transform
  * Describes the system's current best knowledge of a real-world planar surface.
  *
  * @property state the current [State] of the plane
- * @property type the [Type] of the plane
+ * @property type the [PlaneType] of the plane
  */
 @SuppressWarnings("HiddenSuperclass")
 public class Plane
@@ -89,7 +89,7 @@ internal constructor(
      * polygon with an arbitrary amount of [vertices] around a [centerPose].
      *
      * @property trackingState whether this plane is being tracked or not
-     * @property label the [Label] associated with the plane
+     * @property label the [PlaneLabel] associated with the plane
      * @property centerPose the [Pose] of the center of the detected plane's bounding box in the
      *   world coordinate space
      *
@@ -108,9 +108,7 @@ internal constructor(
     public class State
     internal constructor(
         public override val trackingState: TrackingState,
-        @Suppress("DEPRECATION")
-        @get:SuppressWarnings("ReferencesDeprecated")
-        public val label: Label,
+        public val label: PlaneLabel,
         public val centerPose: Pose,
         public val extents: FloatSize2d,
         public val vertices: List<Vector2>,
@@ -141,61 +139,6 @@ internal constructor(
         }
     }
 
-    /** A simple summary of the normal vector of a [Plane]. */
-    @Deprecated("Use PlaneType instead.", replaceWith = ReplaceWith("PlaneType"))
-    @Suppress("DEPRECATION")
-    public class Type private constructor(private val value: Int) {
-        public companion object {
-            /** A horizontal plane facing upward (e.g. floor or tabletop). */
-            @JvmField public val HORIZONTAL_UPWARD_FACING: Type = Type(0)
-
-            /** A horizontal plane facing downward (e.g. a ceiling). */
-            @JvmField public val HORIZONTAL_DOWNWARD_FACING: Type = Type(1)
-
-            /** A vertical plane (e.g. a wall). */
-            @JvmField public val VERTICAL: Type = Type(2)
-        }
-
-        public override fun toString(): String =
-            when (this) {
-                HORIZONTAL_UPWARD_FACING -> "HORIZONTAL_UPWARD_FACING"
-                HORIZONTAL_DOWNWARD_FACING -> "HORIZONTAL_DOWNWARD_FACING"
-                VERTICAL -> "VERTICAL"
-                else -> "UNKNOWN"
-            }
-    }
-
-    /** A semantic description of a [Plane]. */
-    @Deprecated("Use PlaneLabel instead.", replaceWith = ReplaceWith("PlaneLabel"))
-    @Suppress("DEPRECATION")
-    public class Label private constructor(private val value: Int) {
-        public companion object {
-            /** The plane represents an unknown type. */
-            @JvmField public val UNKNOWN: Label = Label(0)
-
-            /** The plane represents a wall. */
-            @JvmField public val WALL: Label = Label(1)
-
-            /** The plane represents a floor. */
-            @JvmField public val FLOOR: Label = Label(2)
-
-            /** The plane represents a ceiling. */
-            @JvmField public val CEILING: Label = Label(3)
-
-            /** The plane represents a table. */
-            @JvmField public val TABLE: Label = Label(4)
-        }
-
-        public override fun toString(): String =
-            when (this) {
-                WALL -> "WALL"
-                FLOOR -> "FLOOR"
-                CEILING -> "CEILING"
-                TABLE -> "TABLE"
-                else -> "UNKNOWN"
-            }
-    }
-
     private val _state =
         MutableStateFlow(
             State(
@@ -211,8 +154,6 @@ internal constructor(
 
     public override val state: StateFlow<Plane.State> = _state.asStateFlow()
 
-    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-    @get:SuppressWarnings("ReferencesDeprecated")
     public val type: PlaneType
         get() = typeFromRuntimeType()
 
@@ -255,7 +196,6 @@ internal constructor(
         )
     }
 
-    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION", "DEPRECATION")
     private fun typeFromRuntimeType(): PlaneType =
         when (runtimePlane.type) {
             RuntimePlane.Type.HORIZONTAL_UPWARD_FACING -> PlaneType.HORIZONTAL_UPWARD_FACING
@@ -264,7 +204,6 @@ internal constructor(
             else -> PlaneType.HORIZONTAL_UPWARD_FACING
         }
 
-    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION", "DEPRECATION")
     private fun labelFromRuntimeType(): PlaneLabel =
         when (runtimePlane.label) {
             RuntimePlane.Label.UNKNOWN -> PlaneLabel.UNKNOWN
