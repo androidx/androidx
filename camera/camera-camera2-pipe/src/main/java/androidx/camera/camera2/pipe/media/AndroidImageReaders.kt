@@ -35,7 +35,6 @@ import androidx.camera.camera2.pipe.compat.Api28Compat
 import androidx.camera.camera2.pipe.compat.Api29Compat
 import androidx.camera.camera2.pipe.compat.Api33Compat
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.common.AndroidImage
 import java.lang.Class
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
@@ -43,7 +42,7 @@ import kotlinx.atomicfu.atomic
 
 /** Implements an [ImageReaderWrapper] using an [ImageReader]. */
 public class AndroidImageReader
-private constructor(
+internal constructor(
     private val imageReader: ImageReader,
     override val capacity: Int,
     override val usageFlags: Long?,
@@ -70,7 +69,7 @@ private constructor(
 
             onExpectedOutputsListener?.onExpectedOutputs(image.timestamp, outputIdSet)
 
-            imageListener.onImage(streamId, outputId, AndroidImage(image) as ImageWrapper)
+            imageListener.onImage(streamId, outputId, AndroidImage(image))
         }
     }
 
@@ -260,7 +259,7 @@ public class AndroidMultiResolutionImageReader(
             // images will always be in monotonically increasing order. The primary reason for this
             // is when a camera switches from one lens to another, which can cause the camera
             // to produce overlapping images from each sensor and can be delivered out of order.
-            imageListener.onImage(streamId, outputId, AndroidImage(image) as ImageWrapper)
+            imageListener.onImage(streamId, outputId, AndroidImage(image))
         }
     }
 
