@@ -184,10 +184,18 @@ class SpatialAudioComponentsActivity : AppCompatActivity() {
         // --- PositionalAudioComponent Card ---
         val positionalAudioPlayTigerButton =
             findViewById<Button>(R.id.button_positional_audio_play_tiger)
+
+        var isPlaying = false
         positionalAudioPlayTigerButton.setOnClickListener {
-            exoPlayerPoint.setMediaItem(MediaItem.fromUri(tigerPath))
-            exoPlayerPoint.prepare()
-            exoPlayerPoint.play()
+            if (!isPlaying) {
+                isPlaying = true
+                exoPlayerPoint.setMediaItem(MediaItem.fromUri(tigerPath))
+                exoPlayerPoint.prepare()
+                exoPlayerPoint.play()
+            } else {
+                isPlaying = false
+                exoPlayerPoint.stop()
+            }
         }
 
         var nextAttachment = AttachmentState.SOUND_PANEL

@@ -63,7 +63,7 @@ internal class PositionalAudioComponentImpl(
         this.params = params
 
         // If the track hasn't been created yet then the params will be set by the builder modifier.
-        audioTrack?.let { audioTrackExtensions.setPointSourceParams(it, params, attachedEntity) }
+        audioTrack?.let { updatePointSourceParams(it, params, attachedEntity) }
     }
 
     override fun onAttach(entity: Entity): Boolean {
@@ -72,16 +72,32 @@ internal class PositionalAudioComponentImpl(
         }
         attachedEntity = entity
 
-        audioTrack?.let { audioTrackExtensions.setPointSourceParams(it, params, attachedEntity) }
+        audioTrack?.let { updatePointSourceParams(it, params, attachedEntity) }
 
         return true
     }
 
     override fun onDetach(entity: Entity) {
         if (entity is AndroidXrEntity && entity == attachedEntity) {
-            audioTrack?.let { audioTrackExtensions.setPointSourceParams(it, params, null) }
+            audioTrack?.let { updatePointSourceParams(it, params, null) }
         }
         attachedEntity = null
         return
+    }
+
+    private fun updatePointSourceParams(
+        track: AudioTrack,
+        params: PointSourceParams,
+        entity: Entity?,
+    ) {
+        try {
+            if (track.state == AudioTrack.STATE_INITIALIZED) {
+                audioTrackExtensions.setPointSourceParams(track, params, entity)
+            } else {
+                audioTrack = null
+            }
+        } catch (e: IllegalStateException) {
+            audioTrack = null
+        }
     }
 }
