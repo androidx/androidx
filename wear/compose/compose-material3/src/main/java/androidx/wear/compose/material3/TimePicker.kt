@@ -103,17 +103,30 @@ import java.util.Locale
  *
  * @sample androidx.wear.compose.material3.samples.TimePickerSample
  *
+ * ![TimePickerSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimePickerSample_CompositeImage.png)
+ *
  * Example of a [TimePicker] with seconds:
  *
  * @sample androidx.wear.compose.material3.samples.TimePickerWithSecondsSample
+ *
+ * ![TimePickerWithSecondsSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimePickerWithSecondsSample_CompositeImage.png)
  *
  * Example of a 12 hour clock [TimePicker]:
  *
  * @sample androidx.wear.compose.material3.samples.TimePickerWith12HourClockSample
  *
+ * ![TimePickerWith12HourClockSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimePickerWith12HourClockSample_CompositeImage.png)
+ *
  * Example of a [TimePicker] with just minutes and seconds:
  *
  * @sample androidx.wear.compose.material3.samples.TimePickerWithMinutesAndSecondsSample
+ *
+ * ![TimePickerWithMinutesAndSecondsSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimePickerWithMinutesAndSecondsSample_CompositeImage.png)
+ *
  * @param initialTime The initial time to be displayed in the TimePicker.
  * @param onTimePicked The callback that is called when the user confirms the time selection. It
  *   provides the selected time as [LocalTime]. Note that any time components not displayed in the
