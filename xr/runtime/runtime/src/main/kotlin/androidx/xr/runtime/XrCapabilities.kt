@@ -346,8 +346,13 @@ public class GeospatialMode private constructor(public val mode: Int) : Config.C
          * This mode provides a lower-power alternative to visual positioning systems, allowing the
          * camera to be disabled when high precision is not strictly required.
          *
+         * To use this mode, the [Session] must first be configured with [GeospatialMode.SPATIAL]
+         * and [DeviceTrackingMode.SPATIAL]. Once initialized, the [Session] can be toggled via
+         * [Session.configure] to [GeospatialMode.INERTIAL] for power savings, and back to
+         * [GeospatialMode.SPATIAL] for the accuracy needed.
+         *
          * Supported runtimes:
-         * - None
+         * - Projected
          *
          * Required permissions:
          * - [ACCESS_FINE_LOCATION][android.Manifest.permission.ACCESS_FINE_LOCATION]
