@@ -16,8 +16,6 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -31,12 +29,10 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontVariation.Setting
@@ -417,13 +413,8 @@ class RemoteTextTest {
     ) {
         this.runScreenshotTest(
             profile = TestProfiles.androidXWithCoreText,
-            composableWrapper = { composable ->
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.LayoutDirection(layoutDirection)
-                ) {
-                    Box(modifier = Modifier.background(Color.Black)) { composable() }
-                }
-            },
+            creationComposableWrapper = ComposableWrappers.layoutDirection(layoutDirection),
+            playComposableWrapper = ComposableWrappers.blackBackground,
             composable = composable,
         )
     }

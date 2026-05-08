@@ -26,13 +26,11 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection
-import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -83,11 +81,7 @@ class RemoteCompactButtonTest {
     fun compact_button_icon_and_label_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            composableWrapper = { content ->
-                DeviceConfigurationOverride(DeviceConfigurationOverride.LayoutDirection(Rtl)) {
-                    content()
-                }
-            },
+            creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             ComponentContainer { RemoteCompactButtonWithIconAndLabel() }
         }

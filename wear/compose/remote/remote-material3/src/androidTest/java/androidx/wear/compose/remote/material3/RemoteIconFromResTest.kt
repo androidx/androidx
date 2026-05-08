@@ -23,15 +23,13 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection
-import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -72,11 +70,7 @@ class RemoteIconFromResTest {
     fun iconsFromRes_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            composableWrapper = { content ->
-                DeviceConfigurationOverride(DeviceConfigurationOverride.LayoutDirection(Rtl)) {
-                    content()
-                }
-            },
+            creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             RemoteRow {
                 Icon(resId = R.drawable.gs_map_wght500rond100_vd_theme_24)

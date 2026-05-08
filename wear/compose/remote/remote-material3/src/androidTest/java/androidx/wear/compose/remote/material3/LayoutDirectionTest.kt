@@ -25,11 +25,9 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.LayoutDirection
-import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -68,11 +66,7 @@ class LayoutDirectionTest {
     @Test
     fun rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            composableWrapper = { content ->
-                DeviceConfigurationOverride(DeviceConfigurationOverride.LayoutDirection(Rtl)) {
-                    content()
-                }
-            }
+            creationComposableWrapper = ComposableWrappers.rtl
         ) {
             RemoteRow(
                 modifier = RemoteModifier.fillMaxWidth().background(Color.Black),
@@ -90,11 +84,7 @@ class LayoutDirectionTest {
     fun rtl_manual() {
         // Do the manual workarounds to display correctly
         remoteComposeTestRule.runScreenshotTest(
-            composableWrapper = { content ->
-                DeviceConfigurationOverride(DeviceConfigurationOverride.LayoutDirection(Rtl)) {
-                    content()
-                }
-            }
+            creationComposableWrapper = ComposableWrappers.rtl
         ) {
             RemoteRow(
                 modifier = RemoteModifier.fillMaxWidth().background(Color.Black),
