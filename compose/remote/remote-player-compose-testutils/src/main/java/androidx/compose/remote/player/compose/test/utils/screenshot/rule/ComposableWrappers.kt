@@ -32,6 +32,8 @@ operator fun ComposableWrapper.plus(other: ComposableWrapper): ComposableWrapper
 }
 
 object ComposableWrappers {
+    val noop: ComposableWrapper = { it() }
+
     val rtl: ComposableWrapper = layoutDirection(LayoutDirection.Rtl)
 
     fun layoutDirection(layoutDirection: LayoutDirection): ComposableWrapper = { content ->

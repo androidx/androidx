@@ -59,10 +59,9 @@ class RemoteInteractionTestRule(private val remoteCreationDisplayInfo: RemoteCre
 
     fun setContent(
         profile: Profile = RcPlatformProfiles.ANDROIDX,
-        creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
-            it()
-        },
+        creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
+        playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         remoteContentTestRule.setContent(
@@ -71,6 +70,7 @@ class RemoteInteractionTestRule(private val remoteCreationDisplayInfo: RemoteCre
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
             player = player,
+            playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
     }

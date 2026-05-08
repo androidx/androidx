@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.demos.main
 
 import androidx.compose.material3.Text
+import androidx.compose.remote.integration.demos.integration.GesturePropagationDemo
 import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteFlowRowDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSimpleDemo
@@ -43,6 +44,7 @@ private object ScreenKeys {
     const val SCALE = "SCALE"
     const val TOUCH_ACTION = "TOUCH_ACTION"
     const val BITMAP_LOADER = "BITMAP_LOADER"
+    const val GESTURE_PROPAGATION = "GESTURE_PROPAGATION"
     const val SETTINGS = "SETTINGS"
 }
 
@@ -60,6 +62,7 @@ fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
         ScreenKeys.COMBINED_CLICKABLE -> CombinedClickableDemo()
         ScreenKeys.TOUCH_ACTION -> TouchActionDemo()
         ScreenKeys.BITMAP_LOADER -> BitmapLoaderDemo()
+        ScreenKeys.GESTURE_PROPAGATION -> GesturePropagationDemo()
         ScreenKeys.SETTINGS -> SettingsScreen()
         else -> Text("Unknown screen: $key")
     }
@@ -113,6 +116,17 @@ val Screens =
                     screens =
                         listOf(
                             ComposableScreen(key = ScreenKeys.BITMAP_LOADER, title = "BitmapLoader")
+                        ),
+                ),
+                Category(
+                    key = "integration_category",
+                    title = "Integration",
+                    screens =
+                        listOf(
+                            ComposableScreen(
+                                key = ScreenKeys.GESTURE_PROPAGATION,
+                                title = "Gesture Propagation",
+                            )
                         ),
                 ),
             ),
