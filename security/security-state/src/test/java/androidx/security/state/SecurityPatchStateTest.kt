@@ -272,11 +272,12 @@ class SecurityPatchStateTest {
     }
 
     @Test
-    fun testGetDeviceSpl_ReturnsCorrectSplForUnpatchedSystemModules() {
+    fun testGetDeviceSpl_ReturnsCorrectAggregateSplForUnpatchedSystemModules() {
         val jsonInput =
             """
             {
                 "vulnerabilities": {
+                    "2021-01-01": [],
                     "2023-01-01": [{
                         "cve_identifiers": ["CVE-1234-4321"],
                         "asb_identifiers": ["ASB-A-2023111"],
@@ -323,6 +324,113 @@ class SecurityPatchStateTest {
                 as SecurityPatchState.DateBasedSecurityPatchLevel
 
         assertEquals(2022, spl.getYear())
+        assertEquals(5, spl.getMonth())
+        assertEquals(1, spl.getDay())
+    }
+
+    @Test
+    fun testGetDeviceSpl_ReturnsCorrectAdvancedSplForUnpatchedSystemModules() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2021-01-01": [],
+                    "2023-01-01": [{
+                        "cve_identifiers": ["CVE-1234-4321"],
+                        "asb_identifiers": ["ASB-A-2023111"],
+                        "severity": "high",
+                        "components": ["com.google.android.modulemetadata"]
+                    }],
+                    "2023-05-01": [{
+                        "cve_identifiers": ["CVE-1235-4321"],
+                        "asb_identifiers": ["ASB-A-2025111"],
+                        "severity": "high",
+                        "components": ["com.google.mainline.telemetry"]
+                    }],
+                    "2022-07-01": [],
+                    "2022-08-01": [],
+                    "2022-09-01": [{
+                        "cve_identifiers": ["CVE-1236-4321"],
+                        "asb_identifiers": ["ASB-A-2026111"],
+                        "severity": "high",
+                        "components": ["com.google.mainline.adservices"]
+                    }]
+                },
+                "kernel_lts_versions": {}
+            }
+            """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        `when`(
+                mockSecurityStateManagerCompat.getPackageVersion(
+                    "com.google.android.modulemetadata"
+                )
+            )
+            .thenReturn("2022-01-01")
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.telemetry"))
+            .thenReturn("2023-05-01")
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.adservices"))
+            .thenReturn("2022-05-01")
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.go.primary"))
+            .thenReturn("2021-05-01")
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.go.telemetry"))
+            .thenReturn("2024-05-01")
+
+        val spl =
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM_MODULES)
+                as SecurityPatchState.DateBasedSecurityPatchLevel
+
+        assertEquals(2022, spl.getYear())
+        assertEquals(8, spl.getMonth())
+        assertEquals(1, spl.getDay())
+    }
+
+    @Test
+    fun testGetDeviceSpl_UpgradesToGlobalMax_WhenSystemIsCompliant() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2025-09-01": [{
+                        "cve_identifiers": ["CVE-2025-1000"],
+                        "asb_identifiers": ["ASB-A-1000"],
+                        "severity": "high",
+                        "components": ["system"]
+                    }],
+                    "2025-10-01": [],
+                    "2025-11-01": [],
+                    "2025-12-01": [],
+                    "2026-01-01": [],
+                    "2026-01-05": [{
+                        "cve_identifiers": ["CVE-2026-5000"],
+                        "asb_identifiers": ["ASB-A-5000"],
+                        "severity": "critical",
+                        "components": ["vendor", "system"]
+                    }]
+                },
+                "kernel_lts_versions": {}
+            }
+            """
+                .trimIndent()
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        // GIVEN: Device has the Sept 2025 version installed (Compliant with JSON)
+        val bundle = Bundle()
+        bundle.putString("system_spl", "2025-09-01")
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+
+        // WHEN: We get the Device SPL for System
+        val spl =
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
+                as SecurityPatchState.DateBasedSecurityPatchLevel
+
+        // THEN: It should advance to the latest date the device is fully patched, which is
+        // 2026-01-01. It stops before 2026-01-05 because that bulletin includes a system patch
+        // that the device doesn't have.
+        assertEquals(2026, spl.getYear())
         assertEquals(1, spl.getMonth())
         assertEquals(1, spl.getDay())
     }
@@ -446,6 +554,82 @@ class SecurityPatchStateTest {
         assertEquals(2026, spl.getYear())
         assertEquals(1, spl.getMonth())
         assertEquals(5, spl.getDay())
+    }
+
+    @Test
+    fun testGetDeviceSpl_ReturnsDeclaredSpl_WhenDeviceIsOlderThanOldestReport() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2023-01-01": [{
+                        "cve_identifiers": ["CVE-2023-0001"],
+                        "asb_identifiers": ["ASB-A-0001"],
+                        "severity": "high",
+                        "components": ["some-other-component"]
+                    }]
+                },
+                "kernel_lts_versions": {}
+            }
+            """
+                .trimIndent()
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        // GIVEN: Device is on 2022-12-01 (older than the oldest report entry 2023-01-01)
+        val bundle = Bundle()
+        bundle.putString(SecurityStateManagerCompat.KEY_SYSTEM_SPL, "2022-12-01")
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+
+        // WHEN: We get the Device SPL
+        val spl =
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
+                as SecurityPatchState.DateBasedSecurityPatchLevel
+
+        // THEN: It should return the declared SPL (2022-12-01) because it's out of bounds.
+        // Even if there are no vulnerabilities for "system" in 2023-01-01, it cannot upgrade.
+        assertEquals("2022-12-01", spl.toString())
+    }
+
+    @Test
+    fun testGetDeviceSpl_AllowsUpgrade_WhenDeviceIsExactlyOldestReport() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2023-01-01": [{
+                        "cve_identifiers": ["CVE-2023-0001"],
+                        "asb_identifiers": ["ASB-A-0001"],
+                        "severity": "high",
+                        "components": ["some-other-component"]
+                    }],
+                    "2023-02-01": [{
+                        "cve_identifiers": ["CVE-2023-0002"],
+                        "asb_identifiers": ["ASB-A-0002"],
+                        "severity": "high",
+                        "components": ["some-other-component"]
+                    }]
+                },
+                "kernel_lts_versions": {}
+            }
+            """
+                .trimIndent()
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        // GIVEN: Device is on 2023-01-01 (exactly the same as the oldest report entry)
+        val bundle = Bundle()
+        bundle.putString(SecurityStateManagerCompat.KEY_SYSTEM_SPL, "2023-01-01")
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+
+        // WHEN: We get the Device SPL
+        val spl =
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
+                as SecurityPatchState.DateBasedSecurityPatchLevel
+
+        // THEN: It should be allowed to upgrade to 2023-02-01 because 2023-02-01 is clean for
+        // "system"
+        assertEquals("2023-02-01", spl.toString())
     }
 
     @Test
@@ -2256,7 +2440,7 @@ class SecurityPatchStateTest {
                         "cve_identifiers": ["CVE-2026-5000"],
                         "asb_identifiers": ["ASB-A-5000"],
                         "severity": "critical",
-                        "components": ["vendor"]
+                        "components": ["vendor", "system"]
                     }]
                 },
                 "kernel_lts_versions": {}
