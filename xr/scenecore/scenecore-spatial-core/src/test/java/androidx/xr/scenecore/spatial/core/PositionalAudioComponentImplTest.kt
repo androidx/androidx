@@ -207,6 +207,62 @@ class PositionalAudioComponentImplTest {
         assertThat(fakeAudioTrackExtensions.entityMap[audioTrack]).isEqualTo(entity2)
     }
 
+    @Test
+    fun setPointSourceParams_handlesReleasedTrack() {
+        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val params = PointSourceParams()
+        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val config = TEST_OUTPUT_CONFIG
+
+        val outputProvider = component.getAudioOutputProvider()
+        val audioTrackOutput = outputProvider.getAudioOutput(config) as AudioTrackAudioOutput
+        val audioTrack = audioTrackOutput.audioTrack
+
+        fakeAudioTrackExtensions.fakeExtensionException =
+            IllegalStateException("Simulated track released")
+
+        val newParams = PointSourceParams()
+        component.setPointSourceParams(newParams)
+    }
+
+    @Test
+    fun onAttach_handlesReleasedTrack() {
+        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val params = PointSourceParams()
+        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val entity = createTestEntity()
+        val config = TEST_OUTPUT_CONFIG
+
+        val outputProvider = component.getAudioOutputProvider()
+        val audioTrackOutput = outputProvider.getAudioOutput(config) as AudioTrackAudioOutput
+        val audioTrack = audioTrackOutput.audioTrack
+
+        fakeAudioTrackExtensions.fakeExtensionException =
+            IllegalStateException("Simulated track released")
+
+        assertThat(component.onAttach(entity)).isTrue()
+    }
+
+    @Test
+    fun onDetach_handlesReleasedTrack() {
+        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val params = PointSourceParams()
+        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val entity = createTestEntity()
+        val config = TEST_OUTPUT_CONFIG
+
+        val outputProvider = component.getAudioOutputProvider()
+        val audioTrackOutput = outputProvider.getAudioOutput(config) as AudioTrackAudioOutput
+        val audioTrack = audioTrackOutput.audioTrack
+
+        component.onAttach(entity)
+
+        fakeAudioTrackExtensions.fakeExtensionException =
+            IllegalStateException("Simulated track released")
+
+        component.onDetach(entity)
+    }
+
     private companion object {
         private val TEST_OUTPUT_CONFIG: AudioOutputProvider.OutputConfig =
             AudioOutputProvider.OutputConfig.Builder()
