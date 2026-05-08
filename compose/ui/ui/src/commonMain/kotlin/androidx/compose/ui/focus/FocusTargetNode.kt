@@ -35,12 +35,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.registerOnLayoutRectChanged
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.UnplacedAwareModifierNode
 import androidx.compose.ui.node.findNearestBeyondBoundsLayoutAncestor
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireLayoutCoordinates
@@ -58,10 +60,10 @@ internal class FocusTargetNode(
     private val onDispatchEventsCompleted: ((FocusTargetNode) -> Unit)? = null,
 ) :
     CompositionLocalConsumerModifierNode,
-    LayoutAwareModifierNode,
     FocusTargetModifierNode,
     ObserverModifierNode,
     ModifierLocalModifierNode,
+    UnplacedAwareModifierNode,
     Modifier.Node() {
 
     private var isProcessingCustomExit = false
@@ -70,6 +72,8 @@ internal class FocusTargetNode(
     // During a transaction, changes to the state are stored as uncommitted focus state. At the
     // end of the transaction, this state is stored as committed focus state.
     private var committedFocusState: FocusStateImpl? = null
+
+    private var onLayoutRectChangedHandle: DelegatableNode.RegistrationHandle? = null
 
     override val shouldAutoInvalidate = false
 
@@ -166,6 +170,11 @@ internal class FocusTargetNode(
         }
     }
 
+    override fun onAttach() {
+        // Register a one-shot on layout rect changed callback for first placement.
+        registerOneShotOnLayoutRectChangedCallback()
+    }
+
     /** Clears focus if this focus target has it. */
     override fun onDetach() {
         when (focusState) {
@@ -217,13 +226,13 @@ internal class FocusTargetNode(
         // This node might be reused, so we reset its state.
         committedFocusState = null
         previouslyFocusedChildHash = null
+        onLayoutRectChangedHandle?.unregister()
     }
 
-    override fun onPlaced(coordinates: LayoutCoordinates) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isInitialFocusOnFocusableAvailable) {
-            node.requireOwner().focusOwner.focusTargetAvailable()
-        }
+    override fun onUnplaced() {
+        // Register a one-shot on layout rect changed callback upon being unplaced, which will be
+        // called next when placed again
+        registerOneShotOnLayoutRectChangedCallback()
     }
 
     /**
@@ -365,6 +374,29 @@ internal class FocusTargetNode(
             it.onFocusEvent(newState)
         }
         onDispatchEventsCompleted?.invoke(this)
+    }
+
+    /**
+     * Registers a one-shot layout rect changed callback, to know when this node has layout
+     * coordinates for the first time. We don't care about the exact positioning or any future
+     * changes, but we do want to inform the owner that a focus target is now available.
+     */
+    private fun registerOneShotOnLayoutRectChangedCallback() {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (
+            ComposeUiFlags.isInitialFocusOnFocusableAvailable && onLayoutRectChangedHandle == null
+        ) {
+            onLayoutRectChangedHandle =
+                registerOnLayoutRectChanged(
+                    // Time here is effectively unused, since this is immediately unregistered
+                    // upon triggering
+                    throttleMillis = 0,
+                    debounceMillis = 0,
+                ) {
+                    node.requireOwner().focusOwner.focusTargetAvailable()
+                    onLayoutRectChangedHandle?.unregister()
+                }
+        }
     }
 
     internal object FocusTargetElement : ModifierNodeElement<FocusTargetNode>() {

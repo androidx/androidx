@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -279,8 +280,10 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
     @Test
     fun moveFocus_from_thePreviousFocusableElement_to_theList() {
         rule.setAutoFocusContent {
-            FocusableItem(text = "Button", modifier = Modifier.testTag("button"))
-            FocusableTestList(itemsCount = 1)
+            Column {
+                FocusableItem(text = "Button", modifier = Modifier.testTag("button"))
+                FocusableTestList(itemsCount = 1)
+            }
         }
 
         // Check initial focus.
@@ -296,8 +299,10 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
     @Test
     fun moveFocus_from_theListWithSingleElement_to_theNextFocusableElement() {
         rule.setAutoFocusContent {
-            FocusableTestList(itemsCount = 1)
-            FocusableItem(text = "Button", modifier = Modifier.testTag("button"))
+            Column {
+                FocusableTestList(itemsCount = 1)
+                FocusableItem(text = "Button", modifier = Modifier.testTag("button"))
+            }
         }
 
         // Check initial focus.
@@ -313,8 +318,10 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
     @Test
     fun moveFocus_from_theLongList_to_theNextFocusableElement() {
         rule.setAutoFocusContent {
-            FocusableTestList(itemsCount = 10)
-            FocusableItem(text = "Button", modifier = Modifier.testTag("button"))
+            Column {
+                FocusableTestList(itemsCount = 10)
+                FocusableItem(text = "Button", modifier = Modifier.testTag("button"))
+            }
         }
 
         // Check initial focus.
