@@ -609,7 +609,9 @@ internal fun BaseModifierButton(
                             (if (it.width == Dp.Hairline) 1f else ceil(it.width.toPx())).toDp()
                         }
                     border(it, shape)
-                        .ifNonNull(background) { background(it, shape, backgroundAlpha) }
+                        .ifNonNull(background) { brush ->
+                            background(brush, shape, backgroundAlpha)
+                        }
                         .padding(padding)
                 }
                 .ifTrue(background != null && border == null) {

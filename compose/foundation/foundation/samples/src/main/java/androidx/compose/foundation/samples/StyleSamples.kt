@@ -15,7 +15,7 @@
  */
 
 @file:OptIn(ExperimentalFoundationStyleApi::class)
-@file:Suppress("UNUSED")
+@file:Suppress("UNUSED", "VariableInitializerIsRedundant")
 
 package androidx.compose.foundation.samples
 
@@ -24,14 +24,18 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.style.CustomStyle
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
 import androidx.compose.foundation.style.Style
 import androidx.compose.foundation.style.StyleScope
 import androidx.compose.foundation.style.StyleStateKey
+import androidx.compose.foundation.style.animate
 import androidx.compose.foundation.style.disabled
 import androidx.compose.foundation.style.hovered
 import androidx.compose.foundation.style.pressed
 import androidx.compose.foundation.style.rememberUpdatedStyleState
+import androidx.compose.foundation.style.size
+import androidx.compose.foundation.style.state
 import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -165,24 +169,57 @@ fun StyleStateKeySample() {
     // Create a new StyleStateKey
     val playingStateKey = StyleStateKey(false)
 
-    // Introduce an extension function to read the style state
-    fun StyleScope.playerPlaying(value: Style) {
-        state(playingStateKey, value) { key, state -> state[key] }
+    // In the module scope are the following declarations:
+    //
+    //    // A custom style scope which has all the properties of StyleScope
+    //    interface MediaPlayerStyleScope : StyleScope
+    //
+    //    // A custom style type
+    //    fun interface MediaPlayerStyle : CustomStyle<MediaPlayerStyleScope> {
+    //        companion object : MediaPlayerStyle {
+    //            override fun MediaPlayerStyleScope.applyStyle() { }
+    //        }
+    //    }
+
+    // Introduce a function to convert the custom style to a Style
+    fun MediaPlayerStyle.toStyle(): Style = Style {
+        val scope = object : StyleScope by this, MediaPlayerStyleScope {}
+        with(scope) { applyStyle() }
     }
 
-    // Using the extension function to change the border color to green while playing
-    val style = Style {
-        borderColor(Color.Gray)
-        playerPlaying { borderColor(Color.Green) }
+    // Introduce an extension function to read the style state. This will only be
+    // available in a MediaPlayerStyle.
+    fun MediaPlayerStyleScope.playerPlaying(value: () -> Unit) {
+        state(playingStateKey, value)
+    }
+
+    // The MediaPlayer composable
+    @Suppress("UNUSED_PARAMETER")
+    @Composable
+    fun MediaPlayer(
+        url: String,
+        modifier: Modifier = Modifier,
+        style: MediaPlayerStyle = MediaPlayerStyle,
+        playing: Boolean = true,
+    ) {
+        val styleState =
+            rememberUpdatedStyleState(null) { state -> state[playingStateKey] = playing }
+        Box(modifier = modifier.styleable(styleState, style.toStyle())) {
+            // Implementation of the media player
+        }
     }
 
     // Using the style in a composable that sets the state.
-    MediaPlayer(url = "https://example.com/media/video", style = style)
-}
+    MediaPlayer(
+        url = "https://example.com/media/video",
+        style = {
+            borderColor(Color.Gray)
 
-@Suppress("UNUSED_PARAMETER")
-@Composable
-fun MediaPlayer(url: String, modifier: Modifier = Modifier, style: Style = Style) {}
+            // This only sets the border color to green when the media player is playing
+            playerPlaying { borderColor(Color.Green) }
+        },
+    )
+}
 
 @Composable
 fun TextStyleTextMotionSample() {
@@ -205,4 +242,21 @@ fun TextStyleTextMotionSample() {
     ) {
         BasicText("Animated Smooth Text")
     }
+}
+
+@Suppress("UNUSED_PARAMETER")
+@Composable
+fun MediaPlayer(url: String, modifier: Modifier = Modifier, style: Style = Style) {}
+
+interface MediaPlayerStyleScope : StyleScope
+
+fun interface MediaPlayerStyle : CustomStyle<MediaPlayerStyleScope> {
+    companion object : MediaPlayerStyle {
+        override fun MediaPlayerStyleScope.applyStyle() {}
+    }
+}
+
+fun MediaPlayerStyle.toStyle(): Style = Style {
+    val scope = object : StyleScope by this, MediaPlayerStyleScope {}
+    with(scope) { applyStyle() }
 }

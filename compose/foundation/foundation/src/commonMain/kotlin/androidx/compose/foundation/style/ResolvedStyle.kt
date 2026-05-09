@@ -24,12 +24,10 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.CompositionLocal
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.node.currentValueOf
@@ -51,7 +49,6 @@ import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.isSpecified
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.util.trace
@@ -78,7 +75,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     /**
      * This field is effectively a bitset indicating which "categories" of properties have been set
      * on this object. There are a lot of different properties, and we can make certain optimal
-     * decisions if we know that a certain category of properties has never been changed from their
+     * decisions if we know that a certain category of properties have never been changed from their
      * default value. For instance, we have some properties which affect "draw", but not "layout",
      * so we can avoid invalidating layout in those cases.
      *
@@ -173,35 +170,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         properties?.contentPaddingBottom(value.roundToPx().toFloat())
     }
 
-    override fun contentPaddingHorizontal(value: Dp) {
-        contentPaddingStart(value)
-        contentPaddingEnd(value)
-    }
-
-    override fun contentPaddingVertical(value: Dp) {
-        contentPaddingTop(value)
-        contentPaddingBottom(value)
-    }
-
-    override fun contentPadding(value: Dp) {
-        contentPaddingStart(value)
-        contentPaddingEnd(value)
-        contentPaddingTop(value)
-        contentPaddingBottom(value)
-    }
-
-    override fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
-        contentPaddingStart(start)
-        contentPaddingEnd(end)
-        contentPaddingTop(top)
-        contentPaddingBottom(bottom)
-    }
-
-    override fun contentPadding(horizontal: Dp, vertical: Dp) {
-        contentPaddingHorizontal(horizontal)
-        contentPaddingVertical(vertical)
-    }
-
     // externalPadding
     override fun externalPaddingStart(value: Dp) {
         recordWrite(ExternalPaddingStartId)
@@ -221,35 +189,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     override fun externalPaddingBottom(value: Dp) {
         recordWrite(ExternalPaddingBottomId)
         properties?.externalPaddingBottom(value.roundToPx().toFloat())
-    }
-
-    override fun externalPaddingHorizontal(value: Dp) {
-        externalPaddingStart(value)
-        externalPaddingEnd(value)
-    }
-
-    override fun externalPaddingVertical(value: Dp) {
-        externalPaddingTop(value)
-        externalPaddingBottom(value)
-    }
-
-    override fun externalPadding(value: Dp) {
-        externalPaddingStart(value)
-        externalPaddingEnd(value)
-        externalPaddingTop(value)
-        externalPaddingBottom(value)
-    }
-
-    override fun externalPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
-        externalPaddingStart(start)
-        externalPaddingEnd(end)
-        externalPaddingTop(top)
-        externalPaddingBottom(bottom)
-    }
-
-    override fun externalPadding(horizontal: Dp, vertical: Dp) {
-        externalPaddingHorizontal(horizontal)
-        externalPaddingVertical(vertical)
     }
 
     // border
@@ -276,17 +215,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         properties?.borderBrush(value)
     }
 
-    override fun border(width: Dp, color: Color) {
-        borderWidth(width)
-        borderColor(color)
-    }
-
-    override fun border(width: Dp, brush: Brush) {
-        borderWidth(width)
-        borderBrush(brush)
-    }
-
-    // size
     override fun width(value: Dp) {
         recordWrite(WidthId)
         properties?.width(value.value * _density)
@@ -295,21 +223,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     override fun height(value: Dp) {
         recordWrite(HeightId)
         properties?.height(value.value * _density)
-    }
-
-    override fun size(width: Dp, height: Dp) {
-        width(width)
-        height(height)
-    }
-
-    override fun size(value: Dp) {
-        width(value)
-        height(value)
-    }
-
-    override fun size(value: DpSize) {
-        width(value.width)
-        height(value.height)
     }
 
     override fun width(fraction: Float) {
@@ -352,16 +265,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         properties?.minHeight(value.value * _density)
     }
 
-    override fun minSize(size: DpSize) {
-        minWidth(size.width)
-        minHeight(size.height)
-    }
-
-    override fun minSize(width: Dp, height: Dp) {
-        minWidth(width)
-        minHeight(height)
-    }
-
     override fun maxWidth(value: Dp) {
         recordWrite(MaxWidthId)
         properties?.maxWidth(value.value * _density)
@@ -370,16 +273,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     override fun maxHeight(value: Dp) {
         recordWrite(MaxHeightId)
         properties?.maxHeight(value.value * _density)
-    }
-
-    override fun maxSize(size: DpSize) {
-        maxWidth(size.width)
-        maxHeight(size.height)
-    }
-
-    override fun maxSize(width: Dp, height: Dp) {
-        maxWidth(width)
-        maxHeight(height)
     }
 
     // layer properties
@@ -398,12 +291,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         properties?.scaleY(value)
     }
 
-    override fun scale(value: Float) {
-        scaleX(value)
-        scaleY(value)
-    }
-
-    // TODO: dp-based translation
     override fun translationX(value: Float) {
         recordWrite(TranslationXId)
         properties?.translationX(value)
@@ -412,16 +299,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     override fun translationY(value: Float) {
         recordWrite(TranslationYId)
         properties?.translationY(value)
-    }
-
-    override fun translation(x: Float, y: Float) {
-        translationX(x)
-        translationY(y)
-    }
-
-    override fun translation(offset: Offset) {
-        translationX(offset.x)
-        translationY(offset.y)
     }
 
     override fun rotationX(value: Float) {
@@ -439,11 +316,14 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         properties?.rotationZ(value)
     }
 
-    override fun transformOrigin(value: TransformOrigin) {
-        recordWrite(TranslationXId)
-        recordWrite(TranslationYId)
-        properties?.transformOriginX(value.pivotFractionX)
-        properties?.transformOriginY(value.pivotFractionY)
+    override fun transformOriginX(value: Float) {
+        recordWrite(TransformOriginXId)
+        properties?.transformOriginX(value)
+    }
+
+    override fun transformOriginY(value: Float) {
+        recordWrite(TransformOriginYId)
+        properties?.transformOriginY(value)
     }
 
     override fun colorFilter(value: ColorFilter?) {
@@ -493,15 +373,10 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         properties?.shape(value)
     }
 
-    // animation
-    override fun animate(value: Style) = animate(DefaultSpringSpec, DefaultSpringSpec, value)
-
-    override fun animate(spec: AnimationSpec<Float>, value: Style) = animate(spec, spec, value)
-
     override fun animate(
         toSpec: AnimationSpec<Float>,
         fromSpec: AnimationSpec<Float>,
-        value: Style,
+        block: () -> Unit,
     ) {
         val previous = properties
         val previousToSpec = defaultToSpec
@@ -510,7 +385,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
             defaultToSpec = toSpec
             defaultFromSpec = fromSpec
             properties = animationProperties ?: StyleProperties().also { animationProperties = it }
-            apply(value)
+            block()
         } finally {
             properties = previous
             defaultToSpec = previousToSpec
@@ -715,10 +590,10 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
 
     override fun <T> state(
         key: StyleStateKey<T>,
-        value: Style,
+        block: () -> Unit,
         active: (key: StyleStateKey<T>, state: StyleState) -> Boolean,
     ) {
-        if (active(key, state)) apply(value)
+        if (active(key, state)) block()
     }
 
     internal fun startBuild(node: StyleOuterNode, density: Density) {
