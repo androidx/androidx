@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// TODO b/482675376 remove Suppress when no longer needed
-@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-
 package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.PlaneLabel
@@ -58,9 +55,6 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    // TODO b/482675376 remove Suppress when no longer needed
-    @get:SuppressWarnings("ReferencesDeprecated")
-    @set:SuppressWarnings("ReferencesDeprecated")
     public var type: PlaneType = planeType
         set(value) {
             field = value
@@ -70,9 +64,6 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    // TODO b/482675376 remove Suppress when no longer needed
-    @get:SuppressWarnings("ReferencesDeprecated")
-    @set:SuppressWarnings("ReferencesDeprecated")
     public var label: PlaneLabel = planeLabel
         set(value) {
             field = value
@@ -124,8 +115,6 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
         else false
 }
 
-// TODO b/482675376 remove Suppress when no longer needed
-@Suppress("DEPRECATION")
 internal fun PlaneType.toRuntimeType() =
     when (this) {
         PlaneType.HORIZONTAL_UPWARD_FACING -> RuntimePlane.Type.HORIZONTAL_UPWARD_FACING
@@ -133,8 +122,6 @@ internal fun PlaneType.toRuntimeType() =
         else -> RuntimePlane.Type.VERTICAL
     }
 
-// TODO b/482675376 remove Suppress when no longer needed
-@Suppress("DEPRECATION")
 internal fun PlaneLabel.toRuntimeType() =
     when (this) {
         PlaneLabel.WALL -> RuntimePlane.Label.WALL

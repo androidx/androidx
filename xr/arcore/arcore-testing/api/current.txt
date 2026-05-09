@@ -172,7 +172,7 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getExpectedPose();
     method @InaccessibleFromKotlin public double getExpectedVerticalAccuracy();
     method @InaccessibleFromKotlin public androidx.xr.arcore.VpsAvailabilityResult getExpectedVpsResult();
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.arcore.Geospatial.State getState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.GeospatialState getState();
     method @InaccessibleFromKotlin public void setAllowedAnchorLatitudeRange(android.util.Range<java.lang.Double>);
     method @InaccessibleFromKotlin public void setExpectedAnchorPose(androidx.xr.runtime.math.Pose?);
     method @InaccessibleFromKotlin public void setExpectedGeospatialPose(androidx.xr.runtime.math.GeospatialPose);
@@ -181,7 +181,7 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public void setExpectedPose(androidx.xr.runtime.math.Pose);
     method @InaccessibleFromKotlin public void setExpectedVerticalAccuracy(double);
     method @InaccessibleFromKotlin public void setExpectedVpsResult(androidx.xr.arcore.VpsAvailabilityResult);
-    method @InaccessibleFromKotlin @Deprecated public void setState(androidx.xr.arcore.Geospatial.State);
+    method @InaccessibleFromKotlin public void setState(androidx.xr.arcore.GeospatialState);
     property public android.util.Range<java.lang.Double> allowedAnchorLatitudeRange;
     property public androidx.xr.runtime.math.Pose? expectedAnchorPose;
     property public androidx.xr.runtime.math.GeospatialPose expectedGeospatialPose;
@@ -190,7 +190,7 @@ package androidx.xr.arcore.testing {
     property public androidx.xr.runtime.math.Pose expectedPose;
     property public double expectedVerticalAccuracy;
     property public androidx.xr.arcore.VpsAvailabilityResult expectedVpsResult;
-    property @Deprecated public androidx.xr.arcore.Geospatial.State state;
+    property public androidx.xr.arcore.GeospatialState state;
   }
 
   public final class TestHand {
@@ -203,27 +203,27 @@ package androidx.xr.arcore.testing {
   }
 
   public final class TestPlane extends androidx.xr.arcore.testing.TestTrackable {
-    ctor public TestPlane(androidx.xr.arcore.Plane.Type planeType, androidx.xr.arcore.Plane.Label planeLabel);
+    ctor public TestPlane(androidx.xr.arcore.PlaneType planeType, androidx.xr.arcore.PlaneLabel planeLabel);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.Plane.Label getLabel();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.PlaneLabel getLabel();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestPlane? getSubsumedBy();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.Plane.Type getType();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.PlaneType getType();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
     method @InaccessibleFromKotlin public boolean isVisible();
     method @InaccessibleFromKotlin public void setCenterPose(androidx.xr.runtime.math.Pose);
     method @InaccessibleFromKotlin public void setExtents(androidx.xr.runtime.math.FloatSize2d);
-    method @InaccessibleFromKotlin public void setLabel(androidx.xr.arcore.Plane.Label);
+    method @InaccessibleFromKotlin public void setLabel(androidx.xr.arcore.PlaneLabel);
     method @InaccessibleFromKotlin public void setSubsumedBy(androidx.xr.arcore.testing.TestPlane?);
-    method @InaccessibleFromKotlin public void setType(androidx.xr.arcore.Plane.Type);
+    method @InaccessibleFromKotlin public void setType(androidx.xr.arcore.PlaneType);
     method @InaccessibleFromKotlin public void setVertices(java.util.List<androidx.xr.runtime.math.Vector2>);
     method @InaccessibleFromKotlin public void setVisible(boolean);
     property public androidx.xr.runtime.math.Pose centerPose;
     property public androidx.xr.runtime.math.FloatSize2d extents;
     property public boolean isVisible;
-    property public androidx.xr.arcore.Plane.Label label;
+    property public androidx.xr.arcore.PlaneLabel label;
     property public androidx.xr.arcore.testing.TestPlane? subsumedBy;
-    property public androidx.xr.arcore.Plane.Type type;
+    property public androidx.xr.arcore.PlaneType type;
     property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
   }
 

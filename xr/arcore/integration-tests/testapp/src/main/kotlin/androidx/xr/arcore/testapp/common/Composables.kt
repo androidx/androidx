@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-
 package androidx.xr.arcore.testapp.common
 
 import android.app.Activity
@@ -133,7 +131,6 @@ private fun AugmentedObjectCategory.getDescription(): String =
         else -> "Unknown"
     }
 
-@Suppress("DEPRECATION")
 private fun convertPlaneLabelToColor(label: PlaneLabel): Color =
     when (label) {
         PlaneLabel.WALL -> Color.Green

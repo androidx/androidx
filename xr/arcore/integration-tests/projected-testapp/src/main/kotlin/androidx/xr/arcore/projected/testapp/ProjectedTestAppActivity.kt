@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 
 package androidx.xr.arcore.projected.testapp
 
@@ -60,7 +59,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** Test app which tests projected perception API surface. */
-@Suppress("DEPRECATION")
 @OptIn(PreviewSpatialApi::class)
 class ProjectedTestAppActivity : ComponentActivity() {
     private lateinit var session: Session

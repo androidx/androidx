@@ -260,7 +260,6 @@ internal fun Set<AnchorPlacement>.toRtAnchorPlacement(
 }
 
 /** Extension function that converts an ARCore [PlaneType] to a Scene [PlaneOrientation] */
-@Suppress("DEPRECATION")
 internal fun PlaneType.toSceneCoreOrientation(): PlaneOrientation =
     when (this) {
         PlaneType.HORIZONTAL_UPWARD_FACING -> PlaneOrientation.HORIZONTAL
@@ -273,6 +272,7 @@ internal fun PlaneType.toSceneCoreOrientation(): PlaneOrientation =
  * Extension function that converts an ARCore [androidx.xr.arcore.PlaneLabel] to a Scene
  * [PlaneSemanticType]
  */
+// TODO: b/500464864 - Cleanup when PlaneSemanticType.ANY is removed.
 @Suppress("DEPRECATION")
 internal fun PlaneLabel.toSceneCoreSemanticType(): PlaneSemanticType =
     when (this) {

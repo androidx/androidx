@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 
 package androidx.xr.arcore.apps.whitebox.mobile.geospatial
 
@@ -82,7 +81,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
 /** Activity to test the Geospatial API. */
-@Suppress("DEPRECATION")
 class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
 
     private lateinit var session: Session

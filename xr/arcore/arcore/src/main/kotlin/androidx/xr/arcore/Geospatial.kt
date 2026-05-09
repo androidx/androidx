@@ -16,8 +16,6 @@
 
 package androidx.xr.arcore
 
-import androidx.xr.arcore.Geospatial.State.Companion.PAUSED
-import androidx.xr.arcore.Geospatial.State.Companion.RUNNING
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAuthorizedException
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
@@ -43,8 +41,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * [androidx.xr.runtime.Config.ConfigMode.isSupported] to check if the current device supports
  * enabling this mode.
  *
- * The Geospatial object should only be used when its [State] is [State.RUNNING], and otherwise
- * should not be used. Use [Geospatial.state] to obtain the current [State].
+ * The Geospatial object should only be used when its [State] is [GeospatialState.RUNNING], and
+ * otherwise should not be used. Use [Geospatial.state] to obtain the current [GeospatialState].
  *
  * @property state the current [State] of [Geospatial]
  */
@@ -68,84 +66,8 @@ internal constructor(
         }
     }
 
-    /**
-     * Describes the state of Geospatial. The State must be [RUNNING] to use Geospatial
-     * functionality. If Geospatial has entered an error state other than [PAUSED], Geospatial must
-     * be disabled and re-enabled to use Geospatial again.
-     */
-    @Deprecated("Use GeospatialState instead.", replaceWith = ReplaceWith("GeospatialState"))
-    @Suppress("DEPRECATION")
-    public class State private constructor(private val value: Int) {
-        public companion object {
-            /**
-             * Geospatial is running and has not encountered an error. Functions to create anchors
-             * or convert poses may still fail if Geospatial is not tracking.
-             */
-            @JvmField public val RUNNING: State = State(1)
+    private val _state = MutableStateFlow(GeospatialState.NOT_RUNNING)
 
-            /**
-             * Geospatial is not running. The Geospatial config must be enabled to use the
-             * Geospatial APIs. After enablement, Geospatial will not immediately enter the RUNNING
-             * state.
-             */
-            @JvmField public val NOT_RUNNING: State = State(0)
-
-            /**
-             * Earth localization has encountered an internal error. The app should not attempt to
-             * recover from this error. Please see the Android logs for additional information.
-             */
-            @JvmField public val ERROR_INTERNAL: State = State(-1)
-
-            /**
-             * The authorization provided by the application is not valid.
-             * - The associated Google Cloud project may not have enabled the ARCore API.
-             * - When using API key authentication, this will happen if the API key in the manifest
-             *   is invalid or unauthorized. It may also fail if the API key is restricted to a set
-             *   of apps not including the current one.
-             * - When using keyless authentication, this may happen when no OAuth client has been
-             *   created, or when the signing key and package name combination does not match the
-             *   values used in the Google Cloud project. It may also fail if Google Play Services
-             *   isn't installed, is too old, or is malfunctioning for some reason (e.g. killed due
-             *   to memory pressure).
-             */
-            @JvmField public val ERROR_NOT_AUTHORIZED: State = State(-2)
-
-            /**
-             * The application has hit the rate limit for created Geospatial Sessions. The developer
-             * should
-             * [request additional quota](https://cloud.google.com/docs/quota#requesting_higher_quota)
-             * for the ARCore API for their project from the Google Cloud Console.
-             *
-             * Sessions are limited per-minute and enabling may succeed if retried. The application
-             * can disable and re-enable Geospatial to try again.
-             */
-            @JvmField public val ERROR_RESOURCE_EXHAUSTED: State = State(-3)
-
-            /**
-             * The Geospatial connection has been paused. The connection may resume, and does not
-             * require action from the app. Tracked entities will enter the STOPPED state and must
-             * be destroyed.
-             */
-            @JvmField public val PAUSED: State = State(2)
-        }
-
-        override fun toString(): String {
-            return when (this) {
-                RUNNING -> "RUNNING"
-                NOT_RUNNING -> "NOT_RUNNING"
-                ERROR_INTERNAL -> "ERROR_INTERNAL"
-                ERROR_NOT_AUTHORIZED -> "ERROR_NOT_AUTHORIZED"
-                ERROR_RESOURCE_EXHAUSTED -> "ERROR_RESOURCE_EXHAUSTED"
-                PAUSED -> "PAUSED"
-                else -> "Unknown"
-            }
-        }
-    }
-
-    @Suppress("DEPRECATION") private val _state = MutableStateFlow(GeospatialState.NOT_RUNNING)
-
-    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-    @get:SuppressWarnings("ReferencesDeprecated")
     public val state: StateFlow<GeospatialState> = _state.asStateFlow()
 
     /**

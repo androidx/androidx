@@ -448,8 +448,8 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.CreateGeospatialPoseFromPoseResult createGeospatialPoseFromPose(androidx.xr.runtime.math.Pose pose);
     method public androidx.xr.arcore.CreatePoseFromGeospatialPoseResult createPoseFromGeospatialPose(androidx.xr.runtime.math.GeospatialPose geospatialPose);
     method public static androidx.xr.arcore.Geospatial getInstance(androidx.xr.runtime.Session session);
-    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Geospatial.State> getState();
-    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Geospatial.State> state;
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.GeospatialState> getState();
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.GeospatialState> state;
     field public static final androidx.xr.arcore.Geospatial.Companion Companion;
   }
 
@@ -457,23 +457,23 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.Geospatial getInstance(androidx.xr.runtime.Session session);
   }
 
-  @Deprecated public static final class Geospatial.State {
-    field @Deprecated public static final androidx.xr.arcore.Geospatial.State.Companion Companion;
-    field @Deprecated public static final androidx.xr.arcore.Geospatial.State ERROR_INTERNAL;
-    field @Deprecated public static final androidx.xr.arcore.Geospatial.State ERROR_NOT_AUTHORIZED;
-    field @Deprecated public static final androidx.xr.arcore.Geospatial.State ERROR_RESOURCE_EXHAUSTED;
-    field @Deprecated public static final androidx.xr.arcore.Geospatial.State NOT_RUNNING;
-    field @Deprecated public static final androidx.xr.arcore.Geospatial.State PAUSED;
-    field @Deprecated public static final androidx.xr.arcore.Geospatial.State RUNNING;
+  public final class GeospatialState {
+    field public static final androidx.xr.arcore.GeospatialState.Companion Companion;
+    field public static final androidx.xr.arcore.GeospatialState ERROR_INTERNAL;
+    field public static final androidx.xr.arcore.GeospatialState ERROR_NOT_AUTHORIZED;
+    field public static final androidx.xr.arcore.GeospatialState ERROR_RESOURCE_EXHAUSTED;
+    field public static final androidx.xr.arcore.GeospatialState NOT_RUNNING;
+    field public static final androidx.xr.arcore.GeospatialState PAUSED;
+    field public static final androidx.xr.arcore.GeospatialState RUNNING;
   }
 
-  @Deprecated public static final class Geospatial.State.Companion {
-    property @Deprecated public androidx.xr.arcore.Geospatial.State ERROR_INTERNAL;
-    property @Deprecated public androidx.xr.arcore.Geospatial.State ERROR_NOT_AUTHORIZED;
-    property @Deprecated public androidx.xr.arcore.Geospatial.State ERROR_RESOURCE_EXHAUSTED;
-    property @Deprecated public androidx.xr.arcore.Geospatial.State NOT_RUNNING;
-    property @Deprecated public androidx.xr.arcore.Geospatial.State PAUSED;
-    property @Deprecated public androidx.xr.arcore.Geospatial.State RUNNING;
+  public static final class GeospatialState.Companion {
+    property public androidx.xr.arcore.GeospatialState ERROR_INTERNAL;
+    property public androidx.xr.arcore.GeospatialState ERROR_NOT_AUTHORIZED;
+    property public androidx.xr.arcore.GeospatialState ERROR_RESOURCE_EXHAUSTED;
+    property public androidx.xr.arcore.GeospatialState NOT_RUNNING;
+    property public androidx.xr.arcore.GeospatialState PAUSED;
+    property public androidx.xr.arcore.GeospatialState RUNNING;
   }
 
   public final class GeospatialSurface {
@@ -546,14 +546,6 @@ package androidx.xr.arcore {
     enum_constant public static final androidx.xr.arcore.HandJointType THUMB_PROXIMAL;
     enum_constant public static final androidx.xr.arcore.HandJointType THUMB_TIP;
     enum_constant public static final androidx.xr.arcore.HandJointType WRIST;
-    field public static final androidx.xr.arcore.HandJointType.Companion Companion;
-    field @Deprecated public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_INDEX_TIP;
-    field @Deprecated public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_THUMB_TIP;
-  }
-
-  public static final class HandJointType.Companion {
-    property @Deprecated public androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_INDEX_TIP;
-    property @Deprecated public androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_THUMB_TIP;
   }
 
   public enum HandSide {
@@ -615,10 +607,10 @@ package androidx.xr.arcore {
   public final class Plane implements androidx.xr.arcore.Anchorable<androidx.xr.arcore.Plane.State> {
     method public androidx.xr.arcore.AnchorResult createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> getState();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.Plane.Type getType();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.PlaneType getType();
     method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Plane>> subscribe(androidx.xr.runtime.Session session);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> state;
-    property public androidx.xr.arcore.Plane.Type type;
+    property public androidx.xr.arcore.PlaneType type;
     field public static final androidx.xr.arcore.Plane.Companion Companion;
   }
 
@@ -626,51 +618,51 @@ package androidx.xr.arcore {
     method public kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Plane>> subscribe(androidx.xr.runtime.Session session);
   }
 
-  @Deprecated public static final class Plane.Label {
-    field @Deprecated public static final androidx.xr.arcore.Plane.Label CEILING;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Label.Companion Companion;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Label FLOOR;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Label TABLE;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Label UNKNOWN;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Label WALL;
-  }
-
-  @Deprecated public static final class Plane.Label.Companion {
-    property @Deprecated public androidx.xr.arcore.Plane.Label CEILING;
-    property @Deprecated public androidx.xr.arcore.Plane.Label FLOOR;
-    property @Deprecated public androidx.xr.arcore.Plane.Label TABLE;
-    property @Deprecated public androidx.xr.arcore.Plane.Label UNKNOWN;
-    property @Deprecated public androidx.xr.arcore.Plane.Label WALL;
-  }
-
   public static final class Plane.State implements androidx.xr.arcore.Trackable.State {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.Plane.Label getLabel();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.PlaneLabel getLabel();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Plane getOwner();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Plane? getSubsumedBy();
     method @InaccessibleFromKotlin public androidx.xr.arcore.TrackingState getTrackingState();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
     property public androidx.xr.runtime.math.Pose centerPose;
     property public androidx.xr.runtime.math.FloatSize2d extents;
-    property public androidx.xr.arcore.Plane.Label label;
+    property public androidx.xr.arcore.PlaneLabel label;
     property public androidx.xr.arcore.Plane owner;
     property public androidx.xr.arcore.Plane? subsumedBy;
     property public androidx.xr.arcore.TrackingState trackingState;
     property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
   }
 
-  @Deprecated public static final class Plane.Type {
-    field @Deprecated public static final androidx.xr.arcore.Plane.Type.Companion Companion;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Type HORIZONTAL_DOWNWARD_FACING;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Type HORIZONTAL_UPWARD_FACING;
-    field @Deprecated public static final androidx.xr.arcore.Plane.Type VERTICAL;
+  public final class PlaneLabel {
+    field public static final androidx.xr.arcore.PlaneLabel CEILING;
+    field public static final androidx.xr.arcore.PlaneLabel.Companion Companion;
+    field public static final androidx.xr.arcore.PlaneLabel FLOOR;
+    field public static final androidx.xr.arcore.PlaneLabel TABLE;
+    field public static final androidx.xr.arcore.PlaneLabel UNKNOWN;
+    field public static final androidx.xr.arcore.PlaneLabel WALL;
   }
 
-  @Deprecated public static final class Plane.Type.Companion {
-    property @Deprecated public androidx.xr.arcore.Plane.Type HORIZONTAL_DOWNWARD_FACING;
-    property @Deprecated public androidx.xr.arcore.Plane.Type HORIZONTAL_UPWARD_FACING;
-    property @Deprecated public androidx.xr.arcore.Plane.Type VERTICAL;
+  public static final class PlaneLabel.Companion {
+    property public androidx.xr.arcore.PlaneLabel CEILING;
+    property public androidx.xr.arcore.PlaneLabel FLOOR;
+    property public androidx.xr.arcore.PlaneLabel TABLE;
+    property public androidx.xr.arcore.PlaneLabel UNKNOWN;
+    property public androidx.xr.arcore.PlaneLabel WALL;
+  }
+
+  public final class PlaneType {
+    field public static final androidx.xr.arcore.PlaneType.Companion Companion;
+    field public static final androidx.xr.arcore.PlaneType HORIZONTAL_DOWNWARD_FACING;
+    field public static final androidx.xr.arcore.PlaneType HORIZONTAL_UPWARD_FACING;
+    field public static final androidx.xr.arcore.PlaneType VERTICAL;
+  }
+
+  public static final class PlaneType.Companion {
+    property public androidx.xr.arcore.PlaneType HORIZONTAL_DOWNWARD_FACING;
+    property public androidx.xr.arcore.PlaneType HORIZONTAL_UPWARD_FACING;
+    property public androidx.xr.arcore.PlaneType VERTICAL;
   }
 
   public final class RenderViewpoint {
@@ -776,12 +768,6 @@ package androidx.xr.arcore {
   public final class VpsAvailabilityUnavailable extends androidx.xr.arcore.VpsAvailabilityResult {
     ctor public VpsAvailabilityUnavailable();
   }
-
-  public typealias GeospatialState = androidx.xr.arcore.Geospatial.State;
-
-  public typealias PlaneLabel = androidx.xr.arcore.Plane.Label;
-
-  public typealias PlaneType = androidx.xr.arcore.Plane.Type;
 
 }
 

@@ -50,7 +50,6 @@ import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-@Suppress("DEPRECATION")
 class PlaneTest {
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
