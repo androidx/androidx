@@ -830,7 +830,10 @@ internal class ScrollingLogic(
     }
 
     private val shouldDispatchOverscroll
-        get() = scrollableState.canScrollForward || scrollableState.canScrollBackward
+        get() =
+            scrollableState.canScrollForward ||
+                scrollableState.canScrollBackward ||
+                overscrollEffect?.isInProgress == true
 
     override fun performRawScroll(scroll: Offset): Offset {
         return if (scrollableState.isScrollInProgress) {
