@@ -221,6 +221,16 @@ class SurfaceScreenshotTest {
     }
 
     @Test
+    fun surface_disabled() {
+        rule.setGlimmerThemeContent {
+            Box(Modifier.surface(enabled = false).padding(horizontal = 24.dp, vertical = 20.dp)) {
+                Text("This is a surface")
+            }
+        }
+        rule.assertRootAgainstGolden("surface_disabled", screenshotRule)
+    }
+
+    @Test
     fun custom_surface() {
         rule.setGlimmerThemeContent {
             Box(

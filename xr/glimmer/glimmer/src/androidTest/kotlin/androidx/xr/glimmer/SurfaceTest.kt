@@ -159,7 +159,7 @@ class SurfaceTest {
             assertThat(surfaceModifier.nameFallback).isEqualTo("surface")
             assertThat(surfaceModifier.valueOverride).isNull()
             assertThat(surfaceModifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactly("shape", "border", "interactionSource")
+                .containsExactly("enabled", "shape", "border", "interactionSource")
             assertThat((modifiers[3] as InspectableValue).nameFallback).isEqualTo("background")
         }
     }
@@ -1107,6 +1107,20 @@ class SurfaceTest {
         // surface should be the surface color again
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
             assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
+        }
+    }
+
+    @Test
+    fun surface_disabled_rendersDisabledOverlay() {
+        var surfaceColor = Color.Unspecified
+        rule.setGlimmerThemeContent {
+            surfaceColor = GlimmerTheme.colors.surface
+            Box(Modifier.size(100.dp).surface(enabled = false).testTag("surface"))
+        }
+
+        val expectedColor = DisabledOverlayColor.compositeOver(surfaceColor)
+        rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
+            assertColorsEqualWithTolerance(expectedColor, get(width / 2, height / 2))
         }
     }
 }

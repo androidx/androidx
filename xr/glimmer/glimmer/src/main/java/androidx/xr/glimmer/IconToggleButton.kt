@@ -91,6 +91,7 @@ public fun IconToggleButton(
     Box(
         modifier
             .surface(
+                enabled = enabled,
                 shape = shape,
                 color = colors.resolveBackgroundColor(checked),
                 contentColor = colors.resolveContentColor(checked),

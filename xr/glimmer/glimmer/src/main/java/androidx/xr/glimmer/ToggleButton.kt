@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 
-// TODO: b/423573184 - Align on disabled behavior / state.
 /**
  * A Jetpack Compose Glimmer toggle button that changes its appearance depending on the [checked]
  * value, used for exposing actions to a user. By default, the button transitions its shape and
@@ -138,6 +137,7 @@ public fun ToggleButton(
         Row(
             modifier
                 .surface(
+                    enabled = enabled,
                     shape = shape,
                     color = colors.resolveBackgroundColor(checked),
                     contentColor = colors.resolveContentColor(checked),
