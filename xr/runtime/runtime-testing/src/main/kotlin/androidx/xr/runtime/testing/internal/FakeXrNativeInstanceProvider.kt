@@ -24,8 +24,10 @@ internal class FakeXrNativeInstanceProvider : XrNativeInstanceProvider {
 
     override val requirements: Set<Feature> = emptySet()
 
-    override fun initialize(context: Context) {
-        return
+    internal val addedExtensions: MutableList<String> = mutableListOf()
+
+    override fun initialize(context: Context, extraExtensions: List<String>) {
+        addedExtensions.addAll(extraExtensions)
     }
 
     /** The handle of the native instance if available for the runtime. */

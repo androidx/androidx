@@ -503,6 +503,8 @@ package androidx.xr.runtime {
 
   public final class XrDevice {
     method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public static androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context);
+    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, java.util.List<java.lang.String> extensions);
+    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, java.util.List<java.lang.String> extensions, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public static androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method @Deprecated public static androidx.xr.runtime.XrDevice getCurrentDevice(androidx.xr.runtime.Session session);
     method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public androidx.lifecycle.Lifecycle getLifecycle();
@@ -518,8 +520,11 @@ package androidx.xr.runtime {
 
   public static final class XrDevice.Companion {
     method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context);
+    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi @androidx.xr.runtime.UnstableNativeResourceApi public androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, java.util.List<java.lang.String> extensions);
+    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi @androidx.xr.runtime.UnstableNativeResourceApi public androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, java.util.List<java.lang.String> extensions, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method @Deprecated public androidx.xr.runtime.XrDevice getCurrentDevice(androidx.xr.runtime.Session session);
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.XrDevice! getCurrentDevice$default(androidx.xr.runtime.XrDevice.Companion!, android.content.Context!, java.util.List!, kotlin.coroutines.CoroutineContext!, int, Object!);
     method @BytecodeOnly @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public static androidx.xr.runtime.XrDevice! getCurrentDevice$default(androidx.xr.runtime.XrDevice.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, int, Object!);
     method public boolean isProjectedServiceAvailable(android.content.Context context);
   }

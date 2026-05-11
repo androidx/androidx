@@ -92,6 +92,19 @@ class XrDeviceTest {
         assertThat(device1).isNotSameInstanceAs(device2)
     }
 
+    @OptIn(ExperimentalXrDeviceLifecycleApi::class, UnstableNativeResourceApi::class)
+    @Test
+    fun getCurrentDevice_withExtensions_addsExtensionsAndReturnsDevice() {
+        androidx.xr.runtime.internal.XrInstanceManager.resetInitForTesting()
+
+        val device = XrDevice.getCurrentDevice(activity, listOf("XR_ANDROID_trackables_marker"))
+        val extraExtensions =
+            androidx.xr.runtime.internal.XrInstanceManager.getExtraExtensionsForTesting()
+
+        assertThat(device).isNotNull()
+        assertThat(extraExtensions).containsExactly("XR_ANDROID_trackables_marker")
+    }
+
     @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isHandTrackingModeSupported_returnsFalseWhenInternalModeNotSupported() {

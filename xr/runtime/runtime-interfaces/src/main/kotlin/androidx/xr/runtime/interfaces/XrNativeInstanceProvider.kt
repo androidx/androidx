@@ -22,8 +22,13 @@ import androidx.annotation.RestrictTo
 /** Interface that provides native instance handles. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface XrNativeInstanceProvider : Service {
-    /** Initializes the provider with the provided context. */
-    public fun initialize(context: Context)
+    /**
+     * Initializes the provider with the provided context.
+     *
+     * @param context The application context.
+     * @param extraExtensions A list of extra OpenXR extension names to enable.
+     */
+    public fun initialize(context: Context, extraExtensions: List<String> = emptyList())
 
     /** The handle of the native instance if available for the runtime. */
     public val xrInstanceHandle: Long
