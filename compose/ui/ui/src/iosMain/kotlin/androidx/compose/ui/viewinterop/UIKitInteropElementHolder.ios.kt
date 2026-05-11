@@ -25,6 +25,7 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.uikit.density
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.toCGRect
 import androidx.compose.ui.unit.roundToIntRect
@@ -69,11 +70,9 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
      * The UIView to be embedded in the wrapping view.
      */
     protected abstract val userComponentView: UIView
-
     private var currentUnclippedRect: IntRect? = null
     private var currentClippedRect: IntRect? = null
     private var currentUserComponentRect: IntRect? = null
-
     private val layout = UIKitInteropElementLayout(group = group, userComponent = userComponentView)
     override val measurePolicy: MeasurePolicy get() = layout.measurePolicy
 
@@ -94,6 +93,7 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
 
     override fun layoutAccordingTo(layoutCoordinates: LayoutCoordinates) {
         val rootCoordinates = layoutCoordinates.findRootCoordinates()
+        val screenDensity = container.root.density
 
         val unclippedRect = rootCoordinates
             .localBoundingBoxOf(
@@ -116,11 +116,11 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
         if (clippedRect != currentClippedRect) {
             val groupFrame = clippedRect
                 .toRect()
-                .toDpRect(density)
+                .toDpRect(screenDensity)
                 .toCGRect()
             val groupAccessibilityFrame = unclippedRect
                 .toRect()
-                .toDpRect(density)
+                .toDpRect(screenDensity)
                 .toCGRect()
 
             container.scheduleUpdate {
@@ -147,7 +147,7 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
             if (userComponentRect != currentUserComponentRect) {
                 val userComponentCGRect = userComponentRect
                     .toRect()
-                    .toDpRect(density)
+                    .toDpRect(screenDensity)
                     .toCGRect()
 
                 container.scheduleUpdate {

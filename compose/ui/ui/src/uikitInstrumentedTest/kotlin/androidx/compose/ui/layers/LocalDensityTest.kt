@@ -16,21 +16,46 @@
 
 package androidx.compose.ui.layers
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.unit.toDpSize
+import androidx.compose.ui.viewinterop.UIKitView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
+import platform.UIKit.UIButton
+import platform.UIKit.UIColor
+import platform.UIKit.UIControlStateNormal
+import platform.UIKit.UIView
 
 class LocalDensityTest {
     @Test
@@ -227,5 +252,115 @@ class LocalDensityTest {
         waitForIdle()
 
         assertEquals(targetButtonIndex, tappedButtonIndex)
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun testInteropViewSizeScaledCustomDensity() = runUIKitInstrumentedTest {
+        val interopSize = DpSize(20.dp, 20.dp)
+        var densityScale by mutableFloatStateOf(1f)
+        val interopView = UIView()
+
+        setContent {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                val density = LocalDensity.current.density
+                CompositionLocalProvider(LocalDensity provides Density(densityScale * density)) {
+                    UIKitView(
+                        factory = { interopView },
+                        modifier = Modifier.size(interopSize)
+                    )
+                }
+            }
+        }
+
+        assertEquals(
+            expected = interopSize,
+            actual = interopView.frame.useContents { size.toDpSize() }
+        )
+
+        densityScale = 2f
+        waitForIdle()
+
+        assertEquals(
+            expected = (interopSize * densityScale),
+            actual = interopView.frame.useContents { size.toDpSize() }
+        )
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun testInteropViewPositionForCustomDensity() = runUIKitInstrumentedTest {
+        val interopHeight = 100.dp
+        val padding = 10.dp
+        var densityScale by mutableFloatStateOf(1f)
+        var interopViewRect = DpRectZero()
+        val interopView = UIButton().also {
+            it.setTitle("TAP", forState = UIControlStateNormal)
+            it.backgroundColor = UIColor.redColor
+        }
+
+        setContent {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopStart
+            ) {
+                val density = LocalDensity.current
+                CompositionLocalProvider(LocalDensity provides Density(densityScale * density.density)) {
+                    val currentDensity = LocalDensity.current
+                    UIKitView(
+                        factory = { interopView },
+                        modifier = Modifier
+                            .padding(padding)
+                            .fillMaxWidth()
+                            .height(interopHeight)
+                            .onGloballyPositioned { interopViewRect = it.boundsInWindow().toDpRect(currentDensity) }
+                    )
+                }
+            }
+        }
+
+        assertEquals(
+            expected = DpSize(
+                width = screenSize.width - padding * 2 * densityScale,
+                height = interopHeight * densityScale
+            ),
+            actual = interopView.frame.useContents { size.toDpSize() },
+        )
+
+        assertEquals(
+            expected = DpRect(
+                origin = DpOffset(padding, padding),
+                size = DpSize(
+                    width = (screenSize.width - padding.times(2f)).times(1f / densityScale),
+                    height = interopHeight
+                )
+            ),
+            actual = interopViewRect,
+        )
+
+        densityScale = 2f
+        waitForIdle()
+
+        assertEquals(
+            expected = DpSize(
+                width = screenSize.width - padding * 2 * densityScale,
+                height = interopHeight * densityScale
+            ),
+            actual = interopView.frame.useContents { size.toDpSize() },
+        )
+
+        assertEquals(
+            expected = DpRect(
+                origin = DpOffset(padding, padding),
+                size = DpSize(
+                    width = (screenSize.width - padding * 2 * densityScale).times(1f / densityScale),
+                    height = interopHeight
+                )
+            ),
+            actual = interopViewRect
+        )
     }
 }
