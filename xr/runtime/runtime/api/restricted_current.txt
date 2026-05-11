@@ -515,6 +515,7 @@ package androidx.xr.runtime {
     method public boolean isEyeTrackingModeSupported(androidx.xr.runtime.EyeTrackingMode mode);
     method public boolean isGeospatialModeSupported(androidx.xr.runtime.GeospatialMode mode);
     method public boolean isHandTrackingModeSupported(androidx.xr.runtime.HandTrackingMode mode);
+    method public static boolean isProjectedServiceAvailable(android.content.Context context);
     method public boolean isRenderingModeSupported(androidx.xr.runtime.RenderingMode mode);
     field public static final androidx.xr.runtime.XrDevice.Companion Companion;
   }
@@ -524,6 +525,7 @@ package androidx.xr.runtime {
     method @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method @Deprecated public androidx.xr.runtime.XrDevice getCurrentDevice(androidx.xr.runtime.Session session);
     method @BytecodeOnly @SuppressCompatibility @androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi public static androidx.xr.runtime.XrDevice! getCurrentDevice$default(androidx.xr.runtime.XrDevice.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, int, Object!);
+    method public boolean isProjectedServiceAvailable(android.content.Context context);
   }
 
   @Deprecated public static final class XrDevice.DisplayBlendMode {
