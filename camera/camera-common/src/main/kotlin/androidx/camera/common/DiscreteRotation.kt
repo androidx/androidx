@@ -49,6 +49,18 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
 
     public companion object {
 
+        @Suppress("ValueClassUsageWithoutJvmName")
+        public val ROTATION_0: DiscreteRotation = DiscreteRotation(0)
+
+        @Suppress("ValueClassUsageWithoutJvmName")
+        public val ROTATION_90: DiscreteRotation = DiscreteRotation(90)
+
+        @Suppress("ValueClassUsageWithoutJvmName")
+        public val ROTATION_180: DiscreteRotation = DiscreteRotation(180)
+
+        @Suppress("ValueClassUsageWithoutJvmName")
+        public val ROTATION_270: DiscreteRotation = DiscreteRotation(270)
+
         /** Convert integer [degrees] to a [DiscreteRotation] */
         @Suppress("ValueClassUsageWithoutJvmName", "MissingJvmstatic")
         public fun from(degrees: Int): DiscreteRotation {

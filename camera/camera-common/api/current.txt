@@ -58,10 +58,18 @@ package androidx.camera.common {
     method @BytecodeOnly public int from-REjC-m4(int);
     method @KotlinOnly public androidx.camera.common.DiscreteRotation fromSurfaceRotation(int surfaceRotation);
     method @BytecodeOnly public int fromSurfaceRotation-REjC-m4(int);
+    method @BytecodeOnly public int getROTATION_0-4VhhBrY();
+    method @BytecodeOnly public int getROTATION_180-4VhhBrY();
+    method @BytecodeOnly public int getROTATION_270-4VhhBrY();
+    method @BytecodeOnly public int getROTATION_90-4VhhBrY();
     method @KotlinOnly public androidx.camera.common.DiscreteRotation round(float degrees);
     method @KotlinOnly public androidx.camera.common.DiscreteRotation round(int degrees);
     method @BytecodeOnly public int round-REjC-m4(float);
     method @BytecodeOnly public int round-REjC-m4(int);
+    property public androidx.camera.common.DiscreteRotation ROTATION_0;
+    property public androidx.camera.common.DiscreteRotation ROTATION_180;
+    property public androidx.camera.common.DiscreteRotation ROTATION_270;
+    property public androidx.camera.common.DiscreteRotation ROTATION_90;
   }
 
   public final class DiscreteRotationMath {

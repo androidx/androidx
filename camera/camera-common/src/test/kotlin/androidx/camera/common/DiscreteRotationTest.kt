@@ -24,10 +24,13 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DiscreteRotationTests {
-    private val ROTATION_0 = DiscreteRotation.from(0)
-    private val ROTATION_90 = DiscreteRotation.from(90)
-    private val ROTATION_180 = DiscreteRotation.from(180)
-    private val ROTATION_270 = DiscreteRotation.from(270)
+    @Test
+    fun discreteRotationCompanionHasPresetRotations() {
+        assertThat(DiscreteRotation.ROTATION_0.degrees).isEqualTo(0)
+        assertThat(DiscreteRotation.ROTATION_90.degrees).isEqualTo(90)
+        assertThat(DiscreteRotation.ROTATION_180.degrees).isEqualTo(180)
+        assertThat(DiscreteRotation.ROTATION_270.degrees).isEqualTo(270)
+    }
 
     @Test
     fun discreteRotationCanRoundIntDegrees() {
@@ -187,24 +190,32 @@ class DiscreteRotationTests {
 
     @Test
     fun discreteRotationCanBeAdded() {
-        assertThat(ROTATION_0 + ROTATION_90).isEqualTo(ROTATION_90)
-        assertThat(ROTATION_90 + ROTATION_90).isEqualTo(ROTATION_180)
-        assertThat(ROTATION_180 + ROTATION_90).isEqualTo(ROTATION_270)
-        assertThat(ROTATION_270 + ROTATION_90).isEqualTo(ROTATION_0)
+        assertThat(DiscreteRotation.ROTATION_0 + DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_90)
+        assertThat(DiscreteRotation.ROTATION_90 + DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_180)
+        assertThat(DiscreteRotation.ROTATION_180 + DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_270)
+        assertThat(DiscreteRotation.ROTATION_270 + DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_0)
 
-        assertThat(ROTATION_0 + 90).isEqualTo(ROTATION_90)
-        assertThat(ROTATION_90 + 90).isEqualTo(ROTATION_180)
+        assertThat(DiscreteRotation.ROTATION_0 + 90).isEqualTo(DiscreteRotation.ROTATION_90)
+        assertThat(DiscreteRotation.ROTATION_90 + 90).isEqualTo(DiscreteRotation.ROTATION_180)
     }
 
     @Test
     fun discreteRotationCanBeSubtracted() {
-        assertThat(ROTATION_90 - ROTATION_90).isEqualTo(ROTATION_0)
-        assertThat(ROTATION_180 - ROTATION_90).isEqualTo(ROTATION_90)
-        assertThat(ROTATION_270 - ROTATION_90).isEqualTo(ROTATION_180)
-        assertThat(ROTATION_0 - ROTATION_90).isEqualTo(ROTATION_270)
+        assertThat(DiscreteRotation.ROTATION_90 - DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_0)
+        assertThat(DiscreteRotation.ROTATION_180 - DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_90)
+        assertThat(DiscreteRotation.ROTATION_270 - DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_180)
+        assertThat(DiscreteRotation.ROTATION_0 - DiscreteRotation.ROTATION_90)
+            .isEqualTo(DiscreteRotation.ROTATION_270)
 
-        assertThat(ROTATION_90 - 90).isEqualTo(ROTATION_0)
-        assertThat(ROTATION_0 - 90).isEqualTo(ROTATION_270)
+        assertThat(DiscreteRotation.ROTATION_90 - 90).isEqualTo(DiscreteRotation.ROTATION_0)
+        assertThat(DiscreteRotation.ROTATION_0 - 90).isEqualTo(DiscreteRotation.ROTATION_270)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -214,9 +225,9 @@ class DiscreteRotationTests {
 
     @Test
     fun discreteRotationHasToString() {
-        assertThat(ROTATION_0.toString()).isEqualTo("0°")
-        assertThat(ROTATION_90.toString()).isEqualTo("90°")
-        assertThat(ROTATION_180.toString()).isEqualTo("180°")
-        assertThat(ROTATION_270.toString()).isEqualTo("270°")
+        assertThat(DiscreteRotation.ROTATION_0.toString()).isEqualTo("0°")
+        assertThat(DiscreteRotation.ROTATION_90.toString()).isEqualTo("90°")
+        assertThat(DiscreteRotation.ROTATION_180.toString()).isEqualTo("180°")
+        assertThat(DiscreteRotation.ROTATION_270.toString()).isEqualTo("270°")
     }
 }
