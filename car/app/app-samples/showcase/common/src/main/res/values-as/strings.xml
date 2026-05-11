@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ইয়াত বাৰ্তা ওলাব।\nদ্বিতীয় শাৰীত অধিক পাঠ।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"চুটি বাৰ্তাৰ টেমপ্লে’টৰ ডেম’"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"শাখা হিচাপে ৰখা বস্তুৰ টেম্পলে’টৰ ডেম’"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"সংকুচিত বস্তুৰ ডেম’"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"শাখা হিচাপে ৰখা বস্তুৰ AlphaJump সক্ষম কৰা ডেম’"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ৰেডিঅ’ বুটামৰ শাখা"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ট’গলৰ শাখা"</string>
@@ -247,6 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"চিপৰ ডেম’"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"অগ্ৰগতিৰ দণ্ডৰ ডেম’"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"শাখাৰ হে’ডাৰৰ ডেম’"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"স্পটলাইট শাখাৰ ডেম’"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"পে’নৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ঠাইৰ সূচীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ঠাইসমূহ ব্ৰাউজ কৰক"</string>

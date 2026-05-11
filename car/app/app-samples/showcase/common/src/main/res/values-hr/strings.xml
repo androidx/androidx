@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Ovdje dolazi poruka.\nViše teksta u drugom retku."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Pokazna verzija predloška kratke poruke"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Pokazna verzija predloška stavke po odjeljcima"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demonstracija sažetih stavki"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Pokazna verzija s omogućenim AlphaJumpom za stavke po odjeljcima"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Odjeljak gumba za odabir"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Odjeljak prebacivanja"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Završi pokaznu verziju završne slike i radnji"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Pokazna verzija elementa"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demonstracija trake napretka"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Pokazna verzija zaglavlja odjeljka"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pokazna verzija predloška okna"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Pokazna verzija predloška popisa mjesta"</string>

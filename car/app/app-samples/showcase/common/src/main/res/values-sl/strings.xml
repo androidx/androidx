@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Sporočilo bo prikazano tukaj.\nVeč besedila bo v drugi vrstici."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Predstavitvena različica predloge sporočila SMS"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Predstavitvena različica predloge elementov po razdelkih"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Predstavitev zgoščenega elementa"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Predstavitev z elementi po razdelkih z omogočeno funkcijo AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Razdelek z izbirnimi gumbi"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Razdelek s preklopniki"</string>
@@ -247,6 +246,8 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Predstavitev drobca"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Predstavitev vrstice napredovanja"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Predstavitvena različica glave razdelka"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Predstavitvena različica predloge podokna"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Predstavitvena različica predloge seznama mest"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Brskanje po mestih"</string>

@@ -246,6 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Chip Demo"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Progress Bar Demo"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Section Header Demo"</string>
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Spotlight Section Demo"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pane Template Demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Place List Template Demo"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Browse Places"</string>

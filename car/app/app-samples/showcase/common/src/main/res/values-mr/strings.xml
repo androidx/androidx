@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"मेसेज येथे दिसतात.\nदुसऱ्या ओळीवर आणखी मजकूर आहे."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"छोटा मेसेज टेंप्लेट डेमो"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"आयटमच्या सेक्शन्ड टेंप्लेटचा डेमो"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"संक्षिप्त आयटमचा डेमो"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"सेक्शन्ड आयटम AlphaJump सुरू केलेला डेमो"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"रेडिओ बटण विभाग"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"टॉगल विभाग"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"इमेज आणि कृती डेमो संपवा"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"चिप डेमो"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"प्रोग्रेस बार डेमो"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"विभागाच्या हेडरचा डेमो"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"पेनशी संबंधित टेंप्लेटचा डेमो"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ठिकाणाच्या सूचीशी संबंधित टेंप्लेटचा डेमो"</string>

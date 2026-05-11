@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Introdu mesajul aici.\nMai mult text pe al doilea rând."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstrație cu șablon pentru mesaj scurt"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demonstrație cu șablon pentru elemente cu secțiuni"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demonstrație cu element compact"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Versiune demonstrativă cu opțiunea AlphaJump activată pentru elemente cu secțiuni"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Secțiune cu butoane radio"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Comută secțiunea"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Încheie versiunea demonstrativă cu imagini și acțiuni"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Versiune demonstrativă a cipului"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Versiune demonstrativă a barei de progres"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demonstrație cu antetul secțiunii"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrație cu șablonul pentru panou"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrație cu șablon pentru lista de locații"</string>

@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Пораката оди овде.\nУште текст во вториот ред."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Демо на шаблон за кратка порака"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Демо на поделен шаблон со ставки"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Демо на збиена ставка"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Демо со овозможен AlphaJump на поделена ставка"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Дел за тркалезно копче"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Дел за вклучување/исклучување"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Заврши го демото за слики и дејства"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Демо на чип"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Демо на лента за напредок"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Демо на заглавје на оддел"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демо за шаблон на окно"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демо за шаблон на список со места"</string>
