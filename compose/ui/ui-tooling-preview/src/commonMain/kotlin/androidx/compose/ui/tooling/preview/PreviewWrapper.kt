@@ -153,5 +153,5 @@ interface PreviewWrapperProvider {
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 annotation class PreviewWrapper(val wrapper: KClass<out PreviewWrapperProvider>)
