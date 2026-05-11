@@ -110,8 +110,10 @@ def print_failing_task_names(lines):
     for line in lines:
         # Expected log format
         # Execution failed for task ':foo:foo:taskName' (registered by plugin 'com.bar').
+        # or for built-in Gradle tasks:
+        # Execution failed for task ':foo:foo:test'.
         if line.startswith("Execution failed for task"):
-            tasks_of_interest.append(line.split("task '")[1].split("' (registered")[0])
+            tasks_of_interest.append(line.split("task '")[1].split("'")[0])
 
     print("Detected these failing tasks: " + str(tasks_of_interest))
 
