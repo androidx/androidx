@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress;
+package androidx.xr.scenecore.spatial.rendering.impress;
 
 import androidx.annotation.RestrictTo;
 import androidx.xr.scenecore.runtime.TextureSampler;

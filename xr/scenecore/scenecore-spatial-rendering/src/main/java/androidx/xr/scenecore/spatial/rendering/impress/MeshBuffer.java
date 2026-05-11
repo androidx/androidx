@@ -14,38 +14,38 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress;
+package androidx.xr.scenecore.spatial.rendering.impress;
 
 import androidx.annotation.RestrictTo;
-import androidx.xr.scenecore.runtime.CustomMeshResource;
+import androidx.xr.scenecore.runtime.MeshBufferResource;
 
 import org.jspecify.annotations.NonNull;
 
 /**
- * CustomMesh class for the native Impress custom mesh wrapper struct which is an implementation a
- * SceneCore CustomMeshResource.
+ * MeshBuffer class for the native Impress mesh buffer wrapper struct which is an implementation a
+ * SceneCore MeshBufferResource.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class CustomMesh extends BindingsResource implements CustomMeshResource {
+public final class MeshBuffer extends BindingsResource implements MeshBufferResource {
     private final ImpressApi mImpressApi;
 
-    private CustomMesh(Builder builder) {
+    private MeshBuffer(Builder builder) {
         super(
                 builder.mImpressapi.getBindingsResourceManager(),
-                builder.mNativeCustomMesh,
-                (handle) -> builder.mImpressapi.destroyCustomMesh(handle));
+                builder.mNativeMeshBuffer,
+                (handle) -> builder.mImpressapi.destroyMeshBuffer(handle));
         mImpressApi = builder.mImpressapi;
     }
 
     @Override
     protected void releaseBindingsResource(long nativeHandle) {
-        mImpressApi.destroyCustomMesh(nativeHandle);
+        mImpressApi.destroyMeshBuffer(nativeHandle);
     }
 
-    /** Use Builder to construct a CustomMesh object instance. */
+    /** Use Builder to construct a MeshBuffer object instance. */
     public static class Builder {
         private ImpressApi mImpressapi;
-        private long mNativeCustomMesh = -1;
+        private long mNativeMeshBuffer = -1;
 
         /** Sets the Impress API. */
         @NonNull
@@ -54,20 +54,20 @@ public final class CustomMesh extends BindingsResource implements CustomMeshReso
             return this;
         }
 
-        /** Sets the native custom mesh. */
+        /** Sets the native mesh buffer. */
         @NonNull
-        public Builder setNativeCustomMesh(long nativeCustomMesh) {
-            mNativeCustomMesh = nativeCustomMesh;
+        public Builder setNativeMeshBuffer(long nativeMeshBuffer) {
+            mNativeMeshBuffer = nativeMeshBuffer;
             return this;
         }
 
-        /** Builds the CustomMesh. */
+        /** Builds the MeshBuffer. */
         @NonNull
-        public CustomMesh build() {
-            if (mImpressapi == null || mNativeCustomMesh == -1) {
-                throw new IllegalStateException("CustomMesh not built properly.");
+        public MeshBuffer build() {
+            if (mImpressapi == null || mNativeMeshBuffer == -1) {
+                throw new IllegalStateException("MeshBuffer not built properly.");
             }
-            return new CustomMesh(this);
+            return new MeshBuffer(this);
         }
     }
 }

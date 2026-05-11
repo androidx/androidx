@@ -19,13 +19,13 @@ package androidx.xr.scenecore.spatial.rendering
 import androidx.annotation.MainThread
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
-import androidx.xr.scenecore.impl.impress.ImpressApi
-import androidx.xr.scenecore.impl.impress.ImpressNode
-import androidx.xr.scenecore.impl.impress.Material
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.spatial.core.AndroidXrEntity
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressNode
+import androidx.xr.scenecore.spatial.rendering.impress.Material
 import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import java.util.concurrent.Executor

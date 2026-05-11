@@ -18,15 +18,15 @@ package androidx.xr.scenecore.spatial.rendering
 
 import android.app.Activity
 import android.os.Looper
-import androidx.xr.scenecore.impl.impress.ExrImage
-import androidx.xr.scenecore.impl.impress.GltfModel
-import androidx.xr.scenecore.impl.impress.ImpressApi
-import androidx.xr.scenecore.impl.impress.ImpressNode
 import androidx.xr.scenecore.runtime.ExrImageResource
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfModelResource
 import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
+import androidx.xr.scenecore.spatial.rendering.impress.ExrImage
+import androidx.xr.scenecore.spatial.rendering.impress.GltfModel
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressNode
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager

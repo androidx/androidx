@@ -14,35 +14,38 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress;
+package androidx.xr.scenecore.spatial.rendering.impress;
 
 import androidx.annotation.RestrictTo;
-import androidx.xr.scenecore.runtime.GltfModelResource;
+import androidx.xr.scenecore.runtime.TextureResource;
 
 import org.jspecify.annotations.NonNull;
 
-/** Wrapper class for the native glTF model. */
+/**
+ * Texture class for the native Impress texture wrapper struct which is an implementation a
+ * SceneCore TextureResource.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class GltfModel extends BindingsResource implements GltfModelResource {
+public final class Texture extends BindingsResource implements TextureResource {
     private final ImpressApi mImpressApi;
 
-    private GltfModel(Builder builder) {
+    private Texture(Builder builder) {
         super(
                 builder.mImpressapi.getBindingsResourceManager(),
-                builder.mNativeGltfModel,
-                (handle) -> builder.mImpressapi.releaseGltfAsset(handle));
+                builder.mNativeTexture,
+                (handle) -> builder.mImpressapi.destroyNativeObject(handle));
         mImpressApi = builder.mImpressapi;
     }
 
     @Override
     protected void releaseBindingsResource(long nativeHandle) {
-        mImpressApi.releaseGltfAsset(nativeHandle);
+        mImpressApi.destroyNativeObject(nativeHandle);
     }
 
-    /** Use Builder to construct a GltfModel object instance. */
+    /** Use Builder to construct a Texture object instance. */
     public static class Builder {
         private ImpressApi mImpressapi;
-        private long mNativeGltfModel = -1;
+        private long mNativeTexture = -1;
 
         /** Sets the Impress API. */
         @NonNull
@@ -51,20 +54,20 @@ public final class GltfModel extends BindingsResource implements GltfModelResour
             return this;
         }
 
-        /** Sets the native glTF model. */
+        /** Sets the native texture. */
         @NonNull
-        public Builder setNativeGltfModel(long nativeGltfModel) {
-            mNativeGltfModel = nativeGltfModel;
+        public Builder setNativeTexture(long nativeTexture) {
+            mNativeTexture = nativeTexture;
             return this;
         }
 
-        /** Builds the GltfModel. */
+        /** Builds the Texture. */
         @NonNull
-        public GltfModel build() {
-            if (mImpressapi == null || mNativeGltfModel == -1) {
-                throw new IllegalStateException("GltfModel not built properly.");
+        public Texture build() {
+            if (mImpressapi == null || mNativeTexture == -1) {
+                throw new IllegalStateException("Texture not built properly.");
             }
-            return new GltfModel(this);
+            return new Texture(this);
         }
     }
 }
