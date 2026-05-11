@@ -31,6 +31,7 @@ import androidx.xr.arcore.CreateGeospatialPoseFromPoseSuccess
 import androidx.xr.arcore.CreatePoseFromGeospatialPoseSuccess
 import androidx.xr.arcore.Geospatial
 import androidx.xr.arcore.GeospatialState
+import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.VpsAvailabilityAvailable
 import androidx.xr.arcore.VpsAvailabilityErrorInternal
 import androidx.xr.arcore.VpsAvailabilityNetworkError
@@ -239,7 +240,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
         val pose = state.devicePose
         val t = pose.translation
         val r = pose.rotation
-        return "\nTracking State: ${state.trackingState}" +
+        return "\nTracking State: ${getTrackingStateMessage(state.trackingState)}" +
             "\nDevicePose translation: ${t.x.fmt()}, ${t.y.fmt()}, ${t.z.fmt()}" +
             "\nDevicePose rotation: ${r.x.fmt()}, ${r.y.fmt()}, ${r.z.fmt()}, ${r.w.fmt()}"
     }
@@ -296,6 +297,16 @@ class ProjectedTestAppActivity : ComponentActivity() {
             val vpsAvailabilityResult = geospatial.checkVpsAvailability(latitude, longitude)
             vpsStatusMessage = getVpsMessage(vpsAvailabilityResult)
             Log.i("JetpackXR", "VPS availability: ${vpsStatusMessage} ($vpsAvailabilityResult)")
+        }
+    }
+
+    private fun getTrackingStateMessage(trackingState: TrackingState?): String {
+        return when (trackingState) {
+            TrackingState.TRACKING -> "TRACKING"
+            TrackingState.PAUSED -> "PAUSED"
+            TrackingState.STOPPED -> "STOPPED"
+            TrackingState.TRACKING_DEGRADED -> "TRACKING_DEGRADED"
+            else -> "TrackingState(unknown)"
         }
     }
 
