@@ -57,7 +57,7 @@ public class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
 
     override fun setAnchor(anchor: Anchor): Boolean {
         // detach current
-        anchor.detach()
+        this.anchor?.detach()
         this.anchor = anchor
         onStateChangedListener?.onStateChanged(AnchorEntity.State.ANCHORED)
         return true

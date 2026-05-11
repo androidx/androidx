@@ -52,6 +52,7 @@ dependencies {
     testImplementation("org.robolectric:robolectric")
     testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation(project(":xr:scenecore:scenecore-testing"))
+    testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

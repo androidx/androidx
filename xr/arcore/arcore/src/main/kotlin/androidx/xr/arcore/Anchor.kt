@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore
 
+import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException as RtAnchorInvalidUuidException
@@ -23,6 +24,7 @@ import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAut
 import androidx.xr.arcore.runtime.AnchorNotTrackingException as RtAnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException as RtAnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.AnchorRuntimeFailureException as RtAnchorRuntimeFailureException
+import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -178,11 +180,6 @@ internal constructor(
         }
     }
 
-    // TODO(b/482642212): This constructor is only used for testing. Remove it once tests have been
-    // refactored to use ArCoreTestRule.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(runtimeAnchor: RuntimeAnchor) : this(runtimeAnchor, XrResourcesManager())
-
     /**
      * The representation of the current state of an [Anchor].
      *
@@ -268,4 +265,14 @@ internal constructor(
             }
         }
     }
+
+    /**
+     * If this anchor instance derives from [ExportableAnchor], an [IBinder] reference that
+     * represents the anchor.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public val anchorToken: IBinder?
+        get() {
+            return if (runtimeAnchor is ExportableAnchor) runtimeAnchor.anchorToken else null
+        }
 }

@@ -18,7 +18,6 @@ package androidx.xr.scenecore.spatial.core
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.xr.arcore.Anchor
-import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.AnchorEntity
@@ -76,23 +75,24 @@ internal class AnchorEntityImpl(
             }
         })
 
-    @Suppress("RestrictedApiAndroidX")
     override fun setAnchor(anchor: Anchor): Boolean {
         synchronized(this) {
-            if (_state == AnchorEntity.State.ERROR || anchor.runtimeAnchor !is ExportableAnchor) {
+            if (_state == AnchorEntity.State.ERROR) {
                 return false
             }
-            val exportableAnchor = anchor.runtimeAnchor as ExportableAnchor
-            extensions.createNodeTransaction().use { transaction ->
-                // Attach to the root CPM node. This will enable the anchored content to be visible.
-                // Note that the parent of the Entity is null, but the CPM Node is still attached.
-                transaction
-                    .setParent(node, activitySpace.node)
-                    .setAnchorId(node, exportableAnchor.anchorToken)
-                    .apply()
-            }
-            updateState(AnchorEntity.State.ANCHORED)
-            return true
+            return anchor.anchorToken?.let { anchorToken ->
+                extensions.createNodeTransaction().use { transaction ->
+                    // Attach to the root CPM node. This will enable the anchored content to be
+                    // visible. Note that the parent of the Entity is null, but the CPM Node is
+                    // still attached.
+                    transaction
+                        .setParent(node, activitySpace.node)
+                        .setAnchorId(node, anchorToken)
+                        .apply()
+                }
+                updateState(AnchorEntity.State.ANCHORED)
+                return true
+            } ?: false
         }
     }
 

@@ -16,18 +16,23 @@
 
 package androidx.xr.arcore.testing.internal
 
+import android.os.Binder
+import android.os.IBinder
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 
-internal class FakeRuntimeAnchor(
+internal open class FakeRuntimeAnchor(
     override var pose: Pose,
     var anchorHolder: AnchorHolder? = null,
     isTrackingAvailable: Boolean = true,
-) : RuntimeAnchor {
+    override val nativePointer: Long = 1234567890L,
+    override val anchorToken: IBinder = Binder(),
+) : RuntimeAnchor, ExportableAnchor {
     init {
         if (!isTrackingAvailable) {
             throw AnchorNotTrackingException()
