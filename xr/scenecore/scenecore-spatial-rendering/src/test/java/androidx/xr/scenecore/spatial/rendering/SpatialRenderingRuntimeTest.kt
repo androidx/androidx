@@ -22,13 +22,6 @@ import android.app.Activity
 import android.widget.FrameLayout
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.impl.impress.ExrImage
-import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
-import androidx.xr.scenecore.impl.impress.GltfModel
-import androidx.xr.scenecore.impl.impress.ImpressApi
-import androidx.xr.scenecore.impl.impress.ImpressNode
-import androidx.xr.scenecore.impl.impress.Material
-import androidx.xr.scenecore.impl.impress.Texture
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.RenderingEntityFactory
@@ -39,6 +32,13 @@ import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.XrExtensionsHolder
 import androidx.xr.scenecore.spatial.core.SceneNodeRegistry
 import androidx.xr.scenecore.spatial.core.SpatialSceneRuntime
+import androidx.xr.scenecore.spatial.rendering.impress.ExrImage
+import androidx.xr.scenecore.spatial.rendering.impress.FakeImpressApiImpl
+import androidx.xr.scenecore.spatial.rendering.impress.GltfModel
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressNode
+import androidx.xr.scenecore.spatial.rendering.impress.Material
+import androidx.xr.scenecore.spatial.rendering.impress.Texture
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeXrExtensionsHolderProvider
 import com.android.extensions.xr.ShadowXrExtensions
@@ -326,7 +326,7 @@ class SpatialRenderingRuntimeTest {
             )
         assertThat(meshBuffer).isNotNull()
         assertThat(meshBuffer)
-            .isInstanceOf(androidx.xr.scenecore.impl.impress.MeshBuffer::class.java)
+            .isInstanceOf(androidx.xr.scenecore.spatial.rendering.impress.MeshBuffer::class.java)
     }
 
     @Test
@@ -380,7 +380,7 @@ class SpatialRenderingRuntimeTest {
             )
         assertThat(customMesh).isNotNull()
         assertThat(customMesh)
-            .isInstanceOf(androidx.xr.scenecore.impl.impress.CustomMesh::class.java)
+            .isInstanceOf(androidx.xr.scenecore.spatial.rendering.impress.CustomMesh::class.java)
     }
 
     @Test

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress
+package androidx.xr.scenecore.spatial.rendering.impress
 
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl.StereoSurfaceEntityData
-import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl.StereoSurfaceEntityData.CanvasShape
-import androidx.xr.scenecore.impl.impress.ImpressApi.ContentSecurityLevel
-import androidx.xr.scenecore.impl.impress.ImpressApi.MediaBlendingMode
-import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
+import androidx.xr.scenecore.spatial.rendering.impress.FakeImpressApiImpl.StereoSurfaceEntityData
+import androidx.xr.scenecore.spatial.rendering.impress.FakeImpressApiImpl.StereoSurfaceEntityData.CanvasShape
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.ContentSecurityLevel
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.MediaBlendingMode
+import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.StereoMode
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking

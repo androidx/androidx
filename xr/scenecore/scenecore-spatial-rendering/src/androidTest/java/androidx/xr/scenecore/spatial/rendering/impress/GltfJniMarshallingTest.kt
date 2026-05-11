@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.impl.impress
+package androidx.xr.scenecore.spatial.rendering.impress
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
