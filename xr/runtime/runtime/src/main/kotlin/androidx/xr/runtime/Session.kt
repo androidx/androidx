@@ -500,9 +500,6 @@ public constructor(
     /**
      * Destroys the session, releasing any resources acquired by the session. Objects tracked by the
      * system will not receive updates.
-     *
-     * Calling this method on a destroyed session is a no-op. Additionally, calling this method on
-     * an active session will first call [pause].
      */
     private fun destroy() {
         contextSessionMap.remove(context)
