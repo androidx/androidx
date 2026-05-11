@@ -17,14 +17,19 @@
 package androidx.wear.compose.material3
 
 import android.content.Context
+import android.os.Build
 import android.view.View
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -33,9 +38,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -45,16 +56,23 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
+import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
 import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
@@ -73,9 +91,10 @@ class OneHandedGestureTest {
         var gestured = false
         var indicatorShown = false
         val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
 
         rule.setContentWithTheme {
-            MockSdkGestureInputManager(sdkGestureInputManager) {
+            MockSdkGestureInputManager(sdkGestureInputManager, hapticResults) {
                 Text(
                     "Clickable",
                     modifier =
@@ -96,6 +115,9 @@ class OneHandedGestureTest {
         rule.runOnIdle {
             assertEquals(true, gestured)
             assertEquals(true, indicatorShown)
+
+            assertThat(hapticResults).hasSize(1)
+            assertEquals(hapticResults[HapticFeedbackType.LongPress], 1)
         }
     }
 
@@ -104,9 +126,10 @@ class OneHandedGestureTest {
     fun simple_dismiss_gesture() {
         var gestured = false
         val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
 
         rule.setContentWithTheme {
-            MockSdkGestureInputManager(sdkGestureInputManager) {
+            MockSdkGestureInputManager(sdkGestureInputManager, hapticResults) {
                 Text(
                     "Clickable",
                     modifier =
@@ -118,7 +141,13 @@ class OneHandedGestureTest {
         }
 
         sdkGestureInputManager.performGesture(sdkActionDismiss)
-        rule.runOnIdle { assertEquals(true, gestured) }
+
+        rule.runOnIdle {
+            assertEquals(true, gestured)
+
+            assertThat(hapticResults).hasSize(1)
+            assertEquals(hapticResults[HapticFeedbackType.LongPress], 1)
+        }
     }
 
     /** Verifies that Clickable priority is higher than Scrollable */
@@ -502,15 +531,118 @@ class OneHandedGestureTest {
         assertEquals(enabled, edgeButtonClicked)
     }
 
+    @Test
+    fun gesture_indicator_colors() {
+        val tintColor = Color.Yellow
+        rule.verifyColors(expectedContentColor = tintColor) {
+            OneHandedGestureIndicator(
+                gestureIndicatorVisible = true,
+                onGestureIndicatorFinished = {},
+                gestureIndicatorTint = tintColor,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "",
+                    modifier = Modifier.size(GestureIndicatorSize.Medium.size),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun gesture_scroll_indicator_colors() {
+        val tintColor = Color.Yellow
+        val containerColor = Color.Blue
+        rule.verifyColors(
+            expectedContentColor = tintColor,
+            expectedContainerColor = containerColor,
+        ) {
+            Box(modifier = Modifier.testTag(TEST_TAG)) {
+                OneHandedGestureScrollIndicator(
+                    gestureIndicatorVisible = true,
+                    onGestureIndicatorFinished = {},
+                    gestureIndicatorTint = tintColor,
+                    gestureIndicatorBackgroundColor = containerColor,
+                    state = rememberTransformingLazyColumnState(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun gesture_horizontal_page_indicator_colors() {
+        val tintColor = Color.Yellow
+        val containerColor = Color.Blue
+        rule.verifyColors(
+            expectedContentColor = tintColor,
+            expectedContainerColor = containerColor,
+        ) {
+            Box(modifier = Modifier.testTag(TEST_TAG)) {
+                OneHandedGestureHorizontalPageIndicator(
+                    gestureIndicatorVisible = true,
+                    onGestureIndicatorFinished = {},
+                    gestureIndicatorTint = tintColor,
+                    gestureIndicatorBackgroundColor = containerColor,
+                    pagerState = rememberPagerState { 0 },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun gesture_vertical_page_indicator_colors() {
+        val tintColor = Color.Yellow
+        val containerColor = Color.Blue
+        rule.verifyColors(
+            expectedContentColor = tintColor,
+            expectedContainerColor = containerColor,
+        ) {
+            Box(modifier = Modifier.testTag(TEST_TAG)) {
+                OneHandedGestureVerticalPageIndicator(
+                    gestureIndicatorVisible = true,
+                    onGestureIndicatorFinished = {},
+                    gestureIndicatorTint = tintColor,
+                    gestureIndicatorBackgroundColor = containerColor,
+                    pagerState = rememberPagerState { 0 },
+                )
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    internal fun ComposeContentTestRule.verifyColors(
+        expectedContentColor: Color,
+        expectedContainerColor: Color? = null,
+        content: @Composable BoxScope.() -> Unit,
+    ) {
+        val testBackgroundColor = Color.White
+        setContentWithTheme {
+            Box(Modifier.fillMaxSize().background(testBackgroundColor), content = content)
+        }
+        rule.waitForIdle()
+        val image = onNodeWithTag(TEST_TAG).captureToImage()
+        expectedContainerColor?.let { image.assertContainsColor(it) }
+
+        image.assertContainsColor(expectedContentColor)
+    }
+
     @Composable
     private fun MockSdkGestureInputManager(
         sdkGestureInputManager: SdkGestureInputManager,
+        results: MutableMap<HapticFeedbackType, Int> = mutableMapOf(),
         content: @Composable () -> Unit,
     ) {
         val scope: CoroutineScope = rememberCoroutineScope()
+        val haptic = hapticFeedback(collectResultsFromHapticFeedback(results))
         val gestureManager = remember(scope) { GestureManagerImpl(scope, sdkGestureInputManager) }
 
-        CompositionLocalProvider(LocalGestureManager provides gestureManager) { content() }
+        CompositionLocalProvider(
+            LocalGestureManager provides gestureManager,
+            LocalHapticFeedback provides haptic,
+        ) {
+            content()
+        }
     }
 
     private class SdkGestureInputManagerMock(private val showIndicator: Boolean = true) :
