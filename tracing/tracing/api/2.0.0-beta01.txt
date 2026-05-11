@@ -1,0 +1,275 @@
+// Signature format: 4.0
+package androidx.tracing {
+
+  public abstract class AbstractTraceDriver implements java.lang.AutoCloseable {
+    ctor protected AbstractTraceDriver(androidx.tracing.AbstractTraceSink sink);
+    method public abstract void close();
+    method public abstract void flush();
+    method @InaccessibleFromKotlin public final androidx.tracing.AbstractTraceSink getSink();
+    method @InaccessibleFromKotlin public abstract androidx.tracing.Tracer getTracer();
+    property public final androidx.tracing.AbstractTraceSink sink;
+    property public abstract androidx.tracing.Tracer tracer;
+  }
+
+  public static interface AbstractTraceDriver.Factory<T extends androidx.tracing.AbstractTraceDriver> {
+    method public T create();
+  }
+
+  public abstract class AbstractTraceSink implements java.lang.AutoCloseable {
+    ctor public AbstractTraceSink();
+    method public abstract void close();
+    method public abstract void enqueue(androidx.tracing.PooledTracePacketArray pooledPacketArray);
+    method public abstract void flush();
+    method public abstract void onDroppedTraceEvent();
+  }
+
+  @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class AttributeEntry {
+    method public void reset();
+    property public Long? longValue;
+    property public String? name;
+    property public String? stringValue;
+    field public Long? longValue;
+    field public String? name;
+    field public String? stringValue;
+  }
+
+  public final class ClockSource_androidKt {
+    method public static inline long nanoTime();
+  }
+
+  public interface Counter {
+    method public String name();
+    method public void setValue(double value);
+    method public void setValue(long value);
+  }
+
+  @SuppressCompatibility @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.RequiresOptIn(message="Marks declarations in the Tracing API that are delicate.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface DelicateTracingApi {
+  }
+
+  public abstract class EventMetadata {
+    method public abstract void addCallStackEntry(String name, String? sourceFile, int lineNumber);
+    method public abstract void addCategory(String name);
+    method public abstract void addCorrelationId(String id);
+    method public abstract void addCorrelationId(long id);
+    method public abstract void addMetadataEntry(String name, boolean value);
+    method public abstract void addMetadataEntry(String name, double value);
+    method public abstract void addMetadataEntry(String name, String value);
+    method public abstract void addMetadataEntry(String name, long value);
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract void dispatchToTraceSink();
+  }
+
+  @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class EventMetadataCloseable {
+    ctor public EventMetadataCloseable();
+    ctor public EventMetadataCloseable(optional androidx.tracing.EventMetadata metadata, optional AutoCloseable closeable, optional androidx.tracing.PropagationToken propagationToken);
+    ctor @BytecodeOnly public EventMetadataCloseable(androidx.tracing.EventMetadata!, AutoCloseable!, androidx.tracing.PropagationToken!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    property public AutoCloseable closeable;
+    property public androidx.tracing.EventMetadata metadata;
+    property public androidx.tracing.PropagationToken propagationToken;
+    field public AutoCloseable closeable;
+    field public androidx.tracing.EventMetadata metadata;
+    field public androidx.tracing.PropagationToken propagationToken;
+  }
+
+  @SuppressCompatibility @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.RequiresOptIn(message="Marks APIs that are highly experimental for context propagation.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalContextPropagation {
+  }
+
+  @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class Frame {
+    method public void reset();
+    property public int lineNumber;
+    property public String? name;
+    property public String? sourceFile;
+    field public int lineNumber;
+    field public String? name;
+    field public String? sourceFile;
+  }
+
+  @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class MetadataEntry {
+    method public void reset();
+    property public boolean booleanValue;
+    property public double doubleValue;
+    property public long longValue;
+    property public String? name;
+    property public String stringValue;
+    property public int type;
+    field public boolean booleanValue;
+    field public double doubleValue;
+    field public long longValue;
+    field public String? name;
+    field public String stringValue;
+    field public int type;
+  }
+
+  public abstract class PlatformThreadContextElement extends kotlin.coroutines.AbstractCoroutineContextElement implements java.lang.AutoCloseable androidx.tracing.PropagationToken {
+    method public void close();
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public kotlin.coroutines.CoroutineContext.Element? contextElementOrNull();
+    method @InaccessibleFromKotlin public String getCategory();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.Long> getFlowIds();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public void setCategory(String);
+    method @InaccessibleFromKotlin public void setName(String);
+    property public String category;
+    property public java.util.List<java.lang.Long> flowIds;
+    property public String name;
+  }
+
+  public abstract class Poolable<T extends androidx.tracing.Poolable<T>> {
+    method public abstract void recycle();
+  }
+
+  @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class PooledTracePacketArray extends androidx.tracing.Poolable<androidx.tracing.PooledTracePacketArray> {
+    method public inline void forEach(kotlin.jvm.functions.Function1<? super androidx.tracing.TraceEvent,kotlin.Unit> block);
+    method public void recycle();
+    property public int fillCount;
+    property public androidx.tracing.TraceEvent[] packets;
+    field @kotlin.jvm.Volatile public volatile int fillCount;
+    field public final androidx.tracing.TraceEvent[] packets;
+  }
+
+  public interface PropagationToken {
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public kotlin.coroutines.CoroutineContext.Element? contextElementOrNull();
+  }
+
+  public final class PropagationUnsupportedToken implements java.lang.AutoCloseable androidx.tracing.PropagationToken {
+    method public void close();
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public kotlin.coroutines.CoroutineContext.Element? contextElementOrNull();
+    field public static final androidx.tracing.PropagationUnsupportedToken INSTANCE;
+  }
+
+  public final class Throwables {
+    method public static Void recordExceptionAndThrow(androidx.tracing.Tracer, String category, String name, Throwable throwable);
+  }
+
+  public final class Trace {
+    method public static void beginAsyncSection(String methodName, int cookie);
+    method public static void beginSection(String label);
+    method public static void endAsyncSection(String methodName, int cookie);
+    method public static void endSection();
+    method public static void forceEnableAppTracing();
+    method public static boolean isEnabled();
+    method public static void setCounter(String counterName, int counterValue);
+    method @RequiresApi(android.os.Build.VERSION_CODES.Q) public static void setCounter(String counterName, long counterValue);
+    field public static final androidx.tracing.Trace INSTANCE;
+  }
+
+  public abstract class TraceAttributes {
+    method public abstract void addAttribute(String name, String value);
+    method public abstract void addAttribute(String name, long value);
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract void dispatchToTraceSink();
+  }
+
+  @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class TraceEvent {
+    ctor public TraceEvent();
+    method public void copyFrom(androidx.tracing.TraceEvent src);
+    method public void reset();
+    property public java.util.List<androidx.tracing.AttributeEntry> attributes;
+    property public java.util.List<java.lang.String> categories;
+    property public Long? correlationId;
+    property public String? correlationIdString;
+    property public Double? counterDoubleValue;
+    property public Long? counterLongValue;
+    property public java.util.List<java.lang.Long> flowIds;
+    property public java.util.List<androidx.tracing.Frame> frames;
+    property public int lastAttributeIndex;
+    property public int lastCategoryIndex;
+    property public int lastFrameIndex;
+    property public int lastMetadataEntryIndex;
+    property public java.util.List<androidx.tracing.MetadataEntry> metadataEntries;
+    property public String? name;
+    property public String primaryCategory;
+    property public long timestamp;
+    property public androidx.tracing.TrackDescriptor? trackDescriptor;
+    property public long trackUuid;
+    property public int type;
+    field public java.util.List<androidx.tracing.AttributeEntry> attributes;
+    field public java.util.List<java.lang.String> categories;
+    field public Long? correlationId;
+    field public String? correlationIdString;
+    field public Double? counterDoubleValue;
+    field public Long? counterLongValue;
+    field public java.util.List<java.lang.Long> flowIds;
+    field public java.util.List<androidx.tracing.Frame> frames;
+    field public int lastAttributeIndex;
+    field public int lastCategoryIndex;
+    field public int lastFrameIndex;
+    field public int lastMetadataEntryIndex;
+    field public java.util.List<androidx.tracing.MetadataEntry> metadataEntries;
+    field public String? name;
+    field public String primaryCategory;
+    field public long timestamp;
+    field public androidx.tracing.TrackDescriptor? trackDescriptor;
+    field public long trackUuid;
+    field public int type;
+  }
+
+  public final class TraceKt {
+    method public static inline <T> T trace(String label, kotlin.jvm.functions.Function0<? extends T> block);
+    method public static inline <T> T trace(kotlin.jvm.functions.Function0<java.lang.String> lazyLabel, kotlin.jvm.functions.Function0<? extends T> block);
+    method public static suspend inline <T> Object? traceAsync(String methodName, int cookie, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method public static inline <T> T traceAsync(kotlin.jvm.functions.Function0<java.lang.String> lazyMethodName, kotlin.jvm.functions.Function0<java.lang.Integer> lazyCookie, kotlin.jvm.functions.Function0<? extends T> block);
+  }
+
+  public abstract class Tracer {
+    ctor public Tracer();
+    method public final suspend inline Object? beginCoroutineSection(String category, String name, androidx.tracing.PropagationToken? token, optional boolean isRoot, kotlin.jvm.functions.Function1<? super androidx.tracing.EventMetadata,kotlin.Unit> metadataBlock, kotlin.coroutines.Continuation<? super androidx.tracing.EventMetadataCloseable>);
+    method @BytecodeOnly public static Object! beginCoroutineSection$default(androidx.tracing.Tracer!, String!, String!, androidx.tracing.PropagationToken!, boolean, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract suspend Object? beginCoroutineSectionWithMetadata(String category, String name, androidx.tracing.PropagationToken? token, boolean isRoot, kotlin.coroutines.Continuation<? super androidx.tracing.EventMetadataCloseable>);
+    method public final inline AutoCloseable beginSection(String category, String name, androidx.tracing.PropagationToken? token, optional boolean isRoot, kotlin.jvm.functions.Function1<? super androidx.tracing.EventMetadata,kotlin.Unit> metadataBlock);
+    method @BytecodeOnly public static AutoCloseable! beginSection$default(androidx.tracing.Tracer!, String!, String!, androidx.tracing.PropagationToken!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract androidx.tracing.EventMetadataCloseable beginSectionWithMetadata(String category, String name, androidx.tracing.PropagationToken? token, boolean isRoot);
+    method public abstract androidx.tracing.Counter counter(String category, String name);
+    method public static final androidx.tracing.Tracer getStubTracer();
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract androidx.tracing.EventMetadataCloseable instant(String category, String name);
+    method public final inline void instant(String category, String name);
+    method public final inline void instant(String category, String name, optional kotlin.jvm.functions.Function1<? super androidx.tracing.EventMetadata,kotlin.Unit> metadataBlock);
+    method @BytecodeOnly public static void instant$default(androidx.tracing.Tracer!, String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public abstract boolean isCategoryEnabled(String category);
+    method @SuppressCompatibility @androidx.tracing.ExperimentalContextPropagation public abstract androidx.tracing.PropagationToken tokenForManualPropagation();
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract suspend Object? tokenFromCoroutineContext(kotlin.coroutines.Continuation<? super androidx.tracing.PropagationToken>);
+    method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract androidx.tracing.PropagationToken tokenFromThreadContext();
+    method public final inline <T> T trace(String category, String name, optional androidx.tracing.PropagationToken? token, optional boolean isRoot, kotlin.jvm.functions.Function0<? extends T> block);
+    method public final inline <T> T trace(String category, String name, optional androidx.tracing.PropagationToken? token, optional boolean isRoot, optional kotlin.jvm.functions.Function1<? super androidx.tracing.EventMetadata,kotlin.Unit> metadataBlock, kotlin.jvm.functions.Function0<? extends T> block);
+    method public final inline <T> T trace(String category, String name, optional androidx.tracing.PropagationToken? token, kotlin.jvm.functions.Function0<? extends T> block);
+    method public final inline <T> T trace(String category, String name, kotlin.jvm.functions.Function0<? extends T> block);
+    method @BytecodeOnly public static Object! trace$default(androidx.tracing.Tracer!, String!, String!, androidx.tracing.PropagationToken!, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
+    method public final suspend inline <T> Object? traceCoroutine(String category, String name, optional androidx.tracing.PropagationToken? token, optional boolean isRoot, optional kotlin.jvm.functions.Function1<? super androidx.tracing.EventMetadata,kotlin.Unit> metadataBlock, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method public final suspend inline <T> Object? traceCoroutine(String category, String name, optional androidx.tracing.PropagationToken? token, optional boolean isRoot, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method public final suspend inline <T> Object? traceCoroutine(String category, String name, optional androidx.tracing.PropagationToken? token, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method public final suspend inline <T> Object? traceCoroutine(String category, String name, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method @BytecodeOnly public static Object! traceCoroutine$default(androidx.tracing.Tracer!, String!, String!, androidx.tracing.PropagationToken!, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
+    field public static final androidx.tracing.Tracer.Companion Companion;
+  }
+
+  public static final class Tracer.Companion {
+    method public androidx.tracing.Tracer getStubTracer();
+  }
+
+  public final class TrackDescriptor {
+    ctor public TrackDescriptor(String name, long uuid, long parentUuid, int type, int pid, long tid);
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public long getParentUuid();
+    method @InaccessibleFromKotlin public int getPid();
+    method @InaccessibleFromKotlin public long getTid();
+    method @InaccessibleFromKotlin public int getType();
+    method @InaccessibleFromKotlin public long getUuid();
+    method @InaccessibleFromKotlin public void setName(String);
+    method @InaccessibleFromKotlin public void setParentUuid(long);
+    method @InaccessibleFromKotlin public void setPid(int);
+    method @InaccessibleFromKotlin public void setTid(long);
+    method @InaccessibleFromKotlin public void setType(int);
+    method @InaccessibleFromKotlin public void setUuid(long);
+    property public String name;
+    property public long parentUuid;
+    property public int pid;
+    property public long tid;
+    property public int type;
+    property public long uuid;
+  }
+
+  public typealias AtomicBoolean = java.util.concurrent.atomic.AtomicBoolean;
+
+  public typealias AtomicInteger = java.util.concurrent.atomic.AtomicInteger;
+
+  public typealias AtomicLong = java.util.concurrent.atomic.AtomicLong;
+
+}
+

@@ -1,0 +1,62 @@
+// Signature format: 4.0
+package androidx.tracing.wire {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="Marks APIs that are experimental for ring buffer tracing.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRingBufferApi {
+  }
+
+  public final class Files {
+    method public static java.io.File createPerfettoFile(java.io.File);
+    method public static java.io.File createPerfettoFile(java.io.File, optional String prefix);
+    method @BytecodeOnly public static java.io.File! createPerfettoFile$default(java.io.File!, String!, int, Object!);
+  }
+
+  @SuppressCompatibility @androidx.tracing.wire.ExperimentalRingBufferApi public final class InMemoryRingBufferTraceSink extends androidx.tracing.AbstractTraceSink {
+    ctor public InMemoryRingBufferTraceSink(@IntRange(from=1L) int sequenceId, long capacityInBytes);
+    method public void close();
+    method public void closeAndFlushTo(okio.BufferedSink bufferedSink);
+    method public void enqueue(androidx.tracing.PooledTracePacketArray pooledPacketArray);
+    method public void flush();
+    method public void flushTo(okio.BufferedSink bufferedSink);
+    method public void onDroppedTraceEvent();
+  }
+
+  public final class TraceDriver extends androidx.tracing.AbstractTraceDriver {
+    ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink);
+    ctor @BytecodeOnly public TraceDriver(android.content.Context!, androidx.tracing.AbstractTraceSink!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink, optional kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> isCategoryEnabled);
+    ctor public TraceDriver(android.content.Context context, androidx.tracing.AbstractTraceSink sink, optional kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> isCategoryEnabled, optional kotlin.jvm.functions.Function1<? super androidx.tracing.TraceAttributes,kotlin.Unit>? attributes);
+    method public void close();
+    method public void flush();
+    method public static androidx.tracing.wire.TraceDriver getStubTraceDriver();
+    method @InaccessibleFromKotlin public androidx.tracing.Tracer getTracer();
+    property public androidx.tracing.Tracer tracer;
+    field public static final androidx.tracing.wire.TraceDriver.Companion Companion;
+  }
+
+  public static final class TraceDriver.Companion {
+    method public androidx.tracing.wire.TraceDriver getStubTraceDriver();
+  }
+
+  public final class TraceSink extends androidx.tracing.AbstractTraceSink {
+    ctor public TraceSink(@IntRange(from=1L) int sequenceId, okio.BufferedSink bufferedSink, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    ctor @BytecodeOnly public TraceSink(int, okio.BufferedSink!, kotlin.coroutines.CoroutineContext!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void close();
+    method public void enqueue(androidx.tracing.PooledTracePacketArray pooledPacketArray);
+    method public void flush();
+    method public void onDroppedTraceEvent();
+  }
+
+  public final class TraceSinks {
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, optional int sequenceId);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, optional int sequenceId, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, optional int sequenceId, optional kotlin.coroutines.CoroutineContext coroutineContext, optional java.io.File traceFile);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, java.io.OutputStream outputStream);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, java.io.OutputStream outputStream, optional int sequenceId);
+    method public static androidx.tracing.wire.TraceSink TraceSink(android.content.Context context, java.io.OutputStream outputStream, optional int sequenceId, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method @BytecodeOnly public static androidx.tracing.wire.TraceSink! TraceSink$default(android.content.Context!, int, kotlin.coroutines.CoroutineContext!, java.io.File!, int, Object!);
+    method @BytecodeOnly public static androidx.tracing.wire.TraceSink! TraceSink$default(android.content.Context!, java.io.OutputStream!, int, kotlin.coroutines.CoroutineContext!, int, Object!);
+  }
+
+}
+
