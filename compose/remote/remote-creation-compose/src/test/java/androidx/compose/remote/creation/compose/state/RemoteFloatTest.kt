@@ -385,6 +385,23 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun toRemoteIntRoundTripRounding_static() {
+        val result = RemoteFloat(-3.9f).toRemoteInt().toRemoteFloat()
+        assertThat(result.constantValue).isEqualTo(-3.0f)
+    }
+
+    @Test
+    fun toRemoteIntRoundTripRounding_dynamic() {
+        val result =
+            RemoteFloat.createNamedRemoteFloat("testValue", -3.9f).toRemoteInt().toRemoteFloat()
+        val resultId = result.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(resultId)).isEqualTo(-3.0f)
+    }
+
+    @Test
     fun hasConstantValue_true() {
         assertThat(RemoteFloat(21.5f).hasConstantValue).isTrue()
         assertThat(RemoteFloat(21.5f).plus(RemoteFloat(21.5f)).hasConstantValue).isTrue()
