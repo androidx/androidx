@@ -49,7 +49,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -67,7 +66,6 @@ class GesturePropagationTest {
     val remoteComposeTestRule: RemoteInteractionTestRule =
         RemoteInteractionTestRule(context = ApplicationProvider.getApplicationContext())
 
-    @Ignore("b/510403626")
     @Test
     fun clickable() {
         var composeClickCounter = 0
@@ -123,7 +121,6 @@ class GesturePropagationTest {
         assertThat(composeClickCounter).isEqualTo(1)
     }
 
-    @Ignore("b/510403626")
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun combinedClickable_click() {
@@ -186,7 +183,6 @@ class GesturePropagationTest {
         assertThat(composeClickCounter).isEqualTo(1)
     }
 
-    @Ignore("b/510403626")
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun combinedClickable_doubleClick() {
@@ -254,7 +250,6 @@ class GesturePropagationTest {
         assertThat(composeDoubleClickCounter).isEqualTo(1)
     }
 
-    @Ignore("b/510403626")
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun combinedClickable_longClick() {
