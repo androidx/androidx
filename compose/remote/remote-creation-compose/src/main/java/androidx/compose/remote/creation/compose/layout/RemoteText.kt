@@ -16,6 +16,9 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import android.content.res.Configuration
+import android.graphics.fonts.FontStyle as AndroidFontStyle
+import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
@@ -35,12 +38,15 @@ import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -120,27 +126,25 @@ public fun RemoteText(
             fontFamily = fontFamily,
             fontStyle = fontStyle,
         )
-
-    val fontSize = style.fontSize ?: 12.rsp
-    val fontSizePx = fontSize.toPx()
-
+    val fontSizeUnit = style.fontSize ?: 12.rsp
     // TODO handles dynamic letter spacing and line height in CoreText
     val letterSpacing: RemoteFloat =
         if (style.letterSpacing == null || !style.letterSpacing.hasConstantValue) 0f.rf
-        else style.letterSpacing.value / fontSize.value
+        else style.letterSpacing.value / fontSizeUnit.value
 
     val lineHeightMultiply =
         if (style.lineHeight == null || !style.lineHeight.hasConstantValue) 1f.rf
         else // default lineHeight is descent — ascent
-         style.lineHeight.value / fontSize.value
+         style.lineHeight.value / fontSizeUnit.value
+    val unadjustedFontWeight = style.fontWeight?.weight ?: 400
 
     RemoteText(
         text = text,
         modifier = modifier,
         color = color ?: Color.White.rc,
-        fontSize = fontSizePx,
+        fontSize = fontSizeUnit,
         fontStyle = style.fontStyle ?: FontStyle.Normal,
-        fontWeight = style.fontWeight?.weight?.rf ?: 400.rf,
+        fontWeight = unadjustedFontWeight.rf,
         fontFamily = style.fontFamily?.name,
         textAlign = style.textAlign ?: TextAlign.Start,
         overflow = overflow,
@@ -158,7 +162,7 @@ public fun RemoteText(
 public fun RemoteText(
     text: RemoteString,
     color: RemoteColor,
-    fontSize: RemoteFloat,
+    fontSize: RemoteTextUnit,
     minFontSize: Float? = null,
     maxFontSize: Float? = null,
     modifier: RemoteModifier = RemoteModifier,
@@ -174,15 +178,73 @@ public fun RemoteText(
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
+
+    val localConfiguration = LocalConfiguration.current
+
+    val fontWeightAdjustment =
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                localConfiguration.fontWeightAdjustment !=
+                    Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED
+        ) {
+            localConfiguration.fontWeightAdjustment
+        } else {
+            0
+        }
+    RemoteText(
+        text = text,
+        modifier = modifier,
+        color = color,
+        fontSize = fontSize,
+        fontWeightAdjustment = fontWeightAdjustment,
+        fontStyle = fontStyle,
+        fontWeight = fontWeight,
+        fontFamily = fontFamily,
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines,
+        textDecoration = textDecoration,
+        letterSpacing = letterSpacing,
+        lineHeightMultiply = lineHeightMultiply,
+        fontVariationSettings = fontVariationSettings,
+    )
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+@RemoteComposable
+internal fun RemoteText(
+    text: RemoteString,
+    color: RemoteColor,
+    fontWeightAdjustment: Int,
+    fontSize: RemoteTextUnit,
+    minFontSize: Float? = null,
+    maxFontSize: Float? = null,
+    modifier: RemoteModifier = RemoteModifier,
+    fontStyle: FontStyle = FontStyle.Normal,
+    fontWeight: RemoteFloat = 400.rf,
+    textAlign: TextAlign = TextAlign.Start,
+    fontFamily: String? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    letterSpacing: RemoteFloat = 0f.rf,
+    lineHeightAdd: Float? = null,
+    lineHeightMultiply: RemoteFloat = 1f.rf,
+    textDecoration: TextDecoration? = null,
+    fontVariationSettings: FontVariation.Settings? = null,
+) {
+    val localDensity = LocalDensity.current
     RemoteComposeNode(
         factory = ::RemoteTextNode,
         update = {
             set(text) { this.text = it }
             set(modifier) { this.modifier = it }
             set(color) { this.color = it }
-            set(fontSize) { this.fontSize = it }
+            set(localDensity) { this.localDensity = it }
+            set(fontWeightAdjustment) { this.fontWeightAdjustment = it }
             set(fontWeight) { this.fontWeight = it }
             set(fontStyle) { this.fontStyle = it }
+            set(fontSize) { this.fontSize = it }
             set(fontFamily) { this.fontFamily = it }
             set(textAlign) { this.textAlign = it }
             set(overflow) { this.overflow = it }
@@ -201,7 +263,9 @@ public fun RemoteText(
 internal class RemoteTextNode : RemoteComposeNode() {
     lateinit var text: RemoteString
     lateinit var color: RemoteColor
-    var fontSize: RemoteFloat = 14f.rf
+    lateinit var fontSize: RemoteTextUnit
+    lateinit var localDensity: Density
+    var fontWeightAdjustment: Int = 0
     var fontWeight: RemoteFloat = 400f.rf
     var fontStyle: FontStyle = FontStyle.Normal
     var fontFamily: String? = null
@@ -240,7 +304,25 @@ internal class RemoteTextNode : RemoteComposeNode() {
 
         val (fontAxisNames, fontAxisValues) = extractFontSettings(fontVariationSettings?.settings)
 
-        val fontSizePx = fontSize.getFloatIdForCreationState(creationState)
+        val effectiveDensity =
+            if (localDensity.density != creationState.creationDisplayInfo.density.density) {
+                localDensity.density.rf
+            } else {
+                creationState.remoteDensity.density
+            }
+
+        val effectiveFontScale =
+            if (localDensity.fontScale != creationState.creationDisplayInfo.density.fontScale) {
+                localDensity.fontScale.rf
+            } else {
+                creationState.remoteDensity.fontScale
+            }
+
+        val fontSizePxId =
+            fontSize
+                .toPx(RemoteDensity(effectiveDensity, effectiveFontScale))
+                .getFloatIdForCreationState(creationState)
+
         val letterSpacingId = letterSpacing.getFloatIdForCreationState(creationState)
         val lineHeightMultiplyId = lineHeightMultiply.getFloatIdForCreationState(creationState)
 
@@ -255,17 +337,31 @@ internal class RemoteTextNode : RemoteComposeNode() {
                 else -> textAlign
             }
 
+        val unadjustedFontWeight = fontWeight.getFloatIdForCreationState(creationState)
+        val adjustedFontWeight =
+            if (unadjustedFontWeight.isNaN()) {
+                // If it's a variable, we currently don't support host-side adjustment.
+                unadjustedFontWeight
+            } else {
+                unadjustedFontWeight
+                    .plus(fontWeightAdjustment)
+                    .coerceIn(
+                        AndroidFontStyle.FONT_WEIGHT_MIN.toFloat(),
+                        AndroidFontStyle.FONT_WEIGHT_MAX.toFloat(),
+                    )
+            }
+
         creationState.document.startTextComponent(
             with(modifier) { creationState.toRecordingModifier() },
             textIdValue,
             -1,
             colorInt,
             colorId,
-            fontSizePx,
+            fontSizePxId,
             minFontSize ?: -1f,
             maxFontSize ?: -1f,
             fontStyle.encode(),
-            fontWeight.getFloatIdForCreationState(creationState),
+            adjustedFontWeight,
             fontFamily,
             resolvedTextAlign.encode(),
             overflow.encode(),

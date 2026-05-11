@@ -68,7 +68,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.test.runTest
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -352,7 +351,6 @@ class CaptureRemoteDocumentV2Test {
     }
 
     @Test
-    @Ignore("b/509925295")
     fun captureDocumentV2_withCustomFontScaleOverride() = runTest {
         val creationDisplayInfo = createCreationDisplayInfo(context, Size(100f, 100f))
         val bytes =
