@@ -702,16 +702,19 @@ public class RemoteComposeView extends FrameLayout
                 if (doc.hasTouchListener()) {
                     mARContext.loadFloat(
                             RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
-                    if (mVelocityTracker == null) {
-                        mVelocityTracker = VelocityTracker.obtain();
-                    } else {
-                        mVelocityTracker.clear();
+                    boolean handled = doc.touchDown(mARContext, x, y);
+                    if (handled) {
+                        if (mVelocityTracker == null) {
+                            mVelocityTracker = VelocityTracker.obtain();
+                        } else {
+                            mVelocityTracker.clear();
+                        }
+                        mVelocityTracker.addMovement(event);
+                        invalidate();
+                        return true;
                     }
-                    mVelocityTracker.addMovement(event);
-                    doc.touchDown(mARContext, x, y);
-                    invalidate();
-                    return true;
                 }
+                mInActionDown = false;
                 return false;
 
             case MotionEvent.ACTION_CANCEL:

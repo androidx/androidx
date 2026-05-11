@@ -890,6 +890,10 @@ public class Component extends PaintOperation
                     if (((TouchHandler) op).onTouchDown(context, document, this, lx, ly)) {
                         handled = true;
                     }
+                // ClickHandler handles high-level click-responsiveness and consumes the down event
+                // structurally, positioned after custom pointers/TouchHandlers.
+                } else if (op instanceof ClickHandler) {
+                    handled = true;
                 } else if (op instanceof TouchExpression) {
                     TouchExpression touchExpression = (TouchExpression) op;
                     touchExpression.updateVariables(context);

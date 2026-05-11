@@ -312,6 +312,10 @@ public class ComponentModifiers extends PaintOperation
                 if (((TouchHandler) op).onTouchDown(context, document, component, x - tx, y - ty)) {
                     handled = true;
                 }
+            // ClickHandler structurally consumes DOWN to preserve click responsiveness after
+            // low-level TouchHandlers.
+            } else if (op instanceof ClickHandler) {
+                handled = true;
             }
         }
         return handled;
