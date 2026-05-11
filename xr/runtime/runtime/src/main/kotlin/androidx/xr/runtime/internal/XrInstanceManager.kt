@@ -16,6 +16,8 @@
 package androidx.xr.runtime.internal
 
 import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.xr.runtime.NativeInstanceData
 import androidx.xr.runtime.getDeviceContextFeatures
 import androidx.xr.runtime.interfaces.XrNativeInstanceProvider
@@ -25,6 +27,8 @@ import androidx.xr.runtime.selectProvider
 /** Manages the loading and provision of native instance data at the runtime layer. */
 internal object XrInstanceManager {
     @Volatile private var initContext: Context? = null
+    @Volatile private var extraExtensions: List<String> = emptyList()
+    @Volatile private var initialized: Boolean = false
 
     private val provider: XrNativeInstanceProvider? by lazy {
         val context = checkNotNull(initContext) { "Context must be set before initialization" }
@@ -39,7 +43,24 @@ internal object XrInstanceManager {
         // TODO(b/501089518): Throw an IllegalStateException if provider is not loaded once a
         // provider is returned for all runtimes.
         val newProvider = selectProvider(providers, getDeviceContextFeatures(context))
-        newProvider?.apply { initialize(context) }
+        check(extraExtensions.isEmpty() || newProvider != null) {
+            "The XrDevice is not backed by an OpenXR instance."
+        }
+        newProvider?.apply { initialize(context, extraExtensions) }
+        initialized = true
+        newProvider
+    }
+
+    /** Returns the extra OpenXR extensions list for testing. */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    internal fun getExtraExtensionsForTesting(): List<String> = extraExtensions
+
+    /** Resets the initialized state for testing. */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    internal fun resetInitForTesting() {
+        initialized = false
     }
 
     /** Returns the XrNativeInstanceProvider after initializing it. */
@@ -48,6 +69,12 @@ internal object XrInstanceManager {
             initContext = context
         }
         return provider
+    }
+
+    /** Injects extra OpenXR extensions to be enabled when the OpenXR instance is created. */
+    internal fun addExtraExtensions(context: Context, extensions: List<String>) {
+        check(!initialized) { "XrInstanceManager has already been initialized." }
+        extraExtensions = extensions
     }
 
     /** Helper for NativeDataExt to get pointers without direct provider access. */

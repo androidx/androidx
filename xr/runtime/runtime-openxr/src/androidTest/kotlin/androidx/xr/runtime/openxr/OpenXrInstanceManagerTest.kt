@@ -38,7 +38,7 @@ class OpenXrInstanceManagerTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val provider = OpenXrInstanceManager()
 
-        provider.initialize(context)
+        provider.initialize(context, emptyList())
 
         // The values below comes from kInstance a in
         // third_party/jetpack_xr_natives/common/openxr_stub.cc

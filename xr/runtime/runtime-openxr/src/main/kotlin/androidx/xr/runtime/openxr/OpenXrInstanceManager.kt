@@ -33,7 +33,7 @@ internal class OpenXrInstanceManager : XrNativeInstanceProvider {
     override var xrInstanceHandle: Long = 0L
         private set
 
-    override fun initialize(context: Context) {
+    override fun initialize(context: Context, extraExtensions: List<String>) {
         // Attempt to load the test library instead if it was added based on the Gradle AndroidTest
         // variant. Else this is a non-test environment.
         try {
@@ -41,13 +41,13 @@ internal class OpenXrInstanceManager : XrNativeInstanceProvider {
         } catch (e: UnsatisfiedLinkError) {
             System.loadLibrary(LIBRARY_NAME)
         }
-        nativeManager = nativeCreateOpenXrInstanceManager()
+        nativeManager = nativeCreateOpenXrInstanceManager(extraExtensions.toTypedArray())
 
         xrInstanceHandle = nativeGetOpenXrInstanceHandle(context, nativeManager)
         xrInstanceProcAddr = nativeGetGetInstanceProcAddr(nativeManager)
     }
 
-    private external fun nativeCreateOpenXrInstanceManager(): Long
+    private external fun nativeCreateOpenXrInstanceManager(extensions: Array<String>): Long
 
     private external fun nativeGetOpenXrInstanceHandle(context: Context, nativeManager: Long): Long
 
