@@ -468,21 +468,21 @@ public abstract class RemoteString internal constructor() : BaseRemoteState<Stri
         /**
          * Creates a [RemoteString] instance from a constant [String] literal.
          *
-         * @param v The constant [String] value.
+         * @param value The constant [String] value.
          * @return A [MutableRemoteString] representing the constant string.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public operator fun invoke(v: String): RemoteString {
+        public operator fun invoke(value: String): RemoteString {
             return MutableRemoteString(
-                constantValueOrNull = v,
-                cacheKey = RemoteConstantCacheKey(v),
+                constantValueOrNull = value,
+                cacheKey = RemoteConstantCacheKey(value),
                 object : LazyRemoteString {
                     override fun reserveTextId(creationState: RemoteComposeCreationState) =
-                        creationState.document.textCreateId(v)
+                        creationState.document.textCreateId(value)
 
                     override fun computeRequiredCodePointSet(
                         creationState: RemoteComposeCreationState
-                    ) = v.toCodePointSet()
+                    ) = value.toCodePointSet()
                 },
             )
         }
@@ -504,7 +504,6 @@ public abstract class RemoteString internal constructor() : BaseRemoteState<Stri
          * @return A [RemoteString] representing the named string.
          */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createNamedRemoteString(
             name: String,
             defaultValue: String,
@@ -941,7 +940,7 @@ internal constructor(
     )
 
     /** Create a MutableRemoteString for a default value. */
-    internal constructor(
+    private constructor(
         value: String
     ) : this(
         constantValueOrNull = null,
@@ -973,7 +972,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteString] instance.
          */
-        public fun createMutable(initialValue: String): MutableRemoteString =
+        public operator fun invoke(initialValue: String): MutableRemoteString =
             MutableRemoteString(initialValue)
 
         /**
@@ -1001,9 +1000,9 @@ public fun rememberMutableRemoteString(initialValue: String): MutableRemoteStrin
 @Composable
 @Deprecated("Use rememberMutableRemoteString(content())")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun rememberRemoteString(content: () -> String): MutableRemoteString {
+public fun rememberRemoteString(value: () -> String): MutableRemoteString {
     return remember {
-        val string = content()
+        val string = value()
         MutableRemoteString(string)
     }
 }
@@ -1048,18 +1047,18 @@ public fun rememberNamedRemoteString(
 /**
  * A Composable function to remember and provide an anonymous (unnamed) mutable remote string.
  *
- * @param content A lambda that provides the initial [String] value for this remote string.
+ * @param value A lambda that provides the initial [String] value for this remote string.
  * @return A [MutableRemoteString] instance that will be remembered across recompositions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-@Deprecated("Use rememberNamedRemoteString(name, domain, defaultValue = content())")
+@Deprecated("Use rememberNamedRemoteString(name, domain, defaultValue = value())")
 public fun rememberRemoteString(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
-    content: () -> String,
+    value: () -> String,
 ): RemoteString {
-    return rememberNamedRemoteString(name = name, defaultValue = content(), domain = domain)
+    return rememberNamedRemoteString(name = name, defaultValue = value(), domain = domain)
 }
 
 /**
@@ -1069,17 +1068,17 @@ public fun rememberRemoteString(
  * [RemoteState.Domain.System].
  *
  * @param name The unique name for this system remote string.
- * @param content A lambda that provides the initial [String] value for this remote string.
+ * @param value A lambda that provides the initial [String] value for this remote string.
  * @return A [MutableRemoteString] instance with a system domain, remembered across recompositions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @Deprecated("Use rememberRemoteString with SYSTEM domain")
-public fun rememberSystemRemoteString(name: String, content: () -> String): RemoteString =
+public fun rememberSystemRemoteString(name: String, value: () -> String): RemoteString =
     rememberNamedRemoteString(
         name = name,
         domain = RemoteState.Domain.System,
-        defaultValue = content(),
+        defaultValue = value(),
     )
 
 /** Extension property to convert a [String] to a [RemoteString]. */

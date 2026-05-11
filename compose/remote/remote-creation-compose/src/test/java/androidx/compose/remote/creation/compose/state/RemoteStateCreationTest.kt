@@ -248,11 +248,11 @@ class RemoteStateCreationTest {
     fun creation_mutableCreate_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            MutableRemoteInt.createMutable(1).writeToDocument(state)
-            MutableRemoteFloat.createMutable(1f).writeToDocument(state)
-            MutableRemoteLong.createMutable(1L).writeToDocument(state)
-            MutableRemoteBoolean.createMutable(true).writeToDocument(state)
-            MutableRemoteString.createMutable("h").writeToDocument(state)
+            MutableRemoteInt(1).writeToDocument(state)
+            MutableRemoteFloat(1f).writeToDocument(state)
+            MutableRemoteLong(1L).writeToDocument(state)
+            MutableRemoteBoolean(true).writeToDocument(state)
+            MutableRemoteString("h").writeToDocument(state)
             // Color and Dp do not have MutableRemoteX.create versions.
         }
     }
@@ -261,19 +261,19 @@ class RemoteStateCreationTest {
     fun creation_mutableForId_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            val iId = MutableRemoteInt.createMutable(1).writeToDocument(state).toLong()
+            val iId = MutableRemoteInt(1).writeToDocument(state).toLong()
             MutableRemoteInt.createMutableForId(iId).writeToDocument(state)
 
-            val fId = MutableRemoteFloat.createMutable(1f).getFloatIdForCreationState(state)
+            val fId = MutableRemoteFloat(1f).getFloatIdForCreationState(state)
             MutableRemoteFloat.createMutableForId(fId).writeToDocument(state)
 
-            val lId = MutableRemoteLong.createMutable(initialValue = 1L).writeToDocument(state)
+            val lId = MutableRemoteLong(1L).writeToDocument(state)
             MutableRemoteLong.createMutableForId(lId).writeToDocument(state)
 
-            val bId = MutableRemoteBoolean.createMutable(true).writeToDocument(state).toLong()
+            val bId = MutableRemoteBoolean(true).writeToDocument(state).toLong()
             MutableRemoteBoolean.createMutableForId(bId).writeToDocument(state)
 
-            val sId = MutableRemoteString.createMutable("h").writeToDocument(state)
+            val sId = MutableRemoteString("h").writeToDocument(state)
             MutableRemoteString.createMutableForId(sId).writeToDocument(state)
             // Color and Dp do not have MutableRemoteX.forId versions.
         }

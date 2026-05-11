@@ -146,13 +146,14 @@ internal constructor(
          * Creates a [RemoteLong] instance from a constant [Long] value. This value will be added as
          * a constant to the remote document.
          *
-         * @param v The constant [Long] value.
+         * @param value The constant [Long] value.
          * @return A [MutableRemoteLong] representing the constant value.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public operator fun invoke(v: Long): RemoteLong {
-            return MutableRemoteLong(v, cacheKey = RemoteConstantCacheKey(v)) { creationState ->
-                creationState.document.addLong(v)
+        public operator fun invoke(value: Long): RemoteLong {
+            return MutableRemoteLong(value, cacheKey = RemoteConstantCacheKey(value)) {
+                creationState ->
+                creationState.document.addLong(value)
             }
         }
 
@@ -186,7 +187,6 @@ internal constructor(
          * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
          * @return A [RemoteLong] representing the named long.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteLong(
             name: String,
@@ -251,7 +251,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteLong] instance.
          */
-        public fun createMutable(initialValue: Long): MutableRemoteLong {
+        public operator fun invoke(initialValue: Long): MutableRemoteLong {
             return MutableRemoteLong(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateInstanceKey(),
@@ -279,7 +279,7 @@ internal constructor(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {
-    return remember { MutableRemoteLong.createMutable(initialValue) }
+    return remember { MutableRemoteLong(initialValue) }
 }
 
 /** Factory composable for mutable remote long state. */

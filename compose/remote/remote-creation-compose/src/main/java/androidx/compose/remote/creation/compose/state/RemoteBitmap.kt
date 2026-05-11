@@ -80,13 +80,14 @@ internal constructor(public override val constantValueOrNull: ImageBitmap?) :
          * Creates a [RemoteBitmap] instance from a [ImageBitmap] value. This factory method can be
          * used with or without an explicit [RemoteComposeCreationState].
          *
-         * @param v The [ImageBitmap] value.
+         * @param value The [ImageBitmap] value.
          * @return A [RemoteBitmap] representing the provided bitmap.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public operator fun invoke(v: ImageBitmap): MutableRemoteBitmap {
-            return MutableRemoteBitmap(v, cacheKey = RemoteConstantCacheKey(v)) { creationState ->
-                creationState.document.addBitmap(v.asAndroidBitmap())
+        public operator fun invoke(value: ImageBitmap): MutableRemoteBitmap {
+            return MutableRemoteBitmap(value, cacheKey = RemoteConstantCacheKey(value)) {
+                creationState ->
+                creationState.document.addBitmap(value.asAndroidBitmap())
             }
         }
 
@@ -109,7 +110,6 @@ internal constructor(public override val constantValueOrNull: ImageBitmap?) :
          * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
          * @return A [RemoteBitmap] representing the named bitmap.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteBitmap(
             name: String,
@@ -166,7 +166,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteBitmap] instance.
          */
-        public fun createMutable(initialValue: ImageBitmap): MutableRemoteBitmap {
+        public operator fun invoke(initialValue: ImageBitmap): MutableRemoteBitmap {
             return MutableRemoteBitmap(initialValue, cacheKey = RemoteStateInstanceKey()) {
                 creationState ->
                 creationState.document.addBitmap(initialValue.asAndroidBitmap())
@@ -213,17 +213,17 @@ public fun rememberRemoteBitmapValue(value: () -> ImageBitmap): RemoteBitmap =
  *
  * @param name The unique name for this remote bitmap.
  * @param domain The domain of the named bitmap (defaults to [RemoteState.Domain.User]).
- * @param content A lambda that provides the [RemoteBitmap] expression.
+ * @param value A lambda that provides the [RemoteBitmap] expression.
  * @return A [RemoteBitmap] representing the named remote bitmap expression.
  */
 @Composable
 public fun rememberNamedRemoteBitmap(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
-    content: () -> ImageBitmap,
+    value: () -> ImageBitmap,
 ): RemoteBitmap {
     return rememberNamedState(name, domain) {
-        val bitmap = content()
+        val bitmap = value()
         MutableRemoteBitmap(
             constantValueOrNull = null,
             cacheKey = RemoteNamedCacheKey(domain, name),

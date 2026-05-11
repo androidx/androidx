@@ -366,7 +366,6 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
          * @param defaultValue The initial [Boolean] value for the named remote boolean.
          * @return A [RemoteBoolean] representing the named boolean.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteBoolean(
             name: String,
@@ -421,8 +420,8 @@ public class MutableRemoteBoolean internal constructor(remoteInt: MutableRemoteI
          * @param initialValue The initial value for this mutable boolean.
          * @return A [MutableRemoteBoolean] instance.
          */
-        public fun createMutable(initialValue: Boolean): MutableRemoteBoolean =
-            MutableRemoteBoolean(MutableRemoteInt.createMutable(if (initialValue) 1 else 0))
+        public operator fun invoke(initialValue: Boolean): MutableRemoteBoolean =
+            MutableRemoteBoolean(MutableRemoteInt(if (initialValue) 1 else 0))
     }
 }
 
@@ -441,9 +440,7 @@ public val Boolean.rb: RemoteBoolean
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean {
-    return remember {
-        MutableRemoteBoolean(MutableRemoteInt.createMutable(if (initialValue) 1 else 0))
-    }
+    return remember { MutableRemoteBoolean(MutableRemoteInt(if (initialValue) 1 else 0)) }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
