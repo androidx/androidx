@@ -21,7 +21,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.ceil
 import kotlin.math.sqrt
@@ -57,62 +56,16 @@ internal class MeshGradientRendererImpl : MeshGradientRenderer {
     private val okLabPatchColors = FloatArray(64)
     private val controlPoints = FloatArray(32)
 
-    /**
-     * Renders the mesh gradient onto the canvas by subdividing each patch into a grid of triangles
-     * and using [Canvas.drawVertices].
-     *
-     * @param meshGradient The data structure containing the mesh geometry and color information.
-     */
-    override fun DrawScope.draw(
-        rows: Int,
-        columns: Int,
-        positions: FloatArray,
-        colors: IntArray,
-        leftBezierOffsets: FloatArray?,
-        topBezierOffsets: FloatArray?,
-        rightBezierOffsets: FloatArray?,
-        bottomBezierOffsets: FloatArray?,
-        hasBicubicColor: Boolean,
-    ) {
-        val expectedPositions = (rows + 1) * (columns + 1) * 2
-        val expectedColors = (rows + 1) * (columns + 1)
-
-        requirePrecondition(positions.size == expectedPositions) {
-            "positions array must have at least $expectedPositions elements"
-        }
-        requirePrecondition(colors.size == expectedColors) {
-            "colors array must have at least $expectedColors elements"
-        }
-        leftBezierOffsets?.let {
-            requirePrecondition(it.size == expectedPositions) {
-                "leftBezierOffsets array must have at least $expectedPositions elements"
-            }
-        }
-        topBezierOffsets?.let {
-            requirePrecondition(it.size == expectedPositions) {
-                "topBezierOffsets array must have at least $expectedPositions elements"
-            }
-        }
-        rightBezierOffsets?.let {
-            requirePrecondition(it.size == expectedPositions) {
-                "rightBezierOffsets array must have at least $expectedPositions elements"
-            }
-        }
-        bottomBezierOffsets?.let {
-            requirePrecondition(it.size == expectedPositions) {
-                "bottomBezierOffsets array must have at least $expectedPositions elements"
-            }
-        }
-
-        inferBezierControlPointsIfRequired(
-            rows,
-            columns,
-            positions,
-            leftBezierOffsets,
-            topBezierOffsets,
-            rightBezierOffsets,
-            bottomBezierOffsets,
-        )
+    override fun DrawScope.draw(config: MeshGradientConfig) {
+        val rows = config.rows
+        val columns = config.columns
+        val positions = config.positions
+        val colors = config.colors
+        val leftBezierOffsets = config.leftBezierOffsets
+        val topBezierOffsets = config.topBezierOffsets
+        val rightBezierOffsets = config.rightBezierOffsets
+        val bottomBezierOffsets = config.bottomBezierOffsets
+        val hasBicubicColor = config.hasBicubicColor
 
         val (subdivisionsU, subdivisionsV) = calculateSubdivisions(rows, columns, positions, size)
         val vertexCount = subdivisionsU * subdivisionsV

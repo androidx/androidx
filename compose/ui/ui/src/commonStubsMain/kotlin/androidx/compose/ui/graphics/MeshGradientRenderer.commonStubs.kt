@@ -18,4 +18,4 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.implementedInJetBrainsFork
 
-actual fun MeshGradientRenderer(): MeshGradientRenderer = implementedInJetBrainsFork()
+internal actual fun MeshGradientRenderer(): MeshGradientRenderer = implementedInJetBrainsFork()
