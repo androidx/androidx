@@ -109,8 +109,7 @@ public fun SubspaceModifier.size(
 
 /**
  * Declare the preferred size of the content to be exactly [size] in each of the three dimensions.
- * Panels have 0 depth and ignore the z-component of this modifier. Applying rotations to an object
- * will also rotate the xyz axes of this modifier.
+ * Applying rotations to an object will also rotate the xyz axes of this modifier.
  *
  * @param size preferred volume size as a [DpVolumeSize].
  */
