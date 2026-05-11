@@ -31,8 +31,10 @@ import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -96,7 +98,16 @@ internal class PlatformAppFunctionManagerApi(private val context: Context) : App
     ): ExecuteAppFunctionResponse {
         return suspendCancellableCoroutine { cont ->
             val cancellationSignal = CancellationSignal()
-            cont.invokeOnCancellation { cancellationSignal.cancel() }
+            // Wrapped in an AtomicReference so we can explicitly null it out. This protects the
+            // client from leaky binder proxies on platform versions where the system_server holds a
+            // strong reference to the CancellationSignal's OnCancelListener and its associated
+            // Binder proxies.
+            val activeCont =
+                AtomicReference<CancellableContinuation<ExecuteAppFunctionResponse>?>(cont)
+            cont.invokeOnCancellation {
+                cancellationSignal.cancel()
+                activeCont.set(null)
+            }
             appFunctionManager.executeAppFunction(
                 request.toPlatformExecuteAppFunctionRequest(),
                 Runnable::run,
@@ -110,15 +121,19 @@ internal class PlatformAppFunctionManagerApi(private val context: Context) : App
                     override fun onResult(
                         result: android.app.appfunctions.ExecuteAppFunctionResponse
                     ) {
-                        cont.resume(result.toCompatExecuteAppFunctionResponse(functionMetadata))
+                        activeCont
+                            .getAndSet(null)
+                            ?.resume(result.toCompatExecuteAppFunctionResponse(functionMetadata))
                     }
 
                     override fun onError(error: android.app.appfunctions.AppFunctionException) {
-                        cont.resume(
-                            ExecuteAppFunctionResponse.Error(
-                                AppFunctionException.fromPlatformClass(error)
+                        activeCont
+                            .getAndSet(null)
+                            ?.resume(
+                                ExecuteAppFunctionResponse.Error(
+                                    AppFunctionException.fromPlatformClass(error)
+                                )
                             )
-                        )
                     }
                 },
             )
