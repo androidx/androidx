@@ -18,6 +18,7 @@ package androidx.wear.remote.interactions
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources.NotFoundException
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.OutcomeReceiver
@@ -26,6 +27,7 @@ import android.os.ResultReceiver
 import androidx.annotation.IntDef
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.annotation.VisibleForTesting
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.wear.remote.interactions.RemoteInteractionsUtil.isCurrentDeviceAWatch
@@ -33,6 +35,7 @@ import androidx.wear.remote.interactions.RemoteInteractionsUtil.logDOrNotUser
 import com.google.android.gms.wearable.NodeClient
 import com.google.android.gms.wearable.Wearable
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.function.Consumer
@@ -126,6 +129,10 @@ constructor(
 
         /** Result code passed to [ResultReceiver.send] when a remote intent failed to send. */
         public const val RESULT_FAILED: Int = 1
+
+        /** Permission required to use [startPhoneActivityWithUnlock]. */
+        public const val PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE: String =
+            "com.google.wear.permission.SEND_CONTINUE_ACTIVITY_ON_PHONE"
 
         internal const val DEFAULT_PACKAGE = "com.google.android.wearable.app"
 
@@ -296,6 +303,207 @@ constructor(
     }
 
     /**
+     * Starts an activity on the companion phone device, requesting a remote unlock if supported and
+     * [PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE] is granted.
+     *
+     * The remote unlock aspect of the request is subject to a strict set of security conditions:
+     * * The remote unlock part is only applicable when the request is initiated from a Wear OS
+     *   watch.
+     * * The calling application must be granted [PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE].
+     * * The app must be in the foreground.
+     * * The request must be the result of explicit user interaction.
+     * * User should have enrolled in the feature.
+     * * An active authentication session must exist between the devices. This requires both devices
+     *   support the feature, the watch is currently unlocked and near the phone while they are
+     *   connected via Bluetooth, and the phone has been unlocked by the user at least once *after*
+     *   the watch was unlocked and placed on the user's body.
+     *
+     * To initiate the launch, this method will generate an intent with an
+     * [android.content.Intent.ACTION_VIEW] action, the provided [targetUri], and the caller's
+     * [targetCategories] (which must include [android.content.Intent.CATEGORY_BROWSABLE] category).
+     *
+     * If remote unlock is not supported or conditions are not met (for example, missing permission,
+     * or if the authentication session ends), this method falls back to [startRemoteActivity]
+     * behavior. In this case, no remote unlock will be requested and the user will have to manually
+     * unlock their phone if it is locked before activity is launched.
+     *
+     * @param targetUri The data URI of the activity to start on the phone. This must not be empty.
+     * @param targetCategories The categories of the activity to start on the phone. This must
+     *   contain [android.content.Intent.CATEGORY_BROWSABLE]. If not specified, by default it will
+     *   be [android.content.Intent.CATEGORY_BROWSABLE].
+     * @return A [ListenableFuture] which resolves if the request was successfully sent, or throws
+     *   an [Exception] if the request failed or the parameters were invalid.
+     */
+    @JvmOverloads
+    @SuppressWarnings("AsyncSuffixFuture")
+    public fun startRemoteActivityAttemptUnlock(
+        targetUri: Uri,
+        targetCategories: List<String> = listOf(Intent.CATEGORY_BROWSABLE),
+    ): ListenableFuture<Void> {
+        return CallbackToFutureAdapter.getFuture { completer ->
+            try {
+                require(targetUri != Uri.EMPTY) { "targetUri cannot be empty" }
+                require(targetCategories.contains(Intent.CATEGORY_BROWSABLE)) {
+                    "The category ${Intent.CATEGORY_BROWSABLE} must be present on the intent"
+                }
+
+                val isSupported =
+                    remoteInteractionsManager.isWearSdkApiContinueActivityOnPhoneWithUnlockSupported
+                val hasPermission =
+                    context.checkSelfPermission(PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED
+
+                if (isSupported && hasPermission) {
+                    routeContinueActivityOnPhoneWithUnlock(
+                        targetPackage = "",
+                        targetAction = Intent.ACTION_VIEW,
+                        targetUri,
+                        targetCategories,
+                        callerPackage = context.packageName,
+                        object : OutcomeReceiver<Void?, Throwable> {
+                            override fun onResult(result: Void?) {
+                                logDOrNotUser("continueActivityOnPhoneWithUnlock", "onResult")
+                                completer.set(null)
+                            }
+
+                            override fun onError(error: Throwable) {
+                                logDOrNotUser("continueActivityOnPhoneWithUnlock", "onError:$error")
+                                startRemoteActivityFallback(targetUri, targetCategories, completer)
+                            }
+                        },
+                    )
+                    return@getFuture "startRemoteActivityAttemptUnlock"
+                }
+
+                startRemoteActivityFallback(targetUri, targetCategories, completer)
+            } catch (e: Exception) {
+                completer.setException(e)
+            }
+            "startRemoteActivityAttemptUnlock"
+        }
+    }
+
+    /**
+     * Starts an activity on the companion phone device, requesting a remote unlock.
+     *
+     * This API requests to start an activity on the companion phone. If the phone is locked, it may
+     * also request to initiate unlocking the phone before launching the target application if below
+     * system conditions allow it.
+     *
+     * This API is only available on API 37 and above.
+     *
+     * To use this function, the following conditions must be met:
+     * * Note that this method only works when it's called from the watch.
+     * * The calling application must be granted [PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE].
+     * * The [targetPackage] must be the same package (or a trusted peer application) on the
+     *   connected phone, and its SHA1 certificate fingerprint must match the source package on the
+     *   watch. The [callerPackage] must also accurately match the calling app's package name.
+     * * The caller application must be running in the foreground when the request is made.
+     * * The request must be the direct result of an explicit user interaction (for example, tapping
+     *   a "show on phone" button).
+     * * User should have enrolled in the feature.
+     * * An active authentication session must exist between the devices. This requires both devices
+     *   support the feature, the watch is currently unlocked and near the phone while they are
+     *   connected via Bluetooth, and the phone has been unlocked by the user at least once *after*
+     *   the watch was unlocked and placed on the user's body.
+     *
+     * There are no restrictions on [targetAction], [targetUri] or [targetCategories] as long as
+     * they are not empty.
+     *
+     * **Exception Conditions:**
+     * * [IllegalStateException]: Thrown if [PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE] has not
+     *   been granted.
+     * * [IllegalArgumentException]: Thrown if any of the required parameters are empty.
+     * * [UnsupportedOperationException]: Thrown if this remote unlock API is unsupported on this
+     *   device.
+     *
+     * @param callerPackage The package name of the calling app. This is required.
+     * @param targetPackage The package name of the activity to start on the phone. This is
+     *   required.
+     * @param targetAction The action of the activity to start on the phone. This is required.
+     * @param targetUri The data URI of the activity to start on the phone. This is required and
+     *   cannot be empty.
+     * @param targetCategories The categories of the activity to start on the phone. This is
+     *   required.
+     * @return A [ListenableFuture] which resolves if the request was successfully sent, or throws
+     *   an [Exception] if the request failed or the parameters were invalid. If there's a problem
+     *   with starting remote activity, [RemoteIntentException] will be thrown.
+     * @throws IllegalStateException If [PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE] has not been
+     *   granted.
+     * @throws IllegalArgumentException If any of the required parameters are empty.
+     * @throws UnsupportedOperationException If this remote unlock API is unsupported on this
+     *   device.
+     */
+    @RequiresApi(37)
+    @RequiresPermission(PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE)
+    @SuppressWarnings("AsyncSuffixFuture")
+    public fun startPhoneActivityWithUnlock(
+        callerPackage: String,
+        targetPackage: String,
+        targetAction: String,
+        targetUri: Uri,
+        targetCategories: List<String>,
+    ): ListenableFuture<Void> {
+        return CallbackToFutureAdapter.getFuture { completer ->
+            try {
+                val hasPermission =
+                    context.checkSelfPermission(PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED
+                if (!hasPermission) {
+                    completer.setException(
+                        IllegalStateException(
+                            "Caller does not have $PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE permission."
+                        )
+                    )
+                    return@getFuture "startPhoneActivityWithUnlock"
+                }
+
+                if (
+                    !remoteInteractionsManager
+                        .isWearSdkApiContinueActivityOnPhoneWithUnlockSupported
+                ) {
+                    completer.setException(
+                        UnsupportedOperationException(
+                            "startPhoneActivityWithUnlock is not supported on this device"
+                        )
+                    )
+                    return@getFuture "startPhoneActivityWithUnlock"
+                }
+
+                checkPreconditionForContinueOnPhone(
+                    targetPackage,
+                    targetAction,
+                    targetUri,
+                    targetCategories,
+                    callerPackage,
+                )
+
+                routeContinueActivityOnPhoneWithUnlock(
+                    targetPackage,
+                    targetAction,
+                    targetUri,
+                    targetCategories,
+                    callerPackage,
+                    object : OutcomeReceiver<Void?, Throwable> {
+                        override fun onResult(result: Void?) {
+                            logDOrNotUser("startPhoneActivityWithUnlock", "onResult")
+                            completer.set(null)
+                        }
+
+                        override fun onError(error: Throwable) {
+                            logDOrNotUser("startPhoneActivityWithUnlock", "onError:$error")
+                            completer.setException(error)
+                        }
+                    },
+                )
+            } catch (e: Exception) {
+                completer.setException(e)
+            }
+            "startPhoneActivityWithUnlock"
+        }
+    }
+
+    /**
      * The legacy implementation of startRemoteActivity and will be called when the sdk version is
      * older than API 36 / Wear SDK version 6.
      */
@@ -350,6 +558,29 @@ constructor(
             )
             "startRemoteActivity"
         }
+    }
+
+    private fun startRemoteActivityFallback(
+        targetUri: Uri,
+        targetCategories: List<String>,
+        completer: CallbackToFutureAdapter.Completer<Void>,
+    ) {
+        val intent = Intent(Intent.ACTION_VIEW).setData(targetUri)
+        targetCategories.forEach { intent.addCategory(it) }
+        val future = startRemoteActivity(intent)
+        future.addListener(
+            {
+                try {
+                    future.get()
+                    completer.set(null)
+                } catch (e: ExecutionException) {
+                    completer.setException(e.cause ?: e)
+                } catch (e: Exception) {
+                    completer.setException(e)
+                }
+            },
+            executor,
+        )
     }
 
     private fun startCreatingIntentForRemoteActivity(
@@ -440,6 +671,40 @@ constructor(
         nodeId?.let { remoteIntent.putExtra(EXTRA_NODE_ID, nodeId) }
         packageName?.let { remoteIntent.setPackage(packageName) }
         return remoteIntent
+    }
+
+    @RequiresApi(37)
+    private fun routeContinueActivityOnPhoneWithUnlock(
+        targetPackage: String,
+        targetAction: String,
+        targetUri: Uri,
+        targetCategories: List<String>,
+        callerPackage: String,
+        outcomeReceiver: OutcomeReceiver<Void?, Throwable>,
+    ) {
+        remoteInteractionsManager.continueActivityOnPhoneWithUnlock(
+            targetPackage,
+            targetAction,
+            targetUri,
+            targetCategories,
+            callerPackage,
+            executor,
+            outcomeReceiver,
+        )
+    }
+
+    private fun checkPreconditionForContinueOnPhone(
+        targetPackage: String,
+        targetAction: String,
+        targetUri: Uri,
+        targetCategories: List<String>,
+        callerPackage: String,
+    ) {
+        require(targetAction.isNotEmpty()) { "targetAction cannot be empty" }
+        require(targetPackage.isNotEmpty()) { "targetPackage cannot be empty" }
+        require(targetUri != Uri.EMPTY) { "targetUri cannot be empty" }
+        require(targetCategories.isNotEmpty()) { "targetCategories cannot be empty" }
+        require(callerPackage.isNotEmpty()) { "callerPackage cannot be empty" }
     }
 
     /** Result code passed to [ResultReceiver.send] for the status of remote intent. */

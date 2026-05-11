@@ -29,7 +29,8 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.wear:wear-core:1.0.0")
+    //TODO: b/503781916 - Change to stable release once available
+    api("androidx.wear:wear-core:1.1.0-alpha02")
     api(libs.guavaListenableFuture)
     api("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     api(libs.kotlinCoroutinesCore)
