@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
@@ -72,6 +74,8 @@ import androidx.wear.compose.material3.ScrollIndicatorColors
 import androidx.wear.compose.material3.ScrollIndicatorDefaults
 import androidx.wear.compose.material3.TransformingLazyColumnStateAdapter
 import androidx.wear.compose.material3.VerticalPageIndicator
+import androidx.wear.compose.material3.internal.LocalWristOrientation
+import androidx.wear.compose.material3.internal.isLeftWrist
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.NonCancellable
@@ -124,19 +128,14 @@ public fun OneHandedGestureIndicator(
 
     Layout(
         content = {
-            Box(modifier = Modifier.layoutId("icon")) {
-                Image(
-                    painter = painter,
-                    contentDescription = null,
-                    modifier =
-                        Modifier.size(gestureIndicatorSize.size).graphicsLayer {
-                            scaleX = avdAnimationScale.value
-                            scaleY = avdAnimationScale.value
-                        },
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(gestureIndicatorTint),
-                )
-            }
+            GestureIndicatorImage(
+                painter = painter,
+                modifier = Modifier.layoutId("icon"),
+                size = DpSize(gestureIndicatorSize.size, gestureIndicatorSize.size),
+                tint = gestureIndicatorTint,
+                scaleX = avdAnimationScale.value,
+                scaleY = avdAnimationScale.value,
+            )
             Box(
                 modifier =
                     Modifier.layoutId("content").graphicsLayer { alpha = contentAlpha.value },
@@ -310,15 +309,13 @@ public fun OneHandedGestureScrollIndicator(
                 tint = gestureIndicatorBackgroundColor,
                 modifier = Modifier.graphicsLayer { scaleX = if (isRtl) -1f else 1f },
             )
-            Box(Modifier.size(backgroundSize.height), contentAlignment = Alignment.Center) {
-                Image(
-                    painter = avdPainter,
-                    contentDescription = null,
-                    modifier = Modifier.size(avdSize),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(gestureIndicatorTint),
-                )
-            }
+
+            GestureIndicatorImage(
+                painter = avdPainter,
+                modifier = Modifier.size(backgroundSize.height),
+                size = avdSize,
+                tint = gestureIndicatorTint,
+            )
         }
         Spacer(modifier = Modifier.width(6.dp))
         IndicatorImpl(
@@ -614,18 +611,12 @@ private fun PageIndicator(
                     rotationZ = backgroundRotation
                 },
         )
-        Box(
-            Modifier.size(backgroundSize.height).align(avdAlignment),
-            contentAlignment = Alignment.Center,
-        ) {
-            Image(
-                painter = avdPainter,
-                contentDescription = null,
-                modifier = Modifier.size(avdSize),
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(gestureIndicatorTint),
-            )
-        }
+        GestureIndicatorImage(
+            painter = avdPainter,
+            modifier = Modifier.size(backgroundSize.height).align(avdAlignment),
+            size = avdSize,
+            tint = gestureIndicatorTint,
+        )
     }
 
     if (gestureIndicatorVisible) {
@@ -655,6 +646,37 @@ private fun PageIndicator(
 
                 onGestureIndicatorFinished()
             }
+        }
+    }
+}
+
+@Composable
+private fun GestureIndicatorImage(
+    modifier: Modifier,
+    painter: Painter,
+    size: DpSize,
+    tint: Color,
+    scaleX: Float = 1.0f,
+    scaleY: Float = 1.0f,
+) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        // rememberAnimatedVectorPainter hardcodes autoMirror = true, which reacts to
+        // LocalLayoutDirection. To gain manual control over mirroring, we force
+        // LayoutDirection.Ltr and apply a horizontal scale based on the wrist orientation.
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            val wristOrientation = LocalWristOrientation.current
+            Image(
+                painter = painter,
+                contentDescription = null,
+                modifier =
+                    Modifier.size(size).graphicsLayer {
+                        // Mirror the image only when worn on the right hand
+                        this.scaleX = if (wristOrientation.isLeftWrist()) scaleX else -scaleX
+                        this.scaleY = scaleY
+                    },
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(tint),
+            )
         }
     }
 }
