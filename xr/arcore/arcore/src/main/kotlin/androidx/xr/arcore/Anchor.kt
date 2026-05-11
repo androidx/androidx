@@ -50,7 +50,7 @@ public class Anchor
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val runtimeAnchor: RuntimeAnchor,
     private val xrResourceManager: XrResourcesManager,
-) : Updatable() {
+) : Trackable<Anchor.State>, Updatable() {
     public companion object {
         /**
          * Creates and attaches an [Anchor] at the given [pose].
@@ -187,7 +187,8 @@ internal constructor(
      * @property pose the location of the anchor in the world coordinate space
      */
     public class State
-    internal constructor(public val trackingState: TrackingState, public val pose: Pose) {
+    internal constructor(override val trackingState: TrackingState, public val pose: Pose) :
+        Trackable.State {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -207,7 +208,7 @@ internal constructor(
             State(runtimeAnchor.trackingState.toTrackingState(), runtimeAnchor.pose)
         )
 
-    public val state: StateFlow<State> = _state.asStateFlow()
+    override val state: StateFlow<State> = _state.asStateFlow()
 
     private var persistContinuation: Continuation<UUID>? = null
 

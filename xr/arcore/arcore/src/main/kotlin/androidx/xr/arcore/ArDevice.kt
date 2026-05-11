@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 @SuppressWarnings("HiddenSuperclass")
 public class ArDevice internal constructor(internal val runtimeArDevice: RuntimeArDevice) :
-    Updatable() {
+    Trackable<ArDevice.State>, Updatable() {
 
     public companion object {
         /**
@@ -71,9 +71,9 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
     public class State
     internal constructor(
         public val devicePose: Pose,
-        public val trackingState: TrackingState,
+        override val trackingState: TrackingState,
         public val owner: ArDevice,
-    ) {
+    ) : Trackable.State {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is State) return false
@@ -92,7 +92,7 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
 
     private val _state = MutableStateFlow<State>(State(Pose(), TrackingState.STOPPED, owner = this))
 
-    public val state: StateFlow<State> = _state.asStateFlow()
+    override val state: StateFlow<State> = _state.asStateFlow()
 
     // TODO b/482646486: Remove public visibility and unrestrict when no longer used in G3
     @RestrictTo(RestrictTo.Scope.LIBRARY)

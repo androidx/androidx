@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.xr.arcore {
 
-  public final class Anchor {
+  public final class Anchor implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Anchor.State> {
     method public static androidx.xr.arcore.AnchorResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
     method public void detach();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.IBinder? getAnchorToken();
@@ -22,7 +22,7 @@ package androidx.xr.arcore {
     method public void unpersist(androidx.xr.runtime.Session session, java.util.UUID uuid);
   }
 
-  public static final class Anchor.State {
+  public static final class Anchor.State implements androidx.xr.arcore.Trackable.State {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.TrackingState getTrackingState();
     property public androidx.xr.runtime.math.Pose pose;
@@ -80,7 +80,7 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.AnchorResult createAnchor(androidx.xr.runtime.math.Pose pose);
   }
 
-  public final class ArDevice {
+  public final class ArDevice implements androidx.xr.arcore.Trackable<androidx.xr.arcore.ArDevice.State> {
     method public static androidx.xr.arcore.ArDevice getInstance(androidx.xr.runtime.Session session);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ArDevice.State> getState();
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ArDevice.State> state;
@@ -91,7 +91,7 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.ArDevice getInstance(androidx.xr.runtime.Session session);
   }
 
-  public static final class ArDevice.State {
+  public static final class ArDevice.State implements androidx.xr.arcore.Trackable.State {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getDevicePose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.ArDevice getOwner();
     method @InaccessibleFromKotlin public androidx.xr.arcore.TrackingState getTrackingState();
