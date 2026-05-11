@@ -17,7 +17,7 @@
 package androidx.xr.glimmer.pager
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.pager.HorizontalPager as FoundationHorizontalPager
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
@@ -91,7 +91,7 @@ public fun GlimmerHorizontalPager(
             SingleItemScrollConstraintConnection(state.foundationPagerState)
         }
 
-    FoundationHorizontalPager(
+    HorizontalPager(
         state = state.foundationPagerState,
         modifier =
             modifier

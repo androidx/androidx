@@ -16,7 +16,7 @@
 
 package androidx.xr.glimmer.pager
 
-import androidx.compose.foundation.pager.PagerState as FoundationPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.ui.unit.IntSize
 
 /**
@@ -72,8 +72,7 @@ public sealed interface GlimmerPagerLayoutInfo {
     public val reverseLayout: Boolean
 }
 
-internal class DefaultGlimmerPagerLayoutInfo(val state: FoundationPagerState) :
-    GlimmerPagerLayoutInfo {
+internal class DefaultGlimmerPagerLayoutInfo(val state: PagerState) : GlimmerPagerLayoutInfo {
     override val pageSize: Int
         get() = state.layoutInfo.pageSize
 
