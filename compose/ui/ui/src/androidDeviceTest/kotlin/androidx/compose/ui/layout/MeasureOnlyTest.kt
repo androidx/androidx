@@ -20,7 +20,10 @@ import android.view.View.MeasureSpec
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,15 +32,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.findViewTreeComposeViewContext
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -343,5 +352,47 @@ class MeasureOnlyTest {
         assertFalse(child1.measurePending)
         // Check that root indeed skipped the lookahead pass in `measureOnly`.
         assertTrue(root.lookaheadMeasurePending)
+    }
+
+    @Test
+    fun measureWhenNotAttached() {
+        var sideComposeView: ComposeView? = null
+        val unattachedViewMeasured = CountDownLatch(1)
+        var unattachedMeasuredSize = IntSize.Zero
+        rule.setContent {
+            val view = LocalView.current
+            SideEffect {
+                view.post {
+                    if (sideComposeView == null) {
+                        val composeViewContext =
+                            view.findViewTreeComposeViewContext() ?: return@post
+                        val composeView = ComposeView(view.context)
+                        sideComposeView = composeView
+                        composeView.setContent {
+                            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                                Box(Modifier.size(100.dp))
+                            }
+                            SideEffect {
+                                view.post {
+                                    val measureSpec =
+                                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                                    composeView.measure(measureSpec, measureSpec)
+                                    unattachedMeasuredSize =
+                                        IntSize(
+                                            composeView.measuredWidth,
+                                            composeView.measuredHeight,
+                                        )
+                                    unattachedViewMeasured.countDown()
+                                }
+                            }
+                        }
+                        composeView.createComposition(composeViewContext)
+                    }
+                }
+            }
+        }
+
+        assertThat(unattachedViewMeasured.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(unattachedMeasuredSize).isEqualTo(IntSize(100, 100))
     }
 }
