@@ -27,7 +27,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.xr.runtime.Config.ConfigMode
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
@@ -432,9 +431,10 @@ public constructor(
     /**
      * Sets or changes the [Config] to use for the Session.
      *
-     * The passed [config] will overwrite all [ConfigMode] values. Not all runtimes will support
-     * every [ConfigMode], and the desired modes should first be queried for availability using
-     * [ConfigMode.isSupported] before configuring.
+     * The passed [config] will overwrite all mode values. Not all runtimes will support every mode,
+     * and the desired modes should first be queried for availability using
+     * [androidx.xr.runtime.XrDevice] before configuring. Example:
+     * [androidx.xr.runtime.XrDevice.isGeospatialModeSupported].
      *
      * It is recommended to use and modify the [Config.copy] of the current [Session.config] to
      * maintain the current configuration state aside from the desired changes.

@@ -23,7 +23,7 @@ package androidx.xr.runtime
  */
 @PreviewSpatialApi
 @ExperimentalSceneSignalApi
-public class SceneSignalType private constructor(public val id: Int) : Config.ConfigMode() {
+public class SceneSignalType private constructor(public val id: Int) {
     public companion object {
         /**
          * Scene signal type for conversation detection. Use this object to enable conversation

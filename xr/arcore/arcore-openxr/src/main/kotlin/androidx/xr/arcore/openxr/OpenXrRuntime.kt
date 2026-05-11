@@ -20,16 +20,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.ConfigMode
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.DisplayBlendMode
-import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
@@ -56,28 +53,6 @@ internal class OpenXrRuntime(
     companion object {
         private const val KEY_API_KEY = "com.google.android.ar.API_KEY"
         private val contextList = mutableListOf<Context>()
-
-        @VisibleForTesting
-        val SUPPORTED_CONFIG_MODES: Set<ConfigMode> =
-            setOf(
-                PlaneTrackingMode.DISABLED,
-                PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                HandTrackingMode.DISABLED,
-                HandTrackingMode.BOTH,
-                DeviceTrackingMode.DISABLED,
-                DeviceTrackingMode.SPATIAL,
-                DepthEstimationMode.DISABLED,
-                DepthEstimationMode.RAW_ONLY,
-                DepthEstimationMode.SMOOTH_ONLY,
-                AnchorPersistenceMode.DISABLED,
-                AnchorPersistenceMode.LOCAL,
-                FaceTrackingMode.DISABLED,
-                FaceTrackingMode.BLEND_SHAPES,
-                GeospatialMode.DISABLED,
-                EyeTrackingMode.DISABLED,
-                EyeTrackingMode.COARSE_TRACKING,
-                EyeTrackingMode.FINE_TRACKING,
-            )
     }
 
     /**
@@ -340,17 +315,6 @@ internal class OpenXrRuntime(
         }
 
         this.config = config
-    }
-
-    @OptIn(androidx.xr.runtime.PreviewSpatialApi::class)
-    override fun isSupported(configMode: ConfigMode): Boolean {
-        if (configMode == GeospatialMode.SPATIAL) {
-            return nativeIsGeospatialSupported()
-        }
-        if (configMode == GeospatialMode.INERTIAL) {
-            return false
-        }
-        return SUPPORTED_CONFIG_MODES.contains(configMode)
     }
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {

@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * [androidx.xr.runtime.GeospatialMode.SPATIAL].
  *
  * Not all devices support [androidx.xr.runtime.GeospatialMode.SPATIAL], use
- * [androidx.xr.runtime.Config.ConfigMode.isSupported] to check if the current device supports
+ * [androidx.xr.runtime.XrDevice.isGeospatialModeSupported] to check if the current device supports
  * enabling this mode.
  *
  * The Geospatial object should only be used when its [State] is [GeospatialState.RUNNING], and

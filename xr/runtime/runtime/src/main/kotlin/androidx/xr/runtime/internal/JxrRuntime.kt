@@ -18,7 +18,6 @@ package androidx.xr.runtime.internal
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.ConfigMode
 import androidx.xr.runtime.DisplayBlendMode
 import kotlin.time.ComparableTimeMark
 
@@ -50,16 +49,6 @@ public interface JxrRuntime {
      * method.
      */
     public fun configure(config: Config) {}
-
-    /**
-     * Checks whether the provided mode is supported by this runtime for the current device.
-     *
-     * @param configMode the [ConfigMode] mode to check.
-     * @return true if supported, false if not.
-     */
-    public fun isSupported(configMode: ConfigMode): Boolean {
-        return false
-    }
 
     /**
      * Gets the preferred [DisplayBlendMode] by the runtime.

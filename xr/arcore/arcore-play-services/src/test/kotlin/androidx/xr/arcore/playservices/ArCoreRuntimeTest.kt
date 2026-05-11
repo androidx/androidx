@@ -37,8 +37,6 @@ import com.google.ar.core.ArCoreApk.Availability
 import com.google.ar.core.Camera
 import com.google.ar.core.CameraConfig
 import com.google.ar.core.Config as ArConfig
-import com.google.ar.core.Config.DepthMode
-import com.google.ar.core.Config.GeospatialMode
 import com.google.ar.core.Config.PlaneFindingMode
 import com.google.ar.core.Config.TextureUpdateMode
 import com.google.ar.core.Frame
@@ -82,12 +80,6 @@ class ArCoreRuntimeTest {
     private lateinit var mockArCoreApk: ArCoreApk
 
     @get:Rule val activityRule = ActivityScenarioRule(Activity::class.java)
-
-    private class FakeConfigMode private constructor() : Config.ConfigMode() {
-        companion object {
-            @JvmField val UNSUPPORTED_BY_ARCORE: FakeConfigMode = FakeConfigMode()
-        }
-    }
 
     private companion object {
         private const val MIN_FPS: Int = 25
@@ -469,84 +461,6 @@ class ArCoreRuntimeTest {
             assertFailsWith<ApkCheckAvailabilityErrorException> { underTest.initialize() }
             verify(mockArCoreApk).checkAvailability(it)
         }
-    }
-
-    @Test
-    fun isSupported_depthSmoothOnly_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(true)
-
-        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_ONLY)).isTrue()
-    }
-
-    @Test
-    fun isSupported_depthSmoothOnly_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(false)
-
-        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_ONLY)).isFalse()
-    }
-
-    @Test
-    fun isSupported_depthSmoothAndRaw_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(true)
-
-        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_AND_RAW)).isTrue()
-    }
-
-    @Test
-    fun isSupported_depthSmoothAndRaw_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(false)
-
-        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_AND_RAW)).isFalse()
-    }
-
-    @Test
-    fun isSupported_depthRawOnly_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isDepthModeSupported(DepthMode.RAW_DEPTH_ONLY)).thenReturn(true)
-
-        assertThat(underTest.isSupported(DepthEstimationMode.RAW_ONLY)).isTrue()
-    }
-
-    @Test
-    fun isSupported_depthRawOnly_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isDepthModeSupported(DepthMode.RAW_DEPTH_ONLY)).thenReturn(false)
-
-        assertThat(underTest.isSupported(DepthEstimationMode.RAW_ONLY)).isFalse()
-    }
-
-    @Test
-    fun isSupported_geospatialSpatial_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isGeospatialModeSupported(GeospatialMode.ENABLED)).thenReturn(false)
-
-        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.SPATIAL)).isFalse()
-    }
-
-    @Test
-    fun isSupported_geospatialSpatial_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        whenever(mockSession.isGeospatialModeSupported(GeospatialMode.ENABLED)).thenReturn(true)
-
-        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.SPATIAL)).isTrue()
-    }
-
-    @Test
-    fun isSupported_inSupportedList_returnsTrue() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        for (mode in ArCoreRuntime.SUPPORTED_CONFIG_MODES) {
-            assertThat(underTest.isSupported(mode)).isTrue()
-        }
-    }
-
-    @Test
-    fun isSupported_notInSupportedList_returnsFalse() = initRuntimeAndRunTest {
-        underTest._session = mockSession
-        assertThat(underTest.isSupported(FakeConfigMode.UNSUPPORTED_BY_ARCORE)).isFalse()
     }
 
     private fun initRuntimeAndRunTest(testBody: () -> Unit) {
