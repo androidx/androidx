@@ -19,7 +19,6 @@ package androidx.core.telecom.extensions
 import android.os.Build.VERSION_CODES
 import android.telecom.Call
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * Provides the capability for a remote surface (automotive, watch, etc...) to connect to extensions
@@ -42,6 +41,5 @@ public interface CallExtensions {
      * @see CallExtensionScope
      */
     @RequiresApi(VERSION_CODES.O)
-    @ExperimentalAppActions
     public suspend fun connectExtensions(call: Call, init: CallExtensionScope.() -> Unit)
 }

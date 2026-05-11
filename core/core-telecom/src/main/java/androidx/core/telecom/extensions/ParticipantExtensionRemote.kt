@@ -27,7 +27,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * [Participant]s in the call and send action requests to the calling application to modify the
  * state of supported actions.
  */
-@ExperimentalAppActions
 public interface ParticipantExtensionRemote {
 
     /**
@@ -71,6 +70,7 @@ public interface ParticipantExtensionRemote {
      * @return The action that is used to determine support of this action and send raise hand event
      *   requests to the calling application.
      */
+    @ExperimentalAppActions
     public fun addRaiseHandAction(
         onRaisedHandsChanged: suspend (List<Participant>) -> Unit
     ): RaiseHandAction
@@ -96,5 +96,5 @@ public interface ParticipantExtensionRemote {
      *
      * @return The action that is used to send kick Participant event requests to the remote Call.
      */
-    public fun addKickParticipantAction(): KickParticipantAction
+    @ExperimentalAppActions public fun addKickParticipantAction(): KickParticipantAction
 }

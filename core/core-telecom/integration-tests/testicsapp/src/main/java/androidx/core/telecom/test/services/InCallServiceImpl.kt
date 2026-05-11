@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test.services
 
 import android.content.Intent
@@ -32,7 +34,6 @@ import android.telecom.CallEndpoint
 import android.util.Log
 import androidx.core.telecom.InCallServiceCompat
 import androidx.core.telecom.test.Compatibility
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.lifecycle.lifecycleScope
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
@@ -150,7 +151,6 @@ class InCallServiceImpl : LocalIcsBinder, InCallServiceCompat() {
         }
     }
 
-    @OptIn(ExperimentalAppActions::class)
     override fun onCallAdded(call: Call?) {
         if (call == null) return
         var callJob: Job? = null

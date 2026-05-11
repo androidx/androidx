@@ -64,7 +64,7 @@ private data class ActionExchangeResult(
  *   change
  */
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalAppActions::class)
+@OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
 internal class ParticipantExtensionRemoteImpl(
     private val callScope: CoroutineScope,
     private val onActiveParticipantChanged: suspend (Participant?) -> Unit,
@@ -91,6 +91,7 @@ internal class ParticipantExtensionRemoteImpl(
     private val participants = MutableStateFlow<Set<Participant>>(emptySet())
     private val activeParticipantId = MutableStateFlow<String?>(null)
 
+    @OptIn(ExperimentalAppActions::class)
     override fun addRaiseHandAction(
         onRaisedHandsChanged: suspend (List<Participant>) -> Unit
     ): RaiseHandAction {
@@ -104,6 +105,7 @@ internal class ParticipantExtensionRemoteImpl(
         return action
     }
 
+    @OptIn(ExperimentalAppActions::class)
     override fun addKickParticipantAction(): KickParticipantAction {
         val action = KickParticipantActionImpl(participants)
         registerAction(

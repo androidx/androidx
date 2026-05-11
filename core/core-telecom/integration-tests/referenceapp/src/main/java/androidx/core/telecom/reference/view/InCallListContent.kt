@@ -33,7 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.reference.model.InCallItemUiState
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * Displays the list of active/held calls using a [LazyColumn].
@@ -41,7 +40,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * If the list of calls is empty, it displays a "No active calls" message. Otherwise, it renders a
  * [CallCard] for each call in the list.
  */
-@OptIn(ExperimentalAppActions::class)
 @Composable
 fun InCallListContent(
     calls: List<InCallItemUiState>,
@@ -89,7 +87,6 @@ fun InCallListContent(
 // Preview for the list content with multiple calls
 @Preview(showBackground = true, name = "InCall List Content")
 @Composable
-@OptIn(ExperimentalAppActions::class)
 fun InCallListContentPreview() {
     MaterialTheme {
         InCallListContent(
@@ -113,7 +110,6 @@ fun InCallListContentPreview() {
 // Preview for the list content when empty
 @Preview(showBackground = true, name = "InCall List Empty")
 @Composable
-@OptIn(ExperimentalAppActions::class)
 fun InCallListContentEmptyPreview() {
     MaterialTheme {
         InCallListContent(

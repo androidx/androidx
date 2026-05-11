@@ -19,7 +19,6 @@ import java.util.List;
 import androidx.core.telecom.extensions.ILocalSilenceActions;
 
 // VOIP app -> ICS Client
-@JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ILocalSilenceStateListener {
 void updateIsLocallySilenced(boolean isLocallySilenced)= 0;

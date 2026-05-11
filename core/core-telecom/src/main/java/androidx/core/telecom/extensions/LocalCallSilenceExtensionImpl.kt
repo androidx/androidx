@@ -24,7 +24,6 @@ import androidx.core.telecom.internal.CallStateEvent
 import androidx.core.telecom.internal.CapabilityExchangeRepository
 import androidx.core.telecom.internal.LocalCallSilenceCallbackRepository
 import androidx.core.telecom.internal.LocalCallSilenceStateListenerRemote
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +31,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalAppActions::class)
 internal class LocalCallSilenceExtensionImpl(
     context: Context,
     private val callStateFlow: MutableSharedFlow<CallStateEvent>,

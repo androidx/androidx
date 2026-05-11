@@ -35,7 +35,6 @@ import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.extensions.ParticipantParcelable
 import androidx.core.telecom.extensions.toParticipant
 import androidx.core.telecom.test.ITestAppControlCallback
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
 import java.util.UUID
@@ -331,7 +330,6 @@ object TestUtils {
     }
 
     /** Generate a List of [Participant]s, where each ID corresponds to a range of 1 to [num] */
-    @ExperimentalAppActions
     fun generateParticipants(num: Int): List<Participant> {
         val participants = ArrayList<Participant>()
         for (i in 1..num) {
@@ -340,17 +338,14 @@ object TestUtils {
         return participants
     }
 
-    @ExperimentalAppActions
     fun getDefaultParticipant(): Participant {
         return Participant("123", "Gemini")
     }
 
-    @ExperimentalAppActions
     fun getDefaultParticipantParcelable(): ParticipantParcelable {
         return getDefaultParticipant().toParticipantParcelable()
     }
 
-    @ExperimentalAppActions
     fun printParticipants(participants: Collection<Participant>, tag: String) {
         Log.i(LOG_TAG, tag + ": printParticipants: set size=${participants.size}")
         for (v in participants) {
@@ -359,7 +354,6 @@ object TestUtils {
     }
 }
 
-@ExperimentalAppActions
 class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppControlCallback.Stub() {
     private val raisedHandFlow: MutableSharedFlow<Pair<String, Boolean>> =
         MutableSharedFlow(replay = 1)

@@ -64,7 +64,6 @@ import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.reference.model.CallState
 import androidx.core.telecom.reference.model.InCallItemUiState
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * Displays the UI for a single call, including its state, display name, and action buttons.
@@ -72,7 +71,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * Shows information like display name and call state. Provides buttons for mute/unmute,
  * hold/unhold, ending the call, and changing the audio route via a dialog.
  */
-@OptIn(ExperimentalAppActions::class)
 @Composable
 fun CallCard(
     uiState: InCallItemUiState,
@@ -367,7 +365,6 @@ fun CallCard(
     }
 }
 
-@OptIn(ExperimentalAppActions::class)
 @Preview(showBackground = true, name = "Call Card Active")
 @Composable
 fun CallCardActivePreview() {
@@ -389,7 +386,7 @@ fun CallCardActivePreview() {
 }
 
 // Preview for a single CallCard (Muted Call)
-@OptIn(ExperimentalAppActions::class)
+
 @Preview(showBackground = true, name = "Call Card Muted")
 @Composable
 fun CallCardMutedPreview() {
@@ -411,7 +408,7 @@ fun CallCardMutedPreview() {
 }
 
 // Preview for a single CallCard (Inactive/Held Call)
-@OptIn(ExperimentalAppActions::class)
+
 @Preview(showBackground = true, name = "Call Card Inactive")
 @Composable
 fun CallCardInactivePreview() {
@@ -434,7 +431,6 @@ fun CallCardInactivePreview() {
 
 @Preview(showBackground = true, name = "Call Card Active w/ Participants")
 @Composable
-@OptIn(ExperimentalAppActions::class)
 fun CallCardActiveParticipantsPreview() {
     MaterialTheme {
         CallCard(

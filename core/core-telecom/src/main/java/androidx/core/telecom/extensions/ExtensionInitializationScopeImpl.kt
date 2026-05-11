@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
  * the lifetime of when the call is active.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalAppActions::class)
 internal class ExtensionInitializationScopeImpl(
     private val context: Context,
     private val coroutineContext: CoroutineContext,
@@ -93,6 +92,7 @@ internal class ExtensionInitializationScopeImpl(
         return localSilenceExtension
     }
 
+    @OptIn(ExperimentalAppActions::class)
     override fun addCallIconExtension(initialCallIconUri: Uri): CallIconExtension {
         val callIconExtension = CallIconExtensionImpl(context, coroutineContext, initialCallIconUri)
         registerExtension(onExchangeStarted = callIconExtension::onExchangeStarted)

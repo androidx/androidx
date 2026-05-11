@@ -22,7 +22,6 @@ import androidx.core.telecom.extensions.IParticipantActions;
 import androidx.core.telecom.extensions.IActionsResultCallback;
 
 // VOIP app -> ICS Client
-@JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IParticipantStateListener {
     // V1 - Built-in states provided as part of handling basic participant support

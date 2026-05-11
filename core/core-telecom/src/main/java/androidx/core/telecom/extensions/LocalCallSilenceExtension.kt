@@ -16,8 +16,6 @@
 
 package androidx.core.telecom.extensions
 
-import androidx.core.telecom.util.ExperimentalAppActions
-
 /**
  * Add support for this remote surface to display information related to the local call silence
  * state for this call.
@@ -30,7 +28,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  *
  * @see ExtensionInitializationScope.addLocalCallSilenceExtension
  */
-@ExperimentalAppActions
 public interface LocalCallSilenceExtension {
     /**
      * Update all of the remote surfaces that the local call silence state of this call has changed.

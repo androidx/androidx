@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test.VoipAppWithExtensions
 
 import android.app.Service
@@ -35,7 +37,6 @@ import androidx.core.telecom.extensions.toParticipant
 import androidx.core.telecom.test.ITestAppControl
 import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.test.utils.TestUtils
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +49,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-@OptIn(ExperimentalAppActions::class)
 @RequiresApi(Build.VERSION_CODES.O)
 open class VoipAppWithExtensionsControl : Service() {
     var mCallsManager: CallsManager? = null

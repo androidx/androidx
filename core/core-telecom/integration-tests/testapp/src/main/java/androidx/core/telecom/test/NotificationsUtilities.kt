@@ -27,9 +27,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.util.ExperimentalAppActions
 
-@ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.S)
 class NotificationsUtilities {
     companion object {

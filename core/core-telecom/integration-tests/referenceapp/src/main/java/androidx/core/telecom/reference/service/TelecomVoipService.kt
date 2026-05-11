@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.reference.service
 
 import android.app.Notification
@@ -61,7 +63,6 @@ import androidx.core.telecom.reference.model.toParticipant
 import androidx.core.telecom.reference.view.ExtensionSettings
 import androidx.core.telecom.reference.view.loadAllExtensionSettings
 import androidx.core.telecom.reference.view.loadPhoneNumberPrefix
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import kotlin.collections.firstOrNull
@@ -84,7 +85,6 @@ import kotlinx.coroutines.selects.select
  * repository or ViewModel) via a [StateFlow]. It requires API level S (31) or higher.
  */
 @RequiresApi(Build.VERSION_CODES.S)
-@OptIn(ExperimentalAppActions::class)
 class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
     private val localBinder =
         object : LocalServiceBinder.Connector, Binder() {
@@ -154,7 +154,6 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
         _callDataList.value = emptyList()
     }
 
-    @OptIn(ExperimentalAppActions::class)
     override fun addCall(
         callAttributes: CallAttributesCompat,
         notificationId: Int,

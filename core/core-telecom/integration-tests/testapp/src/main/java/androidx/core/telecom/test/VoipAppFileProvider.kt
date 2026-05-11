@@ -22,7 +22,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.io.File
 import java.io.FileOutputStream
 
@@ -31,7 +30,6 @@ import java.io.FileOutputStream
  * specifically for storing and retrieving bitmaps associated with `VoipCall` objects. It ensures
  * that bitmaps are stored in a private directory accessible only to the app.
  */
-@OptIn(ExperimentalAppActions::class)
 class VoipAppFileProvider() {
     companion object {
         val TAG: String = VoipAppFileProvider::class.java.simpleName

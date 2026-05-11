@@ -21,7 +21,6 @@ import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * Provide the ability for [CallsManager] to support extensions on a call.
@@ -37,9 +36,9 @@ import androidx.core.telecom.util.ExperimentalAppActions
  */
 public interface CallsManagerExtensions {
     /**
-     * Adds a call with extensions support using [ExtensionInitializationScope], which allows an app
-     * to implement optional additional actions that go beyond the scope of a call, such as
-     * information about meeting participants and icons.
+     * Adds a call with extensions support, which allows an app to implement optional additional
+     * actions that go beyond the scope of a call, such as information about meeting participants
+     * and icons.
      *
      * @param callAttributes attributes of the new call (incoming or outgoing, address, etc. )
      * @param onAnswer where callType is the audio/video state the call should be answered as.
@@ -55,16 +54,14 @@ public interface CallsManagerExtensions {
      *   (e.g. Wearable).
      * @param onSetInactive Telecom is informing your VoIP application to set the call inactive.
      *   This is the same as holding a call for two endpoints but can be extended to setting a
-     *   meeting inactive. Telecom is requesting this on behalf of an system service (e.g.
-     *   Automotive service) or a device (e.g.Wearable). Note: Your app must stop using the
-     *   microphone and playing incoming media when returning.
+     *   meeting inactive. Telecom is informing your VoIP application to set the call inactive.
+     *   Note: Your app must stop using the microphone and playing incoming media when returning.
      * @param init The scope used to first initialize Extensions that will be used when the call is
      *   first notified to the platform and UX surfaces. Once the call is set up, the user's
      *   implementation of [ExtensionInitializationScope.onCall] will be called.
-     * @see CallsManager.addCall
+     * @see ExtensionInitializationScope
      */
     @RequiresApi(VERSION_CODES.O)
-    @ExperimentalAppActions
     public suspend fun addCallWithExtensions(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,

@@ -30,13 +30,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.S)
 class CallListAdapter(
     private var mList: ArrayList<CallRow>?,

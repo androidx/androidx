@@ -16,7 +16,6 @@
 
 package androidx.core.telecom.extensions;
 
-@JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IActionsResultCallback {
     void onSuccess() = 0;

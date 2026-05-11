@@ -37,7 +37,6 @@ import androidx.core.telecom.test.utils.TestPermissionUtils.createBluetoothPermi
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.test.utils.TestUtils.ALL_CALL_CAPABILITIES
 import androidx.core.telecom.test.utils.TestUtils.OUTGOING_NAME
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -206,7 +205,6 @@ class CallsManagerTest : BaseTelecomTest() {
     }
 
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalAppActions::class)
     @SmallTest
     @Test
     fun testPauseExecutionOrThrow_Transactional() {
@@ -218,7 +216,6 @@ class CallsManagerTest : BaseTelecomTest() {
     }
 
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
-    @OptIn(ExperimentalAppActions::class)
     @SmallTest
     @Test
     fun testPauseExecutionOrThrow_BackwardsCompat() {

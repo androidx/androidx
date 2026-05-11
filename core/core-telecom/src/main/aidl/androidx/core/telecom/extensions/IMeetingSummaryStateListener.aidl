@@ -18,7 +18,6 @@ package androidx.core.telecom.extensions;
 import android.net.Uri;
 
 // VOIP app -> ICS Client
-@JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IMeetingSummaryStateListener {
 void updateCurrentSpeaker(in String speakerName)= 0;

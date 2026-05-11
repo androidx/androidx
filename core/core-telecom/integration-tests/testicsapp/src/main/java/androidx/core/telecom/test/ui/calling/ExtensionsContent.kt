@@ -59,7 +59,6 @@ import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.test.R
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.launch
 
 data class ExtensionUiState(
@@ -69,7 +68,6 @@ data class ExtensionUiState(
     val callIconUiState: CallIconExtensionUiState?,
 )
 
-@OptIn(ExperimentalAppActions::class)
 class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
     override val values =
         sequenceOf(
@@ -102,7 +100,6 @@ class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
         )
 }
 
-@OptIn(ExperimentalAppActions::class)
 @Preview(showBackground = true, wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
 @Composable
 fun ExtensionsContent(
