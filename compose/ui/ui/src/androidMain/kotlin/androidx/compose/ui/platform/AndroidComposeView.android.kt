@@ -1859,6 +1859,9 @@ internal open class AndroidComposeView(context: Context, composeViewContext: Com
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         trace("AndroidOwner:onMeasure") {
+            if (!root.isAttached) {
+                root.attach(this)
+            }
             if (!isAttachedToWindow) {
                 invalidateLayoutNodeMeasurement(root)
             }
