@@ -36,7 +36,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -878,7 +877,6 @@ public fun <T : Any> NavDisplay(
 
     // Show all OverlayScene instances above the AnimatedContent
     currentOverlayScenes.fastForEachReversed { overlayScene ->
-        val scope = rememberCoroutineScope()
         key(overlayScene) {
             val overlaySceneLifecycleOwner =
                 rememberLifecycleOwner(
@@ -900,7 +898,7 @@ public fun <T : Any> NavDisplay(
         // if the overlay scene is popped, let onRemoved finish before
         // removing from composition to ensure animations can complete
         if (overlayScene !in overlayScenes) {
-            scope.launch {
+            LaunchedEffect(overlayScene.key) {
                 overlayScene.onRemove()
                 currentOverlayScenes.remove(overlayScene)
             }
