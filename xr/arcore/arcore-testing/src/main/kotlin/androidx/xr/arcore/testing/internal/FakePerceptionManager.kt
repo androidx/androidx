@@ -16,6 +16,8 @@
 
 package androidx.xr.arcore.testing.internal
 
+import android.os.Binder
+import android.os.IBinder
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.ConversationState
@@ -37,7 +39,8 @@ import androidx.xr.runtime.math.Vector3
 import java.util.UUID
 
 internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
-
+    private val nativeAnchorPointer: Long = 1234567890L
+    private val nativeAnchorToken: IBinder = Binder()
     private val fakeArDevice = FakeRuntimeArDevice()
     private val fakeLeftEye = FakeRuntimeEye()
     private val fakeRightEye = FakeRuntimeEye()
@@ -105,7 +108,13 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
     override fun createAnchor(pose: Pose): Anchor {
         // TODO: b/349862231 - Modify it once detach is implemented.
         val anchor =
-            FakeRuntimeAnchor(pose, anchorHolder = this, isTrackingAvailable = isCameraTracking)
+            FakeRuntimeAnchor(
+                pose,
+                anchorHolder = this,
+                isTrackingAvailable = isCameraTracking,
+                nativePointer = nativeAnchorPointer,
+                nativeAnchorToken,
+            )
         anchors.add(anchor)
         return anchor
     }
@@ -142,10 +151,12 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
         }
         val anchor =
             FakeRuntimeAnchor(
-                pose = persistedAnchorUUIDs[uuid]!!,
+                persistedAnchorUUIDs[uuid]!!,
+                anchorHolder = this,
                 isTrackingAvailable = isCameraTracking,
+                nativePointer = nativeAnchorPointer,
+                nativeAnchorToken,
             )
-        anchor.anchorHolder = this
         return anchor
     }
 

@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -45,8 +44,11 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
+import androidx.xr.arcore.PlaneLabel
+import androidx.xr.arcore.PlaneType
+import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.arcore.testing.FakePerceptionRuntime
-import androidx.xr.arcore.testing.FakeRuntimeAnchor
+import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SceneManager
 import androidx.xr.compose.subspace.ArDeviceTarget
@@ -62,7 +64,6 @@ import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
@@ -92,11 +93,13 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PlaneOrientation
@@ -113,20 +116,22 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
 
 @RunWith(AndroidJUnit4::class)
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 class SubspaceTest {
 
     private val testDispatcher = StandardTestDispatcher()
+
     // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
     // available starting with v1.11.0.
     // See API docs for details.
@@ -2153,87 +2158,6 @@ class SubspaceTest {
 
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
-    @Suppress("DEPRECATION")
-    // TODO: b/494305963 Remove references to arcore-testing Fakes
-    fun followingSubspace_whenAnchorPoseChanges_repositions() {
-        runBlocking {
-            composeTestRule.session = composeTestRule.configureFakeSession()
-            val session = assertNotNull(composeTestRule.session)
-            val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
-            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val fakePerceptionManager = fakeRuntime.perceptionManager
-            val runtimeAnchor =
-                fakePerceptionManager.createAnchor(initialPose)
-                    as androidx.xr.arcore.testing.FakeRuntimeAnchor
-            val anchorUnderTest = Anchor(runtimeAnchor)
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(initialPose)
-            val anchorEntity = AnchorEntity.create(session, anchor = anchorUnderTest)
-
-            composeTestRule.setContent {
-                FollowingSubspace(
-                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
-                    behavior = FollowBehavior.Tight,
-                ) {
-                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
-                }
-            }
-
-            assertThat(assertExistenceAndGetNodeWorldPose("Panel")).isEqualTo(initialPose)
-            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
-
-            val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
-            runtimeAnchor.pose = updatedPose
-
-            assertThat(assertExistenceAndGetNodeWorldPose("Panel")).isEqualTo(updatedPose)
-            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalFollowingSubspaceApi::class)
-    @Suppress("DEPRECATION")
-    // TODO: b/494305963 Remove references to arcore-testing Fakes
-    fun followingSubspace_whenAnchorUsesSoftFollow_repositions() {
-        runTest(testDispatcher) {
-            composeTestRule.session = composeTestRule.configureFakeSession()
-            val session = assertNotNull(composeTestRule.session)
-            val initialAnchorPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
-            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val fakePerceptionManager = fakeRuntime.perceptionManager
-            val runtimeAnchor =
-                fakePerceptionManager.createAnchor(initialAnchorPose)
-                    as androidx.xr.arcore.testing.FakeRuntimeAnchor
-            val anchorUnderTest = Anchor(runtimeAnchor)
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(initialAnchorPose)
-            val anchorEntity = AnchorEntity.create(session, anchor = anchorUnderTest)
-
-            composeTestRule.setContent {
-                FollowingSubspace(
-                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
-                    behavior = FollowBehavior.Soft(durationMs = 1000),
-                ) {
-                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
-                }
-            }
-
-            // Update anchor's pose and verify the Panel is at the new location.
-            val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
-            runtimeAnchor.pose = updatedPose
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            val currentTranslation = assertExistenceAndGetNodeWorldPose("Panel").translation
-            val currentRotation = assertExistenceAndGetNodeWorldPose("Panel").rotation
-
-            assertThat(currentRotation.x).isWithin(1f).of(updatedPose.rotation.x)
-            assertThat(currentRotation.y).isWithin(1f).of(updatedPose.rotation.y)
-            assertThat(currentRotation.z).isWithin(1f).of(updatedPose.rotation.z)
-            assertThat(currentRotation.w).isWithin(1f).of(updatedPose.rotation.w)
-            assertThat(currentTranslation).isEqualTo(updatedPose.translation)
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenRecenterOccurs_reloadsSubspace() =
         runTest(testDispatcher) {
             composeTestRule.session = configureSessionWithDeviceTracking()
@@ -2267,55 +2191,6 @@ class SubspaceTest {
 
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
-    @Suppress("DEPRECATION")
-    // TODO: b/494305963 Remove references to arcore-testing Fakes
-    fun followingSubspace_whenAnchorUsesStaticFollow_movesOnlyOnce() {
-        runTest(testDispatcher) {
-            composeTestRule.session = composeTestRule.configureFakeSession()
-            val session = assertNotNull(composeTestRule.session)
-            val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
-            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val fakePerceptionManager = fakeRuntime.perceptionManager
-            val runtimeAnchor =
-                fakePerceptionManager.createAnchor(initialPose)
-                    as androidx.xr.arcore.testing.FakeRuntimeAnchor
-            val anchorUnderTest = Anchor(runtimeAnchor)
-            assertThat(anchorUnderTest.state.value.pose).isEqualTo(initialPose)
-            val anchorEntity = AnchorEntity.create(session, anchor = anchorUnderTest)
-
-            composeTestRule.setContent {
-                FollowingSubspace(
-                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
-                    behavior = FollowBehavior.Static,
-                ) {
-                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
-                }
-            }
-
-            // Verify the panel is not at its destination immediately but after waiting, it is
-            // there.
-            assertThat(assertExistenceAndGetNodeWorldPose("Panel").translation)
-                .isNotEqualTo(initialPose.translation)
-
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            assertThat(assertExistenceAndGetNodeWorldPose("Panel").translation)
-                .isEqualTo(initialPose.translation)
-
-            // Verify the panel doesn't move if pose changes again.
-            val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
-            runtimeAnchor.pose = updatedPose
-
-            composeTestRule.waitForIdle()
-
-            assertThat(assertExistenceAndGetNodeWorldPose("Panel").translation)
-                .isNotEqualTo(updatedPose.translation)
-            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenTargetChanges_recenterUsesNewTarget() =
         runTest(context = testDispatcher) {
             composeTestRule.session = configureSessionWithDeviceTracking()
@@ -2328,14 +2203,10 @@ class SubspaceTest {
                     translation = Vector3(x = 10f, y = 20f, z = 30f),
                     rotation = Quaternion.Identity,
                 )
-            val runtimeAnchor =
-                fakeRuntime.perceptionManager.createAnchor(anchorPose) as FakeRuntimeAnchor
+            val anchor = (Anchor.create(session, anchorPose) as AnchorCreateSuccess).anchor
             val anchorTarget =
                 FollowTarget.Anchor(
-                    anchorEntity =
-                        assertNotNull(
-                            actual = AnchorEntity.create(session, anchor = Anchor(runtimeAnchor))
-                        )
+                    anchorEntity = assertNotNull(actual = AnchorEntity.create(session, anchor))
                 )
 
             // Start with the Anchor as the follow target
@@ -2366,4 +2237,205 @@ class SubspaceTest {
             subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspace")
             assertThat(subspacePose.translation).isEqualTo(Pose.Identity.translation)
         }
+}
+
+@RunWith(AndroidJUnit4::class)
+@Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
+// TODO: b/512134761 - Consolidate these tests into SubspaceTest when ArCoreTestRule and
+// SceneCoreTestRule can provide functionality for all tests in this file.
+class SubspaceTestWithArCoreTestRule {
+
+    private val testDispatcher = StandardTestDispatcher()
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    @get:Rule val arCoreTestRule = ArCoreTestRule()
+
+    @Before
+    @Suppress("DEPRECATION")
+    // TODO: b/494305963 Remove references to arcore-testing Fakes
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun setUp() {
+        FollowBehavior.dispatcherOverride = testDispatcher
+        androidx.xr.arcore.testing.FakeRuntimeAnchor.anchorsCreatedCount = 0
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @After
+    fun tearDown() {
+        FollowBehavior.dispatcherOverride = Dispatchers.Default
+    }
+
+    private fun assertExistenceAndGetNodeWorldPose(testTag: String): Pose {
+        val node = composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode()
+        return assertNotNull(node.semanticsEntity).getPose(relativeTo = Space.ACTIVITY)
+    }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
+    fun followingSubspace_whenAnchorPoseChanges_repositions() {
+        runTest(testDispatcher) {
+            val activity = composeTestRule.activity
+            shadowOf(activity.application).grantPermissions(SCENE_UNDERSTANDING_COARSE)
+            val session =
+                (Session.create(composeTestRule.activity, testDispatcher) as SessionCreateSuccess)
+                    .session
+            session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+            composeTestRule.session = session
+            val initialPose =
+                Pose(Vector3(10f, 20f, 30f), Quaternion.fromEulerAngles(10f, 20f, 30f))
+            val testPlane =
+                TestPlane(
+                    androidx.xr.arcore.PlaneType.HORIZONTAL_UPWARD_FACING,
+                    androidx.xr.arcore.PlaneLabel.FLOOR,
+                )
+            testPlane.centerPose = initialPose
+            arCoreTestRule.addTrackables(testPlane)
+            val anchorEntity =
+                AnchorEntity.create(
+                    session,
+                    minimumPlaneExtents = FloatSize2d(),
+                    planeOrientations = PlaneOrientation.ALL,
+                    planeSemanticTypes = PlaneSemanticType.ALL,
+                )
+            advanceUntilIdle()
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    behavior = FollowBehavior.Tight,
+                ) {
+                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
+                }
+            }
+
+            assertPose(anchorEntity.getPose(Space.ACTIVITY), initialPose)
+            assertPose(assertExistenceAndGetNodeWorldPose("Panel"), initialPose)
+            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+
+            val updatedPose =
+                Pose(Vector3(40f, 50f, 60f), Quaternion.fromEulerAngles(40f, 50f, 60f))
+            testPlane.centerPose = updatedPose
+            advanceUntilIdle()
+
+            assertPose(anchorEntity.getPose(Space.ACTIVITY), updatedPose)
+            assertPose(assertExistenceAndGetNodeWorldPose("Panel"), updatedPose)
+            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
+    fun followingSubspace_whenAnchorUsesSoftFollow_repositions() {
+        runTest(testDispatcher) {
+            val activity = composeTestRule.activity
+            shadowOf(activity.application).grantPermissions(SCENE_UNDERSTANDING_COARSE)
+            val session =
+                (Session.create(composeTestRule.activity, testDispatcher) as SessionCreateSuccess)
+                    .session
+            session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+            composeTestRule.session = session
+            val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
+            val testPlane = TestPlane(PlaneType.HORIZONTAL_UPWARD_FACING, PlaneLabel.FLOOR)
+            testPlane.centerPose = initialPose
+            arCoreTestRule.addTrackables(testPlane)
+            val anchorEntity =
+                AnchorEntity.create(
+                    session,
+                    minimumPlaneExtents = FloatSize2d(),
+                    planeOrientations = PlaneOrientation.ALL,
+                    planeSemanticTypes = PlaneSemanticType.ALL,
+                )
+            advanceUntilIdle()
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                ) {
+                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
+                }
+            }
+
+            // Update anchor's pose and verify the Panel is at the new location.
+            val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
+            testPlane.centerPose = updatedPose
+            advanceUntilIdle()
+
+            assertPose(anchorEntity.getPose(Space.ACTIVITY), updatedPose)
+            assertPose(assertExistenceAndGetNodeWorldPose("Panel"), updatedPose)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
+    fun followingSubspace_whenAnchorUsesStaticFollow_movesOnlyOnce() {
+        runTest(testDispatcher) {
+            val activity = composeTestRule.activity
+            shadowOf(activity.application).grantPermissions(SCENE_UNDERSTANDING_COARSE)
+            val session =
+                (Session.create(composeTestRule.activity, testDispatcher) as SessionCreateSuccess)
+                    .session
+            session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+            composeTestRule.session = session
+            val initialPose =
+                Pose(Vector3(10f, 20f, 30f), Quaternion.fromEulerAngles(10f, 20f, 30f))
+            val testPlane =
+                TestPlane(
+                    androidx.xr.arcore.PlaneType.HORIZONTAL_UPWARD_FACING,
+                    androidx.xr.arcore.PlaneLabel.FLOOR,
+                )
+            testPlane.centerPose = initialPose
+            arCoreTestRule.addTrackables(testPlane)
+            val anchorEntity =
+                AnchorEntity.create(
+                    session,
+                    minimumPlaneExtents = FloatSize2d(),
+                    planeOrientations = PlaneOrientation.ALL,
+                    planeSemanticTypes = PlaneSemanticType.ALL,
+                )
+            advanceUntilIdle()
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    behavior = FollowBehavior.Static,
+                ) {
+                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
+                }
+            }
+
+            // Verify the panel is not at its destination immediately but after waiting, it is
+            // there.
+            assertThat(assertExistenceAndGetNodeWorldPose("Panel").translation)
+                .isNotEqualTo(initialPose.translation)
+
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(assertExistenceAndGetNodeWorldPose("Panel").translation)
+                .isEqualTo(initialPose.translation)
+
+            // Verify the panel doesn't move if pose changes again.
+            val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
+            testPlane.centerPose = updatedPose
+
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(anchorEntity.getPose(Space.ACTIVITY)).isEqualTo(updatedPose)
+
+            composeTestRule.waitForIdle()
+
+            assertThat(assertExistenceAndGetNodeWorldPose("Panel").translation)
+                .isNotEqualTo(updatedPose.translation)
+            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+        }
+    }
 }

@@ -41,8 +41,13 @@ internal class FakeRuntimePlane(
     override var centerPose: Pose = centerPose
         // when this Trackable moves, its Anchors move with it.
         set(value) {
+            val prevPlaneFromActivity = field.inverse
+            anchors.forEach {
+                val activityFromAnchor = it.pose
+                val planeFromAnchor = prevPlaneFromActivity.compose(activityFromAnchor)
+                it.pose = value.compose(planeFromAnchor)
+            }
             field = value
-            anchors.forEach { it.pose = value.compose(it.pose) }
         }
 
     override fun createAnchor(pose: Pose): Anchor {
