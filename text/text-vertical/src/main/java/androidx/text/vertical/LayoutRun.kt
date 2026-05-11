@@ -47,7 +47,6 @@ private const val VERTICAL = true
  * @param paint The TextPaint object used to measure and draw the text.
  * @param orientation The resolved orientation mode.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal fun createLayoutRun(
     text: CharSequence,
     start: Int,
@@ -148,7 +147,6 @@ internal sealed class LayoutRun(val text: CharSequence, val start: Int, val end:
  * @param end The ending exclusive index of the text.
  * @param paint The paint used for text rendering.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, paint: TextPaint) :
     LayoutRun(text, start, end) {
     override val height: Float
@@ -191,7 +189,7 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
             leftSide = min(leftSide, -rPaint.textSize * 0.5f)
             rightSide = max(rightSide, rPaint.textSize * 0.5f + emphasisWidth)
 
-            rPaint.getFontMetricsInt(text, rStart, rCount, rStart, rCount, false, fontMetrics)
+            rPaint.getFontMetricsIntCompat(text, rStart, rCount, rStart, rCount, false, fontMetrics)
             maxAscent = min(maxAscent, fontMetrics.ascent)
             maxDescent = max(maxDescent, fontMetrics.descent)
 
@@ -338,10 +336,9 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun getCharAdvances(out: FloatArray, paint: TextPaint) {
         text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
-            rPaint.getRunCharacterAdvance(
+            rPaint.getRunCharacterAdvanceCompat(
                 text,
                 rStart,
                 rEnd, // target range
@@ -448,7 +445,7 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                             }
                             val yOffset = (letterWidth - it) / 2f
                             if (isEmphasisTarget(Character.codePointAt(text, gStart))) {
-                                canvas.drawText(
+                                canvas.drawTextVertical(
                                     emphasisLetter,
                                     originX + xOffset,
                                     eY - yOffset,
@@ -461,11 +458,10 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                 }
             }
 
-            y += rPaint.measureText(text, rStart, rEnd)
+            y += rPaint.measureTextVertical(text, rStart, rEnd)
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun getCharAdvances(out: FloatArray, paint: TextPaint) {
         text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
             rPaint.getRunCharacterAdvanceVertical(
@@ -531,7 +527,6 @@ internal inline fun CharSequence.forStyleRuns(
                     emphasisScale = it.scale
                 }
             }
-
             block(
                 current,
                 rEnd,
@@ -541,7 +536,6 @@ internal inline fun CharSequence.forStyleRuns(
                 emphasisLetter,
                 emphasisScale,
             )
-
             current = rEnd
         }
     }

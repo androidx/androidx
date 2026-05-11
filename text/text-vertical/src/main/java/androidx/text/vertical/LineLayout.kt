@@ -17,9 +17,7 @@
 package androidx.text.vertical
 
 import android.graphics.Canvas
-import android.os.Build
 import android.text.TextPaint
-import androidx.annotation.RequiresApi
 import kotlin.math.max
 import kotlin.math.min
 
@@ -32,7 +30,6 @@ import kotlin.math.min
  * @param paint The TextPaint object used to measure and draw the text.
  * @param textOrientation The orientation mode.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal fun createLineLayout(
     text: CharSequence,
     start: Int,

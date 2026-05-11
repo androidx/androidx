@@ -17,7 +17,6 @@
 package androidx.text.vertical
 
 import android.graphics.Canvas
-import android.os.Build
 import android.text.TextPaint
 import androidx.annotation.Px
 
@@ -26,10 +25,6 @@ import androidx.annotation.Px
  *
  * This class encapsulates the result of a vertical text layout process. It stores the layout's
  * properties and provides methods to draw the layout on a [Canvas].
- *
- * NOTE: Currently, this API leverages a platform feature introduced in API 36 (Android 16). On
- * older API levels, it falls back to a no-op (i.e. it does not draw any text and reports a width
- * and line count of 0).
  */
 public class VerticalTextLayout
 /**
@@ -42,36 +37,28 @@ public class VerticalTextLayout
  */
 @JvmOverloads
 constructor(
-    text: CharSequence = "",
-    start: Int = 0,
-    end: Int = text.length,
-    paint: TextPaint = TextPaint(),
-    @Px height: Float = 0f,
-    orientation: TextOrientation = TextOrientation.Mixed,
+    internal val text: CharSequence = "",
+    internal val start: Int = 0,
+    internal val end: Int = text.length,
+    internal val paint: TextPaint = TextPaint(),
+    @Px internal val height: Float = 0f,
+    internal val orientation: TextOrientation = TextOrientation.Mixed,
 ) {
     /** The computed width of the vertical text layout in pixels. */
     @get:Px
     public val width: Float
-        get() = impl.width
+        get() = result.width
 
     /** The number of lines (columns) in this vertical text layout. */
     public val lineCount: Int
-        get() = impl.lineCount
+        get() = result.lineCount
 
-    internal val impl: VerticalTextLayoutImpl
+    private val result: LineBreaker.Result
 
     init {
         require(start <= end && end <= text.length && height >= 0)
 
-        impl =
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA -> {
-                    VerticalTextLayoutApi36Impl(text, start, end, paint, height, orientation)
-                }
-                else -> {
-                    VerticalTextLayoutNoOpImpl()
-                }
-            }
+        result = LineBreaker.breakTextIntoLines(text, start, end, paint, height, orientation)
     }
 
     /**
@@ -82,7 +69,7 @@ constructor(
      * @param y The vertical offset in pixels. The drawing origin is the top-right corner.
      */
     public fun draw(canvas: Canvas, @Px x: Float, @Px y: Float) {
-        impl.draw(canvas, x, y)
+        result.draw(canvas, x, y, paint)
     }
 
     /**
@@ -90,6 +77,6 @@ constructor(
      * If this returns false, [draw] will have no effect.
      */
     public fun isVerticalTextSupported(): Boolean {
-        return impl.isVerticalTextSupported()
+        return true
     }
 }

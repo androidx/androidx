@@ -18,8 +18,51 @@ package androidx.text.vertical
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Build
+import android.util.LruCache
 
+/** A cache key for font metrics. */
+private data class MetricCacheKey(val typeface: Typeface?) {
+    constructor(paint: Paint) : this(paint.typeface)
+}
+
+private val metricCache = LruCache<MetricCacheKey, Paint.FontMetrics>(2)
+
+/** Returns the normalized font metrics for vertical writing. */
+private fun getStaticMetrics(paint: Paint): Paint.FontMetrics {
+    val key = MetricCacheKey(paint)
+    return metricCache.get(key) ?: createCJKMetrics(paint).also { metricCache.put(key, it) }
+}
+
+/**
+ * Create font metrics for 1px text size (i.e. 1em = 1px) so that it can be reused for multiple text
+ * sizes. Scaled metrics should be used by multiplying the text size. This metrics is calculated
+ * based on CJK character "あ" with the given paint (mainly for the typeface) as a best-effort
+ * estimation.
+ */
+private fun createCJKMetrics(paint: Paint): Paint.FontMetrics {
+    val oldTextSize = paint.textSize
+    return try {
+        paint.textSize = 1000f
+        val metrics = Paint.FontMetricsInt()
+        // Use a common CJK character to estimate vertical metrics.
+        paint.getFontMetricsIntCompat("あ", 0, 1, 0, 1, false, metrics)
+        val res = Paint.FontMetrics()
+        res.ascent = metrics.ascent / 1000f
+        res.descent = metrics.descent / 1000f
+        res
+    } finally {
+        paint.textSize = oldTextSize
+    }
+}
+
+/**
+ * Draws vertical text.
+ *
+ * For API levels below BAKLAVA (where native vertical text support was introduced), this performs a
+ * backport by manually positioning each character cluster.
+ */
 internal fun Canvas.drawTextVertical(
     text: CharSequence,
     start: Int,
@@ -28,10 +71,62 @@ internal fun Canvas.drawTextVertical(
     y: Float,
     paint: Paint,
 ) {
+    if (start < 0 || end < 0 || start > end || end > text.length) {
+        throw IndexOutOfBoundsException()
+    }
+    if (start == end) return
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
         paint.withVerticalFlag() { drawText(text, start, end, x, y, paint) }
     } else {
-        TODO("Backport drawText for vertical text.")
+        val metrics = getStaticMetrics(paint)
+        val oldFontFeatureSettings = paint.fontFeatureSettings
+        try {
+            // Enable vertical glyph alternates if available in the font.
+            paint.fontFeatureSettings = "\"vert\" on"
+            val advances = FloatArray(end - start)
+            // Measure horizontal advances of characters to determine cluster boundaries.
+            paint.getRunCharacterAdvanceCompat(
+                text,
+                start,
+                end,
+                start,
+                end,
+                false,
+                end,
+                advances,
+                0,
+            )
+
+            var clusterStartIndex = 0
+            // Initial yOffset positions the baseline of the first character.
+            // metrics.ascent is negative, so this shifts the baseline down.
+            var yOffset = y - metrics.ascent * paint.textSize
+
+            for (clusterEndIndex in 1 until end - start) {
+                // In many fonts/APIs, non-first characters in a cluster have 0 advance.
+                if (advances[clusterEndIndex] != 0f) {
+                    // Center the cluster horizontally at x.
+                    val xOffset = x - advances[clusterStartIndex] / 2
+                    drawText(
+                        text,
+                        start + clusterStartIndex,
+                        start + clusterEndIndex,
+                        xOffset,
+                        yOffset,
+                        paint,
+                    )
+                    clusterStartIndex = clusterEndIndex
+                    // Each cluster is assumed to take 1em (paint.textSize) height.
+                    yOffset += paint.textSize
+                }
+            }
+            // Draw the last cluster.
+            val xOffset = x - advances[clusterStartIndex] / 2
+            drawText(text, start + clusterStartIndex, end, xOffset, yOffset, paint)
+        } finally {
+            paint.fontFeatureSettings = oldFontFeatureSettings
+        }
     }
 }
 
