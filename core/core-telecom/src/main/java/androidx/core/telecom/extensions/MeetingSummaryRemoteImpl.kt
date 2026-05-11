@@ -19,7 +19,6 @@ package androidx.core.telecom.extensions
 import android.util.Log
 import androidx.core.telecom.internal.CapabilityExchangeListenerRemote
 import androidx.core.telecom.internal.MeetingSummaryStateListener
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.properties.Delegates
@@ -41,7 +40,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @property onParticipantCountChanged A suspend function that is called when the participant count
  *   changes. The function takes the new participant count as an Int parameter.
  */
-@ExperimentalAppActions
 internal class MeetingSummaryRemoteImpl(
     private val callScope: CoroutineScope,
     private val onCurrentSpeakerChanged: suspend (CharSequence?) -> Unit,

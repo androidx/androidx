@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.reference.model
 
 import androidx.core.telecom.extensions.*
 import androidx.core.telecom.reference.ParticipantsExtensionManager
-import androidx.core.telecom.util.ExperimentalAppActions
 
-@OptIn(ExperimentalAppActions::class)
 data class InitializedExtensionsHolder(
     val localCallSilence: LocalCallSilenceExtension? = null,
     val callIcon: CallIconExtension? = null,

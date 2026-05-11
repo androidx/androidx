@@ -67,7 +67,6 @@ import kotlinx.coroutines.withTimeoutOrNull
  * [onExchangeComplete], which is called when capability exchange has completed and the extension
  * should be initialized.
  */
-@OptIn(ExperimentalAppActions::class)
 internal data class CallExtensionCreator(
     val extensionCapability: Capability,
     val onExchangeComplete: suspend (Capability?, CapabilityExchangeListenerRemote?) -> Unit,
@@ -78,7 +77,6 @@ internal data class CallExtensionCreator(
  * Contains the capabilities that the VOIP app supports and the remote binder implementation used to
  * communicate with the remote process.
  */
-@OptIn(ExperimentalAppActions::class)
 internal data class CapabilityExchangeResult(
     val voipCapabilities: Set<Capability>,
     val extensionInitializationBinder: CapabilityExchangeListenerRemote,
@@ -99,7 +97,6 @@ internal data class CapabilityExchangeResult(
  * }
  * ```
  */
-@OptIn(ExperimentalAppActions::class)
 @RequiresApi(Build.VERSION_CODES.O)
 internal class CallExtensionScopeImpl(
     private val applicationContext: Context,
@@ -223,6 +220,7 @@ internal class CallExtensionScopeImpl(
      * @return The configured [CallIconExtensionRemoteImpl] instance, representing the call icon
      *   extension.
      */
+    @ExperimentalAppActions
     override fun addCallIconSupport(
         onCallIconChanged: suspend (Uri) -> Unit
     ): CallIconExtensionRemote {
@@ -563,7 +561,6 @@ internal class CallExtensionScopeImpl(
      * @return the negotiated capability by finding the highest version and actions supported by
      *   both the local and remote interfaces.
      */
-    @ExperimentalAppActions
     private fun calculateNegotiatedCapability(
         localCapability: Capability,
         remoteCapability: Capability,

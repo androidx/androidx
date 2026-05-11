@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test.VoipAppWithExtensions
 
 import android.net.Uri
@@ -33,10 +35,8 @@ import androidx.core.telecom.extensions.ParticipantExtension
 import androidx.core.telecom.extensions.ParticipantExtensionImpl
 import androidx.core.telecom.extensions.RaiseHandState
 import androidx.core.telecom.test.ITestAppControlCallback
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.io.File
 
-@ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
 class VoipCall(
     private val callsManager: CallsManager,

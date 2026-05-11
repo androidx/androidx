@@ -35,7 +35,6 @@ import androidx.core.telecom.reference.model.IconData
 import androidx.core.telecom.reference.model.InCallItemUiState
 import androidx.core.telecom.reference.model.ParticipantState
 import androidx.core.telecom.reference.viewModel.InCallViewModel
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 
 /**
@@ -47,7 +46,6 @@ import java.util.UUID
  *
  * @param inCallViewModel The ViewModel providing the state for the in-call screen.
  */
-@OptIn(ExperimentalAppActions::class)
 @Composable
 fun InCallScreen(inCallViewModel: InCallViewModel) {
     val uiState by inCallViewModel.uiState.collectAsState()

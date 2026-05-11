@@ -71,7 +71,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * }
  * ```
  */
-@ExperimentalAppActions
 public interface ExtensionInitializationScope {
 
     /**
@@ -145,5 +144,6 @@ public interface ExtensionInitializationScope {
      * @return The interface used by this application to further update the call icon extension
      *   state to remote surfaces. This allows dynamically changing the icon during the call.
      */
+    @ExperimentalAppActions
     public fun addCallIconExtension(initialCallIconUri: Uri): CallIconExtension
 }

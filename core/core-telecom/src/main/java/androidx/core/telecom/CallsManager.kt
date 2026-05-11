@@ -55,7 +55,6 @@ import androidx.core.telecom.internal.ProductionBluetoothDeviceChecker
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.Utils.Companion.hasBluetoothPermissions
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
@@ -383,7 +382,6 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
      *   implementation of [ExtensionInitializationScope.onCall] will be called.
      * @see CallsManagerExtensions.addCallWithExtensions
      */
-    @ExperimentalAppActions
     override suspend fun addCallWithExtensions(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,

@@ -25,7 +25,6 @@ import androidx.core.telecom.extensions.ICallIconStateListener;
 import androidx.core.telecom.extensions.IMeetingSummaryStateListener;
 
 // ICS Client -> VOIP app
-@JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ICapabilityExchangeListener {
     // V1 - Signal to VOIP containing participant extension support provided by ICS and provides

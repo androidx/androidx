@@ -30,7 +30,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  *
  * @see ExtensionInitializationScope.addParticipantExtension
  */
-@ExperimentalAppActions
 public interface ParticipantExtension {
     /**
      * Update all of the remote surfaces that the [Participant]s of this call have changed.
@@ -68,6 +67,7 @@ public interface ParticipantExtension {
      * @return The interface used to update the current raised hand state of all [Participant]s in
      *   the call.
      */
+    @ExperimentalAppActions
     public fun addRaiseHandSupport(
         initialRaisedHands: List<Participant> = emptyList(),
         onHandRaisedChanged: suspend (Boolean) -> Unit,
@@ -79,5 +79,6 @@ public interface ParticipantExtension {
      * @param onKickParticipant The action to perform when the user requests to kick a participant.
      *   This operation should not return until the request has been processed.
      */
+    @ExperimentalAppActions
     public fun addKickParticipantSupport(onKickParticipant: suspend (Participant) -> Unit)
 }

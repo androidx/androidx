@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.core.telecom.extensions.CallExtensionScope#addLocalCallSilenceExtension(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>, kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>):
+    Binary breaking change: Added method androidx.core.telecom.extensions.CallExtensionScope.addLocalCallSilenceExtension(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>,kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>)
+AddedAbstractMethod: androidx.core.telecom.extensions.ExtensionInitializationScope#addLocalCallSilenceExtension(boolean, boolean, kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>):
+    Binary breaking change: Added method androidx.core.telecom.extensions.ExtensionInitializationScope.addLocalCallSilenceExtension(boolean,boolean,kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>)
+AddedAbstractMethod: androidx.core.telecom.extensions.LocalCallSilenceExtension#updateCanUserUpdateSilence(boolean, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Binary breaking change: Added method androidx.core.telecom.extensions.LocalCallSilenceExtension.updateCanUserUpdateSilence(boolean,kotlin.coroutines.Continuation<? super kotlin.Unit>)
+
+
 BecameUnchecked: androidx.core.telecom.util:
     Removed package androidx.core.telecom.util from compatibility checked API surface
 

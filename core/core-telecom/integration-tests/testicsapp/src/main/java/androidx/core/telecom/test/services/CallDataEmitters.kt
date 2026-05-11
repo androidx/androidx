@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test.services
 
 import android.graphics.Bitmap
@@ -30,7 +32,6 @@ import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.extensions.RaiseHandAction
 import androidx.core.telecom.test.Compatibility
 import androidx.core.telecom.test.ui.calling.CallStateTransition
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +42,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 /** Track the kick participant support for this application */
-@OptIn(ExperimentalAppActions::class)
 class KickParticipantDataEmitter {
     companion object {
         private val unsupportedAction =
@@ -69,7 +69,6 @@ class KickParticipantDataEmitter {
 }
 
 /** Track the raised hands state of participants in the call */
-@OptIn(ExperimentalAppActions::class)
 class RaiseHandDataEmitter {
     companion object {
         private val unsupportedAction =
@@ -106,7 +105,6 @@ class RaiseHandDataEmitter {
     }
 }
 
-@OptIn(ExperimentalAppActions::class)
 class LocalCallSilenceExtensionDataEmitter {
     companion object {
         val TAG: String = LocalCallSilenceExtensionDataEmitter::class.java.simpleName
@@ -218,7 +216,6 @@ class MeetingSummaryExtensionDataEmitter {
  * Track and update listeners when the [ParticipantExtensionData] related to a call changes,
  * including the optional raise hand and kick participant extensions.
  */
-@OptIn(ExperimentalAppActions::class)
 class ParticipantExtensionDataEmitter {
     private val activeParticipant: MutableStateFlow<Participant?> = MutableStateFlow(null)
     private val participants: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())

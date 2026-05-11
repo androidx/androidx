@@ -17,7 +17,6 @@
 package androidx.core.telecom.reference.model
 
 import androidx.core.telecom.extensions.Participant
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /** The state of one participant in a call */
 data class ParticipantState(
@@ -34,7 +33,6 @@ data class ParticipantControl(
     val onParticipantRemoved: () -> Unit,
 )
 
-@OptIn(ExperimentalAppActions::class)
 fun ParticipantState.toParticipant(): Participant {
     return Participant(id, name)
 }

@@ -46,7 +46,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * }
  * ```
  */
-@ExperimentalAppActions
 public interface CallExtensionScope {
 
     /**
@@ -180,5 +179,6 @@ public interface CallExtensionScope {
      *   application supports the call icon extension. The remote *must* use this instance to check
      *   support before expecting icon updates.
      */
+    @ExperimentalAppActions
     public fun addCallIconSupport(onCallIconChanged: suspend (Uri) -> Unit): CallIconExtensionRemote
 }

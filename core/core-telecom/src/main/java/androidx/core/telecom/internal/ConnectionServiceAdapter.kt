@@ -17,7 +17,6 @@
 package androidx.core.telecom.internal
 
 import androidx.core.telecom.internal.JetpackConnectionService.PendingConnectionRequest
-import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * [ConnectionServiceAdapter] is intended for the [androidx.core.telecom.CallsManager] class. This
@@ -27,7 +26,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
  */
 internal interface ConnectionServiceAdapter {
 
-    @OptIn(ExperimentalAppActions::class)
     fun createConnectionRequest(
         telecomManager: TelecomManagerAdapter,
         pendingConnectionRequest: PendingConnectionRequest,

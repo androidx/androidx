@@ -15,9 +15,6 @@
  */
 package androidx.core.telecom.extensions
 
-import androidx.core.telecom.util.ExperimentalAppActions
-
-@ExperimentalAppActions
 internal fun ParticipantParcelable.toParticipant(): Participant {
     return Participant(id, name)
 }
@@ -30,7 +27,6 @@ internal fun ParticipantParcelable.toParticipant(): Participant {
  *   change or be reused for the lifetime of the call.
  * @param name The name of the Participant, which remote surfaces will display to users.
  */
-@ExperimentalAppActions
 public class Participant(public val id: String, public val name: CharSequence) {
 
     internal fun toParticipantParcelable(): ParticipantParcelable {

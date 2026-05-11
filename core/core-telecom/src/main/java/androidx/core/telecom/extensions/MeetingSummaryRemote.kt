@@ -16,13 +16,10 @@
 
 package androidx.core.telecom.extensions
 
-import androidx.core.telecom.util.ExperimentalAppActions
-
 /**
  * Interface used to allow the remote surface (automotive, watch, etc...) to know if the connected
  * calling application supports the meeting summary extension
  */
-@ExperimentalAppActions
 public interface MeetingSummaryRemote {
     /**
      * Whether or not the meeting summary extension is supported by the calling application.

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test
 
 import android.Manifest
@@ -45,7 +47,6 @@ import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestCallCallbackListener
 import androidx.core.telecom.test.utils.TestMuteStateReceiver
 import androidx.core.telecom.test.utils.TestUtils
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -80,7 +81,6 @@ import org.junit.runners.Parameterized.Parameters
  * ConnSrv implementations of CallsManager.
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
-@OptIn(ExperimentalAppActions::class)
 @RunWith(Parameterized::class)
 class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTest() {
     companion object {

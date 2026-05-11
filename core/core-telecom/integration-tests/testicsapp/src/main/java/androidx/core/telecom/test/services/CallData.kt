@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test.services
 
 import android.graphics.Bitmap
@@ -24,7 +26,6 @@ import androidx.core.telecom.extensions.LocalCallSilenceExtensionRemote
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.extensions.RaiseHandAction
 import androidx.core.telecom.test.ui.calling.CallStateTransition
-import androidx.core.telecom.util.ExperimentalAppActions
 
 enum class CallState {
     INCOMING,
@@ -82,7 +83,6 @@ data class CallAudioEndpoint(
 )
 
 /** data related to the extensions to the call */
-@OptIn(ExperimentalAppActions::class)
 data class ParticipantExtensionData(
     val isSupported: Boolean,
     val activeParticipant: Participant?,
@@ -92,7 +92,6 @@ data class ParticipantExtensionData(
     val kickParticipantData: KickParticipantData? = null,
 )
 
-@OptIn(ExperimentalAppActions::class)
 data class LocalCallSilenceData(
     val isLocallySilenced: Boolean,
     val canUserUpdateSilence: Boolean,
@@ -106,10 +105,8 @@ data class CallIconData(val callIconUri: Bitmap)
 /** data related to the Meeting Summary extension */
 data class MeetingSummaryData(val activeSpeaker: String, val participantCount: Int)
 
-@OptIn(ExperimentalAppActions::class)
 data class RaiseHandData(val raisedHands: List<Participant>, val raiseHandAction: RaiseHandAction)
 
-@OptIn(ExperimentalAppActions::class)
 data class KickParticipantData(val kickParticipantAction: KickParticipantAction)
 
 /** Combined call data including extensions. */

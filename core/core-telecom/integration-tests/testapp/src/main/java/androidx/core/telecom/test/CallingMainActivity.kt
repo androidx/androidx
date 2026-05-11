@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+
 package androidx.core.telecom.test
 
 import android.annotation.SuppressLint
@@ -41,7 +43,6 @@ import androidx.core.telecom.test.Constants.Companion.OUTGOING_NAME
 import androidx.core.telecom.test.Constants.Companion.OUTGOING_URI
 import androidx.core.telecom.test.NotificationsUtilities.Companion.IS_ANSWER_ACTION
 import androidx.core.telecom.test.NotificationsUtilities.Companion.NOTIFICATION_CHANNEL_ID
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -56,7 +57,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-@ExperimentalAppActions
 @RequiresApi(34)
 class CallingMainActivity : Activity() {
     // Activity
@@ -319,7 +319,6 @@ class CallingMainActivity : Activity() {
         }
     }
 
-    @OptIn(ExperimentalAppActions::class)
     private suspend fun addCallWithExtensions(
         attributes: CallAttributesCompat,
         callObject: VoipCall,

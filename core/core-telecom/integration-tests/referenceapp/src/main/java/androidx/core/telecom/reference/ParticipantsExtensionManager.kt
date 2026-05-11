@@ -19,7 +19,6 @@ package androidx.core.telecom.reference
 import android.util.Log
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.reference.model.ParticipantState
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 
 /** Manages the extension in a Call */
-@OptIn(ExperimentalAppActions::class)
 class ParticipantsExtensionManager {
     companion object {
         // Represents "self" in participants window, which allows raise hand state modification and
