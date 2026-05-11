@@ -49,7 +49,7 @@ class RemoteLongTest {
 
     @Test
     fun namedRemoteLong_setValue() {
-        val namedRemoteLong = RemoteLong.createNamedRemoteLong("testLong", 100)
+        val namedRemoteLong = RemoteLong.createNamedRemoteLong("testLong", 100L)
         val longId = namedRemoteLong.getIdForCreationState(creationState)
 
         makeAndUpdateCoreDocument { context.setNamedLong("USER:testLong", 20) }
@@ -252,6 +252,15 @@ class RemoteLongTest {
         val diffDynamic = RemoteLong(long1.low, long1.high) - RemoteLong(long2.low, long2.high)
         assertThat(diffDynamic.constantValueOrNull)
             .isEqualTo(0x1000000100000000L - 0x0000000000000001L)
+    }
+
+    @Test
+    fun mutableRemoteLong_smokeTest() {
+        val mutableLong = MutableRemoteLong(100L)
+        val resultId = mutableLong.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getLong(resultId)).isEqualTo(100L)
     }
 
     private fun makeAndPaintCoreDocument() =

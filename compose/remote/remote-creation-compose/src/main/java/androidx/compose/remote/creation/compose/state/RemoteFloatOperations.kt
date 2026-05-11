@@ -620,28 +620,3 @@ public fun animateRemoteFloat(
     val anim = RemoteComposeBuffer.packAnimation(duration, type, spec, initialValue, wrap)
     return AnimatedRemoteFloat(rf, anim)
 }
-
-/**
- * Returns a [RemoteFloat] which applies an animation based on the result of [content].
- *
- * @param duration The duration of the animation in seconds
- * @param type The type of animation
- * @param spec The parameters of the animation if any
- * @param initialValue The initial value if it animates to a start
- * @param wrap If not [Float.NaN], then all animations will be computed modulo this value. For
- *   example, if the animation is for an angle, wrap=360 means that an angle of 355 would animate
- *   to 5.
- * @param content Callback that provides a [RemoteFloat] upon which the animation is based
- * @return A [RemoteFloat] based on the result of [content] but with an animation applied to it
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun animateRemoteFloat(
-    duration: Float = 1f,
-    @AnimationType type: Int = CUBIC_STANDARD,
-    spec: FloatArray? = null,
-    initialValue: Float = Float.NaN,
-    wrap: Float = Float.NaN,
-    content: () -> RemoteFloat,
-): RemoteFloat {
-    return animateRemoteFloat(content(), duration, type, spec, initialValue, wrap)
-}

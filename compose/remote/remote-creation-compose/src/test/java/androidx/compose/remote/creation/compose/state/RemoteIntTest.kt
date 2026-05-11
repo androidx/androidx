@@ -684,6 +684,13 @@ class RemoteIntTest {
         assertThat(bArray.size).isEqualTo(7)
     }
 
+    @Test
+    fun mutableRemoteInt_smokeTest() {
+        val mutableInt = MutableRemoteInt(10)
+        val resultId = mutableInt.getIdForCreationState(creationState)
+        assertThat(resultId).isGreaterThan(0)
+    }
+
     private fun getOperationsStrings(): List<String> =
         CoreDocument().run {
             val buffer = creationState.document.buffer

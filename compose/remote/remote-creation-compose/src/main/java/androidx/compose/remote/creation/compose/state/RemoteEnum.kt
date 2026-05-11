@@ -168,7 +168,6 @@ public open class RemoteEnum<T : Enum<T>>(
          * @param defaultValue The initial [Enum] value for the named remote enum.
          * @return A [RemoteEnum] representing the named enum.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public inline fun <reified T : Enum<T>> createNamedRemoteEnum(
             name: String,
@@ -220,10 +219,10 @@ public class MutableRemoteEnum<T : Enum<T>>(
          * @param initialValue The initial value for this mutable enum.
          * @return A [MutableRemoteEnum] instance.
          */
-        public inline fun <reified T : Enum<T>> createMutable(
+        public inline operator fun <reified T : Enum<T>> invoke(
             initialValue: T
         ): MutableRemoteEnum<T> =
-            MutableRemoteEnum(MutableRemoteInt.createMutable(initialValue.ordinal), enumEntries())
+            MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries())
     }
 }
 
@@ -238,9 +237,7 @@ public class MutableRemoteEnum<T : Enum<T>>(
 public inline fun <reified T : Enum<T>> rememberMutableRemoteEnum(
     initialValue: T
 ): MutableRemoteEnum<T> {
-    return remember {
-        MutableRemoteEnum(MutableRemoteInt.createMutable(initialValue.ordinal), enumEntries())
-    }
+    return remember { MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries()) }
 }
 
 /**

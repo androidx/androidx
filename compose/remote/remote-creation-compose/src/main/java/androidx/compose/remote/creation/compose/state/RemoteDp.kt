@@ -166,7 +166,7 @@ public fun RemoteFloat.toRemoteDp(): RemoteDp {
  *
  * @param name The unique name for this remote Dp.
  * @param domain The domain of the named Dp (defaults to [RemoteState.Domain.User]).
- * @param content A lambda that provides the [RemoteDp] expression.
+ * @param value A lambda that provides the [RemoteDp] expression.
  * @return A [RemoteDp] representing the named remote Dp expression.
  */
 @Composable
@@ -174,10 +174,10 @@ public fun RemoteFloat.toRemoteDp(): RemoteDp {
 public fun rememberNamedRemoteDp(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
-    content: () -> RemoteDp,
+    value: () -> RemoteDp,
 ): RemoteDp {
     return rememberNamedState(name, domain) {
-        val remoteDp = content()
+        val remoteDp = value()
         RemoteDp(
             RemoteFloatExpression(
                 constantValueOrNull = null,

@@ -729,6 +729,13 @@ class RemoteBooleanTest {
         assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("A", "B")
     }
 
+    @Test
+    fun mutableRemoteBoolean_smokeTest() {
+        val mutableBool = MutableRemoteBoolean(true)
+        val resultId = mutableBool.getIdForCreationState(creationState)
+        assertThat(resultId).isGreaterThan(0)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

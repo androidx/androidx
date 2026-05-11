@@ -743,23 +743,23 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
         /**
          * Creates a [RemoteFloat] from a constant [Float] value.
          *
-         * @param float The value to wrap.
+         * @param value The value to wrap.
          * @return A [RemoteFloat] representing the given constant or encoded id.
          */
-        public operator fun invoke(float: Float): RemoteFloat {
-            return if (isConstant(float)) {
+        public operator fun invoke(value: Float): RemoteFloat {
+            return if (isConstant(value)) {
                 RemoteFloatExpression(
-                    constantValueOrNull = float,
-                    cacheKey = RemoteConstantCacheKey(float),
+                    constantValueOrNull = value,
+                    cacheKey = RemoteConstantCacheKey(value),
                 ) { _ ->
-                    floatArrayOf(float)
+                    floatArrayOf(value)
                 }
             } else {
                 RemoteFloatExpression(
                     constantValueOrNull = null,
-                    cacheKey = RemoteStateIdKey(Utils.idFromNan(float)),
+                    cacheKey = RemoteStateIdKey(Utils.idFromNan(value)),
                 ) { _ ->
-                    floatArrayOf(float)
+                    floatArrayOf(value)
                 }
             }
         }
@@ -783,7 +783,6 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
          *   helps avoid name collisions.
          * @return A [RemoteFloat] representing the named float.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteFloat(
             name: String,
@@ -800,7 +799,6 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
             }
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun createNamedRemoteFloatExpression(
             name: String,
@@ -1524,7 +1522,7 @@ internal constructor(
         id: Int
     ) : this(cacheKey = RemoteStateIdKey(id), idProvider = { asNan(id) })
 
-    internal constructor(
+    private constructor(
         initialValue: Float
     ) : this(
         cacheKey = RemoteStateInstanceKey(),
@@ -1549,7 +1547,7 @@ internal constructor(
          * @param initialValue The initial value for the state.
          * @return A new [MutableRemoteFloat] instance.
          */
-        public fun createMutable(initialValue: Float): MutableRemoteFloat {
+        public operator fun invoke(initialValue: Float): MutableRemoteFloat {
             return MutableRemoteFloat(cacheKey = RemoteStateInstanceKey()) { creationState ->
                 creationState.document.floatExpression(initialValue)
             }
@@ -1771,16 +1769,16 @@ public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): F
  * Composable function to remember and provide a [RemoteFloat] from a [FloatArray]. This is intended
  * for use within a `@Composable` context.
  *
- * @param content A lambda that provides the [FloatArray] to be remembered.
+ * @param value A lambda that provides the [FloatArray] to be remembered.
  * @return A [RemoteFloat] representing the remembered float array.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
-public fun rememberRemoteFloatArray(content: () -> FloatArray): RemoteFloat {
+public fun rememberRemoteFloatArray(value: () -> FloatArray): RemoteFloat {
     val state = LocalRemoteComposeCreationState.current
     return rememberRemoteFloatExpression {
-        val floatArrayId = state.document.addFloatArray(content())
+        val floatArrayId = state.document.addFloatArray(value())
         floatArrayId.rf
     }
 }
@@ -1794,27 +1792,27 @@ public fun rememberRemoteFloatArray(content: () -> FloatArray): RemoteFloat {
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteFloat(initialValue: Float): MutableRemoteFloat {
-    return remember { MutableRemoteFloat.createMutable(initialValue) }
+    return remember { MutableRemoteFloat(initialValue) }
 }
 
 /**
  * Remembers a remote float expression based on [RemoteFloatContext].
  *
- * @param content A lambda that provides the [RemoteFloat] expression.
+ * @param value A lambda that provides the [RemoteFloat] expression.
  * @return A [RemoteFloat] instance representing the provided expression.
  */
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteFloat(
-    content: RemoteFloatContext.() -> RemoteFloat
+    value: RemoteFloatContext.() -> RemoteFloat
 ): MutableRemoteFloat {
     val state = LocalRemoteComposeCreationState.current
     return remember {
         val context = RemoteFloatContext(state)
         // Currently evaluated eagerly to grab the right component
-        val value = content(context)
+        val result = value(context)
         MutableRemoteFloat(cacheKey = RemoteStateInstanceKey()) { state ->
-            state.document.floatExpression(*value.arrayForCreationState(state))
+            state.document.floatExpression(*result.arrayForCreationState(state))
         }
     }
 }
@@ -1822,20 +1820,18 @@ public fun rememberMutableRemoteFloat(
 /**
  * Factory composable for state.
  *
- * @param content A lambda that provides the [RemoteFloat] expression.
+ * @param value A lambda that provides the [RemoteFloat] expression.
  * @return A [RemoteFloat] instance representing the provided expression.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
-public fun rememberRemoteFloatExpression(
-    content: RemoteFloatContext.() -> RemoteFloat
-): RemoteFloat {
+public fun rememberRemoteFloatExpression(value: RemoteFloatContext.() -> RemoteFloat): RemoteFloat {
     val state = LocalRemoteComposeCreationState.current
     return remember {
         val context = RemoteFloatContext(state)
         // Currently evaluated eagerly to grab the right component
-        val remoteFloat = content(context)
+        val remoteFloat = value(context)
         remoteFloat
     }
 }
@@ -1845,7 +1841,7 @@ public fun rememberRemoteFloatExpression(
  *
  * @param name A unique name to identify this state within its [domain].
  * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @param content A lambda that provides the [RemoteFloat] expression.
+ * @param value A lambda that provides the [RemoteFloat] expression.
  * @return A [RemoteFloat] instance representing the named expression.
  */
 @Composable
@@ -1853,10 +1849,10 @@ public fun rememberRemoteFloatExpression(
 public fun rememberNamedRemoteFloat(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
-    content: RemoteFloatContext.() -> RemoteFloat,
+    value: RemoteFloatContext.() -> RemoteFloat,
 ): RemoteFloat {
     return rememberNamedState(name, domain) {
-        RemoteFloat.createNamedRemoteFloatExpression(name, domain, expression = content)
+        RemoteFloat.createNamedRemoteFloatExpression(name, domain, expression = value)
     }
 }
 

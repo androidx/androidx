@@ -981,6 +981,16 @@ class RemoteStringTest {
         assertThat(s2.computeRequiredCodePointSet(creationState)).containsExactly("C", "D")
     }
 
+    @Test
+    fun mutableRemoteString_smokeTest() {
+        val mutableStr = MutableRemoteString("test")
+        val result = mutableStr + RemoteString("!")
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(resultId)).isEqualTo("test!")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

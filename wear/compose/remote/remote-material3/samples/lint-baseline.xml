@@ -562,7 +562,7 @@
     <issue
         id="RestrictedApiAndroidX"
         message="RemoteFloatOperations.animateRemoteFloat can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
-        errorLine1="    val animatedProgress = animateRemoteFloat(0.25f) { progress }"
+        errorLine1="    val animatedProgress = animateRemoteFloat(progress, 0.25f)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/remote/material3/samples/RemoteCircularProgressIndicatorSample.kt"/>
