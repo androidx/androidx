@@ -61,11 +61,11 @@ androidXMultiplatform {
 
         commonMain.dependencies {
             api("androidx.annotation:annotation:1.9.1")
-            api("androidx.lifecycle:lifecycle-common:2.11.0-alpha03")
-            api("androidx.lifecycle:lifecycle-runtime:2.11.0-alpha03")
-            api("androidx.lifecycle:lifecycle-viewmodel:2.11.0-alpha03")
-            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-alpha03")
-            api(project(":savedstate:savedstate"))
+            api("androidx.lifecycle:lifecycle-common:2.11.0-beta01")
+            api("androidx.lifecycle:lifecycle-runtime:2.11.0-beta01")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.11.0-beta01")
+            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-beta01")
+            api("androidx.savedstate:savedstate:1.5.0")
             implementation("androidx.collection:collection:1.5.0")
             implementation(libs.kotlinSerializationCore)
         }
@@ -76,7 +76,7 @@ androidXMultiplatform {
         }
 
         androidMain.dependencies {
-            api(project(":savedstate:savedstate-ktx"))
+            api("androidx.savedstate:savedstate-ktx:1.5.0")
             implementation("androidx.core:core-ktx:1.1.0")
             implementation("androidx.profileinstaller:profileinstaller:1.4.0")
         }
