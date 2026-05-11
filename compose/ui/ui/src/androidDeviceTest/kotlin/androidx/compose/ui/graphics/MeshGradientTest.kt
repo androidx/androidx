@@ -19,8 +19,10 @@ package androidx.compose.ui.graphics
 import android.os.Build
 import android.view.View
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
@@ -34,6 +36,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert
@@ -482,7 +485,10 @@ class MeshGradientTest {
         size: IntSize,
         block: MeshGradientScope.() -> Unit,
     ) {
-        Layout(modifier = Modifier.meshGradient(rows, columns, hasBicubicColor, block)) { _, _ ->
+        val gradientPainter = remember {
+            MeshGradientPainter(rows, columns, hasBicubicColor, block)
+        }
+        Layout(Modifier.drawBehind { with(gradientPainter) { draw(size.toSize()) } }) { _, _ ->
             layout(size.width, size.height) {}
         }
     }

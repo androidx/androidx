@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.graphics
 
-actual fun MeshGradientRenderer(): MeshGradientRenderer = MeshGradientRendererImpl()
+internal actual fun MeshGradientRenderer(): MeshGradientRenderer = MeshGradientRendererImpl()

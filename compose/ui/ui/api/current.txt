@@ -1198,29 +1198,22 @@ package androidx.compose.ui.graphics {
     field public static final float DefaultCameraDistance = 8.0f;
   }
 
-  public final class MeshGradientKt {
-    method public static androidx.compose.ui.Modifier meshGradient(androidx.compose.ui.Modifier, @IntRange(from=1L) int rows, @IntRange(from=1L) int columns, optional boolean hasBicubicColor, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.MeshGradientScope,kotlin.Unit> block);
-    method @BytecodeOnly public static androidx.compose.ui.Modifier! meshGradient$default(androidx.compose.ui.Modifier!, int, int, boolean, kotlin.jvm.functions.Function1!, int, Object!);
+  public final class MeshGradientPainter extends androidx.compose.ui.graphics.painter.Painter {
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public MeshGradientPainter(int, int, boolean, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public MeshGradientPainter(@IntRange(from=1L) int rows, @IntRange(from=1L) int columns, optional boolean hasBicubicColor, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.MeshGradientScope,kotlin.Unit> block);
+    method @BytecodeOnly public long getIntrinsicSize-NH-jbRc();
+    method protected void onDraw(androidx.compose.ui.graphics.drawscope.DrawScope);
+    property public androidx.compose.ui.geometry.Size intrinsicSize;
   }
 
-  public interface MeshGradientRenderer {
-    method public void draw(androidx.compose.ui.graphics.drawscope.DrawScope, int rows, int columns, float[] positions, int[] colors, optional float[]? leftBezierOffsets, optional float[]? topBezierOffsets, optional float[]? rightBezierOffsets, optional float[]? bottomBezierOffsets, optional boolean hasBicubicColor);
-    method @BytecodeOnly public static void draw$default(androidx.compose.ui.graphics.MeshGradientRenderer!, androidx.compose.ui.graphics.drawscope.DrawScope!, int, int, float[]!, int[]!, float[]!, float[]!, float[]!, float[]!, boolean, int, Object!);
-  }
-
-  public final class MeshGradientRenderer_androidKt {
-    method public static androidx.compose.ui.graphics.MeshGradientRenderer MeshGradientRenderer();
-  }
-
-  public final class MeshGradientScope {
-    ctor public MeshGradientScope(int rows, int columns);
+  public sealed nonexhaustive interface MeshGradientScope {
     method @InaccessibleFromKotlin public int getColumns();
     method @InaccessibleFromKotlin public int getRows();
     method @KotlinOnly public void setVertex(int row, int column, androidx.compose.ui.geometry.Offset position, androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.geometry.Offset leftControlPoint, optional androidx.compose.ui.geometry.Offset topControlPoint, optional androidx.compose.ui.geometry.Offset rightControlPoint, optional androidx.compose.ui.geometry.Offset bottomControlPoint);
     method @BytecodeOnly public void setVertex-6uS4IUQ(int, int, long, long, long, long, long, long);
     method @BytecodeOnly public static void setVertex-6uS4IUQ$default(androidx.compose.ui.graphics.MeshGradientScope!, int, int, long, long, long, long, long, long, int, Object!);
-    property public int columns;
-    property public int rows;
+    property public abstract int columns;
+    property public abstract int rows;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TransformOrigin {
