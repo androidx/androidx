@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.core.util;
 
 import org.jspecify.annotations.NonNull;
@@ -107,7 +108,7 @@ public class ObjectsCompat {
      * and constructors, as demonstrated below:
      * <blockquote><pre>
      * public Foo(Bar bar) {
-     *     this.bar = Objects.requireNonNull(bar);
+     *     this.bar = ObjectsCompat.requireNonNull(bar);
      * }
      * </pre></blockquote>
      *
@@ -128,8 +129,8 @@ public class ObjectsCompat {
      * constructors with multiple parameters, as demonstrated below:
      * <blockquote><pre>
      * public Foo(Bar bar, Baz baz) {
-     *     this.bar = Objects.requireNonNull(bar, "bar must not be null");
-     *     this.baz = Objects.requireNonNull(baz, "baz must not be null");
+     *     this.bar = ObjectsCompat.requireNonNull(bar, "bar must not be null");
+     *     this.baz = ObjectsCompat.requireNonNull(baz, "baz must not be null");
      * }
      * </pre></blockquote>
      *
