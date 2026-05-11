@@ -1456,6 +1456,7 @@ internal fun Project.configureTaskTimeouts() {
     val slowTasks =
         setOf(
             ":docs-public:docs", // b/508392874
+            ":docs-tip-of-tree:docs", // b/508392874
             ":compose:ui:ui:compileReleaseAndroidTestKotlinAndroid",
             ":compose:foundation:foundation:compileReleaseAndroidTestKotlinAndroid",
             ":compose:foundation:foundation:integration-tests:lazy-tests:compileReleaseAndroidTestKotlin",
