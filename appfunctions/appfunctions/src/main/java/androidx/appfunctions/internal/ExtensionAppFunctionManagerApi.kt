@@ -32,8 +32,10 @@ import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionManager as ExtensionAppFunctionManager
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -52,7 +54,16 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
     ): ExecuteAppFunctionResponse {
         return suspendCancellableCoroutine { cont ->
             val cancellationSignal = CancellationSignal()
-            cont.invokeOnCancellation { cancellationSignal.cancel() }
+            // Wrapped in an AtomicReference so we can explicitly null it out. This protects the
+            // client from leaky binder proxies on platform versions where the system_server holds a
+            // strong reference to the CancellationSignal's OnCancelListener and its associated
+            // Binder proxies.
+            val activeCont =
+                AtomicReference<CancellableContinuation<ExecuteAppFunctionResponse>?>(cont)
+            cont.invokeOnCancellation {
+                cancellationSignal.cancel()
+                activeCont.set(null)
+            }
             appFunctionManager.executeAppFunction(
                 request.toPlatformExtensionClass(),
                 Runnable::run,
@@ -66,12 +77,14 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
                     override fun onResult(
                         result: com.android.extensions.appfunctions.ExecuteAppFunctionResponse
                     ) {
-                        cont.resume(
-                            ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(
-                                result,
-                                functionMetadata,
+                        activeCont
+                            .getAndSet(null)
+                            ?.resume(
+                                ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(
+                                    result,
+                                    functionMetadata,
+                                )
                             )
-                        )
                     }
 
                     override fun onError(
@@ -81,7 +94,9 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
                             fixAppFunctionExceptionErrorType(
                                 AppFunctionException.fromPlatformExtensionsClass(error)
                             )
-                        cont.resume(ExecuteAppFunctionResponse.Error(exception))
+                        activeCont
+                            .getAndSet(null)
+                            ?.resume(ExecuteAppFunctionResponse.Error(exception))
                     }
                 },
             )
