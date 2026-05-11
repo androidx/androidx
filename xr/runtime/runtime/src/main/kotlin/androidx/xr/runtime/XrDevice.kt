@@ -18,7 +18,6 @@ package androidx.xr.runtime
 
 import android.content.Context
 import androidx.annotation.GuardedBy
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
 import androidx.xr.runtime.XrDevice.Companion.getCurrentDevice
 import androidx.xr.runtime.interfaces.DisplayBlendMode as InternalDisplayBlendMode
@@ -140,8 +139,12 @@ private constructor(
             return device
         }
 
-        /** Returns true if Projected service is available on this device. False otherwise. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        /**
+         * Returns true if the Android XR Projected service is available on this device. This means
+         * the device supports the necessary system features and has the required system service
+         * components for Projected experiences. Returns false otherwise.
+         */
+        @JvmStatic
         public fun isProjectedServiceAvailable(context: Context): Boolean {
             if (!PackageManagerUtils.hasXrProjectedSystemFeature(context)) {
                 return false
