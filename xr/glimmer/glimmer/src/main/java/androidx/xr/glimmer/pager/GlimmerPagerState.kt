@@ -24,7 +24,7 @@ import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
-import androidx.compose.foundation.pager.PagerState as FoundationPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.FrequentlyChangingValue
@@ -80,7 +80,7 @@ constructor(
     }
 
     internal val foundationPagerState =
-        FoundationPagerState(
+        PagerState(
             currentPage = currentPage,
             currentPageOffsetFraction = currentPageOffsetFraction,
             pageCount = pageCount,
