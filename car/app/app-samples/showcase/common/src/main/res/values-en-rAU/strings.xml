@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Message goes here.\nMore text on second line."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Short message template demo"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Sectioned item template demo"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Condensed item demo"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Sectioned item AlphaJump enabled demo"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Radio button section"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Toggle section"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"End image and actions demo"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Chip demo"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Progress bar demo"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Section header demo"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pane template demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Place list template demo"</string>

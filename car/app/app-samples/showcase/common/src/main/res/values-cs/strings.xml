@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Zde bude zpráva.\nDalší text na druhém řádku."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Ukázka šablony krátkých zpráv"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Ukázka šablony položky se sekcemi"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Ukázka zhuštěné položky"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Ukázka položky se sekcemi s aktivovaným AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sekce s přepínači"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Sekce s přepínačem"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Ukončit ukázku obrázku a akcí"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Ukázka štítku"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Ukázka ukazatele průběhu"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Ukázka záhlaví sekce"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Ukázka šablony panelu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Ukázka šablony seznamu míst"</string>

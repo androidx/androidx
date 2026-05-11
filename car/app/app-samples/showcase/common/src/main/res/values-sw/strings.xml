@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Ujumbe unaandikwa hapa.\nMaandishi ya ziada kwenye mstari wa pili."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Onyesho la Kiolezo cha Ujumbe Mfupi"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Jaribio la Kiolezo la Kipengee kilicho kwenye Sehemu"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Toleo la Kujaribu Kipengee Kilichobanwa"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Toleo la kujaribu Kipengee kilicho kwenye Sehemu ya AlphaJump iliyowashwa"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sehemu ya Kitufe cha Mviringo"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Sehemu ya Kugeuza"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Tamatisha Toleo la Kujaribu Picha na Vitendo"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Toleo la Kujaribu Chipu"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Toleo la kujaribu Upau wa Shughuli"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Toleo la Kujaribu la Kijajuu cha Sehemu"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Onyesho la Kiolezo cha Kijisehemu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Onyesho la Kiolezo cha Orodha ya Mahali"</string>

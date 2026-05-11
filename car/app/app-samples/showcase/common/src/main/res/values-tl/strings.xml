@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Dito lalabas ang mensahe.\nHigit pang text sa ikalawang linya."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo ng Template ng Maikling Mensahe"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo ng Template ng Nakaseksyong Item"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo ng Naka-condense na Item"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demo ng na-enable na AlphaJump ng Nakaseksyong Item"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Seksyon ng Radio Button"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"I-toggle ang Seksyon"</string>
@@ -247,6 +246,8 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Demo ng Chip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo ng Progress Bar"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo ng Header ng Seksyon"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo ng Template ng Pane"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo ng Template ng Listahan ng Lugar"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Mag-browse ng Mga Lugar"</string>

@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"El missatge va aquí.\nMés text a la segona línia."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demostració d\'una plantilla de missatge curt"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demostració d\'una plantilla d\'elements amb seccions"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demostració d\'element condensat"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demostració amb AlphaJump activat per a elements amb seccions"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Secció de botons d\'opció"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Commuta la secció"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Finalitza la demostració d\'imatges i accions"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"Demostració de xip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demostració de la barra de progrés"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"Demostració de la capçalera de secció"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demostració d\'una plantilla de subfinestra"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demostració d\'una plantilla de llista de llocs"</string>

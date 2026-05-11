@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"පණිවිඩය මෙතැනට යයි.\nදෙවන පේළියේ තවත් පෙළ."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"කෙටි පණිවිඩ අච්චු ආදර්ශනය"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"කොටස් කළ අයිතම අච්චු ආදර්ශනය"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"ඝනීභූත අයිතම ආදර්ශනය"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"කොටස් කළ අයිතම AlphaJump සබල කළ ආදර්ශනය"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"රේඩියෝ බොත්තම් කොටස"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"කොටස ටොගල් කරන්න"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"රූපය සහ ක්‍රියා ආදර්ශනය අවසන් කරන්න"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"චිප ආදර්ශනය"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"ප්‍රගති තීරු ආදර්ශනය"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"කොටස් ශීර්ෂ ආදර්ශනය"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"කවුළු අච්චු ආදර්ශනය"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ස්ථාන ලැයිස්තු අච්චු ආදර්ශනය"</string>

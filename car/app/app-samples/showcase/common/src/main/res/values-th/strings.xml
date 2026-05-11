@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ข้อความจะแสดงที่นี่\nข้อความเพิ่มเติมจะอยู่ในบรรทัดที่ 2"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"การสาธิตเทมเพลตข้อความสั้น"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"เดโมเทมเพลตรายการแบบแยกส่วน"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"เดโมรายการแบบย่อ"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"เดโมที่เปิดใช้ Sectioned Item AlphaJump"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ส่วนปุ่มตัวเลือก"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"สลับส่วน"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"การสาธิตรูปภาพและการดำเนินการสิ้นสุด"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"การสาธิตเกี่ยวกับชิป"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"เดโมแถบความคืบหน้า"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"การแสดงตัวอย่างส่วนหัวของส่วน"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"การสาธิตเทมเพลตแผง"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"การสาธิตเทมเพลตรายการสถานที่"</string>

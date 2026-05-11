@@ -232,8 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"म्यासेज यहाँ लेखिने छ।\nथप टेक्स्ट लेख्न दोस्रो हरफमा जानुहोस्।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"सर्ट म्यासेज टेम्प्लेटको डेमो"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"खण्डमा छुट्याइएको सामग्रीको टेम्प्लेटको डेमो"</string>
-    <!-- no translation found for condensed_item_demo_title (225744083182855764) -->
-    <skip />
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"कोल्याप्स गरिएको सामग्रीको डेमो"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"खण्डमा छुट्याइएको सामग्रीको AlphaJump अन गरिएको डेमो"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"रेडियो बटन भएको खण्ड"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"टगल भएको खण्ड"</string>
@@ -246,7 +245,8 @@
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"फोटो तथा कारबाहीको डेमो अन्त्य गर्नुहोस्"</string>
     <string name="chip_demo_title" msgid="814337127879515513">"चिपको डेमो"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"प्रोग्रेस बारको डेमो"</string>
-    <!-- no translation found for section_header_demo_title (4880150421750399922) -->
+    <string name="section_header_demo_title" msgid="4880150421750399922">"खण्डको हेडरको डेमो"</string>
+    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
     <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"पेनको टम्प्लेटको डेमो"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ठाउँको सूचीको टेम्प्लेटको डेमो"</string>
