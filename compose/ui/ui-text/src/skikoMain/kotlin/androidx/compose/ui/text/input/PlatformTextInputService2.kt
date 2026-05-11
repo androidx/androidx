@@ -37,6 +37,11 @@ interface TextEditorState : CharSequence {
      * The composition in the text field.
      */
     val composition: TextRange?
+
+    /**
+     * Current text state as a string.
+     */
+    val text: String
 }
 
 /**
@@ -53,11 +58,32 @@ interface TextEditingScope {
     fun deleteSurroundingTextInCodePoints(lengthBeforeCursor: Int, lengthAfterCursor: Int)
 
     /**
+     * Selects the text between the specified start and end indices.
+     *
+     * This intends to replicate [SetSelectionCommand].
+     *
+     * @param start The starting index of the text selection.
+     * @param end The ending index of the text selection.
+     */
+    fun setSelection(start: Int, end: Int)
+
+    /**
      * Commits text and repositions the cursor.
      *
      * This intends to replicate [CommitTextCommand].
      */
     fun commitText(text: CharSequence, newCursorPosition: Int)
+
+    /**
+     * Selects a range of text to mark it as composing text.
+     * This is typically used to indicate the part of text being actively edited or composed.
+     *
+     * This intends to replicate [SetComposingRegionCommand].
+     *
+     * @param start The start index of the composing text range.
+     * @param end The end index of the composing text range.
+     */
+    fun setComposingRegion(start: Int, end: Int)
 
     /**
      * Sets the composing text and repositions the cursor.

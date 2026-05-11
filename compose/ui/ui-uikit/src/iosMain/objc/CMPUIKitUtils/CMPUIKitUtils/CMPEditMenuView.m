@@ -147,6 +147,7 @@ id _editInteraction;
     if (self.window != nil) {
         [[CMPEditMenuViewRegister shared] addEditMenu:self];
     } else {
+        [self hideEditMenu];
         [[CMPEditMenuViewRegister shared] removeEditMenu:self];
     }
 }

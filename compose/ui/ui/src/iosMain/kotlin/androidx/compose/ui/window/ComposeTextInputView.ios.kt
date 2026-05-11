@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextEditingDelegate
 import androidx.compose.ui.platform.toTextRange
 import androidx.compose.ui.platform.toUITextRange
-import androidx.compose.ui.platform.withDeferredEditBatch
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.uikit.utils.CMPEditMenuView
 import androidx.compose.ui.unit.DpOffset
@@ -34,7 +33,6 @@ import kotlin.time.DurationUnit
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
-import kotlinx.coroutines.CoroutineScope
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
@@ -78,7 +76,6 @@ import platform.darwin.NSInteger
  */
 internal class ComposeTextInputView(
     private val doubleTapTimeoutMillis: Long,
-    private val coroutineScope: CoroutineScope
 ) : CMPEditMenuView(frame = CGRectZero.readValue()),
     UIKeyInputProtocol, UITextInputProtocol {
     private var _inputDelegate: UITextInputDelegateProtocol? = null
@@ -180,16 +177,12 @@ internal class ComposeTextInputView(
      */
     override fun replaceRange(range: UITextRange, withText: String) {
         val textRange = range.toTextRange() ?: return
-        input?.withDeferredEditBatch(coroutineScope) {
-            replaceRange(textRange, withText)
-        }
+        input?.replaceRange(textRange, withText)
     }
 
     override fun setSelectedTextRange(selectedTextRange: UITextRange?) {
         val range = selectedTextRange?.toTextRange()
-        input?.withDeferredEditBatch(coroutineScope) {
-            setSelectedTextRange(range)
-        }
+        input?.setSelectedTextRange(range)
     }
 
     /**
@@ -238,17 +231,7 @@ internal class ComposeTextInputView(
         }
         val relativeTextRange = TextRange(locationRelative, locationRelative + lengthRelative)
 
-        // Due to iOS specifics, [setMarkedText] can be called several times in a row. Batching
-        // helps to avoid text input problems, when Composables use parameters set during
-        // recomposition instead of the current ones. Example:
-        // 1. State "1" -> TextField(text = "1")
-        // 2. setMarkedText "12" -> Not equal to TextField(text = "1") -> State "12"
-        // 3. setMarkedText "1" -> Equal to TextField(text = "1") -> State remains "12"
-        // scene.render() - Recomposes TextField
-        // 4. State "12" -> TextField(text = "12") - Invalid state. Should be TextField(text = "1")
-        input?.withDeferredEditBatch(withScope = coroutineScope) {
-            setMarkedText(markedText, relativeTextRange)
-        }
+        input?.setMarkedText(markedText, relativeTextRange)
     }
 
     /**
@@ -362,7 +345,7 @@ internal class ComposeTextInputView(
     override fun positionWithinRange(
         range: UITextRange,
         farthestInDirection: UITextLayoutDirection
-    ): UITextPosition? = TextInputPosition(0)
+    ): UITextPosition = TextInputPosition(0)
 
     override fun characterRangeByExtendingPosition(
         position: UITextPosition,

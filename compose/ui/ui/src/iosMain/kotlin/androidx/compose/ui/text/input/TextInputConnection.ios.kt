@@ -17,18 +17,17 @@
 package androidx.compose.ui.text.input
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.EmptyInputTraits
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextEditingDelegate
 import androidx.compose.ui.platform.getUITextInputTraits
 import androidx.compose.ui.scene.ComposeSceneFocusManager
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.unit.DpOffset
@@ -40,7 +39,9 @@ import androidx.compose.ui.window.NativeTextInputView
 import androidx.compose.ui.window.OverlayInputView
 import kotlin.math.absoluteValue
 import kotlin.math.min
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.BreakIterator
 import platform.UIKit.UIView
@@ -53,19 +54,33 @@ internal abstract class TextInputConnection(
     override var onKeyboardPresses: (Set<*>) -> Unit,
     private var focusManager: () -> ComposeSceneFocusManager?,
 ): TextEditingDelegate {
-    fun start(
-        value: TextFieldValue,
-        imeOptions: ImeOptions,
-        onEditCommand: (List<EditCommand>) -> Unit,
-        onImeActionPerformed: (ImeAction) -> Unit
-    ) {
-        sessionEditProcessor = EditProcessor().apply {
-            reset(value, null)
-        }
-        currentOnEditCommand = onEditCommand
-        currentImeOptions = imeOptions
-        inputTraits = getUITextInputTraits(imeOptions)
-        currentImeActionHandler = onImeActionPerformed
+
+    private var textInputServiceInvalidationsCount = 0
+    val hasInvalidations: Boolean
+        get() = textInputServiceInvalidationsCount > 0
+
+    /**
+     * When `true`, [onTextFieldValueUpdated] callbacks coming back through the state snapshot flow
+     * during an [edit] cycle are absorbed without notifying UITextInputDelegate. This avoids
+     * resetting multi-stage IME state when UIKit itself initiated the change.
+     */
+    private var postponeSelectionUpdate: Boolean = false
+
+    private var floatingCursorTranslation : Offset? = null
+    private var currentRequest: PlatformTextInputMethodRequest? = null
+
+    protected abstract val textInputView: UIView
+    protected var currentTextFieldValue: TextFieldValue? = null
+        private set
+
+    protected val textLayoutResult get() = currentRequest?.textLayoutResult()
+    protected val unclippedTextOffsetInRoot get() = currentRequest?.unclippedTextOffsetInRoot()
+    protected val textFieldRectInRoot get() = currentRequest?.textFieldRectInRoot()
+
+    fun start(request: PlatformTextInputMethodRequest) {
+        currentRequest = request
+        currentTextFieldValue = request.stateSnapshot()
+        inputTraits = getUITextInputTraits(request.imeOptions)
         attachInputToView()
         showKeyboard()
     }
@@ -73,13 +88,9 @@ internal abstract class TextInputConnection(
     protected abstract fun attachInputToView()
 
     open fun stop() {
-        flushEditCommandsIfNeeded(force = true)
-        sessionEditProcessor = null
-        currentOnEditCommand = null
-        currentImeOptions = null
+        currentRequest = null
+        currentTextFieldValue = null
         inputTraits = EmptyInputTraits
-        currentImeActionHandler = null
-        textLayoutResult = null
 
         dismissKeyboard()
 
@@ -96,36 +107,24 @@ internal abstract class TextInputConnection(
         focusedViewsList?.remove(textInputView, delayMillis = CLEAR_FOCUS_DELAY)
     }
 
-    fun updateState(newValue: TextFieldValue) {
-        val internalOldValue = sessionEditProcessor?.toTextFieldValue()
+    open fun onTextFieldValueUpdated(newValue: TextFieldValue) {
+        if (postponeSelectionUpdate) {
+            currentTextFieldValue = newValue
+            return
+        }
+        val internalOldValue = currentTextFieldValue
         val textChanged = internalOldValue == null || internalOldValue.text != newValue.text
         val selectionChanged = textChanged || internalOldValue.selection != newValue.selection
 
         stateWillChange(textChanged, selectionChanged)
-
-        sessionEditProcessor?.let {
-            it.reset(newValue, null)
-            _tempCursorPos = null
-        }
-
+        currentTextFieldValue = newValue
         stateDidChange(textChanged, selectionChanged)
     }
 
     protected abstract fun stateWillChange(textChanged: Boolean, selectionChanged: Boolean)
     protected abstract fun stateDidChange(textChanged: Boolean, selectionChanged: Boolean)
 
-    fun updateTextLayoutResult(textLayoutResult: TextLayoutResult) {
-        this.textLayoutResult = textLayoutResult
-    }
-
-    open fun updateViewGeometry(
-        textFieldFrame: Rect,
-        unclippedTextPosition: Offset
-    ) {
-        textFieldFrameInRoot = textFieldFrame
-        updateTextViewPosition(unclippedTextPosition)
-    }
-    protected abstract fun updateTextViewPosition(unclippedTextPosition: Offset)
+    abstract fun onViewGeometryUpdated()
 
     fun onPreviewKeyEvent(event: KeyEvent): Boolean {
         return when (event.key) {
@@ -135,65 +134,6 @@ internal abstract class TextInputConnection(
             else -> false
         }
     }
-
-    fun flushEditCommandsIfNeeded(force: Boolean = false) {
-        if ((force || editBatchDepth == 0) && editCommandsBatch.isNotEmpty()) {
-            val commandList = editCommandsBatch.toList()
-            editCommandsBatch.clear()
-
-            currentOnEditCommand?.invoke(commandList)
-        }
-    }
-
-    val hasInvalidations: Boolean
-        get() = textInputServiceInvalidationsCount > 0
-
-    protected var textInputServiceInvalidationsCount = 0
-
-    protected abstract val textInputView: UIView
-    protected var currentOnEditCommand: ((List<EditCommand>) -> Unit)? = null
-    protected var currentImeOptions: ImeOptions? = null
-    override var inputTraits: SkikoUITextInputTraits = EmptyInputTraits
-    protected var currentImeActionHandler: ((ImeAction) -> Unit)? = null
-
-    protected var textFieldFrameInRoot: Rect? = null
-
-    protected var textLayoutResult: TextLayoutResult? = null
-
-    /**
-     * Workaround to prevent calling textWillChange, textDidChange, selectionWillChange, and
-     * selectionDidChange when the value of the current input is changed by the system (i.e., by the user
-     * input) not by the state change of the Compose side. These 4 functions call methods of
-     * UITextInputDelegateProtocol, which notifies the system that the text or the selection of the
-     * current input has changed.
-     *
-     * This is to properly handle multi-stage input methods that depend on text selection, required by
-     * languages such as Korean (Chinese and Japanese input methods depend on text marking). The writing
-     * system of these languages contains letters that can be broken into multiple parts, and each keyboard
-     * key corresponds to those parts. Therefore, the input system holds an internal state to combine these
-     * parts correctly. However, the methods of UITextInputDelegateProtocol reset this state, resulting in
-     * incorrect input. (e.g., 컴포즈 becomes ㅋㅓㅁㅍㅗㅈㅡ when not handled properly)
-     *
-     * @see sessionEditProcessor holds the same text and selection of the current input. It is used
-     * instead of the old value passed to updateState. When the current value change is due to the
-     * user input, updateState is not effective because _tempCurrentInputSession holds the same value.
-     * However, when the current value change is due to the change of the user selection or to the
-     * state change in the Compose side, updateState calls the 4 methods because the new value holds
-     * these changes.
-     */
-    protected var sessionEditProcessor: EditProcessor? = null
-
-    /**
-     * Workaround to fix voice dictation.
-     * UIKit call insertText(text) and replaceRange(range,text) immediately,
-     * but Compose recomposition happen on next draw frame.
-     * So the value of getSelectedTextRange is in the old state when the replaceRange function is called.
-     * @see _tempCursorPos helps to fix this behaviour. Permanently update _tempCursorPos in function insertText.
-     * And after clear in updateState function.
-     */
-    private var _tempCursorPos: Int? = null
-
-    protected var floatingCursorTranslation : Offset? = null
 
     /**
      * Workaround to prevent IME action from being called multiple times with hardware keyboards.
@@ -232,7 +172,7 @@ internal abstract class TextInputConnection(
     }
 
     private fun handleEscape(event: KeyEvent): Boolean {
-        return if (sessionEditProcessor != null) {
+        return if (currentRequest != null) {
             if (event.type == KeyEventType.KeyDown) {
                 focusManager()?.releaseFocus()
             }
@@ -242,35 +182,37 @@ internal abstract class TextInputConnection(
         }
     }
 
-    private val editCommandsBatch = mutableListOf<EditCommand>()
-    private var editBatchDepth: Int = 0
-        set(value) {
-            field = value
-            flushEditCommandsIfNeeded()
+    /**
+     * Applies an editing operation produced by UIKit on top of the current text field state.
+     *
+     * The operation is executed via [PlatformTextInputMethodRequest.editText], so the change goes
+     * through the regular Compose snapshot/recomposition path. While the edit runs,
+     * [postponeSelectionUpdate] suppresses UITextInputDelegate notifications that would otherwise
+     * fire from the snapshot subscription and reset multi-stage IME state.
+     *
+     * @param requireUpdateView when `true`, request an immediate redraw after the edit. Some UIKit
+     * call sites (selection-only changes, marked text updates) rely on the next animation frame
+     * driven by Compose's normal redraw cycle and pass `false` to avoid extra work.
+     */
+    private fun edit(
+        requireUpdateView: Boolean = true,
+        performCommand: TextEditingScope.() -> Unit
+    ) {
+        currentRequest?.let {
+            postponeSelectionUpdate = true
+            it.editText {
+                performCommand()
+            }
+            if (requireUpdateView) {
+                updateView()
+            }
+            onTextFieldValueUpdated(it.stateSnapshot())
+            postponeSelectionUpdate = false
         }
-
-    protected open fun sendEditCommand(vararg commands: EditCommand) {
-        sessionEditProcessor?.apply(commands.toList())
-
-        editCommandsBatch.addAll(commands)
-        flushEditCommandsIfNeeded()
-    }
-
-    protected fun getState(): TextFieldValue? = sessionEditProcessor?.toTextFieldValue()
-
-    protected fun getCursorPos(): Int? {
-        if (_tempCursorPos != null) {
-            return _tempCursorPos
-        }
-        val selection = getState()?.selection
-        if (selection != null && selection.start == selection.end) {
-            return selection.start
-        }
-        return null
     }
 
     private fun imeActionRequired(): Boolean =
-        currentImeOptions?.run {
+        currentRequest?.imeOptions?.run {
             singleLine || (
                 imeAction != ImeAction.None
                     && imeAction != ImeAction.Default
@@ -279,8 +221,8 @@ internal abstract class TextInputConnection(
         } ?: false
 
     private fun runImeActionIfRequired(): Boolean {
-        val imeAction = currentImeOptions?.imeAction ?: return false
-        val imeActionHandler = currentImeActionHandler ?: return false
+        val imeAction = currentRequest?.imeOptions?.imeAction ?: return false
+        val imeActionHandler = currentRequest?.onImeAction ?: return false
         if (!imeActionRequired()) {
             return false
         }
@@ -319,6 +261,8 @@ internal abstract class TextInputConnection(
         return view.window?.let { hasFocusedExternalInputView(it) } ?: false
     }
 
+    override var inputTraits: SkikoUITextInputTraits = EmptyInputTraits
+
     override fun onResignFocus() {
         textInputServiceInvalidationsCount++
         coroutineScope.launch {
@@ -332,25 +276,24 @@ internal abstract class TextInputConnection(
     override fun updateFloatingCursor(offset: DpOffset) {
         val translation = floatingCursorTranslation ?: return
         val offsetPx = offset.toOffset(view.density)
-        val pos = textLayoutResult
-            ?.getOffsetForPosition(offsetPx + translation) ?: return
+        val pos = textLayoutResult?.getOffsetForPosition(offsetPx + translation) ?: return
 
-        sendEditCommand(SetSelectionCommand(pos, pos))
+        edit(requireUpdateView = false) {
+            setSelection(pos, pos)
+        }
+    }
+
+    override fun beginFloatingCursor(offset: DpOffset) {
+        val start = currentTextFieldValue?.selection?.start ?: return
+        val cursorRect = textLayoutResult?.getCursorRect(start) ?: return
+        floatingCursorTranslation = cursorRect.center - offset.toOffset(view.density)
     }
 
     override fun endFloatingCursor() {
         floatingCursorTranslation = null
     }
 
-    override fun beginEditBatch() {
-        editBatchDepth++
-    }
-
-    override fun endEditBatch() {
-        editBatchDepth--
-    }
-
-    override fun hasText(): Boolean = getState()?.text?.isNotEmpty() ?: false
+    override fun hasText(): Boolean = currentTextFieldValue?.text?.isNotEmpty() ?: false
 
     override fun insertText(text: String) {
         if (text == "\n") {
@@ -358,77 +301,79 @@ internal abstract class TextInputConnection(
                 return
             }
         }
-        getCursorPos()?.let {
-            _tempCursorPos = it + text.length
+        edit {
+            commitText(text, 1)
         }
-        sendEditCommand(CommitTextCommand(text, 1))
     }
 
     override fun deleteBackward() {
-        val deleteCommand = if (getState()?.selection?.collapsed == true) {
-            DeleteSurroundingTextCommand(lengthBeforeCursor = 1, lengthAfterCursor = 0)
+        if (currentTextFieldValue?.selection?.collapsed == true) {
+            edit {
+                deleteSurroundingTextInCodePoints(1, 0)
+            }
         } else {
-            CommitTextCommand("", 0)
+            edit {
+                commitText("", 0)
+            }
         }
-        sendEditCommand(deleteCommand)
     }
 
-    override fun endOfDocument(): Int = getState()?.text?.length ?: 0
+    override fun endOfDocument(): Int = currentTextFieldValue?.text?.length ?: 0
 
-    override fun getSelectedTextRange(): TextRange? = getState()?.selection
+    override fun getSelectedTextRange(): TextRange? = currentTextFieldValue?.selection
 
     override fun setSelectedTextRange(range: TextRange?) {
-        if (range != null) {
-            sendEditCommand(
-                SetSelectionCommand(range.start, range.end)
-            )
-        } else {
-            sendEditCommand(
-                SetSelectionCommand(endOfDocument(), endOfDocument())
-            )
+        edit(requireUpdateView = false) {
+            if (range != null) {
+                setSelection(range.start, range.end)
+            } else {
+                setSelection(endOfDocument(), endOfDocument())
+            }
         }
     }
 
     override fun selectAll() {
-        sendEditCommand(
-            SetSelectionCommand(0, endOfDocument())
-        )
+        edit {
+            setSelection(0, endOfDocument())
+        }
     }
 
     override fun textInRange(range: TextRange): String? {
         if (isIncorrect(range)) {
             return null
         }
-        val text = getState()?.text ?: return null
+        val text = currentTextFieldValue?.text ?: return null
         return text.substring(range.start, range.end)
     }
 
     override fun replaceRange(range: TextRange, text: String) {
-        sendEditCommand(
-            SetComposingRegionCommand(range.start, range.end),
-            SetComposingTextCommand(text, 1),
-            FinishComposingTextCommand(),
-        )
+        edit {
+            setComposingRegion(range.start, range.end)
+            setComposingText(text, 1)
+            finishComposingText()
+        }
     }
 
     override fun setMarkedText(markedText: String?, selectedRange: TextRange) {
         if (markedText != null) {
-            sendEditCommand(
-                SetComposingTextCommand(markedText, 1)
-            )
+            edit(requireUpdateView = false) {
+                setComposingText(markedText, 1)
+            }
         }
     }
 
     override fun markedTextRange(): TextRange? {
-        return getState()?.composition
+        return currentTextFieldValue?.composition
     }
 
     override fun unmarkText() {
-        sendEditCommand(FinishComposingTextCommand())
+        edit {
+            finishComposingText()
+        }
     }
 
     override fun positionFromPosition(position: Int, offset: Int): Int? {
-        val text = getState()?.text ?: return null
+        val text = currentTextFieldValue?.text ?: return null
 
         val newPosition = position + offset
         if (newPosition == text.length || newPosition == 0) {
@@ -459,7 +404,7 @@ internal abstract class TextInputConnection(
     }
 
     override fun verticalPositionFromPosition(position: Int, verticalOffset: Int): Int? {
-        val text = getState()?.text ?: return null
+        val text = currentTextFieldValue?.text ?: return null
         val layoutResult = textLayoutResult ?: return null
 
         val line = layoutResult.getLineForOffset(position)
@@ -479,6 +424,15 @@ internal abstract class TextInputConnection(
         }
     }
 
+    protected fun textMenuAppearanceChanged() {
+        textInputServiceInvalidationsCount++
+        coroutineScope.launch {
+            // Time to show, hide or update state of context menu
+            delay(500.milliseconds)
+            textInputServiceInvalidationsCount--
+        }
+    }
+
     protected fun isIncorrect(range: TextRange): Boolean {
         return range.start < 0 || range.end > endOfDocument() || range.start > range.end
     }
@@ -488,7 +442,8 @@ internal abstract class TextInputConnection(
         // it may jump when switching between text fields.
         // Adding a delay to the 'resignFirstResponder' function call to eliminate this issue.
         internal const val CLEAR_FOCUS_DELAY: Long = 10L
-
-        internal val NoOpOnKeyboardPresses: (Set<*>) -> Unit = {}
     }
 }
+
+internal fun PlatformTextInputMethodRequest.stateSnapshot() =
+    TextFieldValue(state.text, state.selection, state.composition)
