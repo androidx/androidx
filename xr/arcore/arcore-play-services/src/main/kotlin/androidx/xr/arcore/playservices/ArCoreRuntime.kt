@@ -22,11 +22,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.AnchorPersistenceMode
-import androidx.xr.runtime.CameraFacingDirection
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.ConfigMode
 import androidx.xr.runtime.DepthEstimationMode
-import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
@@ -216,15 +213,6 @@ internal constructor(
         this.config = config
     }
 
-    override fun isSupported(configMode: ConfigMode): Boolean {
-        if (configMode is DepthEstimationMode) {
-            return isDepthModeSupportedInArCore1x(configMode)
-        } else if (configMode is GeospatialMode) {
-            return isGeoSpatialModeSupportedInArCore1x(configMode)
-        }
-        return SUPPORTED_CONFIG_MODES.contains(configMode)
-    }
-
     override fun destroy() {
         perceptionManager.dispose()
         _session.close()
@@ -367,18 +355,5 @@ internal constructor(
         private const val ARCORE_GEOSPATIAL_MODE_INERTIAL =
             3 /* com.google.ar.core.Config.GeospatialMode.INERTIAL */
         private const val ARCORE_PACKAGE_NAME = "com.google.ar.core"
-
-        @SuppressWarnings("RestrictedApiAndroidX")
-        internal val SUPPORTED_CONFIG_MODES: Set<ConfigMode> =
-            setOf(
-                CameraFacingDirection.WORLD,
-                CameraFacingDirection.USER,
-                DeviceTrackingMode.DISABLED,
-                DeviceTrackingMode.SPATIAL,
-                FaceTrackingMode.DISABLED,
-                FaceTrackingMode.MESHES,
-                PlaneTrackingMode.DISABLED,
-                PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-            )
     }
 }

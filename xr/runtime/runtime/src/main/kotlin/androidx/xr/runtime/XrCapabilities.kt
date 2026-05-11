@@ -57,7 +57,7 @@ public class AugmentedObjectCategory private constructor(private val value: Int)
 }
 
 /** Feature that allows tracking of and provides information about scene planes. */
-public class PlaneTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class PlaneTrackingMode private constructor(public val mode: Int) {
     public companion object {
         /** Planes will not be tracked. */
         @JvmField public val DISABLED: PlaneTrackingMode = PlaneTrackingMode(0)
@@ -81,7 +81,7 @@ public class PlaneTrackingMode private constructor(public val mode: Int) : Confi
 }
 
 /** Feature that allows tracking of the user's hands and hand joints. */
-public class HandTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class HandTrackingMode private constructor(public val mode: Int) {
     public companion object {
         /** Hands will not be tracked. */
         @JvmField public val DISABLED: HandTrackingMode = HandTrackingMode(0)
@@ -100,7 +100,7 @@ public class HandTrackingMode private constructor(public val mode: Int) : Config
 }
 
 /** Feature that allows tracking of the AR device. */
-public class DeviceTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class DeviceTrackingMode private constructor(public val mode: Int) {
     public companion object {
         /**
          * The device pose will not be tracked. In this mode, [androidx.xr.arcore.RenderViewpoint]
@@ -164,7 +164,7 @@ public class DeviceTrackingMode private constructor(public val mode: Int) : Conf
 }
 
 /** Feature that allows more accurate information about scene depth and meshes. */
-public class DepthEstimationMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class DepthEstimationMode private constructor(public val mode: Int) {
     public companion object {
         /** No information about scene depth will be provided. */
         @JvmField public val DISABLED: DepthEstimationMode = DepthEstimationMode(0)
@@ -212,7 +212,7 @@ public class DepthEstimationMode private constructor(public val mode: Int) : Con
 }
 
 /** Feature that allows anchors to be persisted through sessions. */
-public class AnchorPersistenceMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class AnchorPersistenceMode private constructor(public val mode: Int) {
     public companion object {
         /** Anchors cannot be persisted. */
         @JvmField public val DISABLED: AnchorPersistenceMode = AnchorPersistenceMode(0)
@@ -237,7 +237,7 @@ public class AnchorPersistenceMode private constructor(public val mode: Int) : C
  * Setting this feature to [FaceTrackingMode.MESHES] requires the `CAMERA` Android permission to be
  * granted and that [CameraFacingDirection] is set to [CameraFacingDirection.Companion.USER].
  */
-public class FaceTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class FaceTrackingMode private constructor(public val mode: Int) {
     public companion object {
         /** Faces will not be tracked. */
         @JvmField public val DISABLED: FaceTrackingMode = FaceTrackingMode(0)
@@ -285,7 +285,7 @@ public class FaceTrackingMode private constructor(public val mode: Int) : Config
  *
  * Note that setting this mode will consume additional runtime resources.
  */
-public class GeospatialMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class GeospatialMode private constructor(public val mode: Int) {
     public companion object {
         /**
          * The Geospatial API is disabled. When GeospatialMode is disabled, current `Anchor` objects
@@ -320,9 +320,10 @@ public class GeospatialMode private constructor(public val mode: Int) : Config.C
          * from the Depth API will include terrain and building geometry when in a location with VPS
          * coverage.
          *
-         * Not all devices support GeospatialMode.SPATIAL, use [Config.ConfigMode.isSupported] to
-         * check if the current device and selected camera support enabling this mode. These checks
-         * are done in the call to [Session.configure].
+         * Not all devices support GeospatialMode.SPATIAL, use
+         * [androidx.xr.runtime.XrDevice.isGeospatialModeSupported] to check if the current device
+         * and selected camera support enabling this mode. These checks are done in the call to
+         * [Session.configure].
          *
          * Supported runtimes:
          * - Play Services (on supported devices)
@@ -362,7 +363,7 @@ public class GeospatialMode private constructor(public val mode: Int) : Config.C
 }
 
 /** Feature that allows tracking of the user's eyes. */
-public class EyeTrackingMode private constructor(public val mode: Int) : Config.ConfigMode() {
+public class EyeTrackingMode private constructor(public val mode: Int) {
     public companion object {
         /** Eye tracking is disabled. */
         @JvmField public val DISABLED: EyeTrackingMode = EyeTrackingMode(0)
@@ -391,7 +392,7 @@ public class EyeTrackingMode private constructor(public val mode: Int) : Config.
 
 /** Declare whether the Session should use the world-facing or user-facing camera. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CameraFacingDirection private constructor(public val mode: Int) : Config.ConfigMode() {
+public class CameraFacingDirection private constructor(public val mode: Int) {
     public companion object {
         /**
          * Use the world-facing camera. This is the default behavior across all devices.

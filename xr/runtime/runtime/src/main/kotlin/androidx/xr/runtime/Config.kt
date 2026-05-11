@@ -248,19 +248,4 @@ constructor(
         newConfig._sceneSignalTypes = this._sceneSignalTypes
         return newConfig
     }
-
-    /** Describes a specific value used to set the configuration via [Session.configure]. */
-    public abstract class ConfigMode {
-        /**
-         * Queries whether the [ConfigMode] is supported and is available to be configured for the
-         * [session] via [Session.configure]. Attempting to configure this [ConfigMode] if it is not
-         * supported will result in [Session.configure] returning [UnsupportedOperationException].
-         *
-         * @param session the [Session] to check support for.
-         * @return true if supported, else false.
-         */
-        internal fun isSupported(session: Session): Boolean {
-            return session.runtimes.map { it.isSupported(this) }.contains(true)
-        }
-    }
 }

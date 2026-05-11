@@ -32,7 +32,6 @@ import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.DisplayBlendMode
 import androidx.xr.runtime.FaceTrackingMode
-import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
@@ -69,14 +68,6 @@ class OpenXrRuntimeTest {
         // Result comes from `kBlendModes` defined in
         // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
         assertThat(underTest.getPreferredDisplayBlendMode()).isEqualTo(DisplayBlendMode.ADDITIVE)
-    }
-
-    @Test
-    fun isSupported_geospatialSpatial_returnsTrue() = initOpenXrRuntimeAndRunTest {
-        underTest.initialize()
-        underTest.resume()
-        // Result comes from //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
-        assertThat(underTest.isSupported(GeospatialMode.SPATIAL)).isTrue()
     }
 
     @Test

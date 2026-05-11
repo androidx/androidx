@@ -54,13 +54,6 @@ class OpenXrRuntimeTest {
     }
 
     @Test
-    fun isSupported_returnsTrue() {
-        for (mode in OpenXrRuntime.SUPPORTED_CONFIG_MODES) {
-            assertThat(underTest.isSupported(mode)).isTrue()
-        }
-    }
-
-    @Test
     fun configure_handTrackingEnabledWithoutPermission_throwsSecurityException() {
         check(underTest.config.handTracking == HandTrackingMode.DISABLED)
 

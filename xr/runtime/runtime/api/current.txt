@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.xr.runtime {
 
-  public final class AnchorPersistenceMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class AnchorPersistenceMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.AnchorPersistenceMode.Companion Companion;
@@ -116,17 +116,13 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.PlaneTrackingMode planeTracking;
   }
 
-  public abstract static class Config.ConfigMode {
-    ctor public Config.ConfigMode();
-  }
-
   public final class CoreState {
     ctor public CoreState(kotlin.time.ComparableTimeMark timeMark);
     method @InaccessibleFromKotlin public kotlin.time.ComparableTimeMark getTimeMark();
     property public kotlin.time.ComparableTimeMark timeMark;
   }
 
-  public final class DepthEstimationMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class DepthEstimationMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.DepthEstimationMode.Companion Companion;
@@ -143,7 +139,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.DepthEstimationMode SMOOTH_ONLY;
   }
 
-  public final class DeviceTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class DeviceTrackingMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
@@ -184,7 +180,7 @@ package androidx.xr.runtime {
     ctor @KotlinOnly public ExperimentalXrServiceAvailabilityApi();
   }
 
-  public final class EyeTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class EyeTrackingMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.EyeTrackingMode COARSE_TRACKING;
@@ -199,7 +195,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.EyeTrackingMode FINE_TRACKING;
   }
 
-  public final class FaceTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class FaceTrackingMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.FaceTrackingMode BLEND_SHAPES;
@@ -230,7 +226,7 @@ package androidx.xr.runtime {
     property public float angleUp;
   }
 
-  public final class GeospatialMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class GeospatialMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.GeospatialMode.Companion Companion;
@@ -247,7 +243,7 @@ package androidx.xr.runtime {
     property @Deprecated public androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
   }
 
-  public final class HandTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class HandTrackingMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.HandTrackingMode BOTH;
@@ -277,7 +273,7 @@ package androidx.xr.runtime {
     property public long sessionPointer;
   }
 
-  public final class PlaneTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
+  public final class PlaneTrackingMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
     field public static final androidx.xr.runtime.PlaneTrackingMode.Companion Companion;
@@ -322,7 +318,7 @@ package androidx.xr.runtime {
     property public abstract int value;
   }
 
-  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public final class SceneSignalType extends androidx.xr.runtime.Config.ConfigMode {
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public final class SceneSignalType {
     method @InaccessibleFromKotlin public int getId();
     property public int id;
     field public static final androidx.xr.runtime.SceneSignalType CONVERSATION;

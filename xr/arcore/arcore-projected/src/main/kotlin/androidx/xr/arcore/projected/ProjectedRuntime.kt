@@ -24,20 +24,12 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.IBinder
-import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.runtime.TrackingState
-import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.ConfigMode
-import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.DisplayBlendMode
-import androidx.xr.runtime.EyeTrackingMode
-import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
-import androidx.xr.runtime.HandTrackingMode
-import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -131,10 +123,6 @@ internal constructor(
             stopServiceInternal()
         }
         perceptionManager.xrResources.config = config
-    }
-
-    override fun isSupported(configMode: ConfigMode): Boolean {
-        return SUPPORTED_CONFIG_MODES.contains(configMode)
     }
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
@@ -346,20 +334,5 @@ internal constructor(
     internal companion object {
         internal const val ACTION_PERCEPTION_BIND: String =
             "androidx.xr.projected.ACTION_PERCEPTION_BIND"
-
-        @VisibleForTesting
-        internal val SUPPORTED_CONFIG_MODES: Set<ConfigMode> =
-            setOf(
-                PlaneTrackingMode.DISABLED,
-                HandTrackingMode.DISABLED,
-                DeviceTrackingMode.DISABLED,
-                DepthEstimationMode.DISABLED,
-                AnchorPersistenceMode.DISABLED,
-                FaceTrackingMode.DISABLED,
-                GeospatialMode.DISABLED,
-                GeospatialMode.SPATIAL,
-                GeospatialMode.INERTIAL,
-                EyeTrackingMode.DISABLED,
-            )
     }
 }
