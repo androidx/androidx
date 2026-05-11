@@ -147,7 +147,7 @@ internal class RemoteComponentCacheKey(private val componentId: Int, private val
  * (usually an [Enum]) and its [args].
  */
 internal class RemoteOperationCacheKey(
-    private val op: Enum<*>,
+    internal val op: Enum<*>,
     private val args: List<RemoteStateCacheKey>,
 ) : BaseRemoteStateCacheKey() {
     override fun equals(other: Any?): Boolean {

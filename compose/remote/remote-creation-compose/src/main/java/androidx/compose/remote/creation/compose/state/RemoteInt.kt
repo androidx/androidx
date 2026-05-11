@@ -145,7 +145,17 @@ internal constructor(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.ToFloat, this),
         ) { creationState ->
-            floatArrayOf(getFloatIdForCreationState(creationState))
+            val key = cacheKey // Needed because smart cast with cacheKey is impossible.
+            if (key is RemoteOperationCacheKey && key.op == RemoteFloat.OperationKey.ToInt) {
+                // Force conversion from float to int with a no-op expression so that truncation
+                // occurs as expected for a float->int->float round trip. Note calling binaryOp like
+                // this skips the peephole optimizer.
+                val temp =
+                    binaryOp(this, 0, OperationKey.Add, OP_ADD, { a, _ -> a }) { _, _ -> null }
+                floatArrayOf(temp.getFloatIdForCreationState(creationState))
+            } else {
+                floatArrayOf(getFloatIdForCreationState(creationState))
+            }
         }
     }
 
