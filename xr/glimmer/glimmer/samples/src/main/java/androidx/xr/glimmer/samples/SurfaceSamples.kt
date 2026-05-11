@@ -43,6 +43,11 @@ fun SurfaceSampleUsage() {
         item { FocusableSurfaceSample() }
         item { ClickableSurfaceSample() }
         item {
+            Box(Modifier.surface(enabled = false).padding(horizontal = 24.dp, vertical = 20.dp)) {
+                Text("This is a disabled surface")
+            }
+        }
+        item {
             val interactionSource = remember { MutableInteractionSource() }
             Box(
                 Modifier.surface(

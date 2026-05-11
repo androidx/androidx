@@ -63,6 +63,7 @@ class ToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
             DepthWrapper {
                 ToggleButton(
                     checked = parameters.checked,
+                    enabled = parameters.enabled,
                     onCheckedChange = {},
                     interactionSource = parameters.interactionSource(),
                 ) {
@@ -80,6 +81,7 @@ class ToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
             DepthWrapper {
                 ToggleButton(
                     checked = parameters.checked,
+                    enabled = parameters.enabled,
                     onCheckedChange = {},
                     leadingIcon = { Icon(FavoriteIcon, null) },
                     trailingIcon = { Icon(FavoriteIcon, null) },
@@ -107,11 +109,17 @@ class ToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
         return "${prefix}_${parameters.goldenNameSuffix()}"
     }
 
-    class ToggleButtonStates(val checked: Boolean, val focused: Boolean, val pressed: Boolean) {
+    class ToggleButtonStates(
+        val checked: Boolean,
+        val enabled: Boolean,
+        val focused: Boolean,
+        val pressed: Boolean,
+    ) {
         fun goldenNameSuffix(): String =
             listOfNotNull(
                     if (checked) "checked" else "unchecked",
                     if (focused) "focused" else "unfocused",
+                    if (!enabled) "disabled" else null,
                     if (pressed) "pressed" else null,
                 )
                 .joinToString("_")
@@ -130,9 +138,18 @@ class ToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
         fun data(): Array<ToggleButtonStates> {
             val params = mutableListOf<ToggleButtonStates>()
             for (checked in listOf(false, true)) {
-                for (focused in listOf(false, true)) {
-                    for (pressed in listOf(false, true)) {
-                        params.add(ToggleButtonStates(checked, focused, pressed))
+                for (enabled in listOf(false, true)) {
+                    for (focused in listOf(false, true)) {
+                        for (pressed in listOf(false, true)) {
+                            params.add(
+                                ToggleButtonStates(
+                                    checked = checked,
+                                    enabled = enabled,
+                                    focused = focused,
+                                    pressed = pressed,
+                                )
+                            )
+                        }
                     }
                 }
             }
