@@ -154,7 +154,7 @@ public object EmulatorDeviceTemplate : DeviceTemplate {
         metadataOverrides: Map<Metadata.Key<*>, Any?>,
         requestKeysOverrides: Set<CaptureRequest.Key<*>>,
         resultKeysOverrides: Set<CaptureResult.Key<*>>,
-    ): CameraMetadata {
+    ): FakeCameraMetadata {
         val lensFacingOverrides =
             if (
                 (lensFacing ?: CameraCharacteristics.LENS_FACING_BACK) ==

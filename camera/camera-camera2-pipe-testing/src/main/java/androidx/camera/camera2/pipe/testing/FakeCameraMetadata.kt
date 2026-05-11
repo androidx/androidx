@@ -55,7 +55,7 @@ public interface DeviceTemplate {
         metadataOverrides: Map<Metadata.Key<*>, Any?> = emptyMap(),
         requestKeysOverrides: Set<CaptureRequest.Key<*>> = emptySet(),
         resultKeysOverrides: Set<CaptureResult.Key<*>> = emptySet(),
-    ): CameraMetadata
+    ): FakeCameraMetadata
 }
 
 /** Utility class for interacting with objects require specific [CameraCharacteristics] metadata. */
@@ -110,7 +110,8 @@ public class FakeCameraMetadata(
          * Creates a [CameraMetadata] instance using a [DeviceTemplate], with optional overrides for
          * fine-grained testing.
          */
-        public fun createFromTemplate(
+        @JvmStatic
+        public fun fromTemplate(
             template: DeviceTemplate,
             cameraId: CameraId = FakeCameraIds.default,
             lensFacing: Int? = null,
@@ -118,7 +119,7 @@ public class FakeCameraMetadata(
             metadataOverrides: Map<Metadata.Key<*>, Any?> = emptyMap(),
             requestKeysOverrides: Set<CaptureRequest.Key<*>> = emptySet(),
             resultKeysOverrides: Set<CaptureResult.Key<*>> = emptySet(),
-        ): CameraMetadata {
+        ): FakeCameraMetadata {
             val overrides =
                 if (lensFacing != null) {
                     characteristicsOverrides +
