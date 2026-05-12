@@ -42,7 +42,6 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.modifier.ModifierLocalManager
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
@@ -2925,7 +2924,7 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
             }
     }
 
-@OptIn(InternalCoreApi::class, InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class)
 private class TestOwner : Owner {
     val onEndListeners = mutableListOf<() -> Unit>()
     var position: IntOffset = IntOffset.Zero

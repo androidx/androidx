@@ -167,7 +167,6 @@ import androidx.compose.ui.layout.WindowInsetsWatcher
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.modifier.ModifierLocalManager
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
@@ -671,8 +670,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(InternalCoreApi::class)
     override var showLayoutBounds = false
         get() {
             return if (SDK_INT >= 30) Api30Impl.isShowingLayoutBounds(this) else field
@@ -2759,7 +2756,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    @OptIn(InternalCoreApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun sendMotionEvent(motionEvent: MotionEvent): ProcessResult {
         if (keyboardModifiersRequireUpdate) {
             keyboardModifiersRequireUpdate = false
@@ -2806,7 +2803,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    @OptIn(InternalCoreApi::class)
     private fun sendSimulatedEvent(
         motionEvent: MotionEvent,
         action: Int,
