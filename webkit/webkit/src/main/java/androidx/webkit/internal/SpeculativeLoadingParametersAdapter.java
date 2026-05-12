@@ -17,6 +17,8 @@
 package androidx.webkit.internal;
 
 import androidx.webkit.NoVarySearchHeader;
+import androidx.webkit.PrefetchParameters;
+import androidx.webkit.PrerenderParameters;
 import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingParameters;
 
@@ -37,6 +39,14 @@ public class SpeculativeLoadingParametersAdapter
 
     public SpeculativeLoadingParametersAdapter(@Nullable SpeculativeLoadingParameters impl) {
         mSpeculativeLoadingParameters = impl;
+    }
+
+    public SpeculativeLoadingParametersAdapter(@Nullable PrerenderParameters impl) {
+        mSpeculativeLoadingParameters = new SpeculativeLoadingParameters(impl);
+    }
+
+    public SpeculativeLoadingParametersAdapter(@Nullable PrefetchParameters impl) {
+        mSpeculativeLoadingParameters = new SpeculativeLoadingParameters(impl);
     }
 
     @Override

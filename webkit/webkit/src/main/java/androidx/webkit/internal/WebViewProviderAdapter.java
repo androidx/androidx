@@ -31,6 +31,7 @@ import androidx.webkit.NavigationListener;
 import androidx.webkit.NavigationParameters;
 import androidx.webkit.PrerenderException;
 import androidx.webkit.PrerenderOperationCallback;
+import androidx.webkit.PrerenderParameters;
 import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebMessageCompat;
@@ -163,7 +164,8 @@ public class WebViewProviderAdapter {
             @Nullable WebViewRenderProcessClient client) {
         InvocationHandler handler = client != null
                 ? BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                        new WebViewRenderProcessClientAdapter(executor, client)) : null;
+                        new WebViewRenderProcessClientAdapter(executor, client))
+                : null;
         mImpl.setWebViewRendererClient(handler);
     }
 
@@ -228,13 +230,49 @@ public class WebViewProviderAdapter {
      * Adapter method for
      * {@link WebViewCompat#prerenderUrl(WebView, String, CancellationSignal, Executor,
      * SpeculativeLoadingParameters, PrerenderOperationCallback)}.
+     *
+     * @deprecated Use
+     * {@link #prerenderUrlAsync(String, CancellationSignal, Executor, PrerenderParameters, PrerenderOperationCallback)} instead.
+     */
+    @Profile.ExperimentalUrlPrefetch
+    @Deprecated
+    public void prerenderUrlAsync(
+            @NonNull String url,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull Executor callbackExecutor,
+            @NonNull SpeculativeLoadingParameters params,
+            @NonNull PrerenderOperationCallback callback) {
+
+        InvocationHandler paramsBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new SpeculativeLoadingParametersAdapter(params));
+        ValueCallback<Void> activationCallback = (value) -> {
+            // value will always be null.
+            callback.onPrerenderActivated();
+        };
+        ValueCallback<Throwable> errorCallback = (throwable) -> {
+            callback.onError(new PrerenderException("Prerender operation failed", throwable));
+        };
+        mImpl.prerenderUrl(
+                url,
+                cancellationSignal,
+                callbackExecutor,
+                paramsBoundaryInterface,
+                activationCallback,
+                errorCallback);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#prerenderUrl(WebView, String, CancellationSignal, Executor,
+     * PrerenderParameters, PrerenderOperationCallback)}.
      */
     @Profile.ExperimentalUrlPrefetch
     public void prerenderUrlAsync(
             @NonNull String url,
             @Nullable CancellationSignal cancellationSignal,
             @NonNull Executor callbackExecutor,
-            @NonNull SpeculativeLoadingParameters params,
+            @NonNull PrerenderParameters params,
             @NonNull PrerenderOperationCallback callback) {
 
         InvocationHandler paramsBoundaryInterface =
@@ -313,7 +351,7 @@ public class WebViewProviderAdapter {
 
     /**
      * Adapter method for
-     * {@link WebViewCompat#addJavaScriptOnEvent(WebView, String, int, Set, JsExecutionWorld)}.
+     * {@link WebViewCompat#addJavaScriptOnEvent(WebView, String, int, Set, JavaScriptExecutionWorld)}.
      */
     public @NonNull ScriptHandlerImpl addJavaScriptOnEvent(
             @NonNull String script,
@@ -327,7 +365,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for
      * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebMessageListener,
-     * JsExecutionWorld)}.
+     * JavaScriptExecutionWorld)}.
      */
     public void addWebMessageListener(
             @NonNull String jsObjectName,
@@ -341,7 +379,7 @@ public class WebViewProviderAdapter {
 
     /**
      * Adapter method for
-     * {@link WebViewCompat#removeWebMessageListener(WebView, String, JsExecutionWorld)}.
+     * {@link WebViewCompat#removeWebMessageListener(WebView, String, JavaScriptExecutionWorld)}.
      */
     public void removeWebMessageListener(
             @NonNull String jsObjectName,

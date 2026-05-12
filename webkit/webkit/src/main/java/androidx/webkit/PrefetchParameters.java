@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,6 @@
 
 package androidx.webkit;
 
-import android.webkit.WebSettings;
-
-import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -31,16 +26,14 @@ import java.util.Map;
  * Parameters for customizing the prefetch. Use the {@link Builder} to
  * construct.
  */
-@RequiresFeature(name = WebViewFeature.PROFILE_URL_PREFETCH,
-        enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
 @Profile.ExperimentalUrlPrefetch
-public final class SpeculativeLoadingParameters {
+public final class PrefetchParameters {
     private final @NonNull Map<String, String> mAdditionalHeaders;
     private final @Nullable NoVarySearchHeader mExpectedNoVarySearchHeader;
     private final boolean mIsJavaScriptEnabled;
     private final @Nullable Integer mVariationsId;
 
-    private SpeculativeLoadingParameters(@NonNull Map<String, String> additionalHeaders,
+    private PrefetchParameters(@NonNull Map<String, String> additionalHeaders,
             @Nullable NoVarySearchHeader noVarySearchHeader, boolean isJavaScriptEnabled,
             @Nullable Integer variationsId) {
         mAdditionalHeaders = additionalHeaders;
@@ -49,54 +42,31 @@ public final class SpeculativeLoadingParameters {
         mVariationsId = variationsId;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public SpeculativeLoadingParameters(@NonNull PrefetchParameters prefetchParameters) {
-        this(
-                prefetchParameters.getAdditionalHeaders(),
-                prefetchParameters.getExpectedNoVarySearchData(),
-                prefetchParameters.isJavaScriptEnabled(),
-                prefetchParameters.getVariationsId()
-        );
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public SpeculativeLoadingParameters(@NonNull PrerenderParameters prerenderParameters) {
-        this(
-                prerenderParameters.getAdditionalHeaders(),
-                prerenderParameters.getExpectedNoVarySearchData(),
-                false,
-                prerenderParameters.getVariationsId()
-        );
-    }
-
     /**
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-     * {@link WebViewFeature#PROFILE_URL_PREFETCH}.
-     *
-     * @return The map of the additional headers built using {@link Builder}.
+     * Returns the map of additional HTTP headers to be sent with the prefetch request.
      */
     public @NonNull Map<String, String> getAdditionalHeaders() {
         return mAdditionalHeaders;
     }
 
     /**
-     * @return The noVarySearch model built using {@link Builder}.
+     * Returns the expected No-Vary-Search header data used to match subsequent navigations
+     * to this prefetch.
      */
     public @Nullable NoVarySearchHeader getExpectedNoVarySearchData() {
         return mExpectedNoVarySearchHeader;
     }
 
     /**
-     * @return The javascript enabled setting built using {@link Builder}.
+     * Returns whether JavaScript is enabled for the prefetch, which influences the sending
+     * of client hints.
      */
     public boolean isJavaScriptEnabled() {
         return mIsJavaScriptEnabled;
     }
 
     /**
-     * @return The variations id built using {@link Builder}.
+     * Returns the variations ID associated with this prefetch request, if any.
      */
     @SuppressWarnings("AutoBoxing") // Integer is intentional here.
     public @Nullable Integer getVariationsId() {
@@ -104,48 +74,41 @@ public final class SpeculativeLoadingParameters {
     }
 
     /**
-     * A builder class to use to construct the {@link SpeculativeLoadingParameters}.
-     * @deprecated Use {@link PrerenderParameters} or {@link PrefetchParameters} instead.
+     * A builder class for constructing {@link PrefetchParameters} instances.
      */
-    @Deprecated
     public static final class Builder {
         private final @NonNull Map<String, String> mAdditionalHeaders = new HashMap<>();
         private @Nullable NoVarySearchHeader mExpectedNoVarySearchHeader;
         private boolean mIsJavaScriptEnabled;
         private @Nullable Integer mVariationsId;
 
-        public Builder() {}
+        /** Construct a new Builder. */
+        public Builder() {
+        }
 
         /**
-         * Use to finish building the PrefetchParams
-         *
-         * <p>
-         * This method should only be called if
-         * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
-         * {@link WebViewFeature#PROFILE_URL_PREFETCH}.
-         *
-         * @return built PrefetchParams object.
-         * @throws UnsupportedOperationException if the
-         *                                       {@link WebViewFeature#PROFILE_URL_PREFETCH}
-         *                                       feature is not supported.
+         * Build the {@link PrefetchParameters}.
          */
-        @RequiresFeature(name = WebViewFeature.PROFILE_URL_PREFETCH,
-                enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
         @Profile.ExperimentalUrlPrefetch
-        public @NonNull SpeculativeLoadingParameters build() {
-            return new SpeculativeLoadingParameters(mAdditionalHeaders, mExpectedNoVarySearchHeader,
+        public @NonNull PrefetchParameters build() {
+            return new PrefetchParameters(mAdditionalHeaders, mExpectedNoVarySearchHeader,
                     mIsJavaScriptEnabled, mVariationsId);
         }
 
         /**
          * Sets the header value for the given key. If called multiple times
-         * for the same key, the latest value will be used.
+         * for the same key, the last value will be used.
          * <p>
-         * Header keys must be RFC 2616-compliant.
+         * Header keys must be <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a>
+         * compliant.
          * <p>
          * The logic for handling additional header isn't guaranteed to match the
          * {@link android.webkit.WebView#loadUrl(String, Map)}'s logic and is subject to change
          * in the future.
+         *
+         * @param key The header key.
+         * @param value The header value.
+         * @return This builder instance for chaining.
          */
         @Profile.ExperimentalUrlPrefetch
         public @NonNull Builder addAdditionalHeader(@NonNull String key, @NonNull String value) {
@@ -158,7 +121,11 @@ public final class SpeculativeLoadingParameters {
          * be merged with any that have been previously set (duplicate keys
          * will be overridden).
          * <p>
-         * Header keys must be RFC 2616-compliant.
+         * Header keys must be <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a>
+         * -compliant.
+         *
+         * @param additionalHeaders A map of additional headers to set.
+         * @return This builder instance for chaining.
          */
         @Profile.ExperimentalUrlPrefetch
         public @NonNull Builder addAdditionalHeaders(@NonNull Map<String, String>
@@ -168,11 +135,18 @@ public final class SpeculativeLoadingParameters {
         }
 
         /**
-         * Sets the "No-Vary-Search data that's expected to be returned via. the
-         * header in the prefetch's response. This is used to help determine if
+         * Sets the
+         * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search">No-Vary-Search</a>
+         * data that's expected to be returned via the header in the prefetch's response.
+         * <p>
+         * This is used to help determine if
          * WebView#loadUrl should either use an in-flight prefetch response to
          * render the web contents or handle the URL as it typically does
          * (i.e. start a network request).
+         *
+         * @param expectedNoVarySearchHeader The No-Vary-Search data expected to be returned in
+         *                                   the prefetch's response.
+         * @return This builder instance for chaining.
          */
         @Profile.ExperimentalUrlPrefetch
         public @NonNull Builder setExpectedNoVarySearchData(
@@ -182,13 +156,14 @@ public final class SpeculativeLoadingParameters {
         }
 
         /**
+         * Set whether the page that is loaded will have JavaScript enabled.
          * {@code true} if the WebView's that will be loading the prefetched
-         * response will have javascript enabled. This affects whether or not
+         * response will have javascript enabled. This affects whether
          * client hints header is sent with the prefetch request.
-         * <p>
-         * Note: This flag is ignored for prefetches initiated by the
-         * prerendering API. The value from
-         * {@link WebSettings#getJavaScriptEnabled()} will be used instead.
+         *
+         * @param javaScriptEnabled {@code true} if the WebView that will be loading the
+         *                          prefetched response will have JavaScript enabled.
+         * @return This builder instance for chaining.
          */
         @Profile.ExperimentalUrlPrefetch
         public @NonNull Builder setJavaScriptEnabled(boolean javaScriptEnabled) {
