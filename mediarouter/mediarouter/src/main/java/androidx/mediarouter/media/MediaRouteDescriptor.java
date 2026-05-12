@@ -406,6 +406,7 @@ public final class MediaRouteDescriptor {
                 + ", iconUri=" + getIconUri()
                 + ", isEnabled=" + isEnabled()
                 + ", isSystemRoute=" + isSystemRoute()
+                + ", isDynamicGroupRoute=" + isDynamicGroupRoute()
                 + ", connectionState=" + getConnectionState()
                 + ", controlFilters=" + Arrays.toString(getControlFilters().toArray())
                 + ", playbackType=" + getPlaybackType()
