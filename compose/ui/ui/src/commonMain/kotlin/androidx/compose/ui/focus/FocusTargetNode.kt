@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -147,6 +148,8 @@ internal class FocusTargetNode(
 
     var previouslyFocusedChildHash: Int? = null
 
+    var focusRestorationEntry: SaveableStateRegistry.Entry? = null
+
     val beyondBoundsLayoutParent: BeyondBoundsLayout?
         get() = findNearestBeyondBoundsLayoutAncestor()
 
@@ -227,6 +230,8 @@ internal class FocusTargetNode(
         committedFocusState = null
         previouslyFocusedChildHash = null
         onLayoutRectChangedHandle?.unregister()
+        focusRestorationEntry?.unregister()
+        focusRestorationEntry = null
     }
 
     override fun onUnplaced() {
