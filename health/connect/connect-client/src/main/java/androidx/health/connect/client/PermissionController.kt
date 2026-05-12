@@ -16,9 +16,9 @@
 package androidx.health.connect.client
 
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.contracts.HealthPermissionsRequestContract
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
 
 @JvmDefaultWithCompatibility
 /** Interface for operations related to permissions. */

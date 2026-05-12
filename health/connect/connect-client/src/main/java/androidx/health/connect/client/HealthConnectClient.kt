@@ -74,6 +74,9 @@ import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_MIN_VERSION_CODE
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.platform.client.utils.isTargetSignatureValid
 import kotlin.reflect.KClass
 
 @JvmDefaultWithCompatibility
@@ -834,9 +837,6 @@ interface HealthConnectClient {
     }
 
     companion object {
-        internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
-
-        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 68623
         /**
          * Intent action to open Health Connect settings on this phone. Developers should use this
          * if they want to re-direct the user to Health Connect.
@@ -907,11 +907,7 @@ interface HealthConnectClient {
                 in Build.VERSION_CODES.UPSIDE_DOWN_CAKE..Int.MAX_VALUE ->
                     Api34Impl.getSdkStatus(context)
                 in Build.VERSION_CODES.P..Build.VERSION_CODES.TIRAMISU ->
-                    if (isPackageInstalled(context.packageManager, providerPackageName)) {
-                        SDK_AVAILABLE
-                    } else {
-                        SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-                    }
+                    getProviderStatus(context.packageManager, providerPackageName)
                 else -> return SDK_UNAVAILABLE
             }
         }
@@ -977,22 +973,32 @@ interface HealthConnectClient {
             }
         }
 
-        private fun isPackageInstalled(
+        private fun getProviderStatus(
             packageManager: PackageManager,
             packageName: String,
             versionCode: Int = DEFAULT_PROVIDER_MIN_VERSION_CODE,
-        ): Boolean {
+        ): Int {
             val packageInfo: PackageInfo =
                 try {
                     @Suppress("Deprecation") // getPackageInfo deprecated in T
                     packageManager.getPackageInfo(packageName, /* flags= */ 0)
                 } catch (e: PackageManager.NameNotFoundException) {
-                    return false
+                    return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
                 }
-            return (packageInfo.applicationInfo?.enabled == true) &&
+            if (packageInfo.applicationInfo?.enabled != true) {
+                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+            }
+            if (!isTargetSignatureValid(packageManager, packageName)) {
+                return SDK_UNAVAILABLE
+            }
+            if (
                 (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
                     PackageInfoCompat.getLongVersionCode(packageInfo) >= versionCode) &&
-                hasBindableService(packageManager, packageName)
+                    hasBindableService(packageManager, packageName)
+            ) {
+                return SDK_AVAILABLE
+            }
+            return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
         }
 
         internal fun hasBindableService(
