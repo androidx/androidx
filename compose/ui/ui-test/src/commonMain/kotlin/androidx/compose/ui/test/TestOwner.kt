@@ -33,7 +33,7 @@ internal interface TestOwner {
      * To prevent race conditions and ensure predictable behavior across different testing
      * environments, this property must strictly be accessed and modified from the UI thread.
      *
-     * This is primarily used to power scoped APIs like [ComposeUiTest.runWhenIdle].
+     * This is primarily used to power scoped APIs like [ComposeUiTest.runWithoutImplicitWait].
      */
     var isImplicitWaitSuppressed: Boolean
 

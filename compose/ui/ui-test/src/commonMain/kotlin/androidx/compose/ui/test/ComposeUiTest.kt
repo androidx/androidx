@@ -121,54 +121,38 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
 
     /**
      * Executes the given [action] in the same way as [runOnUiThread] but [waits][waitForIdle] until
-     * the app is idle before executing the action. T
-     *
-     * Prefer using [runWhenIdle] as it optimizes performance by suppressing redundant
-     * synchronization during node queries.
+     * the app is idle before executing the action. This is the recommended way of doing your
+     * assertions on shared variables.
      *
      * This method blocks until the action is complete.
      */
     fun <T> runOnIdle(action: () -> T): T
 
     /**
-     * Executes the given [action] on the UI thread. It first [waits][waitForIdle] until the app is
-     * idle before executing the action.
+     * Executes the given [block] with implicit synchronization suppressed. [block] should contain
+     * read-only assertions, and any actions that mutate state should be performed outside of this
+     * block.
      *
-     * This method skips unnecessary synchronization inside the provided [action] block. Standard
-     * node queries (like `fetchSemanticsNode()`) normally trigger a redundant `waitForIdle()` under
-     * the hood, which can impose a significant performance toll in tests that manually step through
-     * frames. Bypassing this implicit wait makes this the highly optimized and preferred API for
-     * state inspection.
+     * To ensure stability of the UI tree while running assertions in this block, make sure to call
+     * this on the UI thread, such as with [runOnUiThread]. If you run this block off the UI thread,
+     * state might change in the background and be reflected in the UI while the block is executing.
+     * This exposes your test to race conditions, flakiness, and may cause you to read stale or
+     * inconsistent state.
      *
-     * This block is intended primarily for inspecting the UI state, making assertions, or capturing
-     * properties without the performance overhead of repeated synchronization. You should avoid
-     * mutating UI state (e.g., performing clicks, text input, or advancing the clock) inside this
-     * block. If your test requires driving the UI to a new state, perform those interactions
-     * outside of this block to ensure the framework can properly synchronize.
+     * Standard node queries (like `onNodeWithTag` or `fetchSemanticsNode`) normally trigger a
+     * `waitForIdle()` under the hood. In animation tests that manually step through frames in a
+     * loop, these implicit waits impose a severe performance penalty.
      *
-     * @sample androidx.compose.ui.test.samples.runWhenIdleSample
+     * This API acts as a performance optimization for motion tests that assert UI state across
+     * multiple frames. It is primarily designed for use when mainClock.autoAdvance is set to false
+     * and the UI is known to be in a stable state at the specific frame being tested (for example,
+     * by calling waitForIdle() before this block).
+     *
+     * @sample androidx.compose.ui.test.samples.runWithoutImplicitWaitSample
+     * @see runOnUiThread
+     * @see hasPendingWork
      */
-    fun <T> runWhenIdle(action: () -> T): T
-
-    /**
-     * Executes the given [action] on the UI thread. It first [suspends][awaitIdle] until the app is
-     * idle before executing the action.
-     *
-     * This method skips unnecessary synchronization inside the provided [action] block. Standard
-     * node queries (like `fetchSemanticsNode()`) normally trigger a redundant `waitForIdle()` under
-     * the hood, which can impose a significant performance toll in tests that manually step through
-     * frames. Bypassing this implicit wait makes this the highly optimized and preferred API for
-     * state inspection.
-     *
-     * This block is intended primarily for inspecting the UI state, making assertions, or capturing
-     * properties without the performance overhead of repeated synchronization. You should avoid
-     * mutating UI state (e.g., performing clicks, text input, or advancing the clock) inside this
-     * block. If your test requires driving the UI to a new state, perform those interactions
-     * outside of this block to ensure the framework can properly synchronize.
-     *
-     * @sample androidx.compose.ui.test.samples.awaitAndRunWhenIdleSample
-     */
-    suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T
+    fun <T> runWithoutImplicitWait(block: () -> T): T
 
     /**
      * Waits for the UI to become idle. Quiescence is reached when there are no more pending changes
