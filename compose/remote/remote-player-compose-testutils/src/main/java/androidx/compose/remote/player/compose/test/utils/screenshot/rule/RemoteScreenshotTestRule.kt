@@ -17,10 +17,12 @@
 package androidx.compose.remote.player.compose.test.utils.screenshot.rule
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
@@ -44,6 +46,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.BitmapMatcher
+import java.io.File
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -136,7 +139,7 @@ class RemoteScreenshotTestRule(
             remoteCreationDisplayInfo = remoteCreationDisplayInfo ?: this.remoteCreationDisplayInfo,
             profile = profile,
             creationComposableWrapper = creationComposableWrapper,
-            onCoreDocumentCreated = onCoreDocumentCreated,
+            onCoreDocumentCreated = getOnCoreDocumentCreated(onCoreDocumentCreated),
             update = update,
             playComposableWrapper = playComposableWrapper,
             composable = composable,
@@ -183,6 +186,13 @@ class RemoteScreenshotTestRule(
         }
     }
 
+    private fun getOnCoreDocumentCreated(
+        onCoreDocumentCreated: ((CoreDocument) -> Unit)?
+    ): ((CoreDocument) -> Unit) = { coreDocument ->
+        saveDocument(coreDocument.buffer, getGoldenScreenshotName(null).getName() + ".rc")
+        onCoreDocumentCreated?.invoke(coreDocument)
+    }
+
     private fun getGoldenScreenshotName(goldenScreenshotName: GoldenScreenshotName?) =
         goldenScreenshotName ?: goldenScreenshotNameTestRule.getGoldenScreenshotName()
 
@@ -200,8 +210,21 @@ class RemoteScreenshotTestRule(
         }
     }
 
+    private fun saveDocument(buffer: RemoteComposeBuffer, name: String) {
+        try {
+            val filePath = screenshotTestRule.deviceOutputDirectory
+            val myFile = File(filePath, name)
+            buffer.write(buffer, myFile)
+            Log.i(TAG, "Wrote RC doc " + myFile.absolutePath)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to write RC document", e)
+        }
+    }
+
     companion object {
         const val ROOT_TEST_TAG: String = "ROOT_TEST_TAG"
+
+        private const val TAG = "RemoteScreenshotTestRule"
     }
 
     private class PlayerImpl(
