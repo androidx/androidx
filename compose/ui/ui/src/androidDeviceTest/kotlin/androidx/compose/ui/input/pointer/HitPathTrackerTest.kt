@@ -45,7 +45,6 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.modifier.ModifierLocalManager
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.LookaheadDelegate
@@ -3427,7 +3426,7 @@ internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
     }
 }
 
-@OptIn(InternalCoreApi::class, InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class)
 private class MockOwner(
     val position: IntOffset = IntOffset.Zero,
     override val root: LayoutNode = LayoutNode(),

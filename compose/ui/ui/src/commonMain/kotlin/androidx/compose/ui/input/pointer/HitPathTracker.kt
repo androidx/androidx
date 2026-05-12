@@ -26,7 +26,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.util.PointerIdArray
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.layoutCoordinates
@@ -239,7 +238,6 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
  * pointer or [PointerInputFilter] information.
  */
 /*@VisibleForTesting*/
-@OptIn(InternalCoreApi::class)
 internal open class NodeParent {
     val children: MutableVector<Node> = mutableVectorOf()
 
@@ -368,7 +366,6 @@ internal open class NodeParent {
  * hit it (tracked as [PointerId]s).
  */
 /*@VisibleForTesting*/
-@OptIn(InternalCoreApi::class)
 internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
 
     // Note: pointerIds are stored in a structure specific to their value type (PointerId).

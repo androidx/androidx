@@ -16,6 +16,10 @@
 
 package androidx.compose.ui.node
 
+@Deprecated(
+    message = "Use androidx.compose.ui.InternalComposeUiApi annotation instead",
+    replaceWith = ReplaceWith("androidx.compose.ui.InternalComposeUiApi"),
+)
 @RequiresOptIn(message = "This API is internal to library.")
 @Target(
     AnnotationTarget.CLASS,

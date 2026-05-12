@@ -22,7 +22,6 @@ import androidx.collection.LongSparseArray
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.HitTestResult
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.util.fastForEach
 
@@ -63,7 +62,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
      * @see PointerInputEvent
      */
     fun process(
-        @OptIn(InternalCoreApi::class) pointerEvent: PointerInputEvent,
+        pointerEvent: PointerInputEvent,
         positionCalculator: PositionCalculator,
         isInBounds: Boolean = true,
     ): ProcessResult {
@@ -79,7 +78,6 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             isProcessing = true
 
             // Gets a new PointerInputChangeEvent with the PointerInputEvent.
-            @OptIn(InternalCoreApi::class)
             val internalPointerEvent =
                 pointerInputChangeEventProducer.produce(pointerEvent, positionCalculator)
 
@@ -177,7 +175,6 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
 }
 
 /** Produces [InternalPointerEvent]s by tracking changes between [PointerInputEvent]s */
-@OptIn(InternalCoreApi::class)
 private class PointerInputChangeEventProducer {
     private val previousPointerInputData: LongSparseArray<PointerInputData> = LongSparseArray()
 
