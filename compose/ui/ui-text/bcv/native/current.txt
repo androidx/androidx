@@ -288,6 +288,8 @@ final class androidx.compose.ui.text.font/LoadedFontFamily : androidx.compose.ui
 }
 
 final class androidx.compose.ui.text.font/ResourceFont : androidx.compose.ui.text.font/Font { // androidx.compose.ui.text.font/ResourceFont|null[0]
+    final val loadingStrategy // androidx.compose.ui.text.font/ResourceFont.loadingStrategy|{}loadingStrategy[0]
+        final fun <get-loadingStrategy>(): androidx.compose.ui.text.font/FontLoadingStrategy // androidx.compose.ui.text.font/ResourceFont.loadingStrategy.<get-loadingStrategy>|<get-loadingStrategy>(){}[0]
     final val resId // androidx.compose.ui.text.font/ResourceFont.resId|{}resId[0]
         final fun <get-resId>(): kotlin/Int // androidx.compose.ui.text.font/ResourceFont.resId.<get-resId>|<get-resId>(){}[0]
     final val style // androidx.compose.ui.text.font/ResourceFont.style|{}style[0]
@@ -298,6 +300,7 @@ final class androidx.compose.ui.text.font/ResourceFont : androidx.compose.ui.tex
         final fun <get-weight>(): androidx.compose.ui.text.font/FontWeight // androidx.compose.ui.text.font/ResourceFont.weight.<get-weight>|<get-weight>(){}[0]
 
     final fun copy(kotlin/Int = ..., androidx.compose.ui.text.font/FontWeight = ..., androidx.compose.ui.text.font/FontStyle = ...): androidx.compose.ui.text.font/ResourceFont // androidx.compose.ui.text.font/ResourceFont.copy|copy(kotlin.Int;androidx.compose.ui.text.font.FontWeight;androidx.compose.ui.text.font.FontStyle){}[0]
+    final fun copy(kotlin/Int = ..., androidx.compose.ui.text.font/FontWeight = ..., androidx.compose.ui.text.font/FontStyle = ..., androidx.compose.ui.text.font/FontLoadingStrategy = ..., androidx.compose.ui.text.font/FontVariation.Settings = ...): androidx.compose.ui.text.font/ResourceFont // androidx.compose.ui.text.font/ResourceFont.copy|copy(kotlin.Int;androidx.compose.ui.text.font.FontWeight;androidx.compose.ui.text.font.FontStyle;androidx.compose.ui.text.font.FontLoadingStrategy;androidx.compose.ui.text.font.FontVariation.Settings){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text.font/ResourceFont.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.text.font/ResourceFont.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.text.font/ResourceFont.toString|toString(){}[0]
@@ -1854,6 +1857,7 @@ final fun (kotlin/String).androidx.compose.ui.text/toUpperCase(androidx.compose.
 final fun (kotlin/String).androidx.compose.ui.text/toUpperCase(androidx.compose.ui.text.intl/LocaleList): kotlin/String // androidx.compose.ui.text/toUpperCase|toUpperCase@kotlin.String(androidx.compose.ui.text.intl.LocaleList){}[0]
 final fun androidx.compose.ui.text.font/Font(kotlin/Int, androidx.compose.ui.text.font/FontWeight = ..., androidx.compose.ui.text.font/FontStyle = ...): androidx.compose.ui.text.font/Font // androidx.compose.ui.text.font/Font|Font(kotlin.Int;androidx.compose.ui.text.font.FontWeight;androidx.compose.ui.text.font.FontStyle){}[0]
 final fun androidx.compose.ui.text.font/Font(kotlin/Int, androidx.compose.ui.text.font/FontWeight = ..., androidx.compose.ui.text.font/FontStyle = ..., androidx.compose.ui.text.font/FontLoadingStrategy = ...): androidx.compose.ui.text.font/Font // androidx.compose.ui.text.font/Font|Font(kotlin.Int;androidx.compose.ui.text.font.FontWeight;androidx.compose.ui.text.font.FontStyle;androidx.compose.ui.text.font.FontLoadingStrategy){}[0]
+final fun androidx.compose.ui.text.font/Font(kotlin/Int, androidx.compose.ui.text.font/FontWeight = ..., androidx.compose.ui.text.font/FontStyle = ..., androidx.compose.ui.text.font/FontLoadingStrategy = ..., androidx.compose.ui.text.font/FontVariation.Settings = ...): androidx.compose.ui.text.font/Font // androidx.compose.ui.text.font/Font|Font(kotlin.Int;androidx.compose.ui.text.font.FontWeight;androidx.compose.ui.text.font.FontStyle;androidx.compose.ui.text.font.FontLoadingStrategy;androidx.compose.ui.text.font.FontVariation.Settings){}[0]
 final fun androidx.compose.ui.text.font/FontFamily(androidx.compose.ui.text.font/Typeface): androidx.compose.ui.text.font/FontFamily // androidx.compose.ui.text.font/FontFamily|FontFamily(androidx.compose.ui.text.font.Typeface){}[0]
 final fun androidx.compose.ui.text.font/FontFamily(kotlin.collections/List<androidx.compose.ui.text.font/Font>): androidx.compose.ui.text.font/FontFamily // androidx.compose.ui.text.font/FontFamily|FontFamily(kotlin.collections.List<androidx.compose.ui.text.font.Font>){}[0]
 final fun androidx.compose.ui.text.font/FontFamily(kotlin/Array<out androidx.compose.ui.text.font/Font>...): androidx.compose.ui.text.font/FontFamily // androidx.compose.ui.text.font/FontFamily|FontFamily(kotlin.Array<out|androidx.compose.ui.text.font.Font>...){}[0]
