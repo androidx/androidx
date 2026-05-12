@@ -43,6 +43,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
+    androidTestImplementation(libs.okhttpMockwebserver)
 
     androidTestUtil(libs.testOrchestrator)
 }
