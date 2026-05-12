@@ -102,6 +102,23 @@ private val PATH_REGEX = Regex("([^/]*?|)")
  *     - Request: `?name=john&city=someCity`
  *     - Extracted values: Maps "name" to ["john"]. // city is ignored
  *
+ * **Supported Fragment Pattern Types and Examples**
+ * 1. Static Fragment
+ *     - Pattern: `#section1`
+ *     - Arguments: None
+ *     - Request: `#section1`
+ *     - Extracted values: None extracted.
+ * 2. Single Placeholder
+ *     - Pattern: `#section_{id}`
+ *     - Arguments: Extracts argument ["id"].
+ *     - Request: `#section_123`
+ *     - Extracted values: Maps "id" to ["123"].
+ * 3. Wildcard
+ *     - Pattern: `#section_.*`
+ *     - Arguments: Extracts argument ["section"].
+ *     - Request: `#section_123`
+ *     - Extracted values: Maps "section" to ["123"].
+ *
  * @param uriPattern The [DeepLinkUri] containing the uri pattern that this matcher supports.
  * @param serializer The serializer to instantiate an instance of [T]
  * @param filters an optional list of filters to filter a [DeepLinkRequest] when matching
@@ -120,6 +137,10 @@ public open class UriDeepLinkMatcher<T : Any>(
     // empty if uriPattern does not have any query or query params
     private val parsedQuery: Map<String, QueryParamPattern> by lazy {
         UriPatternParser.parseQuery(uriPattern)
+    }
+    // null if uriPattern does not have a fragment. null list if fragment has no args.
+    private val parsedFragment: Pair<Regex, List<String>>? by lazy {
+        UriPatternParser.parseFragment(uriPattern)
     }
 
     /**
@@ -164,7 +185,8 @@ public open class UriDeepLinkMatcher<T : Any>(
         // Null if regex does not match, empty map if regex matches but no path args.
         val extractedPathArgs = UriRequestParser.extractPathArgs(parsedPath, uri) ?: return null
         val extractedQueryArgs = UriRequestParser.extractQueryArgs(parsedQuery, uri)
-        return matchArguments(extractedPathArgs, extractedQueryArgs)
+        val extractedFragmentArgs = UriRequestParser.extractFragmentArgs(parsedFragment, uri)
+        return matchArguments(extractedPathArgs, extractedQueryArgs, extractedFragmentArgs)
     }
 
     /**
@@ -316,6 +338,27 @@ internal object UriPatternParser {
     }
 
     /**
+     * Parses the fragment component of the URI pattern into a REGEX and extracts argument names.
+     *
+     * This method extracts placeholders (e.g., `{name}`) from the fragment and builds a regular
+     * expression to match against a requested URI's fragment.
+     *
+     * @return A list of extracted argument names in the order they appear in the fragment. Returns
+     *   null if the uri pattern does not have a fragment. Returns an empty if the fragment does not
+     *   have arguments.
+     * @see [UriDeepLinkMatcher] for supported fragment patterns and examples.
+     */
+    internal fun parseFragment(uriPattern: DeepLinkUri): Pair<Regex, List<String>>? {
+        val fragment = uriPattern.getFragment() ?: return null
+        val fragRegex = StringBuilder()
+        val args = mutableListOf<String>()
+        buildRegex(fragment, args, fragRegex)
+
+        val regex = Regex(saveWildcardInRegex(fragRegex.toString()), RegexOption.IGNORE_CASE)
+        return Pair(regex, args)
+    }
+
+    /**
      * Builds a regular expression for a uri segment by replacing placeholders with regex patterns.
      *
      * For example, given a segment "user_{id}_profile":
@@ -463,6 +506,28 @@ internal object UriRequestParser {
                 }
             }
         }
+
+    /**
+     * Matches the fragment component of a requested URI against the parsed fragment pattern.
+     *
+     * @param requestedUri The URI to match against.
+     * @return A map of argument names to their extracted values if the fragment matches. Returns
+     *   empty map if it is not a match (mismatch pattern or no fragment in requested uri) or if the
+     *   requested fragment matches but does not contain arguments.
+     * @see [UriDeepLinkMatcher] for supported fragment patterns and examples.
+     */
+    internal fun extractFragmentArgs(
+        parsedFragment: Pair<Regex, List<String>>?,
+        requestedUri: DeepLinkUri,
+    ): Map<String, List<String>> = buildMap {
+        val fragment = requestedUri.getFragment() ?: return emptyMap()
+        val result = parsedFragment?.first?.matchEntire(fragment) ?: return emptyMap()
+        parsedFragment.second.fastForEachIndexed { index, argName ->
+            val value =
+                result.groups[index + 1]?.value?.let { DeepLinkUriUtils.decode(it) }.orEmpty()
+            put(argName, listOf(value))
+        }
+    }
 }
 
 /** Represents a single query parameter parsed from a uri pattern. */

@@ -486,6 +486,69 @@ class UriDeepLinkParserTest {
         assertFailsWith<IllegalArgumentException> { UriPatternParser.parseQuery(uriPattern) }
     }
 
+    @Test
+    fun testExtractFragmentArgs_staticFragment() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#section")
+        val parsedFragment = UriPatternParser.parseFragment(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#section")
+        val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractFragmentArgs_placeholder() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#{id}")
+        val parsedFragment = UriPatternParser.parseFragment(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#123")
+        val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
+        assertThat(result["id"]).isEqualTo(listOf("123"))
+    }
+
+    @Test
+    fun testExtractFragmentArgs_mixedLiteralAndPlaceholder() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#section_{id}")
+        val parsedFragment = UriPatternParser.parseFragment(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#section_123")
+        val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
+        assertThat(result["id"]).isEqualTo(listOf("123"))
+    }
+
+    @Test
+    fun testExtractFragmentArgs_missingLiteralFragmentInRequest() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#section")
+        val parsedFragment = UriPatternParser.parseFragment(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a")
+        val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractFragmentArgs_missingFragmentArgInRequest() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#{id}")
+        val parsedFragment = UriPatternParser.parseFragment(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a")
+        val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractFragmentArgs_mismatchedFragment() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#section1")
+        val parsedFragment = UriPatternParser.parseFragment(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#section2")
+        val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractFragmentArgs_extraFragmentInPattern() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a")
+        val parsedFragment = UriPatternParser.parseFragment(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#123")
+        val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
     companion object {
         private const val DEEP_LINK_BASE_PATH = "www.testUri.com"
     }
