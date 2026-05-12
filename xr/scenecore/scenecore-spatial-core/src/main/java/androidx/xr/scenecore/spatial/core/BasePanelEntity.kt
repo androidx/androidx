@@ -17,6 +17,7 @@ package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
 import android.content.res.Resources
+import android.util.DisplayMetrics
 import android.util.TypedValue
 import androidx.core.util.TypedValueCompat
 import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
@@ -45,13 +46,14 @@ internal abstract class BasePanelEntity(
 ) : AndroidXrEntity(context, node, extensions, sceneNodeRegistry, executor), PanelEntity {
     protected val defaultPixelDensity: Float
         get() {
-            // Spatial api versions 1 and 2+, have different density behaviors. In 2+, pixels per
+            // Spatial api versions 1 and 2, have different density behaviors. In 3+, pixels per
             // meter should remain a constant value even when system density changes.
-            return if (spatialApiVersion >= 2) {
+            return if (spatialApiVersion > 2) {
                 extensions.underlyingObject.config.defaultPixelsPerMeter()
             } else {
                 extensions.config.defaultPixelsPerMeter(
-                    Resources.getSystem().displayMetrics.density
+                    DisplayMetrics.DENSITY_DEVICE_STABLE.toFloat() /
+                        DisplayMetrics.DENSITY_DEFAULT.toFloat()
                 )
             }
         }
