@@ -12,14 +12,13 @@
 
 ## Testing Patterns
 
-Tests are located in `src/androidTest/java/` and typically use `RemoteComposeScreenshotTestRule` for
-screenshot testing.
+Tests are located in `src/androidTest/java/` and typically use `RemoteScreenshotTestRule` for screenshot testing.
 
 ### Guidelines
 
-- **Use Test Rule**: ALWAYS use `RemoteComposeScreenshotTestRule` to manage screenshot testing.
+- **Use Test Rule**: ALWAYS use `RemoteScreenshotTestRule` to manage screenshot testing.
 - **Define Golden Directory**: Use `SCREENSHOT_GOLDEN_DIRECTORY` (defined in `TestConstants.kt`) to specify where golden images are stored.
-- **Configure Display**: Use `CreationDisplayInfo` to define the display metrics for the test (e.g., 500x500 dimension).
+- **Configure Display**: Use `RemoteCreationDisplayInfo` to define the display metrics for the test (e.g., 500x500 dimension).
 
 ### Example Structure
 
@@ -30,20 +29,17 @@ screenshot testing.
 class RemoteIconFromResTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
+        RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-        )
-
-    private val creationDisplayInfo =
-        CreationDisplayInfo(
-            500,
-            500,
-            ApplicationProvider.getApplicationContext().resources.displayMetrics.densityDpi
+            context = ApplicationProvider.getApplicationContext(),
         )
 
     @Test
     fun iconsFromRes() {
-        remoteComposeTestRule.runScreenshotTest(creationDisplayInfo = creationDisplayInfo) {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        ) {
             // Your Remote Composables here
             RemoteRow {
                 Icon(resId = R.drawable.test_vector)

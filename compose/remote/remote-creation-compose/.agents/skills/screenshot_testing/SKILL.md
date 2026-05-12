@@ -1,18 +1,18 @@
 ---
 name: build_screenshot_tests
-description: A skill for building instrumented screenshot tests in Remote Compose using RemoteComposeScreenshotTestRule.
+description: A skill for building instrumented screenshot tests in Remote Compose using RemoteScreenshotTestRule.
 ---
 
-# Building Screenshot Tests using RemoteComposeScreenshotTestRule
+# Building Screenshot Tests using RemoteScreenshotTestRule
 
 > [!IMPORTANT]
-> **AI INSTRUCTION:** Do not assume you should use `RemoteComposeScreenshotTestRule` for all tests. If the user asks you to write a screenshot test, you MUST first explicitly ask them: "Would you like me to use the `RemoteComposeScreenshotTestRule` for this test?" Proceed with using this skill only if they confirm.
+> **AI INSTRUCTION:** Do not assume you should use `RemoteScreenshotTestRule` for all tests. If the user asks you to write a screenshot test, you MUST first explicitly ask them: "Would you like me to use the `RemoteScreenshotTestRule` for this test?" Proceed with using this skill only if they confirm.
 
 This skill provides guidelines for building screenshot tests in the `@compose/remote/remote-creation-compose` project.
 
 ## Purpose
 
-`RemoteComposeScreenshotTestRule` is a JUnit rule that allows taking screenshots of Remote Compose components. It handles:
+`RemoteScreenshotTestRule` is a JUnit rule that allows taking screenshots of Remote Compose components. It handles:
 1.  Capturing the remote document.
 2.  Rendering it using `RemoteDocumentPlayer`.
 3.  Verifying the rendered image against a "golden" screenshot.
@@ -26,16 +26,17 @@ This skill provides guidelines for building screenshot tests in the `@compose/re
     Define the rule inside the test class.
     ```kotlin
     @get:Rule
-    val composeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(
+    val composeTestRule: RemoteScreenshotTestRule by lazy {
+        RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
             matcher = MSSIMMatcher(threshold = 0.999),
         )
     }
     ```
     *Note: `SCREENSHOT_GOLDEN_DIRECTORY` is usually defined in the module, e.g., `androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY`.*
 
-## How to use `RemoteComposeScreenshotTestRule`
+## How to use `RemoteScreenshotTestRule`
 
 ### 1. Basic Usage (Direct Testing)
 
