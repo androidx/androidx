@@ -147,13 +147,7 @@ class LayoutInspectorTreeTest {
     }
 
     private fun collectAllViews(view: View, className: String, views: MutableList<View>) {
-        val simpleName = view.javaClass.simpleName
-        if (
-            simpleName == className ||
-                (simpleName.startsWith(className) &&
-                    simpleName.length == className.length + 2 &&
-                    simpleName.substring(className.length).toIntOrNull() != null)
-        ) {
+        if (view.javaClass.simpleName == className) {
             views.add(view)
         }
         if (view !is ViewGroup) {

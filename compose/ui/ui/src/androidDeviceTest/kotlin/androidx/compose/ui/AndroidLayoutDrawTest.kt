@@ -99,7 +99,6 @@ import androidx.compose.ui.platform.RenderNodeApi29
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.ViewLayer
 import androidx.compose.ui.platform.ViewLayerContainer
-import androidx.compose.ui.platform.createAndroidComposeView
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -361,7 +360,7 @@ class AndroidLayoutDrawTest {
         assertTrue(cameraDistanceApplied)
     }
 
-    private fun createTestAndroidComposeView(
+    private fun createAndroidComposeView(
         activity: TestActivity,
         coroutineContext: CoroutineContext,
     ): AndroidComposeView {
@@ -395,7 +394,7 @@ class AndroidLayoutDrawTest {
                     get() = lifecycleRegistry
             }
 
-        return createAndroidComposeView(
+        return AndroidComposeView(
             activity,
             ComposeViewContext(
                 compositionContext = Recomposer(coroutineContext),
@@ -415,7 +414,7 @@ class AndroidLayoutDrawTest {
     ): Boolean {
         val node =
             RenderNodeApi29(
-                    createTestAndroidComposeView(
+                    createAndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     )
@@ -433,7 +432,7 @@ class AndroidLayoutDrawTest {
     ): Boolean {
         val node =
             RenderNodeApi23(
-                    createTestAndroidComposeView(
+                    createAndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     )
@@ -450,7 +449,7 @@ class AndroidLayoutDrawTest {
     ): Boolean {
         val view =
             ViewLayer(
-                    createTestAndroidComposeView(
+                    createAndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     ),
@@ -475,7 +474,7 @@ class AndroidLayoutDrawTest {
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
         RenderNodeApi29(
-                createTestAndroidComposeView(
+                createAndroidComposeView(
                     activity,
                     Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                 )
@@ -489,7 +488,7 @@ class AndroidLayoutDrawTest {
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
         RenderNodeApi23(
-                createTestAndroidComposeView(
+                createAndroidComposeView(
                     activity,
                     Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                 )
@@ -501,7 +500,7 @@ class AndroidLayoutDrawTest {
     private fun verifyViewLayerCameraDistance(cameraDistance: Float): Boolean {
         val layer =
             ViewLayer(
-                    createTestAndroidComposeView(
+                    createAndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     ),

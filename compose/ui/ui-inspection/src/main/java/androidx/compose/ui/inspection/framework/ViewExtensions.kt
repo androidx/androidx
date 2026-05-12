@@ -47,8 +47,6 @@ fun View.flatten(): Sequence<View> {
     }
 }
 
-private var androidComposeViewClass: Class<*>? = null
-
 /**
  * Returns true if this view represents a special type that bridges between the legacy UI framework
  * and Jetpack Compose.
@@ -57,12 +55,7 @@ private var androidComposeViewClass: Class<*>? = null
  * indirectly like this. TODO(b/177998085): Expose this class to our library.
  */
 fun View.isAndroidComposeView(): Boolean {
-    val androidComposeViewClass =
-        androidComposeViewClass
-            ?: Class.forName("androidx.compose.ui.platform.AndroidComposeView").also {
-                androidComposeViewClass = it
-            }
-    return androidComposeViewClass.isAssignableFrom(this::class.java)
+    return javaClass.canonicalName == "androidx.compose.ui.platform.AndroidComposeView"
 }
 
 /** Return true if this view already has a slot table. */
