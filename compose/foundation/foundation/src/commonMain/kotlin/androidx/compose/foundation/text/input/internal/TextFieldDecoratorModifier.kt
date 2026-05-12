@@ -245,7 +245,7 @@ internal class TextFieldDecoratorModifierNode(
             SuspendingPointerInputModifierNode {
                 coroutineScope {
                     with(textFieldSelectionState) {
-                        val requestFocus = { if (!isFocused) requestFocus() }
+                        val requestFocus = { if (!isWindowAndTextFieldFocused) requestFocus() }
 
                         launch(start = CoroutineStart.UNDISPATCHED) { detectTouchMode() }
                         launch(start = CoroutineStart.UNDISPATCHED) {
@@ -697,7 +697,7 @@ internal class TextFieldDecoratorModifierNode(
      * sources, so any change to them requires this method to be invoked.
      */
     private fun onIsFocusedUpdated() {
-        textFieldSelectionState.isFocused = this.isFocused
+        textFieldSelectionState.isWindowAndTextFieldFocused = this.isFocused
         if (isFocused && toolbarAndHandlesVisibilityObserverJob == null) {
             // only start a new job is there's not an ongoing one.
             toolbarAndHandlesVisibilityObserverJob =

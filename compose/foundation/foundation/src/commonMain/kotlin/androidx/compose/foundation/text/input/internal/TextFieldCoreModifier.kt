@@ -233,6 +233,7 @@ internal class TextFieldCoreModifierNode(
         // if the attributes are right during onAttach, start the cursor job immediately.
         // This is possible when BasicTextField2 decorator toggles innerTextField in-and-out of
         // composition.
+        textFieldSelectionState.isWindowAndTextFieldFocused = isFocused
         if (isFocused && showCursor) {
             startCursorJob()
         }
@@ -260,6 +261,7 @@ internal class TextFieldCoreModifierNode(
         val previousScrollState = this.scrollState
 
         this.isFocused = isFocused
+        textFieldSelectionState.isWindowAndTextFieldFocused = isFocused
         this.isDragHovered = isDragHovered
         this.textLayoutState = textLayoutState
         this.textFieldState = textFieldState

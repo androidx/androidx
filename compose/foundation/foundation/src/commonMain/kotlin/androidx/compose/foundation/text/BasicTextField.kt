@@ -262,11 +262,6 @@ internal fun BasicTextField(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
-    val isFocused = interactionSource.collectIsFocusedAsState().value
-    val isDragHovered = interactionSource.collectIsDragAndDropHoveredAsState().value
-    // Avoid reading LocalWindowInfo.current.isWindowFocused when the text field is not focused;
-    // otherwise all text fields in a window will be recomposed when it becomes focused.
-    val isWindowAndTextFieldFocused = isFocused && LocalWindowInfo.current.isWindowFocused
     val stylusHandwritingTrigger = remember {
         MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
     }
@@ -316,7 +311,6 @@ internal fun BasicTextField(
                 density = density,
                 enabled = enabled,
                 readOnly = readOnly,
-                isFocused = isWindowAndTextFieldFocused,
                 isPassword = isPassword,
                 toolbarRequester = toolbarRequester,
                 coroutineScope = coroutineScope,
@@ -374,13 +368,6 @@ internal fun BasicTextField(
                 }
             }
         }
-
-    rememberClipboardEventsHandler(
-        isEnabled = isFocused,
-        onPaste = { textFieldSelectionState.onPasteEvent(it) },
-        onCopy = { textFieldSelectionState.copyWithResult() },
-        onCut = { textFieldSelectionState.cutWithResult() },
-    )
 
     SideEffect {
         // These properties are not backed by snapshot state, so they can't be updated directly in
@@ -469,6 +456,23 @@ internal fun BasicTextField(
         ContextMenuArea(textFieldSelectionState, enabled) {
             val nonNullDecorator = decorator ?: DefaultTextFieldDecorator
             nonNullDecorator.Decoration {
+                val isFocused by interactionSource.collectIsFocusedAsState()
+                val isDragHovered by interactionSource.collectIsDragAndDropHoveredAsState()
+                val windowInfo = LocalWindowInfo.current
+                val isWindowAndTextFieldFocused by
+                    remember(interactionSource, windowInfo) {
+                        // Using derived state here to avoid recomposing when window focus is
+                        // obtained after the initial focus.
+                        derivedStateOf { isFocused && windowInfo.isWindowFocused }
+                    }
+
+                rememberClipboardEventsHandler(
+                    isEnabled = isFocused,
+                    onPaste = { textFieldSelectionState.onPasteEvent(it) },
+                    onCopy = { textFieldSelectionState.copyWithResult() },
+                    onCut = { textFieldSelectionState.cutWithResult() },
+                )
+
                 val minLines: Int
                 val maxLines: Int
                 if (lineLimits is MultiLine) {
