@@ -16,7 +16,11 @@
 
 package androidx.text.vertical.compose
 
+import android.graphics.Typeface
+import android.os.Build
+import android.os.LocaleList
 import android.text.TextPaint
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,12 +30,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.sp
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.VerticalTextLayout
 import kotlin.math.ceil
@@ -49,7 +63,7 @@ import kotlin.math.min
  * rendered.
  *
  * @param text The [CharSequence] text to display.
- * @param paint The [TextPaint] to use for text measurement and rendering.
+ * @param style The [VerticalTextStyle] to use for text measurement and rendering.
  * @param modifier The [Modifier] to apply to the layout.
  * @param overflow How to handle text that overflows the available space.
  * @param maxColumns The maximum number of columns. Defaults to unlimited.
@@ -59,8 +73,8 @@ import kotlin.math.min
 @Composable
 public fun VerticalText(
     text: CharSequence,
-    paint: TextPaint,
     modifier: Modifier = Modifier,
+    style: VerticalTextStyle = VerticalTextStyle.Default,
     overflow: TextOverflow = TextOverflow.Clip,
     maxColumns: Int = Int.MAX_VALUE,
     minColumns: Int = 1,
@@ -68,7 +82,7 @@ public fun VerticalText(
 ) {
     VerticalTextImpl(
         text = text,
-        paint = paint,
+        style = style,
         modifier = modifier,
         overflow = overflow,
         maxColumns = maxColumns,
@@ -78,28 +92,40 @@ public fun VerticalText(
     )
 }
 
-private class VerticalTextLayoutCache {
+internal class VerticalTextLayoutCache {
     private var layout: VerticalTextLayout? = null
     private var lastText: CharSequence? = null
     private var lastConstraintsHeight: Int = -1
     private var lastOrientation: TextOrientation? = null
+    private var lastStyle: VerticalTextStyle? = null
+    private var lastTypeface: Typeface? = null
+    private var lastDensity: Density? = null
+    private var cachedPaint: TextPaint? = null
 
     /** Returns the cached layout if the inputs are unchanged, otherwise creates a new one. */
     fun getLayout(
         text: CharSequence,
         height: Int,
         orientation: TextOrientation,
-        paint: TextPaint,
+        style: VerticalTextStyle,
+        typeface: Typeface,
+        density: Density,
     ): VerticalTextLayout {
         val cached = layout
         if (
             cached != null &&
                 lastText == text &&
                 lastConstraintsHeight == height &&
-                lastOrientation == orientation
+                lastOrientation == orientation &&
+                lastStyle == style &&
+                lastTypeface == typeface &&
+                lastDensity == density
         ) {
             return cached
         }
+        val paint = cachedPaint ?: TextPaint().also { cachedPaint = it }
+        paint.reset()
+        setStyleToPaint(style, typeface, density, paint)
         val newLayout =
             VerticalTextLayout(
                 text = text,
@@ -113,6 +139,9 @@ private class VerticalTextLayoutCache {
         lastText = text
         lastConstraintsHeight = height
         lastOrientation = orientation
+        lastStyle = style
+        lastTypeface = typeface
+        lastDensity = density
         return newLayout
     }
 }
@@ -120,7 +149,7 @@ private class VerticalTextLayoutCache {
 @Composable
 private fun VerticalTextImpl(
     text: CharSequence,
-    paint: TextPaint,
+    style: VerticalTextStyle,
     modifier: Modifier,
     overflow: TextOverflow,
     maxColumns: Int,
@@ -138,12 +167,31 @@ private fun VerticalTextImpl(
         Modifier.drawBehind {
             drawIntoCanvas { canvas -> textLayout?.draw(canvas.nativeCanvas, size.width, 0f) }
         }
+    val density = LocalDensity.current
+    val resolver = LocalFontFamilyResolver.current
+    val typeface by
+        remember(style, resolver) {
+            resolver.resolve(
+                style.fontFamily,
+                style.fontWeight ?: FontWeight.Normal,
+                style.fontStyle ?: FontStyle.Normal,
+                style.fontSynthesis ?: FontSynthesis.All,
+            )
+        }
 
     Layout(
         content = {},
         modifier = modifier.then(semanticsModifier).then(clipModifier).then(drawModifier),
     ) { _, constraints ->
-        val vtl = cache.getLayout(text, constraints.maxHeight, orientation, paint)
+        val vtl =
+            cache.getLayout(
+                text,
+                constraints.maxHeight,
+                orientation,
+                style,
+                typeface as Typeface,
+                density,
+            )
         textLayout = vtl
 
         val columnWidth = if (vtl.lineCount > 0) vtl.width / vtl.lineCount else 0f
@@ -159,3 +207,32 @@ private fun VerticalTextImpl(
         layout(layoutWidth, constraints.maxHeight) {}
     }
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun setStyleToPaint(
+    style: VerticalTextStyle,
+    typeface: Typeface,
+    density: Density,
+    out: TextPaint,
+) {
+    return with(density) {
+        out.textSize =
+            if (style.fontSize.isSpecified) style.fontSize.toPx() else DefaultFontSize.toPx()
+        out.typeface = typeface
+        out.fontFeatureSettings = style.fontFeatureSettings
+        if (style.color.isSpecified) {
+            out.color = style.color.toArgb()
+        }
+        if (style.background.isSpecified) {
+            out.bgColor = style.background.toArgb()
+        }
+        if (Build.VERSION.SDK_INT >= 25) {
+            style.localeList
+                ?.map { it.platformLocale }
+                ?.toTypedArray()
+                ?.let { out.textLocales = LocaleList(*it) }
+        }
+    }
+}
+
+private val DefaultFontSize = 16.sp
