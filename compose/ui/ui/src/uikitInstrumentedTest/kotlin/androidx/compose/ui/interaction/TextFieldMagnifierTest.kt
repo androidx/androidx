@@ -31,18 +31,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.test.utils.findFirstDescendant
+import androidx.compose.ui.test.utils.isLoupeView
 import androidx.compose.ui.test.utils.up
 import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.cinterop.BetaInteropApi
-import platform.Foundation.NSStringFromClass
-import platform.UIKit.UIApplication
-import platform.UIKit.UIView
-import platform.UIKit.UIWindow
-import platform.UIKit.UIWindowScene
-
 class TextFieldMagnifierTest {
 
     private val params = listOf<TextFieldComposableFactory>(
@@ -165,43 +160,4 @@ class TextFieldMagnifierTest {
     }
 }
 
-@OptIn(BetaInteropApi::class)
-private fun objcClassName(view: UIView): String? = view.`class`()?.let { NSStringFromClass(it) }
-
-private fun findFirstDescendant(root: UIView, predicate: (UIView) -> Boolean): UIView? {
-    if (predicate(root)) return root
-    root.subviews.forEach { view ->
-        view as UIView
-        val hit = findFirstDescendant(view, predicate)
-        if (hit != null) return hit
-    }
-    return null
-}
-
-fun findFirstDescendant(predicate: (UIView) -> Boolean): UIView? {
-    val app = UIApplication.sharedApplication
-    val scenes = app.connectedScenes
-
-    scenes.forEach { scene ->
-        val scene = scene as? UIWindowScene ?: return@forEach
-        scene.windows.forEach { window ->
-            window as UIWindow
-            val hit = findFirstDescendant(window) { it.isLoupeView }
-            if (hit != null) return hit
-        }
-    }
-    return null
-}
-
 private typealias TextFieldComposableFactory = @Composable (FocusRequester) -> Unit
-
-private val loupeClassNames = listOf(
-    "_UITextMagnifiedLoupeView",
-    "_UITextLoupeView",
-    "LoupeView"
-)
-
-private val UIView.isLoupeView: Boolean get() {
-    val name = objcClassName(this) ?: return false
-    return loupeClassNames.any { name.contains(it) }
-}
