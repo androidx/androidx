@@ -2238,6 +2238,34 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun abstractClassWithParam_userType() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                abstract class MyDao(val db: MyDatabase) {
+                  @Query("SELECT * FROM MyEntity")
+                  abstract fun getEntity(): MyEntity
+                }
+
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    val pk: Int
+                )
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+        )
+    }
+
+    @Test
     fun queryResultAdapter_optional() {
         val src =
             Source.kotlin(
