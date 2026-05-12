@@ -146,6 +146,14 @@ class WindowStateCallbackActivity : ComponentActivity() {
                 }
             }
         }
+
+        lifecycleScope.launch(Dispatchers.Main) {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                tracker.windowEngagementInfo(this@WindowStateCallbackActivity).collect { info ->
+                    onWindowStateCallbackInvoked(R.string.window_engagement_info_flow_title, info)
+                }
+            }
+        }
     }
 
     override fun onDestroy() {

@@ -23,6 +23,8 @@ import androidx.core.util.Consumer
 import androidx.window.WindowSdkExtensions
 import androidx.window.layout.adapter.WindowBackend
 import java.util.concurrent.Executor
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +44,10 @@ internal class WindowInfoTrackerImpl(
     private val windowSdkExtensions: WindowSdkExtensions,
 ) : WindowInfoTracker {
 
+    private val lock = ReentrantLock()
+    private val listenerMapping =
+        mutableMapOf<Consumer<WindowEngagementInfo>, Consumer<WindowLayoutInfo>>()
+
     /**
      * A [Flow] of window layout changes in the current visual [UiContext]. A context has to be
      * either an [Activity] or created with [Context.createWindowContext].
@@ -57,10 +63,14 @@ internal class WindowInfoTrackerImpl(
 
     /** A [Flow] of window layout changes in the current visual [Activity]. */
     override fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo> {
+        return windowLayoutInfo(activity as Context)
+    }
+
+    override fun windowEngagementInfo(@UiContext context: Context): Flow<WindowEngagementInfo> {
         return callbackFlow {
-                val listener = Consumer { info: WindowLayoutInfo -> trySend(info) }
-                windowBackend.registerLayoutChangeCallback(activity, Runnable::run, listener)
-                awaitClose { windowBackend.unregisterLayoutChangeCallback(listener) }
+                val listener = Consumer { info: WindowEngagementInfo -> trySend(info) }
+                registerWindowEngagementInfoListener(context, Runnable::run, listener)
+                awaitClose { unregisterWindowEngagementInfoListener(listener) }
             }
             .flowOn(Dispatchers.Main)
     }
@@ -86,5 +96,63 @@ internal class WindowInfoTrackerImpl(
 
     override fun unregisterWindowLayoutInfoListener(listener: Consumer<WindowLayoutInfo>) {
         windowBackend.unregisterLayoutChangeCallback(listener)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun registerWindowEngagementInfoListener(
+        @UiContext context: Context,
+        executor: Executor,
+        listener: Consumer<WindowEngagementInfo>,
+    ) {
+        lock.withLock {
+            if (listenerMapping.containsKey(listener)) {
+                return
+            }
+            val backendListener = EngagementInfoTranslator(executor, listener)
+            listenerMapping[listener] = backendListener
+            windowBackend.registerLayoutChangeCallback(context, Runnable::run, backendListener)
+        }
+    }
+
+    override fun unregisterWindowEngagementInfoListener(listener: Consumer<WindowEngagementInfo>) {
+        lock.withLock {
+            val backendListener = listenerMapping.remove(listener) ?: return
+            windowBackend.unregisterLayoutChangeCallback(backendListener)
+        }
+    }
+}
+
+@Suppress("DEPRECATION")
+private class EngagementInfoTranslator(
+    private val executor: Executor,
+    private val listener: Consumer<WindowEngagementInfo>,
+) : Consumer<WindowLayoutInfo> {
+    private var lastInfo: WindowEngagementInfo? = null
+    private val lock = ReentrantLock()
+
+    override fun accept(value: WindowLayoutInfo) {
+        val oemModes = value.engagementModes
+        val newModes = mutableSetOf<WindowEngagementInfo.EngagementMode>()
+        if (oemModes.contains(WindowLayoutInfo.EngagementMode.VISUALS_ON)) {
+            newModes.add(WindowEngagementInfo.EngagementMode.VISUALS_ON)
+        }
+        if (oemModes.contains(WindowLayoutInfo.EngagementMode.AUDIO_ON)) {
+            newModes.add(WindowEngagementInfo.EngagementMode.AUDIO_ON)
+        }
+
+        val engagementInfo = WindowEngagementInfo(newModes)
+        val shouldSend =
+            lock.withLock {
+                if (engagementInfo != lastInfo) {
+                    lastInfo = engagementInfo
+                    true
+                } else {
+                    false
+                }
+            }
+
+        if (shouldSend) {
+            executor.execute { listener.accept(engagementInfo) }
+        }
     }
 }

@@ -90,6 +90,30 @@ class WindowInfoTrackerImplTest {
         }
 
     @Test
+    fun testWindowEngagementInfo_activityAsListener() =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
+                val collector = mutableListOf<WindowEngagementInfo>()
+                val job = Job()
+
+                testScope.launch(job) {
+                    tracker.windowEngagementInfo(testActivity).toList(collector)
+                }
+
+                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+
+                assertThat(collector)
+                    .containsExactly(
+                        WindowEngagementInfo(setOf(WindowEngagementInfo.EngagementMode.VISUALS_ON))
+                    )
+                job.cancel()
+                assertThat(fakeBackend.consumers).isEmpty()
+            }
+        }
+
+    @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun testWindowLayoutInfo_contextAsListener() =
         testScope.runTest {
@@ -307,6 +331,70 @@ class WindowInfoTrackerImplTest {
             tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
 
             assertThat(fakeBackend.consumers.size).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testRegisterWindowEngagementInfoListener_activity() =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                Dispatchers.setMain(testDispatcher)
+                val receivedValues = mutableListOf<WindowEngagementInfo>()
+                val listener = Consumer<WindowEngagementInfo> { receivedValues.add(it) }
+                val executor = Executor { command -> command.run() }
+
+                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+
+                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+
+                assertThat(receivedValues)
+                    .containsExactly(
+                        WindowEngagementInfo(setOf(WindowEngagementInfo.EngagementMode.VISUALS_ON))
+                    )
+            }
+        }
+
+    @Test
+    fun testUnregisterWindowEngagementInfoListener() =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                Dispatchers.setMain(testDispatcher)
+                val receivedValues = mutableListOf<WindowEngagementInfo>()
+                val listener = Consumer<WindowEngagementInfo> { receivedValues.add(it) }
+                val executor = Executor { command -> command.run() }
+
+                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+
+                // Verify listener is active
+                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+                assertThat(receivedValues).hasSize(1)
+
+                tracker.unregisterWindowEngagementInfoListener(listener)
+
+                // Verify listener is removed and does not receive new values
+                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+                assertThat(receivedValues).hasSize(1)
+            }
+        }
+
+    @Test
+    fun testRegisterWindowEngagementInfoListener_doesNotAddSameListenerTwice() {
+        activityScenario.scenario.onActivity { testActivity ->
+            val receivedValues = mutableListOf<WindowEngagementInfo>()
+            val listener = Consumer<WindowEngagementInfo> { receivedValues.add(it) }
+            val executor = Executor { command -> command.run() }
+
+            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+
+            tracker.unregisterWindowEngagementInfoListener(listener)
+
+            @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+
+            assertThat(receivedValues).isEmpty()
         }
     }
 
