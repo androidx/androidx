@@ -42,5 +42,8 @@ interface Clipboard {
     suspend fun setClipEntry(clipEntry: ClipEntry?)
 
     /** Returns the native clipboard that exposes the full functionality of platform clipboard. */
+    @Suppress("DEPRECATION")
+    @Deprecated("Use platform-specific extension to get platform reference")
     val nativeClipboard: NativeClipboard
+        get() = throw NotImplementedError()
 }

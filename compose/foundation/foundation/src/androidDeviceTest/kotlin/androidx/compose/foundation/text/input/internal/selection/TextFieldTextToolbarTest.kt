@@ -61,7 +61,6 @@ import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
@@ -1081,7 +1080,11 @@ internal class FakeClipboard(private var clipEntry: ClipEntry?) : Clipboard {
             on { primaryClipDescription } doAnswer { clipEntry?.clipMetadata?.clipDescription }
         }
 
-    override val nativeClipboard: NativeClipboard
+    // The new extension field [nativeClipboardManager] still delegates to this property.
+    // Therefore, this deprecated field shall be used in tests to mock the backing
+    // native ClipboardManager.
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+    override val nativeClipboard: ClipboardManager
         get() = clipboardManager
 }
 

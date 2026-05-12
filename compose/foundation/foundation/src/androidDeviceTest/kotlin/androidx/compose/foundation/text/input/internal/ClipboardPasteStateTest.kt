@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.input.internal
 import androidx.compose.foundation.content.createClipData
 import androidx.compose.foundation.text.input.internal.selection.ClipboardPasteState
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboard
+import androidx.compose.ui.platform.nativeClipboardManager
 import androidx.compose.ui.platform.toClipEntry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -68,7 +69,7 @@ class ClipboardPasteStateTest {
         clipboardPasteState.update()
 
         assertThat(clipboard.getClipEntryCalled).isEqualTo(0)
-        verify(clipboard.nativeClipboard, atLeastOnce()).hasPrimaryClip()
-        verify(clipboard.nativeClipboard, never()).primaryClip
+        verify(clipboard.nativeClipboardManager, atLeastOnce()).hasPrimaryClip()
+        verify(clipboard.nativeClipboardManager, never()).primaryClip
     }
 }
