@@ -160,6 +160,7 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
         // Dispose Texture explicitly
         findViewById<Button>(R.id.gltf_model_button1_3).setOnClickListener {
             patternTexture?.close()
+            patternTexture = null
         }
         // Create Khronos PBR Material
         findViewById<Button>(R.id.gltf_model_button2_1).setOnClickListener {
@@ -175,6 +176,7 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
         // Dispose Khronos PBR Material explicitly
         findViewById<Button>(R.id.gltf_model_button2_3).setOnClickListener {
             khronosPbrMaterial?.close()
+            khronosPbrMaterial = null
         }
         // Set Base Color Texture
         findViewById<Button>(R.id.gltf_model_button3_1).setOnClickListener {
@@ -229,7 +231,7 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
             matRow.visibility = View.GONE
             slidersRow.visibility = View.GONE
             selectedNode = null
-            nodeDropdown.setText("")
+            nodeDropdown.setText("Choose Model Node")
         }
         // Toggle Animation
         findViewById<Button>(R.id.gltf_model_button4_3).setOnClickListener {
