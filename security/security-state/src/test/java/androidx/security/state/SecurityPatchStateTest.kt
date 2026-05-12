@@ -110,6 +110,43 @@ class SecurityPatchStateTest {
     }
 
     @Test
+    fun testGetSystemModulesSecurityPatchLevel_whenReportIsNullAndSomeModulesMissing_returnsMinOfPresent() {
+        // GIVEN: vulnerabilityReport is null (not loaded)
+        // AND: getSystemModules returns [ModuleA, ModuleB]
+        // AND: ModuleA is installed with version 2024-05-01
+        // AND: ModuleB is NOT installed (returns "")
+        val systemModules = listOf("ModuleA", "ModuleB")
+        securityState =
+            SecurityPatchState(mockContext, systemModules, mockSecurityStateManagerCompat)
+
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("ModuleA")).thenReturn("2024-05-01")
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("ModuleB")).thenReturn("")
+
+        val spl =
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM_MODULES)
+
+        // EXPECTED BEHAVIOR: should return 2024-05-01 (ignoring missing ModuleB)
+        assertEquals("2024-05-01", spl.toString())
+    }
+
+    @Test
+    fun testGetSystemModulesSecurityPatchLevel_whenReportIsNullAndAllModulesInstalled_returnsMin() {
+        // GIVEN: vulnerabilityReport is null
+        // AND: ModuleA is 2024-05-01, ModuleB is 2024-04-01
+        val systemModules = listOf("ModuleA", "ModuleB")
+        securityState =
+            SecurityPatchState(mockContext, systemModules, mockSecurityStateManagerCompat)
+
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("ModuleA")).thenReturn("2024-05-01")
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("ModuleB")).thenReturn("2024-04-01")
+
+        val spl =
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM_MODULES)
+
+        assertEquals("2024-04-01", spl.toString())
+    }
+
+    @Test
     fun testGetComponentSecurityPatchLevel_withSystemComponent_returnsDateBasedSpl() {
         val spl = getComponentSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM, "2022-01-01")
         assertTrue(spl is SecurityPatchState.DateBasedSecurityPatchLevel)
