@@ -78,7 +78,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -636,13 +635,14 @@ class ScaffoldTest {
     }
 
     @Test
-    @Ignore("b/422764314")
     fun scaffold_fabPosition_start() {
         var fabSize: IntSize? = null
         var fabPosition: Offset? = null
         rule.setContent {
             Box(Modifier.requiredSize(200.dp, 200.dp)) {
                 Scaffold(
+                    // Set window insets to zero so we can test without insets applied.
+                    contentWindowInsets = WindowInsets(),
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {},
@@ -674,13 +674,14 @@ class ScaffoldTest {
     }
 
     @Test
-    @Ignore("b/422748931")
     fun scaffold_fabPosition_center() {
         var fabSize: IntSize? = null
         var fabPosition: Offset? = null
         rule.setContent {
             Box(Modifier.requiredSize(200.dp, 200.dp)) {
                 Scaffold(
+                    // Set window insets to zero so we can test without insets applied.
+                    contentWindowInsets = WindowInsets(),
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {},
@@ -712,13 +713,14 @@ class ScaffoldTest {
     }
 
     @Test
-    @Ignore("b/422746150")
     fun scaffold_fabPosition_end() {
         var fabSize: IntSize? = null
         var fabPosition: Offset? = null
         rule.setContent {
             Box(Modifier.requiredSize(200.dp, 200.dp)) {
                 Scaffold(
+                    // Set window insets to zero so we can test without insets applied.
+                    contentWindowInsets = WindowInsets(),
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {},
