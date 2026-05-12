@@ -62,4 +62,13 @@ public object RemoteComposeCreationComposeFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isEnforceCleanRecompositionEnabled: Boolean = true
+
+    /**
+     * When true, it is allowed for empty font axis to be sent when no font variation settings are
+     * specified. When false, falls back to a default weight 400 (Normal) to work around a crash.
+     */
+    // TODO: b/512099041
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var allowSendingEmptyFontAxis: Boolean = true
 }

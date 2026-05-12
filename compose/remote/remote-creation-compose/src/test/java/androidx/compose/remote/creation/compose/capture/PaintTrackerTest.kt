@@ -22,6 +22,7 @@ import android.graphics.Typeface
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.state.AndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.asRemotePaint
@@ -222,6 +223,33 @@ class PaintTrackerTest {
         assertThat(changes.fontVariationAxesSet).isTrue()
         assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("wght", "wdth"))
         assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(500f, 100f))
+    }
+
+    @Test
+    @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+    fun testFontVariationSettingsSync_FallbackToWeight400() {
+        val originalFlag = RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis
+        RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = false
+        try {
+            val paint = RemotePaint { fontVariationSettings = null }
+            val bundle = PaintBundle()
+
+            val wghtId = creationState.document.addText("wght")
+            remoteContext.loadText(wghtId, "wght")
+
+            tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+            assertThat(tracker.isChanged).isTrue()
+
+            val changes = TestPaintChanges()
+            bundle.applyPaintChange(paintContext, changes)
+
+            assertThat(changes.fontVariationAxesSet).isTrue()
+            assertThat(changes.mFontAxisTags?.single()).isEqualTo("wght")
+            assertThat(changes.mFontAxisValues?.single()).isEqualTo(400f)
+        } finally {
+            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = originalFlag
+        }
     }
 
     // Note: The following tests are partially disabled out because Robolectric does not support
