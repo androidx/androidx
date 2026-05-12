@@ -1,0 +1,108 @@
+// Signature format: 4.0
+package androidx.compose.material3.adaptive.navigation3 {
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed nonexhaustive interface ListDetailSceneScope {
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.PaneScaffoldTransitionScope<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> getScaffoldTransitionScope();
+    property public abstract androidx.compose.material3.adaptive.layout.PaneScaffoldTransitionScope<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> scaffoldTransitionScope;
+  }
+
+  @SuppressCompatibility public final class ListDetailSceneScopeKt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.adaptive.navigation3.ListDetailSceneScope?> getLocalListDetailSceneScope();
+    property @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.adaptive.navigation3.ListDetailSceneScope?> LocalListDetailSceneScope;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ListDetailSceneStrategy<T> implements androidx.navigation3.scene.SceneStrategy<T> {
+    ctor @KotlinOnly public <T> ListDetailSceneStrategy(boolean shouldHandleSinglePaneLayout, androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? paneExpansionDragHandle, androidx.compose.material3.adaptive.layout.PaneExpansionState? paneExpansionState);
+    ctor @BytecodeOnly public ListDetailSceneStrategy(boolean, String!, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective!, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies!, kotlin.jvm.functions.Function4!, androidx.compose.material3.adaptive.layout.PaneExpansionState!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies getAdaptStrategies();
+    method @BytecodeOnly public String getBackNavigationBehavior-pSECbL4();
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective getDirective();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? getPaneExpansionDragHandle();
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.PaneExpansionState? getPaneExpansionState();
+    method @InaccessibleFromKotlin public boolean shouldHandleSinglePaneLayout();
+    property public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies;
+    property public androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior;
+    property public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive;
+    property public kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? paneExpansionDragHandle;
+    property public androidx.compose.material3.adaptive.layout.PaneExpansionState? paneExpansionState;
+    property public boolean shouldHandleSinglePaneLayout;
+    field public static final androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static final class ListDetailSceneStrategy.Companion {
+    method public java.util.Map<java.lang.String,java.lang.Object> detailPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! detailPane$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, Object!, int, Object!);
+    method public java.util.Map<java.lang.String,java.lang.Object> extraPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! extraPane$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, Object!, int, Object!);
+    method public java.util.Map<java.lang.String,java.lang.Object> listPane(optional Object sceneKey, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit> detailPlaceholder);
+    method @BytecodeOnly public java.util.Map<java.lang.String!,java.lang.Object!> listPane(Object, kotlin.jvm.functions.Function3<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static java.util.Map! listPane$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
+    method public java.util.Map<java.lang.String,java.lang.Object> paneAnimation(optional androidx.compose.animation.EnterTransition? enterTransition, optional androidx.compose.animation.ExitTransition? exitTransition, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntRect>? boundsAnimationSpec);
+    method @BytecodeOnly public static java.util.Map! paneAnimation$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, androidx.compose.animation.EnterTransition!, androidx.compose.animation.ExitTransition!, androidx.compose.animation.core.FiniteAnimationSpec!, int, Object!);
+    method @KotlinOnly public java.util.Map<java.lang.String,java.lang.Object> preferredPaneSize(optional androidx.compose.ui.unit.Dp width, optional androidx.compose.ui.unit.Dp height);
+    method public java.util.Map<java.lang.String,java.lang.Object> preferredPaneSize(optional float width, optional float height);
+    method @BytecodeOnly public static java.util.Map! preferredPaneSize$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, float, float, int, Object!);
+    method @BytecodeOnly public java.util.Map<java.lang.String!,java.lang.Object!> preferredPaneSize-YgX7TsA(float, float);
+    method @BytecodeOnly public static java.util.Map! preferredPaneSize-YgX7TsA$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, float, float, int, Object!);
+  }
+
+  @SuppressCompatibility public final class ListDetailSceneStrategyKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy<T> rememberListDetailSceneStrategy(optional boolean shouldHandleSinglePaneLayout, optional androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior, optional androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive, optional androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? paneExpansionDragHandle, optional androidx.compose.material3.adaptive.layout.PaneExpansionState? paneExpansionState);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy! rememberListDetailSceneStrategy-1MrBOZs(boolean, String!, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective!, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies!, kotlin.jvm.functions.Function4!, androidx.compose.material3.adaptive.layout.PaneExpansionState!, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy<T> rememberListDetailSceneStrategy-EFFb1r0(boolean, String?, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective?, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies?, kotlin.jvm.functions.Function4<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope!,? super androidx.compose.material3.adaptive.layout.PaneExpansionState!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.material3.adaptive.layout.PaneExpansionState?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed nonexhaustive interface SupportingPaneSceneScope {
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.PaneScaffoldTransitionScope<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> getScaffoldTransitionScope();
+    property public abstract androidx.compose.material3.adaptive.layout.PaneScaffoldTransitionScope<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> scaffoldTransitionScope;
+  }
+
+  @SuppressCompatibility public final class SupportingPaneSceneScopeKt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneScope?> getLocalSupportingPaneSceneScope();
+    property @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneScope?> LocalSupportingPaneSceneScope;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class SupportingPaneSceneStrategy<T> implements androidx.navigation3.scene.SceneStrategy<T> {
+    ctor @KotlinOnly public <T> SupportingPaneSceneStrategy(boolean shouldHandleSinglePaneLayout, androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? paneExpansionDragHandle, androidx.compose.material3.adaptive.layout.PaneExpansionState? paneExpansionState);
+    ctor @BytecodeOnly public SupportingPaneSceneStrategy(boolean, String!, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective!, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies!, kotlin.jvm.functions.Function4!, androidx.compose.material3.adaptive.layout.PaneExpansionState!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies getAdaptStrategies();
+    method @BytecodeOnly public String getBackNavigationBehavior-pSECbL4();
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective getDirective();
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? getPaneExpansionDragHandle();
+    method @InaccessibleFromKotlin public androidx.compose.material3.adaptive.layout.PaneExpansionState? getPaneExpansionState();
+    method @InaccessibleFromKotlin public boolean shouldHandleSinglePaneLayout();
+    property public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies;
+    property public androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior;
+    property public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive;
+    property public kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? paneExpansionDragHandle;
+    property public androidx.compose.material3.adaptive.layout.PaneExpansionState? paneExpansionState;
+    property public boolean shouldHandleSinglePaneLayout;
+    field public static final androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static final class SupportingPaneSceneStrategy.Companion {
+    method public java.util.Map<java.lang.String,java.lang.Object> extraPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! extraPane$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, Object!, int, Object!);
+    method public java.util.Map<java.lang.String,java.lang.Object> mainPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! mainPane$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, Object!, int, Object!);
+    method public java.util.Map<java.lang.String,java.lang.Object> paneAnimation(optional androidx.compose.animation.EnterTransition? enterTransition, optional androidx.compose.animation.ExitTransition? exitTransition, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntRect>? boundsAnimationSpec);
+    method @BytecodeOnly public static java.util.Map! paneAnimation$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, androidx.compose.animation.EnterTransition!, androidx.compose.animation.ExitTransition!, androidx.compose.animation.core.FiniteAnimationSpec!, int, Object!);
+    method @KotlinOnly public java.util.Map<java.lang.String,java.lang.Object> preferredPaneSize(optional androidx.compose.ui.unit.Dp width, optional androidx.compose.ui.unit.Dp height);
+    method public java.util.Map<java.lang.String,java.lang.Object> preferredPaneSize(optional float width, optional float height);
+    method @BytecodeOnly public static java.util.Map! preferredPaneSize$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, float, float, int, Object!);
+    method @BytecodeOnly public java.util.Map<java.lang.String!,java.lang.Object!> preferredPaneSize-YgX7TsA(float, float);
+    method @BytecodeOnly public static java.util.Map! preferredPaneSize-YgX7TsA$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, float, float, int, Object!);
+    method public java.util.Map<java.lang.String,java.lang.Object> supportingPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! supportingPane$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, Object!, int, Object!);
+  }
+
+  @SuppressCompatibility public final class SupportingPaneSceneStrategyKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy<T> rememberSupportingPaneSceneStrategy(optional boolean shouldHandleSinglePaneLayout, optional androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior, optional androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive, optional androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional kotlin.jvm.functions.Function2<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? paneExpansionDragHandle, optional androidx.compose.material3.adaptive.layout.PaneExpansionState? paneExpansionState);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy! rememberSupportingPaneSceneStrategy-1MrBOZs(boolean, String!, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective!, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies!, kotlin.jvm.functions.Function4!, androidx.compose.material3.adaptive.layout.PaneExpansionState!, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy<T> rememberSupportingPaneSceneStrategy-EFFb1r0(boolean, String?, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective?, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies?, kotlin.jvm.functions.Function4<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope!,? super androidx.compose.material3.adaptive.layout.PaneExpansionState!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.material3.adaptive.layout.PaneExpansionState?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+
