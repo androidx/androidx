@@ -82,6 +82,7 @@ internal object ExtensionsWindowLayoutInfoAdapter {
         }
     }
 
+    @Suppress("DEPRECATION")
     internal fun translate(
         windowMetrics: WindowMetrics,
         info: OEMWindowLayoutInfo,

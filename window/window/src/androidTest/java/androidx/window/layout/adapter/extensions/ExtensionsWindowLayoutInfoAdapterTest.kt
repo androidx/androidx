@@ -160,6 +160,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testTranslate_engagementMode() {
         assumeTrue(ExtensionsUtil.safeVendorApiLevel >= 10)
@@ -180,6 +181,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testTranslate_engagementMode_defaultValue() {
         assumeTrue(ExtensionsUtil.safeVendorApiLevel < 10)
@@ -201,6 +203,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testTranslate_engagementMode_EmptyWhenFlagsAreZero() {
         // This test only runs on API 10+ where flags can be explicitly 0 (indicating no modes on)

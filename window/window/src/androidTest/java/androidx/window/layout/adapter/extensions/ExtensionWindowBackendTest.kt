@@ -745,6 +745,7 @@ class ExtensionWindowBackendTest {
             val consumer = TestConsumer<WindowLayoutInfo>()
             backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
 
+            @Suppress("DEPRECATION")
             val expected =
                 WindowLayoutInfo(emptyList(), setOf(WindowLayoutInfo.EngagementMode.VISUALS_ON))
             consumer.assertValue(expected)
@@ -770,6 +771,7 @@ class ExtensionWindowBackendTest {
             val consumer = TestConsumer<WindowLayoutInfo>()
             backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
 
+            @Suppress("DEPRECATION")
             val expected =
                 WindowLayoutInfo(
                     emptyList(),

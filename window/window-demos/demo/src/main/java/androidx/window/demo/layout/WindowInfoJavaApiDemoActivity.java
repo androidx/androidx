@@ -25,7 +25,7 @@ import androidx.core.util.Consumer;
 import androidx.window.WindowSdkExtensions;
 import androidx.window.demo.common.EdgeToEdgeActivity;
 import androidx.window.demo.databinding.ActivityLayoutWindowInfoJavaApiDemoLayoutBinding;
-import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter;
+import androidx.window.layout.WindowEngagementInfo;
 import androidx.window.layout.WindowInfoTracker;
 import androidx.window.layout.WindowLayoutInfo;
 
@@ -37,9 +37,10 @@ public class WindowInfoJavaApiDemoActivity extends EdgeToEdgeActivity {
     // Logcat tag length must be <= 23 characters.
     private static final String TAG = "WinInfoJavaApiDemo";
 
-    private @NonNull WindowInfoTrackerCallbackAdapter mWindowInfoTrackerCallbackAdapter;
+    private @NonNull WindowInfoTracker mWindowInfoTracker;
     private @NonNull TextView mWindowLayoutInfoGetterValue;
     private @NonNull TextView mWindowLayoutInfoFlowValue;
+    private @NonNull TextView mWindowEngagementInfoFlowValue;
 
     /** The Window Manager extension version available on this device. */
     private final int mExtensionVersion = WindowSdkExtensions.getInstance().getExtensionVersion();
@@ -47,6 +48,10 @@ public class WindowInfoJavaApiDemoActivity extends EdgeToEdgeActivity {
     /** WindowLayoutInfoListener callback. */
     private final Consumer<WindowLayoutInfo> mWindowLayoutInfoChangedConsumer =
             this::onWindowLayoutInfoUpdated;
+
+    /** WindowEngagementInfoListener callback. */
+    private final Consumer<WindowEngagementInfo> mWindowEngagementInfoChangedConsumer =
+            this::onWindowEngagementInfoUpdated;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,38 +61,39 @@ public class WindowInfoJavaApiDemoActivity extends EdgeToEdgeActivity {
         setContentView(viewBinding.getRoot());
         mWindowLayoutInfoGetterValue = viewBinding.windowLayoutInfoGetterValue;
         mWindowLayoutInfoFlowValue = viewBinding.windowLayoutInfoFlowValue;
+        mWindowEngagementInfoFlowValue = viewBinding.windowEngagementInfoFlowValue;
 
-        final WindowInfoTracker tracker = WindowInfoTracker.getOrCreate(this);
+        mWindowInfoTracker = WindowInfoTracker.getOrCreate(this);
         if (mExtensionVersion >= 9) {
             mWindowLayoutInfoGetterValue.setText(
-                    tracker.getCurrentWindowLayoutInfo(this).toString());
+                    mWindowInfoTracker.getCurrentWindowLayoutInfo(this).toString());
         } else {
             mWindowLayoutInfoGetterValue.setText(
                     "WindowLayoutInfo getter is not available on this device. "
                             + "The WM extension version must be at least 9, "
                             + "but this device has version " + mExtensionVersion + ".");
         }
-
-        mWindowInfoTrackerCallbackAdapter = new WindowInfoTrackerCallbackAdapter(tracker);
-        mWindowInfoTrackerCallbackAdapter.addWindowLayoutInfoListener(
-                this, Runnable::run, this::onWindowLayoutInfoUpdated);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (mWindowInfoTrackerCallbackAdapter != null) {
-            mWindowInfoTrackerCallbackAdapter.addWindowLayoutInfoListener(
+        if (mWindowInfoTracker != null) {
+            mWindowInfoTracker.registerWindowLayoutInfoListener(
                     this, Runnable::run, mWindowLayoutInfoChangedConsumer);
+            mWindowInfoTracker.registerWindowEngagementInfoListener(
+                    this, Runnable::run, mWindowEngagementInfoChangedConsumer);
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (mWindowInfoTrackerCallbackAdapter != null) {
-            mWindowInfoTrackerCallbackAdapter.removeWindowLayoutInfoListener(
+        if (mWindowInfoTracker != null) {
+            mWindowInfoTracker.unregisterWindowLayoutInfoListener(
                     mWindowLayoutInfoChangedConsumer);
+            mWindowInfoTracker.unregisterWindowEngagementInfoListener(
+                    mWindowEngagementInfoChangedConsumer);
         }
     }
 
@@ -95,5 +101,11 @@ public class WindowInfoJavaApiDemoActivity extends EdgeToEdgeActivity {
         Log.d(TAG, "onWindowLayoutInfoUpdated: " + windowLayoutInfo);
         ContextCompat.getMainExecutor(this).execute(
                 () -> mWindowLayoutInfoFlowValue.setText(windowLayoutInfo.toString()));
+    }
+
+    private void onWindowEngagementInfoUpdated(@NonNull WindowEngagementInfo windowEngagementInfo) {
+        Log.d(TAG, "onWindowEngagementInfoUpdated: " + windowEngagementInfo);
+        ContextCompat.getMainExecutor(this).execute(
+                () -> mWindowEngagementInfoFlowValue.setText(windowEngagementInfo.toString()));
     }
 }

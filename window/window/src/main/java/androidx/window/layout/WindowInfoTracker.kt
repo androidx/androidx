@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * @see WindowInfoTracker.getOrCreate to get an instance.
  */
+@JvmDefaultWithCompatibility
 public interface WindowInfoTracker {
 
     /**
@@ -100,6 +101,16 @@ public interface WindowInfoTracker {
     public fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo>
 
     /**
+     * A [Flow] of [WindowEngagementInfo] that contains the current engagement modes.
+     *
+     * @param context a [UiContext] such as an [Activity] or a WindowContext.
+     * @see WindowEngagementInfo
+     */
+    public fun windowEngagementInfo(@UiContext context: Context): Flow<WindowEngagementInfo> {
+        throw NotImplementedError("Method was not implemented.")
+    }
+
+    /**
      * Registers a [UiContext] listener to consume [WindowLayoutInfo] values. If the same listener
      * is registered twice then this method is a no-op.
      *
@@ -123,6 +134,33 @@ public interface WindowInfoTracker {
      * @see WindowInfoTracker.windowLayoutInfo
      */
     public fun unregisterWindowLayoutInfoListener(listener: Consumer<WindowLayoutInfo>) {
+        throw NotImplementedError("Method was not implemented.")
+    }
+
+    /**
+     * Registers a [UiContext] listener to consume [WindowEngagementInfo] values. If the same
+     * listener is registered twice then this method is a no-op.
+     *
+     * @param context a [UiContext] such as an [Activity].
+     * @param executor that the listener will invoke on.
+     * @param listener for [WindowEngagementInfo] values.
+     * @see WindowInfoTracker.windowEngagementInfo
+     */
+    public fun registerWindowEngagementInfoListener(
+        @UiContext context: Context,
+        executor: Executor,
+        listener: Consumer<WindowEngagementInfo>,
+    ) {
+        throw NotImplementedError("Method was not implemented.")
+    }
+
+    /**
+     * Unregister a listener to stop consuming [WindowEngagementInfo] values. If the listener has
+     * already been removed then this is a no-op.
+     *
+     * @see WindowInfoTracker.windowEngagementInfo
+     */
+    public fun unregisterWindowEngagementInfoListener(listener: Consumer<WindowEngagementInfo>) {
         throw NotImplementedError("Method was not implemented.")
     }
 

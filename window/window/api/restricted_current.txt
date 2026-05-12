@@ -798,6 +798,24 @@ package androidx.window.layout {
     method public androidx.window.layout.VisualStateRequest.Builder setSustainedVisualsEnabled(boolean isSustainedVisualsEnabled);
   }
 
+  public final class WindowEngagementInfo {
+    method @InaccessibleFromKotlin public java.util.Set<androidx.window.layout.WindowEngagementInfo.EngagementMode> getEngagementModes();
+    method public boolean hasEngagementMode(androidx.window.layout.WindowEngagementInfo.EngagementMode mode);
+    method public boolean hasEngagementModes(androidx.window.layout.WindowEngagementInfo.EngagementMode... modes);
+    property public java.util.Set<androidx.window.layout.WindowEngagementInfo.EngagementMode> engagementModes;
+  }
+
+  public static final class WindowEngagementInfo.EngagementMode {
+    field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode AUDIO_ON;
+    field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode.Companion Companion;
+    field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode VISUALS_ON;
+  }
+
+  public static final class WindowEngagementInfo.EngagementMode.Companion {
+    property public androidx.window.layout.WindowEngagementInfo.EngagementMode AUDIO_ON;
+    property public androidx.window.layout.WindowEngagementInfo.EngagementMode VISUALS_ON;
+  }
+
   public abstract class WindowInfoController {
     method public static final androidx.window.layout.WindowInfoController getInstance(@UiContext android.content.Context context);
     method @MainThread public abstract void requestVisualState(@UiContext android.content.Context context, androidx.window.layout.VisualStateRequest request);
@@ -808,12 +826,15 @@ package androidx.window.layout {
     method public androidx.window.layout.WindowInfoController getInstance(@UiContext android.content.Context context);
   }
 
-  public interface WindowInfoTracker {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface WindowInfoTracker {
     method @androidx.window.RequiresWindowSdkExtension(version=9) public default androidx.window.layout.WindowLayoutInfo getCurrentWindowLayoutInfo(@UiContext android.content.Context context);
     method @InaccessibleFromKotlin public static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
     method @InaccessibleFromKotlin @androidx.window.RequiresWindowSdkExtension(version=6) public default java.util.List<androidx.window.layout.SupportedPosture> getSupportedPostures();
+    method public default void registerWindowEngagementInfoListener(@UiContext android.content.Context context, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowEngagementInfo> listener);
     method public default void registerWindowLayoutInfoListener(@UiContext android.content.Context context, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> listener);
+    method public default void unregisterWindowEngagementInfoListener(androidx.core.util.Consumer<androidx.window.layout.WindowEngagementInfo> listener);
     method public default void unregisterWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> listener);
+    method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowEngagementInfo> windowEngagementInfo(@UiContext android.content.Context context);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
     property @androidx.window.RequiresWindowSdkExtension(version=6) public default java.util.List<androidx.window.layout.SupportedPosture> supportedPostures;
@@ -826,22 +847,22 @@ package androidx.window.layout {
 
   public final class WindowLayoutInfo {
     method @InaccessibleFromKotlin public java.util.List<androidx.window.layout.DisplayFeature> getDisplayFeatures();
-    method @InaccessibleFromKotlin public java.util.Set<androidx.window.layout.WindowLayoutInfo.EngagementMode> getEngagementModes();
-    method public boolean hasEngagementMode(androidx.window.layout.WindowLayoutInfo.EngagementMode mode);
-    method public boolean hasEngagementModes(androidx.window.layout.WindowLayoutInfo.EngagementMode... modes);
+    method @InaccessibleFromKotlin @Deprecated public java.util.Set<androidx.window.layout.WindowLayoutInfo.EngagementMode> getEngagementModes();
+    method @Deprecated public boolean hasEngagementMode(androidx.window.layout.WindowLayoutInfo.EngagementMode mode);
+    method @Deprecated public boolean hasEngagementModes(androidx.window.layout.WindowLayoutInfo.EngagementMode... modes);
     property public java.util.List<androidx.window.layout.DisplayFeature> displayFeatures;
-    property public java.util.Set<androidx.window.layout.WindowLayoutInfo.EngagementMode> engagementModes;
+    property @Deprecated public java.util.Set<androidx.window.layout.WindowLayoutInfo.EngagementMode> engagementModes;
   }
 
-  public static final class WindowLayoutInfo.EngagementMode {
-    field public static final androidx.window.layout.WindowLayoutInfo.EngagementMode AUDIO_ON;
-    field public static final androidx.window.layout.WindowLayoutInfo.EngagementMode.Companion Companion;
-    field public static final androidx.window.layout.WindowLayoutInfo.EngagementMode VISUALS_ON;
+  @Deprecated public static final class WindowLayoutInfo.EngagementMode {
+    field @Deprecated public static final androidx.window.layout.WindowLayoutInfo.EngagementMode AUDIO_ON;
+    field @Deprecated public static final androidx.window.layout.WindowLayoutInfo.EngagementMode.Companion Companion;
+    field @Deprecated public static final androidx.window.layout.WindowLayoutInfo.EngagementMode VISUALS_ON;
   }
 
-  public static final class WindowLayoutInfo.EngagementMode.Companion {
-    property public androidx.window.layout.WindowLayoutInfo.EngagementMode AUDIO_ON;
-    property public androidx.window.layout.WindowLayoutInfo.EngagementMode VISUALS_ON;
+  @Deprecated public static final class WindowLayoutInfo.EngagementMode.Companion {
+    property @Deprecated public androidx.window.layout.WindowLayoutInfo.EngagementMode AUDIO_ON;
+    property @Deprecated public androidx.window.layout.WindowLayoutInfo.EngagementMode VISUALS_ON;
   }
 
   public final class WindowMetrics {
