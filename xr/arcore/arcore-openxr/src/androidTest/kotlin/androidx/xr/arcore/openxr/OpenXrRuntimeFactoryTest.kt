@@ -55,7 +55,7 @@ class OpenXrRuntimeFactoryTest {
 
         activityRule.scenario.onActivity {
             assertThat(
-                    (Session.create(it) as SessionCreateSuccess)
+                    (Session.create(context = it) as SessionCreateSuccess)
                         .session
                         .runtimes
                         .filterIsInstance<PerceptionRuntime>()

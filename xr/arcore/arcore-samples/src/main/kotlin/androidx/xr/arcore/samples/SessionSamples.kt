@@ -68,7 +68,7 @@ fun callSessionCreate(activity: ComponentActivity, userRequestedInstall: Boolean
     activity.lifecycleScope.launch {
         try {
             // Switch to the IO Dispatcher for the heavy creation call
-            val result = withContext(Dispatchers.IO) { Session.create(activity) }
+            val result = withContext(Dispatchers.IO) { Session.create(context = activity) }
 
             // Handle the result back on the initial Thread
             when (result) {

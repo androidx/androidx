@@ -399,7 +399,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
 
     public fun tryCreateSession() {
         Log.i("JetpackXR", "Session.create(this)")
-        when (val result = Session.create(this)) {
+        when (val result = Session.create(context = this)) {
             is SessionCreateSuccess -> {
                 session = result.session
                 try {

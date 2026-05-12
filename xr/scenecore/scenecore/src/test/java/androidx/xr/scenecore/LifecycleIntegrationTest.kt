@@ -43,7 +43,7 @@ class LifecycleIntegrationTest {
     fun sessionDestroy_withSceneAndEntities_shouldNotCrash() {
         activityController.create().start().resume()
 
-        val result = Session.create(activity, testDispatcher)
+        val result = Session.create(context = activity, coroutineContext = testDispatcher)
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         val session = (result as SessionCreateSuccess).session
 

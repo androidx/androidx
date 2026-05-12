@@ -121,7 +121,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
     private val TAG = "SpatialComposeVideoPlayer"
     private lateinit var mediaPlayer: MediaPlayer
 
-    private val session by lazy { (Session.create(this) as SessionCreateSuccess).session }
+    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
 
     private var surfaceEntity: SurfaceEntity? = null
     private var movableComponent: MovableComponent? = null

@@ -89,7 +89,7 @@ class SessionLifecycleHelper(
 
     internal fun tryCreateSession() {
         try {
-            when (val result = Session.create(activity)) {
+            when (val result = Session.create(context = activity)) {
                 is SessionCreateSuccess -> {
                     session = result.session
                     try {

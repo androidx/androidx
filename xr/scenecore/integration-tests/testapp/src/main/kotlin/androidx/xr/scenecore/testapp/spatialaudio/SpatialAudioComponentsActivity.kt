@@ -56,7 +56,7 @@ class SpatialAudioComponentsActivity : AppCompatActivity() {
         MAIN_PANEL,
     }
 
-    private val session by lazy { (Session.create(this) as SessionCreateSuccess).session }
+    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
 
     private lateinit var exoPlayerPoint: ExoPlayer
     private lateinit var exoPlayerFirstOrder: ExoPlayer

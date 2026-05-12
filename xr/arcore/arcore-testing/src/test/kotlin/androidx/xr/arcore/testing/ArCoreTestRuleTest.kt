@@ -46,7 +46,7 @@ class ArCoreTestRuleTest {
 
         activityController.create().start().resume()
 
-        Session.create(activity, testDispatcher)
+        Session.create(context = activity, coroutineContext = testDispatcher)
     }
 
     @Test

@@ -123,7 +123,7 @@ class TiltGestureTrackingActivity : ComponentActivity() {
     private fun tryCreateSession() {
         Log.i(TAG, "Session.create($this)")
         // TODO(b/510012792): Use Projected Device Context after 1.55.
-        when (val result = Session.create(this)) {
+        when (val result = Session.create(context = this)) {
             is SessionCreateSuccess -> {
                 session = result.session
                 try {

@@ -201,7 +201,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val session = (Session.create(this) as SessionCreateSuccess).session
+        val session = (Session.create(context = this) as SessionCreateSuccess).session
         session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.scene.keyEntity = session.scene.mainPanelEntity

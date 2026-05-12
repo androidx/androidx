@@ -189,7 +189,7 @@ class SurfaceEntityImageActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val session = (Session.create(this) as SessionCreateSuccess).session
+        val session = (Session.create(context = this) as SessionCreateSuccess).session
         session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         val arDevice = ArDevice.getInstance(session)
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f

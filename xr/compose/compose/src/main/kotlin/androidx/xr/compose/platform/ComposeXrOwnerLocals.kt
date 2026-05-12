@@ -167,6 +167,6 @@ private fun Activity.getSessionFactory(activity: Activity): () -> Session? {
     @Suppress("UNCHECKED_CAST")
     return contentView.getTag(R.id.compose_xr_session_factory) as? () -> Session?
         ?: {
-            (Session.create(activity) as? SessionCreateSuccess)?.session
+            (Session.create(context = activity) as? SessionCreateSuccess)?.session
         }
 }

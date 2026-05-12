@@ -97,7 +97,7 @@ class PanelCoordinateActivity : AppCompatActivity() {
         setupMainPanelListeners()
 
         lifecycleScope.launch {
-            val sessionResult = Session.create(this@PanelCoordinateActivity)
+            val sessionResult = Session.create(context = this@PanelCoordinateActivity)
             if (sessionResult is SessionCreateSuccess) {
                 session = sessionResult.session
                 setupSecondaryPanelAndGltfEntity(session!!)

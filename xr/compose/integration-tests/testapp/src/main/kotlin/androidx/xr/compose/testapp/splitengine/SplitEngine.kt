@@ -82,7 +82,7 @@ class SplitEngine : ComponentActivity() {
 
     private val session by lazy {
         // SplitEngine is enabled by default.
-        (Session.create(this) as SessionCreateSuccess).session
+        (Session.create(context = this) as SessionCreateSuccess).session
     }
 
     private var spatialEnvironmentPreference: SpatialEnvironmentPreference? = null

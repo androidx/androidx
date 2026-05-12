@@ -53,7 +53,7 @@ class MeshEntityTest {
     @Before
     fun setUp() = runBlocking {
         val testDispatcher = StandardTestDispatcher()
-        val result = Session.create(activity, testDispatcher)
+        val result = Session.create(context = activity, coroutineContext = testDispatcher)
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
