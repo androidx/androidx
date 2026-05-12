@@ -21,7 +21,6 @@ package androidx.ink.brush {
     method @BytecodeOnly public static androidx.ink.brush.Brush! copyWithColorLong$default(androidx.ink.brush.Brush!, long, androidx.ink.brush.BrushFamily!, float, float, int, Object!);
     method public static androidx.ink.brush.Brush createWithColorIntArgb(androidx.ink.brush.BrushFamily family, @ColorInt int colorIntArgb, float size, float epsilon);
     method public static androidx.ink.brush.Brush createWithColorLong(androidx.ink.brush.BrushFamily family, @ColorLong long colorLong, float size, float epsilon);
-    method protected void finalize();
     method @InaccessibleFromKotlin @ColorInt public int getColorIntArgb();
     method @InaccessibleFromKotlin @ColorLong public long getColorLong();
     method @InaccessibleFromKotlin @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) public float getEpsilon();
@@ -59,7 +58,6 @@ package androidx.ink.brush {
     ctor @BytecodeOnly public BrushBehavior(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BrushBehavior(java.util.List<? extends androidx.ink.brush.behavior.TerminalNode> terminalNodes);
     ctor public BrushBehavior(java.util.List<? extends androidx.ink.brush.behavior.TerminalNode> terminalNodes, optional String developerComment);
-    method protected void finalize();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.behavior.TerminalNode> getTerminalNodes();
     property public java.util.List<androidx.ink.brush.behavior.TerminalNode> terminalNodes;
     field public static final androidx.ink.brush.BrushBehavior.Companion Companion;
@@ -78,7 +76,6 @@ package androidx.ink.brush {
     method public static androidx.ink.brush.BrushCoat.Builder builder();
     method public androidx.ink.brush.BrushCoat copy(optional androidx.ink.brush.BrushTip tip, optional @Size(min=1L) java.util.List<androidx.ink.brush.BrushPaint> paintPreferences);
     method @BytecodeOnly public static androidx.ink.brush.BrushCoat! copy$default(androidx.ink.brush.BrushCoat!, androidx.ink.brush.BrushTip!, java.util.List!, int, Object!);
-    method protected void finalize();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint> getPaintPreferences();
     method @InaccessibleFromKotlin public androidx.ink.brush.BrushTip getTip();
     method public androidx.ink.brush.BrushCoat.Builder toBuilder();
@@ -118,7 +115,6 @@ package androidx.ink.brush {
     method @BytecodeOnly public static androidx.ink.brush.BrushFamily! copy$default(androidx.ink.brush.BrushFamily!, androidx.ink.brush.BrushCoat!, androidx.ink.brush.BrushFamily.InputModel!, String!, int, Object!);
     method @BytecodeOnly public static androidx.ink.brush.BrushFamily! copy$default(androidx.ink.brush.BrushFamily!, androidx.ink.brush.BrushTip!, androidx.ink.brush.BrushPaint!, androidx.ink.brush.BrushFamily.InputModel!, String!, int, Object!);
     method @BytecodeOnly public static androidx.ink.brush.BrushFamily! copy$default(androidx.ink.brush.BrushFamily!, java.util.List!, androidx.ink.brush.BrushFamily.InputModel!, String!, int, Object!);
-    method protected void finalize();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushCoat> getCoats();
     method @InaccessibleFromKotlin public String getDeveloperComment();
     method @InaccessibleFromKotlin public androidx.ink.brush.BrushFamily.InputModel getInputModel();
@@ -143,7 +139,6 @@ package androidx.ink.brush {
   }
 
   public abstract static class BrushFamily.InputModel {
-    method protected final void finalize();
     field public static final androidx.ink.brush.BrushFamily.InputModel.Companion Companion;
     field public static final androidx.ink.brush.BrushFamily.InputModel DEFAULT_INPUT_MODEL;
     field public static final androidx.ink.brush.BrushFamily.InputModel PASSTHROUGH_MODEL;
@@ -166,10 +161,9 @@ package androidx.ink.brush {
   public final class BrushPaint {
     ctor public BrushPaint();
     ctor @BytecodeOnly public BrushPaint(java.util.List!, java.util.List!, androidx.ink.brush.SelfOverlap!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public BrushPaint(optional java.util.List<androidx.ink.brush.BrushPaint.TextureLayer> textureLayers);
-    ctor public BrushPaint(optional java.util.List<androidx.ink.brush.BrushPaint.TextureLayer> textureLayers, optional java.util.List<? extends androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions);
-    ctor public BrushPaint(optional java.util.List<androidx.ink.brush.BrushPaint.TextureLayer> textureLayers, optional java.util.List<? extends androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions, optional androidx.ink.brush.SelfOverlap selfOverlap);
-    method protected void finalize();
+    ctor public BrushPaint(optional java.util.List<? extends androidx.ink.brush.BrushPaint.TextureLayer> textureLayers);
+    ctor public BrushPaint(optional java.util.List<? extends androidx.ink.brush.BrushPaint.TextureLayer> textureLayers, optional java.util.List<? extends androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions);
+    ctor public BrushPaint(optional java.util.List<? extends androidx.ink.brush.BrushPaint.TextureLayer> textureLayers, optional java.util.List<? extends androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions, optional androidx.ink.brush.SelfOverlap selfOverlap);
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint.ColorFunction> getColorFunctions();
     method @InaccessibleFromKotlin public androidx.ink.brush.SelfOverlap getSelfOverlap();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint.TextureLayer> getTextureLayers();
@@ -180,7 +174,6 @@ package androidx.ink.brush {
   }
 
   public abstract static class BrushPaint.ColorFunction {
-    method protected final void finalize();
     method @ColorInt public final int transformColorIntArgb(@ColorInt int colorIntArgb);
     field public static final androidx.ink.brush.BrushPaint.ColorFunction.Companion Companion;
   }
@@ -216,38 +209,32 @@ package androidx.ink.brush {
   public static final class BrushPaint.Companion {
   }
 
-  public static final class BrushPaint.TextureLayer {
-    ctor public BrushPaint.TextureLayer(String clientTextureId, @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeX, @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeY, optional float offsetX, optional float offsetY, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit, optional androidx.ink.brush.BrushPaint.TextureLayer.Origin origin, optional androidx.ink.brush.BrushPaint.TextureLayer.Mapping mapping, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
-    ctor @BytecodeOnly public BrushPaint.TextureLayer(String!, float, float, float, float, float, androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit!, androidx.ink.brush.BrushPaint.TextureLayer.Origin!, androidx.ink.brush.BrushPaint.TextureLayer.Mapping!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public static androidx.ink.brush.BrushPaint.TextureLayer.Builder builder();
-    method public androidx.ink.brush.BrushPaint.TextureLayer copy(optional String clientTextureId, optional @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeX, optional @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeY, optional float offsetX, optional float offsetY, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit, optional androidx.ink.brush.BrushPaint.TextureLayer.Origin origin, optional androidx.ink.brush.BrushPaint.TextureLayer.Mapping mapping, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
-    method @BytecodeOnly public static androidx.ink.brush.BrushPaint.TextureLayer! copy$default(androidx.ink.brush.BrushPaint.TextureLayer!, String!, float, float, float, float, float, androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit!, androidx.ink.brush.BrushPaint.TextureLayer.Origin!, androidx.ink.brush.BrushPaint.TextureLayer.Mapping!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, Object!);
-    method protected void finalize();
-    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.BlendMode getBlendMode();
+  public static final class BrushPaint.StampingTexture extends androidx.ink.brush.BrushPaint.TextureLayer {
+    ctor public BrushPaint.StampingTexture(String clientTextureId);
+    ctor public BrushPaint.StampingTexture(String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
+    ctor @BytecodeOnly public BrushPaint.StampingTexture(String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public static androidx.ink.brush.BrushPaint.StampingTexture.Builder builder();
+    method public androidx.ink.brush.BrushPaint.StampingTexture copy(optional String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
+    method @BytecodeOnly public static androidx.ink.brush.BrushPaint.StampingTexture! copy$default(androidx.ink.brush.BrushPaint.StampingTexture!, String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, Object!);
     method @InaccessibleFromKotlin public String getClientTextureId();
-    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.Mapping getMapping();
-    method @InaccessibleFromKotlin public float getOffsetX();
-    method @InaccessibleFromKotlin public float getOffsetY();
-    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.Origin getOrigin();
-    method @InaccessibleFromKotlin public float getRotationDegrees();
-    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit getSizeUnit();
-    method @InaccessibleFromKotlin public float getSizeX();
-    method @InaccessibleFromKotlin public float getSizeY();
-    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.Wrap getWrapX();
-    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.Wrap getWrapY();
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder toBuilder();
-    property public androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode;
+    method public androidx.ink.brush.BrushPaint.StampingTexture.Builder toBuilder();
     property public String clientTextureId;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Mapping mapping;
-    property public float offsetX;
-    property public float offsetY;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Origin origin;
-    property public float rotationDegrees;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit;
-    property public float sizeX;
-    property public float sizeY;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY;
+    field public static final androidx.ink.brush.BrushPaint.StampingTexture.Companion Companion;
+  }
+
+  public static final class BrushPaint.StampingTexture.Builder {
+    method public androidx.ink.brush.BrushPaint.StampingTexture build();
+    method public androidx.ink.brush.BrushPaint.StampingTexture.Builder setBlendMode(androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
+    method public androidx.ink.brush.BrushPaint.StampingTexture.Builder setClientTextureId(String clientTextureId);
+  }
+
+  public static final class BrushPaint.StampingTexture.Companion {
+    method public androidx.ink.brush.BrushPaint.StampingTexture.Builder builder();
+  }
+
+  public abstract static class BrushPaint.TextureLayer {
+    method @InaccessibleFromKotlin public final androidx.ink.brush.BrushPaint.TextureLayer.BlendMode getBlendMode();
+    property public final androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.Companion Companion;
   }
 
@@ -282,48 +269,7 @@ package androidx.ink.brush {
     property public androidx.ink.brush.BrushPaint.TextureLayer.BlendMode XOR;
   }
 
-  public static final class BrushPaint.TextureLayer.Builder {
-    method public androidx.ink.brush.BrushPaint.TextureLayer build();
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setBlendMode(androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setClientTextureId(String clientTextureId);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setMapping(androidx.ink.brush.BrushPaint.TextureLayer.Mapping mapping);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setOffsetX(float offsetX);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setOffsetY(float offsetY);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setOrigin(androidx.ink.brush.BrushPaint.TextureLayer.Origin origin);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setRotationDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setSizeUnit(androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setSizeX(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeX);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setSizeY(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeY);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setWrapX(androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX);
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder setWrapY(androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY);
-  }
-
   public static final class BrushPaint.TextureLayer.Companion {
-    method public androidx.ink.brush.BrushPaint.TextureLayer.Builder builder();
-  }
-
-  public static final class BrushPaint.TextureLayer.Mapping {
-    field public static final androidx.ink.brush.BrushPaint.TextureLayer.Mapping.Companion Companion;
-    field public static final androidx.ink.brush.BrushPaint.TextureLayer.Mapping STAMPING;
-    field public static final androidx.ink.brush.BrushPaint.TextureLayer.Mapping TILING;
-  }
-
-  public static final class BrushPaint.TextureLayer.Mapping.Companion {
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Mapping STAMPING;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Mapping TILING;
-  }
-
-  public static final class BrushPaint.TextureLayer.Origin {
-    field public static final androidx.ink.brush.BrushPaint.TextureLayer.Origin.Companion Companion;
-    field public static final androidx.ink.brush.BrushPaint.TextureLayer.Origin FIRST_STROKE_INPUT;
-    field public static final androidx.ink.brush.BrushPaint.TextureLayer.Origin LAST_STROKE_INPUT;
-    field public static final androidx.ink.brush.BrushPaint.TextureLayer.Origin STROKE_SPACE_ORIGIN;
-  }
-
-  public static final class BrushPaint.TextureLayer.Origin.Companion {
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Origin FIRST_STROKE_INPUT;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Origin LAST_STROKE_INPUT;
-    property public androidx.ink.brush.BrushPaint.TextureLayer.Origin STROKE_SPACE_ORIGIN;
   }
 
   public static final class BrushPaint.TextureLayer.SizeUnit {
@@ -350,13 +296,74 @@ package androidx.ink.brush {
     property public androidx.ink.brush.BrushPaint.TextureLayer.Wrap REPEAT;
   }
 
+  public static final class BrushPaint.TilingTexture extends androidx.ink.brush.BrushPaint.TextureLayer {
+    ctor public BrushPaint.TilingTexture(String clientTextureId, @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeX, @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeY, optional float offsetX, optional float offsetY, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit, optional androidx.ink.brush.BrushPaint.TilingTexture.Origin origin, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
+    ctor @BytecodeOnly public BrushPaint.TilingTexture(String!, float, float, float, float, float, androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit!, androidx.ink.brush.BrushPaint.TilingTexture.Origin!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public static androidx.ink.brush.BrushPaint.TilingTexture.Builder builder();
+    method public androidx.ink.brush.BrushPaint.TilingTexture copy(optional String clientTextureId, optional @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeX, optional @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeY, optional float offsetX, optional float offsetY, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit, optional androidx.ink.brush.BrushPaint.TilingTexture.Origin origin, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX, optional androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
+    method @BytecodeOnly public static androidx.ink.brush.BrushPaint.TilingTexture! copy$default(androidx.ink.brush.BrushPaint.TilingTexture!, String!, float, float, float, float, float, androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit!, androidx.ink.brush.BrushPaint.TilingTexture.Origin!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.Wrap!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, Object!);
+    method @InaccessibleFromKotlin public String getClientTextureId();
+    method @InaccessibleFromKotlin public float getOffsetX();
+    method @InaccessibleFromKotlin public float getOffsetY();
+    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TilingTexture.Origin getOrigin();
+    method @InaccessibleFromKotlin public float getRotationDegrees();
+    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit getSizeUnit();
+    method @InaccessibleFromKotlin public float getSizeX();
+    method @InaccessibleFromKotlin public float getSizeY();
+    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.Wrap getWrapX();
+    method @InaccessibleFromKotlin public androidx.ink.brush.BrushPaint.TextureLayer.Wrap getWrapY();
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder toBuilder();
+    property public String clientTextureId;
+    property public float offsetX;
+    property public float offsetY;
+    property public androidx.ink.brush.BrushPaint.TilingTexture.Origin origin;
+    property public float rotationDegrees;
+    property public androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit;
+    property public float sizeX;
+    property public float sizeY;
+    property public androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX;
+    property public androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY;
+    field public static final androidx.ink.brush.BrushPaint.TilingTexture.Companion Companion;
+  }
+
+  public static final class BrushPaint.TilingTexture.Builder {
+    method public androidx.ink.brush.BrushPaint.TilingTexture build();
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setBlendMode(androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setClientTextureId(String clientTextureId);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setOffsetX(float offsetX);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setOffsetY(float offsetY);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setOrigin(androidx.ink.brush.BrushPaint.TilingTexture.Origin origin);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setRotationDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setSizeUnit(androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit sizeUnit);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setSizeX(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeX);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setSizeY(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float sizeY);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setWrapX(androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapX);
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder setWrapY(androidx.ink.brush.BrushPaint.TextureLayer.Wrap wrapY);
+  }
+
+  public static final class BrushPaint.TilingTexture.Companion {
+    method public androidx.ink.brush.BrushPaint.TilingTexture.Builder builder();
+  }
+
+  public static final class BrushPaint.TilingTexture.Origin {
+    field public static final androidx.ink.brush.BrushPaint.TilingTexture.Origin.Companion Companion;
+    field public static final androidx.ink.brush.BrushPaint.TilingTexture.Origin FIRST_STROKE_INPUT;
+    field public static final androidx.ink.brush.BrushPaint.TilingTexture.Origin LAST_STROKE_INPUT;
+    field public static final androidx.ink.brush.BrushPaint.TilingTexture.Origin STROKE_SPACE_ORIGIN;
+  }
+
+  public static final class BrushPaint.TilingTexture.Origin.Companion {
+    property public androidx.ink.brush.BrushPaint.TilingTexture.Origin FIRST_STROKE_INPUT;
+    property public androidx.ink.brush.BrushPaint.TilingTexture.Origin LAST_STROKE_INPUT;
+    property public androidx.ink.brush.BrushPaint.TilingTexture.Origin STROKE_SPACE_ORIGIN;
+  }
+
   public final class BrushTip {
     ctor @BytecodeOnly public BrushTip(float, float, float, float, float, float, float, long, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BrushTip(optional @FloatRange(from=0.0, toInclusive=false) float scaleX, optional @FloatRange(from=0.0, toInclusive=false) float scaleY, optional @FloatRange(from=0.0, to=1.0) float cornerRounding, optional @FloatRange(from=-90.0, to=90.0) @androidx.ink.geometry.AngleDegreesFloat float slantDegrees, optional @FloatRange(from=0.0, to=1.0) float pinch, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional @FloatRange(from=0.0, toInclusive=false) float particleGapDistanceScale, optional @IntRange(from=0L) long particleGapDurationMillis, optional java.util.List<androidx.ink.brush.BrushBehavior> behaviors);
     method public static androidx.ink.brush.BrushTip.Builder builder();
     method public androidx.ink.brush.BrushTip copy(optional @FloatRange(from=0.0, toInclusive=false) float scaleX, optional @FloatRange(from=0.0, toInclusive=false) float scaleY, optional @FloatRange(from=0.0, to=1.0) float cornerRounding, optional @FloatRange(from=-90.0, to=90.0) @androidx.ink.geometry.AngleDegreesFloat float slantDegrees, optional @FloatRange(from=0.0, to=1.0) float pinch, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional @FloatRange(from=0.0, toInclusive=false) float particleGapDistanceScale, optional @IntRange(from=0L) long particleGapDurationMillis, optional java.util.List<androidx.ink.brush.BrushBehavior> behaviors);
     method @BytecodeOnly public static androidx.ink.brush.BrushTip! copy$default(androidx.ink.brush.BrushTip!, float, float, float, float, float, float, float, long, java.util.List!, int, Object!);
-    method protected void finalize();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushBehavior> getBehaviors();
     method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getCornerRounding();
     method @InaccessibleFromKotlin @FloatRange(from=0.0, toInclusive=false) public float getParticleGapDistanceScale();
@@ -705,7 +712,6 @@ package androidx.ink.brush.behavior {
   }
 
   public abstract class Node {
-    method protected final void finalize();
     method @InaccessibleFromKotlin public final java.util.List<androidx.ink.brush.behavior.ValueNode> getInputs();
     property public final java.util.List<androidx.ink.brush.behavior.ValueNode> inputs;
     field public static final androidx.ink.brush.behavior.Node.Companion Companion;

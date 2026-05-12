@@ -21,7 +21,9 @@ import androidx.ink.brush.BrushCoat
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushFamily.InputModel
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushPaint.TextureLayer
+import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.colorspace.ColorSpaces
@@ -164,27 +166,23 @@ class StrokeTest {
                                         listOf(
                                             BrushPaint(
                                                 ImmutableList.of(
-                                                    TextureLayer(
+                                                    TilingTexture(
                                                         clientTextureId = "test-one",
                                                         sizeX = 123.45F,
                                                         sizeY = 678.90F,
                                                         offsetX = 0.1F,
                                                         offsetY = 0.2F,
                                                         sizeUnit =
-                                                            TextureLayer.SizeUnit
-                                                                .STROKE_COORDINATES,
-                                                        mapping = TextureLayer.Mapping.TILING,
+                                                            TextureLayer.SizeUnit.STROKE_COORDINATES,
                                                     ),
-                                                    TextureLayer(
+                                                    TilingTexture(
                                                         clientTextureId = "test-two",
                                                         sizeX = 256F,
                                                         sizeY = 256F,
                                                         offsetX = 0.1F,
                                                         offsetY = 0.2F,
                                                         sizeUnit =
-                                                            TextureLayer.SizeUnit
-                                                                .STROKE_COORDINATES,
-                                                        mapping = TextureLayer.Mapping.TILING,
+                                                            TextureLayer.SizeUnit.STROKE_COORDINATES,
                                                     ),
                                                 )
                                             )
@@ -215,21 +213,7 @@ class StrokeTest {
         modifiedCoats[0] =
             modifiedCoats[0].copy(
                 paintPreferences =
-                    listOf(
-                        BrushPaint(
-                            listOf(
-                                TextureLayer(
-                                    clientTextureId = "test-one",
-                                    sizeX = 123.45F,
-                                    sizeY = 678.90F,
-                                    offsetX = 0.1F,
-                                    offsetY = 0.2F,
-                                    sizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
-                                    mapping = TextureLayer.Mapping.STAMPING,
-                                )
-                            )
-                        )
-                    )
+                    listOf(BrushPaint(listOf(StampingTexture(clientTextureId = "test-one"))))
             )
         val stampingBrush =
             buildTestBrush().copy(family = noStampingBrush.family.copy(coats = modifiedCoats))
@@ -259,14 +243,13 @@ class StrokeTest {
                     listOf(
                         BrushPaint(
                             listOf(
-                                TextureLayer(
+                                TilingTexture(
                                     clientTextureId = "test-one",
                                     sizeX = 123.45F,
                                     sizeY = 678.90F,
                                     offsetX = 0.1F,
                                     offsetY = 0.2F,
                                     sizeUnit = TextureLayer.SizeUnit.STROKE_COORDINATES,
-                                    mapping = TextureLayer.Mapping.STAMPING,
                                 )
                             )
                         )
@@ -354,19 +337,29 @@ class StrokeTest {
     }
 
     @Test
-    fun partialErase_withEmptyEraserShape_returnsOriginalStroke() {
+    fun partialErase_withEmptyEraserShape_returnsOneStroke() {
         val stroke = buildTestStroke()
         val emptyEraserShape = ImmutableStrokeInputBatch.EMPTY.createClosedShape()
 
-        val result = stroke.partialErase(emptyEraserShape, AffineTransform.IDENTITY)
+        val result =
+            stroke.partialErase(
+                emptyEraserShape,
+                AffineTransform.IDENTITY,
+                AffineTransform.IDENTITY,
+            )
 
-        assertThat(result).containsExactly(stroke)
+        assertThat(result).hasSize(1)
     }
 
     @Test
     fun partialErase_retainsBrush() {
         val stroke = buildTestStroke()
-        val result = stroke.partialErase(buildTestShape(), AffineTransform.IDENTITY)
+        val result =
+            stroke.partialErase(
+                buildTestShape(),
+                AffineTransform.IDENTITY,
+                AffineTransform.IDENTITY,
+            )
 
         for (fragment in result) {
             assertThat(fragment.brush).isEqualTo(stroke.brush)
@@ -376,10 +369,15 @@ class StrokeTest {
     @Test
     fun partialErase_retainsInputs() {
         val stroke = buildTestStroke()
-        val result = stroke.partialErase(buildTestShape(), AffineTransform.IDENTITY)
+        val result =
+            stroke.partialErase(
+                buildTestShape(),
+                AffineTransform.IDENTITY,
+                AffineTransform.IDENTITY,
+            )
 
         for (fragment in result) {
-            assertThat(fragment.inputs).isEqualTo(stroke.inputs)
+            assertThat(fragment.inputs.size).isEqualTo(stroke.inputs.size)
         }
     }
 

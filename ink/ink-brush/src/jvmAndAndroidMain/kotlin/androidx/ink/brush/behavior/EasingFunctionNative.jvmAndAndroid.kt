@@ -20,7 +20,7 @@ import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
-internal actual object EasingFunctionNative {
+actual internal object EasingFunctionNative {
     init {
         NativeLoader.load()
     }

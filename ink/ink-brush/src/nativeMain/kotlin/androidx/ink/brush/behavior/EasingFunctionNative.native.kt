@@ -39,7 +39,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 
 @OptIn(ExperimentalForeignApi::class)
-internal actual object EasingFunctionNative {
+actual internal object EasingFunctionNative {
 
     actual fun createCopyOf(otherEasingFunctionNativePointer: Long): Long =
         EasingFunctionNative_createCopyOf(otherEasingFunctionNativePointer)
@@ -61,15 +61,17 @@ internal actual object EasingFunctionNative {
             throwForNonOkStatusCallback,
         )
 
-    actual fun createLinear(points: FloatArray): Long =
+    actual fun createLinear(points: FloatArray): Long {
+        check(points.size % 2 == 0) { "points must have an even number of elements" }
         points.usePinned { pinned ->
-            EasingFunctionNative_createLinear(
+            return EasingFunctionNative_createLinear(
                 jni_env_pass_through = null,
-                pinned.addressOf(0),
-                points.size / 2,
+                if (points.isEmpty()) null else pinned.addressOf(0),
+                points.size,
                 throwForNonOkStatusCallback,
             )
         }
+    }
 
     actual fun createSteps(stepCount: Int, stepPosition: Int): Long =
         EasingFunctionNative_createSteps(

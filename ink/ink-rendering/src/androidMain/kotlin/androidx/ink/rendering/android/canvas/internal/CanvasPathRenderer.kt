@@ -151,7 +151,7 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         if (noDrawingNeeded(inputCount, boundingBox)) return true
         if (outlineCount == 0) return false
         if (!SUPPORTED_SELF_OVERLAP_MODES.contains(paint.selfOverlap)) return false
-        if (paint.getTextureMapping() != BrushPaint.TextureLayer.Mapping.TILING) {
+        if (paint.getTextureMappingValue() != BrushPaint.TextureLayer.MAPPING_TILING) {
             return false
         }
         return true

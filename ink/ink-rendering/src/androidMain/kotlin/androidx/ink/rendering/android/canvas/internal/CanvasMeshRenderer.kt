@@ -213,7 +213,7 @@ internal class CanvasMeshRenderer(
             )
         stroke.inputs.populate(0, scratchFirstInput)
         stroke.inputs.populate(inputCount - 1, scratchLastInput)
-        val textureMapping = paint.getTextureMapping()
+        val textureMappingValue = paint.getTextureMappingValue()
         val numTextureAnimationFrames = getNumTextureAnimationFrames(paint)
         val numTextureAnimationRows = getNumTextureAnimationRows(paint)
         val numTextureAnimationColumns = getNumTextureAnimationColumns(paint)
@@ -234,7 +234,7 @@ internal class CanvasMeshRenderer(
                 mesh,
                 strokeToScreenTransform,
                 paint.applyColorFunctions(stroke.brush.internalColor),
-                textureMapping,
+                textureMappingValue,
                 textureAnimationProgress,
                 numTextureAnimationFrames,
                 numTextureAnimationRows,
@@ -251,7 +251,7 @@ internal class CanvasMeshRenderer(
         inkMesh: InkMesh,
         meshToCanvasTransform: Matrix,
         brushColor: ComposeColor,
-        textureMapping: BrushPaint.TextureLayer.Mapping,
+        textureMappingValue: Int,
         textureAnimationProgress: Float,
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
@@ -286,7 +286,7 @@ internal class CanvasMeshRenderer(
                     objectToCanvasLinearComponentScratch,
                     brushColor,
                     inkMesh.vertexAttributeUnpackingParams,
-                    textureMapping,
+                    textureMappingValue,
                     textureAnimationProgress,
                     numTextureAnimationFrames,
                     numTextureAnimationRows,
@@ -316,7 +316,7 @@ internal class CanvasMeshRenderer(
                         objectToCanvasLinearComponentScratch,
                         brushColor,
                         inkMesh.vertexAttributeUnpackingParams,
-                        textureMapping,
+                        textureMappingValue,
                         textureAnimationProgress,
                         numTextureAnimationFrames,
                         numTextureAnimationRows,
@@ -392,7 +392,7 @@ internal class CanvasMeshRenderer(
             strokeToScreenTransform,
             objectToCanvasLinearComponentScratch,
         )
-        val textureMapping = paint.getTextureMapping()
+        val textureMappingValue = paint.getTextureMappingValue()
         val numTextureAnimationFrames = getNumTextureAnimationFrames(paint)
         val numTextureAnimationRows = getNumTextureAnimationRows(paint)
         val numTextureAnimationColumns = getNumTextureAnimationColumns(paint)
@@ -414,7 +414,7 @@ internal class CanvasMeshRenderer(
                 objectToCanvasLinearComponentScratch,
                 paint.applyColorFunctions(brush.internalColor),
                 attributeUnpackingParams = null,
-                textureMapping,
+                textureMappingValue,
                 textureAnimationProgress,
                 numTextureAnimationFrames,
                 numTextureAnimationRows,
@@ -449,7 +449,7 @@ internal class CanvasMeshRenderer(
         @Size(min = 4) meshToCanvasLinearComponent: FloatArray,
         brushColor: ComposeColor,
         attributeUnpackingParams: List<MeshAttributeUnpackingParams>?,
-        textureMapping: BrushPaint.TextureLayer.Mapping,
+        textureMappingValue: Int,
         textureAnimationProgress: Float,
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
@@ -539,7 +539,7 @@ internal class CanvasMeshRenderer(
             },
         )
 
-        androidMesh.setIntUniform(textureMappingName, textureMapping.value)
+        androidMesh.setIntUniform(textureMappingName, textureMappingValue)
         androidMesh.setFloatUniform(textureAnimationProgressName, textureAnimationProgress)
         androidMesh.setIntUniform(numTextureAnimationFramesName, numTextureAnimationFrames)
         androidMesh.setIntUniform(numTextureAnimationRowsName, numTextureAnimationRows)
@@ -939,9 +939,9 @@ internal class CanvasMeshRenderer(
             FORWARD_DERIVATIVE_UNPACKING_TRANSFORM(4),
 
             /**
-             * The integer value of the [BrushPaint.TextureLayer.Mapping] mode used for this brush
-             * coat. Set it with [AndroidMesh.setIntUniform]. Must be specified for every format. It
-             * is an `int`.
+             * The integer value of the [BrushPaint.TextureLayer.mappingInt] mode used for this
+             * brush coat. Set it with [AndroidMesh.setIntUniform]. Must be specified for every
+             * format. It is an `int`.
              */
             // TODO: b/375203215 - Get rid of this uniform once we are able to mix tiling and
             // winding
@@ -1054,14 +1054,29 @@ internal class CanvasMeshRenderer(
          * specified separately in each texture layer, but currently, we require all texture layers
          * in the same paint to have the same number of animation frames.)
          */
-        private fun getNumTextureAnimationFrames(brushPaint: BrushPaint): Int =
-            brushPaint.textureLayers.firstOrNull()?.animationFrames ?: 1
+        private fun getNumTextureAnimationFrames(brushPaint: BrushPaint): Int {
+            val layer = brushPaint.textureLayers.firstOrNull()
+            return when (layer) {
+                is BrushPaint.StampingTexture -> layer.animationFrames
+                else -> 1
+            }
+        }
 
-        private fun getNumTextureAnimationRows(brushPaint: BrushPaint): Int =
-            brushPaint.textureLayers.firstOrNull()?.animationRows ?: 1
+        private fun getNumTextureAnimationRows(brushPaint: BrushPaint): Int {
+            val layer = brushPaint.textureLayers.firstOrNull()
+            return when (layer) {
+                is BrushPaint.StampingTexture -> layer.animationRows
+                else -> 1
+            }
+        }
 
-        private fun getNumTextureAnimationColumns(brushPaint: BrushPaint): Int =
-            brushPaint.textureLayers.firstOrNull()?.animationColumns ?: 1
+        private fun getNumTextureAnimationColumns(brushPaint: BrushPaint): Int {
+            val layer = brushPaint.textureLayers.firstOrNull()
+            return when (layer) {
+                is BrushPaint.StampingTexture -> layer.animationColumns
+                else -> 1
+            }
+        }
 
         private val MeshAttributeUnpackingParams.xOffset
             get() = components[0].offset

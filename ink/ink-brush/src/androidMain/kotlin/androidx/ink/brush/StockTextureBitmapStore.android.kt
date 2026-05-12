@@ -55,8 +55,14 @@ public class StockTextureBitmapStore(private val resources: Resources) : Texture
         for (coat in brushFamily.coats) {
             for (paint in coat.paintPreferences) {
                 for (layer in paint.textureLayers) {
-                    if (layer.clientTextureId.isNotEmpty()) {
-                        @Suppress("CheckReturnValue") get(layer.clientTextureId)
+                    val clientTextureId =
+                        when (layer) {
+                            is BrushPaint.StampingTexture -> layer.clientTextureId
+                            is BrushPaint.TilingTexture -> layer.clientTextureId
+                            else -> ""
+                        }
+                    if (clientTextureId.isNotEmpty()) {
+                        @Suppress("CheckReturnValue") get(clientTextureId)
                     }
                 }
             }
