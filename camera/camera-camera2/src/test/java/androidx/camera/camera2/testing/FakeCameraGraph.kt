@@ -123,6 +123,7 @@ class FakeCameraGraph(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
+        retainLocks: Boolean,
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
