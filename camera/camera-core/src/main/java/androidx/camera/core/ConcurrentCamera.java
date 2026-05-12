@@ -74,12 +74,16 @@ public class ConcurrentCamera {
      * The first composition setting is for the primary camera, and the second is for the
      * secondary camera.
      *
-     * <p>Currently only 2 cameras are supported, so the size of the list must be 2.
+     * <p>The size of the {@code compositionSettings} list must be equal to the number of the
+     * cameras that were bound using {@code bindToLifecycle}.
      *
-     * <p>The following code snippet demonstrates how to swap the primary and secondary camera
-     * positions:
+     * <p>The following code snippet demonstrates how to update the composition settings for a
+     * dual camera setup:
      * <pre>
      * {@code
+     * List<SingleCameraConfig> singleCameraConfigs = Arrays.asList(config1, config2);
+     * ConcurrentCamera concurrentCamera = cameraProvider.bindToLifecycle(singleCameraConfigs);
+     *
      * // Primary becomes PiP, Secondary becomes full screen
      * CompositionSettings primary = new CompositionSettings.Builder()
      *         .setOffset(0.5f, 0.5f)
@@ -89,17 +93,21 @@ public class ConcurrentCamera {
      * CompositionSettings secondary = new CompositionSettings.Builder()
      *         .setZOrder(0)
      *         .build();
+     *
+     * // The size of the list must match the number of cameras bound (in this case, 2)
      * concurrentCamera.setCompositionSettings(Arrays.asList(primary, secondary));
      * }
      * </pre>
      *
      * @param compositionSettings A list of {@link CompositionSettings} for the concurrent
-     *                            cameras.
+     *                            cameras. The size of the list must be equal to the number of
+     *                            the cameras that were bound using {@code bindToLifecycle}.
      * @throws IllegalStateException if the camera is not in concurrent camera composition mode.
-     * @throws IllegalArgumentException if the size of the composition settings list is not 2.
+     * @throws IllegalArgumentException if the size of the composition settings list does not
+     *                                  match the number of cameras bound.
      */
     public void setCompositionSettings(
-            @NonNull List<CompositionSettings> compositionSettings) {
+             @NonNull List<CompositionSettings> compositionSettings) {
         if (!mCameras.isEmpty()) {
             // ConcurrentCamera only has one camera in composition mode
             Camera camera = mCameras.get(0);

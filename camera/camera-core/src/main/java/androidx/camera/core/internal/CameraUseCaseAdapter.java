@@ -244,7 +244,8 @@ public final class CameraUseCaseAdapter implements Camera {
      * Updates the composition settings.
      *
      * @throws IllegalStateException if the camera is not in concurrent camera composition mode.
-     * @throws IllegalArgumentException if the size of the composition settings list is not 2.
+     * @throws IllegalArgumentException if the size of the composition settings list does not
+     *                                  match the number of cameras bound.
      */
     @Override
     public void setCompositionSettings(
