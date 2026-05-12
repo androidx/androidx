@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.*
+import android.hardware.camera2.CameraMetadata.*
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.util.Range
+import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 
 /**
@@ -35,52 +39,79 @@ public object HighEndDeviceTemplate : DeviceTemplate {
 
     private val requiredCharacteristics =
         mapOf(
-            CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-            CameraCharacteristics.SENSOR_ORIENTATION to 90,
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-            CameraCharacteristics.REQUEST_PIPELINE_MAX_DEPTH to 7.toByte(),
-            CameraCharacteristics.FLASH_INFO_AVAILABLE to true,
+            INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            REQUEST_PIPELINE_MAX_DEPTH to 7.toByte(),
         )
 
     private val highEndDefaults =
         mapOf(
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
+            REQUEST_AVAILABLE_CAPABILITIES to
                 intArrayOf(
-                    android.hardware.camera2.CameraMetadata
-                        .REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
-                    android.hardware.camera2.CameraMetadata
-                        .REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
-                    android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                    REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                    REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                    REQUEST_AVAILABLE_CAPABILITIES_RAW,
                 ),
-            CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
+            CONTROL_AE_AVAILABLE_MODES to
+                intArrayOf(CONTROL_AE_MODE_ON, CONTROL_AE_MODE_ON_ALWAYS_FLASH),
+            CONTROL_AF_AVAILABLE_MODES to
+                intArrayOf(CONTROL_AF_MODE_AUTO, CONTROL_AF_MODE_CONTINUOUS_PICTURE),
+            SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
+            SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
+            SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4032, 3024),
+            SENSOR_INFO_COLOR_FILTER_ARRANGEMENT to SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_RGGB,
+            SENSOR_INFO_WHITE_LEVEL to 1023,
+            SENSOR_MAX_ANALOG_SENSITIVITY to 800,
+            SENSOR_INFO_TIMESTAMP_SOURCE to SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME,
+            SENSOR_INFO_SENSITIVITY_RANGE to Range(50, 10000),
+            SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(100000L, 30000000000L),
+            SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
+            SCALER_CROPPING_TYPE to SCALER_CROPPING_TYPE_CENTER_ONLY,
+            CONTROL_AE_LOCK_AVAILABLE to true,
+            CONTROL_AWB_LOCK_AVAILABLE to true,
+            CONTROL_AWB_AVAILABLE_MODES to
                 intArrayOf(
-                    android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON,
-                    android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                    CONTROL_AWB_MODE_AUTO,
+                    CONTROL_AWB_MODE_INCANDESCENT,
+                    CONTROL_AWB_MODE_FLUORESCENT,
+                    CONTROL_AWB_MODE_WARM_FLUORESCENT,
+                    CONTROL_AWB_MODE_DAYLIGHT,
+                    CONTROL_AWB_MODE_CLOUDY_DAYLIGHT,
+                    CONTROL_AWB_MODE_TWILIGHT,
+                    CONTROL_AWB_MODE_SHADE,
                 ),
-            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                intArrayOf(
-                    android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_AUTO,
-                    android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
-                ),
+            TONEMAP_MAX_CURVE_POINTS to 64,
         )
 
     private val frontFacingOverrides =
         mapOf(
-            CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT,
-            CameraCharacteristics.SENSOR_ORIENTATION to 270,
-            CameraCharacteristics.FLASH_INFO_AVAILABLE to false,
-            CameraCharacteristics.STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES to
-                intArrayOf(0, 1, 2),
-            CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 5.0f,
-            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to intArrayOf(0, 1, 2, 3, 4, 5),
+            LENS_FACING to LENS_FACING_FRONT,
+            SENSOR_ORIENTATION to 270,
+            FLASH_INFO_AVAILABLE to false,
+            LENS_INFO_MINIMUM_FOCUS_DISTANCE to 5.0f,
+            CONTROL_AF_AVAILABLE_MODES to
+                intArrayOf(
+                    CONTROL_AF_MODE_OFF,
+                    CONTROL_AF_MODE_AUTO,
+                    CONTROL_AF_MODE_MACRO,
+                    CONTROL_AF_MODE_CONTINUOUS_VIDEO,
+                    CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                    CONTROL_AF_MODE_EDOF,
+                ),
+            STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES to
+                intArrayOf(
+                    STATISTICS_FACE_DETECT_MODE_OFF,
+                    STATISTICS_FACE_DETECT_MODE_SIMPLE,
+                    STATISTICS_FACE_DETECT_MODE_FULL,
+                ),
+            STATISTICS_INFO_MAX_FACE_COUNT to 10,
         )
 
     private val backFacingOverrides =
         mapOf(
-            CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-            CameraCharacteristics.SENSOR_ORIENTATION to 90,
-            CameraCharacteristics.FLASH_INFO_AVAILABLE to true,
+            LENS_FACING to LENS_FACING_BACK,
+            SENSOR_ORIENTATION to 90,
+            FLASH_INFO_AVAILABLE to true,
+            LENS_INFO_MINIMUM_FOCUS_DISTANCE to 10.0f,
         )
 
     override fun createCameraMetadata(
@@ -90,12 +121,9 @@ public object HighEndDeviceTemplate : DeviceTemplate {
         metadataOverrides: Map<Metadata.Key<*>, Any?>,
         requestKeysOverrides: Set<CaptureRequest.Key<*>>,
         resultKeysOverrides: Set<CaptureResult.Key<*>>,
-    ): CameraMetadata {
+    ): FakeCameraMetadata {
         val lensFacingOverrides =
-            if (
-                (lensFacing ?: CameraCharacteristics.LENS_FACING_BACK) ==
-                    CameraCharacteristics.LENS_FACING_FRONT
-            ) {
+            if ((lensFacing ?: LENS_FACING_BACK) == LENS_FACING_FRONT) {
                 frontFacingOverrides
             } else {
                 backFacingOverrides

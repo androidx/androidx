@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Compani
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -58,13 +59,7 @@ internal class Controller3ALock3ATest {
     private val captureSequenceProcessor = graphTestContext.captureSequenceProcessor
 
     private val listener3A = Listener3A()
-    private val fakeMetadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-            )
-        )
+    private val fakeMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
     @After

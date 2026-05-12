@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.graph
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.camera.camera2.pipe.AeMode
@@ -25,6 +24,7 @@ import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,14 +46,7 @@ class Controller3AReset3ATest {
     private val captureSequenceProcessor = graphTestContext.captureSequenceProcessor
 
     private val listener3A = Listener3A()
-    private val fakeMetadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE),
-                CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 0.1f,
-            )
-        )
+    private val fakeMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
     @After

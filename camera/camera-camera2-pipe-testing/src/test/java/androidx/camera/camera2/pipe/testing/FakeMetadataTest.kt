@@ -81,7 +81,7 @@ class CameraMetadataTest {
     @Test
     fun verifyHighEndDeviceTemplate_simulatesAdvancedHardwareWithFlash() {
         val metadata =
-            FakeCameraMetadata.createFromTemplate(
+            FakeCameraMetadata.fromTemplate(
                 template = HighEndDeviceTemplate,
                 cameraId = CameraId("0"),
             )
@@ -96,7 +96,7 @@ class CameraMetadataTest {
     @Test
     fun verifyEmulatorDeviceTemplate_simulatesLimitedHardwareNoFlash() {
         val metadata =
-            FakeCameraMetadata.createFromTemplate(
+            FakeCameraMetadata.fromTemplate(
                 template = EmulatorDeviceTemplate,
                 cameraId = CameraId("0"),
             )
@@ -109,9 +109,9 @@ class CameraMetadataTest {
     }
 
     @Test
-    fun verifyCreateFromTemplateCorrectlyAppliesOverrides() {
+    fun verifyFromTemplateCorrectlyAppliesOverrides() {
         val metadata =
-            FakeCameraMetadata.createFromTemplate(
+            FakeCameraMetadata.fromTemplate(
                 template = HighEndDeviceTemplate,
                 lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
             )
@@ -122,9 +122,9 @@ class CameraMetadataTest {
     }
 
     @Test
-    fun verifyCreateFromTemplateFrontFacing_defaultsSensorOrientationTo270() {
+    fun verifyFromTemplateFrontFacing_defaultsSensorOrientationTo270() {
         val metadata =
-            FakeCameraMetadata.createFromTemplate(
+            FakeCameraMetadata.fromTemplate(
                 template = HighEndDeviceTemplate,
                 lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
             )
