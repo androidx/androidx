@@ -264,6 +264,48 @@ public fun Modifier.zIndex(value: Float): Modifier = then(ZIndexModifier(value))
 public fun Modifier.graphicsLayer(attributes: Map<Int, Any>): Modifier =
     then(GraphicsLayerModifier(attributes))
 
+// =====================================================================================
+//
+// Each delegates to the matching raw-Int border / componentId modifier above. The
+// raw-Int variants stay for backward compatibility; new code should prefer these.
+// @TODO remove non RcBorderShape
+// =====================================================================================
+
+/** Border with a typed [RcBorderShape]. */
+public fun Modifier.border(
+    width: Float,
+    roundedCorner: Float,
+    color: RcColorValue,
+    shape: RcBorderShape,
+): Modifier = border(width, roundedCorner, color.id, shape.value)
+
+/** Dynamic border with a typed [RcBorderShape]. */
+public fun Modifier.border(
+    width: Float,
+    roundedCorner: Float,
+    color: RcColor,
+    shape: RcBorderShape,
+): Modifier = dynamicBorder(width, roundedCorner, color.id.toShort(), shape.value)
+
+/** Border with a typed [RcBorderShape]. */
+public fun Modifier.border(
+    width: RcFloat,
+    roundedCorner: RcFloat,
+    color: RcColorValue,
+    shape: RcBorderShape,
+): Modifier = border(width.id, roundedCorner.id, color.id, shape.value)
+
+/** Dynamic border with a typed [RcBorderShape]. */
+public fun Modifier.border(
+    width: RcFloat,
+    roundedCorner: RcFloat,
+    color: RcColor,
+    shape: RcBorderShape,
+): Modifier = dynamicBorder(width.id, roundedCorner.id, color.id.toShort(), shape.value)
+
+/** Component ID using a typed [RcComponentId]. */
+public fun Modifier.componentId(id: RcComponentId): Modifier = componentId(id.id)
+
 internal class PaddingModifier(
     val start: Float,
     val top: Float,

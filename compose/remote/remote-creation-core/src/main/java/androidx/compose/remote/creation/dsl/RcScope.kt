@@ -683,13 +683,13 @@ public interface RcScope {
     public fun RcPath.combine(path2: RcPath, op: RcPathCombineOp): RcPath
 
     /** Performs a haptic feedback. */
-    public fun performHaptic(feedbackConstant: Int)
+    public fun performHaptic(haptic: RcHaptic)
 
     /** Tells the system to wake up in a given number of seconds. */
     public fun wakeIn(seconds: Float)
 
     /** Returns the color attribute. */
-    public fun getColorAttribute(baseColor: RcColor, type: Short): RcFloat
+    public fun getColorAttribute(baseColor: RcColor, type: RcColorAttr): RcFloat
 
     /** Returns a substring of the text. */
     public fun RcText.substring(start: RcFloat, len: RcFloat): RcText
@@ -820,7 +820,7 @@ public interface RcScope {
     public fun textLength(text: RcText): RcFloat
 
     /** Creates a time attribute. */
-    public fun timeAttribute(variable: RcInteger, type: Short, vararg args: Int): RcFloat
+    public fun timeAttribute(variable: RcInteger, type: RcTimeAttr, vararg args: Int): RcFloat
 
     /** Pre-concat the current matrix with the specified skew. */
     public fun skew(skewX: Float, skewY: Float)
@@ -833,7 +833,7 @@ public interface RcScope {
 
     /** Adds a conditional block based on the comparison of two values. */
     public fun conditionalOperations(
-        type: Byte,
+        type: RcConditionOp,
         a: RcFloat,
         b: RcFloat,
         content: RcScope.() -> Unit,
@@ -899,10 +899,10 @@ public interface RcScope {
     public fun impulse(duration: RcFloat, start: RcFloat, block: RcImpulseScope.() -> Unit)
 
     /** Conditionally skip a segment */
-    public fun skip(type: Short, value: Int, block: RcScope.() -> Unit)
+    public fun skip(type: RcSkipKind, value: Int, block: RcScope.() -> Unit)
 
     /** Conditionally skip a segment, returning an offset token. */
-    public fun beginSkip(type: Short, value: Int): Int
+    public fun beginSkip(type: RcSkipKind, value: Int): Int
 
     /** Concludes the skipped segment using the offset token. */
     public fun endSkip(offset: Int)
