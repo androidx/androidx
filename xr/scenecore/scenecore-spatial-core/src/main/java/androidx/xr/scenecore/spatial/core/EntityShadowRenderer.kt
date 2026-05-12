@@ -17,11 +17,11 @@ package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.util.DisplayMetrics
 import android.view.View
 import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
 import androidx.xr.runtime.math.FloatSize2d
@@ -58,11 +58,12 @@ internal class EntityShadowRendererImpl(
     private val marginInMeters: Float
         get() {
             val defaultPixelDensity =
-                if (spatialApiVersion >= 2) {
+                if (spatialApiVersion > 2) {
                     xrExtensions.underlyingObject.config.defaultPixelsPerMeter()
                 } else {
                     xrExtensions.config.defaultPixelsPerMeter(
-                        Resources.getSystem().displayMetrics.density
+                        DisplayMetrics.DENSITY_DEVICE_STABLE.toFloat() /
+                            DisplayMetrics.DENSITY_DEFAULT.toFloat()
                     )
                 }
             return PANEL_BORDER_ADDED_MARGIN / defaultPixelDensity
