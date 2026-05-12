@@ -28,6 +28,15 @@ internal inline fun <T, R> List<T>.fastMapOrMap(transform: (T) -> R) =
         @Suppress("ListIterator") this.map(transform)
     }
 
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T, R> List<T>.fastMapIndexed(transform: (index: Int, T) -> R): List<R> {
+    contract { callsInPlace(transform) }
+    val target = ArrayList<R>(size)
+    fastForEachIndexed { index, e -> target += transform(index, e) }
+    return target
+}
+
 internal inline fun <T> List<T>.fastForEachReversedOrForEachReversed(action: (T) -> Unit) {
     if (this is RandomAccess) {
         this.fastForEachReversed(action)
@@ -59,6 +68,16 @@ private inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
     for (index in indices) {
         val item = get(index)
         action(item)
+    }
+}
+
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+private inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
+    contract { callsInPlace(action) }
+    for (index in indices) {
+        val item = get(index)
+        action(index, item)
     }
 }
 
