@@ -18,38 +18,38 @@ abstract interface <#A: kotlin/Any> androidx.navigation3.runtime/NavMetadataKey 
 
 abstract interface androidx.navigation3.runtime/NavKey // androidx.navigation3.runtime/NavKey|null[0]
 
-abstract class <#A: kotlin/Any> androidx.navigation3.runtime/DeepLinkMatcher { // androidx.navigation3.runtime/DeepLinkMatcher|null[0]
-    constructor <init>(kotlin.collections/List<androidx.navigation3.runtime/DeepLinkMatcher.Filter<*>> = ...) // androidx.navigation3.runtime/DeepLinkMatcher.<init>|<init>(kotlin.collections.List<androidx.navigation3.runtime.DeepLinkMatcher.Filter<*>>){}[0]
+abstract class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/DeepLinkMatcher { // androidx.navigation3.runtime.deeplink/DeepLinkMatcher|null[0]
+    constructor <init>(kotlin.collections/List<androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter<*>> = ...) // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.<init>|<init>(kotlin.collections.List<androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter<*>>){}[0]
 
-    abstract fun matchRequest(androidx.navigation3.runtime/DeepLinkRequest): androidx.navigation3.runtime/DeepLinkMatcher.MatchResult<#A>? // androidx.navigation3.runtime/DeepLinkMatcher.matchRequest|matchRequest(androidx.navigation3.runtime.DeepLinkRequest){}[0]
-    final fun match(androidx.navigation3.runtime/DeepLinkRequest): androidx.navigation3.runtime/DeepLinkMatcher.MatchResult<#A>? // androidx.navigation3.runtime/DeepLinkMatcher.match|match(androidx.navigation3.runtime.DeepLinkRequest){}[0]
+    abstract fun matchRequest(androidx.navigation3.runtime.deeplink/DeepLinkRequest): androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A>? // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.matchRequest|matchRequest(androidx.navigation3.runtime.deeplink.DeepLinkRequest){}[0]
+    final fun match(androidx.navigation3.runtime.deeplink/DeepLinkRequest): androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A>? // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.match|match(androidx.navigation3.runtime.deeplink.DeepLinkRequest){}[0]
 
-    abstract class <#A1: kotlin/Any> Filter { // androidx.navigation3.runtime/DeepLinkMatcher.Filter|null[0]
-        constructor <init>(#A1) // androidx.navigation3.runtime/DeepLinkMatcher.Filter.<init>|<init>(1:0){}[0]
+    abstract class <#A1: kotlin/Any> Filter { // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter|null[0]
+        constructor <init>(#A1) // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter.<init>|<init>(1:0){}[0]
 
-        abstract fun filterRequest(androidx.navigation3.runtime/DeepLinkRequest): kotlin/Boolean // androidx.navigation3.runtime/DeepLinkMatcher.Filter.filterRequest|filterRequest(androidx.navigation3.runtime.DeepLinkRequest){}[0]
+        abstract fun filterRequest(androidx.navigation3.runtime.deeplink/DeepLinkRequest): kotlin/Boolean // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter.filterRequest|filterRequest(androidx.navigation3.runtime.deeplink.DeepLinkRequest){}[0]
     }
 
-    open class <#A1: kotlin/Any?> MatchResult { // androidx.navigation3.runtime/DeepLinkMatcher.MatchResult|null[0]
-        constructor <init>(#A1) // androidx.navigation3.runtime/DeepLinkMatcher.MatchResult.<init>|<init>(1:0){}[0]
+    open class <#A1: kotlin/Any?> MatchResult { // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult|null[0]
+        constructor <init>(#A1) // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult.<init>|<init>(1:0){}[0]
 
-        final val key // androidx.navigation3.runtime/DeepLinkMatcher.MatchResult.key|{}key[0]
-            final fun <get-key>(): #A1 // androidx.navigation3.runtime/DeepLinkMatcher.MatchResult.key.<get-key>|<get-key>(){}[0]
+        final val key // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult.key|{}key[0]
+            final fun <get-key>(): #A1 // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult.key.<get-key>|<get-key>(){}[0]
     }
 }
 
-abstract class androidx.navigation3.runtime/DeepLinkUri { // androidx.navigation3.runtime/DeepLinkUri|null[0]
-    constructor <init>() // androidx.navigation3.runtime/DeepLinkUri.<init>|<init>(){}[0]
+abstract class androidx.navigation3.runtime.deeplink/DeepLinkUri { // androidx.navigation3.runtime.deeplink/DeepLinkUri|null[0]
+    constructor <init>() // androidx.navigation3.runtime.deeplink/DeepLinkUri.<init>|<init>(){}[0]
 
-    abstract fun getAuthority(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getAuthority|getAuthority(){}[0]
-    abstract fun getFragment(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getFragment|getFragment(){}[0]
-    abstract fun getPathSegments(): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getPathSegments|getPathSegments(){}[0]
-    abstract fun getQuery(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getQuery|getQuery(){}[0]
-    abstract fun getScheme(): kotlin/String? // androidx.navigation3.runtime/DeepLinkUri.getScheme|getScheme(){}[0]
-    abstract fun isHierarchical(): kotlin/Boolean // androidx.navigation3.runtime/DeepLinkUri.isHierarchical|isHierarchical(){}[0]
-    abstract fun toString(): kotlin/String // androidx.navigation3.runtime/DeepLinkUri.toString|toString(){}[0]
-    open fun getQueryParameterNames(): kotlin.collections/Set<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getQueryParameterNames|getQueryParameterNames(){}[0]
-    open fun getQueryParameters(kotlin/String): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime/DeepLinkUri.getQueryParameters|getQueryParameters(kotlin.String){}[0]
+    abstract fun getAuthority(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkUri.getAuthority|getAuthority(){}[0]
+    abstract fun getFragment(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkUri.getFragment|getFragment(){}[0]
+    abstract fun getPathSegments(): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime.deeplink/DeepLinkUri.getPathSegments|getPathSegments(){}[0]
+    abstract fun getQuery(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkUri.getQuery|getQuery(){}[0]
+    abstract fun getScheme(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkUri.getScheme|getScheme(){}[0]
+    abstract fun isHierarchical(): kotlin/Boolean // androidx.navigation3.runtime.deeplink/DeepLinkUri.isHierarchical|isHierarchical(){}[0]
+    abstract fun toString(): kotlin/String // androidx.navigation3.runtime.deeplink/DeepLinkUri.toString|toString(){}[0]
+    open fun getQueryParameterNames(): kotlin.collections/Set<kotlin/String> // androidx.navigation3.runtime.deeplink/DeepLinkUri.getQueryParameterNames|getQueryParameterNames(){}[0]
+    open fun getQueryParameters(kotlin/String): kotlin.collections/List<kotlin/String> // androidx.navigation3.runtime.deeplink/DeepLinkUri.getQueryParameters|getQueryParameters(kotlin.String){}[0]
 }
 
 final class <#A: androidx.navigation3.runtime/NavKey> androidx.navigation3.runtime.serialization/NavBackStackSerializer : kotlinx.serialization/KSerializer<androidx.navigation3.runtime/NavBackStack<#A>> { // androidx.navigation3.runtime.serialization/NavBackStackSerializer|null[0]
@@ -96,6 +96,17 @@ final class <#A: androidx.navigation3.runtime/NavKey> androidx.navigation3.runti
     final fun subList(kotlin/Int, kotlin/Int): kotlin.collections/MutableList<#A> // androidx.navigation3.runtime/NavBackStack.subList|subList(kotlin.Int;kotlin.Int){}[0]
 }
 
+final class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/StaticKeyDeepLinkMatcher : androidx.navigation3.runtime.deeplink/DeepLinkMatcher<#A> { // androidx.navigation3.runtime.deeplink/StaticKeyDeepLinkMatcher|null[0]
+    constructor <init>(#A, kotlin.collections/List<androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter<kotlin/Any>>) // androidx.navigation3.runtime.deeplink/StaticKeyDeepLinkMatcher.<init>|<init>(1:0;kotlin.collections.List<androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter<kotlin.Any>>){}[0]
+
+    final val key // androidx.navigation3.runtime.deeplink/StaticKeyDeepLinkMatcher.key|{}key[0]
+        final fun <get-key>(): #A // androidx.navigation3.runtime.deeplink/StaticKeyDeepLinkMatcher.key.<get-key>|<get-key>(){}[0]
+}
+
+final class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/UriMatchResult : androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A> { // androidx.navigation3.runtime.deeplink/UriMatchResult|null[0]
+    constructor <init>(#A, kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>>) // androidx.navigation3.runtime.deeplink/UriMatchResult.<init>|<init>(1:0;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
+}
+
 final class <#A: kotlin/Any> androidx.navigation3.runtime.result/ResultEventBusNavEntryDecorator : androidx.navigation3.runtime/NavEntryDecorator<#A> { // androidx.navigation3.runtime.result/ResultEventBusNavEntryDecorator|null[0]
     constructor <init>(androidx.navigation3.runtime.result/ResultEventBus = ...) // androidx.navigation3.runtime.result/ResultEventBusNavEntryDecorator.<init>|<init>(androidx.navigation3.runtime.result.ResultEventBus){}[0]
 }
@@ -133,15 +144,22 @@ final class <#A: kotlin/Any> androidx.navigation3.runtime/SaveableStateHolderNav
     constructor <init>(androidx.compose.runtime.saveable/SaveableStateHolder) // androidx.navigation3.runtime/SaveableStateHolderNavEntryDecorator.<init>|<init>(androidx.compose.runtime.saveable.SaveableStateHolder){}[0]
 }
 
-final class <#A: kotlin/Any> androidx.navigation3.runtime/StaticKeyDeepLinkMatcher : androidx.navigation3.runtime/DeepLinkMatcher<#A> { // androidx.navigation3.runtime/StaticKeyDeepLinkMatcher|null[0]
-    constructor <init>(#A, kotlin.collections/List<androidx.navigation3.runtime/DeepLinkMatcher.Filter<kotlin/Any>>) // androidx.navigation3.runtime/StaticKeyDeepLinkMatcher.<init>|<init>(1:0;kotlin.collections.List<androidx.navigation3.runtime.DeepLinkMatcher.Filter<kotlin.Any>>){}[0]
+final class androidx.navigation3.runtime.deeplink/DeepLinkRequest { // androidx.navigation3.runtime.deeplink/DeepLinkRequest|null[0]
+    final val action // androidx.navigation3.runtime.deeplink/DeepLinkRequest.action|{}action[0]
+        final fun <get-action>(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkRequest.action.<get-action>|<get-action>(){}[0]
+    final val mimeType // androidx.navigation3.runtime.deeplink/DeepLinkRequest.mimeType|{}mimeType[0]
+        final fun <get-mimeType>(): kotlin/String? // androidx.navigation3.runtime.deeplink/DeepLinkRequest.mimeType.<get-mimeType>|<get-mimeType>(){}[0]
+    final val uri // androidx.navigation3.runtime.deeplink/DeepLinkRequest.uri|{}uri[0]
+        final fun <get-uri>(): androidx.navigation3.runtime.deeplink/DeepLinkUri? // androidx.navigation3.runtime.deeplink/DeepLinkRequest.uri.<get-uri>|<get-uri>(){}[0]
 
-    final val key // androidx.navigation3.runtime/StaticKeyDeepLinkMatcher.key|{}key[0]
-        final fun <get-key>(): #A // androidx.navigation3.runtime/StaticKeyDeepLinkMatcher.key.<get-key>|<get-key>(){}[0]
-}
+    final fun toString(): kotlin/String // androidx.navigation3.runtime.deeplink/DeepLinkRequest.toString|toString(){}[0]
 
-final class <#A: kotlin/Any> androidx.navigation3.runtime/UriMatchResult : androidx.navigation3.runtime/DeepLinkMatcher.MatchResult<#A> { // androidx.navigation3.runtime/UriMatchResult|null[0]
-    constructor <init>(#A, kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>>) // androidx.navigation3.runtime/UriMatchResult.<init>|<init>(1:0;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
+    final object Companion { // androidx.navigation3.runtime.deeplink/DeepLinkRequest.Companion|null[0]
+        final fun fromAction(kotlin/String, androidx.navigation3.runtime.deeplink/DeepLinkUri? = ..., kotlin/String? = ...): androidx.navigation3.runtime.deeplink/DeepLinkRequest // androidx.navigation3.runtime.deeplink/DeepLinkRequest.Companion.fromAction|fromAction(kotlin.String;androidx.navigation3.runtime.deeplink.DeepLinkUri?;kotlin.String?){}[0]
+        final fun fromMimeType(kotlin/String, androidx.navigation3.runtime.deeplink/DeepLinkUri? = ..., kotlin/String? = ...): androidx.navigation3.runtime.deeplink/DeepLinkRequest // androidx.navigation3.runtime.deeplink/DeepLinkRequest.Companion.fromMimeType|fromMimeType(kotlin.String;androidx.navigation3.runtime.deeplink.DeepLinkUri?;kotlin.String?){}[0]
+        final fun fromUri(androidx.navigation3.runtime.deeplink/DeepLinkUri, kotlin/String? = ..., kotlin/String? = ...): androidx.navigation3.runtime.deeplink/DeepLinkRequest // androidx.navigation3.runtime.deeplink/DeepLinkRequest.Companion.fromUri|fromUri(androidx.navigation3.runtime.deeplink.DeepLinkUri;kotlin.String?;kotlin.String?){}[0]
+        final fun fromUriString(kotlin/String, kotlin/String? = ..., kotlin/String? = ...): androidx.navigation3.runtime.deeplink/DeepLinkRequest // androidx.navigation3.runtime.deeplink/DeepLinkRequest.Companion.fromUriString|fromUriString(kotlin.String;kotlin.String?;kotlin.String?){}[0]
+    }
 }
 
 final class androidx.navigation3.runtime.result/ResultEventBus { // androidx.navigation3.runtime.result/ResultEventBus|null[0]
@@ -155,24 +173,6 @@ final class androidx.navigation3.runtime.result/ResultEventBus { // androidx.nav
     final inline fun <#A1: reified kotlin/Any?> sendResult(#A1) // androidx.navigation3.runtime.result/ResultEventBus.sendResult|sendResult(0:0){0§<kotlin.Any?>}[0]
 }
 
-final class androidx.navigation3.runtime/DeepLinkRequest { // androidx.navigation3.runtime/DeepLinkRequest|null[0]
-    final val action // androidx.navigation3.runtime/DeepLinkRequest.action|{}action[0]
-        final fun <get-action>(): kotlin/String? // androidx.navigation3.runtime/DeepLinkRequest.action.<get-action>|<get-action>(){}[0]
-    final val mimeType // androidx.navigation3.runtime/DeepLinkRequest.mimeType|{}mimeType[0]
-        final fun <get-mimeType>(): kotlin/String? // androidx.navigation3.runtime/DeepLinkRequest.mimeType.<get-mimeType>|<get-mimeType>(){}[0]
-    final val uri // androidx.navigation3.runtime/DeepLinkRequest.uri|{}uri[0]
-        final fun <get-uri>(): androidx.navigation3.runtime/DeepLinkUri? // androidx.navigation3.runtime/DeepLinkRequest.uri.<get-uri>|<get-uri>(){}[0]
-
-    final fun toString(): kotlin/String // androidx.navigation3.runtime/DeepLinkRequest.toString|toString(){}[0]
-
-    final object Companion { // androidx.navigation3.runtime/DeepLinkRequest.Companion|null[0]
-        final fun fromAction(kotlin/String, androidx.navigation3.runtime/DeepLinkUri? = ..., kotlin/String? = ...): androidx.navigation3.runtime/DeepLinkRequest // androidx.navigation3.runtime/DeepLinkRequest.Companion.fromAction|fromAction(kotlin.String;androidx.navigation3.runtime.DeepLinkUri?;kotlin.String?){}[0]
-        final fun fromMimeType(kotlin/String, androidx.navigation3.runtime/DeepLinkUri? = ..., kotlin/String? = ...): androidx.navigation3.runtime/DeepLinkRequest // androidx.navigation3.runtime/DeepLinkRequest.Companion.fromMimeType|fromMimeType(kotlin.String;androidx.navigation3.runtime.DeepLinkUri?;kotlin.String?){}[0]
-        final fun fromUri(androidx.navigation3.runtime/DeepLinkUri, kotlin/String? = ..., kotlin/String? = ...): androidx.navigation3.runtime/DeepLinkRequest // androidx.navigation3.runtime/DeepLinkRequest.Companion.fromUri|fromUri(androidx.navigation3.runtime.DeepLinkUri;kotlin.String?;kotlin.String?){}[0]
-        final fun fromUriString(kotlin/String, kotlin/String? = ..., kotlin/String? = ...): androidx.navigation3.runtime/DeepLinkRequest // androidx.navigation3.runtime/DeepLinkRequest.Companion.fromUriString|fromUriString(kotlin.String;kotlin.String?;kotlin.String?){}[0]
-    }
-}
-
 final class androidx.navigation3.runtime/MetadataScope { // androidx.navigation3.runtime/MetadataScope|null[0]
     constructor <init>() // androidx.navigation3.runtime/MetadataScope.<init>|<init>(){}[0]
 
@@ -180,16 +180,16 @@ final class androidx.navigation3.runtime/MetadataScope { // androidx.navigation3
     final fun build(): kotlin.collections/Map<kotlin/String, kotlin/Any> // androidx.navigation3.runtime/MetadataScope.build|build(){}[0]
 }
 
-open class <#A: kotlin/Any> androidx.navigation3.runtime/NavEntryDecorator { // androidx.navigation3.runtime/NavEntryDecorator|null[0]
-    constructor <init>(kotlin/Function1<kotlin/Any, kotlin/Unit> = ..., kotlin/Function3<androidx.navigation3.runtime/NavEntry<#A>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) // androidx.navigation3.runtime/NavEntryDecorator.<init>|<init>(kotlin.Function1<kotlin.Any,kotlin.Unit>;kotlin.Function3<androidx.navigation3.runtime.NavEntry<1:0>,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
+open class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/UriDeepLinkMatcher : androidx.navigation3.runtime.deeplink/DeepLinkMatcher<#A> { // androidx.navigation3.runtime.deeplink/UriDeepLinkMatcher|null[0]
+    constructor <init>(androidx.navigation3.runtime.deeplink/DeepLinkUri, kotlinx.serialization/KSerializer<#A>, kotlin.collections/List<androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter<kotlin/Any>> = ...) // androidx.navigation3.runtime.deeplink/UriDeepLinkMatcher.<init>|<init>(androidx.navigation3.runtime.deeplink.DeepLinkUri;kotlinx.serialization.KSerializer<1:0>;kotlin.collections.List<androidx.navigation3.runtime.deeplink.DeepLinkMatcher.Filter<kotlin.Any>>){}[0]
+
+    open fun matchArguments(kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ..., kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ..., kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ...): androidx.navigation3.runtime.deeplink/UriMatchResult<#A>? // androidx.navigation3.runtime.deeplink/UriDeepLinkMatcher.matchArguments|matchArguments(kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
+    open fun matchRequest(androidx.navigation3.runtime.deeplink/DeepLinkRequest): androidx.navigation3.runtime.deeplink/UriMatchResult<#A>? // androidx.navigation3.runtime.deeplink/UriDeepLinkMatcher.matchRequest|matchRequest(androidx.navigation3.runtime.deeplink.DeepLinkRequest){}[0]
+    open fun matchUri(androidx.navigation3.runtime.deeplink/DeepLinkUri): androidx.navigation3.runtime.deeplink/UriMatchResult<#A>? // androidx.navigation3.runtime.deeplink/UriDeepLinkMatcher.matchUri|matchUri(androidx.navigation3.runtime.deeplink.DeepLinkUri){}[0]
 }
 
-open class <#A: kotlin/Any> androidx.navigation3.runtime/UriDeepLinkMatcher : androidx.navigation3.runtime/DeepLinkMatcher<#A> { // androidx.navigation3.runtime/UriDeepLinkMatcher|null[0]
-    constructor <init>(androidx.navigation3.runtime/DeepLinkUri, kotlinx.serialization/KSerializer<#A>, kotlin.collections/List<androidx.navigation3.runtime/DeepLinkMatcher.Filter<kotlin/Any>> = ...) // androidx.navigation3.runtime/UriDeepLinkMatcher.<init>|<init>(androidx.navigation3.runtime.DeepLinkUri;kotlinx.serialization.KSerializer<1:0>;kotlin.collections.List<androidx.navigation3.runtime.DeepLinkMatcher.Filter<kotlin.Any>>){}[0]
-
-    open fun matchArguments(kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ..., kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ..., kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ...): androidx.navigation3.runtime/UriMatchResult<#A>? // androidx.navigation3.runtime/UriDeepLinkMatcher.matchArguments|matchArguments(kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
-    open fun matchRequest(androidx.navigation3.runtime/DeepLinkRequest): androidx.navigation3.runtime/UriMatchResult<#A>? // androidx.navigation3.runtime/UriDeepLinkMatcher.matchRequest|matchRequest(androidx.navigation3.runtime.DeepLinkRequest){}[0]
-    open fun matchUri(androidx.navigation3.runtime/DeepLinkUri): androidx.navigation3.runtime/UriMatchResult<#A>? // androidx.navigation3.runtime/UriDeepLinkMatcher.matchUri|matchUri(androidx.navigation3.runtime.DeepLinkUri){}[0]
+open class <#A: kotlin/Any> androidx.navigation3.runtime/NavEntryDecorator { // androidx.navigation3.runtime/NavEntryDecorator|null[0]
+    constructor <init>(kotlin/Function1<kotlin/Any, kotlin/Unit> = ..., kotlin/Function3<androidx.navigation3.runtime/NavEntry<#A>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) // androidx.navigation3.runtime/NavEntryDecorator.<init>|<init>(kotlin.Function1<kotlin.Any,kotlin.Unit>;kotlin.Function3<androidx.navigation3.runtime.NavEntry<1:0>,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
 }
 
 final object androidx.navigation3.runtime.result/LocalResultEventBus { // androidx.navigation3.runtime.result/LocalResultEventBus|null[0]
@@ -199,24 +199,24 @@ final object androidx.navigation3.runtime.result/LocalResultEventBus { // androi
     final fun provides(androidx.navigation3.runtime.result/ResultEventBus): androidx.compose.runtime/ProvidedValue<androidx.navigation3.runtime.result/ResultEventBus?> // androidx.navigation3.runtime.result/LocalResultEventBus.provides|provides(androidx.navigation3.runtime.result.ResultEventBus){}[0]
 }
 
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_deeplink_DeepLinkMatcher$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_Filter$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_Filter$stableprop|#static{}androidx_navigation3_runtime_deeplink_DeepLinkMatcher_Filter$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_MatchResult$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_MatchResult$stableprop|#static{}androidx_navigation3_runtime_deeplink_DeepLinkMatcher_MatchResult$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkRequest$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkRequest$stableprop|#static{}androidx_navigation3_runtime_deeplink_DeepLinkRequest$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkUri$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkUri$stableprop|#static{}androidx_navigation3_runtime_deeplink_DeepLinkUri$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop|#static{}androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop[0]
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop|#static{}androidx_navigation3_runtime_result_LocalResultEventBus$stableprop[0]
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop|#static{}androidx_navigation3_runtime_result_ResultEventBus$stableprop[0]
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop|#static{}androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop[0]
 final val androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop // androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop|#static{}androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_DeepLinkMatcher$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_Filter$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_Filter$stableprop|#static{}androidx_navigation3_runtime_DeepLinkMatcher_Filter$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_MatchResult$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_MatchResult$stableprop|#static{}androidx_navigation3_runtime_DeepLinkMatcher_MatchResult$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkRequest$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkRequest$stableprop|#static{}androidx_navigation3_runtime_DeepLinkRequest$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop|#static{}androidx_navigation3_runtime_DeepLinkUri$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop|#static{}androidx_navigation3_runtime_EntryProviderScope$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop|#static{}androidx_navigation3_runtime_MetadataScope$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop|#static{}androidx_navigation3_runtime_NavBackStack$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntry$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntry$stableprop|#static{}androidx_navigation3_runtime_NavEntry$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntryDecorator$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntryDecorator$stableprop|#static{}androidx_navigation3_runtime_NavEntryDecorator$stableprop[0]
 final val androidx.navigation3.runtime/androidx_navigation3_runtime_SaveableStateHolderNavEntryDecorator$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_SaveableStateHolderNavEntryDecorator$stableprop|#static{}androidx_navigation3_runtime_SaveableStateHolderNavEntryDecorator$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_StaticKeyDeepLinkMatcher$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_StaticKeyDeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_StaticKeyDeepLinkMatcher$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_UriDeepLinkMatcher$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_UriDeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_UriDeepLinkMatcher$stableprop[0]
-final val androidx.navigation3.runtime/androidx_navigation3_runtime_UriMatchResult$stableprop // androidx.navigation3.runtime/androidx_navigation3_runtime_UriMatchResult$stableprop|#static{}androidx_navigation3_runtime_UriMatchResult$stableprop[0]
 
 final fun <#A: kotlin/Any> (kotlin.collections/Map<kotlin/String, kotlin/Any>).androidx.navigation3.runtime/contains(androidx.navigation3.runtime/NavMetadataKey<#A>): kotlin/Boolean // androidx.navigation3.runtime/contains|contains@kotlin.collections.Map<kotlin.String,kotlin.Any>(androidx.navigation3.runtime.NavMetadataKey<0:0>){0§<kotlin.Any>}[0]
 final fun <#A: kotlin/Any> (kotlin.collections/Map<kotlin/String, kotlin/Any>).androidx.navigation3.runtime/get(androidx.navigation3.runtime/NavMetadataKey<#A>): #A? // androidx.navigation3.runtime/get|get@kotlin.collections.Map<kotlin.String,kotlin.Any>(androidx.navigation3.runtime.NavMetadataKey<0:0>){0§<kotlin.Any>}[0]
@@ -225,25 +225,25 @@ final fun <#A: kotlin/Any> androidx.navigation3.runtime/rememberDecoratedNavEntr
 final fun <#A: kotlin/Any> androidx.navigation3.runtime/rememberDecoratedNavEntries(kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>>, kotlin.collections/List<androidx.navigation3.runtime/NavEntryDecorator<#A>>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>> // androidx.navigation3.runtime/rememberDecoratedNavEntries|rememberDecoratedNavEntries(kotlin.collections.List<androidx.navigation3.runtime.NavEntry<0:0>>;kotlin.collections.List<androidx.navigation3.runtime.NavEntryDecorator<0:0>>?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any>}[0]
 final fun <#A: kotlin/Any> androidx.navigation3.runtime/rememberSaveableStateHolderNavEntryDecorator(androidx.compose.runtime.saveable/SaveableStateHolder?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.navigation3.runtime/SaveableStateHolderNavEntryDecorator<#A> // androidx.navigation3.runtime/rememberSaveableStateHolderNavEntryDecorator|rememberSaveableStateHolderNavEntryDecorator(androidx.compose.runtime.saveable.SaveableStateHolder?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any>}[0]
 final fun <#A: kotlin/Any?> androidx.navigation3.runtime.result/ResultEffect(kotlin/String, androidx.navigation3.runtime.result/ResultEventBus?, kotlin.coroutines/SuspendFunction1<#A, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.navigation3.runtime.result/ResultEffect|ResultEffect(kotlin.String;androidx.navigation3.runtime.result.ResultEventBus?;kotlin.coroutines.SuspendFunction1<0:0,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
+final fun androidx.navigation3.runtime.deeplink/DeepLinkUri(kotlin/String): androidx.navigation3.runtime.deeplink/DeepLinkUri // androidx.navigation3.runtime.deeplink/DeepLinkUri|DeepLinkUri(kotlin.String){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_deeplink_DeepLinkMatcher$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_Filter$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_Filter$stableprop_getter|androidx_navigation3_runtime_deeplink_DeepLinkMatcher_Filter$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_MatchResult$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkMatcher_MatchResult$stableprop_getter|androidx_navigation3_runtime_deeplink_DeepLinkMatcher_MatchResult$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkRequest$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkRequest$stableprop_getter|androidx_navigation3_runtime_deeplink_DeepLinkRequest$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkUri$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_DeepLinkUri$stableprop_getter|androidx_navigation3_runtime_deeplink_DeepLinkUri$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop_getter|androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop_getter|androidx_navigation3_runtime_result_LocalResultEventBus$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter|androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter|androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.serialization/androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop_getter|androidx_navigation3_runtime_serialization_NavBackStackSerializer$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/DeepLinkUri(kotlin/String): androidx.navigation3.runtime/DeepLinkUri // androidx.navigation3.runtime/DeepLinkUri|DeepLinkUri(kotlin.String){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_DeepLinkMatcher$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_Filter$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_Filter$stableprop_getter|androidx_navigation3_runtime_DeepLinkMatcher_Filter$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_MatchResult$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkMatcher_MatchResult$stableprop_getter|androidx_navigation3_runtime_DeepLinkMatcher_MatchResult$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkRequest$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkRequest$stableprop_getter|androidx_navigation3_runtime_DeepLinkRequest$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_DeepLinkUri$stableprop_getter|androidx_navigation3_runtime_DeepLinkUri$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_EntryProviderScope$stableprop_getter|androidx_navigation3_runtime_EntryProviderScope$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_MetadataScope$stableprop_getter|androidx_navigation3_runtime_MetadataScope$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_NavBackStack$stableprop_getter|androidx_navigation3_runtime_NavBackStack$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntry$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntry$stableprop_getter|androidx_navigation3_runtime_NavEntry$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntryDecorator$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_NavEntryDecorator$stableprop_getter|androidx_navigation3_runtime_NavEntryDecorator$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/androidx_navigation3_runtime_SaveableStateHolderNavEntryDecorator$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_SaveableStateHolderNavEntryDecorator$stableprop_getter|androidx_navigation3_runtime_SaveableStateHolderNavEntryDecorator$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_StaticKeyDeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_StaticKeyDeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_StaticKeyDeepLinkMatcher$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_UriDeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_UriDeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_UriDeepLinkMatcher$stableprop_getter(){}[0]
-final fun androidx.navigation3.runtime/androidx_navigation3_runtime_UriMatchResult$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime/androidx_navigation3_runtime_UriMatchResult$stableprop_getter|androidx_navigation3_runtime_UriMatchResult$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime/defaultContentKey(kotlin/Any): kotlin/Any // androidx.navigation3.runtime/defaultContentKey|defaultContentKey(kotlin.Any){}[0]
 final fun androidx.navigation3.runtime/rememberNavBackStack(androidx.savedstate.serialization/SavedStateConfiguration, kotlin/Array<out androidx.navigation3.runtime/NavKey>..., androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigation3.runtime/NavBackStack<androidx.navigation3.runtime/NavKey> // androidx.navigation3.runtime/rememberNavBackStack|rememberNavBackStack(androidx.savedstate.serialization.SavedStateConfiguration;kotlin.Array<out|androidx.navigation3.runtime.NavKey>...;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final inline fun <#A: kotlin/Any> androidx.navigation3.runtime/entryProvider(noinline kotlin/Function1<#A, androidx.navigation3.runtime/NavEntry<#A>> = ..., kotlin/Function1<androidx.navigation3.runtime/EntryProviderScope<#A>, kotlin/Unit>): kotlin/Function1<#A, androidx.navigation3.runtime/NavEntry<#A>> // androidx.navigation3.runtime/entryProvider|entryProvider(kotlin.Function1<0:0,androidx.navigation3.runtime.NavEntry<0:0>>;kotlin.Function1<androidx.navigation3.runtime.EntryProviderScope<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]

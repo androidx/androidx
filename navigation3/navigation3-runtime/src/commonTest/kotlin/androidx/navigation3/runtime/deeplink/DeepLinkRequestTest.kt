@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
 import androidx.kruth.assertThat
+import androidx.navigation3.runtime.IgnoreAndroidHostTestTarget
 import kotlin.test.Test
 
 @IgnoreAndroidHostTestTarget

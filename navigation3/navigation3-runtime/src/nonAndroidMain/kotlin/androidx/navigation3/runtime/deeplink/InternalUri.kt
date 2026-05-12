@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
 /**
  * Immutable URI reference. A URI reference includes a URI and a fragment, the component of the URI

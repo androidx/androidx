@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
-import android.net.Uri
-import androidx.core.net.toUri
+import android.content.Intent
 
-@Suppress("TypealiasDefinition")
-public actual typealias DeepLinkUri = Uri
-
-internal actual object DeepLinkUriUtils {
-    actual fun encode(s: String, allow: String?): String = Uri.encode(s, allow)
-
-    actual fun decode(s: String): String = Uri.decode(s)
-
-    actual fun parse(uriString: String): Uri = uriString.toUri()
-}
+/**
+ * Creates a [DeepLinkRequest] with an [Intent].
+ *
+ * @param intent The Intent with the metadata to add to the DeepLinkRequest
+ * @return a [DeepLinkRequest] instance
+ */
+public fun DeepLinkRequest.Companion.fromIntent(intent: Intent): DeepLinkRequest =
+    DeepLinkRequest(uri = intent.data, mimeType = intent.type, action = intent.action)

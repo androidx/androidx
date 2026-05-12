@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
+import androidx.navigation3.runtime.fastFilter
+import androidx.navigation3.runtime.fastForEachIndexed
+import androidx.navigation3.runtime.fastForEachOrForEach
+import androidx.navigation3.runtime.fastMapIndexed
+import androidx.navigation3.runtime.fastMapOrMap
 import kotlin.text.orEmpty
 import kotlinx.serialization.KSerializer
 

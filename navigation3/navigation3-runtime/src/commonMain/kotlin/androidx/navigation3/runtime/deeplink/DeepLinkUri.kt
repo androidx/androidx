@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
 /** see [android.net.Uri](https://developer.android.com/reference/android/net/Uri) */
 public expect abstract class DeepLinkUri {

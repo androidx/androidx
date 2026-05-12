@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
