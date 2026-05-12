@@ -17,9 +17,7 @@
 package androidx.navigation3.runtime
 
 import androidx.kruth.assertThat
-import kotlin.collections.emptyMap
 import kotlin.test.Test
-import kotlinx.serialization.Serializable
 
 @IgnoreAndroidHostTestTarget
 class UriDeepLinkParserTest {
@@ -30,7 +28,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/123")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("id" to listOf("123")))
+        assertThat(result?.get("id")).isEqualTo(listOf("123"))
     }
 
     @Test
@@ -39,7 +37,8 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/john-doe")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("first" to listOf("john"), "last" to listOf("doe")))
+        assertThat(result?.get("first")).isEqualTo(listOf("john"))
+        assertThat(result?.get("last")).isEqualTo(listOf("doe"))
     }
 
     @Test
@@ -48,7 +47,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/anything/else")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(emptyMap<String, List<String>>())
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -57,7 +56,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/user_123")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("id" to listOf("123")))
+        assertThat(result?.get("id")).isEqualTo(listOf("123"))
     }
 
     @Test
@@ -66,7 +65,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users//profile")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("id" to listOf("")))
+        assertThat(result?.get("id")).isEqualTo(listOf(""))
     }
 
     @Test
@@ -75,7 +74,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("id" to listOf("")))
+        assertThat(result?.get("id")).isEqualTo(listOf(""))
     }
 
     @Test
@@ -84,7 +83,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users;id=123")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("id" to listOf("123")))
+        assertThat(result?.get("id")).isEqualTo(listOf("123"))
     }
 
     @Test
@@ -93,7 +92,43 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/john%20doe")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("name" to listOf("john doe")))
+        assertThat(result?.get("name")).isEqualTo(listOf("john doe"))
+    }
+
+    @Test
+    fun testExtractPathArgs_authorityOnly() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH")
+        val parsedPath = UriPatternParser.parsePath(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH")
+        val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractPathArgs_authorityOnlyTrailingSlash() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/")
+        val parsedPath = UriPatternParser.parsePath(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/")
+        val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractPathArgs_authorityOnlyPatternExtraTrailingSlash() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/")
+        val parsedPath = UriPatternParser.parsePath(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH")
+        val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun testExtractPathArgs_authorityOnlyRequestExtraTrailingSlash() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH")
+        val parsedPath = UriPatternParser.parsePath(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/")
+        val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -102,7 +137,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -111,7 +146,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -120,7 +155,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/posts")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -129,7 +164,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -138,7 +173,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -147,7 +182,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/profile/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -156,7 +191,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/123/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -165,7 +200,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -174,7 +209,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://wrong.com/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -183,7 +218,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("http://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(emptyMap<String, List<String>>())
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -192,7 +227,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(emptyMap<String, List<String>>())
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -201,7 +236,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("custom://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(emptyMap<String, List<String>>())
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -210,7 +245,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("custom2://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -219,7 +254,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(emptyMap<String, List<String>>())
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -228,7 +263,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/123/456/profile")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -237,7 +272,7 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/id=123")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("id" to listOf("id=123")))
+        assertThat(result?.get("id")).isEqualTo(listOf("id=123"))
     }
 
     @Test
@@ -247,7 +282,7 @@ class UriDeepLinkParserTest {
         val requestedUri =
             DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/123?redirect=fallback/path")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(mapOf("id" to listOf("123")))
+        assertThat(result?.get("id")).isEqualTo(listOf("123"))
     }
 
     @Test
@@ -256,12 +291,10 @@ class UriDeepLinkParserTest {
         val parsedPath = UriPatternParser.parsePath(uriPattern)
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users//123")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
-        assertThat(result).equals(null)
+        assertThat(result).isNull()
     }
 
     companion object {
         private const val DEEP_LINK_BASE_PATH = "www.testUri.com"
     }
 }
-
-@Serializable private object TestKey

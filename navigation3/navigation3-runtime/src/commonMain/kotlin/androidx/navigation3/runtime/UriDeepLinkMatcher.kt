@@ -165,19 +165,28 @@ internal object UriPatternParser {
      */
     internal fun parsePath(uriPattern: DeepLinkUri): Pair<Regex, List<String>> {
         val uriRegex = StringBuilder("^")
+        val segments = uriPattern.getPathSegments().fastFilter { it.isNotEmpty() }
+
         // parse scheme
         uriPattern.getScheme()?.let { scheme ->
             // escape in case scheme contains any special regex characters e.g. "foo.bar://"
             uriRegex.append(Regex.escape(scheme)).append("://")
         } ?: uriRegex.append("http[s]?://")
         // parse authority
-        uriPattern.getAuthority()?.let { uriRegex.append(Regex.escape(it)) }
-        // parse args
-        val args = mutableListOf<String>()
-        uriPattern.getPathSegments().fastForEachOrForEach { segment ->
-            uriRegex.append("/")
-            buildRegex(segment, args, uriRegex)
+        uriPattern.getAuthority()?.let {
+            uriRegex.append(Regex.escape(it))
+            if (segments.isNotEmpty()) uriRegex.append("/")
         }
+        // parse path segments
+        val args = mutableListOf<String>()
+        segments.fastForEachIndexed { index, segment ->
+            buildRegex(segment, args, uriRegex)
+            if (index != segments.lastIndex) uriRegex.append("/")
+        }
+        if (uriPattern.toString().substringBefore('?').substringBefore('#').endsWith("/")) {
+            uriRegex.append("/")
+        }
+
         // Match either the end of string if all params are optional or match the
         // question mark (or pound symbol) and 0 or more characters after it
         uriRegex.append("($|(\\?(.)*)|(#(.)*))")
