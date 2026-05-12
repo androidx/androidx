@@ -32,10 +32,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.HandlerCompat
+import java.util.concurrent.Executor
+import java.util.concurrent.RejectedExecutionException
 
 private const val TAG = "BasicSecureTextField"
+
+/**
+ * [BasicSecureTextField] or any other secure TextField that depends on it needs to register a
+ * [ContentObserver] to be able to observe the changes to platform password visibility settings.
+ * Registering this observer on the main thread is usually fine but because it requires an IPC call
+ * to be made, a rare lock contention can happen that hangs the main thread for a short time.
+ *
+ * This [androidx.compose.runtime.CompositionLocal] provides a way to choose an [Executor] to run
+ * this registration and its corresponding unregistration in, freeing the main thread.
+ *
+ * The default value `null` indicates that the main thread will be used.
+ */
+val LocalTextFieldContentObserverRegistrationExecutor = staticCompositionLocalOf<Executor?> { null }
 
 /**
  * Interface abstracting the access to system password visibility settings. Resolves differences
@@ -135,6 +151,7 @@ internal fun resetPasswordVisibilitySettingFactory() {
 @Composable
 internal actual fun rememberPlatformPasswordVisibilitySettingsState(): SplitVisibilitySettings {
     val context = LocalContext.current
+    val executor = LocalTextFieldContentObserverRegistrationExecutor.current
     val provider = remember(context) { passwordVisibilitySettingFactory(context) }
     var splitSettings by
         remember(provider) {
@@ -146,16 +163,78 @@ internal actual fun rememberPlatformPasswordVisibilitySettingsState(): SplitVisi
             )
         }
 
-    DisposableEffect(provider) {
-        val unregister =
-            provider.registerObserver {
-                splitSettings =
-                    SplitVisibilitySettings(
-                        touch = provider.shouldShowTouchInput(),
-                        physical = provider.shouldShowPhysicalInput(),
-                    )
-            }
-        onDispose { unregister.run() }
+    // we are not passing the [executor] as a key here because once the registration is
+    // completed it doesn't make sense to re-register the observer on a new background thread.
+    val registrationToken = remember(provider) { RegistrationToken(executor) }
+
+    DisposableEffect(registrationToken) {
+        registrationToken.register(provider) {
+            splitSettings =
+                SplitVisibilitySettings(
+                    touch = provider.shouldShowTouchInput(),
+                    physical = provider.shouldShowPhysicalInput(),
+                )
+        }
+        onDispose { registrationToken.dispose() }
     }
     return splitSettings
+}
+
+private class RegistrationToken(private val executor: Executor?) {
+    private var unregister: Runnable? = null
+    private var disposed = false
+
+    fun register(provider: PasswordVisibilitySetting, onChange: () -> Unit) {
+        if (executor != null) {
+            executor.tryExecute {
+                val unregisterRunnable = provider.registerObserver(onChange)
+                var runImmediately = false
+                // We synchronize only to safely read/write the shared `disposed` and `unregister`
+                // state. Do not run the foreign `unregisterRunnable.run()` inside the lock to
+                // prevent potential deadlocks or long lock holds since it makes an IPC binder call
+                // internally.
+                synchronized(this) {
+                    if (disposed) {
+                        runImmediately = true
+                    } else {
+                        unregister = unregisterRunnable
+                    }
+                }
+                if (runImmediately) {
+                    unregisterRunnable.run()
+                }
+            }
+        } else {
+            unregister = provider.registerObserver(onChange)
+        }
+    }
+
+    fun dispose() {
+        if (executor != null) {
+            executor.tryExecute {
+                var toRun: Runnable? = null
+                // We synchronize only to safely update the shared `disposed` and `unregister`
+                // state. To prevent deadlocks and lock contention, we capture the unregister
+                // Runnable and execute it outside the lock block.
+                synchronized(this) {
+                    disposed = true
+                    toRun = unregister
+                    unregister = null
+                }
+                toRun?.run()
+            }
+        } else {
+            disposed = true
+            unregister?.run()
+            unregister = null
+        }
+    }
+}
+
+private inline fun Executor.tryExecute(crossinline block: () -> Unit) {
+    try {
+        execute { block() }
+    } catch (_: RejectedExecutionException) {
+        block()
+    }
 }
