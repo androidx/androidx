@@ -132,7 +132,7 @@ class PrefetchActivity : AppCompatActivity() {
             profile.prefetchCache.setPrefetchTtlSeconds(it)
         }
 
-        profile.prefetchUrlAsync(
+        profile.prefetchCache.prefetchUrlAsync(
             /* url = */ url,
             /* cancellationSignal = */ null,
             /* callbackExecutor = */ null,

@@ -331,7 +331,8 @@ public class CustomHeadersTest {
             Set<String> originRules = getOriginRules(url);
             addCustomHeaderOnUiThread(new CustomHeader("X-ExtraHeader", "Value", originRules));
 
-            mDefaultProfile.prefetchUrlAsync(url.toString(), new CancellationSignal(),
+            mDefaultProfile.getPrefetchCache().prefetchUrlAsync(url.toString(),
+                    new CancellationSignal(),
                     Runnable::run, ignored -> {
                     });
 

@@ -720,7 +720,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#prerenderUrlAsync(WebView, String, CancellationSignal, Executor, PrerenderOperationCallback)}}
+     * {@link androidx.webkit.WebViewCompat#prerenderUrlAsync(WebView, String, CancellationSignal, Executor, PrerenderOperationCallback)}
      */
     public static final String PRERENDER_WITH_URL = "PRERENDER_URL_V2";
 
@@ -735,7 +735,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link PrefetchCache#setMaxPrefetches(Integer)},{@link PrefetchCache#setPrefetchTtlSeconds(Integer)}
+     * {@link PrefetchCache#setMaxPrefetches(int)}, {@link PrefetchCache#setPrefetchTtlSeconds(int)}
      */
     @Profile.ExperimentalUrlPrefetch
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -744,7 +744,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link Profile#setMaxPrerenders(Integer)}
+     * {@link Profile#setMaxPrerenders(int)}
      */
     @Profile.ExperimentalUrlPrefetch
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

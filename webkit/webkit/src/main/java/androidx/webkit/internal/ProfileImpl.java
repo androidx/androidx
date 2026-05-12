@@ -121,6 +121,7 @@ public class ProfileImpl implements Profile {
 
     @Profile.ExperimentalUrlPrefetch
     @Override
+    @Deprecated
     public void prefetchUrlAsync(@NonNull String url,
             @Nullable CancellationSignal cancellationSignal, @Nullable Executor callbackExecutor,
             @NonNull SpeculativeLoadingParameters params,
@@ -146,6 +147,7 @@ public class ProfileImpl implements Profile {
 
     @Profile.ExperimentalUrlPrefetch
     @Override
+    @Deprecated
     public void prefetchUrlAsync(@NonNull String url,
             @Nullable CancellationSignal cancellationSignal, @Nullable Executor callbackExecutor,
             @NonNull WebViewOutcomeReceiver<@Nullable Void, PrefetchException> outcomeReceiver) {
@@ -163,7 +165,8 @@ public class ProfileImpl implements Profile {
 
     @Profile.ExperimentalUrlPrefetch
     @Override
-    @SuppressWarnings("removal")
+    @Deprecated
+    @SuppressWarnings({"deprecation", "removal"})
     public void setSpeculativeLoadingConfig(
             @NonNull SpeculativeLoadingConfig speculativeLoadingConfig) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.SPECULATIVE_LOADING_CONFIG;
