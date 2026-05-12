@@ -110,6 +110,7 @@ internal class CameraGraphSessionImpl(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
+        retainLocks: Boolean,
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call update3A on $this after close." }
         return controller3A.update3A(
@@ -121,6 +122,7 @@ internal class CameraGraphSessionImpl(
             aeRegions = aeRegions,
             afRegions = afRegions,
             awbRegions = awbRegions,
+            retainLocks = retainLocks,
         )
     }
 
