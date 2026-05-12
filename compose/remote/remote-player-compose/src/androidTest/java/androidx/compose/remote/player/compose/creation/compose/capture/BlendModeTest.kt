@@ -17,9 +17,7 @@
 package androidx.compose.remote.player.compose.creation.compose.capture
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.WireBuffer
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -50,7 +48,6 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,8 +104,6 @@ class BlendModeTest {
         )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val saveDocument = false
-
     @Test
     fun all_blend_modes() {
         var document: CoreDocument? = null
@@ -120,21 +115,6 @@ class BlendModeTest {
         }
 
         remoteComposeTestRule.verifyScreenshot()
-
-        if (!saveDocument) return
-        val coreDoc = document ?: return
-        val wireBuffer: WireBuffer = coreDoc.buffer.buffer
-        val file =
-            File(
-                "/sdcard/Android/data/androidx.compose.remote.player.compose.test/cache/documents",
-                "test_blend_mode.rc",
-            )
-        file.parentFile?.mkdirs()
-        try {
-            file.writeBytes(wireBuffer.buffer.copyOf(wireBuffer.size))
-        } catch (e: Exception) {
-            Log.e("BlendModeTest", "Failed to save document: $file", e)
-        }
     }
 
     @RemoteComposable
