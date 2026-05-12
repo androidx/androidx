@@ -17,5 +17,4 @@
   -Pandroid.testInstrumentationRunnerArguments.webview-version=factory \
   webkit:integration-tests:instrumentation:connectedAndroidTest \
   webkit:integration-tests:testapp:connectedAndroidTest \
-  webkit:chips-enabled-integration-tests:instrumentation:connectedAndroidTest \
   webkit:integration-tests:orchestratortests:connectedAndroidTest

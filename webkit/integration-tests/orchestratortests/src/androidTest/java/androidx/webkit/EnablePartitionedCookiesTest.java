@@ -30,7 +30,6 @@ import androidx.webkit.test.common.WebkitUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,21 +60,15 @@ public class EnablePartitionedCookiesTest {
             "</body></html>"
     );
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         Context ctx = ApplicationProvider.getApplicationContext();
         WebkitUtils.checkStartupFeature(ctx,
                 WebViewFeature.STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES);
-        // Note: only call ProcessGlobalConfig from @BeforeClass because this is only safe to call
-        // once per process. If we call this from @Before or in the @Test method directly, then that
-        // would prevent us from ever adding a second test case to this class.
         ProcessGlobalConfig config = new ProcessGlobalConfig();
         config.setPartitionedCookiesEnabled(ctx, true);
         ProcessGlobalConfig.apply(config);
-    }
 
-    @Before
-    public void setUp() {
         clearCookies();
         CookieManager.getInstance().setAcceptCookie(true);
     }
