@@ -46,7 +46,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.BitmapMatcher
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
-import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
@@ -78,18 +77,12 @@ class RemoteScreenshotTestRule(
 
     private val screenshotTestRule = AndroidXScreenshotTestRule(moduleDirectory)
 
-    private val testNameRule =
-        object : TestWatcher() {
-
-            override fun starting(description: Description) {
-                testDescription = description
-            }
-        }
+    private val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
 
     private val delegateChain: RuleChain =
-        RuleChain.outerRule(testNameRule).around(remoteContentTestRule).around(screenshotTestRule)
-
-    private lateinit var testDescription: Description
+        RuleChain.outerRule(goldenScreenshotNameTestRule)
+            .around(remoteContentTestRule)
+            .around(screenshotTestRule)
 
     override fun apply(base: Statement, description: Description): Statement {
         return delegateChain.apply(base, description)
@@ -191,7 +184,7 @@ class RemoteScreenshotTestRule(
     }
 
     private fun getGoldenScreenshotName(goldenScreenshotName: GoldenScreenshotName?) =
-        goldenScreenshotName ?: GoldenScreenshotName(testDescription)
+        goldenScreenshotName ?: goldenScreenshotNameTestRule.getGoldenScreenshotName()
 
     private fun customPlayComposableWrapper(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
