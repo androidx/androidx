@@ -145,16 +145,16 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcPath(writer.pathCombine(this.id, path2.id, op.value))
     }
 
-    override fun performHaptic(feedbackConstant: Int) {
-        writer.performHaptic(feedbackConstant)
+    override fun performHaptic(haptic: RcHaptic) {
+        writer.performHaptic(haptic.value)
     }
 
     override fun wakeIn(seconds: Float) {
         writer.wakeIn(seconds)
     }
 
-    override fun getColorAttribute(baseColor: RcColor, type: Short): RcFloat {
-        return RcFloat(writer, writer.getColorAttribute(baseColor.id, type))
+    override fun getColorAttribute(baseColor: RcColor, type: RcColorAttr): RcFloat {
+        return RcFloat(writer, writer.getColorAttribute(baseColor.id, type.value))
     }
 
     override fun RcText.substring(start: RcFloat, len: RcFloat): RcText {
@@ -1171,10 +1171,10 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcFloat(writer, writer.textLength(text.id))
     }
 
-    override fun timeAttribute(variable: RcInteger, type: Short, vararg args: Int): RcFloat {
+    override fun timeAttribute(variable: RcInteger, type: RcTimeAttr, vararg args: Int): RcFloat {
         return RcFloat(
             writer,
-            writer.timeAttribute((variable.id % 0x100000000L).toInt(), type, *args),
+            writer.timeAttribute((variable.id % 0x100000000L).toInt(), type.value, *args),
         )
     }
 
@@ -1196,13 +1196,13 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     }
 
     override fun conditionalOperations(
-        type: Byte,
+        type: RcConditionOp,
         a: RcFloat,
         b: RcFloat,
         content: RcScope.() -> Unit,
     ) {
         writer.conditionalOperations(
-            type,
+            type.value,
             a.withWriter(writer).toFloat(),
             b.withWriter(writer).toFloat(),
         )
@@ -1339,14 +1339,14 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         )
     }
 
-    override fun skip(type: Short, value: Int, block: RcScope.() -> Unit) {
-        val offset = writer.beginSkip(type, value)
+    override fun skip(type: RcSkipKind, value: Int, block: RcScope.() -> Unit) {
+        val offset = writer.beginSkip(type.value, value)
         this.block()
         writer.endSkip(offset)
     }
 
-    override fun beginSkip(type: Short, value: Int): Int {
-        return writer.beginSkip(type, value)
+    override fun beginSkip(type: RcSkipKind, value: Int): Int {
+        return writer.beginSkip(type.value, value)
     }
 
     override fun endSkip(offset: Int) {

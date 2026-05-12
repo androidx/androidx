@@ -24,7 +24,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcDynamicPath(public val id: Int)
+public value class RcDynamicPath internal constructor(internal val id: Int)
 
 /** Path types for polar and other generated paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -46,7 +46,9 @@ public enum class RcPathCombineOp(public val value: Byte) {
     Xor(RemoteComposeWriter.COMBINE_XOR),
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmInline public value class RcPath(public val id: Int)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcPath internal constructor(internal val id: Int)
 
 /** Path fill types for complex paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

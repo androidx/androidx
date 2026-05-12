@@ -207,6 +207,27 @@ open public class RcFloat {
         return this
     }
 
+    /**
+     * Type-safe overload of [anim] that accepts a [RcAnimationCurve] instead of a raw
+     * `Rc.Animate.*` opcode. `CubicCustom` and `SplineCustom` require a non-null [spec] containing
+     * the control points; the others ignore [spec].
+     */
+    public fun anim(
+        duration: Float,
+        curve: RcAnimationCurve,
+        spec: FloatArray? = null,
+        initialValue: Float = Float.NaN,
+        wrap: Float = Float.NaN,
+    ): RcFloat = anim(duration, curve.value, spec, initialValue, wrap)
+
+    public fun anim(
+        duration: RcFloat,
+        curve: RcAnimationCurve,
+        spec: FloatArray? = null,
+        initialValue: Float = Float.NaN,
+        wrap: Float = Float.NaN,
+    ): RcFloat = anim(duration.id, curve.value, spec, initialValue, wrap)
+
     public fun genTextId(
         before: Int = 2,
         after: Int = 1,

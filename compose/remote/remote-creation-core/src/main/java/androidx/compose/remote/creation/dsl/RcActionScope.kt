@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.actions.ValueFloatChange
 import androidx.compose.remote.creation.actions.ValueFloatExpressionChange
 import androidx.compose.remote.creation.actions.ValueIntegerChange
+import androidx.compose.remote.creation.actions.ValueIntegerExpressionChange
 import androidx.compose.remote.creation.actions.ValueStringChange
 
 /** Scope for recording interaction logic. */
@@ -43,6 +44,15 @@ public interface RcActionScope {
 
     /** Sets a float variable to an expression value. */
     public fun setValue(variable: RcFloat, expression: RcFloat)
+
+    /** Sets an integer variable to an integer-expression value. */
+    public fun setValue(variable: RcInteger, expression: RcInteger)
+
+    /** Sets a boolean variable to a new value. */
+    public fun setValue(variable: RcBool, value: Boolean)
+
+    /** Sets a boolean variable to a boolean-expression value. */
+    public fun setValue(variable: RcBool, expression: RcBool)
 
     /** Triggers a named host action. */
     public fun hostAction(name: String)
@@ -68,10 +78,19 @@ internal class RcActionScopeImpl : RcActionScope {
     }
 
     override fun setValue(variable: RcInteger, value: Int) {
-        actionBuilders.add { _ ->
-            val id = (variable.id % 0x100000000L).toInt()
-            ValueIntegerChange(id, value)
-        }
+        actionBuilders.add { _ -> ValueIntegerChange(variable.toRawInt(), value) }
+    }
+
+    override fun setValue(variable: RcInteger, expression: RcInteger) {
+        actionBuilders.add { _ -> ValueIntegerExpressionChange(variable.id, expression.id) }
+    }
+
+    override fun setValue(variable: RcBool, value: Boolean) {
+        actionBuilders.add { _ -> ValueIntegerChange(variable.toRawInt(), if (value) 1 else 0) }
+    }
+
+    override fun setValue(variable: RcBool, expression: RcBool) {
+        actionBuilders.add { _ -> ValueIntegerExpressionChange(variable.handle, expression.handle) }
     }
 
     override fun setValue(variable: RcText, value: String) {
