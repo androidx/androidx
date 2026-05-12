@@ -47,7 +47,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -845,20 +844,8 @@ internal constructor(
             return runOnUiThread(action)
         }
 
-        override fun <T> runWhenIdle(action: () -> T): T {
-            // Method below make sure that compose is idle.
-            waitForIdle()
-            // Execute the action on ui thread in a blocking way.
-            return runOnUiThread { testOwner.withImplicitWaitSuppressed(action) }
-        }
-
-        override suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T {
-            // Method below make sure that compose is idle.
-            awaitIdle()
-            // Execute the action on ui thread.
-            return withContext(Dispatchers.Main.immediate) {
-                testOwner.withImplicitWaitSuppressed(action)
-            }
+        override fun <T> runWithoutImplicitWait(block: () -> T): T {
+            return testOwner.withImplicitWaitSuppression(isSuppressed = true, block = block)
         }
 
         override fun waitForIdle() {
@@ -959,22 +946,25 @@ internal constructor(
         }
     }
 
+    /** Executes the given [block] while temporarily setting the implicit wait suppression state. */
+    private inline fun <T> TestOwner.withImplicitWaitSuppression(
+        isSuppressed: Boolean,
+        block: () -> T,
+    ): T {
+        val previousState = this.isImplicitWaitSuppressed
+        this.isImplicitWaitSuppressed = isSuppressed
+        return try {
+            block()
+        } finally {
+            // Always restore the original synchronization state
+            this.isImplicitWaitSuppressed = previousState
+        }
+    }
+
     private fun throwPendingException() {
         pendingThrowable?.let {
             pendingThrowable = null
             throw it
-        }
-    }
-
-    /** Executes the given [action] with implicit wait synchronization temporarily disabled. */
-    private inline fun <T> TestOwner.withImplicitWaitSuppressed(action: () -> T): T {
-        val previousState = this.isImplicitWaitSuppressed
-        this.isImplicitWaitSuppressed = true
-        return try {
-            action()
-        } finally {
-            // Always restore the original synchronization state
-            this.isImplicitWaitSuppressed = previousState
         }
     }
 
@@ -987,7 +977,7 @@ internal constructor(
         override fun <T> runOnUiThread(action: () -> T): T = testReceiverScope.runOnUiThread(action)
 
         override fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest> {
-            if (!isOnUiThread() || !isImplicitWaitSuppressed) {
+            if (!isImplicitWaitSuppressed) {
                 waitForIdle(atLeastOneRootExpected)
             }
             return composeRootRegistry.getRegisteredComposeRoots()
@@ -1054,10 +1044,6 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
 
     actual fun <T> runOnIdle(action: () -> T): T
 
-    actual fun <T> runWhenIdle(action: () -> T): T
-
-    actual suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T
-
     actual fun waitForIdle()
 
     actual suspend fun awaitIdle()
@@ -1077,6 +1063,8 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     actual fun setContent(composable: @Composable () -> Unit)
 
     actual fun hasPendingWork(): Boolean
+
+    actual fun <T> runWithoutImplicitWait(block: () -> T): T
 }
 
 /**

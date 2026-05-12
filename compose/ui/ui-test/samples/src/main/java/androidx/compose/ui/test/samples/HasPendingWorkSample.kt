@@ -17,10 +17,19 @@
 package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
+import junit.framework.TestCase.assertTrue
+
+private const val COLLAPSED_HEIGHT = 100f
+
+@Composable
+fun ExpandingCard() {
+    /* Not implemented */
+}
 
 @OptIn(ExperimentalTestApi::class)
 @Sampled
@@ -35,12 +44,21 @@ fun hasPendingWorkSample() = runComposeUiTest {
     while (hasPendingWork()) {
         // Advance the clock by exactly one frame
         mainClock.advanceTimeByFrame()
-
-        awaitAndRunWhenIdle {
-            // Make intermediate assertions (e.g., check bounds, alpha, or translation)
+        waitForIdle()
+        runOnUiThread {
+            runWithoutImplicitWait {
+                // Make intermediate assertions (e.g., check bounds, alpha, or translation)
+                val midAnimationBounds =
+                    onNodeWithTag("CardContent").fetchSemanticsNode().boundsInRoot
+                assertTrue(
+                    "Card height should be greater than collapsed state",
+                    midAnimationBounds.height > COLLAPSED_HEIGHT,
+                )
+                onNodeWithTag("ExpandedTextDetails").assertExists()
+            }
         }
     }
-    awaitAndRunWhenIdle {
+    runOnIdle {
         // Assert the final state.
     }
 }
