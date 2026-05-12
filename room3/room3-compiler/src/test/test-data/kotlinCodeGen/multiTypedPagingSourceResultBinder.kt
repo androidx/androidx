@@ -19,7 +19,7 @@ import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "UNUSED_EXPRESSION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
 internal class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao() {
@@ -39,7 +39,7 @@ internal class MyDao_Impl(
     val _sql: String = "SELECT pk FROM MyEntity"
     val _rawQuery: RoomRawQuery = RoomRawQuery(_sql)
     return __listenableFuturePagingSourceDaoReturnTypeConverter.convert(__db, arrayOf("MyEntity"), _rawQuery) { _converterQuery ->
-      performSuspending(__db, true, false) { _connection ->
+      performSuspending<MutableList<MyEntity>>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_converterQuery.sql)
         try {
           _converterQuery.getBindingFunction().invoke(_stmt)
@@ -67,7 +67,7 @@ internal class MyDao_Impl(
       _stmt.bindLong(_argIndex, gt)
     }
     return __listenableFuturePagingSourceDaoReturnTypeConverter.convert(__db, arrayOf("MyEntity"), _rawQuery) { _converterQuery ->
-      performSuspending(__db, true, false) { _connection ->
+      performSuspending<MutableList<MyEntity>>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_converterQuery.sql)
         try {
           _converterQuery.getBindingFunction().invoke(_stmt)
@@ -92,7 +92,7 @@ internal class MyDao_Impl(
     val _sql: String = "SELECT pk FROM MyEntity"
     val _rawQuery: RoomRawQuery = RoomRawQuery(_sql)
     return __rxPagingSourceDaoReturnTypeConverter.convert(__db, arrayOf("MyEntity"), _rawQuery) { _converterQuery ->
-      performSuspending(__db, true, false) { _connection ->
+      performSuspending<MutableList<MyEntity>>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_converterQuery.sql)
         try {
           _converterQuery.getBindingFunction().invoke(_stmt)
@@ -117,7 +117,7 @@ internal class MyDao_Impl(
     val _sql: String = "SELECT pk FROM MyEntity"
     val _rawQuery: RoomRawQuery = RoomRawQuery(_sql)
     return __listenableFuturePagingSourceDaoReturnTypeConverter.convert(__db, arrayOf("MyEntity"), _rawQuery) { _converterQuery ->
-      performSuspending(__db, true, false) { _connection ->
+      performSuspending<MutableList<MyEntity>>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_converterQuery.sql)
         try {
           _converterQuery.getBindingFunction().invoke(_stmt)

@@ -346,12 +346,18 @@ fun Function1TypeSpec(
 fun InvokeWithLambdaParameter(
     scope: CodeGenScope,
     functionName: XMemberName,
+    functionTypeArg: XTypeName? = null,
     argFormat: List<String>,
     args: List<Any>,
     continuationParamName: String? = null,
     lambdaSpec: LambdaSpec,
 ): XCodeBlock {
-    val functionCall = XCodeBlock.of("%M", functionName)
+    val functionCall =
+        if (functionTypeArg != null) {
+            XCodeBlock.of("%M<%T>", functionName, functionTypeArg)
+        } else {
+            XCodeBlock.of("%M", functionName)
+        }
     return InvokeWithLambdaParameter(
         scope,
         functionCall,

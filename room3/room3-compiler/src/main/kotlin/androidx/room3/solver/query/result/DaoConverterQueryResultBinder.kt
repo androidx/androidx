@@ -134,6 +134,7 @@ class DaoConverterQueryResultBinder(
         return InvokeWithLambdaParameter(
             scope = scope,
             functionName = DB_UTIL_PERFORM_SUSPENDING,
+            functionTypeArg = typeArg.asTypeName(),
             argFormat = listOf("%N", "%L", "%L"),
             args = listOf(dbProperty, true, inTransaction),
             lambdaSpec =
