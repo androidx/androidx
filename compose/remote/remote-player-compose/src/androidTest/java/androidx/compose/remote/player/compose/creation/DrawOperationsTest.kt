@@ -17,24 +17,30 @@
 package androidx.compose.remote.player.compose.creation
 
 import android.graphics.Path
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.capture.heightDp
+import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.player.compose.test.rule.ComposeScreenshotTestRule
 import androidx.compose.remote.player.compose.test.util.createBitmap
 import androidx.compose.remote.player.compose.test.util.getCoreDocument
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
@@ -51,8 +57,9 @@ class DrawOperationsTest {
     // nesting Remote Compose players.
     @get:Rule
     val composeTestRule =
-        ComposeScreenshotTestRule(
+        RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
             matcher = MSSIMMatcher(threshold = 0.999),
         )
 
@@ -62,7 +69,7 @@ class DrawOperationsTest {
     }
 }
 
-private fun ComposeScreenshotTestRule.drawOperationsInGrid() {
+private fun RemoteScreenshotTestRule.drawOperationsInGrid() {
     val documents: Array<CoreDocument> =
         arrayOf(
             drawBitmap(),
@@ -100,30 +107,38 @@ private fun ComposeScreenshotTestRule.drawOperationsInGrid() {
 
     val columns = 5
 
-    runScreenshotTest {
-        val density = LocalDensity.current.density
-        val itemWidth = (100f / density).toInt()
-        val itemHeight = (100f / density).toInt()
+    composeTestRule.setContent {
+        Box(
+            modifier =
+                Modifier.width(remoteCreationDisplayInfo.widthDp)
+                    .height(remoteCreationDisplayInfo.heightDp)
+                    .testTag(RemoteScreenshotTestRule.ROOT_TEST_TAG)
+        ) {
+            val density = LocalDensity.current.density
+            val itemWidth = (100f / density).toInt()
+            val itemHeight = (100f / density).toInt()
 
-        Column(modifier = Modifier.fillMaxSize()) {
-            for (i in 0 until documents.size step columns) {
-                Row {
-                    for (j in 0 until columns) {
-                        val index = i + j
-                        if (index >= documents.size) break
+            Column(modifier = Modifier.fillMaxSize()) {
+                for (i in 0 until documents.size step columns) {
+                    Row {
+                        for (j in 0 until columns) {
+                            val index = i + j
+                            if (index >= documents.size) break
 
-                        RemoteDocumentPlayer(
-                            documents[index],
-                            itemWidth,
-                            itemHeight,
-                            modifier = Modifier.padding(10.dp).testTag("index=$index"),
-                            debugMode = 1,
-                        )
+                            RemoteDocumentPlayer(
+                                documents[index],
+                                itemWidth,
+                                itemHeight,
+                                modifier = Modifier.padding(10.dp).testTag("index=$index"),
+                                debugMode = 1,
+                            )
+                        }
                     }
                 }
             }
         }
     }
+    verifyScreenshot()
 }
 
 private fun drawBitmap() = getCoreDocument {

@@ -26,9 +26,9 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.player.compose.test.rule.ComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteDocScreenshotTestRule
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -48,7 +48,7 @@ import org.junit.runners.JUnit4
 class RemoteDocumentComposePlayerTest {
     @get:Rule
     val composeTestRule =
-        ComposeScreenshotTestRule(
+        RemoteDocScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
             matcher = MSSIMMatcher(threshold = 0.999),
         )
@@ -76,17 +76,10 @@ class RemoteDocumentComposePlayerTest {
                 }
             }
 
-        composeTestRule.runScreenshotTest {
-            val density = LocalDensity.current.density
-            val itemWidth = (200f / density).toInt()
-            val itemHeight = (200f / density).toInt()
-
-            RemoteDocumentComposePlayer(
-                document = remoteComposeDocument,
-                documentWidth = itemWidth,
-                documentHeight = itemHeight,
-                debugMode = 1,
-            )
-        }
+        val density = context.resources.displayMetrics.density
+        composeTestRule.runScreenshotTest(
+            coreDocument = remoteComposeDocument,
+            size = Size(200f / density, 200f / density),
+        )
     }
 }
