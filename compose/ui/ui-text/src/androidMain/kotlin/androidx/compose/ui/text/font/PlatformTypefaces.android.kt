@@ -210,6 +210,14 @@ private class PlatformTypefacesApi28 : PlatformTypefaces {
             return Typeface.DEFAULT
         }
 
+        if (
+            fontStyle == FontStyle.Normal &&
+                fontWeight == FontWeight.Bold &&
+                genericFontFamily.isNullOrEmpty()
+        ) {
+            return Typeface.DEFAULT_BOLD
+        }
+
         val familyTypeface =
             if (genericFontFamily == null) {
                 Typeface.DEFAULT
