@@ -578,6 +578,8 @@ public class NotificationCompat {
     @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
 
+    private static final String EXTRA_MESSAGING_PERSON = "android.messagingUser";
+
     /**
      * {@link #getExtras extras} key: a {@link String} to be displayed as the title to a
      * conversation represented by a {@link MessagingStyle}.
@@ -4145,23 +4147,31 @@ public class NotificationCompat {
         @Override
         public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
-            extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUser.getName());
-            extras.putBundle(EXTRA_MESSAGING_STYLE_USER, mUser.toBundle());
+            // On SDK >= 28, the framework handles MessagingStyle natively and performs image
+            // resizing on framework Person and Message objects. We omit writing duplicate compat
+            // extras here to prevent overwriting the images that were already resized by the
+            // framework with our unresized compat copies. The framework-populated and resized
+            // extras (e.g., EXTRA_MESSAGING_PERSON and EXTRA_MESSAGES) are fully sufficient and
+            // will be used during restoration.
+            if (Build.VERSION.SDK_INT < 28) {
+                extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUser.getName());
+                extras.putBundle(EXTRA_MESSAGING_STYLE_USER, mUser.toBundle());
 
-            extras.putCharSequence(EXTRA_HIDDEN_CONVERSATION_TITLE, mConversationTitle);
-            if (mConversationTitle != null && mIsGroupConversation) {
-                extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
-            }
-            if (!mMessages.isEmpty()) {
-                extras.putParcelableArray(EXTRA_MESSAGES,
-                        Message.getBundleArrayForMessages(mMessages));
-            }
-            if (!mHistoricMessages.isEmpty()) {
-                extras.putParcelableArray(EXTRA_HISTORIC_MESSAGES,
-                        Message.getBundleArrayForMessages(mHistoricMessages));
-            }
-            if (mIsGroupConversation != null) {
-                extras.putBoolean(EXTRA_IS_GROUP_CONVERSATION, mIsGroupConversation);
+                extras.putCharSequence(EXTRA_HIDDEN_CONVERSATION_TITLE, mConversationTitle);
+                if (mConversationTitle != null && mIsGroupConversation) {
+                    extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
+                }
+                if (!mMessages.isEmpty()) {
+                    extras.putParcelableArray(EXTRA_MESSAGES,
+                            Message.getBundleArrayForMessages(mMessages));
+                }
+                if (!mHistoricMessages.isEmpty()) {
+                    extras.putParcelableArray(EXTRA_HISTORIC_MESSAGES,
+                            Message.getBundleArrayForMessages(mHistoricMessages));
+                }
+                if (mIsGroupConversation != null) {
+                    extras.putBoolean(EXTRA_IS_GROUP_CONVERSATION, mIsGroupConversation);
+                }
             }
         }
 
@@ -4174,7 +4184,16 @@ public class NotificationCompat {
             super.restoreFromCompatExtras(extras);
             mMessages.clear();
             // Call to #restore requires that there either be a display name OR a user.
-            if (extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
+            // Try to restore mUser from the framework's EXTRA_MESSAGING_PERSON first on API 28+,
+            // as it will contain the resized avatar if the framework performed downscaling.
+            // Otherwise, fall back to the compat extras.
+            Person restoredUser = null;
+            if (Build.VERSION.SDK_INT >= 28 && extras.containsKey(EXTRA_MESSAGING_PERSON)) {
+                restoredUser = Api28Impl.getUserPerson(extras, EXTRA_MESSAGING_PERSON);
+            }
+            if (restoredUser != null) {
+                mUser = restoredUser;
+            } else if (extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
                 // New path simply unpacks Person, but checks if there's a valid name.
                 mUser = Person.fromBundle(extras.getBundle(EXTRA_MESSAGING_STYLE_USER));
             } else {
@@ -4468,6 +4487,9 @@ public class NotificationCompat {
                 if (getDataMimeType() != null) {
                     Api24Impl.setData(frameworkMessage, getDataMimeType(), getDataUri());
                 }
+                if (Build.VERSION.SDK_INT >= 28 && mExtras != null) {
+                    Api28Impl.setExtras(frameworkMessage, mExtras);
+                }
                 return frameworkMessage;
             }
 
@@ -4512,6 +4534,10 @@ public class NotificationCompat {
 
                 static Parcelable castToParcelable(android.app.Person person) {
                     return person;
+                }
+
+                static void setExtras(Notification.MessagingStyle.Message message, Bundle extras) {
+                    message.getExtras().putAll(extras);
                 }
             }
         }
@@ -4574,6 +4600,14 @@ public class NotificationCompat {
             static Notification.MessagingStyle setGroupConversation(
                     Notification.MessagingStyle messagingStyle, boolean isGroupConversation) {
                 return messagingStyle.setGroupConversation(isGroupConversation);
+            }
+
+            @SuppressWarnings("deprecation")
+            static Person getUserPerson(Bundle extras, String key) {
+                Parcelable p = extras.getParcelable(key);
+                return p instanceof android.app.Person
+                        ? Person.fromAndroidPerson((android.app.Person) p)
+                        : null;
             }
         }
     }

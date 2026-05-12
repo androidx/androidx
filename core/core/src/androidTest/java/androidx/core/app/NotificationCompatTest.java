@@ -2256,8 +2256,11 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 new NotificationCompat.MessagingStyle(
                         new Person.Builder().setName("test name").build())
                         .setGroupConversation(true);
-        Bundle bundle = new Bundle();
-        messagingStyle.addCompatExtras(bundle);
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setStyle(messagingStyle)
+                .build();
+        Bundle bundle = notification.extras;
 
         NotificationCompat.MessagingStyle resultMessagingStyle =
                 new NotificationCompat.MessagingStyle(new Person.Builder().setName("temp").build());
@@ -2265,6 +2268,62 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         assertTrue(resultMessagingStyle.isGroupConversation());
         assertEquals("test name", resultMessagingStyle.getUser().getName());
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void testMessagingStyle_compatExtrasGatedOnAndroidP() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("test name").build())
+                        .setGroupConversation(true);
+        messagingStyle.addMessage("text", 200, new Person.Builder().setName("sender").build());
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setStyle(messagingStyle)
+                .build();
+
+        Bundle extras = notification.extras;
+
+        // Compat extras should NOT be written on SDK >= 28
+        assertFalse(extras.containsKey(NotificationCompat.EXTRA_MESSAGING_STYLE_USER));
+
+        // Framework extras SHOULD be written
+        assertTrue(extras.containsKey(Notification.EXTRA_MESSAGING_PERSON));
+        assertTrue(extras.containsKey(Notification.EXTRA_MESSAGES));
+
+        // We should be able to restore correctly
+        NotificationCompat.MessagingStyle restored = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification);
+        assertNotNull(restored);
+        assertEquals("test name", restored.getUser().getName());
+        assertEquals(1, restored.getMessages().size());
+        assertEquals("sender", restored.getMessages().get(0).getPerson().getName());
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    public void testMessagingStyle_messageExtrasPreserved() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("test name").build());
+
+        Message message = new Message("text", 200, new Person.Builder().setName("sender").build());
+        message.getExtras().putString("custom_key", "custom_value");
+        messagingStyle.addMessage(message);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setStyle(messagingStyle)
+                .build();
+
+        NotificationCompat.MessagingStyle restored = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification);
+        assertNotNull(restored);
+        assertEquals(1, restored.getMessages().size());
+        Message restoredMessage = restored.getMessages().get(0);
+        assertEquals("custom_value", restoredMessage.getExtras().getString("custom_key"));
     }
 
     @Test
