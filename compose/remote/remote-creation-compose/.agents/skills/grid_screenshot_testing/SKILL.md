@@ -20,12 +20,13 @@ This skill provides guidelines for building screenshot tests using `GridScreensh
    Create a test class annotated with `@MediumTest`, `@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)`, and `@RunWith(AndroidJUnit4::class)`.
 
 2. **Add the Screenshot Rule**:
-   Define a `RemoteComposeScreenshotTestRule` explicitly specifying the module directory and matcher.
+   Define a `RemoteScreenshotTestRule` explicitly specifying the module directory and matcher.
    ```kotlin
    @get:Rule
-   val composeTestRule: RemoteComposeScreenshotTestRule by lazy {
-       RemoteComposeScreenshotTestRule(
+   val composeTestRule: RemoteScreenshotTestRule by lazy {
+       RemoteScreenshotTestRule(
            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+           context = ApplicationProvider.getApplicationContext(),
            matcher = MSSIMMatcher(threshold = 0.999),
        )
    }
