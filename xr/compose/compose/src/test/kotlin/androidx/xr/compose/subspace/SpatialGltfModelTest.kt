@@ -160,6 +160,39 @@ class SpatialGltfModelTest {
     }
 
     @Test
+    fun spatialModel_fromResource_attemptsToLoad() {
+        // Verify that a model attempts to load when using `SpatialGltfModelSource.fromResource`.
+        // We mock the rendering runtime to fail for the resource URI to simulate a failure.
+        lateinit var state: SpatialGltfModelState
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
+                        if (assetName.startsWith("android.resource://")) {
+                            throw IllegalStateException("Resource not found")
+                        }
+                        return it.loadGltfByAssetName(assetName)
+                    }
+                }
+            }
+        )
+
+        composeTestRule.setContent {
+            Subspace {
+                state =
+                    rememberSpatialGltfModelState(
+                        source =
+                            SpatialGltfModelSource.fromResource(composeTestRule.activity, 12345)
+                    )
+                SpatialGltfModel(state = state, modifier = SubspaceModifier.testTag("model"))
+            }
+        }
+
+        assertIs<Failed>(state.status)
+    }
+
+    @Test
     fun spatialModel_invalidSource_handlesError() {
         // Test the behavior when the `SpatialModelSource` points to a non-existent or corrupt file.
         // The composable should handle the loading failure gracefully.
@@ -383,7 +416,7 @@ class SpatialGltfModelTest {
         assertThat(createdAssets).hasSize(0)
         val status = state.status
         assertIs<Failed>(status)
-        assertIs<GltfLoadException>(status.exception)
+        assertIs<IllegalStateException>(status.exception)
 
         // Change to a source that will load successfully
         state =
@@ -1265,7 +1298,7 @@ class SpatialGltfModelTest {
     }
 
     @Test
-    fun animation_speed_updatesAnimationSpeed() {
+    fun animation_playbackSpeed_updatesAnimationSpeed() {
         val state =
             SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb")))
         var fakeAnimation: FakeGltfAnimationFeature? = null
@@ -1299,7 +1332,7 @@ class SpatialGltfModelTest {
 
         // When the animation is stopped, setting the speed property does not update the speed
         // of the underlying scene core animation.
-        animation.speed = 2.0f
+        animation.playbackSpeed = 2.0f
         assertThat(fakeAnimation?.speed).isEqualTo(1.0f)
 
         // When the animation is started, the speed is correctly applied.
@@ -1308,11 +1341,11 @@ class SpatialGltfModelTest {
 
         // When the animation is playing, setting the speed property updates the speed of
         // the underlying scene core animation immediately.
-        animation.speed = 3.0f
+        animation.playbackSpeed = 3.0f
         assertThat(fakeAnimation?.speed).isEqualTo(3.0f)
 
         animation.stop()
-        animation.speed = 4.0f
+        animation.playbackSpeed = 4.0f
         assertThat(fakeAnimation?.speed).isEqualTo(3.0f) // Still at its previous value.
 
         // When the animation is looping, the speed is correctly applied.
@@ -1321,7 +1354,7 @@ class SpatialGltfModelTest {
     }
 
     @Test
-    fun animation_speed_compositionUpdate() {
+    fun animation_playbackSpeed_compositionUpdate() {
         val state =
             SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb")))
         var fakeAnimation: FakeGltfAnimationFeature? = null
@@ -1352,7 +1385,7 @@ class SpatialGltfModelTest {
             }
 
             if (state.status is Loaded) {
-                state.animations[0].speed = speed
+                state.animations[0].playbackSpeed = speed
             }
         }
 
@@ -1365,7 +1398,7 @@ class SpatialGltfModelTest {
         speed = 3.0f
         composeTestRule.waitForIdle()
 
-        assertThat(animation.speed).isEqualTo(3.0f)
+        assertThat(animation.playbackSpeed).isEqualTo(3.0f)
         assertThat(fakeAnimation?.speed).isEqualTo(3.0f)
     }
 

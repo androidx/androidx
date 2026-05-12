@@ -344,12 +344,6 @@ package androidx.xr.compose.subspace {
     method public androidx.xr.compose.subspace.FollowTarget ArDevice(androidx.xr.runtime.Session session);
   }
 
-  public final class GltfLoadException extends java.lang.RuntimeException {
-    ctor public GltfLoadException();
-    ctor public GltfLoadException(optional String? message, optional Throwable? cause);
-    ctor @BytecodeOnly public GltfLoadException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-  }
-
   @Deprecated public final class MovePolicy extends androidx.xr.compose.subspace.DragPolicy {
     ctor @Deprecated public MovePolicy();
     ctor @BytecodeOnly @Deprecated public MovePolicy(boolean, boolean, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -481,18 +475,19 @@ package androidx.xr.compose.subspace {
     method @BytecodeOnly public int getAnimationState-ynpOhdo();
     method @BytecodeOnly public long getDuration-UwyO8pc();
     method @InaccessibleFromKotlin public String? getName();
-    method @InaccessibleFromKotlin public float getSpeed();
+    method @InaccessibleFromKotlin public float getPlaybackSpeed();
     method public void loop();
     method public void pause();
+    method public void resume();
     method @KotlinOnly public void seekTo(kotlin.time.Duration time);
     method @BytecodeOnly public void seekTo-LRDsOJo(long);
-    method @InaccessibleFromKotlin public void setSpeed(float);
+    method @InaccessibleFromKotlin public void setPlaybackSpeed(float);
     method public void start();
     method public void stop();
     property public androidx.xr.compose.subspace.SpatialGltfModelAnimation.AnimationState animationState;
     property public kotlin.time.Duration duration;
     property public String? name;
-    property public float speed;
+    property public float playbackSpeed;
   }
 
   @kotlin.jvm.JvmInline public static final value class SpatialGltfModelAnimation.AnimationState {
@@ -544,17 +539,17 @@ package androidx.xr.compose.subspace {
   }
 
   public static final class SpatialGltfModelStatus.Failed extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
-    ctor public SpatialGltfModelStatus.Failed(androidx.xr.compose.subspace.GltfLoadException exception);
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.GltfLoadException getException();
-    property public androidx.xr.compose.subspace.GltfLoadException exception;
+    ctor public SpatialGltfModelStatus.Failed(Throwable exception);
+    method @InaccessibleFromKotlin public Throwable getException();
+    property public Throwable exception;
   }
 
   public static final class SpatialGltfModelStatus.Loaded extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
-    ctor public SpatialGltfModelStatus.Loaded();
+    field public static final androidx.xr.compose.subspace.SpatialGltfModelStatus.Loaded INSTANCE;
   }
 
   public static final class SpatialGltfModelStatus.Loading extends androidx.xr.compose.subspace.SpatialGltfModelStatus {
-    ctor public SpatialGltfModelStatus.Loading();
+    field public static final androidx.xr.compose.subspace.SpatialGltfModelStatus.Loading INSTANCE;
   }
 
   public final class SpatialPanelDefaults {

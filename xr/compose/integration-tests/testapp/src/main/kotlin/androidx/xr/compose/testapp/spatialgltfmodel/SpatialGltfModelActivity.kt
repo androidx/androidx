@@ -288,10 +288,10 @@ class SpatialGltfModelActivity : ComponentActivity() {
                 item {
                     SliderRow(
                         label = "Speed",
-                        value = animation.speed,
+                        value = animation.playbackSpeed,
                         min = -2f,
                         max = 2f,
-                        onValueChange = { animation.speed = it },
+                        onValueChange = { animation.playbackSpeed = it },
                     )
                 }
                 item {
