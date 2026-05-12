@@ -19,6 +19,7 @@ package androidx.compose.remote.player.compose.creation.compose.state
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -29,8 +30,8 @@ import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rememberRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.testing.RemoteContentTestRule
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -47,9 +48,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalRemoteCreationComposeApi::class)
 class RemoteStateTest {
-    @get:Rule
-    val composeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+    @get:Rule val composeTestRule = RemoteContentTestRule()
 
     @Before
     fun setup() {
@@ -67,7 +66,10 @@ class RemoteStateTest {
         var configurableWidthId = 0
         var configurableWidth2Id = 0
 
-        composeTestRule.runTest {
+        composeTestRule.setContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(ApplicationProvider.getApplicationContext())
+        ) {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val creationState = LocalRemoteComposeCreationState.current
 
@@ -107,7 +109,10 @@ class RemoteStateTest {
         var namedId1 = 0
         var namedId2 = 0
 
-        composeTestRule.runTest {
+        composeTestRule.setContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(ApplicationProvider.getApplicationContext())
+        ) {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val valString = "Hello".rs
 
