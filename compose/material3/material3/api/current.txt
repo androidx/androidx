@@ -3240,6 +3240,33 @@ package androidx.compose.material3 {
     property public int selectedOption;
   }
 
+  public final class ScrollbarDefaults {
+    method @BytecodeOnly public float getCrossAxisTrackInset-D9Ej5fM();
+    method @BytecodeOnly public float getMainAxisTrackInset-D9Ej5fM();
+    method @BytecodeOnly public float getThickness-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long getThumbColor(androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public int getThumbFadeDelayMillis();
+    method @InaccessibleFromKotlin public int getThumbFadeDurationMillis();
+    method @InaccessibleFromKotlin public float getThumbMaxLengthFraction();
+    method @BytecodeOnly public float getThumbMinLength-D9Ej5fM();
+    method @InaccessibleFromKotlin public float getThumbOpacity();
+    property public androidx.compose.ui.unit.Dp CrossAxisTrackInset;
+    property public androidx.compose.ui.unit.Dp MainAxisTrackInset;
+    property public androidx.compose.ui.unit.Dp Thickness;
+    property public int ThumbFadeDelayMillis;
+    property public int ThumbFadeDurationMillis;
+    property public float ThumbMaxLengthFraction;
+    property public androidx.compose.ui.unit.Dp ThumbMinLength;
+    property public float ThumbOpacity;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color thumbColor;
+    field public static final androidx.compose.material3.ScrollbarDefaults INSTANCE;
+  }
+
+  public final class ScrollbarKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier scrollbar(androidx.compose.ui.Modifier, androidx.compose.foundation.ScrollIndicatorState? state, androidx.compose.foundation.gestures.Orientation orientation, optional androidx.compose.ui.graphics.Color thumbColor, optional androidx.compose.ui.graphics.Color trackColor, optional androidx.compose.ui.unit.Dp thickness, optional androidx.compose.ui.unit.Dp thumbMinLength, optional @FloatRange(from=0.0, to=1.0) float thumbMaxLengthFraction, optional boolean isFadeEnabled, optional int fadeDurationMillis, optional int fadeDelayMillis, optional androidx.compose.ui.unit.Dp mainAxisTrackInset, optional androidx.compose.ui.unit.Dp crossAxisTrackInset);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier scrollbar-TYlY6FY(androidx.compose.ui.Modifier, androidx.compose.foundation.ScrollIndicatorState?, androidx.compose.foundation.gestures.Orientation, long, long, float, float, @FloatRange(from=0.0, to=1.0) float, boolean, int, int, float, float, androidx.compose.runtime.Composer?, int, int, int);
+  }
+
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SearchBarColors {
     ctor @KotlinOnly @Deprecated public SearchBarColors(androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color dividerColor);
     ctor @KotlinOnly public SearchBarColors(androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color dividerColor, androidx.compose.material3.TextFieldColors inputFieldColors);
