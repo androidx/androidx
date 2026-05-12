@@ -485,8 +485,8 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
                 // panel edges
                 IntSize2d(640, 480),
                 "playerControls",
-                Pose.Identity,
-                parent = session.scene.activitySpace,
+                Pose(Vector3(0f, -0.65f, 0.15f), Quaternion.Identity),
+                parent = movieParent ?: session.scene.activitySpace,
             )
 
         // TODO: b/413478924 - Use controlPanelEntity.view when the api is available.
