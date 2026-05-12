@@ -47,20 +47,24 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
             val elementDescriptor = descriptor.getElementDescriptor(currentIndex)
             val kind = elementDescriptor.kind
 
-            // Check for collections
-            if (kind == StructureKind.LIST || kind == StructureKind.MAP) {
-                TODO("Collection decoding to be implemented")
+            // Check for unsupported collections
+            if (kind == StructureKind.MAP) {
+                TODO("Map decoding is not supported yet")
             }
 
-            // If it's a primitive or an enum, check if it's in the map
-            // If not, skip index and allow fallback to default value (if any)yes
-            if (kind is PrimitiveKind || kind == SerialKind.ENUM) {
-                if (!arguments.containsKey(name)) {
-                    currentIndex++
-                    continue
-                }
+            // If it's a primitive, an enum, or a list, we check if it's in the map
+            // If it's not in the map, we skip it and let it fallback to the default value (if any)
+            if (
+                (kind is PrimitiveKind || kind == SerialKind.ENUM || kind == StructureKind.LIST) &&
+                    !arguments.containsKey(name)
+            ) {
+                currentIndex++
+                continue
             }
 
+            // For nested structures (classes), we always return the index.
+            // This recurses into the child decoder, which will then look for its own fields in the
+            // map.
             currentName = name
             return currentIndex++
         }
@@ -73,7 +77,15 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
             StructureKind.OBJECT -> {
                 DeepLinkDecoder(arguments).apply { currentName = this@DeepLinkDecoder.currentName }
             }
-            StructureKind.LIST -> TODO()
+            StructureKind.LIST -> {
+                // getElementDescriptor(0) returns the type param of the collection
+                val elementDescriptor = descriptor.getElementDescriptor(0)
+                if (elementDescriptor.kind !is PrimitiveKind) {
+                    throw SerializationException("Only collections of primitives are supported")
+                }
+                val values = arguments[currentName] ?: emptyList()
+                ListDecoder(values)
+            }
             StructureKind.MAP -> TODO()
             else -> throw SerializationException("Unsupported structure kind: ${descriptor.kind}")
         }
@@ -95,7 +107,7 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
 
     override fun decodeDouble(): Double = decodeString().toDouble()
 
-    override fun decodeChar(): Char = decodeString().firstOrNull() ?: ' '
+    override fun decodeChar(): Char = decodeString().first()
 
     override fun decodeByte(): Byte = decodeString().toByte()
 
@@ -115,4 +127,48 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
         }
         return index
     }
+}
+
+/**
+ * A decoder for handling collections of primitives (Lists, Sets, Arrays). The descriptor's
+ * [SerialDescriptor.kind] is [StructureKind.LIST]. The elementCount is expected to be the size of
+ * the list of elements passed in. The decoder iterates through every index and sequentially
+ * retrieves the element from [values].
+ */
+@OptIn(ExperimentalSerializationApi::class)
+internal class ListDecoder(private val values: List<String>) : AbstractDecoder() {
+    private var currentIndex = -1
+
+    override val serializersModule: SerializersModule = EmptySerializersModule()
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        currentIndex++
+        if (currentIndex >= values.size) return CompositeDecoder.DECODE_DONE
+        return currentIndex
+    }
+
+    override fun decodeNotNullMark(): Boolean {
+        if (currentIndex < 0 || currentIndex >= values.size) return false
+        return values[currentIndex] != "null"
+    }
+
+    override fun decodeString(): String {
+        return values[currentIndex]
+    }
+
+    override fun decodeInt(): Int = decodeString().toInt()
+
+    override fun decodeBoolean(): Boolean = decodeString().toBoolean()
+
+    override fun decodeLong(): Long = decodeString().toLong()
+
+    override fun decodeFloat(): Float = decodeString().toFloat()
+
+    override fun decodeDouble(): Double = decodeString().toDouble()
+
+    override fun decodeChar(): Char = decodeString().first()
+
+    override fun decodeByte(): Byte = decodeString().toByte()
+
+    override fun decodeShort(): Short = decodeString().toShort()
 }
