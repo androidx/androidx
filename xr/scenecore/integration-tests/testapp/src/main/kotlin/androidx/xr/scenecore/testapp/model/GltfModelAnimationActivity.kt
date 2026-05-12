@@ -91,7 +91,7 @@ class GltfModelAnimationActivity : AppCompatActivity() {
     private var gltfModel: GltfModel? = null
     private var gltfModelEntity: GltfModelEntity? = null
 
-    private val session by lazy { (Session.create(this) as SessionCreateSuccess).session }
+    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
 
     private companion object {
         const val STATE_PLAYING = "PLAYING"

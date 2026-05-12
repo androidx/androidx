@@ -331,11 +331,9 @@ package androidx.xr.runtime {
 
   public final class Session {
     method public androidx.xr.runtime.SessionConfigureResult configure(androidx.xr.runtime.Config config);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, androidx.lifecycle.LifecycleOwner lifecycleOwner);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, androidx.lifecycle.LifecycleOwner lifecycleOwner, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context);
+    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> getState();
     property public androidx.xr.runtime.Config config;
@@ -344,13 +342,10 @@ package androidx.xr.runtime {
   }
 
   public static final class Session.Companion {
-    method public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity);
-    method public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext);
-    method public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
-    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context, androidx.lifecycle.LifecycleOwner lifecycleOwner);
-    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context, androidx.lifecycle.LifecycleOwner lifecycleOwner, optional kotlin.coroutines.CoroutineContext coroutineContext);
-    method @BytecodeOnly public static androidx.xr.runtime.SessionCreateResult! create$default(androidx.xr.runtime.Session.Companion!, android.app.Activity!, kotlin.coroutines.CoroutineContext!, androidx.lifecycle.LifecycleOwner!, int, Object!);
-    method @BytecodeOnly public static androidx.xr.runtime.SessionCreateResult! create$default(androidx.xr.runtime.Session.Companion!, android.content.Context!, androidx.lifecycle.LifecycleOwner!, kotlin.coroutines.CoroutineContext!, int, Object!);
+    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context);
+    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
+    method @BytecodeOnly public static androidx.xr.runtime.SessionCreateResult! create$default(androidx.xr.runtime.Session.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, androidx.lifecycle.LifecycleOwner!, int, Object!);
   }
 
   public final class SessionConfigureCalibrationRequired extends androidx.xr.runtime.SessionConfigureResult {

@@ -124,7 +124,9 @@ class ConfigProjectedGeospatialActivity : ComponentActivity() {
     private fun tryCreateAndConfigureSession() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                when (val result = Session.create(this@ConfigProjectedGeospatialActivity)) {
+                when (
+                    val result = Session.create(context = this@ConfigProjectedGeospatialActivity)
+                ) {
                     is SessionCreateSuccess -> {
                         val session = result.session
 

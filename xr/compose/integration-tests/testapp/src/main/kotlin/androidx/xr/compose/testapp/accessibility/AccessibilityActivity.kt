@@ -89,7 +89,7 @@ import kotlinx.coroutines.launch
 class AccessibilityActivity : ComponentActivity() {
     private val activity = this
     private val TAG = "AccessibilityTest"
-    private val session by lazy { (Session.create(this) as SessionCreateSuccess).session }
+    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
     private var spatialEnvironmentPreference: SpatialEnvironmentPreference? = null
 
     enum class PanelType {

@@ -112,7 +112,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
             insets
         }
 
-        session = (Session.create(this) as SessionCreateSuccess).session
+        session = (Session.create(context = this) as SessionCreateSuccess).session
         scene = session.scene
         scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.configure(

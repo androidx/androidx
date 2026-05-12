@@ -117,24 +117,6 @@ public constructor(
     public companion object {
         private val contextSessionMap = ConcurrentHashMap<Context, Session>()
 
-        /** Restricted version of factory for 1Ps. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Deprecated(
-            message =
-                "unscaledGravityAlignedActivitySpace flag deprecated, scheduled for removal in future release."
-        )
-        public fun create(
-            activity: Activity,
-            coroutineContext: CoroutineContext = EmptyCoroutineContext,
-            unscaledGravityAlignedActivitySpace: Boolean,
-        ): SessionCreateResult =
-            create(
-                context = activity,
-                lifecycleOwner = activity as LifecycleOwner,
-                coroutineContext = coroutineContext,
-                unscaledGravityAlignedActivitySpace = unscaledGravityAlignedActivitySpace,
-            )
-
         /**
          * Creates a new [Session].
          *
@@ -149,103 +131,51 @@ public constructor(
          * ```kotlin
          * lifecycleScope.launch {
          *   val result = withContext(Dispatchers.IO) {
-         *     Session.create(activity)
-         *   }
-         * }
-         * ```
-         *
-         * @param activity the [Activity] that provides the context for the session's resources.
-         * @param coroutineContext the [CoroutineContext] that will be used to handle the session's
-         *   coroutines. Defaults to [EmptyCoroutineContext].
-         * @param lifecycleOwner the [LifecycleOwner] whose lifecycle controls the runtime state of
-         *   the session. Defaults to [activity] as the owner. Explicitly set this parameter if you
-         *   desire to have finer control over the session's lifecycle. The [lifecycleOwner]'s
-         *   lifecycle must still be bounded within the lifespan of the provided [activity], else
-         *   the session will experience undefined behavior.
-         * @return the result of the operation. Can be [SessionCreateSuccess], which contains the
-         *   newly created session, or another [SessionCreateResult] if a certain criteria was not
-         *   met.
-         * @throws [SecurityException] if the [Session] is backed by Google Play Services for AR and
-         *   [android.Manifest.permission.CAMERA] has not been granted to the calling application.
-         * @sample androidx.xr.arcore.samples.callSessionCreate
-         */
-        @JvmOverloads
-        @JvmStatic
-        public fun create(
-            activity: Activity,
-            coroutineContext: CoroutineContext = EmptyCoroutineContext,
-            lifecycleOwner: LifecycleOwner = activity as LifecycleOwner,
-        ): SessionCreateResult =
-            create(
-                context = activity,
-                lifecycleOwner = lifecycleOwner,
-                coroutineContext = coroutineContext,
-                unscaledGravityAlignedActivitySpace = true,
-            )
-
-        /**
-         * Creates a new [Session] with a provided [LifecycleOwner] and [context].
-         *
-         * Only use this version of the constructor if you desire to have finer control over the
-         * session's lifecycle. The [lifecycleOwner]'s lifecycle must still be bounded within the
-         * lifespan of the provided [context], else the session will experience undefined behavior.
-         *
-         * **Note:** Providing a non-[Activity] context is not supported by SceneCore runtimes, and
-         * they will not be loaded. Please use an [Activity] as the [context] if you wish to use
-         * SceneCore APIs.
-         *
-         * **Note:** You must provide a Projected [Context] if you want to create a Session on a
-         * Projected device. This can be an [Activity] that is being displayed on a Projected device
-         * or a context obtained from
-         * [androidx.xr.projected.ProjectedContext.createProjectedDeviceContext].
-         *
-         * It is strongly recommended to call this method from a background thread (e.g.,
-         * [Dispatchers.IO][kotlinx.coroutines.Dispatchers.IO]).
-         * > **Thread Safety Warning:** This method performs significant disk I/O, including loading
-         * > native libraries. If StrictMode is enabled, calling this on the **Main Thread** (UI
-         * > Thread) will trigger a [android.os.StrictMode] `DiskReadViolation`.
-         *
-         * **Example with Coroutines:**
-         *
-         * ```kotlin
-         * lifecycleScope.launch {
-         *   val result = withContext(Dispatchers.IO) {
-         *     Session.create(activity)
+         *     Session.create(context)
          *   }
          * }
          * ```
          *
          * @param context the [context] provided for the session's resources.
-         * @param lifecycleOwner the [lifecycleOwner] whose lifecycle controls the runtime state of
-         *   the session.
          * @param coroutineContext the [CoroutineContext] that will be used to handle the session's
          *   coroutines.
+         * @param lifecycleOwner the [lifecycleOwner] whose lifecycle controls the runtime state of
+         *   the session. Defaults to using the [context] as the owner if not provided.
          * @return the result of the operation. Can be [SessionCreateSuccess], which contains the
          *   newly created session, or another [SessionCreateResult] if a certain criteria was not
          *   met.
          * @throws [SecurityException] if the [Session] is backed by Google Play Services for AR and
          *   [android.Manifest.permission.CAMERA] has not been granted to the calling application.
-         * @sample androidx.xr.arcore.samples.callSessionCreate
          */
         @JvmOverloads
         @JvmStatic
         public fun create(
             context: Context,
-            lifecycleOwner: LifecycleOwner,
             coroutineContext: CoroutineContext = EmptyCoroutineContext,
+            lifecycleOwner: LifecycleOwner = context as LifecycleOwner,
+        ): SessionCreateResult = createInternal(context, coroutineContext, lifecycleOwner, true)
+
+        @Deprecated(message = "Use the create method that takes a Context instead.")
+        @JvmOverloads
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public fun create(
+            activity: Activity,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+            unscaledGravityAlignedActivitySpace: Boolean = true,
         ): SessionCreateResult =
-            create(
-                context = context,
-                lifecycleOwner = lifecycleOwner,
-                coroutineContext = coroutineContext,
-                unscaledGravityAlignedActivitySpace = true,
+            createInternal(
+                activity,
+                coroutineContext,
+                activity as LifecycleOwner,
+                unscaledGravityAlignedActivitySpace,
             )
 
-        private fun create(
+        private fun createInternal(
             context: Context,
-            lifecycleOwner: LifecycleOwner,
             coroutineContext: CoroutineContext,
-            unscaledGravityAlignedActivitySpace: Boolean = true,
+            lifecycleOwner: LifecycleOwner,
+            unscaledGravityAlignedActivitySpace: Boolean,
         ): SessionCreateResult {
             check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
                 "Cannot create a new session on a destroyed lifecycleOwner."

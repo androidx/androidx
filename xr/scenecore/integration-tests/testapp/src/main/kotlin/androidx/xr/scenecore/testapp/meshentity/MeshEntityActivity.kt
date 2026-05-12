@@ -109,7 +109,7 @@ class MeshEntityActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sessionResult = Session.create(this)
+        val sessionResult = Session.create(context = this)
         if (sessionResult !is SessionCreateSuccess) {
             finish()
             return

@@ -43,7 +43,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class SpatialCapabilitiesActivity : AppCompatActivity() {
     private val renderingSession: Session by lazy {
-        (Session.create(this) as SessionCreateSuccess).session
+        (Session.create(context = this) as SessionCreateSuccess).session
     }
     private var spatialMode = SpatialMode.FSM
     private var spatialEventLogList = mutableListOf<SpatialEventLog>()

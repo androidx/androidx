@@ -132,7 +132,7 @@ class SessionLifecycleHelper(
     @Suppress("deprecation")
     internal fun tryCreateSession() {
         try {
-            when (val result = Session.create(context!!, activity)) {
+            when (val result = Session.create(context = context!!, lifecycleOwner = activity)) {
                 is SessionCreateSuccess -> {
                     session = result.session
                     try {

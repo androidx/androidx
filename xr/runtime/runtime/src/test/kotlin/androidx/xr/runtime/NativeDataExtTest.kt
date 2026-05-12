@@ -42,7 +42,8 @@ class NativeDataExtTest {
         ActivityScenario.launch(ComponentActivity::class.java).use {
             it.onActivity { activity ->
                 session =
-                    (Session.create(activity, StandardTestDispatcher()) as SessionCreateSuccess)
+                    (Session.create(context = activity, coroutineContext = StandardTestDispatcher())
+                            as SessionCreateSuccess)
                         .session
 
                 testBody(activity)

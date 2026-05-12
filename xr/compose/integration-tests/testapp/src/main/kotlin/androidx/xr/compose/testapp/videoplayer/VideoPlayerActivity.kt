@@ -130,7 +130,7 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session = (Session.create(this) as SessionCreateSuccess).session
+        session = (Session.create(context = this) as SessionCreateSuccess).session
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         arDevice = ArDevice.getInstance(session)

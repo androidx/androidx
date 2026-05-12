@@ -77,7 +77,10 @@ class FaceTest {
 
         shadowOf(activity.application).grantPermissions(FACE_TRACKING, CAMERA)
 
-        session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
+        session =
+            (Session.create(context = activity, coroutineContext = testDispatcher)
+                    as SessionCreateSuccess)
+                .session
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

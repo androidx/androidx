@@ -65,7 +65,10 @@ class ArDeviceTest {
 
         activityController.create().start().resume()
 
-        session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
+        session =
+            (Session.create(context = activity, coroutineContext = testDispatcher)
+                    as SessionCreateSuccess)
+                .session
 
         arCoreTestRule.device.pose = Pose()
     }

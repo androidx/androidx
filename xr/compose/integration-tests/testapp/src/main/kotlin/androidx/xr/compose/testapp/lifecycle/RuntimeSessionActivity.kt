@@ -81,7 +81,7 @@ class RuntimeSessionActivity : BaseLifecycleTestActivity() {
 
         Log.i("corycook", "onCreate peekDecorView: " + window.peekDecorView())
 
-        val result: SessionCreateResult = Session.create(this)
+        val result: SessionCreateResult = Session.create(context = this)
         currentSession =
             if (result is SessionCreateSuccess) {
                 result.session

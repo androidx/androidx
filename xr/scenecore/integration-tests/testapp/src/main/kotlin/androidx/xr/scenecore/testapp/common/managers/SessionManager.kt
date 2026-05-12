@@ -51,7 +51,7 @@ class SessionManager(private val activity: AppCompatActivity) {
     fun createSession(): Session? {
         var session: Session? = null
         try {
-            when (val sessionCreateResult = Session.create(activity)) {
+            when (val sessionCreateResult = Session.create(context = activity)) {
                 is SessionCreateSuccess -> {
                     session = sessionCreateResult.session
                     activity.runOnUiThread { obtainUserPermissions(activity) }
