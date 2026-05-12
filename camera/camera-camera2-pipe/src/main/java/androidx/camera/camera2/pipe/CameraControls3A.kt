@@ -60,6 +60,22 @@ public interface CameraControls3A {
      * @param awbRegions a list of MeteringRectangle for Auto-White Balance metering. Corresponds to
      *   [CaptureRequest.CONTROL_AWB_REGIONS](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AWB_REGIONS).
      *   If `null`, the AWB metering regions are not updated.
+     * @param retainLocks if `true`, attempts to retain the current lock state for AE, AF, and AWB
+     *   based on their prior locked status and mode:
+     *     - **AE Lock**: The AE lock is retained if it was previously locked. Otherwise, it remains
+     *       unlocked.
+     *     - **AWB Lock**: The AWB lock is retained if it was previously locked. Otherwise, it
+     *       remains unlocked.
+     *     - **AF Lock**: The AF lock is retained *only if* it was previously locked AND the current
+     *       AF mode (either the newly provided [afMode] or the existing mode if [afMode] is null)
+     *       is a continuous mode, such as [CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE] or
+     *       [CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO], and the newly provided [afMode]
+     *       should not be the same as the existing mode. The Af lock will not be retained if this
+     *       the passed in [afMode] is null or if the above conditions are not met. This retention
+     *       is achieved by sending an `AF_TRIGGER_START` signal. If these conditions are not met,
+     *       AF will be unlocked. If `false` (default), all existing AE, AF, and AWB locks are
+     *       released regardless of their prior state.
+     *
      * @return A [Deferred] of [Result3A] value which will contain the frame number at which the
      *   capture result has all the needed applied parameters. It may be canceled with a
      *   [CancellationException] if a newer request is submitted before completion.
@@ -73,6 +89,7 @@ public interface CameraControls3A {
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
+        retainLocks: Boolean = false,
     ): Deferred<Result3A>
 
     /**

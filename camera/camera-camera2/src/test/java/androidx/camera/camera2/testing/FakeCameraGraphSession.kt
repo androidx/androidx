@@ -201,6 +201,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
+        retainLocks: Boolean,
     ): Deferred<Result3A> {
         return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
