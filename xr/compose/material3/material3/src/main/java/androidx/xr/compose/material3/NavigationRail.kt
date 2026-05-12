@@ -45,7 +45,7 @@ import androidx.xr.compose.material3.XrNavigationRailOverride.NavigationRail
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 
 /**
@@ -157,7 +157,7 @@ public val DefaultNavigationRailOrbiterProperties: VerticalOrbiterProperties =
     VerticalOrbiterProperties(
         position = ContentEdge.Vertical.Start,
         offset = XrNavigationRailTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterVertically,
         shape = XrTokens.ContainerShape,
     )

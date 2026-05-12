@@ -21,7 +21,6 @@ import androidx.compose.material3.xr.spatial.OrbiterOffsetType as OrbiterOffsetT
 import androidx.compose.material3.xr.subspace.layout.SpatialRoundedCornerShape as SpatialRoundedCornerShapeStub
 import androidx.compose.material3.xr.subspace.layout.SpatialShape as SpatialShapeStub
 import androidx.xr.compose.spatial.ContentEdge
-import androidx.xr.compose.spatial.OrbiterOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 
@@ -41,12 +40,14 @@ internal fun ContentEdgeStub.Horizontal.toXrPositionHorizontal(): ContentEdge.Ho
         else -> error("Unsupported ContentEdge.Horizontal: $this")
     }
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
-internal fun OrbiterOffsetTypeStub.toXrOrbiterOffsetType(): OrbiterOffsetType =
+internal fun OrbiterOffsetTypeStub.toXrOrbiterOffsetType():
+    androidx.xr.compose.spatial.OrbiterOffsetType =
     when (this) {
-        OrbiterOffsetTypeStub.Overlap -> OrbiterOffsetType.Overlap
-        OrbiterOffsetTypeStub.InnerEdge -> OrbiterOffsetType.InnerEdge
-        OrbiterOffsetTypeStub.OuterEdge -> OrbiterOffsetType.OuterEdge
+        OrbiterOffsetTypeStub.Overlap -> androidx.xr.compose.spatial.OrbiterOffsetType.Overlap
+        OrbiterOffsetTypeStub.InnerEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.InnerEdge
+        OrbiterOffsetTypeStub.OuterEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.OuterEdge
         else -> error("Unsupported OrbiterOffsetType: $this")
     }
 

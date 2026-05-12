@@ -64,7 +64,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 
 /**
@@ -566,7 +566,7 @@ public val DefaultHorizontalFloatingToolbarOrbiterProperties: HorizontalOrbiterP
     HorizontalOrbiterProperties(
         position = ContentEdge.Horizontal.Bottom,
         offset = XrFloatingToolbarTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterHorizontally,
         shape = XrTokens.ContainerShape,
     )
@@ -588,7 +588,7 @@ public val DefaultVerticalFloatingToolbarOrbiterProperties: VerticalOrbiterPrope
     VerticalOrbiterProperties(
         position = ContentEdge.Vertical.End,
         offset = XrFloatingToolbarTokens.OrbiterOffset,
-        offsetType = OrbiterOffsetType.InnerEdge,
+        offsetType = OrbiterEdgeOffsetType.InnerEdge,
         alignment = Alignment.CenterVertically,
         shape = XrTokens.ContainerShape,
     )

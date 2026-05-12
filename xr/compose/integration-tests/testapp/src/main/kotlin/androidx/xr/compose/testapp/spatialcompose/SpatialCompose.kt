@@ -52,6 +52,7 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -66,16 +67,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.platform.requestHomeSpace
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterDefaults
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialActivityPanel
@@ -110,6 +114,7 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.common.AnotherActivity
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TestDialog
+import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.math.FloatSize3d
@@ -246,9 +251,11 @@ class SpatialCompose : ComponentActivity() {
                     verticalArrangement = SpatialArrangement.spacedBy(40.dp),
                 ) {
                     Orbiter(
-                        position = ContentEdge.Start,
-                        offset = 8.dp,
-                        offsetType = OrbiterOffsetType.InnerEdge,
+                        alignment =
+                            OrbiterAlignment.CenterStart(
+                                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                offset = DpVolumeOffset((-8).dp),
+                            ),
                         shape = SpatialRoundedCornerShape(CornerSize(16.dp)),
                     ) {
                         Surface {
@@ -308,6 +315,7 @@ class SpatialCompose : ComponentActivity() {
                     AppPanel(modifier = sidePanelModifier, text = "Panel Top Right")
                     AppPanel(modifier = sidePanelModifier, text = "Panel Bottom Right")
                     AspectRatioPanel()
+                    RtlOrbiterPanel()
                 }
             }
         }
@@ -340,10 +348,12 @@ class SpatialCompose : ComponentActivity() {
             PanelContent { Text(text) }
 
             Orbiter(
-                position = ContentEdge.Bottom,
-                offset = 24.dp,
+                alignment =
+                    OrbiterAlignment.BottomCenter(
+                        edgeOffsetType = OrbiterEdgeOffsetType.None,
+                        offset = DpVolumeOffset(y = (-24).dp, z = OrbiterDefaults.Elevation),
+                    ),
                 shape = SpatialRoundedCornerShape(size = CornerSize(50)),
-                shouldRenderInNonSpatial = false,
             ) {
                 IconToggleButton(
                     checked = moveResizeLocked,
@@ -406,11 +416,14 @@ class SpatialCompose : ComponentActivity() {
                 Subspace { XyzArrows() }
             }
             content()
+
             Orbiter(
-                position = ContentEdge.End,
-                offset = 24.dp,
+                alignment =
+                    OrbiterAlignment.CenterEnd(
+                        edgeOffsetType = OrbiterEdgeOffsetType.None,
+                        offset = DpVolumeOffset(24.dp),
+                    ),
                 shape = SpatialRoundedCornerShape(size = CornerSize(50)),
-                shouldRenderInNonSpatial = false,
             ) {
                 IconButton(
                     onClick = {
@@ -582,6 +595,45 @@ class SpatialCompose : ComponentActivity() {
                     Text("16:11", fontSize = 11.sp)
                 }
                 Button(onClick = { aspectRatioValue = 9f / 14f }) { Text("9:14", fontSize = 11.sp) }
+            }
+        }
+    }
+
+    @SubspaceComposable
+    @Composable
+    fun RtlOrbiterPanel() {
+        SpatialPanel(modifier = SubspaceModifier.fillMaxWidth().height(200.dp)) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Orbiter(
+                    alignment =
+                        OrbiterAlignment.TopStart(
+                            offset = DpVolumeOffset((-24).dp, 0.dp, OrbiterDefaults.Elevation),
+                            edgeOffsetType = OrbiterEdgeOffsetType.None,
+                        )
+                ) {
+                    Surface(shape = RoundedCornerShape(CornerSize(16.dp))) {
+                        Text(text = "RTL Orbiter", modifier = Modifier.padding(8.dp))
+                    }
+                }
+            }
+            // Aligns the orbiter to the bottom center of the panel and manually offsets it to the
+            // right and up.
+            Orbiter(
+                alignment =
+                    OrbiterAlignment.BottomCenter(
+                        offset = DpVolumeOffset(120.dp, 120.dp, OrbiterDefaults.Elevation)
+                    )
+            ) {
+                Surface(shape = RoundedCornerShape(CornerSize(16.dp))) {
+                    Text(text = "Center Offset", modifier = Modifier.padding(8.dp))
+                }
+            }
+            Column(
+                modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text("RTL Layout Orbiter Panel")
             }
         }
     }

@@ -47,6 +47,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -66,6 +67,10 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
+import androidx.xr.compose.subspace.layout.SpatialAbsoluteAlignment
+import androidx.xr.compose.subspace.layout.SpatialAlignment
+import androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment
+import androidx.xr.compose.subspace.layout.SpatialBiasAlignment
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 import androidx.xr.compose.subspace.node.SubspaceNodeApplier
@@ -89,10 +94,8 @@ private const val DEFAULT_SCRIM_ALPHA = 0x52000000
 
 /** Contains default values used by Orbiters. */
 public object OrbiterDefaults {
-
     /** Default shape for an Orbiter. */
     public val Shape: SpatialShape = SpatialRoundedCornerShape(ZeroCornerSize)
-
     /** Default elevation level for an Orbiter. */
     public val Elevation: Dp = SpatialElevationLevel.Level1
 }
@@ -130,6 +133,7 @@ private val EmptyContent: @Composable () -> Unit = {}
  * }
  * ```
  */
+@Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
 @Deprecated(message = "Use an orbiter that takes an anchorPoint or a poseProvider.")
@@ -152,7 +156,6 @@ public fun Orbiter(
         }
         return
     }
-
     val density = LocalDensity.current
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val pixelDensity = session.scene.virtualPixelDensity
@@ -238,6 +241,7 @@ public fun Orbiter(
  * }
  * ```
  */
+@Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
 @Deprecated(message = "Use an orbiter that takes an anchorPoint or a poseProvider.")
@@ -260,7 +264,6 @@ public fun Orbiter(
         }
         return
     }
-
     val density = LocalDensity.current
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val pixelDensity = session.scene.virtualPixelDensity
@@ -307,7 +310,6 @@ public fun Orbiter(
                     y = 0f,
                     z = elevation.toMeters(density, pixelDensity),
                 )
-
             Pose(translation = anchorVector + offsetVector, rotation = Quaternion.Identity)
         },
         shape = shape,
@@ -336,8 +338,10 @@ public fun Orbiter(
  * @param shape The shape of this Orbiter when it is rendered in 3D space.
  * @param content The content of the orbiter.
  */
+@Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
+@Deprecated("Use the SpatialAlignment and OrbiterEdgeOffsetType-based Orbiter function instead.")
 public fun Orbiter(
     anchorPoint: OrbiterAnchorPoint,
     offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
@@ -365,6 +369,259 @@ public fun Orbiter(
     )
 }
 
+/** Represents the alignment and offset configuration for an [Orbiter] in relation to the parent. */
+public sealed class OrbiterAlignment
+private constructor(
+    internal val alignment: SpatialAlignment,
+    internal val edgeOffsetType: OrbiterEdgeOffsetType,
+    internal val offset: DpVolumeOffset,
+) {
+    /** The center of the parent (non-edge). */
+    public class Center(
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation)
+    ) : OrbiterAlignment(SpatialAlignment.Center, OrbiterEdgeOffsetType.None, offset)
+
+    /** Top-Start edge alignment. */
+    public class TopStart(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.TopStart, edgeOffsetType, offset)
+
+    /** Top-Center edge alignment. */
+    public class TopCenter(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.TopCenter, edgeOffsetType, offset)
+
+    /** Top-End edge alignment. */
+    public class TopEnd(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.TopEnd, edgeOffsetType, offset)
+
+    /** Center-Start edge alignment. */
+    public class CenterStart(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.CenterStart, edgeOffsetType, offset)
+
+    /** Center-End edge alignment. */
+    public class CenterEnd(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.CenterEnd, edgeOffsetType, offset)
+
+    /** Bottom-Start edge alignment. */
+    public class BottomStart(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.BottomStart, edgeOffsetType, offset)
+
+    /** Bottom-Center edge alignment. */
+    public class BottomCenter(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.BottomCenter, edgeOffsetType, offset)
+
+    /** Bottom-End edge alignment. */
+    public class BottomEnd(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAlignment.BottomEnd, edgeOffsetType, offset)
+
+    /** Top-Left absolute edge alignment. */
+    public class TopLeft(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAbsoluteAlignment.TopLeft, edgeOffsetType, offset)
+
+    /** Top-Right absolute edge alignment. */
+    public class TopRight(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAbsoluteAlignment.TopRight, edgeOffsetType, offset)
+
+    /** Center-Left absolute edge alignment. */
+    public class CenterLeft(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAbsoluteAlignment.CenterLeft, edgeOffsetType, offset)
+
+    /** Center-Right absolute edge alignment. */
+    public class CenterRight(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAbsoluteAlignment.CenterRight, edgeOffsetType, offset)
+
+    /** Bottom-Left absolute edge alignment. */
+    public class BottomLeft(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAbsoluteAlignment.BottomLeft, edgeOffsetType, offset)
+
+    /** Bottom-Right absolute edge alignment. */
+    public class BottomRight(
+        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) : OrbiterAlignment(SpatialAbsoluteAlignment.BottomRight, edgeOffsetType, offset)
+}
+
+/**
+ * A composable that creates an orbiter along the edge or center of a parent spatial component.
+ *
+ * Orbiters are floating elements that are typically used to control the content within spatial
+ * panels and other entities that they're anchored to. They allow the content to have more space and
+ * give users quick access to features like navigation without obstructing the main content.
+ *
+ * Sizing constraints depend on where the orbiter is declared:
+ * * Within a [Subspace]: the nearest parent spatial component (e.g.,
+ *   [androidx.xr.compose.subspace.SpatialPanel]) is the parent.
+ * * Within `setContent`: the main panel is the parent.
+ *
+ * @sample androidx.xr.compose.samples.OrbiterBottomBarSample
+ * @sample androidx.xr.compose.samples.OrbiterSideRailSample
+ * @param alignment alignment and offset configuration of the orbiter relative to the parent spatial
+ *   component
+ * @param shape shape of the orbiter when rendered in 3D space
+ * @param content content to display inside the orbiter
+ */
+@Composable
+@ComposableOpenTarget(index = -1)
+public fun Orbiter(
+    alignment: OrbiterAlignment,
+    shape: SpatialShape = OrbiterDefaults.Shape,
+    content: @Composable @UiComposable () -> Unit,
+) {
+    val movableContent = remember { movableContentOf(content) }
+    if (
+        currentComposer.applier !is SubspaceNodeApplier &&
+            !LocalSpatialCapabilities.current.isSpatialUiEnabled
+    ) {
+        movableContent()
+        return
+    }
+
+    val layoutDirection = LocalLayoutDirection.current
+    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val parentView = LocalView.current
+    val localId = currentCompositeKeyHashCode
+    val context = LocalContext.current
+    val compositionContext = rememberCompositionContext()
+    val parentEntity: CoreEntity? = findNearestParentEntity()
+    val density = LocalDensity.current
+
+    val pixelDensity = session.scene.virtualPixelDensity
+
+    val poseProvider =
+        remember(alignment, layoutDirection, density) {
+            OrbiterPoseProvider { targetSize, _, orbiterContentSize ->
+                val spatialAlignment = alignment.alignment
+                val edgeOffsetType = alignment.edgeOffsetType
+                val offset = alignment.offset
+
+                val baseAlignmentOffset =
+                    spatialAlignment.align(
+                        size =
+                            IntVolumeSize(
+                                width = orbiterContentSize.width,
+                                height = orbiterContentSize.height,
+                                depth = 0,
+                            ),
+                        space =
+                            IntVolumeSize(
+                                width = targetSize.width,
+                                height = targetSize.height,
+                                depth = 0,
+                            ),
+                        layoutDirection = layoutDirection,
+                    )
+                val baseAlignmentVector =
+                    Vector3(
+                        x = baseAlignmentOffset.x.pxToMeters(pixelDensity),
+                        y = baseAlignmentOffset.y.pxToMeters(pixelDensity),
+                        z = baseAlignmentOffset.z.pxToMeters(pixelDensity),
+                    )
+
+                val horizontalBias =
+                    when (spatialAlignment) {
+                        is SpatialBiasAlignment -> spatialAlignment.horizontalBias
+                        is SpatialBiasAbsoluteAlignment -> spatialAlignment.horizontalBias
+                        else -> 0f
+                    }
+                val verticalBias =
+                    when (spatialAlignment) {
+                        is SpatialBiasAlignment -> spatialAlignment.verticalBias
+                        is SpatialBiasAbsoluteAlignment -> spatialAlignment.verticalBias
+                        else -> 0f
+                    }
+
+                val resolvedHorizontalBias =
+                    when (spatialAlignment) {
+                        is SpatialBiasAlignment -> {
+                            if (layoutDirection == LayoutDirection.Ltr) horizontalBias
+                            else -horizontalBias
+                        }
+
+                        is SpatialBiasAbsoluteAlignment -> horizontalBias
+                        else -> 0f
+                    }
+
+                // SpatialAlignment positions the orbiter completely inside the parent.
+                // We use the OrbiterEdgeOffsetType to determine how far outward to shift it:
+                // - InnerEdge (0f): No shift, orbiter remains inside the parent.
+                // - None (1f): Shifted by half its size, so its center rests on the parent's edge.
+                // - OuterEdge (2f): Shifted by full size, so it sits completely outside the parent.
+                var xEdgeOffset = 0f
+                var yEdgeOffset = 0f
+                val orbiterHalfSize = orbiterContentSize.toMeterSize(pixelDensity) / 2f
+
+                val edgeOffsetMultiplier =
+                    when (edgeOffsetType) {
+                        OrbiterEdgeOffsetType.OuterEdge -> 2f
+                        OrbiterEdgeOffsetType.InnerEdge -> 0f
+                        else -> 1f // None
+                    }
+
+                if (resolvedHorizontalBias == -1f || resolvedHorizontalBias == 1f) {
+                    xEdgeOffset =
+                        resolvedHorizontalBias * orbiterHalfSize.width * edgeOffsetMultiplier
+                }
+                if (verticalBias == -1f || verticalBias == 1f) {
+                    yEdgeOffset = verticalBias * orbiterHalfSize.height * edgeOffsetMultiplier
+                }
+
+                val edgeOffsetVector = Vector3(x = xEdgeOffset, y = yEdgeOffset, z = 0f)
+                val userOffsetVector =
+                    offset.toMeterVector(density = density, pixelDensity = pixelDensity)
+
+                Pose(
+                    translation = baseAlignmentVector + edgeOffsetVector + userOffsetVector,
+                    rotation = Quaternion.Identity,
+                )
+            }
+        }
+
+    val holder =
+        remember(parentView) {
+            SpatialOrbiter(
+                context = context,
+                parentView = parentView,
+                compositionContext = compositionContext,
+                session = session,
+                localId = localId,
+                initialPoseProvider = poseProvider,
+                initialShape = shape,
+                pixelDensity = pixelDensity,
+            )
+        }
+    SideEffect {
+        holder.parentEntity = parentEntity
+        holder.poseProvider = poseProvider
+        holder.shape = shape
+        holder.content = movableContent
+    }
+}
+
 /**
  * A composable that creates an orbiter along the edge of a spatial component (e.g.
  * [androidx.xr.compose.subspace.SpatialPanel]).
@@ -390,13 +647,13 @@ public fun Orbiter(
  */
 @Composable
 @ComposableOpenTarget(index = -1)
+@Deprecated("Use the SpatialAlignment and OrbiterEdgeOffsetType-based Orbiter function instead.")
 public fun Orbiter(
     poseProvider: OrbiterPoseProvider,
     shape: SpatialShape = OrbiterDefaults.Shape,
     content: @Composable @UiComposable () -> Unit,
 ) {
     val movableContent = remember { movableContentOf(content) }
-
     if (
         currentComposer.applier !is SubspaceNodeApplier &&
             !LocalSpatialCapabilities.current.isSpatialUiEnabled
@@ -404,14 +661,12 @@ public fun Orbiter(
         movableContent()
         return
     }
-
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val parentView = LocalView.current
     val localId = currentCompositeKeyHashCode
     val context = LocalContext.current
     val compositionContext = rememberCompositionContext()
     val parentEntity: CoreEntity? = findNearestParentEntity()
-
     val holder =
         remember(parentView) {
             SpatialOrbiter(
@@ -425,7 +680,6 @@ public fun Orbiter(
                 initialShape = shape,
             )
         }
-
     SideEffect {
         holder.parentEntity = parentEntity
         holder.poseProvider = poseProvider
@@ -460,8 +714,9 @@ public fun interface OrbiterPoseProvider {
  *
  * For layout direction-agnostic positioning, use the [Absolute] variants.
  */
+@Suppress("DEPRECATION")
+@Deprecated("Use SpatialAlignment Orbiter API instead.")
 public sealed class OrbiterAnchorPoint private constructor() {
-
     internal abstract fun calculateAnchorVector(
         anchorHalfSize: FloatSize2d,
         layoutDirection: LayoutDirection,
@@ -859,9 +1114,7 @@ private fun getMainWindowSize(session: Session): IntVolumeSize {
                 IntVolumeSize(initialPixelDimensions.width, initialPixelDimensions.height, 0)
             )
         }
-
     val mainView = (context as Activity).window.decorView
-
     DisposableEffect(Unit) {
         val listener =
             View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
@@ -872,10 +1125,8 @@ private fun getMainWindowSize(session: Session): IntVolumeSize {
                 }
             }
         mainView.addOnLayoutChangeListener(listener)
-
         onDispose { mainView.removeOnLayoutChangeListener(listener) }
     }
-
     return panelSize
 }
 
@@ -910,7 +1161,6 @@ private class SpatialOrbiter(
     var content: @Composable () -> Unit by mutableStateOf(EmptyContent)
     var poseProvider: OrbiterPoseProvider by mutableStateOf(initialPoseProvider)
     var shape: SpatialShape by mutableStateOf(initialShape)
-
     var parentEntity: CoreEntity? = null
         set(value) {
             if (field != value) {
@@ -938,7 +1188,6 @@ private class SpatialOrbiter(
                     this.enabled = false
                     view.setTag(R.id.compose_xr_local_view_entity, this)
                 }
-
         view.setContent {
             val panelSize: IntVolumeSize =
                 if (parentEntity == LocalCoreMainPanelEntity.current) {
@@ -994,7 +1243,6 @@ public sealed interface ContentEdge {
         public companion object {
             /** Positioning constant to place an orbiter above the content's top edge. */
             public val Top: Horizontal = Horizontal("Top")
-
             /** Positioning constant to place an orbiter below the content's bottom edge. */
             public val Bottom: Horizontal = Horizontal("Bottom")
         }
@@ -1012,7 +1260,6 @@ public sealed interface ContentEdge {
              * Positioning constant to place an orbiter at the start of the content's starting edge.
              */
             public val Start: Vertical = Vertical("Start")
-
             /** Positioning constant to place an orbiter at the end of the content's ending edge. */
             public val End: Vertical = Vertical("End")
         }
@@ -1026,28 +1273,57 @@ public sealed interface ContentEdge {
     public companion object {
         /** The top edge. */
         public val Top: Horizontal = Horizontal.Top
-
         /** The bottom edge. */
         public val Bottom: Horizontal = Horizontal.Bottom
-
         /** The start edge. */
         public val Start: Vertical = Vertical.Start
-
         /** The end edge. */
         public val End: Vertical = Vertical.End
     }
 }
 
-/** Represents the type of offset used for positioning an orbiter. */
+/**
+ * Specifies orbiter boundary offset behavior relative to its parent's rectangular layout bounds.
+ *
+ * Note: Operates on the rectangular layout bounding box of the parent component, not its visual
+ * shape, rounded corners, or outline. Use a custom offset in [DpVolumeOffset] to adjust alignment
+ * to curved or non-rectangular visual contours.
+ */
+@JvmInline
+public value class OrbiterEdgeOffsetType private constructor(private val value: Int) {
+    public companion object {
+        /** Positions the orbiter fully outside the parent's layout boundary. */
+        public val OuterEdge: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType(0)
+        /** Positions the orbiter fully inside the parent's layout boundary. */
+        public val InnerEdge: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType(1)
+        /** Centers the orbiter's boundary directly on the parent's layout boundary. */
+        public val None: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType(2)
+    }
+}
+
+@Suppress("DEPRECATION")
+@Deprecated(
+    message = "Use OrbiterEdgeOffsetType instead.",
+    replaceWith = ReplaceWith("OrbiterEdgeOffsetType"),
+)
 @JvmInline
 public value class OrbiterOffsetType private constructor(private val value: Int) {
     public companion object {
         /** The edge of the orbiter that is facing away from the content element. */
+        @Deprecated(
+            "Use OrbiterEdgeOffsetType.OuterEdge instead.",
+            ReplaceWith("OrbiterEdgeOffsetType.OuterEdge"),
+        )
         public val OuterEdge: OrbiterOffsetType = OrbiterOffsetType(0)
-
-        /** The edge of the orbiter that is directly facing the content element. */
+        @Deprecated(
+            "Use OrbiterEdgeOffsetType.InnerEdge instead.",
+            ReplaceWith("OrbiterEdgeOffsetType.InnerEdge"),
+        )
         public val InnerEdge: OrbiterOffsetType = OrbiterOffsetType(1)
-
+        @Deprecated(
+            "Use OrbiterEdgeOffsetType.None instead.",
+            ReplaceWith("OrbiterEdgeOffsetType.None"),
+        )
         public val Overlap: OrbiterOffsetType = OrbiterOffsetType(2)
     }
 }
