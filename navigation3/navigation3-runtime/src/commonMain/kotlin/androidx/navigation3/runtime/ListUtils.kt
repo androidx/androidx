@@ -73,7 +73,7 @@ private inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-private inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
+internal inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
     contract { callsInPlace(action) }
     for (index in indices) {
         val item = get(index)
@@ -110,5 +110,14 @@ private inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
         val key = selector(e)
         if (set.add(key)) target += e
     }
+    return target
+}
+
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
+    contract { callsInPlace(predicate) }
+    val target = ArrayList<T>(size)
+    fastForEach { if (predicate(it)) target += (it) }
     return target
 }
