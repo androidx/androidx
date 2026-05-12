@@ -710,6 +710,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         )
     }
 
+    private val isAtLeftEdge: Boolean
+        get() = scrollX == 0
+
+    private val isAtRightEdge: Boolean
+        get() = scrollX == computeHorizontalScrollRange()
+
     /** Used to track is the first page is rendered. */
     private var isFirstPageRendered: Boolean = false
 
@@ -1268,8 +1274,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         handled = handled || maybeDragSelection(event)
         handled =
             handled ||
-                event?.let { gestureTracker.feed(it, parent, isContentAtHorizontalEdges()) }
-                    ?: false
+                event?.let { gestureTracker.feed(it, parent, isAtLeftEdge, isAtRightEdge) } ?: false
 
         if (!handled) {
             parent?.requestDisallowInterceptTouchEvent(false)
@@ -1296,14 +1301,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     override fun addView(child: View?, index: Int, params: LayoutParams?) {
         throw UnsupportedOperationException("PdfView does not accept children.")
-    }
-
-    private fun isContentAtHorizontalEdges(): Boolean {
-        val leftContentEdgePx = -scrollX
-        val rightContentEdgePx =
-            toViewCoord(contentWidth, zoom, scrollX).toInt() - paddingRight - paddingLeft
-
-        return leftContentEdgePx == 0 || rightContentEdgePx == viewportWidth
     }
 
     private fun maybeShowFastScroller() {
