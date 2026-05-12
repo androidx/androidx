@@ -24,6 +24,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -38,11 +39,14 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrapper
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Before
@@ -59,7 +63,10 @@ import org.junit.runners.JUnit4
 class PlayerSizeTest {
     @get:Rule
     val composeTestRule =
-        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
 
     @Before
     fun setUp() {
@@ -69,8 +76,8 @@ class PlayerSizeTest {
     @Test
     fun scenario_containerTakesScreenSize() {
         composeTestRule.runScreenshotTest(
-            outerContent = Scenario.outerContent,
-            content = Scenario.content,
+            playComposableWrapper = Scenario.playComposableWrapper,
+            composable = Scenario.content,
         )
     }
 
@@ -78,13 +85,13 @@ class PlayerSizeTest {
     fun scenario_flagTrue_containerTakesScreenSize() {
         RemoteComposePlayerFlags.shouldPlayerWrapContentSize = true
         composeTestRule.runScreenshotTest(
-            outerContent = Scenario.outerContent,
-            content = Scenario.content,
+            playComposableWrapper = Scenario.playComposableWrapper,
+            composable = Scenario.content,
         )
     }
 
     @Ignore(
-        "b/484308924: If RemoteComposeScreenshotTestRule.runScreenshotTest is called passing " +
+        "b/484308924: If RemoteScreenshotTestRule.runScreenshotTest is called passing " +
             "a document with value zero to Header.FEATURE_PAINT_MEASURE, the test displays the " +
             "expected results, but it hangs."
     )
@@ -104,13 +111,13 @@ class PlayerSizeTest {
 
         composeTestRule.runScreenshotTest(
             profile = profileFeaturePaintMeasureDisabled,
-            outerContent = Scenario.outerContent,
-            content = Scenario.content,
+            playComposableWrapper = Scenario.playComposableWrapper,
+            composable = Scenario.content,
         )
     }
 
     @Ignore(
-        "b/484308924: If RemoteComposeScreenshotTestRule.runScreenshotTest is called passing " +
+        "b/484308924: If RemoteScreenshotTestRule.runScreenshotTest is called passing " +
             "a document with value zero to Header.FEATURE_PAINT_MEASURE, the test displays the " +
             "expected results, but it hangs."
     )
@@ -132,8 +139,8 @@ class PlayerSizeTest {
 
         composeTestRule.runScreenshotTest(
             profile = profileFeaturePaintMeasureDisabled,
-            outerContent = Scenario.outerContent,
-            content = Scenario.content,
+            playComposableWrapper = Scenario.playComposableWrapper,
+            composable = Scenario.content,
         )
     }
 
@@ -152,10 +159,12 @@ class PlayerSizeTest {
                 )
             }
 
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         composeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(1050f, 1050f)),
             profile = profileFeaturePaintMeasureDisabled,
-            outerContent = Scenario.outerContent,
-            content = Scenario.content,
+            playComposableWrapper = Scenario.playComposableWrapper,
+            composable = Scenario.content,
         )
     }
 
@@ -176,10 +185,12 @@ class PlayerSizeTest {
                 )
             }
 
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         composeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(1050f, 1050f)),
             profile = profileFeaturePaintMeasureDisabled,
-            outerContent = Scenario.outerContent,
-            content = Scenario.content,
+            playComposableWrapper = Scenario.playComposableWrapper,
+            composable = Scenario.content,
         )
     }
 
@@ -188,14 +199,9 @@ class PlayerSizeTest {
      * defined.
      */
     private object Scenario {
-        val outerContent:
-            (@Composable
-            (modifier: Modifier, content: @Composable @RemoteComposable () -> Unit) -> Unit) =
-            { _, content ->
-                Box(modifier = Modifier.background(Color.Gray).border(3.dp, Color.Red)) {
-                    content()
-                }
-            }
+        val playComposableWrapper: ComposableWrapper = { content ->
+            Box(modifier = Modifier.background(Color.Gray).border(3.dp, Color.Red)) { content() }
+        }
 
         val content: @Composable @RemoteComposable () -> Unit = {
             RemoteBox(
