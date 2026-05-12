@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.GoldenScreenshotName
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.GoldenScreenshotNameTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
@@ -52,8 +52,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import org.junit.runner.RunWith
 
 /** These tests validate the LayoutDirection, without using the `remote-testing` module. */
@@ -65,16 +63,7 @@ class LayoutDirectionTest {
     val composeTestRule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
     @get:Rule val screenshotTestRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
-    private lateinit var testDescription: Description
-
-    @get:Rule
-    val testNameRule =
-        object : TestWatcher() {
-
-            override fun starting(description: Description) {
-                testDescription = description
-            }
-        }
+    @get:Rule val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
 
     @Test
     fun creationLtr_playLtr() {
@@ -94,7 +83,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
@@ -118,7 +107,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
@@ -144,7 +133,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
@@ -171,7 +160,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
@@ -193,7 +182,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
@@ -217,7 +206,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
@@ -243,7 +232,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
@@ -270,7 +259,7 @@ class LayoutDirectionTest {
         val screenshot = composeTestRule.onRoot().captureToImage()
         screenshot.assertAgainstGolden(
             screenshotTestRule,
-            GoldenScreenshotName(testDescription).getName(),
+            goldenScreenshotNameTestRule.getGoldenScreenshotName().getName(),
         )
     }
 
