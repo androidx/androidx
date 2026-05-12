@@ -4036,6 +4036,11 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.ui.platform.ClipMetadata toClipMetadata(android.content.ClipDescription);
   }
 
+  public final class AndroidClipboard_androidKt {
+    method @InaccessibleFromKotlin public static android.content.ClipboardManager getNativeClipboardManager(androidx.compose.ui.platform.Clipboard);
+    property public static android.content.ClipboardManager androidx.compose.ui.platform.Clipboard.nativeClipboardManager;
+  }
+
   @SuppressCompatibility public final class AndroidComposeViewAccessibilityDelegateCompat_androidKt {
     method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableContentCapture();
     method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableContentCapture(boolean);
@@ -4136,9 +4141,9 @@ package androidx.compose.ui.platform {
 
   public interface Clipboard {
     method public suspend Object? getClipEntry(kotlin.coroutines.Continuation<? super androidx.compose.ui.platform.ClipEntry?>);
-    method @InaccessibleFromKotlin public android.content.ClipboardManager getNativeClipboard();
+    method @InaccessibleFromKotlin @Deprecated public default android.content.ClipboardManager getNativeClipboard();
     method public suspend Object? setClipEntry(androidx.compose.ui.platform.ClipEntry? clipEntry, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public abstract android.content.ClipboardManager nativeClipboard;
+    property @Deprecated public default android.content.ClipboardManager nativeClipboard;
   }
 
   @SuppressCompatibility public final class ClipboardExtensions_androidKt {
@@ -4491,7 +4496,7 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.CompositionContext? android.view.View.compositionContext;
   }
 
-  public typealias NativeClipboard = android.content.ClipboardManager;
+  @Deprecated public typealias NativeClipboard = android.content.ClipboardManager;
 
 }
 

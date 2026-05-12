@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.nativeClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -73,7 +74,9 @@ internal object ClipboardUtils {
      */
     @JvmStatic
     fun hasText(clipboard: Clipboard): Boolean {
-        return clipboard.nativeClipboard.primaryClipDescription?.hasMimeType("text/*") == true
+        val clipDescription =
+            clipboard.nativeClipboardManager.primaryClipDescription ?: return false
+        return clipDescription.hasMimeType("text/*")
     }
 }
 

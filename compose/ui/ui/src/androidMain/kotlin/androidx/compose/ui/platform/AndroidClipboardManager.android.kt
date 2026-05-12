@@ -125,6 +125,10 @@ actual class ClipMetadata(val clipDescription: ClipDescription)
 
 fun ClipDescription.toClipMetadata(): ClipMetadata = ClipMetadata(this)
 
+@Deprecated(
+    message = "Use android.content.ClipboardManager directly instead",
+    replaceWith = ReplaceWith("android.content.ClipboardManager"),
+)
 @Suppress("TypealiasDefinition")
 actual typealias NativeClipboard = android.content.ClipboardManager
 

@@ -972,8 +972,8 @@ abstract interface androidx.compose.ui.platform/AccessibilityManager { // androi
 }
 
 abstract interface androidx.compose.ui.platform/Clipboard { // androidx.compose.ui.platform/Clipboard|null[0]
-    abstract val nativeClipboard // androidx.compose.ui.platform/Clipboard.nativeClipboard|{}nativeClipboard[0]
-        abstract fun <get-nativeClipboard>(): androidx.compose.ui.platform/NativeClipboard // androidx.compose.ui.platform/Clipboard.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
+    open val nativeClipboard // androidx.compose.ui.platform/Clipboard.nativeClipboard|{}nativeClipboard[0]
+        open fun <get-nativeClipboard>(): androidx.compose.ui.platform/NativeClipboard // androidx.compose.ui.platform/Clipboard.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
 
     abstract suspend fun getClipEntry(): androidx.compose.ui.platform/ClipEntry? // androidx.compose.ui.platform/Clipboard.getClipEntry|getClipEntry(){}[0]
     abstract suspend fun setClipEntry(androidx.compose.ui.platform/ClipEntry?) // androidx.compose.ui.platform/Clipboard.setClipEntry|setClipEntry(androidx.compose.ui.platform.ClipEntry?){}[0]

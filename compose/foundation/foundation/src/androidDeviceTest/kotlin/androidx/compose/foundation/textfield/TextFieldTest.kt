@@ -94,7 +94,6 @@ import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.WindowInfo
@@ -1334,7 +1333,7 @@ class TextFieldTest : FocusedWindowTest {
         val longText = "Text".repeat(4)
         val shortText = "Text".repeat(2)
 
-        val mockedNativeClipboard = mock<NativeClipboard>()
+        val mockedClipboardManager = mock<android.content.ClipboardManager>()
         var tfv by mutableStateOf(TextFieldValue(shortText))
         val clipboard =
             object : Clipboard {
@@ -1348,8 +1347,13 @@ class TextFieldTest : FocusedWindowTest {
                     contents = clipEntry?.readAnnotatedString()
                 }
 
-                override val nativeClipboard: NativeClipboard
-                    get() = mockedNativeClipboard
+                // The new extension field [nativeClipboardManager] still delegates to this
+                // property.
+                // Therefore, this deprecated field shall be used in tests to mock the backing
+                // native ClipboardManager.
+                @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+                override val nativeClipboard: android.content.ClipboardManager
+                    get() = mockedClipboardManager
             }
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalClipboard provides clipboard) {
