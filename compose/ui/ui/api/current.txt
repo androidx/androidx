@@ -4245,7 +4245,7 @@ package androidx.compose.ui.platform {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.input.nestedscroll.NestedScrollConnection rememberNestedScrollInteropConnection(android.view.View?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public fun interface PlatformTextInputInterceptor {
+  public fun interface PlatformTextInputInterceptor {
     method public suspend Object? interceptStartInputMethod(androidx.compose.ui.platform.PlatformTextInputMethodRequest request, androidx.compose.ui.platform.PlatformTextInputSession nextHandler, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
   }
 
@@ -4257,8 +4257,8 @@ package androidx.compose.ui.platform {
   }
 
   public final class PlatformTextInputModifierNodeKt {
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi public static void InterceptPlatformTextInput(androidx.compose.ui.platform.PlatformTextInputInterceptor interceptor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi public static void InterceptPlatformTextInput(androidx.compose.ui.platform.PlatformTextInputInterceptor, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void InterceptPlatformTextInput(androidx.compose.ui.platform.PlatformTextInputInterceptor interceptor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void InterceptPlatformTextInput(androidx.compose.ui.platform.PlatformTextInputInterceptor, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
     method public static suspend Object? establishTextInputSession(androidx.compose.ui.platform.PlatformTextInputModifierNode, kotlin.jvm.functions.Function2<? super androidx.compose.ui.platform.PlatformTextInputSessionScope,? super kotlin.coroutines.Continuation<? extends java.lang.Object?>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
   }
 
