@@ -22,6 +22,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -48,6 +49,8 @@ final class MediaRouterThemeHelper {
     static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
     private static final int COLOR_DARK_ON_LIGHT_BACKGROUND_RES_ID =
             R.color.mr_dynamic_dialog_icon_light;
+
+    private static final String TAG = "MediaRouterThemeHelper";
 
     private MediaRouterThemeHelper() {
     }
@@ -105,6 +108,7 @@ final class MediaRouterThemeHelper {
     }
 
     static Context createThemedButtonContext(Context context) {
+        context = wrapContextForOpaqueBackgroundColorsIfNeeded(context);
         // Apply base Media Router theme.
         context = new ContextThemeWrapper(context, getRouterThemeId(context));
 
@@ -126,14 +130,19 @@ final class MediaRouterThemeHelper {
      *
      * It will apply theme in the following order (style lookups will be done in reverse):
      *   1) Current theme
-     *   2) Supplied theme
-     *   3) Base Media Router theme
-     *   4) Custom Media Router theme, if provided
+     *   2) An overlay with opaque background colors (if needed)
+     *   3) Supplied theme
+     *   4) Base Media Router theme
+     *   5) Custom Media Router theme, if provided
      */
     static Context createThemedDialogContext(Context context, int theme, boolean alertDialog) {
         // 1) Current theme is already applied to the context
 
-        // 2) If no theme is supplied, look it up from the context (dialogTheme/alertDialogTheme)
+        // 2) Apply an overlay with opaque background colors if the current theme is missing them.
+        // If the subsequent themes have the requisite colors, this will not be referenced.
+        context = wrapContextForOpaqueBackgroundColorsIfNeeded(context);
+
+        // 3) If no theme is supplied, look it up from the context (dialogTheme/alertDialogTheme)
         if (theme == 0) {
             theme = getThemeResource(context, !alertDialog
                     ? androidx.appcompat.R.attr.dialogTheme
@@ -142,7 +151,7 @@ final class MediaRouterThemeHelper {
         //    Apply it
         context = new ContextThemeWrapper(context, theme);
 
-        // 3) If a custom Media Router theme is provided then apply the base theme
+        // 4) If a custom Media Router theme is provided then apply the base theme
         if (getThemeResource(context, R.attr.mediaRouteTheme) != 0) {
             context = new ContextThemeWrapper(context, getRouterThemeId(context));
         }
@@ -151,7 +160,10 @@ final class MediaRouterThemeHelper {
     }
     // This method should be used in conjunction with the previous method.
     static int createThemedDialogStyle(Context context) {
-        // 4) Apply the custom Media Router theme
+        // Wrapping the context with opaque colors to ensure later checks do not lead to a crash.
+        context = wrapContextForOpaqueBackgroundColorsIfNeeded(context);
+
+        // 5) Apply the custom Media Router theme
         int theme = getThemeResource(context, R.attr.mediaRouteTheme);
         if (theme == 0) {
             // 3) No custom MediaRouter theme was provided so apply the base theme instead
@@ -285,21 +297,38 @@ final class MediaRouterThemeHelper {
     }
 
     private static int getThemeColor(Context context, int style, int attr) {
+        // 1. Try to get the color from the specific style if provided
         if (style != 0) {
             int[] attrs = { attr };
             TypedArray ta = context.obtainStyledAttributes(style, attrs);
-            int color = ta.getColor(0, 0);
-            ta.recycle();
-            if (color != 0) {
-                return color;
+            try {
+                if (ta.hasValue(0)) {
+                    int color = ta.getColor(0, 0);
+                    if (color != 0) {
+                        return color;
+                    }
+                }
+            } finally {
+                ta.recycle();
             }
         }
+
+        // 2. Fallback to resolving the attribute from the Context's theme
         TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(attr, value, true);
-        if (value.resourceId != 0) {
-            return context.getResources().getColor(value.resourceId);
+        if (context.getTheme().resolveAttribute(attr, value, true)) {
+            if (value.resourceId != 0) {
+                try {
+                    return ContextCompat.getColor(context, value.resourceId);
+                } catch (Exception e) {
+                    // Resource not found or other issue. Falling back to the default return.
+                }
+            } else if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                    && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                return value.data; // Inline color value
+            }
         }
-        return value.data;
+
+        return Color.TRANSPARENT;
     }
 
     private static int getRouterThemeId(Context context) {
@@ -318,5 +347,41 @@ final class MediaRouterThemeHelper {
             }
         }
         return themeId;
+    }
+
+    /**
+     * Wraps the given context with opaque background colors if the background colors are
+     * translucent or not defined properly. This ensures that downstream code can safely assume an
+     * opaque colorPrimary.
+     */
+    private static Context wrapContextForOpaqueBackgroundColorsIfNeeded(Context context) {
+        boolean primaryOpaque = isThemeColorOpaque(context, androidx.appcompat.R.attr.colorPrimary);
+        boolean backgroundOpaque = isThemeColorOpaque(context, android.R.attr.colorBackground);
+
+        if (!primaryOpaque || !backgroundOpaque) {
+            String cause;
+            if (!primaryOpaque && !backgroundOpaque) {
+                cause = "colorPrimary and colorBackground are";
+            } else if (!primaryOpaque) {
+                cause = "colorPrimary is";
+            } else {
+                cause = "colorBackground is";
+            }
+
+            Log.w(
+                    TAG,
+                    "Wrapping the context with a fallback theme because "
+                            + cause
+                            + " translucent. "
+                            + "Ensure these colors are fully opaque (alpha = 255) in your theme.");
+            return new ContextThemeWrapper(context, R.style.Theme_Dialogs_Fallback);
+        }
+        return context;
+    }
+
+    /** Checks if a color attribute in the context's theme is fully opaque. */
+    private static boolean isThemeColorOpaque(Context context, int attr) {
+        int color = getThemeColor(context, /* style= */ 0, attr);
+        return Color.alpha(color) == 255;
     }
 }

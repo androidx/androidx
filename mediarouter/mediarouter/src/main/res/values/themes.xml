@@ -81,4 +81,10 @@
         <item name="mediaRouteAudioTrackDrawable">@drawable/mr_vol_type_audiotrack_light</item>
         <item name="mediaRouteDividerColor">@color/mr_cast_route_divider_light</item>
     </style>
+
+    <style name="Theme.Dialogs.Fallback" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="colorPrimary">@color/dialog_color_primary</item>
+        <item name="colorPrimaryDark">@color/dialog_color_primary_dark</item>
+        <item name="android:colorBackground">@color/dialog_color_background</item>
+    </style>
 </resources>
