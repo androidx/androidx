@@ -12,7 +12,7 @@ import kotlin.collections.listOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "UNUSED_EXPRESSION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
 internal class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
@@ -27,7 +27,7 @@ internal class MyDao_Impl(
   public override suspend fun getA(): A<MyEntity> {
     val _sql: String = "SELECT * FROM MyEntity"
     return __lettersReturnTypeConverter.convertA(listOf("MyEntity"), __db) {
-      performSuspending(__db, true, false) { _connection ->
+      performSuspending<MyEntity>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
           val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
@@ -51,7 +51,7 @@ internal class MyDao_Impl(
     val _sql: String = "SELECT * FROM MyEntity"
     val _rawQuery: RoomRawQuery = RoomRawQuery(_sql)
     return __lettersReturnTypeConverter.convertB(__db, _rawQuery) { _converterQuery ->
-      performSuspending(__db, true, false) { _connection ->
+      performSuspending<MyEntity>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_converterQuery.sql)
         try {
           _converterQuery.getBindingFunction().invoke(_stmt)
@@ -75,7 +75,7 @@ internal class MyDao_Impl(
   public override suspend fun getC(): C<MyEntity> {
     val _sql: String = "SELECT * FROM MyEntity"
     return __lettersReturnTypeConverter.convertC(false, __db, arrayOf("MyEntity")) {
-      performSuspending(__db, true, false) { _connection ->
+      performSuspending<MyEntity>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
           val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")

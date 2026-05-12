@@ -16,7 +16,7 @@ import kotlin.collections.List
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "UNUSED_EXPRESSION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
 internal class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
@@ -30,7 +30,7 @@ internal class MyDao_Impl(
   public override fun insertPublisherSingle(id: String, name: String): Single<Long> {
     val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
     return __rxDaoReturnTypeConverters.convertSingle(__db) {
-      performSuspending(__db, false, true) { _connection ->
+      performSuspending<Long?>(__db, false, true) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
           var _argIndex: Int = 1
@@ -49,7 +49,7 @@ internal class MyDao_Impl(
   public override fun insertPublisherMaybe(id: String, name: String): Maybe<Long> {
     val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
     return __rxDaoReturnTypeConverters.convertMaybe(__db) {
-      performSuspending(__db, false, true) { _connection ->
+      performSuspending<Long?>(__db, false, true) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
           var _argIndex: Int = 1
@@ -68,7 +68,7 @@ internal class MyDao_Impl(
   public override fun insertPublisherCompletable(id: String, name: String): Completable {
     val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
     return __rxDaoReturnTypeConverters.convertCompletable(__db) {
-      performSuspending(__db, false, true) { _connection ->
+      performSuspending<Unit>(__db, false, true) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
           var _argIndex: Int = 1
@@ -76,7 +76,6 @@ internal class MyDao_Impl(
           _argIndex = 2
           _stmt.bindText(_argIndex, name)
           _stmt.step()
-          Unit
         } finally {
           _stmt.close()
         }
