@@ -96,5 +96,11 @@
         android:label="Capabilities"
         android:theme="@style/Theme.AppCompat.NoActionBar" >
     </activity>
+    <activity
+        android:name=".nativedata.NativeDataActivity"
+        android:exported="true"
+        android:label="Native Data"
+        android:process=":nativeTest"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
   </application>
 </manifest>
