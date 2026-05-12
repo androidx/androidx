@@ -141,6 +141,70 @@ class DeepLinkDecoderTest {
         }
     }
 
+    @Test
+    fun testDecodeList() {
+        val arguments = mapOf("list" to listOf("1", "2", "3"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<ListKey>())
+
+        assertThat(result).isEqualTo(ListKey(listOf(1, 2, 3)))
+    }
+
+    @Test
+    fun testDecodeSet() {
+        val arguments = mapOf("set" to listOf("a", "b", "a"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<SetKey>())
+
+        assertThat(result).isEqualTo(SetKey(setOf("a", "b")))
+    }
+
+    @Test
+    fun testDecodeArray() {
+        val arguments = mapOf("array" to listOf("true", "false", "true"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<ArrayKey>())
+
+        assertThat(result.array.contentEquals(arrayOf(true, false, true))).isTrue()
+    }
+
+    @Test
+    fun testDecodeNullableList() {
+        val arguments = mapOf("list" to listOf("1", "null", "3"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<NullableListKey>())
+
+        assertThat(result).isEqualTo(NullableListKey(listOf(1, null, 3)))
+    }
+
+    @Test
+    fun testDecodeEmptyList() {
+        val arguments = emptyMap<String, List<String>>()
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<DefaultListKey>())
+
+        assertThat(result).isEqualTo(DefaultListKey(emptyList()))
+    }
+
+    @Test
+    fun testDecodeNonEmptyDefaultList() {
+        val arguments = emptyMap<String, List<String>>()
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<NonEmptyDefaultListKey>())
+
+        assertThat(result).isEqualTo(NonEmptyDefaultListKey(listOf(1, 2, 3)))
+    }
+
+    @Test
+    fun testDecodeNonPrimitiveListThrows() {
+        val arguments = mapOf("list" to listOf("john", "12"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<SerializationException> {
+            decoder.decodeSerializableValue(serializer<NonPrimitiveListKey>())
+        }
+    }
+
     @Serializable data class SimpleKey(val name: String, val age: Int)
 
     @Serializable data class DefaultKey(val name: String = "default", val age: Int = 0)
@@ -160,4 +224,18 @@ class DeepLinkDecoderTest {
     @Serializable data class DefaultEnumKey(val direction: DirectionEnum = DirectionEnum.NORTH)
 
     @Serializable data class NestedEnumKey(val direction: EnumKey, val flag: Boolean)
+
+    @Serializable data class ListKey(val list: List<Int>)
+
+    @Serializable data class SetKey(val set: Set<String>)
+
+    @Serializable data class ArrayKey(val array: Array<Boolean>)
+
+    @Serializable data class NullableListKey(val list: List<Int?>)
+
+    @Serializable data class DefaultListKey(val list: List<Int> = emptyList())
+
+    @Serializable data class NonPrimitiveListKey(val list: List<SimpleKey>)
+
+    @Serializable data class NonEmptyDefaultListKey(val list: List<Int> = listOf(1, 2, 3))
 }
