@@ -719,15 +719,15 @@ constructor(
             // However, we should return the lowest version among the monitored modules
             // as a conservative estimate of the device state.
             return getSystemModules()
-                .map { module ->
+                .mapNotNull { module ->
                     try {
                         DateBasedSecurityPatchLevel.fromString(
                             securityStateManagerCompat.getPackageVersion(module)
                         )
                     } catch (e: Exception) {
-                        // If a package returns a malformed version string, treat it as
-                        // being extremely outdated to ensure a conservative compliance estimate.
-                        DateBasedSecurityPatchLevel(1970, 1, 1)
+                        // If a package is missing or returns a malformed version string,
+                        // skip it and focus on the valid modules.
+                        null
                     }
                 }
                 .minOrNull() ?: DateBasedSecurityPatchLevel(1970, 1, 1)
