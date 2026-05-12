@@ -17,10 +17,17 @@
 package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
-import java.util.Collections.unmodifiableList
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 actual public object ImmutableCollections {
     actual public fun <T> unmodifiableList(size: Int, indexToValue: (Int) -> T): List<T> =
-        unmodifiableList(List(size, indexToValue))
+        java.util.Collections.unmodifiableList(List(size, indexToValue))
+
+    actual public fun <T> unmodifiableList(list: List<T>): List<T> =
+        // unmodifiableList is a read-only view, so this also needs a defensive copy.
+        java.util.Collections.unmodifiableList(list.toList())
+
+    actual public fun <T> unmodifiableSet(set: Set<T>): Set<T> =
+        // unmodifiableSet is a read-only view, so this also needs a defensive copy.
+        java.util.Collections.unmodifiableSet(set.toSet())
 }

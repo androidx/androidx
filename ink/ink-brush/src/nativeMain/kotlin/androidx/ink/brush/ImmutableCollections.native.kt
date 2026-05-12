@@ -22,4 +22,8 @@ import androidx.annotation.RestrictTo
 actual public object ImmutableCollections {
     actual public fun <T> unmodifiableList(size: Int, indexToValue: (Int) -> T): List<T> =
         List(size, indexToValue)
+
+    actual public fun <T> unmodifiableList(list: List<T>): List<T> = list.toList()
+
+    actual public fun <T> unmodifiableSet(set: Set<T>): Set<T> = set.toSet()
 }

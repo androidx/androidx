@@ -56,10 +56,8 @@ class InkInProgressShapeRendererTest {
                                     BrushPaint(
                                         textureLayers =
                                             listOf(
-                                                BrushPaint.TextureLayer(
+                                                BrushPaint.StampingTexture(
                                                     clientTextureId = "fake",
-                                                    sizeX = 128F,
-                                                    sizeY = 128F,
                                                     animationFrames = 2,
                                                     animationRows = 1,
                                                     animationColumns = 2,

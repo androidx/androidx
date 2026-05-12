@@ -55,19 +55,19 @@ public fun BrushFamily.encode(output: OutputStream) {
 public fun BrushFamily.Companion.decode(
     input: InputStream,
     maxVersion: Version = Version.MAX_SUPPORTED,
-): BrushFamily {
-    val decompressed = DecompressedBytes(input)
-    val nativePointer =
+): BrushFamily =
+    BrushFamily.wrapNative {
+        val decompressed = DecompressedBytes(input)
         BrushSerializationNative.newBrushFamilyFromProto(
-            brushFamilyDirectByteBuffer = null,
-            brushFamilyByteArray = decompressed.bytes,
-            offset = 0,
-            length = decompressed.size,
-            maxVersion = maxVersion.value,
-        )
-    check(nativePointer != 0L) { "Should have thrown exception if decoding failed." }
-    return BrushFamily.wrapNative(nativePointer)
-}
+                brushFamilyDirectByteBuffer = null,
+                brushFamilyByteArray = decompressed.bytes,
+                offset = 0,
+                length = decompressed.size,
+                callback = null,
+                maxVersion = maxVersion.value,
+            )
+            .also { check(it != 0L) { "Should have thrown exception if decoding failed." } }
+    }
 
 /**
  * Write a gzip-compressed serialized `ink.proto.BrushFamily` proto message representing the [List]
@@ -113,15 +113,13 @@ public fun BrushFamily.Companion.decodeMultiple(
     maxVersion: Version = Version.MAX_SUPPORTED,
 ): List<BrushFamily> {
     val decompressed = DecompressedBytes(input)
-    val nativePointers =
-        BrushSerializationNative.newMultipleBrushFamiliesFromProto(
-            brushFamilyDirectByteBuffer = null,
-            brushFamilyByteArray = decompressed.bytes,
-            offset = 0,
-            length = decompressed.size,
-            maxVersion = maxVersion.value,
-        )
-    return nativePointers.map { BrushFamily.wrapNative(it) }
+    return MultipleBrushFamilies.decode(
+        brushFamilyDirectByteBuffer = null,
+        brushFamilyByteArray = decompressed.bytes,
+        length = decompressed.size,
+        callback = null,
+        maxVersion = maxVersion.value,
+    )
 }
 
 // Using an explicit singleton object instead of @file:JvmName to put the static interface intended

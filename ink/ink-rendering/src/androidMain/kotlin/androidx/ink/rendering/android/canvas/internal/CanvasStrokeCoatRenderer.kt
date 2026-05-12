@@ -71,8 +71,8 @@ internal interface CanvasStrokeCoatRenderer {
  * in each texture layer, but currently, we require all texture layers in the same paint to use the
  * same texture mapping mode.)
  */
-internal fun BrushPaint.getTextureMapping(): BrushPaint.TextureLayer.Mapping =
-    textureLayers.firstOrNull()?.mapping ?: BrushPaint.TextureLayer.Mapping.TILING
+internal fun BrushPaint.getTextureMappingValue(): Int =
+    textureLayers.firstOrNull()?.mappingInt ?: BrushPaint.TextureLayer.MAPPING_TILING
 
 internal fun Brush.getPaint(coatIndex: Int, paintPreferenceIndex: Int) =
     family.coats[coatIndex].paintPreferences[paintPreferenceIndex]

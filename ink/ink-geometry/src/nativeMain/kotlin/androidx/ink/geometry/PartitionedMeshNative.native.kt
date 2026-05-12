@@ -70,7 +70,11 @@ actual internal object PartitionedMeshNative {
     actual fun getRenderGroupMeshPointers(nativePointer: Long, groupIndex: Int): LongArray {
         val outPointers =
             LongArray(PartitionedMeshNative_getRenderGroupMeshCount(nativePointer, groupIndex))
+        check(groupIndex >= 0 && groupIndex < outPointers.size) {
+            "groupIndex $groupIndex is out of range [0, ${outPointers.size})"
+        }
         outPointers.usePinned {
+            // addressOf(0) is safe because outPointers is non-empty.
             PartitionedMeshNative_fillRenderGroupMeshPointers(
                 nativePointer,
                 groupIndex,

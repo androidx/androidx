@@ -38,10 +38,8 @@ class InkInProgressShapeTest {
         // Create a brush with a texture animation.
         val brushSize = 10f
         val texture =
-            BrushPaint.TextureLayer(
+            BrushPaint.StampingTexture(
                 clientTextureId = "test",
-                sizeX = 10f,
-                sizeY = 10f,
                 animationFrames = 8,
                 animationRows = 3,
                 animationColumns = 3,

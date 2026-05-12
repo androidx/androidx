@@ -26,7 +26,9 @@ import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushPaint.TextureLayer
+import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
@@ -133,9 +135,9 @@ internal class BrushPaintCache(
                         if (strokeToGraphicsObjectTransform != null) {
                             it.preConcat(strokeToGraphicsObjectTransform)
                         }
-                        when (textureLayer.mapping) {
+                        when (textureLayer) {
                             // For tiling textures, we must end up in graphics object space.
-                            TextureLayer.Mapping.TILING -> {
+                            is TilingTexture -> {
                                 // This code assembles the chain of transforms backwards from stroke
                                 // space.
                                 //
@@ -143,11 +145,11 @@ internal class BrushPaintCache(
                                 // specified by the
                                 // [TextureLayer].
                                 when (textureLayer.origin) {
-                                    TextureLayer.Origin.STROKE_SPACE_ORIGIN -> {}
-                                    TextureLayer.Origin.FIRST_STROKE_INPUT -> {
+                                    TilingTexture.Origin.STROKE_SPACE_ORIGIN -> {}
+                                    TilingTexture.Origin.FIRST_STROKE_INPUT -> {
                                         it.preTranslate(firstInput.x, firstInput.y)
                                     }
-                                    TextureLayer.Origin.LAST_STROKE_INPUT -> {
+                                    TilingTexture.Origin.LAST_STROKE_INPUT -> {
                                         it.preTranslate(lastInput.x, lastInput.y)
                                     }
                                 }
@@ -175,24 +177,25 @@ internal class BrushPaintCache(
                                 //
                                 // Compute (UV -> stroke) = (SizeUnit -> stroke) * (UV -> SizeUnit)
                                 it.preScale(textureLayer.sizeX, textureLayer.sizeY)
+
+                                // The texture rotation is specified as being around the center of
+                                // the first
+                                // repetition, so include a pivot point of 50% in both axes in
+                                // texture UV space.
+                                it.preRotate(textureLayer.rotationDegrees, 0.5f, 0.5f)
+
+                                // The texture offset is specified as fractions of the texture size;
+                                // in other words,
+                                // it should be applied within texture UV space.
+                                it.preTranslate(textureLayer.offsetX, textureLayer.offsetY)
                             }
                             // For stamping textures, we must end up in surface UV space. The shader
                             // will apply
                             // animation parameters as needed to calculate texture UV from that (see
                             // `calculateStampingTextureUv()` in
                             // `sksl_vertex_shader_helper_functions.h`).
-                            TextureLayer.Mapping.STAMPING -> {}
+                            is StampingTexture -> {}
                         }
-
-                        // The texture rotation is specified as being around the center of the first
-                        // repetition,
-                        // so include a pivot point of 50% in both axes in texture UV space.
-                        it.preRotate(textureLayer.rotationDegrees, 0.5f, 0.5f)
-
-                        // The texture offset is specified as fractions of the texture size; in
-                        // other words, it
-                        // should be applied within texture UV space.
-                        it.preTranslate(textureLayer.offsetX, textureLayer.offsetY)
 
                         // To get to texture UV space, we first need to scale from the coordinate
                         // space where
@@ -264,11 +267,26 @@ internal class BrushPaintCache(
             // Early exit for efficiency.
             return PaintCacheData(paint)
         }
-        val bitmaps = textureLayers.map { textureStore[it.clientTextureId] }
+        val bitmaps =
+            textureLayers.map {
+                when (it) {
+                    is TilingTexture -> textureStore[it.clientTextureId]
+                    is StampingTexture -> textureStore[it.clientTextureId]
+                    else -> null
+                }
+            }
         val bitmapShaders =
             textureLayers.zip(bitmaps) { layer, bitmap ->
                 if (bitmap == null) return@zip null
-                BitmapShader(bitmap, layer.wrapX.toShaderTileMode(), layer.wrapY.toShaderTileMode())
+                when (layer) {
+                    is TilingTexture ->
+                        BitmapShader(
+                            bitmap,
+                            layer.wrapX.toShaderTileMode(),
+                            layer.wrapY.toShaderTileMode(),
+                        )
+                    else -> BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+                }
             }
         // Each layer is combined with the result of combining all of the previous layers, using the
         // immediately previous layer's blend mode. (Effectively, ComposeShader acts as the non-leaf
@@ -335,14 +353,15 @@ internal class BrushPaintCache(
 
     /**
      * Obtains a [Paint] for the [BrushPaint] from the cache, creating it if necessary and updating
-     * its local transform. If [TextureLayer.clientTextureId] can't be resolved to a bitmap for any
-     * layer, that layer is ignored.
+     * its local transform. If a [TextureLayer] can't be resolved to a bitmap for any layer (e.g.
+     * according to [TilingTexture.clientTextureId] or [StampingTexture.clientTextureId]), that
+     * layer is ignored.
      *
      * @param brushPaint Used to configure [Paint.shader].
      * @param paintColor Used to set [Paint.color].
      * @param brushSize Used for supporting [TextureLayer.SizeUnit.BRUSH_SIZE].
-     * @param firstInput Used for supporting [TextureLayer.Origin.FIRST_STROKE_INPUT].
-     * @param lastInput Used for supporting [TextureLayer.Origin.LAST_STROKE_INPUT].
+     * @param firstInput Used for supporting [TilingTexture.Origin.FIRST_STROKE_INPUT].
+     * @param lastInput Used for supporting [TilingTexture.Origin.LAST_STROKE_INPUT].
      * @param strokeToGraphicsObjectTransform Indicates that the graphics object that the resulting
      *   [Paint] will be drawn with is in a different coordinate space than stroke space. Setting
      *   this properly allows textures to still be rendered as expected with relationship to stroke

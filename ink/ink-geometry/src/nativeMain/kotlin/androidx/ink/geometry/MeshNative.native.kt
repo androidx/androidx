@@ -29,6 +29,7 @@ import androidx.ink.nativeloader.cinterop.MeshNative_getVertexStride
 import androidx.ink.nativeloader.cinterop.MeshNative_isEmpty
 import androidx.ink.nativeloader.cinterop.MeshNative_newCopy
 import androidx.ink.nativeloader.cinterop.MeshNative_newCopyOfFormat
+import kotlin.math.min
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.useContents
@@ -87,8 +88,12 @@ actual internal object MeshNative {
         check(scales.size >= Mesh.MAX_ATTRIBUTE_UNPACKING_PARAM_COMPONENTS) {
             "scales must have at least ${Mesh.MAX_ATTRIBUTE_UNPACKING_PARAM_COMPONENTS} elements."
         }
+        check(attributeIndex >= 0 && attributeIndex < min(offsets.size, scales.size)) {
+            "attributeIndex $attributeIndex must be in the range [0, ${min(offsets.size, scales.size)})"
+        }
         offsets.usePinned { offsetsPinned ->
             scales.usePinned { scalesPinned ->
+                // addressOf(0) is safe because offsetsPinned and scalesPinned are non-empty.
                 return MeshNative_fillAttributeUnpackingParams(
                     nativePointer,
                     attributeIndex,

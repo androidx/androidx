@@ -16,7 +16,9 @@
 
 package androidx.ink.storage
 
+import androidx.ink.brush.BrushFamily
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.NativePointer
 import androidx.ink.nativeloader.UsedByNative
 import java.nio.ByteBuffer
 
@@ -25,53 +27,6 @@ internal object BrushSerializationNative {
     init {
         NativeLoader.load()
     }
-
-    /** @see [TextureDecodeCallback.onDecodeTexture] */
-    fun interface TextureDecodeCallback {
-        /**
-         * Internal callback for decoding a BrushFamily proto. The PNG bytes are kept as an
-         * implementation detail and are not exposed.
-         *
-         * @param clientTextureId The client-provided texture ID.
-         * @param pngBytes The PNG bytes of the texture bitmap, or null if none was encoded.
-         * @return The texture ID to use in the decoded BrushFamily.
-         */
-        @UsedByNative fun onDecodeTexture(clientTextureId: String, pngBytes: ByteArray?): String
-    }
-
-    fun newBrushFamilyFromProto(
-        brushFamilyDirectByteBuffer: ByteBuffer?,
-        brushFamilyByteArray: ByteArray?,
-        offset: Int,
-        length: Int,
-        callback: TextureDecodeCallback = TextureDecodeCallback { id, _ -> id },
-        maxVersion: Int,
-    ): Long =
-        newBrushFamilyFromProtoInternal(
-            brushFamilyDirectByteBuffer,
-            brushFamilyByteArray,
-            offset,
-            length,
-            callback,
-            maxVersion,
-        )
-
-    fun newMultipleBrushFamiliesFromProto(
-        brushFamilyDirectByteBuffer: ByteBuffer?,
-        brushFamilyByteArray: ByteArray?,
-        offset: Int,
-        length: Int,
-        callback: TextureDecodeCallback = TextureDecodeCallback { id, _ -> id },
-        maxVersion: Int,
-    ): LongArray =
-        newMultipleBrushFamiliesFromProtoInternal(
-            brushFamilyDirectByteBuffer,
-            brushFamilyByteArray,
-            offset,
-            length,
-            callback,
-            maxVersion,
-        )
 
     /**
      * Serializes a [androidx.ink.brush.BrushFamily] to a [ByteArray] using the provided texture map
@@ -152,31 +107,14 @@ internal object BrushSerializationNative {
      * than `maxVersion` will be rejected.
      */
     @UsedByNative
-    private external fun newBrushFamilyFromProtoInternal(
+    external fun newBrushFamilyFromProto(
         brushFamilyDirectByteBuffer: ByteBuffer?,
         brushFamilyByteArray: ByteArray?,
         offset: Int,
         length: Int,
-        callback: TextureDecodeCallback,
+        callback: TextureDecodeCallback?,
         maxVersion: Int,
     ): Long
-
-    /**
-     * Constructs a list of unowned heap-allocated native `BrushFamily` objects from a serialized
-     * proto, which can be passed in as either a direct [ByteBuffer] or a [ByteArray]. The callback
-     * is called for each client texture ID in the BrushFamily proto. `maxVersion` is used to
-     * determine the maximum version supported by the deserializer. If any of the encoded
-     * BrushFamilies have a `min_version` greater than `maxVersion`, deserialization will fail.
-     */
-    @UsedByNative
-    private external fun newMultipleBrushFamiliesFromProtoInternal(
-        brushFamilyDirectByteBuffer: ByteBuffer?,
-        brushFamilyByteArray: ByteArray?,
-        offset: Int,
-        length: Int,
-        callback: TextureDecodeCallback,
-        maxVersion: Int,
-    ): LongArray
 
     /**
      * Constructs an unowned heap-allocated native `BrushCoat` from a serialized proto, which can be
@@ -225,4 +163,83 @@ internal object BrushSerializationNative {
         offset: Int,
         length: Int,
     ): Long
+}
+
+/** @see [TextureDecodeCallback.onDecodeTexture] */
+internal fun interface TextureDecodeCallback {
+    /**
+     * Internal callback for decoding a BrushFamily proto. The PNG bytes are kept as an
+     * implementation detail and are not exposed.
+     *
+     * @param clientTextureId The client-provided texture ID.
+     * @param pngBytes The PNG bytes of the texture bitmap, or null if none was encoded.
+     * @return The texture ID to use in the decoded BrushFamily.
+     */
+    @UsedByNative public fun onDecodeTexture(clientTextureId: String, pngBytes: ByteArray?): String
+}
+
+internal class MultipleBrushFamilies private constructor(nativeAlloc: () -> Long) {
+    private val nativePointer: Long by NativePointer(nativeAlloc, MultipleBrushFamiliesNative::free)
+
+    /**
+     * Returns a list of the decoded brush families the first time it is called, can only be called
+     * once.
+     */
+    internal fun releaseBrushFamilies(): List<BrushFamily> =
+        List(MultipleBrushFamiliesNative.getBrushFamilyCount(nativePointer)) { index ->
+            BrushFamily.wrapNative {
+                MultipleBrushFamiliesNative.releaseBrushFamily(nativePointer, index).also {
+                    check(it != 0L) { "releaseBrushFamilies can only be called once." }
+                }
+            }
+        }
+
+    public companion object {
+        public fun decode(
+            brushFamilyDirectByteBuffer: ByteBuffer?,
+            brushFamilyByteArray: ByteArray?,
+            length: Int,
+            callback: TextureDecodeCallback?,
+            maxVersion: Int,
+        ): List<BrushFamily> =
+            MultipleBrushFamilies {
+                    MultipleBrushFamiliesNative.createFromProto(
+                            brushFamilyDirectByteBuffer,
+                            brushFamilyByteArray,
+                            length,
+                            callback,
+                            maxVersion,
+                        )
+                        .also {
+                            check(it != 0L) { "Should have thrown exception if decoding failed." }
+                        }
+                }
+                .releaseBrushFamilies()
+    }
+}
+
+@UsedByNative
+internal object MultipleBrushFamiliesNative {
+    init {
+        NativeLoader.load()
+    }
+
+    /**
+     * Returns a pointer to a heap-allocated `std::vector<std::unique_ptr<BrushFamily>>`, allowing
+     * handoff to individual `BrushFamily` objects to be guarded by cleanup logic.
+     */
+    @UsedByNative
+    external fun createFromProto(
+        brushFamilyDirectByteBuffer: ByteBuffer?,
+        brushFamilyByteArray: ByteArray?,
+        length: Int,
+        callback: TextureDecodeCallback?,
+        maxVersion: Int,
+    ): Long
+
+    @UsedByNative external fun getBrushFamilyCount(nativePointer: Long): Int
+
+    @UsedByNative external fun releaseBrushFamily(nativePointer: Long, index: Int): Long
+
+    @UsedByNative external fun free(nativePointer: Long)
 }
