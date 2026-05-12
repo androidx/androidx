@@ -65,6 +65,50 @@ class UriDeepLinkMatcherTest {
 
         assertThat(result).isNull()
     }
+
+    @Test
+    fun matchRequest_schemeMatchCaseInsensitive() {
+        val pattern = DeepLinkUri("http://example.com/path")
+        val matcher = UriDeepLinkMatcher(pattern, serializer<TestArgKey>())
+        val request = DeepLinkRequest.fromUriString("HTTP://example.com/path")
+
+        val result = matcher.match(request)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Test
+    fun matchRequest_authorityMatchCaseInsensitive() {
+        val pattern = DeepLinkUri("http://example.com/path")
+        val matcher = UriDeepLinkMatcher(pattern, serializer<TestArgKey>())
+        val request = DeepLinkRequest.fromUriString("http://EXAMPLE.COM/path")
+
+        val result = matcher.match(request)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Test
+    fun matchRequest_pathSegmentSizeMatch() {
+        val pattern = DeepLinkUri("http://example.com/path/subpath")
+        val matcher = UriDeepLinkMatcher(pattern, serializer<TestArgKey>())
+        val request = DeepLinkRequest.fromUriString("http://example.com/path/subpath")
+
+        val result = matcher.match(request)
+
+        assertThat(result).isNotNull()
+    }
+
+    @Test
+    fun matchRequest_pathSegmentSizeMatch_trailingWildcard() {
+        val pattern = DeepLinkUri("http://example.com/path/.*")
+        val matcher = UriDeepLinkMatcher(pattern, serializer<TestArgKey>())
+        val request = DeepLinkRequest.fromUriString("http://example.com/path/wildcard/segments")
+
+        val result = matcher.match(request)
+
+        assertThat(result).isNotNull()
+    }
 }
 
 @Serializable private data class TestArgKey(val name: String = "test")

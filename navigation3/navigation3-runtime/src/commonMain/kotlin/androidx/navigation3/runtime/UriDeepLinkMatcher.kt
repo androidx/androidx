@@ -206,7 +206,15 @@ public open class UriDeepLinkMatcher<T : Any>(
         queryArgs: Map<String, List<String>> = emptyMap(),
         fragmentArgs: Map<String, List<String>> = emptyMap(),
     ): UriMatchResult<T>? {
-        TODO()
+        val arguments = buildMap {
+            // path args get priority because they are required args
+            putAll(fragmentArgs)
+            putAll(queryArgs)
+            putAll(pathArgs)
+        }
+        val decoder = DeepLinkDecoder(arguments)
+        val key = decoder.decodeSerializableValue(serializer)
+        return UriMatchResult(key, arguments)
     }
 }
 
