@@ -21,6 +21,7 @@ import kotlinx.serialization.KSerializer
 
 // catches placeholder pattern i.e. {argName}
 private val FILL_IN_PATTERN = Regex("\\{(.+?)\\}")
+private const val ANY_SYMBOLS_IN_THE_TAIL = "([\\s\\S]+?)?"
 private val PATH_REGEX = Regex("([^/]*?|)")
 
 /**
@@ -60,6 +61,47 @@ private val PATH_REGEX = Regex("([^/]*?|)")
  *     - Request: `www.example.com/users//profile`
  *     - Extracted values: Maps "id" to [""].
  *
+ * **Supported Query Pattern Types and Examples**
+ * 1. Named Parameter
+ *     - Pattern: `?name={name}`
+ *     - Arguments: Extracts argument ["name].
+ *     - Request: `?name=john`
+ *     - Extracted values: Maps "name" to ["john"].
+ * 2. Unnamed Parameter
+ *     - Pattern: `?{rawQuery}`
+ *     - Arguments: Extracts argument ["rawQuery"].
+ *     - Request: `?age=30&city=someCity`
+ *     - Extracted values: Maps "rawQuery" to ["age=30&city=someCity"].
+ * 3. Partial Literal Matching
+ *     - Pattern: `?type=user_{id}`
+ *     - Arguments: Extracts argument ["id"].
+ *     - Request: `?type=user_123`
+ *     - Extracted values: Maps "id" to ["123"].
+ * 4. Multiple Placeholders in One Parameter
+ *     - Pattern: `?name={first}_{last}`
+ *     - Arguments: Extracts arguments ["first", "last"].
+ *     - Request: `?name=john_doe`
+ *     - Extracted values: Maps "first" to ["john"] and "last" to ["doe"].
+ * 5. Collection Parameters
+ *     - Pattern: `?list={list}`
+ *     - Arguments: Extracts argument ["list"].
+ *     - Request: `?list=10&list=20`
+ *     - Extracted values: Maps "list" to ["10", "20"].
+ * 6. Wildcard Matching
+ *     - Pattern: `?type=user_.*`
+ *     - Arguments: Extracts argument ["type"].
+ *     - Request: `?type=user_admin`
+ *     - Extracted values: Maps "type" to ["admin"].
+ *
+ * **Unsupported Query Pattern Types and Examples**
+ * 1. Repeated Parameter Names in Pattern
+ *     - Pattern: `www.example.com?name={first}&name={last}`
+ * 2. Extra Parameters
+ *     - Pattern: `?name={name}`
+ *     - Arguments: Extracts arguments ["name"].
+ *     - Request: `?name=john&city=someCity`
+ *     - Extracted values: Maps "name" to ["john"]. // city is ignored
+ *
  * @param uriPattern The [DeepLinkUri] containing the uri pattern that this matcher supports.
  * @param serializer The serializer to instantiate an instance of [T]
  * @param filters an optional list of filters to filter a [DeepLinkRequest] when matching
@@ -74,6 +116,10 @@ public open class UriDeepLinkMatcher<T : Any>(
     // has no args.
     private val parsedPath: Pair<Regex, List<String>> by lazy {
         UriPatternParser.parsePath(uriPattern)
+    }
+    // empty if uriPattern does not have any query or query params
+    private val parsedQuery: Map<String, QueryParamPattern> by lazy {
+        UriPatternParser.parseQuery(uriPattern)
     }
 
     /**
@@ -117,7 +163,8 @@ public open class UriDeepLinkMatcher<T : Any>(
         // in the same order as the pattern. Regex allows for any query or fragment if present.
         // Null if regex does not match, empty map if regex matches but no path args.
         val extractedPathArgs = UriRequestParser.extractPathArgs(parsedPath, uri) ?: return null
-        return matchArguments(extractedPathArgs)
+        val extractedQueryArgs = UriRequestParser.extractQueryArgs(parsedQuery, uri)
+        return matchArguments(extractedPathArgs, extractedQueryArgs)
     }
 
     /**
@@ -195,6 +242,80 @@ internal object UriPatternParser {
     }
 
     /**
+     * Parses the query of [uriPattern] into a map of parameter names to their corresponding
+     * [QueryParamPattern] objects.
+     *
+     * This method extracts placeholders (e.g., `{name}`) from the query parameters and builds
+     * regular expressions to match with a requested Uri's query pattern and query values.
+     *
+     * Extra query input that are not declared in [uriPattern] are ignored.
+     *
+     * @return A map where the key is the query parameter name from the pattern, and the value is
+     *   the parsed [QueryParamPattern] containing the matching regex and extracted argument names.
+     *   Returns null if [uriPattern] does not contain any query, or if it does not contain any
+     *   parameters (DeepLinkUri.getQueryParameterNames() is empty i.e. "www.example.com?=").
+     * @see [UriDeepLinkMatcher] for supported query patterns and examples.
+     */
+    internal fun parseQuery(uriPattern: DeepLinkUri): Map<String, QueryParamPattern> = buildMap {
+        // get all query parameter names in the uriPattern, i.e.
+        // "...?user={id}&place={location}" returns "user" and "place"
+        // paramName of unnamed params is the entire "{argName}"
+        for (paramName in uriPattern.getQueryParameterNames()) {
+            // get all values for this query parameter name in the pattern
+            // i.e. for "...?user={id}", getQueryParameters("user") returns ["{id}"]
+            val queryParams = uriPattern.getQueryParameters(paramName)
+            require(queryParams.size <= 1) {
+                "Query parameter $paramName must only be present once in the pattern."
+            }
+            val paramPattern = QueryParamPattern()
+
+            // checks if it is unnamed (i.e. ...?{rawQuery}) param or flag (i.e. ...?debug)
+            val first = queryParams.firstOrNull() ?: ""
+            if (first == "") paramPattern.isSingleQueryParamValueOnly = true
+            val queryParam =
+                if (paramPattern.isSingleQueryParamValueOnly) {
+                    paramName
+                } else {
+                    queryParams.first()
+                }
+
+            // split queryParam with FILL_IN_PATTERN as delimiter
+            // this allows us to interleave this regex pattern [literal, placeholder,
+            // literal,
+            // placeholder...] later on if the
+            // queryParam has multiple fill in patterns, i.e. "...?user=name_{first}_{last}"
+            val literals = queryParam.split(FILL_IN_PATTERN).fastMapOrMap { Regex.escape(it) }
+            val matches = FILL_IN_PATTERN.findAll(queryParam).toList()
+
+            val argRegex = StringBuilder()
+            literals.fastForEachIndexed { index, literal ->
+                // no op if there are no literals before the first placeholder
+                argRegex.append(literal)
+                // check if we are at the end of the queryParam
+                if (index < matches.size) {
+                    // interleave the placeholder regex
+                    argRegex.append(ANY_SYMBOLS_IN_THE_TAIL)
+                    paramPattern.addArgumentName(matches[index].groups[1]!!.value)
+                }
+            }
+            // mark end of string
+            argRegex.append("$")
+            paramPattern.paramRegex = saveWildcardInRegex(argRegex.toString())
+
+            // If no placeholders were found, but the pattern contains a wildcard,
+            // we treat the wildcard match as the argument value using the parameter name.
+            if (
+                paramPattern.arguments.isEmpty() && paramPattern.paramRegex?.contains(".*") == true
+            ) {
+                paramPattern.paramRegex = paramPattern.paramRegex?.replace(".*", "(.*)")
+                paramPattern.addArgumentName(paramName)
+            }
+
+            put(paramName, paramPattern)
+        }
+    }
+
+    /**
      * Builds a regular expression for a uri segment by replacing placeholders with regex patterns.
      *
      * For example, given a segment "user_{id}_profile":
@@ -269,4 +390,95 @@ internal object UriRequestParser {
                 }
             }
         }
+
+    /**
+     * Matches the parsed query pattern with a requested uri's query.
+     *
+     * The input query and query pattern needs to match in both the regex pattern and the name (if
+     * supplied) to be a match.
+     *
+     * The requested URI query must contain all required query params (declared in the pattern and
+     * don't have a default value in the associated key class). Any extra query params not declared
+     * in the pattern are ignored.
+     *
+     * This method splits the requested URI's query string with "&" delimiter, then matches named
+     * params and concatenates remaining unnamed params as values for the unnamed parameter if one
+     * exists. Lastly, extra query input are extracted and added to the returned map.
+     *
+     * @param requestedUri The URI of the incoming deep link request.
+     * @return A map where the key is the argument name defined in the pattern, and the value is a
+     *   list of extracted values from the requested URI. Returns empty map if uri pattern does not
+     *   have a query or query parameters.
+     * @see [UriDeepLinkMatcher] for supported query patterns and examples.
+     */
+    internal fun extractQueryArgs(
+        parsedQuery: Map<String, QueryParamPattern>,
+        requestedUri: DeepLinkUri,
+    ): Map<String, List<String>> =
+        buildMap<String, MutableList<String>> {
+            // match navigation 2 behavior where as long as any param is
+            // isSingleQueryParamValueOnly, all params will
+            // be treated as such (even named params)
+            val isSingleQueryParamValueOnly =
+                parsedQuery.any { it.value.isSingleQueryParamValueOnly }
+            parsedQuery.forEach { entry ->
+                val paramName = entry.key
+                val paramPattern = entry.value
+
+                // Get all actual values provided in the requested URI for this parameter name
+                // i.e. for paramName "user", returns ["john"]; for paramName "list", returns
+                // ["10",
+                // "20"]
+                val inputParamValues =
+                    if (isSingleQueryParamValueOnly) {
+                        // If this parameter is unnamed or has no args, capture the entire raw
+                        // query string
+                        listOf(requestedUri.getQuery().orEmpty())
+                    } else {
+                        requestedUri.getQueryParameters(paramName)
+                    }
+
+                // Process each value (handles repeated query parameters like ?arg=1&arg=2)
+                inputParamValues.fastForEachOrForEach { inputParamValue ->
+                    // Check if the actual value matches the pattern regex we built
+                    val argMatchResult =
+                        paramPattern.paramRegex?.let { Regex(it).matchEntire(inputParamValue) }
+                    if (argMatchResult != null) {
+                        // If it matches, extract values for each argument name defined in the
+                        // pattern
+                        if (
+                            paramPattern.arguments.isEmpty() &&
+                                paramPattern.isSingleQueryParamValueOnly
+                        ) {
+                            getOrPut(paramName) { mutableListOf() }.add("")
+                        } else {
+                            paramPattern.arguments.fastForEachIndexed { index, argName ->
+                                // Groups are 1-indexed, group 0 is the full match
+                                val value = argMatchResult.groups[index + 1]?.value.orEmpty()
+                                // Accumulate values for the argument name
+                                getOrPut(argName) { mutableListOf() }.add(value)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+}
+
+/** Represents a single query parameter parsed from a uri pattern. */
+internal class QueryParamPattern {
+    /**
+     * regex of the param, may have multiple placeholders, wildcards, mix of string literal &
+     * placeholder
+     */
+    var paramRegex: String? = null
+    /** the argument names extracted from within the placeholder(s) of this query param */
+    val arguments = mutableListOf<String>()
+
+    /** true if this param is a flag with no value in pattern, i.e. ?debug or ?{arg} */
+    var isSingleQueryParamValueOnly = false
+
+    fun addArgumentName(name: String) {
+        arguments.add(name)
+    }
 }

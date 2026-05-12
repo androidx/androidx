@@ -18,6 +18,7 @@ package androidx.navigation3.runtime
 
 import androidx.kruth.assertThat
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 @IgnoreAndroidHostTestTarget
 class UriDeepLinkParserTest {
@@ -292,6 +293,197 @@ class UriDeepLinkParserTest {
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users//123")
         val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
         assertThat(result).isNull()
+    }
+
+    @Test
+    fun testExtractQueryArgs_namedParam() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={name}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name=john")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["name"]).isEqualTo(listOf("john"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_namedParamsMultiple() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={name}&age={age}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name=john&age=30")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["name"]).isEqualTo(listOf("john"))
+        assertThat(result["age"]).isEqualTo(listOf("30"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_differentOrder() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={name}&age={age}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?age=30&name=john")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["name"]).isEqualTo(listOf("john"))
+        assertThat(result["age"]).isEqualTo(listOf("30"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_unnamedParam() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?{rawQuery}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?anything&else")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["rawQuery"]).isEqualTo(listOf("anything&else"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_namedAndUnnamedParam() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?user={name}&{other}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?user=john&anything&else")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["name"]).isEqualTo(listOf("user=john&anything&else"))
+        assertThat(result["other"]).isEqualTo(listOf("user=john&anything&else"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_repeatedParams() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?list={val}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?list=10&list=20")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["val"]).isEqualTo(listOf("10", "20"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_wildcard() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=.*")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=user_admin")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["type"]).isEqualTo(listOf("user_admin"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_wildcardSuffix() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=user_.*")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=user_admin")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["type"]).isEqualTo(listOf("admin"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_wildcardPrefix() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=.*_user")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=admin_user")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["type"]).isEqualTo(listOf("admin"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_partialLiteralMatching() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=user_{id}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?type=user_123")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["id"]).isEqualTo(listOf("123"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_multiplePlaceholdersInOneParam() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={first}_{last}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name=john_doe")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["first"]).isEqualTo(listOf("john"))
+        assertThat(result["last"]).isEqualTo(listOf("doe"))
+    }
+
+    @Test
+    fun testExtractQuery_noQueryArgsInPattern() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractQueryArgs_emptyValueForNamedParam() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={name}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name=")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["name"]).isEqualTo(listOf(""))
+    }
+
+    @Test
+    fun testExtractQueryArgs_encodedCharacters() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?query={query}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?query=hello%20world")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["query"]).isEqualTo(listOf("hello world"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_dashBetweenPlaceholder() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?user={first}-{last}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?user=john-doe")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["first"]).isEqualTo(listOf("john"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_commaSeparatedList() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?colors={colorList}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?colors=purple,red,green")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["colorList"]).isEqualTo(listOf("purple,red,green"))
+    }
+
+    @Test
+    fun testExtractQuery_queryArgsFlag() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?debug")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?debug")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["debug"]).isEqualTo(listOf(""))
+    }
+
+    @Test
+    fun testExtractQueryArgs_trailingQuestionMark() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a?")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractQueryArgs_noParameters() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a?=")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testExtractQueryArgs_multipleUnnamedParams() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?{rawQuery1}&{rawQuery2}")
+        val parsedQuery = UriPatternParser.parseQuery(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?anything&else")
+        val result = UriRequestParser.extractQueryArgs(parsedQuery, requestedUri)
+        assertThat(result["rawQuery1"]).isEqualTo(listOf("anything&else"))
+        assertThat(result["rawQuery2"]).isEqualTo(listOf("anything&else"))
+    }
+
+    @Test
+    fun testExtractQueryArgs_duplicateParamNameThrows() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={first}&name={last}")
+        assertFailsWith<IllegalArgumentException> { UriPatternParser.parseQuery(uriPattern) }
     }
 
     companion object {
