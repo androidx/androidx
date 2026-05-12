@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
+
+import androidx.navigation3.runtime.fastForEachOrForEach
 
 /**
  * Encompasses the logic to match a navigation key of type [T] against a [DeepLinkRequest].

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
 /**
- * A [DeepLinkMatcher] that matches based on a list of [DeepLinkMatcher.Filter] and if all filters
- * match, returns the input [key] in the [MatchResult].
+ * A [DeepLinkMatcher] that matches based on a list of [Filter] and if all filters match, returns
+ * the input [key] in the [MatchResult].
  *
  * [T] The Type of the navigation key associated with this deep link matcher.
  *

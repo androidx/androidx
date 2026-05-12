@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.runtime
+package androidx.navigation3.runtime.deeplink
 
 private class URISyntaxException(input: String, reason: String, index: Int) :
     Exception("$reason at index $index: $input")
