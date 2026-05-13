@@ -183,6 +183,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
         anchor.uuid?.let { persistedAnchorUUIDs.remove(it) }
     }
 
+    /** Sets TrackingStates to STOPPED for any corresponding config mode that has been disabled. */
     @OptIn(PreviewSpatialApi::class)
     @SuppressWarnings("RestrictedApiAndroidX")
     internal fun updateTrackingStates(config: Config) {

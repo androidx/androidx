@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.arcore.testing
 
 import androidx.activity.ComponentActivity
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.arcore.PlaneLabel
+import androidx.xr.arcore.PlaneType
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -78,5 +79,14 @@ class ArCoreTestRuleTest {
         assertThat(underTest.persistedAnchorPoses.size).isEqualTo(1)
         assertThat(underTest.persistedAnchorPoses).containsKey(uuid)
         assertThat(underTest.persistedAnchorPoses[uuid]).isEqualTo(pose)
+    }
+
+    @Test
+    fun addTrackables_addsToPendingCollection() {
+        val testPlane = TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL)
+
+        underTest.addTrackables(testPlane)
+
+        assertThat(underTest.pendingTrackables).containsExactly(testPlane)
     }
 }

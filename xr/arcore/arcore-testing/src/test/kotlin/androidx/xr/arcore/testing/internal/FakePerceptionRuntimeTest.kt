@@ -17,6 +17,8 @@
 package androidx.xr.arcore.testing.internal
 
 import androidx.kruth.assertThat
+import androidx.xr.arcore.runtime.Trackable
+import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.Config
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
@@ -86,6 +88,19 @@ class FakePerceptionRuntimeTest {
         underTest.destroy()
 
         assertFailsWith<IllegalStateException> { underTest.configure(Config()) }
+    }
+
+    @Test
+    fun addPendingTrackableProvider_addsToSet() {
+        val provider =
+            object : PendingTrackablesProvider {
+                override fun getPendingTrackables(): Set<Trackable> = emptySet()
+            }
+        underTest.initialize()
+
+        underTest.addPendingTrackableProvider(provider)
+
+        assertThat(underTest.pendingTrackableProviders).containsExactly(provider)
     }
 
     @Test
@@ -172,6 +187,60 @@ class FakePerceptionRuntimeTest {
         val secondTimeMark = underTest.update()
 
         assertThat(secondTimeMark - firstTimeMark).isEqualTo(testDuration)
+    }
+
+    @Test
+    fun update_planePending_isAddedToPerceptionManager() = runTest {
+        val runtimePlane = FakeRuntimePlane()
+        val provider =
+            object : PendingTrackablesProvider {
+                override fun getPendingTrackables(): Set<Trackable> = setOf(runtimePlane)
+            }
+        underTest.initialize()
+        underTest.addPendingTrackableProvider(provider)
+        underTest.resume()
+        assertThat(underTest.perceptionManager.trackables).isEmpty()
+
+        underTest.update()
+
+        assertThat(underTest.perceptionManager.trackables).containsExactly(runtimePlane)
+        assertThat(runtimePlane.trackingState).isNotEqualTo(TrackingState.STOPPED)
+    }
+
+    @Test
+    fun update_augmentedObjectPending_isAddedToPerceptionManager() = runTest {
+        val runtimeAugmentedObject = FakeRuntimeAugmentedObject()
+        val provider =
+            object : PendingTrackablesProvider {
+                override fun getPendingTrackables(): Set<Trackable> = setOf(runtimeAugmentedObject)
+            }
+        underTest.initialize()
+        underTest.addPendingTrackableProvider(provider)
+        underTest.resume()
+        assertThat(underTest.perceptionManager.trackables).isEmpty()
+
+        underTest.update()
+
+        assertThat(underTest.perceptionManager.trackables).containsExactly(runtimeAugmentedObject)
+        assertThat(runtimeAugmentedObject.trackingState).isNotEqualTo(TrackingState.STOPPED)
+    }
+
+    @Test
+    fun update_facePending_isAddedToPerceptionManager() = runTest {
+        val runtimeFace = FakeRuntimeFace()
+        val provider =
+            object : PendingTrackablesProvider {
+                override fun getPendingTrackables(): Set<Trackable> = setOf(runtimeFace)
+            }
+        underTest.initialize()
+        underTest.addPendingTrackableProvider(provider)
+        underTest.resume()
+        assertThat(underTest.perceptionManager.trackables).isEmpty()
+
+        underTest.update()
+
+        assertThat(underTest.perceptionManager.trackables).containsExactly(runtimeFace)
+        assertThat(runtimeFace.trackingState).isNotEqualTo(TrackingState.STOPPED)
     }
 
     @Test

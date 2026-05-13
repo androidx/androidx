@@ -38,13 +38,13 @@ import androidx.xr.runtime.math.Vector2
  */
 public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrackable() {
 
-    internal val fakeRuntimeTrackable =
+    override val fakeRuntimeTrackable =
         FakeRuntimePlane(planeType.toRuntimeType(), planeLabel.toRuntimeType())
 
     override var isVisible: Boolean = true
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.trackingState =
                     if (value) {
                         TrackingState.TRACKING
@@ -58,7 +58,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
     public var type: PlaneType = planeType
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.type = value.toRuntimeType()
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -67,7 +67,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
     public var label: PlaneLabel = planeLabel
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.label = value.toRuntimeType()
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -76,7 +76,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
     public var centerPose: Pose = Pose()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.centerPose = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -85,7 +85,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
     public var extents: FloatSize2d = FloatSize2d()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.extents = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -94,7 +94,7 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
     public var vertices: List<Vector2> = emptyList()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.vertices = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -103,13 +103,13 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
     public var subsumedBy: TestPlane? = null
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.subsumedBy = value?.fakeRuntimeTrackable
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    internal fun isConfigured(): Boolean =
+    override fun isTrackableConfigured(): Boolean =
         if (isAddedToTestRule)
             arCoreTestRule.runtime.config.planeTracking != PlaneTrackingMode.DISABLED
         else false

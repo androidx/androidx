@@ -54,6 +54,8 @@ internal class FakePerceptionRuntime(override val perceptionManager: FakePercept
     /** The time source used for this runtime. */
     val timeSource: TestTimeSource = TestTimeSource()
 
+    val pendingTrackableProviders: MutableSet<PendingTrackablesProvider> = mutableSetOf()
+
     override var config: Config = Config()
 
     override fun initialize() {
@@ -71,8 +73,9 @@ internal class FakePerceptionRuntime(override val perceptionManager: FakePercept
         )
 
         this.config = config
-        allowOneMoreCallToUpdate()
+
         perceptionManager.updateTrackingStates(config)
+        allowOneMoreCallToUpdate()
     }
 
     override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
@@ -91,7 +94,14 @@ internal class FakePerceptionRuntime(override val perceptionManager: FakePercept
     override suspend fun update(): ComparableTimeMark {
         check(state == State.RESUMED)
         semaphore.acquire()
+
         perceptionManager.updateTrackingStates(config)
+
+        // Move any pending Trackable objects to PerceptionManager
+        pendingTrackableProviders.forEach { provider ->
+            perceptionManager.trackables.addAll(provider.getPendingTrackables())
+        }
+
         return timeSource.markNow()
     }
 
@@ -103,5 +113,10 @@ internal class FakePerceptionRuntime(override val perceptionManager: FakePercept
     override fun destroy() {
         check(state == State.PAUSED || state == State.INITIALIZED)
         state = State.DESTROYED
+        pendingTrackableProviders.clear()
+    }
+
+    internal fun addPendingTrackableProvider(provider: PendingTrackablesProvider) {
+        pendingTrackableProviders.add(provider)
     }
 }
