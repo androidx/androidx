@@ -78,6 +78,8 @@ import kotlin.test.assertTrue
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
+import platform.UIKit.UIAccessibilityContainerTypeNone
+import platform.UIKit.UIAccessibilityContainerTypeSemanticGroup
 import platform.UIKit.UIAccessibilityTraitAdjustable
 import platform.UIKit.UIAccessibilityTraitButton
 import platform.UIKit.UIAccessibilityTraitHeader
@@ -1139,6 +1141,44 @@ class ComponentsAccessibilitySemanticTest {
                 node {
                     identifier = "button text"
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testTraversalGroupWithSemantics() = runUIKitInstrumentedTest {
+        setContent {
+            Column(
+                modifier = Modifier.semantics {
+                    testTag = "group_column"
+                    isTraversalGroup = true
+                    // Should be added as a separate accessibility element
+                    contentDescription = "Group Column"
+                }
+            ) {
+                Button(
+                    onClick = {},
+                    modifier = Modifier.semantics {
+                        testTag = "button"
+                    }
+                ) {
+                    Text("Button text")
+                }
+            }
+        }
+        assertAccessibilityTree {
+            isAccessibilityElement = false
+            containerType = UIAccessibilityContainerTypeSemanticGroup
+            node {
+                identifier = "button"
+                isAccessibilityElement = true
+                containerType = UIAccessibilityContainerTypeNone
+            }
+            node {
+                identifier = "group_column"
+                label = "Group Column"
+                isAccessibilityElement = true
+                containerType = UIAccessibilityContainerTypeNone
             }
         }
     }

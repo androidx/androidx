@@ -46,7 +46,6 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getAllUncoveredSemanticsNodesToIntObjectMap
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.semantics.isImportantForAccessibility
 import androidx.compose.ui.semantics.sortByGeometryGroupings
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.uikit.toNanoSeconds
@@ -200,10 +199,10 @@ private sealed interface AccessibilityNode {
      * @mediator reference to the containing AccessibilityMediator
      */
     class Semantics(
-        override val semanticsNode: SemanticsNode,
+        semanticsNode: SemanticsNode,
         private val mediator: AccessibilityMediator,
-        private val isBeyondBounds: Boolean
-    ) : AccessibilityNode {
+        private val isBeyondBounds: Boolean,
+    ) : Container(semanticsNode) {
         private val cachedConfig = semanticsNode.config
         private val scrollableParentNodeIds by lazy { semanticsNode.allScrollableParentNodeIds }
 
@@ -216,6 +215,13 @@ private sealed interface AccessibilityNode {
                 false
             }
         }
+
+        override val accessibilityContainerType: UIAccessibilityContainerType
+            get() = when {
+                semanticsNode.canBeAccessibilityElement() -> UIAccessibilityContainerTypeNone
+                semanticsNode.isTraversalGroup -> UIAccessibilityContainerTypeSemanticGroup
+                else -> UIAccessibilityContainerTypeNone
+            }
 
         override val accessibilityInteropView: InteropWrappingView?
             get() = cachedConfig.getOrNull(NativeAccessibilityViewSemanticsKey)?.also {
@@ -357,7 +363,7 @@ private sealed interface AccessibilityNode {
      * with all its children. [Container] is used to indicate element that contains container
      * semantic node with all its children.
      */
-    class Container(
+    open class Container(
         override val semanticsNode: SemanticsNode
     ) : AccessibilityNode {
         override val key: AccessibilityElementKey = semanticsNode.containerKey
@@ -1550,7 +1556,7 @@ internal class AccessibilityMediator(
                     node = AccessibilityNode.Semantics(
                         semanticsNode = node,
                         mediator = this,
-                        isBeyondBounds = isBeyondBounds
+                        isBeyondBounds = isBeyondBounds,
                     ),
                     container = container,
                     children = children,
@@ -1602,25 +1608,29 @@ internal class AccessibilityMediator(
                     traverseChildren(it, isBeyondBounds = true, flatten = flattenChildren, container = node)
                 }
 
-                val allElements = beforeElements + visibleElements + afterElements
                 if (node.isTraversalGroup || node.id == rootNode.id) {
-                    val hasSemanticsNode = node.isImportantForAccessibility() ||
-                        node.config.contains(SemanticsProperties.TestTag)
-
-                    val containerChildren = if (hasSemanticsNode) {
-                        listOf(makeSemanticsNode(allElements))
+                    if (node.canBeAccessibilityElement()) {
+                        val containerElement = listOf(makeSemanticsNode(emptyList()))
+                        createOrUpdateAccessibilityElement(
+                            node = AccessibilityNode.Container(semanticsNode = node),
+                            container = container,
+                            children = beforeElements + visibleElements + containerElement + afterElements,
+                            frame = frame
+                        )
                     } else {
-                        allElements
+                        createOrUpdateAccessibilityElement(
+                            node = AccessibilityNode.Semantics(
+                                semanticsNode = node,
+                                mediator = this,
+                                isBeyondBounds = isBeyondBounds
+                            ),
+                            container = container,
+                            children = beforeElements + visibleElements + afterElements,
+                            frame = frame
+                        )
                     }
-
-                    createOrUpdateAccessibilityElement(
-                        node = AccessibilityNode.Container(semanticsNode = node),
-                        container = container,
-                        children = containerChildren,
-                        frame = frame
-                    )
                 } else {
-                    makeSemanticsNode(allElements)
+                    makeSemanticsNode(beforeElements + visibleElements + afterElements)
                 }
             } else {
                 makeSemanticsNode(emptyList())
