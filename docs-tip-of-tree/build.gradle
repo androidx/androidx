@@ -94,6 +94,8 @@ dependencies {
     docs(project(":compose:remote:remote-player-view"))
     docs(project(":compose:remote:remote-tooling-preview"))
     docs(project(":compose:remote:remote-testing"))
+    docs(project(":core:core-locationbutton"))
+    docs(project(":core:core-locationbutton-testing"))
     docs(project(":core:core-pip"))
     kmpDocs(project(":datastore:datastore-tink"))
     docs(project(":wear:compose:remote:remote-material3"))

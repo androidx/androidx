@@ -1,0 +1,18 @@
+// Signature format: 4.0
+package androidx.core.locationbutton.testing {
+
+  public class TestLocationButtonProvider implements android.app.permissionui.LocationButtonProvider {
+    ctor public TestLocationButtonProvider(android.content.Context context);
+    method public static final androidx.core.locationbutton.testing.TestLocationButtonProvider create();
+    method public final void notifyPermissionResult(android.app.permissionui.LocationButtonSession session, boolean isGranted);
+    method protected void onSessionRequestReceived(android.app.permissionui.LocationButtonRequest request, android.app.permissionui.LocationButtonSession session);
+    method public void openSession(android.app.Activity activity, android.os.IBinder hostToken, int displayId, android.app.permissionui.LocationButtonRequest request, java.util.concurrent.Executor executor, android.app.permissionui.LocationButtonClient client);
+    field public static final androidx.core.locationbutton.testing.TestLocationButtonProvider.Companion Companion;
+  }
+
+  public static final class TestLocationButtonProvider.Companion {
+    method public androidx.core.locationbutton.testing.TestLocationButtonProvider create();
+  }
+
+}
+
