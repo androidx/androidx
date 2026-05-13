@@ -189,8 +189,8 @@ fun StyleStateKeySample() {
 
     // Introduce an extension function to read the style state. This will only be
     // available in a MediaPlayerStyle.
-    fun MediaPlayerStyleScope.playerPlaying(value: () -> Unit) {
-        state(playingStateKey, value)
+    fun MediaPlayerStyleScope.playerPlaying(block: () -> Unit) {
+        state(playingStateKey, block)
     }
 
     // The MediaPlayer composable

@@ -58,6 +58,7 @@ import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.findNearestAncestor
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateDrawForSubtree
 import androidx.compose.ui.node.invalidateLayer
 import androidx.compose.ui.node.invalidateMeasurement
@@ -323,7 +324,7 @@ internal class StyleOuterNode(
 
     private fun currentLayerStyle() = resolveAnimatedStyleFor(LayerFlag)
 
-    private fun currentLayoutStyle() = resolveAnimatedStyleFor(OuterLayoutFlag)
+    private fun currentLayoutStyle() = resolveAnimatedStyleFor(OuterLayoutFlag or LayerFlag)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -525,7 +526,6 @@ internal class StyleOuterNode(
 
     override fun ContentDrawScope.draw() {
         val resolved = resolveAnimatedStyleFor(DrawFlag)
-
         val bgColor = resolved.hasOrElse(BackgroundColorId, Color.Unspecified) { backgroundColor }
         val bgBrush = resolved.hasOrNull(BackgroundBrushId) { backgroundBrush!! }
         val foregroundColor =
@@ -731,8 +731,11 @@ internal class StyleOuterNode(
         // inside  observeReads. We do this because observeReads is not inline, which means that
         // animChanges will get compiled into a captured Ref.
         var animChanges = 0
+        builder.prepareBuild()
         observeReads {
             builder.build(style, this, density)
+
+            // Passing 0 for the phase indicates that no animations should be read.
             builder.resolveInto(0, next)
             _resolved = next
             _bufferOrNull = prev
@@ -764,6 +767,7 @@ internal class StyleOuterNode(
             // TODO: invalidateDraw() doesn't seem to correct invalidate the drawing of THIS node,
             //  but it probably should. I think this is a bug. By calling invalidateLayer of the
             //  inner node, we sidestep the bug, but should probably investigate separately.
+            invalidateDraw()
             innerNode.invalidateLayer()
         }
         if (changes and LayerFlag != 0) {
