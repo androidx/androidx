@@ -821,6 +821,13 @@ package androidx.compose.remote.creation.compose.state {
     method public static final androidx.compose.remote.creation.compose.state.RemoteInt createNamedRemoteInt(String name, int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method @InaccessibleFromKotlin public Integer? getConstantValueOrNull();
     property public Integer? constantValueOrNull;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteInt.Companion Companion;
+  }
+
+  public static final class RemoteInt.Companion {
+    method public androidx.compose.remote.creation.compose.state.RemoteInt createNamedRemoteInt(String name, int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteInt! createNamedRemoteInt$default(androidx.compose.remote.creation.compose.state.RemoteInt.Companion!, String!, int, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteInt invoke(int value);
   }
 
   public final class RemoteIntKt {
