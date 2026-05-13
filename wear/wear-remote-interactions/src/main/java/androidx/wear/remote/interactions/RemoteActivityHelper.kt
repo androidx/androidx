@@ -327,6 +327,12 @@ constructor(
      * behavior. In this case, no remote unlock will be requested and the user will have to manually
      * unlock their phone if it is locked before activity is launched.
      *
+     * Use this method for broad compatibility on watches, providing an easy upgrade path for
+     * existing users of [startRemoteActivity]. On API 37 and above, this method attempts unlocking
+     * the phone, automatically falling back to a standard remote launch if unavailable. On API
+     * below 37, it functions as a standard remote launch. Intents must match the listed
+     * limitations.
+     *
      * @param targetUri The data URI of the activity to start on the phone. This must not be empty.
      * @param targetCategories The categories of the activity to start on the phone. This must
      *   contain [android.content.Intent.CATEGORY_BROWSABLE]. If not specified, by default it will
@@ -409,6 +415,10 @@ constructor(
      *
      * There are no restrictions on [targetAction], [targetUri] or [targetCategories] as long as
      * they are not empty.
+     *
+     * Use this method to launch explicitly targeted intents (specifying target package, action,
+     * URI, and categories) instead of public browsable links, and if your flow strictly requires an
+     * unlocked phone without automatic fallbacks.
      *
      * **Exception Conditions:**
      * * [IllegalStateException]: Thrown if [PERMISSION_SEND_CONTINUE_ACTIVITY_ON_PHONE] has not
