@@ -17,7 +17,11 @@
 package androidx.build.checkapi
 
 import androidx.build.AndroidXExtension
+import androidx.build.OperatingSystem
+import androidx.build.PlatformGroup
+import androidx.build.PlatformIdentifier
 import androidx.build.getAndroidJar
+import androidx.build.getOperatingSystem
 import androidx.build.multiplatformExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
@@ -323,6 +327,15 @@ internal class MultiplatformCompilationInputs(
             // List all main compilations.
             val allCompilations = project.objects.listProperty<KotlinCompilation<*>>()
             kmpExtension.targets.configureEach { target ->
+                // Skip mac targets when running on a different operating system because project
+                // dependencies required for a mac classpath won't be generated.
+                if (
+                    getOperatingSystem() != OperatingSystem.MAC &&
+                        PlatformIdentifier.fromId(target.targetName.lowercase())?.group ==
+                            PlatformGroup.MAC
+                ) {
+                    return@configureEach
+                }
                 val mainCompilation =
                     target.compilations.named(KotlinCompilation.MAIN_COMPILATION_NAME)
                 allCompilations.add(mainCompilation)
@@ -342,10 +355,13 @@ internal class MultiplatformCompilationInputs(
             }
 
             return allKotlinSourceSets.zip(allCompilations) { sourceSets, allCompilations ->
-                sourceSets.map { sourceSet ->
+                sourceSets.mapNotNull { sourceSet ->
                     // Find the compilations that this source set is part of.
                     val allAssociatedCompilations =
                         allCompilations.filter { it.allKotlinSourceSets.contains(sourceSet) }
+                    // Skip source sets which aren't part of any compilations (like mac source sets
+                    // when running on a different operating system).
+                    if (allAssociatedCompilations.isEmpty()) return@mapNotNull null
                     // Include dependencies from all compilations which this source set is
                     // associated with.
                     val sourceSetDependencies =
