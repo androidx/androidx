@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +68,7 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.navigationevent.findViewTreeNavigationEventDispatcherOwner
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -1076,6 +1078,106 @@ class PopupTest {
 
         // Verify the window type was correctly passed to the LayoutParams
         assertThat(popupMatcher.lastSeenWindowParams!!.type).isEqualTo(customType)
+    }
+
+    @Test
+    fun isNotDismissedOnBackPress_focusableFalse() {
+        var showPopup by mutableStateOf(true)
+        var rootBackPressed = false
+        rule.setContent {
+            androidx.activity.compose.BackHandler { rootBackPressed = true }
+            Box(Modifier.fillMaxSize()) {
+                if (showPopup) {
+                    Popup(
+                        properties = PopupProperties(focusable = false, dismissOnBackPress = true),
+                        alignment = Alignment.Center,
+                        onDismissRequest = { showPopup = false },
+                    ) {
+                        Box(Modifier.size(50.dp).testTag(testTag))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(testTag).assertIsDisplayed()
+
+        Espresso.pressBack()
+        rule.waitForIdle()
+
+        // Popup should still be visible because it wasn't focusable and didn't intercept back
+        rule.onNodeWithTag(testTag).assertIsDisplayed()
+
+        assertThat(rootBackPressed).isTrue()
+    }
+
+    @Test
+    fun hasViewTreeNavigationEventDispatcherOwner() {
+        var popupView: View? = null
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Popup {
+                    val view = LocalView.current
+                    SideEffect { popupView = view }
+                    Box(Modifier.size(50.dp).testTag(testTag))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(testTag).assertIsDisplayed()
+
+        rule.runOnIdle {
+            assertThat(popupView).isNotNull()
+            // Retrieve the owner from the view tree
+            val dispatcherOwner = popupView!!.findViewTreeNavigationEventDispatcherOwner()
+            assertThat(dispatcherOwner).isNotNull()
+            // Confirm the dispatcher is owned specifically by the PopupLayout implementation
+            assertThat(dispatcherOwner!!::class.java.simpleName).isEqualTo("PopupLayout")
+        }
+    }
+
+    @Test
+    fun multiplePopups_dismissInLifoOrder() {
+        var showPopup1 by mutableStateOf(true)
+        var showPopup2 by mutableStateOf(true)
+        val tag1 = "popup1"
+        val tag2 = "popup2"
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                if (showPopup1) {
+                    Popup(
+                        properties = PopupProperties(focusable = true),
+                        onDismissRequest = { showPopup1 = false },
+                    ) {
+                        Box(Modifier.size(50.dp).testTag(tag1))
+                    }
+                }
+                if (showPopup2) {
+                    Popup(
+                        properties = PopupProperties(focusable = true),
+                        onDismissRequest = { showPopup2 = false },
+                    ) {
+                        Box(Modifier.size(50.dp).testTag(tag2))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(tag1).assertIsDisplayed()
+        rule.onNodeWithTag(tag2).assertIsDisplayed()
+
+        // First back press: Targets the most recent (top) popup
+        Espresso.pressBack()
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(tag2).assertDoesNotExist()
+        rule.onNodeWithTag(tag1).assertIsDisplayed()
+
+        // Second back press: Targets the remaining popup
+        Espresso.pressBack()
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(tag1).assertDoesNotExist()
     }
 
     private fun matchesSize(width: Int, height: Int): BoundedMatcher<View, View> {
