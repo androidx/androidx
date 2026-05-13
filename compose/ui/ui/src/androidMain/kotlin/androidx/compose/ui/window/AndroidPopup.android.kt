@@ -32,8 +32,6 @@ import android.view.View.MeasureSpec.makeMeasureSpec
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
-import android.window.OnBackInvokedCallback
-import android.window.OnBackInvokedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
@@ -84,6 +82,13 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.NavigationEventHandler
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.OnBackInvokedOverlayInput
+import androidx.navigationevent.setViewTreeNavigationEventDispatcherOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
@@ -617,7 +622,7 @@ internal class PopupLayout(
         } else {
             PopupLayoutHelperImpl()
         },
-) : AbstractComposeView(composeView.context), ViewRootForInspector {
+) : AbstractComposeView(composeView.context), ViewRootForInspector, NavigationEventDispatcherOwner {
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -664,13 +669,38 @@ internal class PopupLayout(
             }
         )
 
-    private var backCallback: Any? = null
+    private val directNavigationEventInput = DirectNavigationEventInput()
+
+    private val isBackHandlingEnabled: Boolean
+        get() = properties.focusable && properties.dismissOnBackPress
+
+    private var overlayInput: OnBackInvokedOverlayInput? = null
+
+    private val backHandler =
+        object :
+            NavigationEventHandler<NavigationEventInfo>(
+                initialInfo = NavigationEventInfo.None,
+                isBackEnabled = true,
+            ) {
+            override fun onBackCompleted() {
+                onDismissRequest?.invoke()
+            }
+        }
+
+    override val navigationEventDispatcher =
+        NavigationEventDispatcher().apply {
+            addHandler(backHandler)
+            addInput(directNavigationEventInput)
+        }
 
     init {
         id = android.R.id.content
         setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
         setViewTreeViewModelStoreOwner(composeView.findViewTreeViewModelStoreOwner())
         setViewTreeSavedStateRegistryOwner(composeView.findViewTreeSavedStateRegistryOwner())
+        setViewTreeNavigationEventDispatcherOwner(this)
+        navigationEventDispatcher.isEnabled = isBackHandlingEnabled
+
         // Set unique id for AbstractComposeView. This allows state restoration for the state
         // defined inside the Popup via rememberSaveable()
         setTag(R.id.compose_view_saveable_id_tag, "Popup:$popupId")
@@ -720,14 +750,14 @@ internal class PopupLayout(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         snapshotStateObserver.start()
-        maybeRegisterBackCallback()
+        maybeRegisterBackNavigationInputs()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         snapshotStateObserver.stop()
         snapshotStateObserver.clear()
-        maybeUnregisterBackCallback()
+        maybeUnregisterBackNavigationInputs()
     }
 
     override fun internalOnMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -769,7 +799,7 @@ internal class PopupLayout(
                 return true
             } else if (event.action == KeyEvent.ACTION_UP) {
                 if (state.isTracking(event) && !event.isCanceled) {
-                    onDismissRequest?.invoke()
+                    directNavigationEventInput.backCompleted()
                     return true
                 }
             }
@@ -777,21 +807,22 @@ internal class PopupLayout(
         return super.dispatchKeyEvent(event)
     }
 
-    private fun maybeRegisterBackCallback() {
+    private fun maybeRegisterBackNavigationInputs() {
         if (!properties.dismissOnBackPress || Build.VERSION.SDK_INT < 33) {
             return
         }
-        if (backCallback == null) {
-            backCallback = Api33Impl.createBackCallback(onDismissRequest)
+        Api33Impl.registerBackNavigationInputs(this, navigationEventDispatcher) { ovr ->
+            overlayInput = ovr
         }
-        Api33Impl.maybeRegisterBackCallback(this, backCallback)
     }
 
-    private fun maybeUnregisterBackCallback() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            Api33Impl.maybeUnregisterBackCallback(this, backCallback)
+    private fun maybeUnregisterBackNavigationInputs() {
+        if (Build.VERSION.SDK_INT < 33) {
+            return
         }
-        backCallback = null
+
+        overlayInput?.let { navigationEventDispatcher.removeInput(it) }
+        overlayInput = null
     }
 
     fun updateParameters(
@@ -817,6 +848,10 @@ internal class PopupLayout(
         }
 
         this.properties = properties
+
+        // Disable the dispatcher if the popup shouldn't intercept back events
+        navigationEventDispatcher.isEnabled = isBackHandlingEnabled
+
         params.flags = properties.flagsWithSecureFlagInherited(composeView.isFlagSecureEnabled())
 
         popupLayoutHelper.updateViewLayout(windowManager, this, params)
@@ -932,7 +967,9 @@ internal class PopupLayout(
     /** Remove the view from the [WindowManager]. */
     fun dismiss() {
         setViewTreeLifecycleOwner(null)
+        setViewTreeNavigationEventDispatcherOwner(null)
         windowManager.removeViewImmediate(this)
+        navigationEventDispatcher.dispose()
     }
 
     /**
@@ -1024,27 +1061,15 @@ internal class PopupLayout(
 @RequiresApi(33)
 private object Api33Impl {
     @JvmStatic
-    fun createBackCallback(onDismissRequest: (() -> Unit)?) = OnBackInvokedCallback {
-        onDismissRequest?.invoke()
-    }
-
-    @JvmStatic
-    fun maybeRegisterBackCallback(view: View, backCallback: Any?) {
-        if (backCallback is OnBackInvokedCallback) {
-            view
-                .findOnBackInvokedDispatcher()
-                ?.registerOnBackInvokedCallback(
-                    OnBackInvokedDispatcher.PRIORITY_OVERLAY,
-                    backCallback,
-                )
-        }
-    }
-
-    @JvmStatic
-    fun maybeUnregisterBackCallback(view: View, backCallback: Any?) {
-        if (backCallback is OnBackInvokedCallback) {
-            view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)
-        }
+    fun registerBackNavigationInputs(
+        view: View,
+        dispatcher: NavigationEventDispatcher,
+        onRegistered: (OnBackInvokedOverlayInput) -> Unit,
+    ) {
+        val invoker = view.findOnBackInvokedDispatcher() ?: return
+        val overlayInput = OnBackInvokedOverlayInput(invoker)
+        dispatcher.addInput(overlayInput)
+        onRegistered(overlayInput)
     }
 }
 
