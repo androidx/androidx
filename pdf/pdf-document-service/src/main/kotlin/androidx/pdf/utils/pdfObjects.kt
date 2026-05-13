@@ -20,19 +20,30 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import android.graphics.pdf.component.PdfPageImageObject
 import android.graphics.pdf.component.PdfPageObject
+import android.graphics.pdf.component.PdfPagePathObject
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.models.ImagePdfObject
+import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PdfObject
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal fun PdfPageObject.toPdfObject(): PdfObject? {
     return when (this) {
-        is PdfPageImageObject -> {
-            this.toImagePdfObject()
-        }
+        is PdfPageImageObject -> this.toImagePdfObject()
+        is PdfPagePathObject -> this.toPathPdfObject()
         else -> null
     }
+}
+
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+internal fun PdfPagePathObject.toPathPdfObject(): PathPdfObject {
+    val pathInputs = this.toPath().getPathInputsFromPath()
+    return PathPdfObject(
+        brushColor = this.fillColor,
+        brushWidth = this.strokeWidth,
+        inputs = pathInputs,
+    )
 }
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)

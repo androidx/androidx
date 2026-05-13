@@ -31,6 +31,7 @@ import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
 import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
 import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.KeyedPdfObject
 import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
@@ -129,6 +130,10 @@ internal open class FakeEditablePdfDocument(
 
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
         return edits[pageNum] ?: emptyList()
+    }
+
+    override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> {
+        return emptyList()
     }
 
     override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {

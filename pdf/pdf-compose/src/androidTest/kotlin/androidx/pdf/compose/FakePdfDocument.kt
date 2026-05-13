@@ -33,6 +33,7 @@ import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
 import androidx.pdf.PdfFeature
 import androidx.pdf.RenderParams
 import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.KeyedPdfObject
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
@@ -115,6 +116,10 @@ internal open class FakePdfDocument(
     }
 
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> {
         TODO("Not yet implemented")
     }
 

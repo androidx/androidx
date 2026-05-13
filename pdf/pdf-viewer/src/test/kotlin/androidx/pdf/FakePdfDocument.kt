@@ -31,6 +31,8 @@ import androidx.annotation.RequiresExtension
 import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.ImagePdfObject
+import androidx.pdf.annotation.models.KeyedPdfObject
+import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
@@ -67,6 +69,7 @@ internal open class FakePdfDocument(
     private val textContents: List<PdfPageTextContent> = emptyList(),
     private val pageFormWidgetInfos: Map<Int, List<FormWidgetInfo>> = mapOf(),
     private val annotationsPerPage: Map<Int, List<KeyedPdfAnnotation>> = mapOf(),
+    private val pageObjectsPerPage: Map<Int, List<KeyedPdfObject>> = mapOf(),
     override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
     private val exceptionToThrow: Exception? = null,
 ) : PdfDocument {
@@ -140,6 +143,18 @@ internal open class FakePdfDocument(
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
         if (exceptionToThrow != null) throw exceptionToThrow
         return annotationsPerPage[pageNum] ?: emptyList()
+    }
+
+    override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> {
+        if (exceptionToThrow != null) throw exceptionToThrow
+        return pageObjectsPerPage[pageNum]?.mapNotNull { keyedObject ->
+            keyedObject.takeIf {
+                when (it.pdfObject) {
+                    is ImagePdfObject -> PdfDocument.INCLUDE_IMAGE_PAGE_OBJECT and types != 0L
+                    is PathPdfObject -> PdfDocument.INCLUDE_PATH_PAGE_OBJECT and types != 0L
+                }
+            }
+        } ?: emptyList()
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
