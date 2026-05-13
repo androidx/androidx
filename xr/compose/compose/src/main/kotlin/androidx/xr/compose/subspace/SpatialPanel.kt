@@ -328,7 +328,8 @@ public class ResizePolicy(
  * @param factory A lambda that creates an instance of the Android View [T].
  * @param modifier SubspaceModifiers to apply to the SpatialPanel. The depth field in size-based
  *   modifiers affects this panel's layout size, but will not affect how the panel is rendered. The
- *   rendered shape will be a flat rectangle.
+ *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
+ *   prism created by the layout size.
  * @param update A lambda that allows updating the created Android View [T].
  * @param shape The shape of this Spatial Panel.
  * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
@@ -445,7 +446,8 @@ private fun <T : View> AndroidViewPanel(
  *
  * @param modifier SubspaceModifiers to apply to the SpatialPanel. The depth field in size-based
  *   modifiers affects this panel's layout size, but will not affect how the panel is rendered. The
- *   rendered shape will be a flat rectangle.
+ *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
+ *   prism created by the layout size.
  * @param shape The shape of this Spatial Panel.
  * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
@@ -570,7 +572,8 @@ public fun SpatialPanel(
  * @param modifier The [SubspaceModifier] to be applied to this panel, controlling its layout, size,
  *   and position within the parent. The depth field in size-based modifiers affects this panel's
  *   layout size, but will not affect how the panel is rendered. The rendered shape will be a flat
- *   rectangle.
+ *   rectangle that is positioned on the front face of the rectangular prism created by the layout
+ *   size.
  * @param shape The shape of this Spatial Panel.
  * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
@@ -706,7 +709,8 @@ internal class MainPanelOwnerQueue(private val queue: ArrayDeque<() -> Unit> = A
  * @param intent The intent of an Activity to launch within this panel.
  * @param modifier SubspaceModifiers to apply to the SpatialPanel. The depth field in size-based
  *   modifiers affects this panel's layout size, but will not affect how the panel is rendered. The
- *   rendered shape will be a flat rectangle.
+ *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
+ *   prism created by the layout size.
  * @param shape The shape of this Spatial Panel.
  * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for

@@ -192,7 +192,8 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  *
  * @param modifier SubspaceModifiers to apply to the SpatialExternalSurface. The depth field in
  *   size-based modifiers affects this surface's layout size, but will not affect how the surface is
- *   rendered. The rendered shape will be a flat rectangle.
+ *   rendered. The rendered shape will be a flat rectangle that is positioned on the front face of
+ *   the rectangular prism created by the layout size.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
  * @param featheringEffect A [SpatialFeatheringEffect] to apply to the canvas of the surface exposed
