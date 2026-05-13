@@ -16,9 +16,33 @@
 
 package androidx.xr.compose.testing.samples
 
+import android.content.res.Resources
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.unit.Dp
 
 internal class SubspaceTestingActivity : ComponentActivity()
 
 internal val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+/**
+ * Converts a float to a [Dp] value.
+ *
+ * Mainly used in Compose for XR internal unit tests.
+ *
+ * @return a [Dp] object representing the same value in Dp.
+ */
+internal fun Float.toDp(): Dp {
+    return Dp(this / Resources.getSystem().displayMetrics.density)
+}
+
+/**
+ * Converts an integer to a [Dp] value.
+ *
+ * Mainly used in Compose for XR internal unit tests.
+ *
+ * @return a [Dp] object representing the same value in Dp.
+ */
+internal fun Int.toDp(): Dp {
+    return Dp(this.toFloat() / Resources.getSystem().displayMetrics.density)
+}

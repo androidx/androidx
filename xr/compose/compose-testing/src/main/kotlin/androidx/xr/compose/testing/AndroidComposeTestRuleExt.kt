@@ -16,100 +16,80 @@
 
 package androidx.xr.compose.testing
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
-import androidx.xr.runtime.Session
 
 /**
- * The XR [Session] for the current [AndroidComposeTestRule].
+ * Finds a semantics node in the Subspace hierarchy that matches the given condition.
  *
- * This will be null until the value is set or `LocalSession.current` is accessed in compose, after
- * which the value will be non-null and return the current [Session]. Setting this value after
- * calling `setContent` will not change the Session that is used for that content block. Setting the
- * value to null will indicate that the default test Session should be used.
+ * This function only locates nodes within the Subspace hierarchy and does not include nodes from
+ * standard 2D compose contexts. For example, it targets `SpatialPanel`, `SpatialRow`, or
+ * `SpatialColumn` nodes but not standard `Row`, `Column`, or `Text` nodes. For locating 2D nodes,
+ * use `AndroidComposeTestRule.onNode`.
+ *
+ * Any subsequent operation on the returned interaction expects exactly one element to be found
+ * (unless `SubspaceSemanticsNodeInteraction.assertDoesNotExist` is used) and throws an
+ * `AssertionError` if zero or multiple elements are found.
+ *
+ * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
+ * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
+ * @param matcher the `SubspaceSemanticsMatcher` used to identify the matching semantics node.
+ * @return the `SubspaceSemanticsNodeInteraction` for the matched node.
+ * @see AndroidComposeTestRule.onAllSubspaceNodes
  */
-public var AndroidComposeTestRule<*, *>.session: Session?
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    get() =
-        activity.window.decorView.getTag(androidx.xr.compose.R.id.compose_xr_session) as? Session
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    set(value) {
-        activity.window.decorView.setTag(androidx.xr.compose.R.id.compose_xr_session, value)
-    }
-
-/**
- * Finds a semantics node (in the Subspace hierarchy) that matches the given condition.
- *
- * This only locates nodes in the Subspace hierarchy and will not include nodes from 2D compose
- * contexts. For example, it will return SpatialPanel, SpatialRow, or SpatialColumn nodes, but it
- * will not return Row, Column, or Text nodes. For 2D nodes, use [AndroidComposeTestRule.onNode].
- *
- * Any subsequent operation on its result will expect exactly one element found (unless
- * [SubspaceSemanticsNodeInteraction.assertDoesNotExist] is used) and will throw an [AssertionError]
- * if none or more than one element is found.
- *
- * For usage patterns and semantics concepts see [SubspaceSemanticsNodeInteraction]
- *
- * @param matcher Matcher used for filtering
- * @see onAllSubspaceNodes to work with multiple elements
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun AndroidComposeTestRule<*, *>.onSubspaceNode(
     matcher: SubspaceSemanticsMatcher
 ): SubspaceSemanticsNodeInteraction =
     SubspaceSemanticsNodeInteraction(SubspaceTestContext(this), matcher)
 
 /**
- * Finds all semantics nodes (in the Subspace hierarchy) that match the given condition.
+ * Finds all semantics nodes in the Subspace hierarchy that match the given condition.
  *
- * This only locates nodes in the Subspace hierarchy and will not include nodes from 2D compose
- * contexts. For example, it will return SpatialPanel, SpatialRow, or SpatialColumn nodes, but it
- * will not return Row, Column, or Text nodes. For 2D nodes, use [AndroidComposeTestRule.onNode].
+ * This function only locates nodes within the Subspace hierarchy and does not include nodes from
+ * standard 2D compose contexts. For locating 2D nodes, use `AndroidComposeTestRule.onAllNodes`. If
+ * you are dealing with elements guaranteed to occur exactly once, prefer using `onSubspaceNode` to
+ * enforce uniqueness constraints and improve clarity.
  *
- * If you are working with elements that are not supposed to occur multiple times use
- * [onSubspaceNode] instead.
- *
- * For usage patterns and semantics concepts see [SubspaceSemanticsNodeInteraction]
- *
- * @param matcher Matcher used for filtering.
- * @see onSubspaceNode
+ * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
+ * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
+ * @param matcher the `SubspaceSemanticsMatcher` used to filter the semantics nodes.
+ * @return the `SubspaceSemanticsNodeInteractionCollection` containing all matching nodes.
+ * @see AndroidComposeTestRule.onSubspaceNode
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun AndroidComposeTestRule<*, *>.onAllSubspaceNodes(
     matcher: SubspaceSemanticsMatcher
 ): SubspaceSemanticsNodeInteractionCollection =
     SubspaceSemanticsNodeInteractionCollection(SubspaceTestContext(this), matcher)
 
 /**
- * Finds a semantics node (in the Subspace hierarchy) identified by the given tag.
+ * Finds a semantics node in the Subspace hierarchy identified by the provided test tag.
  *
- * This only locates nodes in the Subspace hierarchy and will not include nodes from 2D compose
- * contexts. For example, it will return SpatialPanel, SpatialRow, or SpatialColumn nodes, but it
- * will not return Row, Column, or Text nodes. For 2D nodes, use [AndroidComposeTestRule.onNode].
+ * This convenience function specifically searches for nodes within the Subspace hierarchy and does
+ * not locate standard 2D compose elements. The search evaluates for an exact string match on the
+ * test tag.
  *
- * For usage patterns and semantics concepts see [SubspaceSemanticsNodeInteraction]
- *
- * @param testTag The tag to search for. Looks for an exact match only.
- * @see onSubspaceNode for more information.
+ * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
+ * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
+ * @param testTag the specific tag string to search for within the hierarchy.
+ * @return the `SubspaceSemanticsNodeInteraction` for the matched node.
+ * @see AndroidComposeTestRule.onSubspaceNode
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun AndroidComposeTestRule<*, *>.onSubspaceNodeWithTag(
     testTag: String
 ): SubspaceSemanticsNodeInteraction = onSubspaceNode(hasTestTag(testTag))
 
 /**
- * Finds all semantics nodes (in the Subspace hierarchy) identified by the given tag.
+ * Finds all semantics nodes in the Subspace hierarchy identified by the provided test tag.
  *
- * This only locates nodes in the Subspace hierarchy and will not include nodes from 2D compose
- * contexts. For example, it will return SpatialPanel, SpatialRow, or SpatialColumn nodes, but it
- * will not return Row, Column, or Text nodes. For 2D nodes, use [AndroidComposeTestRule.onNode].
+ * This convenience function specifically searches for nodes within the Subspace hierarchy and does
+ * not locate standard 2D compose elements. The search evaluates for an exact string match on the
+ * test tag.
  *
- * For usage patterns and semantics concepts see [SubspaceSemanticsNodeInteraction]
- *
- * @param testTag The tag to search for. Looks for an exact matches only.
- * @see onSubspaceNode for more information.
+ * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
+ * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
+ * @param testTag the specific tag string to search for within the hierarchy.
+ * @return the `SubspaceSemanticsNodeInteractionCollection` containing all matching nodes.
+ * @see AndroidComposeTestRule.onAllSubspaceNodes
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun AndroidComposeTestRule<*, *>.onAllSubspaceNodesWithTag(
     testTag: String
 ): SubspaceSemanticsNodeInteractionCollection = onAllSubspaceNodes(hasTestTag(testTag))

@@ -68,7 +68,7 @@ private fun SubspaceSemanticsInfo.getAllSemanticsNodes(): Iterable<SubspaceSeman
 
     fun findAllSemanticNodesRecursive(currentNode: SubspaceSemanticsInfo) {
         nodes.add(currentNode)
-        currentNode.semanticsChildren.fastForEach { child -> findAllSemanticNodesRecursive(child) }
+        currentNode.childrenInfo.fastForEach { child -> findAllSemanticNodesRecursive(child) }
     }
 
     findAllSemanticNodesRecursive(this)

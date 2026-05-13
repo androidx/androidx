@@ -56,7 +56,6 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.session
-import androidx.xr.compose.testing.toDp
 import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.compose.unit.toMeter
 import androidx.xr.scenecore.PanelEntity
@@ -277,8 +276,16 @@ class OrbiterTest {
 
         composeTestRule
             .onNodeWithTag("orbiterContentBox")
-            .assertWidthIsEqualTo((session.context as Activity).window.decorView.width.toDp())
-            .assertHeightIsEqualTo((session.context as Activity).window.decorView.height.toDp())
+            .assertWidthIsEqualTo(
+                with(composeTestRule.density) {
+                    (session.context as Activity).window.decorView.width.toDp()
+                }
+            )
+            .assertHeightIsEqualTo(
+                with(composeTestRule.density) {
+                    (session.context as Activity).window.decorView.height.toDp()
+                }
+            )
     }
 
     @Test
@@ -308,8 +315,8 @@ class OrbiterTest {
 
         composeTestRule
             .onNodeWithTag("orbiterContentBox")
-            .assertWidthIsEqualTo(200.toDp())
-            .assertHeightIsEqualTo(200.toDp())
+            .assertWidthIsEqualTo(200.dp)
+            .assertHeightIsEqualTo(200.dp)
         // Check `getMainWindowSize` is never called.
         verify(testMainPanelEntity, never()).sizeInPixels
     }
@@ -375,8 +382,8 @@ class OrbiterTest {
 
         composeTestRule
             .onNodeWithTag("orbiterContentBox")
-            .assertWidthIsEqualTo(200.toDp())
-            .assertHeightIsEqualTo(200.toDp())
+            .assertWidthIsEqualTo(200.dp)
+            .assertHeightIsEqualTo(200.dp)
         // Check `getMainWindowSize` is never called.
         verify(testMainPanelEntity, never()).sizeInPixels
     }
@@ -464,8 +471,8 @@ class OrbiterTest {
 
         composeTestRule.setContent {
             val window = composeTestRule.activity.window
-            windowWidthDp = window.decorView.width.toDp()
-            windowHeightDp = window.decorView.height.toDp()
+            windowWidthDp = with(composeTestRule.density) { window.decorView.width.toDp() }
+            windowHeightDp = with(composeTestRule.density) { window.decorView.height.toDp() }
 
             Orbiter(ContentEdge.Top) {
                 // Orbiter content that is larger than the main window
@@ -498,8 +505,8 @@ class OrbiterTest {
 
         composeTestRule
             .onNodeWithTag("orbiterContentBox")
-            .assertWidthIsEqualTo(0.toDp())
-            .assertHeightIsEqualTo(0.toDp())
+            .assertWidthIsEqualTo(0.dp)
+            .assertHeightIsEqualTo(0.dp)
     }
 
     @Test
@@ -556,15 +563,15 @@ class OrbiterTest {
 
         composeTestRule
             .onNodeWithTag("orbiterContentBox")
-            .assertWidthIsEqualTo(initialWidth.toDp())
-            .assertHeightIsEqualTo(initialHeight.toDp())
+            .assertWidthIsEqualTo(with(composeTestRule.density) { initialWidth.toDp() })
+            .assertHeightIsEqualTo(with(composeTestRule.density) { initialHeight.toDp() })
 
         triggerResize = true
 
         composeTestRule
             .onNodeWithTag("orbiterContentBox")
-            .assertWidthIsEqualTo(targetResizeWidth.toDp())
-            .assertHeightIsEqualTo(targetResizeHeight.toDp())
+            .assertWidthIsEqualTo(with(composeTestRule.density) { targetResizeWidth.toDp() })
+            .assertHeightIsEqualTo(with(composeTestRule.density) { targetResizeHeight.toDp() })
     }
 
     @Test
