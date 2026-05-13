@@ -1717,12 +1717,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     ?: false
             }
             android.R.id.accessibilityActionShowOnScreen -> {
-                if (AndroidComposeUiFlags.isAccessibilityShowOnScreenNestedScrollingEnabled) {
-                    return node.scrollOntoScreen()
-                } else {
-                    @Suppress("DEPRECATION")
-                    return node.legacyScrollOntoScreen()
-                }
+                return node.scrollOntoScreen()
             }
             // TODO: handling for other system actions
             else -> {
@@ -1736,71 +1731,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 return false
             }
         }
-    }
-
-    /** @deprecated This method is deprecated. Use [scrollOntoScreen] instead. */
-    @Deprecated("This method is deprecated. Use scrollOntoScreen instead.")
-    private fun SemanticsNode.legacyScrollOntoScreen(): Boolean {
-        // TODO(b/474650559): Delete this method once nested scrolling flag is removed
-        var scrollableAncestor: SemanticsNode? = parent
-        var scrollAction = scrollableAncestor?.unmergedConfig?.getOrNull(SemanticsActions.ScrollBy)
-        while (scrollableAncestor != null) {
-            if (scrollAction != null) {
-                break
-            }
-            scrollableAncestor = scrollableAncestor.parent
-            scrollAction = scrollableAncestor?.unmergedConfig?.getOrNull(SemanticsActions.ScrollBy)
-        }
-        if (scrollableAncestor == null) {
-            // there's no scrollable ancestor in the Compose hierarchy, let
-            // AndroidComposeView handle it
-            val rect =
-                boundsInRoot.run {
-                    android.graphics.Rect(
-                        floor(left).toInt(),
-                        floor(top).toInt(),
-                        ceil(right).roundToInt(),
-                        ceil(bottom).roundToInt(),
-                    )
-                }
-            return view.requestRectangleOnScreen(rect)
-        }
-
-        // TalkBack expects the minimum amount of movement to fully reveal the node.
-        // First, get the viewport and the target bounds in root coordinates
-        val viewportInParent = scrollableAncestor.layoutInfo.coordinates.boundsInParent()
-        val parentInRoot =
-            scrollableAncestor.layoutInfo.coordinates.parentLayoutCoordinates?.positionInRoot()
-                ?: Offset.Zero
-        val viewport = viewportInParent.translate(parentInRoot)
-        val target = Rect(positionInRoot, size.toSize())
-
-        val xScrollState =
-            scrollableAncestor.unmergedConfig.getOrNull(
-                SemanticsProperties.HorizontalScrollAxisRange
-            )
-        val yScrollState =
-            scrollableAncestor.unmergedConfig.getOrNull(SemanticsProperties.VerticalScrollAxisRange)
-
-        // Given the desired scroll value to align either side of the target with the
-        // viewport, what delta should we go with?
-        // If we need to scroll in opposite directions for both sides, don't scroll at all.
-        // Otherwise, take the delta that scrolls the least amount.
-        fun scrollDelta(a: Float, b: Float): Float =
-            if (sign(a) == sign(b)) if (abs(a) < abs(b)) a else b else 0f
-
-        // Get the desired delta X
-        var dx = scrollDelta(target.left - viewport.left, target.right - viewport.right)
-        // And adjust for reversing properties
-        if (xScrollState?.reverseScrolling == true) dx = -dx
-        if (isRtl) dx = -dx
-
-        // Get the desired delta Y
-        var dy = scrollDelta(target.top - viewport.top, target.bottom - viewport.bottom)
-        // And adjust for reversing properties
-        if (yScrollState?.reverseScrolling == true) dy = -dy
-
-        return scrollAction?.action?.invoke(dx, dy) == true
     }
 
     /**
