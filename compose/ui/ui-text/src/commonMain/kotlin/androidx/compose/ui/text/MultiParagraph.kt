@@ -41,6 +41,7 @@ import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMap
+import kotlin.math.ceil
 
 /**
  * Lays out and renders multiple paragraphs at once. Unlike [Paragraph], supports multiple
@@ -1224,3 +1225,5 @@ internal data class ParagraphInfo(
         return TextRange(start = start.toGlobalIndex(), end = end.toGlobalIndex())
     }
 }
+
+internal fun Float.ceilToInt(): Int = ceil(this).toInt()

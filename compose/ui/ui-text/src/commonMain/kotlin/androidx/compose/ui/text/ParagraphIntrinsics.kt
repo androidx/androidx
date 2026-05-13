@@ -18,8 +18,6 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.platform.ActualParagraphIntrinsics
 import androidx.compose.ui.unit.Density
 
 /** Calculates and presents the intrinsic width and height of text. */
@@ -64,25 +62,17 @@ interface ParagraphIntrinsics {
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
     ReplaceWith(
         "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
-            "fontFamilyResolver"
+            "fontFamilyResolver)"
     ),
 )
-fun ParagraphIntrinsics(
+expect fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
     resourceLoader: Font.ResourceLoader,
-): ParagraphIntrinsics =
-    ActualParagraphIntrinsics(
-        text = text,
-        style = style,
-        annotations = spanStyles,
-        placeholders = placeholders,
-        density = density,
-        fontFamilyResolver = createFontFamilyResolver(resourceLoader),
-    )
+): ParagraphIntrinsics
 
 @Deprecated(
     "Use an overload that takes `annotations` instead",
@@ -90,22 +80,14 @@ fun ParagraphIntrinsics(
         "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
     ),
 )
-fun ParagraphIntrinsics(
+expect fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-): ParagraphIntrinsics =
-    ActualParagraphIntrinsics(
-        text = text,
-        style = style,
-        annotations = spanStyles,
-        placeholders = placeholders,
-        density = density,
-        fontFamilyResolver = fontFamilyResolver,
-    )
+): ParagraphIntrinsics
 
 /**
  * Factory method to create a [ParagraphIntrinsics].
@@ -115,19 +97,11 @@ fun ParagraphIntrinsics(
  *
  * @see ParagraphIntrinsics
  */
-fun ParagraphIntrinsics(
+expect fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
-): ParagraphIntrinsics =
-    ActualParagraphIntrinsics(
-        text = text,
-        style = style,
-        annotations = annotations,
-        placeholders = placeholders,
-        density = density,
-        fontFamilyResolver = fontFamilyResolver,
-    )
+): ParagraphIntrinsics

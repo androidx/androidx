@@ -29,15 +29,6 @@ import java.text.BreakIterator
 import java.util.PriorityQueue
 import kotlin.math.ceil
 
-/**
- * Flag for applying the fix for [b/346918500](https://issuetracker.google.com/346918500).
- *
- * If true, this will allocate a new [SpannableString] if there are spans that must be removed
- * before measuring any intrinsic width.
- */
-@Suppress("MayBeConstant") // Don't inline so folks can R8 assumevalues it
-private val stripNonMetricAffectingCharSpans: Boolean = true
-
 /** Computes and caches the text layout intrinsic values such as min/max width. */
 internal class LayoutIntrinsics(
     private val charSequence: CharSequence,
@@ -54,12 +45,8 @@ internal class LayoutIntrinsics(
     private val charSequenceForIntrinsicWidth: CharSequence
         get() =
             if (_charSequenceForIntrinsicWidth == null) {
-                if (stripNonMetricAffectingCharSpans) {
-                    stripNonMetricAffectingCharacterStyleSpans(charSequence).also {
-                        _charSequenceForIntrinsicWidth = it
-                    }
-                } else {
-                    charSequence
+                stripNonMetricAffectingCharacterStyleSpans(charSequence).also {
+                    _charSequenceForIntrinsicWidth = it
                 }
             } else {
                 _charSequenceForIntrinsicWidth!!
