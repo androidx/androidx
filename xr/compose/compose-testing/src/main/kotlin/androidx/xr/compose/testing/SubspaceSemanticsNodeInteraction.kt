@@ -16,18 +16,21 @@
 
 package androidx.xr.compose.testing
 
-import androidx.annotation.RestrictTo
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 
 /**
- * Represents a semantics node and the path to fetch it from the semantics tree. One can perform
- * assertions or navigate to other nodes such as [androidx.compose.ui.test.onChildren].
+ * Represents a semantics node and the path to fetch it from the subspace semantics tree.
  *
- * An instance of [SubspaceSemanticsNodeInteraction] can be obtained from [onSubspaceNode] and
- * convenience methods that use a specific filter.
+ * Allows performing assertions or retrieving the underlying semantics node information. An instance
+ * of this class can be obtained from `onSubspaceNode` or convenience methods that use a specific
+ * filter, such as `onSubspaceNodeWithTag`.
+ *
+ * For real usage patterns and explicit semantic properties validation, see the referenced samples.
+ *
+ * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
+ * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsNodeInteraction
 internal constructor(
     private val testContext: SubspaceTestContext,
@@ -49,29 +52,29 @@ internal constructor(
     }
 
     /**
-     * Returns the semantics node captured by this object.
+     * Returns the semantics node captured by this interaction.
      *
-     * Note: Accessing this object involves synchronization with your UI. If you are accessing this
-     * multiple times in one atomic operation, it is better to cache the result instead of calling
-     * this API multiple times.
+     * This operation synchronizes with the UI to ensure the latest semantics tree data is fetched.
+     * Since synchronization introduces performance overhead, it is recommended to cache the result
+     * if accessed multiple times within a single atomic operation.
      *
-     * This will fail if there is 0 or multiple nodes matching.
-     *
-     * @param errorMessageOnFail Error message prefix to be added to the message in case this fetch
-     *   fails. This is typically used by operations that rely on this assert. Example prefix could
-     *   be: "Failed to perform doOnClick.".
-     * @throws [AssertionError] if 0 or multiple nodes found.
+     * @param errorMessageOnFail the prefix to be added to the error message if the fetch operation
+     *   fails. Typically used by higher-level operations that rely on this fetch.
+     * @return the underlying `SubspaceSemanticsInfo` corresponding to the matched node.
+     * @throws AssertionError if zero or multiple matching nodes are found.
      */
     public fun fetchSemanticsNode(errorMessageOnFail: String? = null): SubspaceSemanticsInfo {
         return fetchOneOrThrow(errorMessageOnFail)
     }
 
     /**
-     * Asserts that no item was found or that the item is no longer in the hierarchy.
+     * Asserts that no matching item was found or that the item is no longer in the hierarchy.
      *
-     * This will synchronize with the UI and fetch all the nodes again to ensure it has latest data.
+     * This operation synchronizes with the UI and fetches all nodes to ensure it has the latest
+     * data. It is useful for verifying that an element has been correctly removed or was never
+     * present.
      *
-     * @throws [AssertionError] if the assert fails.
+     * @throws AssertionError if one or more matching nodes are found.
      */
     public fun assertDoesNotExist() {
         val result =
@@ -89,14 +92,14 @@ internal constructor(
     /**
      * Asserts that the component was found and is part of the component tree.
      *
-     * This will synchronize with the UI and fetch all the nodes again to ensure it has latest data.
-     * If you are using [fetchSemanticsNode] you don't need to call this. In fact you would just
-     * introduce additional overhead.
+     * This operation synchronizes with the UI and fetches all nodes to ensure it has the latest
+     * data. Note that if you are already calling `fetchSemanticsNode`, calling this method is
+     * redundant and introduces unnecessary overhead.
      *
-     * @param errorMessageOnFail Error message prefix to be added to the message in case this assert
-     *   fails. This is typically used by operations that rely on this assert. Example prefix could
-     *   be: "Failed to perform doOnClick.".
-     * @throws [AssertionError] if the assert fails.
+     * @param errorMessageOnFail the prefix to be added to the error message if the assertion fails.
+     *   Typically used by operations that rely on this assertion.
+     * @return this interaction object to allow chaining of further assertions.
+     * @throws AssertionError if zero or multiple matching nodes are found.
      */
     @CanIgnoreReturnValue
     public fun assertExists(errorMessageOnFail: String? = null): SubspaceSemanticsNodeInteraction {
@@ -126,15 +129,13 @@ internal constructor(
 }
 
 /**
- * Represents a collection of semantics nodes and the path to fetch them from the semantics tree.
- * One can interact with these nodes by performing assertions such as
- * [androidx.compose.ui.test.assertCountEquals], or navigate to other nodes such as [get].
+ * Represents a collection of semantics nodes and the path to fetch them from the subspace semantics
+ * tree.
  *
- * An instance of [SubspaceSemanticsNodeInteractionCollection] can be obtained from
- * [onAllSubspaceNodes] and convenience methods that use a specific filter, such as
- * [androidx.compose.ui.test.onAllNodesWithText].
+ * One can interact with these nodes by fetching their semantics information or accessing a specific
+ * node via its index. An instance of this collection can be obtained from `onAllSubspaceNodes` and
+ * convenience methods that use a specific filter, such as `onAllSubspaceNodesWithTag`.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsNodeInteractionCollection
 private constructor(
     internal val testContext: SubspaceTestContext,
@@ -148,19 +149,19 @@ private constructor(
     ) : this(testContext, SubspaceSemanticsSelector(matcher))
 
     /**
-     * Returns the semantics nodes captured by this object.
+     * Returns the list of semantics nodes captured by this collection.
      *
-     * Note: Accessing this object involves synchronization with your UI. If you are accessing this
-     * multiple times in one atomic operation, it is better to cache the result instead of calling
-     * this API multiple times.
+     * This operation involves synchronization with the UI to fetch the latest node data. If
+     * accessed multiple times in a single atomic operation, caching the result is recommended to
+     * avoid performance overhead.
      *
-     * @param atLeastOneRootRequired Whether to throw an error in case there is no compose content
-     *   in the current test app.
-     * @param errorMessageOnFail Error message prefix to be added to the message in case this fetch
-     *   fails. This is typically used by operations that rely on this assert. Example prefix could
-     *   be: "Failed to perform doOnClick.".
+     * @param atLeastOneRootRequired whether to throw an error if there is no compose content found
+     *   in the current test application.
+     * @param errorMessageOnFail the prefix to be added to the error message if the fetch operation
+     *   fails.
+     * @return the list of matched `SubspaceSemanticsInfo` instances.
      */
-    private fun fetchSemanticsNodes(
+    public fun fetchSemanticsNodes(
         atLeastOneRootRequired: Boolean = true,
         errorMessageOnFail: String? = null,
     ): List<SubspaceSemanticsInfo> {
@@ -180,13 +181,16 @@ private constructor(
     }
 
     /**
-     * Retrieve node at the given index of this collection.
+     * Retrieves the interaction for the node at the given index in this collection.
      *
-     * Any subsequent operation on its result will expect exactly one element found (unless
-     * [SubspaceSemanticsNodeInteraction.assertDoesNotExist] is used) and will throw
-     * [AssertionError] if none or more than one element is found.
+     * Any subsequent operation on the returned interaction will expect exactly one element to be
+     * found (unless `SubspaceSemanticsNodeInteraction.assertDoesNotExist` is used) and will fail if
+     * zero or multiple elements are found.
+     *
+     * @param index the zero-based index of the node to retrieve from the matched collection.
+     * @return the interaction corresponding to the node at the specified index.
      */
-    private operator fun get(index: Int): SubspaceSemanticsNodeInteraction {
+    public operator fun get(index: Int): SubspaceSemanticsNodeInteraction {
         return SubspaceSemanticsNodeInteraction(testContext, selector.addIndexSelector(index))
     }
 }

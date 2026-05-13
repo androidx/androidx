@@ -89,7 +89,7 @@ package androidx.xr.compose.testing {
     ctor public SubspaceSemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.node.SubspaceSemanticsInfo,java.lang.Boolean> matcher);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceSemanticsNodeInteraction {
+  public final class SubspaceSemanticsNodeInteraction {
     ctor public SubspaceSemanticsNodeInteraction(androidx.xr.compose.testing.SubspaceTestContext testContext, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
     method public void assertDoesNotExist();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
@@ -98,8 +98,11 @@ package androidx.xr.compose.testing {
     method @BytecodeOnly public static androidx.xr.compose.subspace.node.SubspaceSemanticsInfo! fetchSemanticsNode$default(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction!, String!, int, Object!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceSemanticsNodeInteractionCollection {
+  public final class SubspaceSemanticsNodeInteractionCollection {
     ctor public SubspaceSemanticsNodeInteractionCollection(androidx.xr.compose.testing.SubspaceTestContext testContext, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public java.util.List<androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> fetchSemanticsNodes(optional boolean atLeastOneRootRequired, optional String? errorMessageOnFail);
+    method @BytecodeOnly public static java.util.List! fetchSemanticsNodes$default(androidx.xr.compose.testing.SubspaceSemanticsNodeInteractionCollection!, boolean, String!, int, Object!);
+    method public operator androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction get(int index);
   }
 
   public final class SubspaceTestContext {
