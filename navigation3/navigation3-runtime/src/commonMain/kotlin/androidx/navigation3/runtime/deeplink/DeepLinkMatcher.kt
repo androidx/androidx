@@ -77,5 +77,7 @@ public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter<
      *
      * @param key the navigation key representing the deep link target
      */
-    public open class MatchResult<T>(public val key: T)
+    public open class MatchResult<T>(public val key: T) : Comparable<MatchResult<T>> {
+        public override fun compareTo(other: MatchResult<T>): Int = 1
+    }
 }
