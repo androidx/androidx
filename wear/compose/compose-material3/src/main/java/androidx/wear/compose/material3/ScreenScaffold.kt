@@ -756,7 +756,7 @@ public fun ScreenScaffold(
     scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
 
     val screenIsActive = LocalScreenIsActive.current
-    LaunchedEffect(screenIsActive) {
+    LaunchedEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
             scaffoldState.screenContent.addScreen(key, timeText, scrollInfoProvider)
         } else {
