@@ -80,7 +80,7 @@ class InteractionTest {
             val devicePose = Pose()
             val expectedHitPose = Pose(Vector3.Forward, Quaternion.Identity)
             val testPlane = TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL)
-            arCoreTestRule.device.pose = devicePose
+            arCoreTestRule.deviceTester.pose = devicePose
             arCoreTestRule.addTrackables(testPlane)
             testPlane.centerPose = expectedHitPose
             advanceUntilIdle()

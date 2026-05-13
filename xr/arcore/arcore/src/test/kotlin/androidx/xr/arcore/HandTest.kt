@@ -80,15 +80,15 @@ class HandTest {
 
     @After
     fun cleanUp() {
-        arCoreTestRule.leftHand.isVisible = false
-        arCoreTestRule.rightHand.isVisible = false
+        arCoreTestRule.leftHandTester.isVisible = false
+        arCoreTestRule.rightHandTester.isVisible = false
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_returnsLeftHand() =
         runTest(testDispatcher) {
-            arCoreTestRule.leftHand.isVisible = true
+            arCoreTestRule.leftHandTester.isVisible = true
             advanceUntilIdle()
 
             val leftHand = Hand.left(session)
@@ -96,7 +96,7 @@ class HandTest {
             assertThat(leftHand.state.value.trackingState.toRuntimeTrackingState())
                 .isEqualTo(TrackingState.TRACKING)
 
-            arCoreTestRule.leftHand.isVisible = false
+            arCoreTestRule.leftHandTester.isVisible = false
             advanceUntilIdle()
 
             assertThat(leftHand.state.value.trackingState.toRuntimeTrackingState())
@@ -123,7 +123,7 @@ class HandTest {
     @Test
     fun right_returnsRightHand() =
         runTest(testDispatcher) {
-            arCoreTestRule.rightHand.isVisible = true
+            arCoreTestRule.rightHandTester.isVisible = true
             advanceUntilIdle()
 
             val rightHand = Hand.right(session)
@@ -131,7 +131,7 @@ class HandTest {
             assertThat(rightHand.state.value.trackingState.toRuntimeTrackingState())
                 .isEqualTo(TrackingState.TRACKING)
 
-            arCoreTestRule.rightHand.isVisible = false
+            arCoreTestRule.rightHandTester.isVisible = false
             advanceUntilIdle()
 
             assertThat(rightHand.state.value.trackingState.toRuntimeTrackingState())
@@ -166,8 +166,8 @@ class HandTest {
                         Quaternion(i + 0.1f, i + 0.2f, i + 0.3f, i + 0.4f),
                     )
                 }
-            arCoreTestRule.leftHand.isVisible = true
-            arCoreTestRule.leftHand.handJointMap = expectedHandJoints
+            arCoreTestRule.leftHandTester.isVisible = true
+            arCoreTestRule.leftHandTester.handJointMap = expectedHandJoints
             advanceUntilIdle()
 
             val underTest = Hand.left(session)

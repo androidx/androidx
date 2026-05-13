@@ -23,7 +23,7 @@ import androidx.xr.runtime.PreviewSpatialApi
 /** A test utility for manipulating Conversation Scene Signals in the mocked AR environment. */
 @ExperimentalSceneSignalApi
 @PreviewSpatialApi
-public class TestConversationSceneSignal
+public class ConversationSceneSignalTester
 internal constructor(
     private val arCoreTestRule: ArCoreTestRule,
     private val fakeConversationSceneSignal: FakeRuntimeConversationState,

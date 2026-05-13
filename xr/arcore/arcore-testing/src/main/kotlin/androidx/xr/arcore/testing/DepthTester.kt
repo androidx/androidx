@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore.testing
 
+import androidx.xr.arcore.Depth
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeDepth
 import androidx.xr.runtime.DepthEstimationMode
@@ -23,7 +24,8 @@ import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
 /**
- * Represents a camera view perspective on the device.
+ * An object which allows for controlling the state one of the simulated [Depth] values in an ARCore
+ * unit test environment.
  *
  * @property width the width of the [androidx.xr.arcore.Depth]
  * @property height the height of the [androidx.xr.arcore.Depth]
@@ -32,7 +34,7 @@ import java.nio.FloatBuffer
  * @property smoothDepthMap the [FloatBuffer] containing smooth depth data
  * @property smoothConfidenceMap the [ByteBuffer] containing smooth depth confidence
  */
-public class TestDepth
+public class DepthTester
 internal constructor(
     private val arCoreTestRule: ArCoreTestRule,
     private val fakeRuntimeDepth: FakeRuntimeDepth,
@@ -49,7 +51,7 @@ internal constructor(
     public var height: Int = 0
         set(value) {
             field = value
-            if (arCoreTestRule.runtime.config?.depthEstimation != DepthEstimationMode.DISABLED) {
+            if (arCoreTestRule.runtime.config.depthEstimation != DepthEstimationMode.DISABLED) {
                 fakeRuntimeDepth.height = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()

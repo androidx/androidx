@@ -82,15 +82,15 @@ class RenderViewpointTest {
                 .session
         session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
 
-        arCoreTestRule.device.pose = Pose()
+        arCoreTestRule.deviceTester.pose = Pose()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun left_returnsPoseAndFov() =
         runTest(testDispatcher) {
-            arCoreTestRule.leftRenderViewpoint.pose = EXPECTED_POSE
-            arCoreTestRule.leftRenderViewpoint.fieldOfView = EXPECTED_FOV
+            arCoreTestRule.leftRenderViewpointTester.pose = EXPECTED_POSE
+            arCoreTestRule.leftRenderViewpointTester.fieldOfView = EXPECTED_FOV
 
             advanceUntilIdle()
 
@@ -110,8 +110,8 @@ class RenderViewpointTest {
     @Test
     fun right_returnsPoseAndFov() =
         runTest(testDispatcher) {
-            arCoreTestRule.rightRenderViewpoint.pose = EXPECTED_POSE
-            arCoreTestRule.rightRenderViewpoint.fieldOfView = EXPECTED_FOV
+            arCoreTestRule.rightRenderViewpointTester.pose = EXPECTED_POSE
+            arCoreTestRule.rightRenderViewpointTester.fieldOfView = EXPECTED_FOV
 
             advanceUntilIdle()
 
@@ -131,8 +131,8 @@ class RenderViewpointTest {
     @Test
     fun mono_returnsPoseAndFov() =
         runTest(testDispatcher) {
-            arCoreTestRule.monoRenderViewpoint.pose = EXPECTED_POSE
-            arCoreTestRule.monoRenderViewpoint.fieldOfView = EXPECTED_FOV
+            arCoreTestRule.monoRenderViewpointTester.pose = EXPECTED_POSE
+            arCoreTestRule.monoRenderViewpointTester.fieldOfView = EXPECTED_FOV
 
             advanceUntilIdle()
 
@@ -152,9 +152,9 @@ class RenderViewpointTest {
     @Test
     fun left_returnsPoseAndFovInPerceptionSpace() =
         runTest(testDispatcher) {
-            arCoreTestRule.device.pose = EXPECTED_DEVICE_POSE
-            arCoreTestRule.leftRenderViewpoint.pose = EXPECTED_OBJECT_POSE
-            arCoreTestRule.leftRenderViewpoint.fieldOfView = EXPECTED_FOV
+            arCoreTestRule.deviceTester.pose = EXPECTED_DEVICE_POSE
+            arCoreTestRule.leftRenderViewpointTester.pose = EXPECTED_OBJECT_POSE
+            arCoreTestRule.leftRenderViewpointTester.fieldOfView = EXPECTED_FOV
 
             advanceUntilIdle()
 
@@ -175,9 +175,9 @@ class RenderViewpointTest {
     @Test
     fun right_returnsPoseAndFovInPerceptionSpace() =
         runTest(testDispatcher) {
-            arCoreTestRule.device.pose = EXPECTED_DEVICE_POSE
-            arCoreTestRule.rightRenderViewpoint.pose = EXPECTED_OBJECT_POSE
-            arCoreTestRule.rightRenderViewpoint.fieldOfView = EXPECTED_FOV
+            arCoreTestRule.deviceTester.pose = EXPECTED_DEVICE_POSE
+            arCoreTestRule.rightRenderViewpointTester.pose = EXPECTED_OBJECT_POSE
+            arCoreTestRule.rightRenderViewpointTester.fieldOfView = EXPECTED_FOV
 
             advanceUntilIdle()
 
@@ -198,9 +198,9 @@ class RenderViewpointTest {
     @Test
     fun mono_returnsPoseAndFovInPerceptionSpace() =
         runTest(testDispatcher) {
-            arCoreTestRule.device.pose = EXPECTED_DEVICE_POSE
-            arCoreTestRule.monoRenderViewpoint.pose = EXPECTED_OBJECT_POSE
-            arCoreTestRule.monoRenderViewpoint.fieldOfView = EXPECTED_FOV
+            arCoreTestRule.deviceTester.pose = EXPECTED_DEVICE_POSE
+            arCoreTestRule.monoRenderViewpointTester.pose = EXPECTED_OBJECT_POSE
+            arCoreTestRule.monoRenderViewpointTester.fieldOfView = EXPECTED_FOV
 
             advanceUntilIdle()
 

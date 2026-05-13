@@ -23,12 +23,13 @@ import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 
 /**
- * An object which represents the user's device in the simulated environment of an ARCore unit test.
+ * An object that allows for controlling a simulation of the user's device in an ARCore unit test
+ * environment.
  *
  * @property pose the current pose of the device
  * @property isCameraTracking whether the AR Device is currently tracking the environment
  */
-public class TestArDevice internal constructor(private val arCoreTestRule: ArCoreTestRule) {
+public class ArDeviceTester internal constructor(private val arCoreTestRule: ArCoreTestRule) {
 
     private val fakeRuntimeArDevice: FakeRuntimeArDevice by lazy {
         arCoreTestRule.runtime.perceptionManager.arDevice as FakeRuntimeArDevice

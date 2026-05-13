@@ -35,8 +35,8 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 
 /**
- * An object which describes the overall condition of [Geospatial] operations in the test
- * environment.
+ * An object which allows for testing the overall condition of [Geospatial] operations in an ARCore
+ * unit test environment.
  *
  * @property expectedPose the [Pose] that would be created by
  *   [Geospatial.createPoseFromGeospatialPose]
@@ -56,7 +56,7 @@ import androidx.xr.runtime.math.Quaternion
  * @property allowedAnchorLatitudeRange the acceptable range of latitude values that [Geospatial]
  *   can use when creating Anchors, with a default of `-90..90` (inclusive)
  */
-public class TestGeospatial internal constructor(private val arCoreTestRule: ArCoreTestRule) {
+public class GeospatialTester internal constructor(private val arCoreTestRule: ArCoreTestRule) {
     private val fakeRuntimeGeospatial: FakeRuntimeGeospatial by lazy {
         arCoreTestRule.runtime.perceptionManager.geospatial as FakeRuntimeGeospatial
     }

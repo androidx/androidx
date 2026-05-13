@@ -9,43 +9,103 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public int getAnchorResourceLimit();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> getAugmentedImages();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> getAugmentedObjects();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal getConversationSceneSignal();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestArDevice getDevice();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestFace getFace();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestGeospatial getGeospatial();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestDepth getLeftDepth();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestEye getLeftEye();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestHand getLeftHand();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestRenderViewpoint getLeftRenderViewpoint();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestDepth getMonoDepth();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestRenderViewpoint getMonoRenderViewpoint();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.ConversationSceneSignalTester getConversationSceneSignal();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.ArDeviceTester getDeviceTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.FaceTester getFaceTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.GeospatialTester getGeospatialTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.DepthTester getLeftDepthTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.EyeTester getLeftEyeTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.HandTester getLeftHandTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.RenderViewpointTester getLeftRenderViewpointTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.DepthTester getMonoDepthTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.RenderViewpointTester getMonoRenderViewpointTester();
     method @InaccessibleFromKotlin public java.util.Map<java.util.UUID,androidx.xr.runtime.math.Pose> getPersistedAnchorPoses();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestPlane> getPlanes();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestDepth getRightDepth();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestEye getRightEye();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestHand getRightHand();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.TestRenderViewpoint getRightRenderViewpoint();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.DepthTester getRightDepthTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.EyeTester getRightEyeTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.HandTester getRightHandTester();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.RenderViewpointTester getRightRenderViewpointTester();
     method public java.util.UUID persistAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public void setAnchorResourceLimit(int);
     property public int anchorResourceLimit;
     property public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> augmentedImages;
     property public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> augmentedObjects;
-    property @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.TestConversationSceneSignal conversationSceneSignal;
-    property public androidx.xr.arcore.testing.TestArDevice device;
-    property public androidx.xr.arcore.testing.TestFace face;
-    property public androidx.xr.arcore.testing.TestGeospatial geospatial;
-    property public androidx.xr.arcore.testing.TestDepth leftDepth;
-    property public androidx.xr.arcore.testing.TestEye leftEye;
-    property public androidx.xr.arcore.testing.TestHand leftHand;
-    property public androidx.xr.arcore.testing.TestRenderViewpoint leftRenderViewpoint;
-    property public androidx.xr.arcore.testing.TestDepth monoDepth;
-    property public androidx.xr.arcore.testing.TestRenderViewpoint monoRenderViewpoint;
+    property @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.ConversationSceneSignalTester conversationSceneSignal;
+    property public androidx.xr.arcore.testing.ArDeviceTester deviceTester;
+    property public androidx.xr.arcore.testing.FaceTester faceTester;
+    property public androidx.xr.arcore.testing.GeospatialTester geospatialTester;
+    property public androidx.xr.arcore.testing.DepthTester leftDepthTester;
+    property public androidx.xr.arcore.testing.EyeTester leftEyeTester;
+    property public androidx.xr.arcore.testing.HandTester leftHandTester;
+    property public androidx.xr.arcore.testing.RenderViewpointTester leftRenderViewpointTester;
+    property public androidx.xr.arcore.testing.DepthTester monoDepthTester;
+    property public androidx.xr.arcore.testing.RenderViewpointTester monoRenderViewpointTester;
     property public java.util.Map<java.util.UUID,androidx.xr.runtime.math.Pose> persistedAnchorPoses;
     property public java.util.List<androidx.xr.arcore.testing.TestPlane> planes;
-    property public androidx.xr.arcore.testing.TestDepth rightDepth;
-    property public androidx.xr.arcore.testing.TestEye rightEye;
-    property public androidx.xr.arcore.testing.TestHand rightHand;
-    property public androidx.xr.arcore.testing.TestRenderViewpoint rightRenderViewpoint;
+    property public androidx.xr.arcore.testing.DepthTester rightDepthTester;
+    property public androidx.xr.arcore.testing.EyeTester rightEyeTester;
+    property public androidx.xr.arcore.testing.HandTester rightHandTester;
+    property public androidx.xr.arcore.testing.RenderViewpointTester rightRenderViewpointTester;
+  }
+
+  public final class ArDeviceTester {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public boolean isCameraTracking();
+    method @InaccessibleFromKotlin public void setCameraTracking(boolean);
+    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
+    property public boolean isCameraTracking;
+    property public androidx.xr.runtime.math.Pose pose;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public final class ConversationSceneSignalTester {
+    method @InaccessibleFromKotlin public float getConfidence();
+    method @InaccessibleFromKotlin public int getType();
+    method @InaccessibleFromKotlin public void setConfidence(float);
+    method @InaccessibleFromKotlin public void setType(int);
+    property public float confidence;
+    property public int type;
+  }
+
+  public final class DepthTester {
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getSmoothConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getSmoothDepthMap();
+    method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin public void setHeight(int);
+    method @InaccessibleFromKotlin public void setRawConfidenceMap(java.nio.ByteBuffer?);
+    method @InaccessibleFromKotlin public void setRawDepthMap(java.nio.FloatBuffer?);
+    method @InaccessibleFromKotlin public void setSmoothConfidenceMap(java.nio.ByteBuffer?);
+    method @InaccessibleFromKotlin public void setSmoothDepthMap(java.nio.FloatBuffer?);
+    method @InaccessibleFromKotlin public void setWidth(int);
+    property public int height;
+    property public java.nio.ByteBuffer? rawConfidenceMap;
+    property public java.nio.FloatBuffer? rawDepthMap;
+    property public java.nio.ByteBuffer? smoothConfidenceMap;
+    property public java.nio.FloatBuffer? smoothDepthMap;
+    property public int width;
+  }
+
+  public final class EyeTester {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    method @InaccessibleFromKotlin public void setOpen(boolean);
+    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
+    property public boolean isOpen;
+    property public androidx.xr.runtime.math.Pose pose;
+  }
+
+  public final class FaceTester {
+    method @InaccessibleFromKotlin public java.util.List<java.lang.Float> getBlendShapeValues();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.Float> getConfidenceValues();
+    method @InaccessibleFromKotlin public boolean isValid();
+    method @InaccessibleFromKotlin public void setBlendShapeValues(java.util.List<java.lang.Float>);
+    method @InaccessibleFromKotlin public void setConfidenceValues(java.util.List<java.lang.Float>);
+    method @InaccessibleFromKotlin public void setValid(boolean);
+    property public java.util.List<java.lang.Float> blendShapeValues;
+    property public java.util.List<java.lang.Float> confidenceValues;
+    property public boolean isValid;
   }
 
   @Deprecated public final class FakeRuntimeAugmentedImage {
@@ -68,12 +128,51 @@ package androidx.xr.arcore.testing {
     property @Deprecated public androidx.xr.arcore.runtime.TrackingState trackingState;
   }
 
-  public final class TestArDevice {
+  public final class GeospatialTester {
+    method @InaccessibleFromKotlin public android.util.Range<java.lang.Double> getAllowedAnchorLatitudeRange();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getExpectedAnchorPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.GeospatialPose getExpectedGeospatialPose();
+    method @InaccessibleFromKotlin public double getExpectedHorizontalAccuracy();
+    method @InaccessibleFromKotlin public double getExpectedOrientationYawAccuracy();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getExpectedPose();
+    method @InaccessibleFromKotlin public double getExpectedVerticalAccuracy();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.VpsAvailabilityResult getExpectedVpsResult();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.GeospatialState getState();
+    method @InaccessibleFromKotlin public void setAllowedAnchorLatitudeRange(android.util.Range<java.lang.Double>);
+    method @InaccessibleFromKotlin public void setExpectedAnchorPose(androidx.xr.runtime.math.Pose?);
+    method @InaccessibleFromKotlin public void setExpectedGeospatialPose(androidx.xr.runtime.math.GeospatialPose);
+    method @InaccessibleFromKotlin public void setExpectedHorizontalAccuracy(double);
+    method @InaccessibleFromKotlin public void setExpectedOrientationYawAccuracy(double);
+    method @InaccessibleFromKotlin public void setExpectedPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setExpectedVerticalAccuracy(double);
+    method @InaccessibleFromKotlin public void setExpectedVpsResult(androidx.xr.arcore.VpsAvailabilityResult);
+    method @InaccessibleFromKotlin public void setState(androidx.xr.arcore.GeospatialState);
+    property public android.util.Range<java.lang.Double> allowedAnchorLatitudeRange;
+    property public androidx.xr.runtime.math.Pose? expectedAnchorPose;
+    property public androidx.xr.runtime.math.GeospatialPose expectedGeospatialPose;
+    property public double expectedHorizontalAccuracy;
+    property public double expectedOrientationYawAccuracy;
+    property public androidx.xr.runtime.math.Pose expectedPose;
+    property public double expectedVerticalAccuracy;
+    property public androidx.xr.arcore.VpsAvailabilityResult expectedVpsResult;
+    property public androidx.xr.arcore.GeospatialState state;
+  }
+
+  public final class HandTester {
+    method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose> getHandJointMap();
+    method @InaccessibleFromKotlin public boolean isVisible();
+    method @InaccessibleFromKotlin public void setHandJointMap(java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose>);
+    method @InaccessibleFromKotlin public void setVisible(boolean);
+    property public java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose> handJointMap;
+    property public boolean isVisible;
+  }
+
+  public final class RenderViewpointTester {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.FieldOfView getFieldOfView();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
-    method @InaccessibleFromKotlin public boolean isCameraTracking();
-    method @InaccessibleFromKotlin public void setCameraTracking(boolean);
+    method @InaccessibleFromKotlin public void setFieldOfView(androidx.xr.runtime.FieldOfView);
     method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
-    property public boolean isCameraTracking;
+    property public androidx.xr.runtime.FieldOfView fieldOfView;
     property public androidx.xr.runtime.math.Pose pose;
   }
 
@@ -109,99 +208,6 @@ package androidx.xr.arcore.testing {
     property public boolean isVisible;
   }
 
-  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public final class TestConversationSceneSignal {
-    method @InaccessibleFromKotlin public float getConfidence();
-    method @InaccessibleFromKotlin public int getType();
-    method @InaccessibleFromKotlin public void setConfidence(float);
-    method @InaccessibleFromKotlin public void setType(int);
-    property public float confidence;
-    property public int type;
-  }
-
-  public final class TestDepth {
-    method @InaccessibleFromKotlin public int getHeight();
-    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
-    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
-    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getSmoothConfidenceMap();
-    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getSmoothDepthMap();
-    method @InaccessibleFromKotlin public int getWidth();
-    method @InaccessibleFromKotlin public void setHeight(int);
-    method @InaccessibleFromKotlin public void setRawConfidenceMap(java.nio.ByteBuffer?);
-    method @InaccessibleFromKotlin public void setRawDepthMap(java.nio.FloatBuffer?);
-    method @InaccessibleFromKotlin public void setSmoothConfidenceMap(java.nio.ByteBuffer?);
-    method @InaccessibleFromKotlin public void setSmoothDepthMap(java.nio.FloatBuffer?);
-    method @InaccessibleFromKotlin public void setWidth(int);
-    property public int height;
-    property public java.nio.ByteBuffer? rawConfidenceMap;
-    property public java.nio.FloatBuffer? rawDepthMap;
-    property public java.nio.ByteBuffer? smoothConfidenceMap;
-    property public java.nio.FloatBuffer? smoothDepthMap;
-    property public int width;
-  }
-
-  public final class TestEye {
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
-    method @InaccessibleFromKotlin public boolean isOpen();
-    method @InaccessibleFromKotlin public void setOpen(boolean);
-    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
-    property public boolean isOpen;
-    property public androidx.xr.runtime.math.Pose pose;
-  }
-
-  public final class TestFace extends androidx.xr.arcore.testing.TestTrackable {
-    ctor public TestFace();
-    method @InaccessibleFromKotlin public java.util.List<java.lang.Float> getBlendShapeValues();
-    method @InaccessibleFromKotlin public java.util.List<java.lang.Float> getConfidenceValues();
-    method @InaccessibleFromKotlin public boolean isValid();
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public boolean isVisible();
-    method @InaccessibleFromKotlin public void setBlendShapeValues(java.util.List<java.lang.Float>);
-    method @InaccessibleFromKotlin public void setConfidenceValues(java.util.List<java.lang.Float>);
-    method @InaccessibleFromKotlin public void setValid(boolean);
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void setVisible(boolean);
-    property public java.util.List<java.lang.Float> blendShapeValues;
-    property public java.util.List<java.lang.Float> confidenceValues;
-    property public boolean isValid;
-  }
-
-  public final class TestGeospatial {
-    method @InaccessibleFromKotlin public android.util.Range<java.lang.Double> getAllowedAnchorLatitudeRange();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getExpectedAnchorPose();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.GeospatialPose getExpectedGeospatialPose();
-    method @InaccessibleFromKotlin public double getExpectedHorizontalAccuracy();
-    method @InaccessibleFromKotlin public double getExpectedOrientationYawAccuracy();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getExpectedPose();
-    method @InaccessibleFromKotlin public double getExpectedVerticalAccuracy();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.VpsAvailabilityResult getExpectedVpsResult();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.GeospatialState getState();
-    method @InaccessibleFromKotlin public void setAllowedAnchorLatitudeRange(android.util.Range<java.lang.Double>);
-    method @InaccessibleFromKotlin public void setExpectedAnchorPose(androidx.xr.runtime.math.Pose?);
-    method @InaccessibleFromKotlin public void setExpectedGeospatialPose(androidx.xr.runtime.math.GeospatialPose);
-    method @InaccessibleFromKotlin public void setExpectedHorizontalAccuracy(double);
-    method @InaccessibleFromKotlin public void setExpectedOrientationYawAccuracy(double);
-    method @InaccessibleFromKotlin public void setExpectedPose(androidx.xr.runtime.math.Pose);
-    method @InaccessibleFromKotlin public void setExpectedVerticalAccuracy(double);
-    method @InaccessibleFromKotlin public void setExpectedVpsResult(androidx.xr.arcore.VpsAvailabilityResult);
-    method @InaccessibleFromKotlin public void setState(androidx.xr.arcore.GeospatialState);
-    property public android.util.Range<java.lang.Double> allowedAnchorLatitudeRange;
-    property public androidx.xr.runtime.math.Pose? expectedAnchorPose;
-    property public androidx.xr.runtime.math.GeospatialPose expectedGeospatialPose;
-    property public double expectedHorizontalAccuracy;
-    property public double expectedOrientationYawAccuracy;
-    property public androidx.xr.runtime.math.Pose expectedPose;
-    property public double expectedVerticalAccuracy;
-    property public androidx.xr.arcore.VpsAvailabilityResult expectedVpsResult;
-    property public androidx.xr.arcore.GeospatialState state;
-  }
-
-  public final class TestHand {
-    method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose> getHandJointMap();
-    method @InaccessibleFromKotlin public boolean isVisible();
-    method @InaccessibleFromKotlin public void setHandJointMap(java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose>);
-    method @InaccessibleFromKotlin public void setVisible(boolean);
-    property public java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose> handJointMap;
-    property public boolean isVisible;
-  }
-
   public final class TestPlane extends androidx.xr.arcore.testing.TestTrackable {
     ctor public TestPlane(androidx.xr.arcore.PlaneType planeType, androidx.xr.arcore.PlaneLabel planeLabel);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
@@ -225,15 +231,6 @@ package androidx.xr.arcore.testing {
     property public androidx.xr.arcore.testing.TestPlane? subsumedBy;
     property public androidx.xr.arcore.PlaneType type;
     property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
-  }
-
-  public final class TestRenderViewpoint {
-    method @InaccessibleFromKotlin public androidx.xr.runtime.FieldOfView getFieldOfView();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
-    method @InaccessibleFromKotlin public void setFieldOfView(androidx.xr.runtime.FieldOfView);
-    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
-    property public androidx.xr.runtime.FieldOfView fieldOfView;
-    property public androidx.xr.runtime.math.Pose pose;
   }
 
   public abstract class TestTrackable {
