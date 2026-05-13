@@ -60,15 +60,9 @@ class MeshEntityTest {
         session = (result as SessionCreateSuccess).session
 
         val vertexLayout =
-            VertexLayout(
-                listOf(
-                    VertexAttributeDescriptor(
-                        VertexAttribute.POSITION,
-                        VertexAttributeType.FLOAT3,
-                        0,
-                    )
-                )
-            )
+            VertexLayout.Builder()
+                .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3)
+                .build()
         val vertexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
         val indexBuffer = ByteBuffer.allocateDirect(12).order(ByteOrder.nativeOrder())
         meshBuffer =

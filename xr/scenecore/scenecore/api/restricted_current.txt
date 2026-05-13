@@ -1382,14 +1382,23 @@ package androidx.xr.scenecore {
   }
 
   @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexAttributeDescriptor {
-    ctor public VertexAttributeDescriptor(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type, optional @IntRange(from=0L) int bufferIndex);
+    ctor public VertexAttributeDescriptor(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type);
+    ctor public VertexAttributeDescriptor(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type, optional @IntRange(from=-1L, to=32767L) int offset);
     ctor @BytecodeOnly public VertexAttributeDescriptor(androidx.xr.scenecore.VertexAttribute!, androidx.xr.scenecore.VertexAttributeType!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.VertexAttribute getAttribute();
-    method @InaccessibleFromKotlin public int getBufferIndex();
+    method @InaccessibleFromKotlin public int getOffset();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.VertexAttributeType getType();
     property public androidx.xr.scenecore.VertexAttribute attribute;
-    property public int bufferIndex;
+    property public int offset;
     property public androidx.xr.scenecore.VertexAttributeType type;
+    field public static final int AUTO_OFFSET = -1; // 0xffffffff
+    field public static final androidx.xr.scenecore.VertexAttributeDescriptor.Companion Companion;
+    field public static final int MAX_OFFSET = 32767; // 0x7fff
+  }
+
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexAttributeDescriptor.Companion {
+    property public static int AUTO_OFFSET;
+    property public static int MAX_OFFSET;
   }
 
   @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexAttributeType {
@@ -1411,10 +1420,38 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.VertexAttributeType UBYTE4_NORM;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexLayout {
-    ctor public VertexLayout(java.util.List<androidx.xr.scenecore.VertexAttributeDescriptor> attributes);
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexBufferLayout {
+    ctor @BytecodeOnly public VertexBufferLayout(java.util.List!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public VertexBufferLayout(java.util.List<androidx.xr.scenecore.VertexAttributeDescriptor> attributes);
+    ctor public VertexBufferLayout(java.util.List<androidx.xr.scenecore.VertexAttributeDescriptor> attributes, optional @IntRange(from=-1L, to=32767L) int stride);
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.VertexAttributeDescriptor> getAttributes();
+    method @InaccessibleFromKotlin public int getStride();
     property public java.util.List<androidx.xr.scenecore.VertexAttributeDescriptor> attributes;
+    property public int stride;
+    field public static final int AUTO_STRIDE = -1; // 0xffffffff
+    field public static final androidx.xr.scenecore.VertexBufferLayout.Companion Companion;
+    field public static final int MAX_STRIDE = 32767; // 0x7fff
+  }
+
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexBufferLayout.Companion {
+    property public static int AUTO_STRIDE;
+    property public static int MAX_STRIDE;
+  }
+
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexLayout {
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.VertexBufferLayout> getBuffers();
+    property public java.util.List<androidx.xr.scenecore.VertexBufferLayout> buffers;
+  }
+
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexLayout.Builder {
+    ctor public VertexLayout.Builder();
+    method public androidx.xr.scenecore.VertexLayout.Builder addAttribute(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type);
+    method public androidx.xr.scenecore.VertexLayout.Builder addAttribute(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type, optional @IntRange(from=-1L, to=32767L) int offset);
+    method public androidx.xr.scenecore.VertexLayout.Builder addAttribute(androidx.xr.scenecore.VertexAttributeDescriptor descriptor);
+    method @BytecodeOnly public static androidx.xr.scenecore.VertexLayout.Builder! addAttribute$default(androidx.xr.scenecore.VertexLayout.Builder!, androidx.xr.scenecore.VertexAttribute!, androidx.xr.scenecore.VertexAttributeType!, int, int, Object!);
+    method public androidx.xr.scenecore.VertexLayout build();
+    method public androidx.xr.scenecore.VertexLayout.Builder setStride(@IntRange(from=-1L, to=32767L) int stride);
+    method public androidx.xr.scenecore.VertexLayout.Builder startNextBuffer();
   }
 
 }

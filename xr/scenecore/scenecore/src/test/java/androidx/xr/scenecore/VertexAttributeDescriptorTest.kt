@@ -92,13 +92,29 @@ class VertexAttributeDescriptorTest {
     }
 
     @Test
-    fun create_withNegativeBufferIndex_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException::class.java) {
-            VertexAttributeDescriptor(
-                VertexAttribute.POSITION,
-                VertexAttributeType.FLOAT3,
-                bufferIndex = -1,
-            )
-        }
+    fun create_withInvalidOffset_throwsIllegalArgumentException() {
+        var exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexAttributeDescriptor(
+                    VertexAttribute.POSITION,
+                    VertexAttributeType.FLOAT3,
+                    offset = -2,
+                )
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("offset must be AUTO_OFFSET or between 0 and 32767")
+
+        exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexAttributeDescriptor(
+                    VertexAttribute.POSITION,
+                    VertexAttributeType.FLOAT3,
+                    offset = 32768,
+                )
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("offset must be AUTO_OFFSET or between 0 and 32767")
     }
 }

@@ -1289,9 +1289,11 @@ public interface ImpressApi {
     /**
      * This method creates a mesh buffer and returns its mesh buffer object.
      *
-     * @param attributeIds The attribute IDs.
-     * @param attributeTypes The attribute types.
-     * @param bufferIndices The buffer indices.
+     * @param attributeIds The attribute IDs for each vertex attribute.
+     * @param attributeTypes The attribute types for each vertex attribute.
+     * @param bufferIndices The buffer indices for each vertex attribute.
+     * @param byteOffsets The byte offsets for each vertex attribute.
+     * @param byteStrides The byte strides for each buffer.
      * @param maxVertices The maximum number of vertices.
      * @param maxIndices The maximum number of indices.
      * @param vertexData The vertex data arrays.
@@ -1304,6 +1306,8 @@ public interface ImpressApi {
         attributeIds: IntArray,
         attributeTypes: IntArray,
         bufferIndices: ByteArray,
+        byteOffsets: IntArray,
+        byteStrides: IntArray,
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<ByteBuffer>?,
@@ -1327,6 +1331,13 @@ public interface ImpressApi {
      * @param meshBufferHandle The native handle of the mesh buffer.
      * @param subsetOffsets The subset offsets into the index buffer for each subset.
      * @param subsetCounts The number of indices for each subset.
+     * @param subsetTopologies The subset topologies.
+     * @param centerX The x coordinate of the center of the bounding box.
+     * @param centerY The y coordinate of the center of the bounding box.
+     * @param centerZ The z coordinate of the center of the bounding box.
+     * @param halfExtentX The half extent of the bounding box along the x axis.
+     * @param halfExtentY The half extent of the bounding box along the y axis.
+     * @param halfExtentZ The half extent of the bounding box along the z axis.
      * @return A CustomMesh object.
      */
     public fun createCustomMesh(
