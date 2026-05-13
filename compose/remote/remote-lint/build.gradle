@@ -29,6 +29,13 @@ dependencies {
     compileOnly(libs.kotlinStdlib)
 
     bundleInside(project(":compose:lint:common"))
+
+    testImplementation(project(":compose:lint:common-test"))
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.androidLintStableAnalysis)
+    testImplementation(libs.androidLintTests)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 androidx {
