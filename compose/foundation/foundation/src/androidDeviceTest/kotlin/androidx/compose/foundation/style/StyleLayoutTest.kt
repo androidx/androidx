@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -123,8 +122,7 @@ class StyleLayoutTest {
     }
 
     @Test
-    @Ignore("maxWith not implemented yet")
-    fun testMaxWidth() {
+    fun testMaxWidth_limitedByParent() {
         rule
             .onChildWith(
                 parent = { size(50.dp) },
@@ -134,7 +132,10 @@ class StyleLayoutTest {
                 },
             )
             .assertWidthIsEqualTo(50.dp) // Limited by parent
+    }
 
+    @Test
+    fun testMaxWidth_limitedByStyle() {
         rule
             .onLeafWith {
                 size(200.dp)
@@ -144,13 +145,25 @@ class StyleLayoutTest {
     }
 
     @Test
+    fun testFractionalWidth_withStyleMaxWidth() {
+        rule
+            .onChildWith(
+                parent = { size(200.dp) },
+                child = {
+                    maxWidth(100.dp)
+                    width(0.5f) // Should be 50% of 100.dp (maxWidth), not 200.dp (parent)
+                },
+            )
+            .assertWidthIsEqualTo(50.dp)
+    }
+
+    @Test
     fun testMinHeight() {
         rule.onLeafWith { minHeight(100.dp) }.assertHeightIsEqualTo(100.dp)
     }
 
     @Test
-    @Ignore("maxHeight not implemented yet")
-    fun testMaxHeight() {
+    fun testMaxHeight_limitedByParent() {
         rule
             .onChildWith(
                 parent = { size(50.dp) },
@@ -160,13 +173,29 @@ class StyleLayoutTest {
                 },
             )
             .assertHeightIsEqualTo(50.dp) // Limited by parent
+    }
 
+    @Test
+    fun testMaxHeight_limitedByStyle() {
         rule
             .onLeafWith {
                 size(200.dp)
                 maxHeight(100.dp)
             }
             .assertHeightIsEqualTo(100.dp) // limited by maxHeight
+    }
+
+    @Test
+    fun testFractionalHeight_withStyleMaxHeight() {
+        rule
+            .onChildWith(
+                parent = { size(200.dp) },
+                child = {
+                    maxHeight(100.dp)
+                    height(0.5f) // Should be 50% of 100.dp (maxHeight)
+                },
+            )
+            .assertHeightIsEqualTo(50.dp)
     }
 
     @Test
