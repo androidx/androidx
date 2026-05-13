@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.creation.compose.layout.RemoteAbsoluteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -120,6 +121,7 @@ fun RemoteBoxAlignmentsDemo() {
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
+@RemoteComposable
 private fun RemoteBoxAlignmentsDemoContent(alignments: List<Pair<Int, RemoteAlignment>>) {
     val currentState = rememberNamedRemoteInt(ALIGNMENT_ID, alignments[0].first)
 
