@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -47,7 +48,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-internal class ScaffoldState(appTimeText: (@Composable (() -> Unit))? = null) {
+internal class ScaffoldState(appTimeText: State<@Composable () -> Unit> = mutableStateOf({})) {
     val screenContent = ScreenContent(appTimeText)
 
     /**
@@ -65,7 +66,7 @@ internal class ScaffoldState(appTimeText: (@Composable (() -> Unit))? = null) {
  * and removing screen content, displaying a time text element, and managing the screen's stage
  * based on scrolling activity.
  */
-internal class ScreenContent(private val appTimeText: @Composable (() -> Unit)?) {
+internal class ScreenContent(private val appTimeText: State<@Composable () -> Unit>) {
 
     val timeText: @Composable (() -> Unit)
         get() = {
@@ -89,7 +90,9 @@ internal class ScreenContent(private val appTimeText: @Composable (() -> Unit)?)
         timeText: @Composable (() -> Unit)?,
         scrollInfoProvider: ScrollInfoProvider? = null,
     ) {
-        contentItems.add(ScreenContent(key, mutableStateOf(scrollInfoProvider), timeText))
+        contentItems.add(
+            ScreenContentData(key, mutableStateOf(scrollInfoProvider), mutableStateOf(timeText))
+        )
     }
 
     fun updateIfNeeded(
@@ -100,7 +103,7 @@ internal class ScreenContent(private val appTimeText: @Composable (() -> Unit)?)
         contentItems
             .find { it.key == key }
             ?.let {
-                it.timeText = timeText
+                it.timeText.value = timeText
                 it.scrollInfoProvider.value = scrollInfoProvider
             }
     }
@@ -123,26 +126,26 @@ internal class ScreenContent(private val appTimeText: @Composable (() -> Unit)?)
         }
     }
 
-    private fun currentContent(): Pair<ScreenContent?, @Composable (() -> Unit)> {
+    private fun currentContent(): Pair<ScreenContentData?, @Composable (() -> Unit)> {
         var resultTimeText: @Composable (() -> Unit)? = null
-        var resultContent: ScreenContent? = null
+        var resultContent: ScreenContentData? = null
         contentItems.fastForEach {
-            if (it.timeText != null) {
-                resultTimeText = it.timeText
+            if (it.timeText.value != null) {
+                resultTimeText = it.timeText.value
             }
             if (it.scrollInfoProvider.value != null) {
                 resultContent = it
             }
         }
-        return resultContent to (resultTimeText ?: appTimeText ?: {})
+        return resultContent to (resultTimeText ?: appTimeText.value)
     }
 
-    private val contentItems = mutableStateListOf<ScreenContent>()
+    private val contentItems = mutableStateListOf<ScreenContentData>()
 
-    private data class ScreenContent(
+    private data class ScreenContentData(
         val key: Any,
-        var scrollInfoProvider: MutableState<ScrollInfoProvider?> = mutableStateOf(null),
-        var timeText: (@Composable () -> Unit)? = null,
+        val scrollInfoProvider: MutableState<ScrollInfoProvider?> = mutableStateOf(null),
+        val timeText: MutableState<(@Composable () -> Unit)?> = mutableStateOf(null),
     )
 }
 
