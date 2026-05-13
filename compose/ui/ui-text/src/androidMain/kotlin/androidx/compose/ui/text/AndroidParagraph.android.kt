@@ -75,7 +75,6 @@ import androidx.compose.ui.text.android.style.IndentationFixSpan
 import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.requirePrecondition
-import androidx.compose.ui.text.platform.AndroidParagraphIntrinsics
 import androidx.compose.ui.text.platform.AndroidTextPaint
 import androidx.compose.ui.text.platform.extensions.setSpan
 import androidx.compose.ui.text.platform.isIncludeFontPaddingEnabled

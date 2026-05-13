@@ -19,6 +19,7 @@ package androidx.compose.ui.text.platform
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.EmojiSupportMatch
+import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -61,13 +62,13 @@ class AndroidParagraphIntrinsicsTest {
         )
 
         val subject =
-            ActualParagraphIntrinsics(
+            ParagraphIntrinsics(
                 "text",
                 TextStyle.Default,
                 listOf(),
-                listOf(),
                 Density(1f),
                 createFontFamilyResolver(context),
+                listOf(),
             )
 
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -88,13 +89,13 @@ class AndroidParagraphIntrinsicsTest {
         val style =
             TextStyle(platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None))
         val subject =
-            ActualParagraphIntrinsics(
+            ParagraphIntrinsics(
                 "text",
                 style,
                 listOf(),
-                listOf(),
                 Density(1f),
                 createFontFamilyResolver(context),
+                listOf(),
             )
         fontState.value = true
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -118,13 +119,13 @@ class AndroidParagraphIntrinsicsTest {
 
         val style =
             TextStyle(platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.All))
-        ActualParagraphIntrinsics(
+        ParagraphIntrinsics(
             "text",
             style,
             listOf(),
-            listOf(),
             Density(1f),
             createFontFamilyResolver(context),
+            listOf(),
         )
 
         verify(mock)
@@ -157,13 +158,13 @@ class AndroidParagraphIntrinsicsTest {
             TextStyle(
                 platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.Default)
             )
-        ActualParagraphIntrinsics(
+        ParagraphIntrinsics(
             "text",
             style,
             listOf(),
-            listOf(),
             Density(1f),
             createFontFamilyResolver(context),
+            listOf(),
         )
 
         verify(mock)

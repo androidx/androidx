@@ -26,9 +26,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 
 @JvmDefaultWithCompatibility
 actual sealed interface Paragraph {
@@ -115,3 +120,107 @@ actual sealed interface Paragraph {
         blendMode: BlendMode,
     )
 }
+
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
+    replaceWith =
+        ReplaceWith(
+            "ActualParagraph(text, style, spanStyles, placeholders, " +
+                "maxLines, ellipsis, width, density, createFontFamilyResolver(resourceLoader))"
+        ),
+)
+actual fun Paragraph(
+    text: String,
+    style: TextStyle,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    maxLines: Int,
+    ellipsis: Boolean,
+    width: Float,
+    density: Density,
+    resourceLoader: Font.ResourceLoader,
+): Paragraph = implementedInJetBrainsFork()
+
+@Deprecated(
+    "Paragraph that takes maximum allowed width is deprecated, pass constraints instead.",
+    ReplaceWith(
+        "Paragraph(text, style, Constraints(maxWidth = ceil(width).toInt()), density, " +
+            "fontFamilyResolver, spanStyles, placeholders, maxLines, ellipsis)",
+        "kotlin.math.ceil",
+        "androidx.compose.ui.unit.Constraints",
+    ),
+)
+actual fun Paragraph(
+    text: String,
+    style: TextStyle,
+    width: Float,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    maxLines: Int,
+    ellipsis: Boolean,
+): Paragraph = implementedInJetBrainsFork()
+
+@Deprecated(
+    "Paragraph that takes `ellipsis: Boolean` is deprecated, pass TextOverflow instead.",
+    level = DeprecationLevel.HIDDEN,
+)
+actual fun Paragraph(
+    text: String,
+    style: TextStyle,
+    constraints: Constraints,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    maxLines: Int,
+    ellipsis: Boolean,
+): Paragraph = implementedInJetBrainsFork()
+
+actual fun Paragraph(
+    text: String,
+    style: TextStyle,
+    constraints: Constraints,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    maxLines: Int,
+    overflow: TextOverflow,
+): Paragraph = implementedInJetBrainsFork()
+
+@Deprecated(
+    "Paragraph that takes maximum allowed width is deprecated, pass constraints instead.",
+    ReplaceWith(
+        "Paragraph(paragraphIntrinsics, Constraints(maxWidth = ceil(width).toInt()), maxLines, " +
+            "ellipsis)",
+        "kotlin.math.ceil",
+        "androidx.compose.ui.unit.Constraints",
+    ),
+)
+actual fun Paragraph(
+    paragraphIntrinsics: ParagraphIntrinsics,
+    maxLines: Int,
+    ellipsis: Boolean,
+    width: Float,
+): Paragraph = implementedInJetBrainsFork()
+
+@Deprecated(
+    "Paragraph that takes ellipsis: Boolean is deprecated, pass TextOverflow instead.",
+    level = DeprecationLevel.HIDDEN,
+)
+actual fun Paragraph(
+    paragraphIntrinsics: ParagraphIntrinsics,
+    constraints: Constraints,
+    maxLines: Int,
+    ellipsis: Boolean,
+): Paragraph = implementedInJetBrainsFork()
+
+actual fun Paragraph(
+    paragraphIntrinsics: ParagraphIntrinsics,
+    constraints: Constraints,
+    maxLines: Int,
+    overflow: TextOverflow,
+): Paragraph = implementedInJetBrainsFork()

@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmMultifileClass
+@file:JvmName("ParagraphKt")
+
 package androidx.compose.ui.text
 
 import androidx.annotation.IntRange
@@ -31,13 +35,13 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.text.platform.ActualParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlin.math.ceil
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 internal const val DefaultMaxLines = Int.MAX_VALUE
 
@@ -285,22 +289,6 @@ expect sealed interface Paragraph {
      */
     fun getWordBoundary(offset: Int): TextRange
 
-    /**
-     * Draws this paragraph onto given [canvas] while modifying supported draw properties. Any
-     * change caused by overriding parameters are permanent, meaning that they affect the subsequent
-     * paint calls.
-     *
-     * @param canvas Canvas to draw this paragraph on.
-     * @param color Applies to the default text paint color that's used by this paragraph. Text
-     *   color spans are not affected. [Color.Unspecified] is treated as no-op.
-     * @param shadow Applies to the default text paint shadow that's used by this paragraph. Text
-     *   shadow spans are not affected. [Shadow.None] removes any existing shadow on this paragraph,
-     *   `null` does not change the currently set [Shadow] configuration.
-     * @param textDecoration Applies to the default text paint that's used by this paragraph. Spans
-     *   that specify a TextDecoration are not affected. [TextDecoration.None] removes any existing
-     *   TextDecoration on this paragraph, `null` does not change the currently set [TextDecoration]
-     *   configuration.
-     */
     @Deprecated(
         "Use the new paint function that takes canvas as the only required parameter.",
         level = DeprecationLevel.HIDDEN,
@@ -377,35 +365,16 @@ expect sealed interface Paragraph {
     )
 }
 
-/**
- * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
- * [ParagraphStyle].
- *
- * If the [style] does not contain any [androidx.compose.ui.text.style.TextDirection],
- * [androidx.compose.ui.text.style.TextDirection.Content] is used as the default value.
- *
- * @param text the text to be laid out
- * @param style the [TextStyle] to be applied to the whole text
- * @param spanStyles [SpanStyle]s to be applied to parts of text
- * @param placeholders a list of placeholder metrics which tells [Paragraph] where should be left
- *   blank to leave space for inline elements.
- * @param maxLines the maximum number of lines that the text can have
- * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
- * @param width how wide the text is allowed to be
- * @param density density of the device
- * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
- * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
- */
 @Suppress("DEPRECATION")
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
     replaceWith =
         ReplaceWith(
-            "Paragraph(text, style, spanStyles, placeholders, maxLines, " +
-                "ellipsis, width, density, fontFamilyResolver)"
+            "ActualParagraph(text, style, spanStyles, placeholders, " +
+                "maxLines, ellipsis, width, density, createFontFamilyResolver(resourceLoader))"
         ),
 )
-fun Paragraph(
+expect fun Paragraph(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
@@ -415,38 +384,8 @@ fun Paragraph(
     width: Float,
     density: Density,
     resourceLoader: Font.ResourceLoader,
-): Paragraph =
-    ActualParagraph(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        maxLines,
-        ellipsis,
-        width,
-        density,
-        resourceLoader,
-    )
+): Paragraph
 
-/**
- * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
- * [ParagraphStyle].
- *
- * If the [style] does not contain any [androidx.compose.ui.text.style.TextDirection],
- * [androidx.compose.ui.text.style.TextDirection.Content] is used as the default value.
- *
- * @param text the text to be laid out
- * @param style the [TextStyle] to be applied to the whole text
- * @param width how wide the text is allowed to be
- * @param density density of the device
- * @param fontFamilyResolver [FontFamily.Resolver] to be used to load the font given in [SpanStyle]s
- * @param spanStyles [SpanStyle]s to be applied to parts of text
- * @param placeholders a list of placeholder metrics which tells [Paragraph] where should be left
- *   blank to leave space for inline elements.
- * @param maxLines the maximum number of lines that the text can have
- * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
- * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
- */
 @Deprecated(
     "Paragraph that takes maximum allowed width is deprecated, pass constraints instead.",
     ReplaceWith(
@@ -456,7 +395,7 @@ fun Paragraph(
         "androidx.compose.ui.unit.Constraints",
     ),
 )
-fun Paragraph(
+expect fun Paragraph(
     text: String,
     style: TextStyle,
     width: Float,
@@ -466,45 +405,13 @@ fun Paragraph(
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
-): Paragraph =
-    ActualParagraph(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        maxLines,
-        if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
-        Constraints(maxWidth = width.ceilToInt()),
-        density,
-        fontFamilyResolver,
-    )
+): Paragraph
 
-/**
- * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
- * [ParagraphStyle].
- *
- * If the [style] does not contain any [androidx.compose.ui.text.style.TextDirection],
- * [androidx.compose.ui.text.style.TextDirection.Content] is used as the default value.
- *
- * @param text the text to be laid out
- * @param style the [TextStyle] to be applied to the whole text
- * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth] will
- *   define the width of the Paragraph. [Constraints.maxHeight] helps defining the number of lines
- *   that fit with ellipsis is true. Minimum components of the [Constraints] object are no-op.
- * @param density density of the device
- * @param fontFamilyResolver [FontFamily.Resolver] to be used to load the font given in [SpanStyle]s
- * @param spanStyles [SpanStyle]s to be applied to parts of text
- * @param placeholders a list of placeholder metrics which tells [Paragraph] where should be left
- *   blank to leave space for inline elements.
- * @param maxLines the maximum number of lines that the text can have
- * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
- * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
- */
 @Deprecated(
     "Paragraph that takes `ellipsis: Boolean` is deprecated, pass TextOverflow instead.",
     level = DeprecationLevel.HIDDEN,
 )
-fun Paragraph(
+expect fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
@@ -514,18 +421,7 @@ fun Paragraph(
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
-): Paragraph =
-    ActualParagraph(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        maxLines,
-        if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
-        constraints,
-        density,
-        fontFamilyResolver,
-    )
+): Paragraph
 
 /**
  * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
@@ -548,7 +444,7 @@ fun Paragraph(
  * @param overflow specifies how visual overflow should be handled
  * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
  */
-fun Paragraph(
+expect fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
@@ -558,28 +454,8 @@ fun Paragraph(
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,
     overflow: TextOverflow = TextOverflow.Clip,
-): Paragraph =
-    ActualParagraph(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        maxLines,
-        overflow,
-        constraints,
-        density,
-        fontFamilyResolver,
-    )
+): Paragraph
 
-/**
- * Lays out the text in [ParagraphIntrinsics] with the given constraints. A paragraph is a text that
- * has a single [ParagraphStyle].
- *
- * @param paragraphIntrinsics [ParagraphIntrinsics] instance
- * @param maxLines the maximum number of lines that the text can have
- * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
- * @param width how wide the text is allowed to be
- */
 @Deprecated(
     "Paragraph that takes maximum allowed width is deprecated, pass constraints instead.",
     ReplaceWith(
@@ -589,50 +465,23 @@ fun Paragraph(
         "androidx.compose.ui.unit.Constraints",
     ),
 )
-fun Paragraph(
+expect fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
     width: Float,
-): Paragraph =
-    ActualParagraph(
-        paragraphIntrinsics,
-        maxLines,
-        if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
-        Constraints(maxWidth = width.ceilToInt()),
-    )
+): Paragraph
 
-/**
- * Lays out the text in [ParagraphIntrinsics] with the given constraints. A paragraph is a text that
- * has a single [ParagraphStyle].
- *
- * @param paragraphIntrinsics [ParagraphIntrinsics] instance
- * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth] will
- *   define the width of the Paragraph. [Constraints.maxHeight] helps defining the number of lines
- *   that fit with ellipsis is true. Minimum components of the [Constraints] object are no-op.
- * @param maxLines the maximum number of lines that the text can have
- * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
- */
 @Deprecated(
     "Paragraph that takes ellipsis: Boolean is deprecated, pass TextOverflow instead.",
-    ReplaceWith(
-        "Paragraph(paragraphIntrinsics, constraints, maxLines, " +
-            "if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip"
-    ),
     level = DeprecationLevel.HIDDEN,
 )
-fun Paragraph(
+expect fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     constraints: Constraints,
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
-): Paragraph =
-    ActualParagraph(
-        paragraphIntrinsics,
-        maxLines,
-        if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
-        constraints,
-    )
+): Paragraph
 
 /**
  * Lays out the text in [ParagraphIntrinsics] with the given constraints. A paragraph is a text that
@@ -645,11 +494,9 @@ fun Paragraph(
  * @param maxLines the maximum number of lines that the text can have
  * @param overflow specifies how visual overflow should be handled
  */
-fun Paragraph(
+expect fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     constraints: Constraints,
     maxLines: Int = DefaultMaxLines,
     overflow: TextOverflow = TextOverflow.Clip,
-): Paragraph = ActualParagraph(paragraphIntrinsics, maxLines, overflow, constraints)
-
-internal fun Float.ceilToInt(): Int = ceil(this).toInt()
+): Paragraph
