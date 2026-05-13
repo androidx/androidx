@@ -27,12 +27,15 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -279,5 +282,142 @@ internal class BasicTextFieldStyledTextTest {
 
         assertThat(state.text.toString()).isEqualTo("Hello")
         assertThat(state.value.textStyleBuffer?.getStyles<SpanStyle>(0, 5)).isNull()
+    }
+
+    @Test
+    fun styledText_modifyingTrackedRange_updatesTextLayout() {
+        val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
+        val italicStyle = SpanStyle(fontStyle = FontStyle.Italic)
+        val state = TextFieldState("Hello World!")
+
+        rule.setContent {
+            BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
+        }
+
+        state.edit { addStyle(boldStyle, TextRange(0, 5), ExpandPolicy.AtEnd) }
+
+        var textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
+        assertThat(textLayoutResult.layoutInput.text.spanStyles[0].item).isEqualTo(boldStyle)
+        assertThat(textLayoutResult.layoutInput.text.spanStyles[0].end).isEqualTo(5)
+
+        state.edit {
+            val trackedRange = getSpanStyles(0, length)[0]
+            trackedRange.spanStyle = italicStyle
+            trackedRange.textRange = TextRange(6, 11)
+        }
+
+        textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
+        assertThat(textLayoutResult.layoutInput.text.spanStyles[0].item).isEqualTo(italicStyle)
+        assertThat(textLayoutResult.layoutInput.text.spanStyles[0].start).isEqualTo(6)
+        assertThat(textLayoutResult.layoutInput.text.spanStyles[0].end).isEqualTo(11)
+    }
+
+    @Test
+    fun styledText_removeTrackedRange_updatesTextLayout() {
+        val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
+        val state = TextFieldState("Hello World!")
+
+        state.edit { addStyle(boldStyle, TextRange(0, 5), ExpandPolicy.AtEnd) }
+
+        rule.setContent {
+            BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
+        }
+
+        var textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
+        assertThat(textLayoutResult.layoutInput.text.spanStyles.size).isEqualTo(1)
+
+        state.edit {
+            val trackedRange = getSpanStyles(0, length)[0]
+            removeStyle(trackedRange)
+        }
+
+        textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
+        assertThat(textLayoutResult.layoutInput.text.spanStyles.size).isEqualTo(0)
+    }
+
+    @Test
+    fun styledText_trackedRange_becomesInvalidOutsideEditBlock() {
+        val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
+        val state = TextFieldState("Hello World!")
+
+        var leakedTrackedRange: TrackedRange<SpanStyle>? = null
+
+        state.edit {
+            leakedTrackedRange = addStyle(boldStyle, TextRange(0, 5), ExpandPolicy.AtEnd)
+            assertThat(leakedTrackedRange.valid).isTrue()
+        }
+
+        state.edit {
+            // TrackedRange leaked from previous block is not valid in this block
+            assertThat(leakedTrackedRange!!.valid).isFalse()
+
+            // And any attempt to access or modify it throws an exception
+            assertFailsWith<IllegalArgumentException> {
+                leakedTrackedRange.textRange = TextRange(0, 10)
+            }
+            assertFailsWith<IllegalArgumentException> { leakedTrackedRange.textRange }
+        }
+    }
+
+    @Test
+    fun styledText_trackedRangeProperties_reflectState() {
+        val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
+        val state = TextFieldState("Hello")
+
+        state.edit {
+            val trackedRange = addStyle(boldStyle, TextRange(0, 5), ExpandPolicy.AtEnd)
+
+            // Initial state
+            assertThat(trackedRange.textRange).isEqualTo(TextRange(0, 5))
+            assertThat(trackedRange.expandPolicy).isEqualTo(ExpandPolicy.AtEnd)
+            assertThat(trackedRange.valid).isTrue()
+
+            // Modification expands range
+            insert(2, "xx")
+            assertThat(trackedRange.textRange).isEqualTo(TextRange(0, 7))
+
+            // Delete text completely removes range
+            delete(0, 7)
+            assertThat(trackedRange.valid).isFalse()
+        }
+    }
+
+    @Test
+    fun styledText_trackedRangeProperties_updateExpandPolicy() {
+        val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
+        val state = TextFieldState("Hello")
+
+        state.edit {
+            val range = addStyle(boldStyle, TextRange(0, 5), ExpandPolicy.AtEnd)
+            assertThat(range.expandPolicy).isEqualTo(ExpandPolicy.AtEnd)
+
+            // Insert at end expands the range
+            insert(5, " World")
+            assertThat(range.textRange).isEqualTo(TextRange(0, 11))
+
+            // Update expand policy to InsideOnly
+            range.expandPolicy = ExpandPolicy.InsideOnly
+            assertThat(range.expandPolicy).isEqualTo(ExpandPolicy.InsideOnly)
+
+            // Insert at end no longer expands the range
+            insert(11, "!")
+            assertThat(range.textRange).isEqualTo(TextRange(0, 11))
+
+            // Insert at start no longer expands the range
+            insert(0, "Say ")
+            assertThat(range.textRange).isEqualTo(TextRange(4, 15))
+
+            // Update expand policy to AtBoth
+            range.expandPolicy = ExpandPolicy.AtBoth
+            assertThat(range.expandPolicy).isEqualTo(ExpandPolicy.AtBoth)
+
+            // Insert at start now expands the range
+            insert(4, "Well, ")
+            assertThat(range.textRange).isEqualTo(TextRange(4, 21))
+
+            // Insert at end now expands the range
+            insert(21, " Again")
+            assertThat(range.textRange).isEqualTo(TextRange(4, 27))
+        }
     }
 }

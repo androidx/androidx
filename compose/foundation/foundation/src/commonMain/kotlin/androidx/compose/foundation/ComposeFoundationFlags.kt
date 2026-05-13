@@ -171,9 +171,7 @@ object ComposeFoundationFlags {
      * features are enabled.
      */
     // TODO: Remove this flag once it has soaked (b/494340211)
-    @field:Suppress("MutableBareField")
-    @JvmField
-    internal var isBasicTextFieldStyledTextEnabled = false
+    @field:Suppress("MutableBareField") @JvmField var isBasicTextFieldStyledTextEnabled = true
 
     /**
      * This flag controls whether the legacy nodeOffset logic in DragGestureNode and

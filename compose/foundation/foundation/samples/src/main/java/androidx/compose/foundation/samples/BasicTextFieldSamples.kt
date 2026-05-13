@@ -39,10 +39,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.ExpandPolicy
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TrackedRange
 import androidx.compose.foundation.text.input.byValue
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.forEachChange
@@ -55,6 +57,7 @@ import androidx.compose.foundation.text.input.then
 import androidx.compose.foundation.text.input.toTextFieldBuffer
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -75,6 +78,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
@@ -522,6 +526,43 @@ fun BasicTextFieldChangeReverseIterationSample() {
     )
 }
 
+@Sampled
+@Composable
+fun BasicTextFieldTrackedRangeTextRangeSetterSample() {
+    // Wipe the bold style on a given range using the TrackedRange.textRange API
+    val state = TextFieldState("Hello World")
+
+    state.edit {
+        // Assume we want to "wipe" all bold styles from the first 5 characters.
+        val rangeToWipe = TextRange(0, 5)
+
+        // Get all span styles that intersect with the wipe range.
+        getSpanStyles(rangeToWipe.start, rangeToWipe.end).forEach { trackedRange ->
+            if (trackedRange.spanStyle.fontWeight == FontWeight.Bold) {
+                val current = trackedRange.textRange
+
+                if (rangeToWipe.start <= current.start && current.end <= rangeToWipe.end) {
+                    // Case 1: The bold style is entirely within the wipe range, remove it.
+                    removeStyle(trackedRange)
+                } else if (current.start < rangeToWipe.start && rangeToWipe.end < current.end) {
+                    // Case 2: The wipe range is in the middle: split the style into two parts.
+                    val oldEnd = current.end
+                    // Truncate the original style to end at the start of the wipe range.
+                    trackedRange.textRange = TextRange(current.start, rangeToWipe.start)
+                    // Add a new bold style starting after the wipe range.
+                    addStyle(trackedRange.spanStyle, rangeToWipe.end, oldEnd)
+                } else if (current.start < rangeToWipe.start) {
+                    // Case 3: Overlap at the start of wipe: truncate the style's end.
+                    trackedRange.textRange = TextRange(current.start, rangeToWipe.start)
+                } else {
+                    // Case 4: Overlap at the end of wipe: truncate the style's start.
+                    trackedRange.textRange = TextRange(rangeToWipe.end, current.end)
+                }
+            }
+        }
+    }
+}
+
 @OptIn(FlowPreview::class)
 @Suppress("RedundantSuspendModifier")
 @Sampled
@@ -631,4 +672,184 @@ fun TextFieldStateApplyOutputTransformation() {
 
     val transformedText = buffer.asCharSequence()
     val transformedSelection = buffer.selection
+}
+
+/**
+ * This sample demonstrates how to use the `TrackedRange` API to track and modify text ranges
+ * dynamically. It implements a basic Markdown-like behavior where text typed inside double
+ * asterisks (e.g., **bold**) is automatically bolded, and the asterisks are removed.
+ */
+@Sampled
+@Composable
+fun BasicTextFieldTrackedRangeSample() {
+
+    val state = rememberTextFieldState("")
+
+    fun IntRange.toTextRange(): TextRange {
+        // Unlike IntRange, TextRange is exclusive at the end.
+        return TextRange(first, last + 1)
+    }
+
+    val inputTransformation = remember {
+        InputTransformation {
+            val text = asCharSequence().toString()
+            val matches = "\\*\\*([^*]+)\\*\\*".toRegex().findAll(text).toList()
+            matches
+                .map { match ->
+                    val contentRange = match.groups[0]!!.range
+                    // Apply bold style to the text inside asterisks (including the
+                    // asterisks for now).
+                    addStyle(
+                        SpanStyle(fontWeight = FontWeight.Bold),
+                        contentRange.toTextRange(),
+                        ExpandPolicy.InsideOnly,
+                    )
+                }
+                .forEach { trackedRange ->
+                    // Remove the asterisks here.
+
+                    // `trackedRange` simplifies this logic: normally, deleting characters at
+                    // the start would shift the end index. However, because `trackedRange`
+                    // automatically tracks text updates and adjusts its offsets
+                    // dynamically, we can safely delete the target range without having to
+                    // calculate the offset manually.
+                    delete(trackedRange.textRange.start, trackedRange.textRange.start + 2)
+                    delete(trackedRange.textRange.end - 2, trackedRange.textRange.end)
+                }
+        }
+    }
+
+    Column {
+        Text("Type **text** below to automatically bold it.")
+
+        BasicTextField(
+            state = state,
+            textStyle = LocalTextStyle.current,
+            inputTransformation = inputTransformation,
+        )
+    }
+}
+
+/**
+ * This sample demonstrates a realistic rich-text editor scenario using the `TrackedRange` API. It
+ * implements a "Toggle Bold" formatting function on the current selection.
+ *
+ * For simplicity, this sample keeps bold styles non-overlapping and contiguous, assuming they are
+ * applied exclusively through this method.
+ */
+@Sampled
+fun BasicTextFieldTrackedRangeToggleBoldSample() {
+    val state = TextFieldState("Hello World")
+
+    fun toggleBold() {
+        state.edit {
+            val selection = this.selection
+            if (selection.collapsed) return@edit
+
+            // 1. Query existing bold styles in the selection
+            val intersectingStyles =
+                getSpanStyles(selection.start, selection.end).filter {
+                    it.spanStyle.fontWeight == FontWeight.Bold
+                }
+
+            // 2. Check if the entire selection is already bold
+            // Since styles are non-overlapping, we can just sum their intersecting lengths.
+            var boldCoverage = 0
+            for (style in intersectingStyles) {
+                val range = style.textRange
+                val overlapStart = maxOf(range.start, selection.start)
+                val overlapEnd = minOf(range.end, selection.end)
+                if (overlapEnd > overlapStart) {
+                    boldCoverage += (overlapEnd - overlapStart)
+                }
+            }
+            val isAllBold = boldCoverage == selection.length
+
+            if (isAllBold) {
+                // 3. Unbold the selection
+                // We modify or remove existing styles to exclude the selected range
+                for (style in intersectingStyles) {
+                    val range = style.textRange
+                    if (range.start >= selection.start && range.end <= selection.end) {
+                        // The style is fully inside the selection. Remove it.
+                        removeStyle(style)
+                    } else if (range.start < selection.start && range.end > selection.end) {
+                        // The style completely covers the selection. We need to split it.
+                        val oldEnd = range.end
+                        // Truncate the start part
+                        style.textRange = TextRange(range.start, selection.start)
+                        // Add a new style for the end part
+                        addStyle(
+                            SpanStyle(fontWeight = FontWeight.Bold),
+                            TextRange(selection.end, oldEnd),
+                            ExpandPolicy.AtEnd,
+                        )
+                    } else if (range.start < selection.start) {
+                        // The style overlaps with the start of the selection. Truncate it.
+                        style.textRange = TextRange(range.start, selection.start)
+                    } else {
+                        // The style overlaps with the end of the selection. Truncate it.
+                        style.textRange = TextRange(selection.end, range.end)
+                    }
+                }
+            } else {
+                // 4. Bold the selection
+                // To keep bold styles non-overlapping, we merge any intersecting bold styles
+                // with the new selection range into a single contiguous bold style.
+                var mergedStart = selection.start
+                var mergedEnd = selection.end
+
+                for (style in intersectingStyles) {
+                    mergedStart = minOf(mergedStart, style.textRange.start)
+                    mergedEnd = maxOf(mergedEnd, style.textRange.end)
+                    // Remove the fragmented style
+                    removeStyle(style)
+                }
+
+                addStyle(
+                    SpanStyle(fontWeight = FontWeight.Bold),
+                    TextRange(mergedStart, mergedEnd),
+                    ExpandPolicy.AtEnd,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * This sample demonstrates the use of [TrackedRange.valid] and [TrackedRange.expandPolicy]. It
+ * shows how mutating the text can cause a TrackedRange to become invalid, and how to dynamically
+ * update the behavior of a range.
+ */
+@Sampled
+@Composable
+fun BasicTextFieldTrackedRangePropertiesSample() {
+    val state = TextFieldState("Hello World")
+
+    state.edit {
+        // Query the existing styles on the text
+        val existingStyles = getSpanStyles(0, length)
+
+        existingStyles.forEach { trackedRange ->
+            // Read and update the expand policy of a style
+            if (trackedRange.expandPolicy == ExpandPolicy.InsideOnly) {
+                trackedRange.expandPolicy = ExpandPolicy.AtEnd
+            }
+        }
+
+        // Do some edits that might delete the styled text
+        delete(0, 5)
+
+        // After the edits, we can check if the previously queried ranges are still valid
+        existingStyles.forEach { trackedRange ->
+            // The style's range might have collapsed to zero length, making it no longer valid.
+            // It is recommended to check validity before accessing properties like textRange.
+            if (trackedRange.valid) {
+                // Style is still valid, it's up-to-date range can be accessed via
+                // trackedRange.textRange
+            } else {
+                // Style was completely deleted.
+            }
+        }
+    }
 }

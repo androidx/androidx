@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextFieldCharSequence
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -81,8 +84,12 @@ class TransformedTextFieldStateTest {
         assertThat(transformedState.outputText.composingAnnotations).isNull()
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun outputTransformation_addingAnnotation_showsOutputAnnotations() {
+        // When the style text API is enabled, addStyle will add style to TextStyleBuffer instead
+        // of outputAnnotation.
+        assumeFalse(ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
         val state = TextFieldState("Hello")
         val outputTransformation = OutputTransformation { addStyle(SpanStyle(Color.Red), 0, 3) }
         val transformedState =

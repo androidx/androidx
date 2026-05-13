@@ -16,41 +16,56 @@
 
 package androidx.compose.foundation.demos.text2
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.ExpandPolicy
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BasicTextFieldFormattedTextDemos() {
-    Column(Modifier.imePadding().verticalScroll(rememberScrollState())) {
-        TagLine(tag = "BasicTextField with SpanStyles")
-        TextFieldWithSpanStyles()
+    if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+        Column(Modifier.imePadding().verticalScroll(rememberScrollState())) {
+            TagLine(tag = "BasicTextField with SpanStyles")
+            TextFieldWithSpanStyles()
 
-        TagLine(tag = "BasicTextField with ParagraphStyles")
-        TextFieldWithParagraphStyles()
+            TagLine(tag = "BasicTextField with ParagraphStyles")
+            TextFieldWithParagraphStyles()
 
-        TagLine(
-            tag = "BasicTextField that colors digits Cyan non-digits Red in InputTransformation"
+            TagLine(
+                tag = "BasicTextField that colors digits Cyan non-digits Red in InputTransformation"
+            )
+            TextFieldApplyStyleInInputTransformation()
+
+            TagLine(tag = "BasicTextField that highlights whitespace in OutputTransformation")
+            TextFieldApplyStyleInOutputTransformation()
+
+            TagLine("TrackedRange Sample: BasicTextField with Markdown-like **bold** formatting")
+            BasicTextFieldTrackedRangeSample()
+        }
+    } else {
+        Text(
+            "Please enable ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled to view this Demo."
         )
-        TextFieldApplyStyleInInputTransformation()
-
-        TagLine(tag = "BasicTextField that highlights whitespace in OutputTransformation")
-        TextFieldApplyStyleInOutputTransformation()
     }
 }
 
@@ -60,8 +75,12 @@ fun TextFieldWithSpanStyles() {
         TextFieldState().apply {
             edit {
                 append("formatted text")
-                addStyle(SpanStyle(color = Color.Cyan), 0, 9)
-                addStyle(SpanStyle(fontWeight = FontWeight.Bold), 10, 14)
+                addStyle(SpanStyle(color = Color.Cyan), TextRange(0, 9), ExpandPolicy.AtEnd)
+                addStyle(
+                    SpanStyle(fontWeight = FontWeight.Bold),
+                    TextRange(10, 14),
+                    ExpandPolicy.AtEnd,
+                )
             }
         }
     }
@@ -76,8 +95,8 @@ fun TextFieldWithParagraphStyles() {
                 append("list: item1\nitem2\nitem3")
                 addStyle(
                     ParagraphStyle(textIndent = TextIndent(firstLine = 16.sp, restLine = 16.sp)),
-                    6,
-                    23,
+                    TextRange(6, 23),
+                    ExpandPolicy.AtEnd,
                 )
             }
         }
@@ -105,9 +124,17 @@ fun TextFieldApplyStyleInInputTransformation() {
                         ++idx
                     }
                     if (isDigit) {
-                        addStyle(SpanStyle(color = Color.Cyan), start, idx)
+                        addStyle(
+                            SpanStyle(color = Color.Cyan),
+                            TextRange(start, idx),
+                            ExpandPolicy.AtEnd,
+                        )
                     } else {
-                        addStyle(SpanStyle(color = Color.Red), start, idx)
+                        addStyle(
+                            SpanStyle(color = Color.Red),
+                            TextRange(start, idx),
+                            ExpandPolicy.AtEnd,
+                        )
                     }
                     start = idx + 1
                 }
@@ -132,7 +159,11 @@ fun TextFieldApplyStyleInOutputTransformation() {
                     ++idx
                 }
                 if (idx > start) {
-                    addStyle(SpanStyle(background = Color.Cyan), start, idx)
+                    addStyle(
+                        SpanStyle(background = Color.Cyan),
+                        TextRange(start, idx),
+                        ExpandPolicy.AtEnd,
+                    )
                 }
                 start = idx + 1
             }
