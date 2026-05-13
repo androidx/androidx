@@ -21,6 +21,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.LifecycleOwner
+import androidx.xr.arcore.Trackable
 import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.math.Pose
 import java.util.concurrent.Executor
@@ -423,6 +425,32 @@ public interface SceneRuntime : JxrRuntime {
         scaleInZ: Boolean,
         userAnchorable: Boolean,
     ): MovableComponent
+
+    /**
+     * Creates a [TrackableComponent] that drives an entity's pose from an ARCore [Trackable].
+     *
+     * Use this to make an entity in your scene automatically follow a real-world object tracked by
+     * ARCore. For example, you could attach a virtual object to a person's hand by using a
+     * `Trackable` that represents hand tracking.
+     *
+     * The component starts tracking the [Trackable] as soon as it's created and attached to an
+     * entity. Its lifecycle is managed automatically. When the component is detached or the
+     * provided [LifecycleOwner] is destroyed, it will stop tracking.
+     *
+     * @param lifecycleOwner The [LifecycleOwner] that controls the lifecycle of this component.
+     *   When the lifecycle is destroyed, the component will stop tracking.
+     * @param trackable The ARCore [Trackable] to follow. This provides a stream of updates, such as
+     *   the position and orientation of a detected object.
+     * @param poseExtractor A function that extracts a [Pose] from the [Trackable]'s state. This
+     *   function is called for each update from the `trackable`. If it returns `null`, the entity's
+     *   pose is not updated for that frame.
+     * @return A new [TrackableComponent] instance ready to be attached to an entity.
+     */
+    public fun createTrackableComponent(
+        lifecycleOwner: LifecycleOwner,
+        trackable: Trackable<Trackable.State>,
+        poseExtractor: ((Any?) -> Pose?),
+    ): TrackableComponent
 
     /**
      * Create an instance of [ResizableComponent]. This component allows the user to resize the

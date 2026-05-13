@@ -20,6 +20,8 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.LifecycleOwner
+import androidx.xr.arcore.Trackable
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.ActivitySpace
@@ -57,6 +59,7 @@ import androidx.xr.scenecore.runtime.SpatialModeChangeListener
 import androidx.xr.scenecore.runtime.SpatialPointerComponent
 import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
+import androidx.xr.scenecore.runtime.TrackableComponent
 import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
 import java.util.function.Consumer
@@ -239,6 +242,14 @@ internal constructor(
         scaleInZ: Boolean,
         userAnchorable: Boolean,
     ): MovableComponent {
+        TODO("Not yet implemented")
+    }
+
+    override fun createTrackableComponent(
+        lifecycleOwner: LifecycleOwner,
+        trackable: Trackable<Trackable.State>,
+        poseExtractor: ((Any?) -> Pose?),
+    ): TrackableComponent {
         TODO("Not yet implemented")
     }
 

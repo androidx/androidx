@@ -19,7 +19,12 @@
 package androidx.xr.scenecore
 
 import androidx.xr.arcore.AnchorCreateSuccess
+import androidx.xr.arcore.AugmentedObject
+import androidx.xr.arcore.Eye
+import androidx.xr.arcore.Hand
+import androidx.xr.arcore.HandJointType
 import androidx.xr.arcore.Plane
+import androidx.xr.arcore.Trackable
 import androidx.xr.arcore.TrackingState
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
@@ -31,6 +36,7 @@ import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.MoveEventListener as RtMoveEventListener
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
+import java.util.function.Function
 import kotlin.math.max
 import kotlinx.coroutines.flow.StateFlow
 
@@ -62,6 +68,8 @@ private constructor(
     private val disposeParentOnReAnchor: Boolean = true,
     private val initialListener: EntityMoveListener? = null,
     private val initialListenerExecutor: Executor? = null,
+    private val trackable: Trackable<Trackable.State>? = null,
+    private val poseExtractor: ((Any?) -> Pose?)? = null,
 ) : Component() {
 
     private val sceneRuntime = session.sceneRuntime
@@ -71,6 +79,14 @@ private constructor(
     internal val rtMovableComponent by lazy {
         sceneRuntime.createMovableComponent(systemMovable, scaleInZ, anchorable)
     }
+    internal val rtTrackableComponent by lazy {
+        sceneRuntime.createTrackableComponent(
+            session.lifecycleOwner,
+            requireNotNull(trackable),
+            requireNotNull(poseExtractor),
+        )
+    }
+
     private val moveListenersMap = ConcurrentHashMap<EntityMoveListener, Executor>()
 
     @OptIn(ExperimentalCustomMeshApi::class)
@@ -81,7 +97,7 @@ private constructor(
             updatedReformEventInfo = getUpdatedReformEventPoseAndParent(moveEvent)
         } else if (systemMovable && (entity is GltfModelEntity || entity is MeshEntity)) {
             entity?.apply {
-                // TODO(b/495925250): Add SceneCore unit tests for movable gLTFs
+                // TODO(b/495925250): Add SceneCore unit tests for movable glTFs
                 setPose(moveEvent.currentPose)
                 setScale(moveEvent.currentScale)
             }
@@ -172,9 +188,19 @@ private constructor(
         if (this.entity != null) {
             return false
         }
-        this.entity = entity
+
+        // Adds TrackableComponent instead of MovableComponent.
+        if (trackable != null && poseExtractor != null) {
+            val attached = entity.rtEntity.addComponent(rtTrackableComponent)
+            if (attached) {
+                this.entity = entity
+            }
+            return attached
+        }
+
         val attached = entity.rtEntity.addComponent(rtMovableComponent)
         if (attached) {
+            this.entity = entity
             if (anchorable) {
                 planesFlow = Plane.subscribe(session)
             }
@@ -191,8 +217,14 @@ private constructor(
     }
 
     override fun onDetach(entity: Entity) {
-        rtMovableComponent.removeMoveEventListener(rtMoveEventListener)
-        entity.rtEntity.removeComponent(rtMovableComponent)
+        // Removes TrackableComponent instead of MovableComponent if trackable is non-null.
+        if (trackable != null && poseExtractor != null) {
+            entity.rtEntity.removeComponent(rtTrackableComponent)
+        } else {
+            rtMovableComponent.removeMoveEventListener(rtMoveEventListener)
+            entity.rtEntity.removeComponent(rtMovableComponent)
+        }
+
         this.entity = null
     }
 
@@ -379,6 +411,8 @@ private constructor(
             disposeParentOnReAnchor: Boolean = true,
             initialListener: EntityMoveListener? = null,
             initialListenerExecutor: Executor? = null,
+            trackable: Trackable<Trackable.State>? = null,
+            poseExtractor: ((Any?) -> Pose?)? = null,
         ): MovableComponent {
             return MovableComponent(
                 session,
@@ -389,6 +423,8 @@ private constructor(
                 disposeParentOnReAnchor,
                 initialListener,
                 initialListenerExecutor,
+                trackable,
+                poseExtractor,
             )
         }
 
@@ -462,6 +498,76 @@ private constructor(
                 entityRegistry = session.scene.entityRegistry,
                 systemMovable = true,
                 scaleInZ = scaleInZ,
+            )
+
+        /**
+         * Creates a [MovableComponent] that allows an entity's pose to be driven by an external
+         * ARCore [Trackable].
+         *
+         * This factory is designed for scenarios where an entity needs to continuously track a pose
+         * provided by an ARCore data source, such as the user's hand joint from [Hand].
+         *
+         * Once this component is created and attached to an entity, it will automatically start
+         * collecting pose updates. The collection operation is internally managed and tied to the
+         * component's attachment lifecycle. The provided `poseExtractor` function is invoked on the
+         * main thread during the frame update loop whenever the underlying [Trackable] emits a new
+         * state. This invocation begins when the component is attached to an [Entity] and stops
+         * when it is detached.
+         *
+         * If the `poseExtractor` returns `null` (e.g., if a valid pose cannot be extracted from the
+         * current state), the system silently does nothing and the entity's pose remains unchanged.
+         * Note that any exceptions thrown by the `poseExtractor` are not caught by the runtime and
+         * will propagate, potentially crashing the application.
+         *
+         * The default implementation of `poseExtractor` extracts a pose from the following states:
+         * [AugmentedObject.State] (using `centerPose`), [Eye.State] (using `pose`), [Plane.State]
+         * (using `centerPose`), and [Hand.State] (using the pose of the [HandJointType.PALM]
+         * joint). For any other state types, the default implementation returns null, resulting in
+         * no pose updates. You must provide a custom `poseExtractor` for unlisted types.
+         *
+         * @param T The type of the state emitted by the source [Trackable].
+         * @param session The active [Session] instance.
+         * @param trackable A [Trackable] that provides a continuous stream of state updates.
+         * @param poseExtractor A [Function] that extracts a nullable [Pose] from the given source
+         *   state `T`.
+         * @return A new instance of [MovableComponent] configured for automatic, perception-driven
+         *   movement.
+         */
+        @JvmOverloads
+        @JvmStatic
+        public fun <T : Trackable.State> createTrackingMovable(
+            session: Session,
+            trackable: Trackable<T>,
+            poseExtractor: Function<T, Pose?> = Function { state ->
+                when (state) {
+                    is AugmentedObject.State -> {
+                        state.centerPose
+                    }
+                    is Eye.State -> {
+                        state.pose
+                    }
+                    is Hand.State -> {
+                        state.handJoints[HandJointType.PALM]
+                    }
+                    is Plane.State -> {
+                        state.centerPose
+                    }
+                    else -> {
+                        null
+                    }
+                }
+            },
+        ): MovableComponent =
+            create(
+                session = session,
+                entityRegistry = session.scene.entityRegistry,
+                trackable = trackable,
+                // Suppressing UNCHECKED_CAST due to runtime type erasure.
+                // This cast is safe because the ARCore Trackable interface contract strictly
+                // guarantees that the `trackable.state` Flow will only emit objects of type `T`.
+                poseExtractor = { state ->
+                    @Suppress("UNCHECKED_CAST") poseExtractor.apply(state as T)
+                },
             )
 
         /**

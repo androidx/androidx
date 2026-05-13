@@ -57,6 +57,7 @@
     <string name="dev_memory_leak_test">Memory Leak (Dev) Test Case</string>
     <string name="cuj_panel_coordinates_test">Panel Coordinates Test</string>
     <string name="cuj_gltf_model_animation_test">GLTF Model Animation Test Case</string>
+    <string name="cuj_hand_tracking_test">Hand Tracking Test</string>
 
     <string name="recreate_activity" description="button text to recreate current activity [CHAR LIMIT=40]">Recreate Activity</string>
     <string name="panel_text" description="Arbitrary test string which appears in a TestPanel. [CHAR_LIMIT=30]">Dragons!!</string>
