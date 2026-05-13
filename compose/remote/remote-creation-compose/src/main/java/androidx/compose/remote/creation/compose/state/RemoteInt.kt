@@ -463,7 +463,6 @@ internal constructor(
     public val absoluteValue: RemoteInt
         get() = unaryOp(OperationKey.Abs, OP_ABS) { v -> abs(v) }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         internal val DefaultIntegerFormat =
             android.icu.text.DecimalFormat().apply { maximumFractionDigits = 0 }
