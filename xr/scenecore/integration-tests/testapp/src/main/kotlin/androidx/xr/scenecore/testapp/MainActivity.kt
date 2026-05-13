@@ -78,6 +78,7 @@ import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import androidx.xr.scenecore.testapp.environment.EnvironmentActivity
 import androidx.xr.scenecore.testapp.fieldofviewvisibility.FieldOfViewVisibilityActivity
 import androidx.xr.scenecore.testapp.fsmhsmtransition.FsmHsmTransitionActivity
+import androidx.xr.scenecore.testapp.handtracking.HandTrackingTest
 import androidx.xr.scenecore.testapp.headlockedui.HeadLockedUiActivity
 import androidx.xr.scenecore.testapp.hittest.HitTestActivity
 import androidx.xr.scenecore.testapp.inputmoveresize.InputMoveResizeTestActivity
@@ -355,6 +356,8 @@ class MainActivity : AppCompatActivity() {
                 activityLauncher.launch(intent)
             }
 
+            Tests.HAND_TRACKING_TEST.test -> startActivity(createIntent<HandTrackingTest>())
+
             Tests.SPATIAL_USER_TEST.test -> startActivity(createIntent<SpatialUserActivity>())
 
             Tests.ENVIRONMENT_TEST.test -> startActivity(createIntent<EnvironmentActivity>())
@@ -549,6 +552,7 @@ class MainActivity : AppCompatActivity() {
                         ),
                         TestCase(R.string.cuj_movable_test, Tests.MOVABLE_PANEL_TEST.test),
                         TestCase(R.string.cuj_hit_test, Tests.DIGITAL_HIT_TEST.test),
+                        TestCase(R.string.cuj_hand_tracking_test, Tests.HAND_TRACKING_TEST.test),
                     ),
                 "SURFACES & MEDIA" to
                     listOf(
@@ -643,5 +647,6 @@ class MainActivity : AppCompatActivity() {
         SURFACE_CUSTOM_MESH_TEST(29),
         MESH_ENTITY_TEST(30),
         SPATIAL_AUDIO_COMPONENTS_TEST(31),
+        HAND_TRACKING_TEST(32),
     }
 }

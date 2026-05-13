@@ -30,6 +30,8 @@ import android.provider.Settings
 import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.LifecycleOwner
+import androidx.xr.arcore.Trackable
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.AnchorEntity
@@ -74,6 +76,7 @@ import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
+import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.runtime.TypeHolder
 import androidx.xr.scenecore.runtime.impl.OpenXrScenePose
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
@@ -698,6 +701,14 @@ private constructor(
                 ),
             scheduledExecutorService,
         )
+    }
+
+    override fun createTrackableComponent(
+        lifecycleOwner: LifecycleOwner,
+        trackable: Trackable<Trackable.State>,
+        poseExtractor: ((Any?) -> Pose?),
+    ): TrackableComponent {
+        return TrackableComponentImpl(activitySpace, lifecycleOwner, trackable, poseExtractor)
     }
 
     override fun createResizableComponent(

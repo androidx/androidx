@@ -25,6 +25,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
+import androidx.xr.arcore.Trackable
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.AnchorEntity
@@ -61,8 +65,11 @@ import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
+import androidx.xr.scenecore.runtime.TrackableComponent
 import java.util.concurrent.Executor
 import java.util.function.Consumer
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
 
 /**
  * Test-only implementation of [androidx.xr.scenecore.runtime.SceneRuntime].
@@ -398,6 +405,19 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         movableComponent.userAnchorable = userAnchorable
         lastMovableComponent = movableComponent
         return movableComponent
+    }
+
+    override fun createTrackableComponent(
+        lifecycleOwner: LifecycleOwner,
+        trackable: Trackable<Trackable.State>,
+        poseExtractor: ((Any?) -> Pose?),
+    ): TrackableComponent {
+        val mappedFlow: Flow<Pose> = trackable.state.mapNotNull { state -> poseExtractor(state) }
+
+        return androidx.xr.scenecore.testing.internal.FakeTrackableComponent(
+            coroutineScope = lifecycleOwner.lifecycleScope,
+            poseFlow = mappedFlow,
+        )
     }
 
     override fun createResizableComponent(
