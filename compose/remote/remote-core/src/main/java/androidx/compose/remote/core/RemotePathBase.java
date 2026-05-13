@@ -106,7 +106,7 @@ public class RemotePathBase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void add(int type, float a1, float a2) {
 
-        resize(3);
+        resize(5);
         mPath[mSize++] = Utils.asNan(type);
         mSize += 2; // THIS IS FLAW in the encoding TODO FIX ON VERSIONING
         mPath[mSize++] = a1;
@@ -117,7 +117,7 @@ public class RemotePathBase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void add(int type, float a1, float a2, float a3, float a4) {
 
-        resize(5);
+        resize(7);
 
         mPath[mSize++] = Utils.asNan(type);
         mSize += 2; // THIS IS FLAW in the encoding TODO FIX ON VERSIONING
@@ -132,7 +132,7 @@ public class RemotePathBase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void add(int type, float a1, float a2, float a3, float a4, float a5) {
 
-        resize(6);
+        resize(8);
         mPath[mSize++] = Utils.asNan(type);
         mSize += 2; // THIS IS FLAW in the encoding TODO FIX ON VERSIONING
 
@@ -147,7 +147,7 @@ public class RemotePathBase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void add(int type, float a1, float a2, float a3, float a4, float a5, float a6) {
 
-        resize(7);
+        resize(9);
         mPath[mSize++] = Utils.asNan(type);
         mSize += 2; // THIS IS FLAW in the encoding TODO FIX ON VERSIONING
 
