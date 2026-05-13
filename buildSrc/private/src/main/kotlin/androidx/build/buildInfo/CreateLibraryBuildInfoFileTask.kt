@@ -529,7 +529,9 @@ private fun Project.resolveRuntimeConfigurationNames(variantName: String): List<
 private fun Iterable<KotlinCompilation<*>>.classpathConfigs(): List<String> =
     asSequence()
         .filterNot { it.name.contains("test", ignoreCase = true) }
-        .mapNotNull { it.runtimeDependencyConfigurationName }
+        .mapNotNull {
+            it.runtimeDependencyConfigurationName ?: it.compileDependencyConfigurationName
+        }
         .toList()
 
 private fun modifyKmpChildrenForBuildInfo(kmpChild: String): String {
