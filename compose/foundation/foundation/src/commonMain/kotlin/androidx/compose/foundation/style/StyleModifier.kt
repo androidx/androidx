@@ -355,39 +355,92 @@ internal class StyleOuterNode(
         var minHeight = (constraints.minHeight - vertical).fastCoerceAtLeast(0)
         var maxHeight = addMaxWithMinimum(constraints.maxHeight, vertical)
 
-        minWidth = resolved.hasOrElse(MinWidthId, minWidth) { this.minWidth.fastRoundToInt() }
-        maxWidth = resolved.hasOrElse(MaxWidthId, maxWidth) { this.maxWidth.fastRoundToInt() }
-        minHeight = resolved.hasOrElse(MinHeightId, minHeight) { this.minHeight.fastRoundToInt() }
-        maxHeight = resolved.hasOrElse(MaxHeightId, maxHeight) { this.maxHeight.fastRoundToInt() }
+        // Resolve width constraints from Style
+        var styleMinWidth = 0
+        var styleMaxWidth = Constraints.Infinity
 
+        if (resolved.hasId(MaxWidthId)) {
+            styleMaxWidth = resolved.maxWidth.fastRoundToInt().fastCoerceAtLeast(0)
+        }
+        if (resolved.hasId(MinWidthId)) {
+            styleMinWidth = resolved.minWidth.fastRoundToInt().fastCoerceIn(0, styleMaxWidth)
+        }
         if (resolved.hasId(WidthId)) {
-            val width = resolved.width.fastRoundToInt()
-            minWidth = width
-            maxWidth = width
-        } else if (resolved.hasId(WidthFractionId) && constraints.hasBoundedWidth) {
-            val width =
-                (maxWidth * resolved.widthFraction)
-                    .fastRoundToInt()
-                    .fastCoerceIn(minWidth, maxWidth)
-            minWidth = width
-            maxWidth = width
-        } else if (resolved.hasId(LeftId) && resolved.hasId(RightId)) {
-            minWidth = maxWidth
+            styleMinWidth =
+                resolved.width.fastRoundToInt().fastCoerceIn(styleMinWidth, styleMaxWidth)
+            styleMaxWidth = styleMinWidth
         }
 
+        // Apply style width constraints to adjusted incoming constraints
+        minWidth =
+            if (styleMinWidth == 0) {
+                minWidth
+            } else {
+                styleMinWidth.fastCoerceIn(minWidth, maxWidth)
+            }
+        maxWidth =
+            if (styleMaxWidth == Constraints.Infinity) {
+                maxWidth
+            } else {
+                styleMaxWidth.fastCoerceIn(minWidth, maxWidth)
+            }
+
+        // Handle fractional width, after adjusting for the incoming constraints
+        if (!resolved.hasId(WidthId)) {
+            if (resolved.hasId(WidthFractionId) && constraints.hasBoundedWidth) {
+                val width =
+                    (maxWidth * resolved.widthFraction)
+                        .fastRoundToInt()
+                        .fastCoerceIn(minWidth, maxWidth)
+                minWidth = width
+                maxWidth = width
+            } else if (resolved.hasId(LeftId) && resolved.hasId(RightId)) {
+                minWidth = maxWidth
+            }
+        }
+
+        // Resolve height constraints from Style
+        var styleMinHeight = 0
+        var styleMaxHeight = Constraints.Infinity
+
+        if (resolved.hasId(MaxHeightId)) {
+            styleMaxHeight = resolved.maxHeight.fastRoundToInt().fastCoerceAtLeast(0)
+        }
+        if (resolved.hasId(MinHeightId)) {
+            styleMinHeight = resolved.minHeight.fastRoundToInt().fastCoerceIn(0, styleMaxHeight)
+        }
         if (resolved.hasId(HeightId)) {
-            val height = resolved.height.fastRoundToInt()
-            minHeight = height
-            maxHeight = height
-        } else if (resolved.hasId(HeightFractionId) && constraints.hasBoundedHeight) {
-            val height =
-                (maxHeight * resolved.heightFraction)
-                    .fastRoundToInt()
-                    .fastCoerceIn(minHeight, maxHeight)
-            minHeight = height
-            maxHeight = height
-        } else if (resolved.hasId(TopId) && resolved.hasId(BottomId)) {
-            minHeight = maxHeight
+            styleMinHeight =
+                resolved.height.fastRoundToInt().fastCoerceIn(styleMinHeight, styleMaxHeight)
+            styleMaxHeight = styleMinHeight
+        }
+
+        // Apply style height constraints to adjusted incoming constraints
+        minHeight =
+            if (styleMinHeight == 0) {
+                minHeight
+            } else {
+                styleMinHeight.fastCoerceIn(minHeight, maxHeight)
+            }
+        maxHeight =
+            if (styleMaxHeight == Constraints.Infinity) {
+                maxHeight
+            } else {
+                styleMaxHeight.fastCoerceIn(minHeight, maxHeight)
+            }
+
+        // Handle fractional height, after adjusting for the incoming constraints
+        if (!resolved.hasId(HeightId)) {
+            if (resolved.hasId(HeightFractionId) && constraints.hasBoundedHeight) {
+                val height =
+                    (maxHeight * resolved.heightFraction)
+                        .fastRoundToInt()
+                        .fastCoerceIn(minHeight, maxHeight)
+                minHeight = height
+                maxHeight = height
+            } else if (resolved.hasId(TopId) && resolved.hasId(BottomId)) {
+                minHeight = maxHeight
+            }
         }
 
         val placeable = measurable.measure(Constraints(minWidth, maxWidth, minHeight, maxHeight))
