@@ -1027,7 +1027,6 @@ public class WebViewFeatureInternal {
      * This feature covers:
      * {@link WebViewCompat#navigate(WebView, String, NavigationParameters)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework WEBVIEW_NAVIGATE_V1 =
             new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
                     Features.WEBVIEW_NAVIGATE_V1);

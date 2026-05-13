@@ -75,6 +75,19 @@ package androidx.webkit {
     method public default void onPerformanceMarkMillis(androidx.webkit.Page, String, long);
   }
 
+  @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebViewCompat.ExperimentalNavigate public final class NavigationParameters {
+    method public java.util.Map<java.lang.String!,java.lang.String!> getAdditionalHeaders();
+    method public boolean shouldReplaceCurrentEntry();
+  }
+
+  @SuppressCompatibility @androidx.webkit.WebViewCompat.ExperimentalNavigate public static final class NavigationParameters.Builder {
+    ctor public NavigationParameters.Builder();
+    method public androidx.webkit.NavigationParameters.Builder addAdditionalHeader(String, String);
+    method public androidx.webkit.NavigationParameters.Builder addAdditionalHeaders(java.util.Map<java.lang.String!,java.lang.String!>);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.NavigationParameters build();
+    method public androidx.webkit.NavigationParameters.Builder setShouldReplaceCurrentEntry(boolean);
+  }
+
   @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public class NoVarySearchHeader {
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader alwaysVaryHeader();
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader neverVaryExcept(boolean, java.util.List<java.lang.String!>);
@@ -622,6 +635,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static androidx.webkit.WebViewRenderProcessClient? getWebViewRenderProcessClient(android.webkit.WebView);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static boolean isAudioMuted(android.webkit.WebView);
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROCESS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isMultiProcessEnabled();
+    method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebViewCompat.ExperimentalNavigate public static androidx.webkit.Navigation navigate(android.webkit.WebView, String, androidx.webkit.NavigationParameters);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.VISUAL_STATE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.POST_WEB_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.PRERENDER_WITH_URL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void prerenderUrlAsync(android.webkit.WebView, String, android.os.CancellationSignal?, java.util.concurrent.Executor, androidx.webkit.PrerenderOperationCallback);
@@ -646,6 +660,9 @@ package androidx.webkit {
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public static @interface WebViewCompat.ExperimentalAsyncStartUp {
+  }
+
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public static @interface WebViewCompat.ExperimentalNavigate {
   }
 
   public static interface WebViewCompat.VisualStateCallback {
@@ -741,6 +758,7 @@ package androidx.webkit {
     field @SuppressCompatibility @androidx.webkit.WebViewBuilder.Experimental public static final String WEBVIEW_BUILDER_EXPERIMENTAL_V1 = "WEBVIEW_BUILDER_EXPERIMENTAL_V1";
     field @SuppressCompatibility @androidx.webkit.WebViewBuilder.Experimental public static final String WEBVIEW_BUILDER_EXPERIMENTAL_V2 = "WEBVIEW_BUILDER_EXPERIMENTAL_V2";
     field public static final String WEBVIEW_MEDIA_INTEGRITY_API_STATUS = "WEBVIEW_MEDIA_INTEGRITY_API_STATUS";
+    field @SuppressCompatibility @androidx.webkit.WebViewCompat.ExperimentalNavigate public static final String WEBVIEW_NAVIGATE_EXPERIMENTAL_V1 = "WEBVIEW_NAVIGATE_EXPERIMENTAL_V1";
     field public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
     field public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
     field public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
