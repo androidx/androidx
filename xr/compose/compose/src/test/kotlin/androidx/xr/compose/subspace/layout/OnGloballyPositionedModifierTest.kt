@@ -23,7 +23,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.toDp
 import androidx.xr.compose.unit.IntVolumeSize
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -58,10 +57,20 @@ class OnGloballyPositionedModifierTest {
         }
 
         composeTestRule.waitForIdle()
-        assertNotNull(coordinates)
-        assertThat(coordinates.poseInRoot.translation.x.toDp()).isEqualTo(20.dp)
-        assertThat(coordinates.poseInRoot.translation.y.toDp()).isEqualTo(20.dp)
-        assertThat(coordinates.poseInRoot.translation.z.toDp()).isEqualTo(20.dp)
+
+        val finalCoordinates = assertNotNull(coordinates)
+        assertThat(
+                with(composeTestRule.density) { finalCoordinates.poseInRoot.translation.x.toDp() }
+            )
+            .isEqualTo(20.dp)
+        assertThat(
+                with(composeTestRule.density) { finalCoordinates.poseInRoot.translation.y.toDp() }
+            )
+            .isEqualTo(20.dp)
+        assertThat(
+                with(composeTestRule.density) { finalCoordinates.poseInRoot.translation.z.toDp() }
+            )
+            .isEqualTo(20.dp)
     }
 
     @Test

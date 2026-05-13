@@ -348,7 +348,9 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         coreEntity?.applyCoreEntityNodes(entityNodes.asSequence())
 
         val contentDescription =
-            measurableLayout.config.getOrNull(SemanticsProperties.ContentDescription)?.firstOrNull()
+            measurableLayout.semanticsConfiguration
+                .getOrNull(SemanticsProperties.ContentDescription)
+                ?.firstOrNull()
         coreEntity?.contentDescription = contentDescription
 
         entityUpdatePending = false
@@ -366,7 +368,9 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
     internal fun replace() = outerCoordinator?.replace() ?: measurableLayout.replace()
 
     override fun toString(): String {
-        return measurableLayout.config.getOrElse(SemanticsProperties.TestTag) { super.toString() }
+        return measurableLayout.semanticsConfiguration.getOrElse(SemanticsProperties.TestTag) {
+            super.toString()
+        }
     }
 
     /**
@@ -450,10 +454,10 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         internal val parentCoordinatesInParentEntity: SubspaceLayoutCoordinates?
             get() = if (parent?.entity == null) parent?.measurableLayout else null
 
-        override val semanticsChildren: MutableList<SubspaceSemanticsInfo>
+        override val childrenInfo: MutableList<SubspaceSemanticsInfo>
             get() = mutableListOf<SubspaceSemanticsInfo>().also(::fillOneLayerOfSemanticsWrappers)
 
-        override val semanticsParent: SubspaceSemanticsInfo?
+        override val parentInfo: SubspaceSemanticsInfo?
             get() = ancestors().firstOrNull { it.hasSemantics }?.measurableLayout
 
         override val semanticsEntity: Entity?
@@ -467,7 +471,7 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
          *
          * This includes all properties attached as modifiers to the current layout node.
          */
-        override val config: SemanticsConfiguration
+        override val semanticsConfiguration: SemanticsConfiguration
             get() =
                 SemanticsConfiguration().apply {
                     nodes.forEachOf(SubspaceNodes.Semantics) { semanticsModifierNode ->

@@ -171,6 +171,20 @@ internal fun Activity.configureFakeSession(
 }
 
 /**
+ * The XR [Session] for the current [AndroidComposeTestRule].
+ *
+ * This property remains `null` until explicitly set or until `LocalSession.current` is accessed
+ * within a composition, after which it returns the current `Session`. Note that modifying this
+ * property after calling `setContent` does not change the session already in use for that content
+ * block. Setting the property to `null` indicates that the default test session should be used.
+ */
+internal var AndroidComposeTestRule<*, *>.session: Session?
+    get() = activity.session
+    set(value) {
+        activity.session = value
+    }
+
+/**
  * The XR [Session] for the current [Activity].
  *
  * This will be null until the value is set or `LocalSession.current` is accessed in compose, after

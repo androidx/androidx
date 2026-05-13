@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.node
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
@@ -30,19 +29,18 @@ import androidx.xr.scenecore.Entity
  * accessibility services and testing. Each `SubspaceSemanticsInfo` node represents a composable in
  * the UI tree that has semantics attached.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface SubspaceSemanticsInfo {
 
     /** The unique ID of this semantics node. */
     public val semanticsId: Int
 
-    /** The size of the bounding box for this node. */
+    /** The dimensions of the 3D bounding box for this node. */
     public val size: IntVolumeSize
 
     /** The pose of this node relative to its parent layout node in the Compose hierarchy. */
     public val pose: Pose
 
-    /** The position of this node relative to the root of this Compose hierarchy, in pixels. */
+    /** The pose of this node relative to the root of this Compose hierarchy, in pixels. */
     public val poseInRoot: Pose
 
     /**
@@ -50,21 +48,17 @@ public sealed interface SubspaceSemanticsInfo {
      *
      * This includes all properties attached as modifiers to the current layout node.
      */
-    public val config: SemanticsConfiguration
+    public val semanticsConfiguration: SemanticsConfiguration
 
-    /**
-     * The children of this node in the semantics tree.
-     *
-     * The children are ordered in inverse hit test order (i.e., paint order).
-     */
-    public val semanticsChildren: List<SubspaceSemanticsInfo>
+    /** The children of this node in the semantics tree. */
+    public val childrenInfo: List<SubspaceSemanticsInfo>
 
     /** The parent of this node in the semantics tree. */
-    public val semanticsParent: SubspaceSemanticsInfo?
+    public val parentInfo: SubspaceSemanticsInfo?
 
     /** Whether this node is the root of a semantics tree. */
     public val isRoot: Boolean
-        get() = semanticsParent == null
+        get() = parentInfo == null
 
     /** The [Entity] associated with this node. */
     public val semanticsEntity: Entity?
@@ -73,7 +67,13 @@ public sealed interface SubspaceSemanticsInfo {
     public val scale: Float
         get() = semanticsEntity?.getScale() ?: 1f
 
-    /** The components attached to this node by SubspaceLayoutNode update. */
+    /**
+     * The list of components attached to this node by the Subspace layout update phase.
+     *
+     * Returns a collection of [Component] objects representing various capabilities or properties
+     * (e.g., visual, interactive, or physical behaviors) attached to the [semanticsEntity]. Returns
+     * `null` if there is no underlying `Entity`.
+     */
     public val components: List<Component>?
         @Suppress("NullableCollection") get() = semanticsEntity?.getComponents()
 }

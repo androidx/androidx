@@ -1436,6 +1436,31 @@ package androidx.xr.compose.subspace.node {
     method public abstract void update(N node);
   }
 
+  public sealed nonexhaustive interface SubspaceSemanticsInfo {
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> getChildrenInfo();
+    method @InaccessibleFromKotlin public default java.util.List<androidx.xr.scenecore.Component>? getComponents();
+    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.node.SubspaceSemanticsInfo? getParentInfo();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPoseInRoot();
+    method @InaccessibleFromKotlin public default float getScale();
+    method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsConfiguration getSemanticsConfiguration();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getSemanticsEntity();
+    method @InaccessibleFromKotlin public int getSemanticsId();
+    method @InaccessibleFromKotlin public androidx.xr.compose.unit.IntVolumeSize getSize();
+    method @InaccessibleFromKotlin public default boolean isRoot();
+    property public abstract java.util.List<androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> childrenInfo;
+    property public default java.util.List<androidx.xr.scenecore.Component>? components;
+    property public default boolean isRoot;
+    property public abstract androidx.xr.compose.subspace.node.SubspaceSemanticsInfo? parentInfo;
+    property public abstract androidx.xr.runtime.math.Pose pose;
+    property public abstract androidx.xr.runtime.math.Pose poseInRoot;
+    property public default float scale;
+    property public abstract androidx.compose.ui.semantics.SemanticsConfiguration semanticsConfiguration;
+    property public abstract androidx.xr.scenecore.Entity? semanticsEntity;
+    property public abstract int semanticsId;
+    property public abstract androidx.xr.compose.unit.IntVolumeSize size;
+  }
+
   public interface SubspaceSemanticsModifierNode {
     method public void applySemantics(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
   }
