@@ -12,6 +12,8 @@
 - `:lifecycle:lifecycle-viewmodel-compose` is stubbed by `lifecycle/lifecycle-viewmodel-compose-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel-compose`
 - `:lifecycle:lifecycle-viewmodel-navigation3` is stubbed by `lifecycle/lifecycle-viewmodel-navigation3-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel-navigation3`
 - `:lifecycle:lifecycle-viewmodel-savedstate` is stubbed by `lifecycle/lifecycle-viewmodel-savedstate-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel-savedstate`
+- `:navigation:navigation-common` is stubbed by `navigation/navigation-common-compatibility-stub`, it depends on `androidx.navigation:navigation-common`
+- `:navigation:navigation-runtime` is stubbed by `navigation/navigation-runtime-compatibility-stub`, it depends on `androidx.navigation:navigation-runtime`
 - `:navigationevent:navigationevent-compose` is stubbed by `navigationevent/navigationevent-compose-compatibility-stub`, it depends on `androidx.navigationevent:navigationevent-compose`
 - `:savedstate:savedstate` is stubbed by `savedstate/savedstate-compatibility-stub`, it depends on `androidx.savedstate:savedstate`
 - `:savedstate:savedstate-compose` is stubbed by `savedstate/savedstate-compose-compatibility-stub`, it depends on `androidx.savedstate:savedstate-compose`
