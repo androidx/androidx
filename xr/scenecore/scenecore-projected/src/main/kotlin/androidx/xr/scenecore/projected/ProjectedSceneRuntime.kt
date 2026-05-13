@@ -326,4 +326,9 @@ internal constructor(
             return ProjectedSceneRuntime(activity, serviceClient, executor)
         }
     }
+
+    override val virtualPixelDensity: Float
+        get() {
+            TODO("Not yet implemented")
+        }
 }

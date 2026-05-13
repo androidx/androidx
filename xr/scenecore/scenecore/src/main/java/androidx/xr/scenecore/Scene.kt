@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -552,4 +552,17 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * this call does nothing.
      */
     public fun requestHomeSpaceMode(): Unit = sceneRuntime.requestHomeSpaceMode()
+
+    /**
+     * The default pixel density of a [PanelEntity], expressed in pixels per meter.
+     *
+     * This value represents a standard conversion factor within [ActivitySpace]. It defines the
+     * number of virtual pixels that correspond to one meter in virtual space, serving as a baseline
+     * for determining the resolution and visual clarity of spatial entities such as [PanelEntity].
+     *
+     * This density is a static property of the user's device and does not change with user-level
+     * display preference overrides.
+     */
+    public val virtualPixelDensity: Float
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) get() = sceneRuntime.virtualPixelDensity
 }

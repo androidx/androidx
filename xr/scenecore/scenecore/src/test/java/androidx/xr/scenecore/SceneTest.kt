@@ -656,4 +656,13 @@ class SceneTest {
 
         assertThat(fakeSceneRuntime.boundaryConsentChangedMap).hasSize(0)
     }
+
+    @Test
+    fun defaultPixelsPerMeter_getValueFromRuntime() {
+        val ppmFromRuntime = sceneRuntime.virtualPixelDensity
+        val ppm = session.scene.virtualPixelDensity
+
+        assertThat(ppm).isGreaterThan(0f)
+        assertThat(ppm).isEqualTo(ppmFromRuntime)
+    }
 }

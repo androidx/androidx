@@ -577,4 +577,15 @@ public interface SceneRuntime : JxrRuntime {
     public fun createSoundEffectPoolComponent(
         soundEffectPool: SoundEffectPool
     ): SoundEffectPoolComponent
+
+    /**
+     * The default pixel density of a [PanelEntity], expressed in pixels per meter.
+     *
+     * This value represents the number of virtual pixels in a PanelEntity that correspond to one
+     * meter in the [ActivitySpace].
+     *
+     * This density is a static property of the user's device and does not change with user-level
+     * display preference overrides.
+     */
+    public val virtualPixelDensity: Float
 }

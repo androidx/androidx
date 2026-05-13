@@ -15,7 +15,9 @@
  */
 package androidx.xr.scenecore.spatial.core
 
+import android.util.DisplayMetrics
 import androidx.annotation.VisibleForTesting
+import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -364,5 +366,26 @@ internal object RuntimeUtils {
             transform.rotation.z,
             transform.rotation.w,
         )
+    }
+
+    /**
+     * Returns the default number of virtual pixels that represent one meter in ActivitySpace.
+     *
+     * This value is a static property of the hardware and ignores user-level display preference
+     * overrides (system density changes).
+     */
+    internal fun getDefaultPixelsPerMeter(extensions: XrExtensions): Float {
+        // The pixels per meter should remain a constant value even when system density changes.
+        // The behavior of the two versions is identical, though they may produce different
+        // values.
+        return if (spatialApiVersion > 2) {
+            extensions.underlyingObject.config.defaultPixelsPerMeter()
+        } else {
+            // Align with V3 implementation
+            extensions.config.defaultPixelsPerMeter(
+                DisplayMetrics.DENSITY_DEVICE_STABLE.toFloat() /
+                    DisplayMetrics.DENSITY_DEFAULT.toFloat()
+            )
+        }
     }
 }

@@ -2603,6 +2603,24 @@ class SpatialSceneRuntimeTest {
         MemoryUtils.assertGarbageCollected(entityRef)
     }
 
+    @Test
+    fun defaultPixelsPerMeter_getDefaultValue() {
+        val ppmFromSource = xrExtensions.config.underlyingObject.defaultPixelsPerMeter()
+        val ppm = testRuntime.virtualPixelDensity
+
+        assertThat(ppm).isGreaterThan(0f)
+        assertThat(ppm).isEqualTo(ppmFromSource)
+    }
+
+    @Test
+    fun defaultPixelsPerMeter_getDefaultValueFromLegacy() {
+        val ppmFromLegacySource = xrExtensions.config.defaultPixelsPerMeter(1f)
+        val ppm = testRuntime.virtualPixelDensity
+
+        assertThat(ppm).isGreaterThan(0f)
+        assertThat(ppm).isEqualTo(ppmFromLegacySource)
+    }
+
     companion object {
         private const val OPEN_XR_REFERENCE_SPACE_TYPE = 1
         private const val GUARDIAN_CONSENT_GRANTED = "guardian_consent_granted"
