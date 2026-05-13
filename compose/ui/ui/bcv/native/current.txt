@@ -3235,7 +3235,7 @@ final value class androidx.compose.ui.input.nestedscroll/NestedScrollSource { //
 }
 
 final value class androidx.compose.ui.input.pointer/PointerButtons { // androidx.compose.ui.input.pointer/PointerButtons|null[0]
-    constructor <init>(kotlin/Int) // androidx.compose.ui.input.pointer/PointerButtons.<init>|<init>(kotlin.Int){}[0]
+    constructor <init>(kotlin/Int = ...) // androidx.compose.ui.input.pointer/PointerButtons.<init>|<init>(kotlin.Int){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.input.pointer/PointerButtons.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.input.pointer/PointerButtons.hashCode|hashCode(){}[0]
@@ -3289,7 +3289,7 @@ final value class androidx.compose.ui.input.pointer/PointerId { // androidx.comp
 }
 
 final value class androidx.compose.ui.input.pointer/PointerKeyboardModifiers { // androidx.compose.ui.input.pointer/PointerKeyboardModifiers|null[0]
-    constructor <init>(kotlin/Int) // androidx.compose.ui.input.pointer/PointerKeyboardModifiers.<init>|<init>(kotlin.Int){}[0]
+    constructor <init>(kotlin/Int = ...) // androidx.compose.ui.input.pointer/PointerKeyboardModifiers.<init>|<init>(kotlin.Int){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.input.pointer/PointerKeyboardModifiers.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.input.pointer/PointerKeyboardModifiers.hashCode|hashCode(){}[0]

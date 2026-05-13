@@ -69,7 +69,7 @@ object Common {
         expectedEventType: PointerEventType,
         expectedDown: Boolean,
         expectedPosition: Offset,
-        expectedButtons: PointerButtons = PointerButtons(0),
+        expectedButtons: PointerButtons = PointerButtons(),
         expectedPointerType: PointerType = PointerType.Mouse,
     ) {
         verify(

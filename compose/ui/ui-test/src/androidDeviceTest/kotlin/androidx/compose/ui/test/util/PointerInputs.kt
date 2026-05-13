@@ -91,8 +91,8 @@ data class DataPoint(
         down = change.pressed,
         pointerType = Touch,
         eventType = event.type.toPointerEventType(),
-        buttons = PointerButtons(0),
-        keyboardModifiers = PointerKeyboardModifiers(0),
+        buttons = PointerButtons(),
+        keyboardModifiers = PointerKeyboardModifiers(),
         classification = 0,
         axisGestureScrollXDistance = null,
         axisGestureScrollYDistance = null,
@@ -355,8 +355,8 @@ fun DataPoint.verify(
     expectedPointerType: PointerType,
     expectedEventType: PointerEventType,
     expectedScrollDelta: Offset = Offset.Zero,
-    expectedButtons: PointerButtons = PointerButtons(0),
-    expectedKeyboardModifiers: PointerKeyboardModifiers = PointerKeyboardModifiers(0),
+    expectedButtons: PointerButtons = PointerButtons(),
+    expectedKeyboardModifiers: PointerKeyboardModifiers = PointerKeyboardModifiers(),
 ) {
     val s = " of $this"
     if (expectedTimestamp != null) {
