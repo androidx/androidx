@@ -200,6 +200,13 @@ object ComposeFoundationFlags {
      */
     // TODO: Remove this flag once it has soaked (b/504914051)
     @field:Suppress("MutableBareField") @JvmField var isSelectionAutoScrollEnabled = true
+
+    /**
+     * If enabled, interactions (like clicks) will automatically trigger interaction sound effects
+     * on Android.
+     */
+    // TODO: Remove this flag once it has soaked (b/495885589)
+    @field:Suppress("MutableBareField") @JvmField var isInteractionSoundEffectOnClickEnabled = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

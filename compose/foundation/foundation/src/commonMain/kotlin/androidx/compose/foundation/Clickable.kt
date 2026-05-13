@@ -63,6 +63,7 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalSoundEffect
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
@@ -946,7 +947,7 @@ internal open class ClickableNode(
         if (enabled) {
             gestureState = GestureState.Recognized
             handlePressInteractionRelease(downEvent!!.position, indirectPointer = false)
-            onClick()
+            performClick()
         }
         this.downEvent = null
     }
@@ -956,7 +957,7 @@ internal open class ClickableNode(
         if (enabled) {
             gestureState = GestureState.Recognized
             handlePressInteractionRelease(indirectDownEvent!!.position, indirectPointer = true)
-            onClick()
+            performClick()
         }
         this.indirectDownEvent = null
     }
@@ -1049,7 +1050,7 @@ internal open class ClickableNode(
     final override fun onClickKeyDownEvent(event: KeyEvent) = false
 
     final override fun onClickKeyUpEvent(event: KeyEvent): Boolean {
-        onClick()
+        performClick()
         return true
     }
 }
@@ -1286,14 +1287,17 @@ private class CombinedClickableNode(
                     onDoubleClick?.invoke()
                 } else {
                     if (onDoubleClick != null) {
+                        // Play the click sound immediately, even if it later becomes a double click
+                        playClickSound()
                         tapJob =
                             coroutineScope.launch {
                                 delay(currentValueOf(LocalViewConfiguration).doubleTapTimeoutMillis)
+                                // Only call onClick() since we already played the sound
                                 onClick()
                                 tapJob = null
                             }
                     } else {
-                        onClick()
+                        performClick()
                     }
                 }
             }
@@ -1315,14 +1319,17 @@ private class CombinedClickableNode(
                     onDoubleClick?.invoke()
                 } else {
                     if (onDoubleClick != null) {
+                        // Play the click sound immediately, even if it later becomes a double click
+                        playClickSound()
                         indirectTapJob =
                             coroutineScope.launch {
                                 delay(currentValueOf(LocalViewConfiguration).doubleTapTimeoutMillis)
+                                // Only call onClick() since we already played the sound
                                 onClick()
                                 indirectTapJob = null
                             }
                     } else {
-                        onClick()
+                        performClick()
                     }
                 }
             }
@@ -1532,6 +1539,7 @@ private class CombinedClickableNode(
                 // a double click. Instead, we need to invoke onClick for the previous click, since
                 // that is now counted as a standalone click instead of the first of a double click.
                 if (!doubleClickState.doubleTapMinTimeMillisElapsed) {
+                    // Only call onClick() since we already played the sound
                     onClick()
                     doubleKeyClickStates.remove(keyCode)
                 }
@@ -1565,6 +1573,8 @@ private class CombinedClickableNode(
                 doubleKeyClickStates[keyCode] == null -> {
                     // We only track the second click if the first click was not a long click
                     if (!longClickInvoked) {
+                        // Play the click sound immediately, even if it later becomes a double click
+                        playClickSound()
                         doubleKeyClickStates[keyCode] =
                             DoubleKeyClickState(
                                 coroutineScope.launch {
@@ -1577,7 +1587,9 @@ private class CombinedClickableNode(
                                     // Delay the remainder until we are at timeout
                                     delay(timeout - minTime)
                                     // If there was no second key press after the timeout, invoke
-                                    // onClick as normal
+                                    // onClick as normal. Only call onClick() since we already
+                                    // played
+                                    // the sound
                                     onClick()
                                 }
                             )
@@ -1594,7 +1606,7 @@ private class CombinedClickableNode(
             }
         } else {
             if (!longClickInvoked) {
-                onClick()
+                performClick()
             }
         }
         return true
@@ -1676,6 +1688,18 @@ internal abstract class AbstractClickableNode(
     private var lazilyCreateIndication = shouldLazilyCreateIndication()
 
     private fun shouldLazilyCreateIndication() = userProvidedInteractionSource == null
+
+    @OptIn(ExperimentalFoundationApi::class)
+    protected fun playClickSound() {
+        if (ComposeFoundationFlags.isInteractionSoundEffectOnClickEnabled) {
+            currentValueOf(LocalSoundEffect)?.playClickSound()
+        }
+    }
+
+    protected fun performClick() {
+        playClickSound()
+        onClick()
+    }
 
     open fun SemanticsPropertyReceiver.applyAdditionalSemantics() {}
 
@@ -1982,7 +2006,7 @@ internal abstract class AbstractClickableNode(
         }
         onClick(
             action = {
-                onClick()
+                performClick()
                 true
             },
             label = onClickLabel,

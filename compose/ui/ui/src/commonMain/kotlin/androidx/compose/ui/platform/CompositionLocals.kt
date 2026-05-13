@@ -196,6 +196,24 @@ val LocalViewConfiguration =
  */
 val LocalWindowInfo = staticCompositionLocalOf<WindowInfo> { noLocalProvidedFor("LocalWindowInfo") }
 
+/**
+ * The CompositionLocal to provide platform sound effects.
+ *
+ * This is used to trigger sounds on user interaction, like clicks. To enable, disable, or customize
+ * sound interaction scopes, utilize `SoundEffectOnInteraction`.
+ *
+ * @sample androidx.compose.ui.samples.InteractionSoundSamples
+ * @see SoundEffect
+ */
+val LocalSoundEffect =
+    staticCompositionLocalOf<SoundEffect> {
+        object : SoundEffect {
+            override fun playClickSound() {
+                // This platform does not support sound, so sound effects are a no-op
+            }
+        }
+    }
+
 /** The CompositionLocal containing the current [LifecycleOwner]. */
 @Deprecated(
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
