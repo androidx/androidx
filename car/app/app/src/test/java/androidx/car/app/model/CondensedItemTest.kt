@@ -125,6 +125,26 @@ class CondensedItemTest {
     }
 
     @Test
+    fun textAndProgressBarSet_throws() {
+        val bar = CarProgressBar.Builder(0.5f).build()
+        assertThrows(IllegalStateException::class.java) {
+            CondensedItem.Builder().setTitle("Title").setText("Text").setProgressBar(bar).build()
+        }
+    }
+
+    @Test
+    fun setIndexable() {
+        val item = CondensedItem.Builder().setTitle("Title").setIndexable(false).build()
+        assertThat(item.isIndexable).isFalse()
+    }
+
+    @Test
+    fun isIndexable_defaultIsTrue() {
+        val item = CondensedItem.Builder().setTitle("Title").build()
+        assertThat(item.isIndexable).isTrue()
+    }
+
+    @Test
     fun equals() {
         val icon = CarIcon.BACK
         val itemStyle = CondensedItemStyle.Builder().setShape(Shape.NONE).build()

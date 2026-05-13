@@ -58,7 +58,10 @@ public final class CondensedItem implements Item {
     }
 
     /**
-     * Represents an icon-sized image. The host renders it within small, fixed bounds.
+     * Represents an icon to be displayed in the condensed item.
+     *
+     * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
+     * default tint color as determined by the host will be applied.
      */
     public static final int IMAGE_TYPE_ICON = 1;
 
@@ -85,6 +88,7 @@ public final class CondensedItem implements Item {
     private final @Nullable CondensedItemStyle mStyle;
     private final @Nullable OnClickDelegate mOnClickDelegate;
     private final @Nullable CarProgressBar mProgressBar;
+    private final boolean mIndexable;
 
     /**
      * Returns the title of the item, or {@code null} if not set.
@@ -151,6 +155,15 @@ public final class CondensedItem implements Item {
         return mProgressBar;
     }
 
+    /**
+     * Returns whether the item can be included in indexed lists.
+     *
+     * @see Builder#setIndexable(boolean)
+     */
+    public boolean isIndexable() {
+        return mIndexable;
+    }
+
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -168,6 +181,7 @@ public final class CondensedItem implements Item {
                 && mTrailingImageType == otherItem.mTrailingImageType
                 && Objects.equals(mStyle, otherItem.mStyle)
                 && Objects.equals(mOnClickDelegate == null, otherItem.mOnClickDelegate == null)
+                && mIndexable == otherItem.mIndexable
                 && Objects.equals(mProgressBar, otherItem.mProgressBar);
     }
 
@@ -196,6 +210,7 @@ public final class CondensedItem implements Item {
         mStyle = builder.mStyle;
         mOnClickDelegate = builder.mOnClickDelegate;
         mProgressBar = builder.mProgressBar;
+        mIndexable = builder.mIndexable;
     }
 
     /** For serialization. */
@@ -209,6 +224,7 @@ public final class CondensedItem implements Item {
         mStyle = null;
         mOnClickDelegate = null;
         mProgressBar = null;
+        mIndexable = true;
     }
 
     /** A builder for {@link CondensedItem}. */
@@ -226,6 +242,7 @@ public final class CondensedItem implements Item {
         @Nullable CondensedItemStyle mStyle;
         @Nullable OnClickDelegate mOnClickDelegate;
         @Nullable CarProgressBar mProgressBar;
+        boolean mIndexable = true;
 
         /**
          * Sets the title of the item.
@@ -244,6 +261,8 @@ public final class CondensedItem implements Item {
         /**
          * Sets the title of the item.
          *
+         * <p>{@code title} must conform to {@link CarTextConstraints.TEXT_AND_ICON}.
+         *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
@@ -257,19 +276,27 @@ public final class CondensedItem implements Item {
         /**
          * Sets the text of the item.
          *
+         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON}.
+         *
+         * <p><strong>Note:</strong> This field is mutually exclusive with {@link #setProgressBar}.
+         * If both are set, {@link #build()} will throw an {@link IllegalStateException}.
+         *
          * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setText(@NonNull CharSequence text) {
-            CarText carText = CarText.create(requireNonNull(text));
-            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(carText);
-            mText = carText;
+            setText(CarText.create(requireNonNull(text)));
             return this;
         }
 
         /**
          * Sets the text of the item.
+         *
+         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON}.
+         *
+         * <p><strong>Note:</strong> This field is mutually exclusive with {@link #setProgressBar}.
+         * If both are set, {@link #build()} will throw an {@link IllegalStateException}.
          *
          * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
@@ -367,6 +394,9 @@ public final class CondensedItem implements Item {
         /**
          * Sets the {@link CarProgressBar} for the item.
          *
+         * <p><strong>Note:</strong> This field is mutually exclusive with {@link #setText}.
+         * If both are set, {@link #build()} will throw an {@link IllegalStateException}.
+         *
          * @throws NullPointerException if {@code progressBar} is {@code null}
          */
         @CanIgnoreReturnValue
@@ -376,16 +406,48 @@ public final class CondensedItem implements Item {
         }
 
         /**
+         * Sets whether this item can be included in indexed lists. By default, this is set to
+         * {@code true}.
+         *
+         * <p>The host creates indexed lists to help users navigate through long lists more easily
+         * by sorting, filtering, or some other means.
+         *
+         * <p>For example, a media app may, by default, show a user's playlists sorted by date
+         * created. If the app provides these playlists via the {@code SectionedItemTemplate} and
+         * enables {@code #isAlphabeticalIndexingAllowed}, the user will be able to select a letter
+         * on a keyboard to jump to their playlists that start with that letter. When this happens,
+         * the list is reconstructed and sorted alphabetically, then shown to the user, jumping down
+         * to the letter. Items that are set to {@code #setIndexable(false)}, do not show up in this
+         * new sorted list. Sticking with the media example, a media app may choose to hide things
+         * like "autogenerated playlists" from the list and only keep user created playlists.
+         *
+         * <p>Individual items can be set to be included or excluded from filtered lists, but it's
+         * also possible to enable/disable the creation of filtered lists as a whole via the
+         * template's API (eg. {@code SectionedItemTemplate
+         * .Builder#setAlphabeticalIndexingStrategy(int)}).
+         */
+        public @NonNull Builder setIndexable(boolean indexable) {
+            mIndexable = indexable;
+            return this;
+        }
+
+        /**
          * Constructs a {@link CondensedItem} from the current state of this builder.
          *
          * @throws IllegalStateException if {@code mTitle}, {@code mText}, {@code mLeadingImage},
          *                               AND {@code mTrailingImage} are all {@code null}.
+         * @throws IllegalStateException if both {@code mText} and {@code mProgressBar} are set.
          */
         public @NonNull CondensedItem build() {
             if (mTitle == null && mText == null && mLeadingImage == null
                     && mTrailingImage == null) {
                 throw new IllegalStateException("At least one of title, text, leading image, or "
                         + "trailing image must be set");
+            }
+
+            if (mText != null && mProgressBar != null) {
+                throw new IllegalStateException(
+                        "Both text and progress bar cannot be set on CondensedItem");
             }
             return new CondensedItem(this);
         }
