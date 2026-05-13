@@ -51,7 +51,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api(project(":navigationevent:navigationevent"))
-            api("androidx.compose.runtime:runtime:1.11.0")
+            api("androidx.compose.runtime:runtime:1.11.2")
             implementation(libs.kotlinCoroutinesCore)
         }
 
@@ -62,16 +62,16 @@ androidXMultiplatform {
         }
 
         androidMain.dependencies {
-             implementation("androidx.compose.ui:ui:1.11.0") {
+             implementation("androidx.compose.ui:ui:1.11.2") {
                 because("Ensure we are using the Compose-UI 1.11 or above")
             }
         }
 
         androidDeviceTest.dependencies {
-            implementation("androidx.compose.material:material:1.11.0")
-            implementation("androidx.compose.ui:ui-test:1.11.0")
-            implementation("androidx.compose.ui:ui-test-junit4:1.11.0")
-            implementation("androidx.compose.ui:ui-test-manifest:1.11.0")
+            implementation("androidx.compose.material:material:1.11.2")
+            implementation("androidx.compose.ui:ui-test:1.11.2")
+            implementation("androidx.compose.ui:ui-test-junit4:1.11.2")
+            implementation("androidx.compose.ui:ui-test-manifest:1.11.2")
             implementation(libs.testExtJunit)
             implementation(libs.testCore)
             implementation(libs.testRunner)
