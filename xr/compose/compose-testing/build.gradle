@@ -64,4 +64,5 @@ androidx {
     type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Libraries to aid in unit testing Compose for XR clients."
+    samples(project(":xr:compose:compose-testing:compose-testing-samples"))
 }
