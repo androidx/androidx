@@ -40,6 +40,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.clearInvocations
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
@@ -125,7 +126,15 @@ class ProjectedDeviceLifecycleTest {
 
         projectedTestRule.lifecycleState = Lifecycle.State.STARTED
         testScheduler.advanceUntilIdle()
-        verify(lifecycleObserver).onStateChanged(eq(lifecycleOwner), eq(Lifecycle.Event.ON_START))
+
+        val inOrder = inOrder(lifecycleObserver)
+        inOrder
+            .verify(lifecycleObserver)
+            .onStateChanged(eq(lifecycleOwner), eq(Lifecycle.Event.ON_CREATE))
+        inOrder
+            .verify(lifecycleObserver)
+            .onStateChanged(eq(lifecycleOwner), eq(Lifecycle.Event.ON_START))
+
         assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
     }
 
