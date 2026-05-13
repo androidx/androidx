@@ -133,6 +133,7 @@ internal class TextDelegate(
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
                     placeholders = placeholders,
+                    softWrap = softWrap,
                 )
             } else {
                 localIntrinsics

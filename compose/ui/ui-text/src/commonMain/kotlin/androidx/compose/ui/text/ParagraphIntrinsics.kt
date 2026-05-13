@@ -97,6 +97,12 @@ expect fun ParagraphIntrinsics(
  *
  * @see ParagraphIntrinsics
  */
+@Deprecated(
+    "Use an override with `softWrap`",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, true, listOf())"
+    ),
+)
 expect fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
@@ -104,4 +110,27 @@ expect fun ParagraphIntrinsics(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
+): ParagraphIntrinsics
+
+/**
+ * Factory method to create a [ParagraphIntrinsics].
+ *
+ * @param text The text to be measured.
+ * @param style The [TextStyle] to apply to the text.
+ * @param annotations The annotations to apply to the text.
+ * @param density The [Density] of the display environment.
+ * @param fontFamilyResolver The [FontFamily.Resolver] to resolve fonts.
+ * @param softWrap Whether the text should break at soft line breaks. When the intention is to lay
+ *   out text as a single line, setting [softWrap] to false enables optimizations that avoid certain
+ *   expensive calculations.
+ * @param placeholders The list of [Placeholder] to be used in the text.
+ */
+expect fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    softWrap: Boolean,
 ): ParagraphIntrinsics

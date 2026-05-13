@@ -50,6 +50,7 @@ internal class AndroidParagraphIntrinsics(
     val placeholders: List<AnnotatedString.Range<Placeholder>>,
     val fontFamilyResolver: FontFamily.Resolver,
     val density: Density,
+    val softWrap: Boolean,
 ) : ParagraphIntrinsics {
 
     internal val textPaint = AndroidTextPaint(Paint.ANTI_ALIAS_FLAG, density.density)
@@ -195,6 +196,7 @@ actual fun ParagraphIntrinsics(
         fontFamilyResolver = createFontFamilyResolver(resourceLoader),
         annotations = spanStyles,
         density = density,
+        softWrap = true,
     )
 
 @Deprecated(
@@ -218,8 +220,15 @@ actual fun ParagraphIntrinsics(
         fontFamilyResolver = fontFamilyResolver,
         annotations = spanStyles,
         density = density,
+        softWrap = true,
     )
 
+@Deprecated(
+    "Use an override with `softWrap`",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, true, listOf())"
+    ),
+)
 actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
@@ -235,6 +244,26 @@ actual fun ParagraphIntrinsics(
         fontFamilyResolver = fontFamilyResolver,
         annotations = annotations,
         density = density,
+        softWrap = true,
+    )
+
+actual fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    softWrap: Boolean,
+): ParagraphIntrinsics =
+    AndroidParagraphIntrinsics(
+        text = text,
+        style = style,
+        placeholders = placeholders,
+        fontFamilyResolver = fontFamilyResolver,
+        annotations = annotations,
+        density = density,
+        softWrap = softWrap,
     )
 
 private class TypefaceDirtyTrackerLinkedList(

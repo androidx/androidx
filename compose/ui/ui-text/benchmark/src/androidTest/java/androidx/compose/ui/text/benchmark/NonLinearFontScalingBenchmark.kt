@@ -127,6 +127,7 @@ class NonLinearFontScalingBenchmark(
             density = density,
             fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
             placeholders = listOf(),
+            softWrap = true,
         )
     }
 

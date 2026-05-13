@@ -111,6 +111,7 @@ class ParagraphIntrinsicsAsyncTypefaceTest {
             listOf(),
             fontFamilyResolver,
             Density(1f),
+            softWrap = true,
         )
     }
 }

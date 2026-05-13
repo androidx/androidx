@@ -274,6 +274,7 @@ class TextMeasurer(
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
                         placeholders = placeholders,
+                        softWrap = softWrap,
                     )
 
                 val minWidth = constraints.minWidth

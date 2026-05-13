@@ -284,6 +284,7 @@ private class TextFieldSizeConstrainerNode(
                     density = requireDensity(),
                     fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
                     lines = lines,
+                    softWrap = lines > 1,
                 )
             if (lines == 1) {
                 precomputedMinLinesHeight = defaultParagraph.height.ceilToIntPx()

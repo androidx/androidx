@@ -279,6 +279,7 @@ internal class ParagraphLayoutCache(
                     density = density!!,
                     fontFamilyResolver = fontFamilyResolver,
                     placeholders = listOf(),
+                    softWrap = softWrap,
                 )
             } else {
                 localIntrinsics
@@ -393,6 +394,7 @@ internal class ParagraphLayoutCache(
                     placeholders = emptyList(),
                     density = localDensity,
                     fontFamilyResolver = fontFamilyResolver,
+                    softWrap = softWrap,
                 ),
                 finalConstraints,
                 maxLines,

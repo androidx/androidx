@@ -63,12 +63,13 @@ class AndroidParagraphIntrinsicsTest {
 
         val subject =
             ParagraphIntrinsics(
-                "text",
-                TextStyle.Default,
-                listOf(),
-                Density(1f),
-                createFontFamilyResolver(context),
-                listOf(),
+                text = "text",
+                style = TextStyle.Default,
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
             )
 
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -90,12 +91,13 @@ class AndroidParagraphIntrinsicsTest {
             TextStyle(platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None))
         val subject =
             ParagraphIntrinsics(
-                "text",
-                style,
-                listOf(),
-                Density(1f),
-                createFontFamilyResolver(context),
-                listOf(),
+                text = "text",
+                style = style,
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
             )
         fontState.value = true
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -120,12 +122,13 @@ class AndroidParagraphIntrinsicsTest {
         val style =
             TextStyle(platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.All))
         ParagraphIntrinsics(
-            "text",
-            style,
-            listOf(),
-            Density(1f),
-            createFontFamilyResolver(context),
-            listOf(),
+            text = "text",
+            style = style,
+            annotations = emptyList(),
+            density = Density(1f),
+            fontFamilyResolver = createFontFamilyResolver(context),
+            softWrap = true,
+            placeholders = emptyList(),
         )
 
         verify(mock)
@@ -159,12 +162,13 @@ class AndroidParagraphIntrinsicsTest {
                 platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.Default)
             )
         ParagraphIntrinsics(
-            "text",
-            style,
-            listOf(),
-            Density(1f),
-            createFontFamilyResolver(context),
-            listOf(),
+            text = "text",
+            style = style,
+            annotations = emptyList(),
+            density = Density(1f),
+            fontFamilyResolver = createFontFamilyResolver(context),
+            softWrap = true,
+            placeholders = emptyList(),
         )
 
         verify(mock)

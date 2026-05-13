@@ -66,6 +66,7 @@ internal actual fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    softWrap: Boolean,
 ) {
     val executor = LocalBackgroundTextMeasurementExecutor.current
     if (executor != null && shouldPrefetch(text.length)) {
@@ -83,7 +84,10 @@ internal actual fun BackgroundTextMeasurement(
                                 style = resolvedStyle,
                                 density = density,
                                 fontFamilyResolver = fontFamilyResolver,
-                                annotations = emptyList(),
+                                annotations =
+                                    emptyList<AnnotatedString.Range<AnnotatedString.Annotation>>(),
+                                placeholders = emptyList(),
+                                softWrap = softWrap,
                             )
                         // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
                         // because the primary role of background text measurement is to warm the
@@ -110,6 +114,7 @@ internal actual fun BackgroundTextMeasurement(
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
+    softWrap: Boolean,
 ) {
     val executor = LocalBackgroundTextMeasurementExecutor.current
     if (executor != null && shouldPrefetch(text.length)) {
@@ -128,6 +133,7 @@ internal actual fun BackgroundTextMeasurement(
                                 density = density,
                                 placeholders = placeholders ?: emptyList(),
                                 fontFamilyResolver = fontFamilyResolver,
+                                softWrap = softWrap,
                             )
                         // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
                         // because the primary role of background text measurement is to warm the
