@@ -40,7 +40,7 @@ public class NavigationParametersAdapter implements NavigationParametersBoundary
 
     @Override
     public boolean getShouldReplaceCurrentEntry() {
-        return mParams.getShouldReplaceCurrentEntry();
+        return mParams.shouldReplaceCurrentEntry();
     }
 
     @Override

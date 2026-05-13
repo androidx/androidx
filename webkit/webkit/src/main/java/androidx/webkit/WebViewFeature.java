@@ -959,7 +959,6 @@ public class WebViewFeature {
      * This feature covers
      * {@link WebViewCompat#navigate(WebView, String, NavigationParameters)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WebViewCompat.ExperimentalNavigate
     public static final String WEBVIEW_NAVIGATE_EXPERIMENTAL_V1 =
             "WEBVIEW_NAVIGATE_EXPERIMENTAL_V1";

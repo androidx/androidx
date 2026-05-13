@@ -137,7 +137,6 @@ public class WebViewCompat {
     @Retention(RetentionPolicy.CLASS)
     @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
     @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface ExperimentalNavigate {}
 
     /**
@@ -1904,6 +1903,11 @@ public class WebViewCompat {
      * provided by {@link NavigationParameters}.
      *
      * <p>
+     * Note that this method is more flexible than {@link WebView#loadUrl},
+     * with more features available on the builder and different header handling,
+     * (see {@link NavigationParameters.Builder#addAdditionalHeader(String, String)}).
+     *
+     * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
      * {@link WebViewFeature#WEBVIEW_NAVIGATE_EXPERIMENTAL_V1}.
@@ -1917,7 +1921,6 @@ public class WebViewCompat {
      *                                       {@link WebViewFeature#WEBVIEW_NAVIGATE_EXPERIMENTAL_V1}
      *                                       feature is not supported.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @ExperimentalNavigate

@@ -17,10 +17,8 @@
 package androidx.webkit;
 
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,41 +27,37 @@ import java.util.Map;
  * Parameters used for the {@link WebViewCompat#navigate} API. Use the
  * {@link NavigationParameters.Builder} to construct.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresFeature(name = WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
         enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
 @WebViewCompat.ExperimentalNavigate
 public final class NavigationParameters {
 
     private final boolean mShouldReplaceCurrentEntry;
-    private final @Nullable Map<String, String> mAdditionalHeaders;
+    private final @NonNull Map<String, String> mAdditionalHeaders;
 
     private NavigationParameters(@NonNull Builder builder) {
         mShouldReplaceCurrentEntry = builder.mShouldReplaceCurrentEntry;
-        mAdditionalHeaders = !builder.mAdditionalHeaders.isEmpty()
-                ? builder.mAdditionalHeaders
-                : null;
+        mAdditionalHeaders = builder.mAdditionalHeaders;
     }
 
     /**
      * @return Setting for whether a navigation will replace the current entry,
      * set using {@link NavigationParameters.Builder}.
      */
-    public boolean getShouldReplaceCurrentEntry() {
+    public boolean shouldReplaceCurrentEntry() {
         return mShouldReplaceCurrentEntry;
     }
 
     /**
      * @return The map of the additional headers added using {@link NavigationParameters.Builder}.
      */
-    public @Nullable Map<String, String> getAdditionalHeaders() {
+    public @NonNull Map<String, String> getAdditionalHeaders() {
         return mAdditionalHeaders;
     }
 
     /**
      * A Builder for {@link NavigationParameters}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class Builder {
         private boolean mShouldReplaceCurrentEntry;
 
@@ -91,7 +85,7 @@ public final class NavigationParameters {
          * Adds an additional HTTP header to the request. Note that if the
          * header is set by default by this WebView, such as those
          * controlling caching, accept types or the User-Agent, it
-         * may be overridden by this WebView's defaults.
+         * may be overridden by this WebView's default.
          *
          * <p>
          * Unlike headers passed to
