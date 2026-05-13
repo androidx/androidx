@@ -20,34 +20,43 @@ import androidx.compose.foundation.text.input.internal.IntervalHandle
 import kotlin.jvm.JvmInline
 
 /**
- * Public API candidate.
+ * A style applied on the text that is tracked by [TextFieldBuffer], returned by
+ * [TextFieldBuffer.addStyle].
  *
- * A reference to a style in the [TextFieldBuffer]. It allows you to update the style's range,
- * expand policy, or the style object itself.
+ * `TrackedRange` acts as a unique handle to a specific style range. Its properties (such as the
+ * style object, its range, and expand policy) can be queried and updated using extension properties
+ * on [TextFieldBuffer]:
+ * - `TrackedRange<*>.textRange`
+ * - `TrackedRange<*>.expandPolicy`
+ * - `TrackedRange<*>.exists`
+ * - `TrackedRange<SpanStyle>.spanStyle`
+ * - `TrackedRange<ParagraphStyle>.paragraphStyle`
  *
- * The `range` of this [LiveRange] will automatically update when the text is edited. If the style's
- * range collapses to zero length due to text edits, the style will be removed and `isRemoved` will
- * return true.
+ * All the extension properties reflect the up-to-date state of the style range. e.g. The
+ * `textRange` of this [TrackedRange] will automatically update when the text is edited. If the
+ * style's range collapses to zero length due to text edits, the style will cease to exist and
+ * `exists` will return false.
  *
  * This object's lifecycle is bound to the [TextFieldBuffer] which is returned by
  * [TextFieldState.edit], [InputTransformation.transformInput] and
  * [OutputTransformation.transformOutput]. Do not keep a reference of it.
  *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
+ * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
  * @see TextFieldBuffer
  */
-internal class LiveRange<T> internal constructor(internal var intervalHandle: IntervalHandle)
+class TrackedRange<T>
+internal constructor(internal val creatorId: Any, internal var intervalHandle: IntervalHandle)
 
 /**
- * Public API candidate.
+ * Defines how a [TrackedRange] expands when text is inserted exactly at its boundaries.
  *
- * Defines how a [LiveRange] expands when text is inserted exactly at its boundaries.
- *
- * In [TextFieldBuffer.addStyle] methods without an [ExpandPolicy] parameter, the default policy is
- * [AtEnd]. By providing an [ExpandPolicy], you can configure the range to expand and include text
- * inserted at the start, end, or both boundaries of the range.
+ * This policy is used in methods like [TextFieldBuffer.addStyle] to configure whether the range
+ * expands to include text inserted at its start, end, or both boundaries.
  */
 @JvmInline
-internal value class ExpandPolicy private constructor(val flag: Int) {
+value class ExpandPolicy private constructor(private val flag: Int) {
 
     internal constructor(
         startExpands: Boolean,

@@ -33,7 +33,6 @@ import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMapNotNull
 import kotlin.jvm.JvmName
 
 /**
@@ -507,6 +506,11 @@ internal constructor(
         requirePrecondition(range in validRange) { "Expected $range to be in $validRange" }
     }
 
+    private fun requireValidStyleRange(range: TextRange) {
+        requireValidRange(range)
+        requirePrecondition(!range.reversed) { "Expected $range to not be reversed." }
+    }
+
     // TODO(135556699): Remove this when [TextFieldBuffer.addStyle] is supported by all
     //  TextFieldBuffer instances when multi styled editing is implemented.
     // Context; b/424167352
@@ -531,10 +535,11 @@ internal constructor(
 
     internal inline fun <reified T : AnnotatedString.Annotation> addAnnotationToBuffer(
         annotation: T,
-        start: Int,
-        end: Int,
+        range: TextRange,
         expandPolicy: ExpandPolicy,
-    ): LiveRange<T> {
+    ): TrackedRange<T> {
+        val start = range.start
+        val end = range.end
         // We treat it as replace the original text with newly styled text.
         changeTracker.trackChange(start, end, end - start)
 
@@ -548,17 +553,34 @@ internal constructor(
     /**
      * Adds the given [spanStyle] to the text between [start] and [end] on this buffer.
      *
-     * Caution: You should only use this function from an [OutputTransformation]. Styling is not yet
-     * supported by [InputTransformation] or [TextFieldState]. Any added styling by
-     * [OutputTransformation] will be presented to the user without being part of the state.
+     * Styles are applied in the order they are added to the buffer. This order is preserved even as
+     * the text is edited and style ranges are adjusted.
      *
-     * Also, the added styling is not tracked by this [TextFieldBuffer] if further edits are made.
-     * Please call this function after text content is finalized.
+     * Note that the same [SpanStyle] object can be added to multiple distinct ranges. Each call to
+     * `addStyle` creates a new, independent style range. This allows you to save object allocations
+     * by applying the same style object to different distinct ranges.
+     *
+     * If [ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled] is enabled, this function can
+     * be called from any [TextFieldBuffer] scope (such as [InputTransformation] or
+     * [TextFieldState.edit]). The added style will be tracked and its range will automatically
+     * adjust as the text is edited, behaving as if called with [ExpandPolicy.AtEnd].
+     *
+     * If the flag is disabled, this function is only permitted within an [OutputTransformation].
+     * Any styling added in this mode will not become part of the underlying text state, nor will
+     * its boundaries be tracked or updated during subsequent edits. For predictable results when
+     * the flag is disabled, it is recommended to apply styles only after the text content has been
+     * fully determined.
+     *
+     * @throws IllegalArgumentException if [start] or [end] is out of range, or if [start] > [end].
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
      */
     @OptIn(ExperimentalFoundationApi::class)
     fun addStyle(spanStyle: SpanStyle, start: Int, end: Int) {
         if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-            addAnnotationToBuffer(spanStyle, start, end, ExpandPolicy.AtEnd)
+            val range = TextRange(start, end)
+            requireValidStyleRange(range)
+            addAnnotationToBuffer(spanStyle, range, ExpandPolicy.AtEnd)
         } else {
             addAnnotation(spanStyle, start, end)
         }
@@ -567,48 +589,363 @@ internal constructor(
     /**
      * Adds the given [paragraphStyle] to the text between [start] and [end] on this buffer.
      *
-     * Caution: You should only use this function from an [OutputTransformation]. Styling is not yet
-     * supported by [InputTransformation] or [TextFieldState]. Any added styling by
-     * [OutputTransformation] will be presented to the user without being part of the state.
+     * Styles are applied in the order they are added to the buffer. This order is preserved even as
+     * the text is edited and style ranges are adjusted.
      *
-     * Also, the added styling is not tracked by this [TextFieldBuffer] if further edits are made.
-     * Please call this function after text content is finalized.
+     * Note that the same [ParagraphStyle] object can be added to multiple distinct ranges. Each
+     * call to `addStyle` creates a new, independent style range. This allows you to save object
+     * allocations by applying the same style object to different distinct ranges.
+     *
+     * If [ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled] is enabled, this function can
+     * be called from any [TextFieldBuffer] scope (such as [InputTransformation] or
+     * [TextFieldState.edit]). The added style will be tracked and its range will automatically
+     * adjust as the text is edited, behaving as if called with [ExpandPolicy.AtEnd].
+     *
+     * If the flag is disabled, this function is only permitted within an [OutputTransformation].
+     * Any styling added in this mode will not become part of the underlying text state, nor will
+     * its boundaries be tracked or updated during subsequent edits. For predictable results when
+     * the flag is disabled, it is recommended to apply styles only after the text content has been
+     * fully determined.
+     *
+     * @throws IllegalArgumentException if [start] or [end] is out of range, or if [start] > [end].
      */
     @OptIn(ExperimentalFoundationApi::class)
     fun addStyle(paragraphStyle: ParagraphStyle, start: Int, end: Int) {
         if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-            addAnnotationToBuffer(paragraphStyle, start, end, ExpandPolicy.AtEnd)
+            val range = TextRange(start, end)
+            requireValidStyleRange(range)
+            addAnnotationToBuffer(paragraphStyle, range, ExpandPolicy.AtEnd)
         } else {
             addAnnotation(paragraphStyle, start, end)
         }
     }
 
-    /** Returns the [SpanStyle]s that are applied to the text between [start] and [end]. */
-    internal fun getSpanStyles(start: Int, end: Int): List<AnnotatedString.Range<SpanStyle>> {
-        val styleBuffer = textStyleBuffer ?: return emptyList()
-        return with(styleBuffer) {
-            getStyles<SpanStyle>(start, end).fastMapNotNull { liveRange ->
-                val item = getItem<SpanStyle>(liveRange) ?: return@fastMapNotNull null
-                val range = getRange(liveRange)
-                AnnotatedString.Range(item, range.start, range.end)
-            }
+    /**
+     * Adds the given [spanStyle] to the text within the [range] on this buffer.
+     *
+     * Styles are applied in the order they are added to the buffer. This order is preserved even as
+     * the text is edited and style ranges are adjusted.
+     *
+     * Note that the same [SpanStyle] object can be added to multiple distinct ranges. Each call to
+     * `addStyle` creates a new, independent style range, and returns a unique [TrackedRange] to
+     * identify it. This allows you to save object allocations by applying the same style object to
+     * different distinct ranges.
+     *
+     * @param spanStyle the [SpanStyle] to be applied
+     * @param range the effective range of the [SpanStyle]
+     * @param expandPolicy the [ExpandPolicy] defining how the style range expands when text is
+     *   inserted at its boundaries.
+     * @return a [TrackedRange] referencing the added style.
+     * @throws IllegalArgumentException if [range] is out of [0, length], or if it's reversed.
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
+     */
+    @OptIn(ExperimentalFoundationApi::class)
+    fun addStyle(
+        spanStyle: SpanStyle,
+        range: TextRange,
+        expandPolicy: ExpandPolicy,
+    ): TrackedRange<SpanStyle> {
+        requireValidStyleRange(range)
+        return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            addAnnotationToBuffer(spanStyle, range, expandPolicy)
+        } else {
+            throw IllegalStateException(
+                "The ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled must be enabled to use this API."
+            )
         }
     }
 
-    /** Returns the [ParagraphStyle]s that are applied to the text between [start] and [end]. */
-    internal fun getParagraphStyles(
-        start: Int,
-        end: Int,
-    ): List<AnnotatedString.Range<ParagraphStyle>> {
-        val styleBuffer = textStyleBuffer ?: return emptyList()
-        return with(styleBuffer) {
-            getStyles<ParagraphStyle>(start, end).fastMapNotNull { liveRange ->
-                val item = getItem<ParagraphStyle>(liveRange) ?: return@fastMapNotNull null
-                val range = getRange(liveRange)
-                AnnotatedString.Range(item, range.start, range.end)
-            }
+    /**
+     * Adds the given [paragraphStyle] to the text within the [range] on this buffer.
+     *
+     * Styles are applied in the order they are added to the buffer. This order is preserved even as
+     * the text is edited and style ranges are adjusted.
+     *
+     * Note that the same [ParagraphStyle] object can be added to multiple distinct ranges. Each
+     * call to `addStyle` creates a new, independent style range, and returns a unique
+     * [TrackedRange] to identify it. This allows you to save object allocations by applying the
+     * same style object to different distinct ranges.
+     *
+     * @param paragraphStyle the [ParagraphStyle] to be applied
+     * @param range the effective range of the [ParagraphStyle]
+     * @param expandPolicy the [ExpandPolicy] defining how the style range expands when text is
+     *   inserted at its boundaries.
+     * @return a [TrackedRange] referencing the added style.
+     * @throws IllegalArgumentException if [range] is out of [0, length], or if it's reversed.
+     */
+    @OptIn(ExperimentalFoundationApi::class)
+    fun addStyle(
+        paragraphStyle: ParagraphStyle,
+        range: TextRange,
+        expandPolicy: ExpandPolicy,
+    ): TrackedRange<ParagraphStyle> {
+        requireValidStyleRange(range)
+        return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            addAnnotationToBuffer(paragraphStyle, range, expandPolicy)
+        } else {
+            throw IllegalStateException(
+                "The ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled must be enabled to use this API."
+            )
         }
     }
+
+    /**
+     * Returns the [SpanStyle]s that intersect with the given range defined by [start] (inclusive)
+     * and [end] (exclusive).
+     *
+     * Styles are returned in the same order they were originally added to the buffer.
+     *
+     * A style intersects with the range if it overlaps with it at any point. For non-empty ranges,
+     * this means `style.start < end` and `start < style.end`.
+     *
+     * Example Query Range: `[5, 15)`
+     *
+     * ```
+     * 0    5    10   15   20   25
+     * |----|----|----|----|----|
+     *      [---------)              Query Range [5, 15)
+     *
+     * [-------------------)         Style [0, 20) (Contains query) -> Returned
+     *           [----)              Style [8, 12) (Inside query)   -> Returned
+     * [----------)                  Style [0, 10) (Overlap start)  -> Returned
+     * [----)                        Style [0, 5)  (Touching start) -> NOT Returned
+     *                [----------)   Style [15, 25)(Touching end)   -> NOT Returned
+     * ```
+     *
+     * Example Collapsed Query: `[10, 10)`
+     *
+     * ```
+     * 0    5    10   15   20   25
+     * |----|----|----|----|----|
+     *           |                   Query Range [10, 10)
+     *
+     * [-------------------)         Style [0, 20) (Contains query) -> Returned
+     * [----------)                  Style [0, 10) (Touching end)   -> NOT Returned
+     *           [----------)        Style [10, 20)(Touching start) -> Returned
+     * ```
+     *
+     * @param start the inclusive start offset of the range
+     * @param end the exclusive end offset of the range
+     * @return a list of [TrackedRange]s referencing the styles intersecting with the given range,
+     *   returned in the order they were added to the buffer.
+     * @throws IllegalArgumentException if [start] or [end] is out of [0, length], or
+     *   [start] > [end].
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
+     */
+    @OptIn(ExperimentalFoundationApi::class)
+    fun getSpanStyles(start: Int, end: Int): List<TrackedRange<SpanStyle>> {
+        return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            requireValidStyleRange(TextRange(start, end))
+            textStyleBuffer?.getStyles<SpanStyle>(start, end) ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
+     * Returns the [ParagraphStyle]s that intersect with the range defined by [start] (inclusive)
+     * and [end] (exclusive).
+     *
+     * Styles are returned in the same order they were originally added to the buffer.
+     *
+     * A style intersects with the range if it overlaps with it at any point. For non-empty ranges,
+     * this means `style.start < end` and `start < style.end`.
+     *
+     * Example Query Range: `[5, 15)`
+     *
+     * ```
+     * 0    5    10   15   20   25
+     * |----|----|----|----|----|
+     *      [---------)              Query Range [5, 15)
+     *
+     * [-------------------)         Style [0, 20) (Contains query) -> Returned
+     *           [----)              Style [8, 12) (Inside query)   -> Returned
+     * [----------)                  Style [0, 10) (Overlap start)  -> Returned
+     * [----)                        Style [0, 5)  (Touching start) -> NOT Returned
+     *                [----------)   Style [15, 25)(Touching end)   -> NOT Returned
+     * ```
+     *
+     * Example Collapsed Query: `[10, 10)`
+     *
+     * ```
+     * 0    5    10   15   20   25
+     * |----|----|----|----|----|
+     *           |                   Query Range [10, 10)
+     *
+     * [-------------------)         Style [0, 20) (Contains query) -> Returned
+     * [----------)                  Style [0, 10) (Touching end)   -> NOT Returned
+     *           [----------)        Style [10, 20)(Touching start) -> Returned
+     * ```
+     *
+     * @param start the inclusive start offset of the range
+     * @param end the exclusive end offset of the range
+     * @return a list of [TrackedRange]s referencing the styles intersecting with the given range,
+     *   returned in the order they were added to the buffer.
+     * @throws IllegalArgumentException if [start] or [end] is out of [0, length], or
+     *   [start] > [end].
+     */
+    @OptIn(ExperimentalFoundationApi::class)
+    fun getParagraphStyles(start: Int, end: Int): List<TrackedRange<ParagraphStyle>> {
+        return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            requireValidStyleRange(TextRange(start, end))
+            textStyleBuffer?.getStyles<ParagraphStyle>(start, end) ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
+     * Removes the exact style represented by the given [trackedRange] from this buffer. This method
+     * only removes the specific style range tied to this [TrackedRange] object. Since
+     * [trackedRange] uniquely identifies a style range, it does not remove other styles that happen
+     * to occupy the same text range.
+     *
+     * @param trackedRange the [TrackedRange] referencing the specific style range to be removed. If
+     *   the [trackedRange] was not added to this buffer, or has already been removed, this method
+     *   will do nothing and return false.
+     * @return true if the given [trackedRange] is found in the [TextFieldBuffer] and successfully
+     *   removed, false otherwise.
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
+     */
+    @OptIn(ExperimentalFoundationApi::class)
+    fun removeStyle(trackedRange: TrackedRange<*>): Boolean {
+        return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
+            textStyleBuffer?.removeStyle(trackedRange) ?: false
+        } else {
+            false
+        }
+    }
+
+    /**
+     * The [TextRange] of this style. This range will reflect the up-to-date style range as the text
+     * is edited.
+     *
+     * This property is only accessible within the [TextFieldBuffer] block where the [TrackedRange]
+     * was created. Do not keep a reference to the [TrackedRange] outside of that block.
+     *
+     * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
+     * zero. It is recommended to check [valid] before accessing this property if any text changes
+     * were made, or if the range might have been explicitly removed via [removeStyle].
+     *
+     * Setting this property will update the range of the style in-place, preserving its original
+     * applying order relative to other styles in the buffer.
+     *
+     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
+     * @throws IllegalArgumentException if the new range is collapsed, reversed or out of range.
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
+     */
+    var TrackedRange<*>.textRange: TextRange
+        get() =
+            textStyleBuffer?.getRange(this)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        set(value) {
+            requireValidStyleRange(value)
+            requirePrecondition(!value.collapsed) {
+                "TrackedRange's textRange cannot be collapsed, but was $value"
+            }
+            textStyleBuffer?.setRange(this, value)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        }
+
+    /**
+     * The [SpanStyle] object associated with this [TrackedRange].
+     *
+     * This property is only accessible within the [TextFieldBuffer] block where the [TrackedRange]
+     * was created.
+     *
+     * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
+     * zero. It is recommended to check [valid] before accessing this property if any text changes
+     * were made, or if the range might have been explicitly removed via [removeStyle].
+     *
+     * Setting this property will update the style applied to the text in-place, preserving its
+     * original applying order relative to other styles in the buffer.
+     *
+     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
+     */
+    var TrackedRange<SpanStyle>.spanStyle: SpanStyle
+        get() =
+            textStyleBuffer?.getItem<SpanStyle>(this)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        set(value) {
+            textStyleBuffer?.setItem(this, value)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        }
+
+    /**
+     * The [ParagraphStyle] object associated with this [TrackedRange].
+     *
+     * This property is only accessible within the [TextFieldBuffer] block where the [TrackedRange]
+     * was created.
+     *
+     * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
+     * zero. It is recommended to check [valid] before accessing this property if any text changes
+     * were made, or if the range might have been explicitly removed via [removeStyle].
+     *
+     * Setting this property will update the style applied to the text in-place, preserving its
+     * original applying order relative to other styles in the buffer.
+     *
+     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
+     */
+    var TrackedRange<ParagraphStyle>.paragraphStyle: ParagraphStyle
+        get() =
+            textStyleBuffer?.getItem<ParagraphStyle>(this)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        set(value) {
+            textStyleBuffer?.setItem(this, value)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        }
+
+    /**
+     * Whether this [TrackedRange] is still valid in the buffer.
+     *
+     * A style ceases to exist when [removeStyle] is called or when its range collapses to a length
+     * of zero due to text edits. Once it no longer exists, accessing or modifying its properties
+     * will throw an [IllegalStateException].
+     *
+     * This property is only accessible within the [TextFieldBuffer] scope where the [TrackedRange]
+     * was created.
+     *
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangePropertiesSample
+     */
+    val TrackedRange<*>.valid: Boolean
+        get() = textStyleBuffer?.isValid(this) ?: false
+
+    /**
+     * The [ExpandPolicy] defining how the style range expands when text is inserted at its
+     * boundaries.
+     *
+     * This property is only accessible within the [TextFieldBuffer] scope where the [TrackedRange]
+     * was created.
+     *
+     * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
+     * zero. It is recommended to check [valid] before accessing this property if any text changes
+     * were made, or if the range might have been explicitly removed via [removeStyle].
+     *
+     * Setting this property will update the expand policy in-place, preserving its original
+     * applying order relative to other styles in the buffer.
+     *
+     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangePropertiesSample
+     */
+    var TrackedRange<*>.expandPolicy: ExpandPolicy
+        get() =
+            textStyleBuffer?.getExpandPolicy(this)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        set(value) {
+            textStyleBuffer?.setExpandPolicy(this, value)
+                ?: throw IllegalStateException("TrackedRange is not found.")
+        }
 
     /**
      * The ordered list of non-overlapping and discontinuous changes performed on a

@@ -18,7 +18,7 @@ package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.internal.throwIllegalStateException
 import androidx.compose.foundation.text.input.ExpandPolicy
-import androidx.compose.foundation.text.input.LiveRange
+import androidx.compose.foundation.text.input.TrackedRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 
@@ -33,6 +33,7 @@ internal class TextStyleBuffer<T>(
     source: TextStyleBuffer<T>? = null,
     private val mutable: Boolean = true,
 ) {
+    internal val id: Any = Any()
     val intervalTree: IntIntervalTree<T> = source?.intervalTree?.copy() ?: IntIntervalTree()
 
     /**
@@ -89,9 +90,9 @@ internal class TextStyleBuffer<T>(
      *
      * @param style The style to be added.
      * @param interval The interval where the style will be added.
-     * @return A [LiveRange] that tracks the range of the newly added style.
+     * @return A [TrackedRange] that tracks the range of the newly added style.
      */
-    inline fun <reified R : T> addStyle(style: R, interval: Interval): LiveRange<R> {
+    inline fun <reified R : T> addStyle(style: R, interval: Interval): TrackedRange<R> {
         if (!mutable) {
             throwIllegalStateException("This TextStyleBuffer is immutable")
         }
@@ -112,30 +113,31 @@ internal class TextStyleBuffer<T>(
         val intervalInBuffer =
             Interval(startInBuffer, endInBuffer, interval.startExpands, interval.endExpands)
         val intervalHandle = intervalTree.addInterval(style, intervalInBuffer)
-        return LiveRange(intervalHandle)
+        return TrackedRange(id, intervalHandle)
     }
 
     /**
-     * Remove the style associated with the [liveRange].
+     * Remove the style associated with the [trackedRange].
      *
      * @return true if the style is found and removed, false otherwise.
      */
-    fun removeStyle(liveRange: LiveRange<*>): Boolean {
+    fun removeStyle(trackedRange: TrackedRange<*>): Boolean {
         if (!mutable) {
             throwIllegalStateException("This buffer is immutable")
         }
+        if (trackedRange.creatorId !== id) return false
 
-        return intervalTree.removeInterval(liveRange.intervalHandle)
+        return intervalTree.removeInterval(trackedRange.intervalHandle)
     }
 
     /**
      * Returns the styles with type [R] that overlap with the interval defined by [start] and [end].
      * The overlap is inclusive on [start] but exclusive at the [end].
      *
-     * @return a list of [LiveRange]s representing the styles in the buffer in the order they are
+     * @return a list of [TrackedRange]s representing the styles in the buffer in the order they are
      *   added.
      */
-    inline fun <reified R : T> getStyles(start: Int, end: Int): List<LiveRange<R>> {
+    inline fun <reified R : T> getStyles(start: Int, end: Int): List<TrackedRange<R>> {
         if (start > end) return emptyList()
         val startInBuffer: Int
         val endInBuffer: Int
@@ -165,9 +167,9 @@ internal class TextStyleBuffer<T>(
             startInBuffer = originalIndexToGapBuffer(start, isStart = true, expand = true)
             endInBuffer = originalIndexToGapBuffer(end, isStart = false, expand = true)
         }
-        return intervalTree.findIntervalsInRange<R, LiveRange<R>>(startInBuffer, endInBuffer) {
+        return intervalTree.findIntervalsInRange<R, TrackedRange<R>>(startInBuffer, endInBuffer) {
             packedHandle ->
-            LiveRange(IntervalHandle(packedHandle))
+            TrackedRange(id, IntervalHandle(packedHandle))
         }
     }
 
@@ -195,68 +197,81 @@ internal class TextStyleBuffer<T>(
         return result
     }
 
-    internal fun isRemoved(liveRange: LiveRange<*>): Boolean {
-        liveRange.intervalHandle = intervalTree.refreshIntervalHandle(liveRange.intervalHandle)
-        return liveRange.intervalHandle == IntervalHandle.Invalid
+    internal fun isValid(trackedRange: TrackedRange<*>): Boolean {
+        if (trackedRange.creatorId !== id) return false
+        trackedRange.intervalHandle =
+            intervalTree.refreshIntervalHandle(trackedRange.intervalHandle)
+        return trackedRange.intervalHandle != IntervalHandle.Invalid
     }
 
-    internal fun setRange(liveRange: LiveRange<*>, range: TextRange) {
+    internal fun setRange(trackedRange: TrackedRange<*>, range: TextRange) {
         if (!mutable) {
             throwIllegalStateException("This TextStyleBuffer is immutable")
         }
         require(range.start < range.end) { "Reversed or collapsed range is not accepted." }
-        val interval = intervalTree.getInterval(liveRange.activeIntervalHandle)
+        val interval = intervalTree.getInterval(trackedRange.activeIntervalHandle)
         val start =
             originalIndexToGapBuffer(range.start, isStart = true, expand = interval.startExpands)
         val end = originalIndexToGapBuffer(range.end, isStart = false, expand = interval.endExpands)
 
         val newInterval = Interval(start, end, interval.startExpands, interval.endExpands)
-        intervalTree.updateInterval(liveRange.activeIntervalHandle, newInterval)
+        intervalTree.updateInterval(trackedRange.activeIntervalHandle, newInterval)
     }
 
-    internal fun getRange(liveRange: LiveRange<*>): TextRange {
-        val interval = intervalTree.getInterval(liveRange.activeIntervalHandle)
+    internal fun getRange(trackedRange: TrackedRange<*>): TextRange {
+        val interval = intervalTree.getInterval(trackedRange.activeIntervalHandle)
         val start = gapBufferToOriginalIndex(interval.start)
         val end = gapBufferToOriginalIndex(interval.end)
         return TextRange(start, end)
     }
 
-    internal fun getExpandPolicy(liveRange: LiveRange<*>): ExpandPolicy {
-        val interval = intervalTree.getInterval(liveRange.activeIntervalHandle)
+    internal fun getExpandPolicy(trackedRange: TrackedRange<*>): ExpandPolicy {
+        val interval = intervalTree.getInterval(trackedRange.activeIntervalHandle)
         return ExpandPolicy(interval.startExpands, interval.endExpands)
     }
 
-    internal fun setExpandPolicy(liveRange: LiveRange<*>, expandPolicy: ExpandPolicy) {
+    internal fun setExpandPolicy(trackedRange: TrackedRange<*>, expandPolicy: ExpandPolicy) {
         if (!mutable) {
             throwIllegalStateException("This TextStyleBuffer is immutable")
         }
-        val interval = intervalTree.getInterval(liveRange.activeIntervalHandle)
-        val newInterval =
-            Interval(
-                interval.start,
-                interval.end,
-                expandPolicy.startExpands,
-                expandPolicy.endExpands,
+        val interval = intervalTree.getInterval(trackedRange.activeIntervalHandle)
+        val originalStart = gapBufferToOriginalIndex(interval.start)
+        val originalEnd = gapBufferToOriginalIndex(interval.end)
+
+        // When the expand policy changes, the underlying mapping of the interval boundaries to the
+        // gap buffer needs to be updated. If a boundary falls exactly at the gap, its position in
+        // the gap buffer (either before or after the gap) depends on its expand flag.
+        val newStart =
+            originalIndexToGapBuffer(
+                originalStart,
+                isStart = true,
+                expand = expandPolicy.startExpands,
             )
-        intervalTree.updateInterval(liveRange.activeIntervalHandle, newInterval)
+        val newEnd =
+            originalIndexToGapBuffer(originalEnd, isStart = false, expand = expandPolicy.endExpands)
+
+        val newInterval =
+            Interval(newStart, newEnd, expandPolicy.startExpands, expandPolicy.endExpands)
+        intervalTree.updateInterval(trackedRange.activeIntervalHandle, newInterval)
     }
 
-    internal inline fun <reified R : T> getItem(liveRange: LiveRange<*>): R? {
-        return intervalTree.getItem<R>(liveRange.activeIntervalHandle)
+    internal inline fun <reified R : T> getItem(trackedRange: TrackedRange<*>): R? {
+        return intervalTree.getItem<R>(trackedRange.activeIntervalHandle)
     }
 
-    internal fun <R : T> setItem(liveRange: LiveRange<R>, item: R) {
+    internal fun <R : T> setItem(trackedRange: TrackedRange<R>, item: R) {
         if (!mutable) {
             throwIllegalStateException("This TextStyleBuffer is immutable")
         }
-        intervalTree.updateItem(liveRange.activeIntervalHandle, item)
+        intervalTree.updateItem(trackedRange.activeIntervalHandle, item)
     }
 
-    internal val LiveRange<*>.activeIntervalHandle: IntervalHandle
+    internal val TrackedRange<*>.activeIntervalHandle: IntervalHandle
         get() {
+            require(creatorId === id) { "TrackedRange belongs to a different TextFieldBuffer." }
             intervalHandle = intervalTree.refreshIntervalHandle(intervalHandle)
             if (intervalHandle == IntervalHandle.Invalid) {
-                throw IllegalStateException("LiveRange is not found.")
+                throw IllegalStateException("TrackedRange is not found.")
             }
             return intervalHandle
         }
