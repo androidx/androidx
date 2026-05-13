@@ -1,6 +1,10 @@
 // Signature format: 4.0
 package androidx.xr.compose.testing {
 
+  public final class SubspaceSemanticsMatcher {
+    ctor public SubspaceSemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.node.SubspaceSemanticsInfo,java.lang.Boolean> matcher);
+  }
+
   public final class SubspaceTestContext {
   }
 
