@@ -763,6 +763,14 @@ public final class CustomTabsIntent {
 
     /**
      * Extra added to the custom content action {@link PendingIntent} by the browser.
+     * This extra may contain the title of the current web page.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CONTEXT_PAGE_TITLE =
+            "androidx.browser.customtabs.extra.CONTEXT_PAGE_TITLE";
+
+    /**
+     * Extra added to the custom content action {@link PendingIntent} by the browser.
      * If the action was triggered on an image, this extra may contain the byte data of that image.
      */
     @ExperimentalCustomContentAction
@@ -1683,7 +1691,8 @@ public final class CustomTabsIntent {
          * Custom Tab as its data, {@link CustomTabsIntent#EXTRA_TRIGGERED_CUSTOM_CONTENT_ACTION_ID}
          * with the ID of this action, {@link CustomTabsIntent#EXTRA_CLICKED_CONTENT_TARGET_TYPE}
          * with the type of content interacted with, and potentially other contextual extras
-         * (e.g., {@link CustomTabsIntent#EXTRA_CONTEXT_IMAGE_URL}).
+         * (e.g., {@link CustomTabsIntent#EXTRA_CONTEXT_IMAGE_URL},
+         * {@link CustomTabsIntent#EXTRA_CONTEXT_PAGE_TITLE}).
          *
          * @param action The {@link CustomContentAction} to add. Must not be null.
          * @return This Builder.

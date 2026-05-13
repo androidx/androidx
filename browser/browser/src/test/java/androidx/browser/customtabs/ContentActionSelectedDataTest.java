@@ -61,6 +61,25 @@ public class ContentActionSelectedDataTest {
     }
 
     @Test
+    public void testGetPageTitle_withExtra() {
+        Intent intent = new Intent();
+        String expectedTitle = "Example Page Title";
+        intent.putExtra(CustomTabsIntent.EXTRA_CONTEXT_PAGE_TITLE, expectedTitle);
+
+        ContentActionSelectedData data = ContentActionSelectedData.fromIntent(intent);
+        assertNotNull(data);
+        assertEquals(expectedTitle, data.getPageTitle());
+    }
+
+    @Test
+    public void testGetPageTitle_withoutExtra_returnsNull() {
+        Intent intent = new Intent();
+        ContentActionSelectedData data = ContentActionSelectedData.fromIntent(intent);
+        assertNotNull(data);
+        assertNull(data.getPageTitle());
+    }
+
+    @Test
     public void testGetTriggeredActionId_withExtra() {
         Intent intent = new Intent();
         int expectedActionId = 123;

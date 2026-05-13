@@ -156,6 +156,7 @@ package androidx.browser.customtabs {
     method public android.content.Intent getIntent();
     method public String? getLinkText();
     method public String? getLinkUrl();
+    method public String? getPageTitle();
     method public android.net.Uri? getPageUrl();
     method public int getTriggeredActionId();
   }
@@ -305,6 +306,7 @@ package androidx.browser.customtabs {
     field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_IMAGE_URL = "androidx.browser.customtabs.extra.CONTEXT_IMAGE_URL";
     field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_LINK_TEXT = "androidx.browser.customtabs.extra.CONTEXT_LINK_TEXT";
     field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_LINK_URL = "androidx.browser.customtabs.extra.CONTEXT_LINK_URL";
+    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_PAGE_TITLE = "androidx.browser.customtabs.extra.CONTEXT_PAGE_TITLE";
     field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CUSTOM_CONTENT_ACTIONS = "androidx.browser.customtabs.extra.CUSTOM_CONTENT_ACTIONS";
     field @Deprecated public static final String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";
     field public static final String EXTRA_DISABLE_BACKGROUND_INTERACTION = "androidx.browser.customtabs.extra.DISABLE_BACKGROUND_INTERACTION";
