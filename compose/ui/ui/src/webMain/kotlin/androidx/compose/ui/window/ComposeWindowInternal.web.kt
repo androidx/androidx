@@ -52,12 +52,15 @@ import androidx.compose.ui.input.pointer.composeButtons
 import androidx.compose.ui.internal.focusExt
 import androidx.compose.ui.navigationevent.BackNavigationEventInput
 import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
+import androidx.compose.ui.platform.DefaultHapticFeedback
 import androidx.compose.ui.platform.DefaultInputModeManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformDragAndDropManager
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.platform.WebHapticFeedback
 import androidx.compose.ui.platform.WebTextInputService
 import androidx.compose.ui.platform.WebTextToolbar
 import androidx.compose.ui.platform.WebWakeLockManager
@@ -203,6 +206,8 @@ internal class ComposeWindow(
 
     @VisibleForTesting
     internal val archComponentsOwner = DefaultArchitectureComponentsOwner()
+
+    private val hapticFeedback = WebHapticFeedback.webHapticFeedbackOrDefault()
 
     private val navigationEventInput = BackNavigationEventInput()
 
@@ -464,6 +469,7 @@ internal class ComposeWindow(
         scene.setContent {
             CompositionLocalProvider(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
+                LocalHapticFeedback provides hapticFeedback,
                 LocalInteropContainer provides interopContainer,
                 LocalActiveClipEventsTarget provides clipEventsTargetProvider,
                 content = {
@@ -872,3 +878,4 @@ private fun Element.isFocused(): Boolean {
 private external interface ShadowRootExt {
     val activeElement: Element?
 }
+

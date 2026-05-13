@@ -50,7 +50,8 @@ fun main() {
                 Screen.Example("Web Clipboard API example") {
                     WebClipboardDemo()
                 },
-                HtmlInteropDemos
+                HtmlInteropDemos,
+                HapticFeedbackExample,
             )
         ) }
 
