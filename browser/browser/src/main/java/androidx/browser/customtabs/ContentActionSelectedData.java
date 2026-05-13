@@ -70,6 +70,16 @@ public final class ContentActionSelectedData {
     }
 
     /**
+     * Gets the title of the current web page in the Custom Tab when the action was triggered.
+     *
+     * @return The page title as a String, or {@code null} if not present or not applicable.
+     * @see CustomTabsIntent#EXTRA_CONTEXT_PAGE_TITLE
+     */
+    public @Nullable String getPageTitle() {
+        return mIntent.getStringExtra(CustomTabsIntent.EXTRA_CONTEXT_PAGE_TITLE);
+    }
+
+    /**
      * Gets the ID of the specific {@link CustomContentAction} that was triggered by the user.
      *
      * @return The integer ID of the triggered action. Returns -1 if the extra is not present,
