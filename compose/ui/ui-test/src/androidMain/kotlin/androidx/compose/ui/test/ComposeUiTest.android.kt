@@ -376,7 +376,7 @@ fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
  *   activity that was launched and hosts the Compose content
  */
 @ExperimentalTestApi
-sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest {
+sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest, IdlingResourceOwner {
     /**
      * Returns the current activity of type [A] used in this [ComposeUiTest]. If no such activity is
      * available, for example if you've navigated to a different activity and the original host has
@@ -386,6 +386,13 @@ sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest {
      * interact with the Activity.
      */
     val activity: A?
+
+    /**
+     * Sets the [ComposeAccessibilityValidator] to perform the accessibility checks with. Providing
+     * `null` means disabling the accessibility checks
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun setComposeAccessibilityValidator(validator: ComposeAccessibilityValidator?)
 }
 
 /**
@@ -1028,45 +1035,6 @@ internal class BeginningOfCascadingComposeErrors() : RuntimeException(MESSAGE) {
     }
 }
 
-@ExperimentalTestApi
-actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
-    actual val density: Density
-    actual val mainClock: MainTestClock
-
-    /**
-     * Sets the [ComposeAccessibilityValidator] to perform the accessibility checks with. Providing
-     * `null` means disabling the accessibility checks
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun setComposeAccessibilityValidator(validator: ComposeAccessibilityValidator?)
-
-    actual fun <T> runOnUiThread(action: () -> T): T
-
-    actual fun <T> runOnIdle(action: () -> T): T
-
-    actual fun waitForIdle()
-
-    actual suspend fun awaitIdle()
-
-    actual fun waitUntil(
-        conditionDescription: String?,
-        timeoutMillis: Long,
-        condition: () -> Boolean,
-    )
-
-    /** Registers an [IdlingResource] in this test. */
-    fun registerIdlingResource(idlingResource: IdlingResource)
-
-    /** Unregisters an [IdlingResource] from this test. */
-    fun unregisterIdlingResource(idlingResource: IdlingResource)
-
-    actual fun setContent(composable: @Composable () -> Unit)
-
-    actual fun hasPendingWork(): Boolean
-
-    actual fun <T> runWithoutImplicitWait(block: () -> T): T
-}
-
 /**
  * A validator that is used to run accessibility checks before every action through
  * [tryPerformAccessibilityChecks]
@@ -1095,4 +1063,22 @@ private fun CoroutineContext.createDefaultTestDispatcher(
  */
 internal interface TestOwnerProvider {
     val testOwner: TestOwner
+}
+
+/**
+ * Internal setter for [ComposeAccessibilityValidator].
+ *
+ * Use [androidx.compose.ui.test.accessibility.enableAccessibilityChecks] or
+ * [androidx.compose.ui.test.accessibility.disableAccessibilityChecks] to manage accessibility
+ * checks in your tests. Passing `null` here disables the checks.
+ */
+@ExperimentalTestApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun ComposeUiTest.setComposeAccessibilityValidator(validator: ComposeAccessibilityValidator?) {
+    val owner =
+        this as? AndroidComposeUiTest<*>
+            ?: error(
+                "This implementation of ComposeUiTest does not support AccessibilityValidators"
+            )
+    owner.setComposeAccessibilityValidator(validator)
 }
