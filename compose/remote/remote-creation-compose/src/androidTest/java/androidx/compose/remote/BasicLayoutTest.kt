@@ -1080,8 +1080,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     @Composable
     fun RemoteIconVector(
         icon: ImageVector,
-        size: RemoteDp = 32.rdp,
         modifier: RemoteModifier = RemoteModifier,
+        size: RemoteDp = 32.rdp,
         tint: Color = Color.White,
     ) {
         val painter = painterRemoteVector(image = icon, tintColor = tint.rc)

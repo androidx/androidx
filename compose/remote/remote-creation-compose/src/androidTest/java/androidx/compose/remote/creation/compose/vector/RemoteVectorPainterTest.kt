@@ -76,7 +76,7 @@ class RemoteVectorPainterTest {
         ) {
             LoadFromImageVector(
                 imageVector = TestImageVectors.VolumeUp,
-                modifier = RemoteModifier.size(48.rdp),
+                modifier = RemoteModifier.size(size),
             )
         }
     }
@@ -87,7 +87,7 @@ class RemoteVectorPainterTest {
             remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(48f, 48f)),
             playComposableWrapper = whiteBackground,
         ) {
-            LoadFromRes(res = R.drawable.android, modifier = RemoteModifier.size(48.rdp))
+            LoadFromRes(res = R.drawable.android, modifier = RemoteModifier.size(size))
         }
     }
 
@@ -99,7 +99,7 @@ class RemoteVectorPainterTest {
         ) {
             LoadFromRemoteImageVector(
                 imageVector = TestImageVectors.RemoteVolumeUp,
-                modifier = RemoteModifier.size(48.rdp),
+                modifier = RemoteModifier.size(size),
             )
         }
     }
@@ -112,7 +112,7 @@ class RemoteVectorPainterTest {
         ) {
             LoadFromImageVector(
                 imageVector = TestImageVectors.VolumeUp,
-                modifier = RemoteModifier.size(48.rdp),
+                modifier = RemoteModifier.size(size),
                 tint = RemoteColor(Color.Red),
             )
         }
@@ -126,7 +126,7 @@ class RemoteVectorPainterTest {
         ) {
             LoadFromRes(
                 res = R.drawable.android,
-                modifier = RemoteModifier.size(48.rdp),
+                modifier = RemoteModifier.size(size),
                 tint = RemoteColor(Color.Red),
             )
         }
@@ -140,7 +140,7 @@ class RemoteVectorPainterTest {
         ) {
             LoadFromRemoteImageVector(
                 imageVector = TestImageVectors.RemoteVolumeUp,
-                modifier = RemoteModifier.size(48.rdp),
+                modifier = RemoteModifier.size(size),
                 tint = RemoteColor(Color.Red),
             )
         }
@@ -151,7 +151,7 @@ class RemoteVectorPainterTest {
 @Composable
 private fun LoadFromImageVector(
     imageVector: ImageVector,
-    modifier: RemoteModifier = RemoteModifier.size(size),
+    modifier: RemoteModifier = RemoteModifier,
     tint: RemoteColor = RemoteColor(color),
 ) {
     RemoteBox(modifier) {
@@ -177,7 +177,7 @@ private fun LoadFromRes(
 @Composable
 private fun LoadFromRemoteImageVector(
     imageVector: RemoteImageVector,
-    modifier: RemoteModifier = RemoteModifier.size(size),
+    modifier: RemoteModifier = RemoteModifier,
     tint: RemoteColor = RemoteColor(color),
 ) {
     RemoteBox(modifier) {

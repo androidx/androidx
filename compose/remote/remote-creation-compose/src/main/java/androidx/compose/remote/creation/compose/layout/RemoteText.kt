@@ -140,18 +140,18 @@ public fun RemoteText(
 
     RemoteText(
         text = text,
-        modifier = modifier,
         color = color ?: Color.White.rc,
         fontSize = fontSizeUnit,
+        modifier = modifier,
         fontStyle = style.fontStyle ?: FontStyle.Normal,
         fontWeight = unadjustedFontWeight.rf,
-        fontFamily = style.fontFamily?.name,
         textAlign = style.textAlign ?: TextAlign.Start,
+        fontFamily = style.fontFamily?.name,
         overflow = overflow,
         maxLines = maxLines,
-        textDecoration = style.textDecoration,
         letterSpacing = letterSpacing,
         lineHeightMultiply = lineHeightMultiply,
+        textDecoration = style.textDecoration,
         fontVariationSettings = fontVariationSettings,
     )
 }
@@ -163,9 +163,9 @@ public fun RemoteText(
     text: RemoteString,
     color: RemoteColor,
     fontSize: RemoteTextUnit,
+    modifier: RemoteModifier = RemoteModifier,
     minFontSize: Float? = null,
     maxFontSize: Float? = null,
-    modifier: RemoteModifier = RemoteModifier,
     fontStyle: FontStyle = FontStyle.Normal,
     fontWeight: RemoteFloat = 400.rf,
     textAlign: TextAlign = TextAlign.Start,
