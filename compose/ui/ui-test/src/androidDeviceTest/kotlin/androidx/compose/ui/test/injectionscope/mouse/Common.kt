@@ -70,7 +70,7 @@ object Common {
         expectedEventType: PointerEventType,
         expectedDown: Boolean,
         expectedPosition: Offset,
-        expectedButtons: PointerButtons = PointerButtons(0),
+        expectedButtons: PointerButtons = PointerButtons(),
     ) {
         verify(
             expectedTimestamp = expectedTimestamp,
@@ -90,7 +90,7 @@ object Common {
         expectedDown: Boolean,
         expectedPosition: Offset,
         expectedScrollDelta: Offset,
-        expectedButtons: PointerButtons = PointerButtons(0),
+        expectedButtons: PointerButtons = PointerButtons(),
     ) {
         verify(
             expectedTimestamp = expectedTimestamp,

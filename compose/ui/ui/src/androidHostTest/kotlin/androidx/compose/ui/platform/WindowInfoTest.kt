@@ -18,7 +18,6 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,7 +35,7 @@ class WindowInfoTest {
 
     @After
     fun reset() {
-        WindowInfoImpl.GlobalKeyboardModifiers.value = EmptyPointerKeyboardModifiers()
+        WindowInfoImpl.GlobalKeyboardModifiers.value = PointerKeyboardModifiers()
     }
 
     @Test
@@ -46,7 +45,7 @@ class WindowInfoTest {
 
         assertThat(wi1).isNotSameInstanceAs(wi2)
 
-        val initial = EmptyPointerKeyboardModifiers()
+        val initial = PointerKeyboardModifiers()
         assertThat(wi1.keyboardModifiers).isEqualTo(initial)
         assertThat(wi2.keyboardModifiers).isEqualTo(initial)
 
@@ -70,7 +69,7 @@ class WindowInfoTest {
         var last: PointerKeyboardModifiers? = null
         launch(Job()) { snapshotFlow { wi.keyboardModifiers }.collect { last = it } }
         testScheduler.runCurrent()
-        assertThat(last).isEqualTo(EmptyPointerKeyboardModifiers())
+        assertThat(last).isEqualTo(PointerKeyboardModifiers(0))
 
         WindowInfoImpl.GlobalKeyboardModifiers.value = PointerKeyboardModifiers(11)
         Snapshot.sendApplyNotifications()

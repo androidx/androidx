@@ -2464,9 +2464,10 @@ package androidx.compose.ui.input.pointer {
   }
 
   @kotlin.jvm.JvmInline public final value class PointerButtons {
-    ctor @KotlinOnly public PointerButtons(int packedValue);
+    ctor @KotlinOnly public PointerButtons(optional int packedValue);
     method @BytecodeOnly public static androidx.compose.ui.input.pointer.PointerButtons! box-impl(int);
     method @BytecodeOnly public static int constructor-impl(int);
+    method @BytecodeOnly public static int constructor-impl$default(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public int unbox-impl();
   }
 
@@ -2740,9 +2741,10 @@ package androidx.compose.ui.input.pointer {
   }
 
   @kotlin.jvm.JvmInline public final value class PointerKeyboardModifiers {
-    ctor @KotlinOnly public PointerKeyboardModifiers(int packedValue);
+    ctor @KotlinOnly public PointerKeyboardModifiers(optional int packedValue);
     method @BytecodeOnly public static androidx.compose.ui.input.pointer.PointerKeyboardModifiers! box-impl(int);
     method @BytecodeOnly public static int constructor-impl(int);
+    method @BytecodeOnly public static int constructor-impl$default(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public int unbox-impl();
   }
 
