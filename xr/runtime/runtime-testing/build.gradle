@@ -35,6 +35,10 @@ dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
     implementation(libs.truth)
+    // forcing guava upgrade due to CVE-2023-2976, see b/503192928
+    implementation("com.google.guava:guava:32.0.1-android")
+    // forcing junit upgrade (pulled transitively by truth) due to CVE-2020-15250, see b/503192928
+    implementation("junit:junit:4.13.1")
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
