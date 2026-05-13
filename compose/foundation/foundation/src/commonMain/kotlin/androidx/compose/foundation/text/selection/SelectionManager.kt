@@ -1156,6 +1156,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         val selectableInfo = selectionLayout.currentInfo
         val selectable = selectionRegistrar.selectableMap[selectableInfo.selectableId] ?: return
         val selectableLayoutCoordinates = selectable.getLayoutCoordinates() ?: return
+        val bringIntoViewRequester = selectable.bringIntoViewRequester ?: return
         val dragPosition = currentDragPosition ?: return
         val containerCoordinates = requireContainerCoordinates()
         val positionInSelectable =
@@ -1188,11 +1189,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         rect =
             rect.extendedToInclude(selectableLayoutCoordinates.nearestPointTo(positionInSelectable))
 
-        selectable.bringIntoView(rect)
-    }
-
-    private fun Selectable.bringIntoView(rect: Rect) {
-        val bringIntoViewRequester = this.bringIntoViewRequester ?: return
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
             bringIntoViewRequester.bringIntoView(rect)
         }
@@ -1241,7 +1237,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * Implements the macOS select-word-on-right-click behavior.
      *
      * If the current selection does not already include [position], select the word at [position].
+     *
+     * Note: this is used in Compose Multiplatform.
      */
+    @Suppress("unused")
     fun selectWordAtPositionIfNotAlreadySelected(position: Offset) {
         val containerCoordinates = containerLayoutCoordinates ?: return
         if (!containerCoordinates.isAttached) return

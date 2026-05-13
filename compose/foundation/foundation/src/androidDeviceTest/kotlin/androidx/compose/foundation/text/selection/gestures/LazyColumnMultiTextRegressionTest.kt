@@ -80,7 +80,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -112,8 +111,6 @@ class LazyColumnMultiTextRegressionTest {
         assertSelection().isEqualTo(initialSelection)
     }
 
-    // Copy currently doesn't work when the text leaves the view of a lazy layout
-    @Ignore("b/298067102")
     @Test
     fun whenTextScrollsOutOfLazyLayoutBounds_copyCorrectlySetsClipboard() = runTest {
         resetClipboard()
@@ -121,7 +118,7 @@ class LazyColumnMultiTextRegressionTest {
         assertSelection().isNotNull()
         scrollDown()
         performCopy()
-        assertClipboardTextEquals("01234")
+        assertClipboardTextEquals("01234".toCharArray().joinToString(separator = "\n"))
     }
 
     @Test
