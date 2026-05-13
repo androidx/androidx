@@ -92,7 +92,7 @@ class AnchorTest {
 
     @After
     fun cleanUp() {
-        arCoreTestRule.device.isCameraTracking = true
+        arCoreTestRule.deviceTester.isCameraTracking = true
     }
 
     @Test
@@ -107,7 +107,7 @@ class AnchorTest {
     @Test
     fun create_notTracking_returnsAnchorNotTracking() =
         runTest(testDispatcher) {
-            arCoreTestRule.device.isCameraTracking = false
+            arCoreTestRule.deviceTester.isCameraTracking = false
             advanceUntilIdle()
 
             assertThat(Anchor.create(session, Pose()))

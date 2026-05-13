@@ -99,7 +99,7 @@ class FaceTest {
             expectedBlendShapes.forEachIndexed { i, _ ->
                 expectedBlendShapes[i] = i / BLEND_SHAPE_COUNT.toFloat()
             }
-            arCoreTestRule.face.blendShapeValues = expectedBlendShapes.toList()
+            arCoreTestRule.faceTester.blendShapeValues = expectedBlendShapes.toList()
             advanceUntilIdle()
 
             assertThat(underTest.state.value.blendShapeValues)
@@ -161,7 +161,7 @@ class FaceTest {
         session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         runTest(testDispatcher) {
             val underTest = Face.getUserFace(session)
-            arCoreTestRule.face.isValid = true
+            arCoreTestRule.faceTester.isValid = true
             advanceUntilIdle()
 
             assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
@@ -190,21 +190,21 @@ class FaceTest {
             expectedBlendShapes.forEachIndexed { i, _ ->
                 expectedBlendShapes[i] = i / BLEND_SHAPE_COUNT.toFloat()
             }
-            arCoreTestRule.face.blendShapeValues = expectedBlendShapes
+            arCoreTestRule.faceTester.blendShapeValues = expectedBlendShapes
             advanceUntilIdle()
 
             assertThat(underTest.state.value.blendShapeValues)
                 .isEqualTo(expectedBlendShapes.toFloatArray())
 
             var invalidBlendShapeValues = List(BLEND_SHAPE_COUNT) { 5f }
-            arCoreTestRule.face.blendShapeValues = invalidBlendShapeValues
+            arCoreTestRule.faceTester.blendShapeValues = invalidBlendShapeValues
             advanceUntilIdle()
 
             assertThat(underTest.state.value.blendShapeValues)
                 .isEqualTo(expectedBlendShapes.toFloatArray())
 
             invalidBlendShapeValues = listOf()
-            arCoreTestRule.face.blendShapeValues = invalidBlendShapeValues
+            arCoreTestRule.faceTester.blendShapeValues = invalidBlendShapeValues
             advanceUntilIdle()
 
             assertThat(underTest.state.value.blendShapeValues)
@@ -220,21 +220,21 @@ class FaceTest {
             val underTest = Face.getUserFace(session)
 
             val expectedConfidences = listOf(0f, .3333f, .6666f)
-            arCoreTestRule.face.confidenceValues = expectedConfidences
+            arCoreTestRule.faceTester.confidenceValues = expectedConfidences
             advanceUntilIdle()
 
             assertThat(underTest.state.value.confidenceValues)
                 .isEqualTo(expectedConfidences.toFloatArray())
 
             var invalidConfidences = listOf(5f, 5f, 5f)
-            arCoreTestRule.face.confidenceValues = invalidConfidences
+            arCoreTestRule.faceTester.confidenceValues = invalidConfidences
             advanceUntilIdle()
 
             assertThat(underTest.state.value.confidenceValues)
                 .isEqualTo(expectedConfidences.toFloatArray())
 
             invalidConfidences = listOf()
-            arCoreTestRule.face.confidenceValues = invalidConfidences
+            arCoreTestRule.faceTester.confidenceValues = invalidConfidences
             advanceUntilIdle()
 
             assertThat(underTest.state.value.confidenceValues)

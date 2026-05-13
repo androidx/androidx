@@ -23,12 +23,13 @@ import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents a [RenderViewpoint] on the device.
+ * An object which allows for testing the values of a simulated [RenderViewpoint] in an ARCore unit
+ * test environment.
  *
  * @property pose the [Pose]
  * @property fieldOfView the [FieldOfView]
  */
-public class TestRenderViewpoint
+public class RenderViewpointTester
 internal constructor(
     private val arCoreTestRule: ArCoreTestRule,
     private val fakeRuntimeRenderViewpoint: FakeRuntimeRenderViewpoint,

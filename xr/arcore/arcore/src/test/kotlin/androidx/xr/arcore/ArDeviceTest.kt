@@ -70,7 +70,7 @@ class ArDeviceTest {
                     as SessionCreateSuccess)
                 .session
 
-        arCoreTestRule.device.pose = Pose()
+        arCoreTestRule.deviceTester.pose = Pose()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -79,7 +79,7 @@ class ArDeviceTest {
         session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         runTest(testDispatcher) {
             val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
-            arCoreTestRule.device.pose = expectedPose
+            arCoreTestRule.deviceTester.pose = expectedPose
             advanceUntilIdle()
 
             val underTest = ArDevice.getInstance(session)
@@ -97,7 +97,7 @@ class ArDeviceTest {
         session.configure(Config(deviceTracking = DeviceTrackingMode.INERTIAL))
         runTest(testDispatcher) {
             val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
-            arCoreTestRule.device.pose = expectedPose
+            arCoreTestRule.deviceTester.pose = expectedPose
             advanceUntilIdle()
 
             val underTest = ArDevice.getInstance(session)
