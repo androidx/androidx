@@ -94,4 +94,4 @@ fun colorButtons(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable private fun ColorButtonsPreview() = RemoteDocPreview(colorButtons())
+@Preview @Composable private fun ColorButtonsPreview() = RemoteDocumentPreview(colorButtons())

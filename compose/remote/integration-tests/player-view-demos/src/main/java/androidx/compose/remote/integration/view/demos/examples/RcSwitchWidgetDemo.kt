@@ -193,5 +193,5 @@ private fun RemoteComposeContextAndroid.DefineSwitchMacro(animId: Int): Int {
 @Preview
 @Composable
 private fun RcSwitchWidgetDemoPreview() {
-    RemoteDocPreview(RcSwitchWidgetDemo())
+    RemoteDocumentPreview(RcSwitchWidgetDemo())
 }

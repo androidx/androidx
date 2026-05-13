@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.dsl.setStrokeCap
 import androidx.compose.remote.creation.dsl.setStyle
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import kotlin.math.PI
@@ -38,7 +38,7 @@ import kotlin.math.PI
 @Composable
 @Preview
 fun RcDslClockPreview() {
-    RemoteDocPreview(RemoteDocument(dslClock()))
+    RemoteDocumentPreview(RemoteDocument(dslClock()))
 }
 
 /** Reimplementation of MClock using the new type-safe DSL. */

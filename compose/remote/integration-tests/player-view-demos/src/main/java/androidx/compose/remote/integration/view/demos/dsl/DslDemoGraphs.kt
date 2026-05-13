@@ -19,7 +19,7 @@ package androidx.compose.remote.integration.view.demos.dsl
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import kotlin.math.sin
@@ -28,14 +28,14 @@ import kotlin.math.sin
 @Composable
 @Preview
 fun DslDemoGraphsPreview() {
-    RemoteDocPreview(RemoteDocument(dslDemoGraphs()))
+    RemoteDocumentPreview(RemoteDocument(dslDemoGraphs()))
 }
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
 @Preview
 fun DslDemoGraphs2Preview() {
-    RemoteDocPreview(RemoteDocument(dslDemoGraphs2()))
+    RemoteDocumentPreview(RemoteDocument(dslDemoGraphs2()))
 }
 
 @Suppress("RestrictedApiAndroidX")

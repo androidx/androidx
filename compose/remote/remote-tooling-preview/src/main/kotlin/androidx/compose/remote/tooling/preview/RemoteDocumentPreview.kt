@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
  * @param modifier The modifier to be applied to the box containing the preview.
  */
 @Composable
-public fun RemoteDocPreview(remoteDocument: RemoteDocument, modifier: Modifier = Modifier) {
+public fun RemoteDocumentPreview(remoteDocument: RemoteDocument, modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         val windowInfo = LocalWindowInfo.current
         RemoteDocumentPlayer(
@@ -59,5 +59,5 @@ public fun RemoteDocPreview(remoteDocument: RemoteDocument, modifier: Modifier =
  * @param modifier The modifier to be applied to the box containing the preview.
  */
 @Composable
-public fun RemoteDocPreview(document: ByteArray, modifier: Modifier = Modifier): Unit =
-    RemoteDocPreview(remoteDocument = RemoteDocument(document), modifier = modifier)
+public fun RemoteDocumentPreview(document: ByteArray, modifier: Modifier = Modifier): Unit =
+    RemoteDocumentPreview(remoteDocument = RemoteDocument(document), modifier = modifier)

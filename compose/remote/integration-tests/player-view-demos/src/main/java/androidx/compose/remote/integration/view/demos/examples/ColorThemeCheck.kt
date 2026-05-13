@@ -77,7 +77,7 @@ fun themeList(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable private fun ThemeListPreview() = RemoteDocPreview(themeList())
+@Preview @Composable private fun ThemeListPreview() = RemoteDocumentPreview(themeList())
 
 @Suppress("RestrictedApiAndroidX")
 private fun RemoteComposeContextAndroid.makeThemeRows(bg: Short, fg: Short) {

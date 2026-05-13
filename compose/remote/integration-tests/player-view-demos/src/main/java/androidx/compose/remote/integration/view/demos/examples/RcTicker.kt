@@ -59,7 +59,7 @@ private lateinit var fontSize: RcFontSizes
 @Composable
 private fun RcTickerPreview() {
     val context = LocalContext.current
-    RemoteDocPreview(RcTicker(context))
+    RemoteDocumentPreview(RcTicker(context))
 }
 
 @Suppress("RestrictedApiAndroidX")

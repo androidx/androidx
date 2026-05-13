@@ -45,9 +45,8 @@ import kotlinx.coroutines.runBlocking
  */
 @Composable
 public fun RemotePreview(
-    profile: Profile = RcPlatformProfiles.ANDROIDX,
-    @Suppress("ModifierParameter") // content as last modifier is allowed
     modifier: Modifier = Modifier,
+    profile: Profile = RcPlatformProfiles.ANDROIDX,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -63,5 +62,5 @@ public fun RemotePreview(
 
     LaunchedEffect(Unit) {}
 
-    Box(modifier = modifier) { RemoteDocPreview(document) }
+    Box(modifier = modifier) { RemoteDocumentPreview(document) }
 }

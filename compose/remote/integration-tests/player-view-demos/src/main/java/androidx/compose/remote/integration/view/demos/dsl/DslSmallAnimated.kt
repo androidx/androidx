@@ -20,7 +20,7 @@ import android.graphics.Color
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun SmallAnimatedPreview() {
-    RemoteDocPreview(RemoteDocument(smallAnimated()))
+    RemoteDocumentPreview(RemoteDocument(smallAnimated()))
 }
 
 @Suppress("RestrictedApiAndroidX")

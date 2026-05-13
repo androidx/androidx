@@ -22,7 +22,7 @@ import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.createRawRcBuffer
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -35,7 +35,7 @@ import kotlin.math.sin
 @Composable
 @Preview
 fun RcDslCountdownPreview() {
-    RemoteDocPreview(RemoteDocument(dslCountdown()))
+    RemoteDocumentPreview(RemoteDocument(dslCountdown()))
 }
 
 /** Reimplementation of Countdown using the new type-safe DSL. */

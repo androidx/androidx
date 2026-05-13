@@ -28,7 +28,7 @@ import androidx.compose.remote.creation.cos
 import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.sin
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -137,4 +137,4 @@ fun serverClock(): RemoteComposeWriter {
     return rc
 }
 
-@Preview @Composable private fun ServerClockPreview() = RemoteDocPreview(serverClock())
+@Preview @Composable private fun ServerClockPreview() = RemoteDocumentPreview(serverClock())

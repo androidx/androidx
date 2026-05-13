@@ -635,26 +635,26 @@ fun RcTextDemo(): RemoteComposeContext {
     }
 }
 
-@Preview @Composable private fun RcCardAutosizePreview() = RemoteDocPreview(RcTextDemo2b())
+@Preview @Composable private fun RcCardAutosizePreview() = RemoteDocumentPreview(RcTextDemo2b())
 
-@Preview @Composable private fun RcTextDemoPreview() = RemoteDocPreview(RcTextDemo())
+@Preview @Composable private fun RcTextDemoPreview() = RemoteDocumentPreview(RcTextDemo())
 
-@Preview @Composable private fun RcTextDemo2Preview() = RemoteDocPreview(RcTextDemo2())
+@Preview @Composable private fun RcTextDemo2Preview() = RemoteDocumentPreview(RcTextDemo2())
 
-@Preview @Composable private fun RcTextDemo3Preview() = RemoteDocPreview(RcTextDemo3())
+@Preview @Composable private fun RcTextDemo3Preview() = RemoteDocumentPreview(RcTextDemo3())
 
 @Preview(group = "alignment")
 @Composable
-private fun RcTextDemo3bPreview() = RemoteDocPreview(RcTextDemo3b())
+private fun RcTextDemo3bPreview() = RemoteDocumentPreview(RcTextDemo3b())
 
-@Preview @Composable private fun RcTextDemo4Preview() = RemoteDocPreview(RcTextDemo4())
+@Preview @Composable private fun RcTextDemo4Preview() = RemoteDocumentPreview(RcTextDemo4())
 
-@Preview @Composable private fun RcTextDemo5Preview() = RemoteDocPreview(RcTextDemo5())
+@Preview @Composable private fun RcTextDemo5Preview() = RemoteDocumentPreview(RcTextDemo5())
 
-@Preview @Composable private fun RcTextDemo6Preview() = RemoteDocPreview(RcTextDemo6())
+@Preview @Composable private fun RcTextDemo6Preview() = RemoteDocumentPreview(RcTextDemo6())
 
-@Preview @Composable private fun RcTextDemo7Preview() = RemoteDocPreview(RcTextDemo7())
+@Preview @Composable private fun RcTextDemo7Preview() = RemoteDocumentPreview(RcTextDemo7())
 
-@Preview @Composable private fun RcTextDemo8Preview() = RemoteDocPreview(RcTextDemo8())
+@Preview @Composable private fun RcTextDemo8Preview() = RemoteDocumentPreview(RcTextDemo8())
 
-@Preview @Composable private fun RcTextDemo9Preview() = RemoteDocPreview(RcTextDemo9())
+@Preview @Composable private fun RcTextDemo9Preview() = RemoteDocumentPreview(RcTextDemo9())

@@ -180,5 +180,5 @@ private fun RemoteComposeContextAndroid.DefineGlimmerButton() {
 @Preview
 @Composable
 private fun RcMacroDemoPreview() {
-    RemoteDocPreview(RcMacroDemo())
+    RemoteDocumentPreview(RcMacroDemo())
 }

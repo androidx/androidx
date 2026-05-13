@@ -24,7 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,9 +36,9 @@ import androidx.compose.ui.platform.LocalResources
  */
 @Composable
 @Suppress("RestrictedApiAndroidX")
-internal fun RemoteDocPreview(remoteComposeContext: RemoteComposeContext) {
+internal fun RemoteDocumentPreview(remoteComposeContext: RemoteComposeContext) {
     val doc = remoteComposeContext.writer
-    RemoteDocPreview(doc)
+    RemoteDocumentPreview(doc)
 }
 
 /**
@@ -46,17 +46,17 @@ internal fun RemoteDocPreview(remoteComposeContext: RemoteComposeContext) {
  */
 @Composable
 @Suppress("RestrictedApiAndroidX")
-internal fun RemoteDocPreview(remoteComposeWriter: RemoteComposeWriter) {
+internal fun RemoteDocumentPreview(remoteComposeWriter: RemoteComposeWriter) {
     val buffer = remoteComposeWriter.buffer.buffer.cloneBytes()
     val remoteDocument = RemoteDocument(buffer)
 
-    RemoteDocPreview(remoteDocument)
+    RemoteDocumentPreview(remoteDocument)
 }
 
 /** Build a [RemoteDocument] from a raw resource id and display it in the Android Studio Preview. */
 @Composable
 @Suppress("RestrictedApiAndroidX")
-internal fun RemoteDocPreview(@RawRes resId: Int) {
+internal fun RemoteDocumentPreview(@RawRes resId: Int) {
     val resources = LocalResources.current
     val result by
         produceState<Result<RemoteDocument>?>(null, resId) {
@@ -71,7 +71,7 @@ internal fun RemoteDocPreview(@RawRes resId: Int) {
             /* loading */
         }
         else -> {
-            res.onSuccess { RemoteDocPreview(it) }
+            res.onSuccess { RemoteDocumentPreview(it) }
                 .onFailure {
                     RemotePreview {
                         RemoteBox(modifier = RemoteModifier.fillMaxSize()) {

@@ -28,7 +28,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
-@Preview @Composable fun RcClicksDemoPreview() = RemoteDocPreview(RcClicksDemo())
+@Preview @Composable fun RcClicksDemoPreview() = RemoteDocumentPreview(RcClicksDemo())
 
 @Suppress("RestrictedApiAndroidX")
 fun RcClicksDemo(): RemoteComposeContext {

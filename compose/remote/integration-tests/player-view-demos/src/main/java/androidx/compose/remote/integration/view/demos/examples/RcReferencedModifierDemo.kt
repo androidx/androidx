@@ -73,5 +73,5 @@ fun RcReferencedModifierDemo(): RemoteComposeContext {
 @Preview
 @Composable
 private fun RcReferencedModifierDemoPreview() {
-    RemoteDocPreview(RcReferencedModifierDemo())
+    RemoteDocumentPreview(RcReferencedModifierDemo())
 }

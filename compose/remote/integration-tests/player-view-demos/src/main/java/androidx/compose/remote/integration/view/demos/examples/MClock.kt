@@ -210,4 +210,4 @@ private class MClockColorPack(val rc: RemoteComposeContextAndroid) {
         }
 }
 
-@Preview @Composable private fun MClockPreview() = RemoteDocPreview(MClock())
+@Preview @Composable private fun MClockPreview() = RemoteDocumentPreview(MClock())

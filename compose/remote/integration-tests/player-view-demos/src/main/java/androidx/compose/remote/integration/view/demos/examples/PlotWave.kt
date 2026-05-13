@@ -36,7 +36,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.pow
 import androidx.compose.remote.creation.sin
 import androidx.compose.remote.creation.times
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -428,6 +428,6 @@ private fun niceIncrement(range: RFloat, minSteps: Int): RFloat {
     return ret
 }
 
-@Preview @Composable private fun PlotWavePreview() = RemoteDocPreview(plotWave())
+@Preview @Composable private fun PlotWavePreview() = RemoteDocumentPreview(plotWave())
 
-@Preview @Composable private fun BasicPlotPreview() = RemoteDocPreview(basicPlot())
+@Preview @Composable private fun BasicPlotPreview() = RemoteDocumentPreview(basicPlot())

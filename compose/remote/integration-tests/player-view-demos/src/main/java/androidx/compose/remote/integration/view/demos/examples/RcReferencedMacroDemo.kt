@@ -119,5 +119,5 @@ private fun RemoteComposeContextAndroid.DefineReferencedMacroButton() {
 @Preview
 @Composable
 private fun RcReferencedMacroDemoPreview() {
-    RemoteDocPreview(RcReferencedMacroDemo())
+    RemoteDocumentPreview(RcReferencedMacroDemo())
 }

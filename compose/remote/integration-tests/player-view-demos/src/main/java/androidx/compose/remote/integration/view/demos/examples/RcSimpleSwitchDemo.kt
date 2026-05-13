@@ -114,5 +114,5 @@ fun RcSimpleSwitchDemo(): RemoteComposeContext {
 @Preview
 @Composable
 private fun RcSimpleSwitchDemoPreview() {
-    RemoteDocPreview(RcSimpleSwitchDemo())
+    RemoteDocumentPreview(RcSimpleSwitchDemo())
 }
