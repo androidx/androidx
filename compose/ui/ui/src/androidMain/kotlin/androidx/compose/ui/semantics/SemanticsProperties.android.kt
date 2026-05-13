@@ -16,6 +16,12 @@
 
 package androidx.compose.ui.semantics
 
+import android.credentials.GetCredentialException
+import android.credentials.GetCredentialRequest
+import android.credentials.GetCredentialResponse
+import android.os.OutcomeReceiver
+import androidx.annotation.RequiresApi
+
 object SemanticsPropertiesAndroid {
     /** @see SemanticsPropertyReceiver.testTagsAsResourceId */
     val TestTagsAsResourceId =
@@ -28,6 +34,15 @@ object SemanticsPropertiesAndroid {
     /** @see SemanticsPropertyReceiver.accessibilityClassName */
     val AccessibilityClassName =
         AccessibilityKey<String>("AccessibilityClassName") { parentValue, _ -> parentValue }
+
+    /** @see SemanticsPropertyReceiver.credentialRequest */
+    @get:RequiresApi(34)
+    val CredentialRequest =
+        SemanticsPropertyKey<CredentialRequestData>(
+            name = "CredentialRequest",
+            isImportantForAccessibility = false,
+            mergePolicy = { parentValue, _ -> parentValue },
+        )
 }
 
 /**
@@ -93,3 +108,29 @@ var SemanticsPropertyReceiver.testTagsAsResourceId by
  */
 var SemanticsPropertyReceiver.accessibilityClassName by
     SemanticsPropertiesAndroid.AccessibilityClassName
+
+/**
+ * A data class to transport a Platform Credential Request and its receiver via the Semantics tree.
+ */
+@RequiresApi(34)
+class CredentialRequestData(
+    val request: GetCredentialRequest,
+    val callback: OutcomeReceiver<GetCredentialResponse, GetCredentialException>,
+)
+
+/**
+ * Semantics property for defining a pending credential request on a node. When this property is
+ * set, Compose will populate the Android [android.view.ViewStructure] with the provided request to
+ * integrate with the Autofill framework's Credential Manager support.
+ */
+@get:RequiresApi(34)
+@set:RequiresApi(34)
+var SemanticsPropertyReceiver.credentialRequest: CredentialRequestData
+    get() =
+        throw UnsupportedOperationException(
+            "You cannot retrieve a semantics property directly - " +
+                "use one of the SemanticsConfiguration.getOr* methods instead"
+        )
+    set(value) {
+        set(SemanticsPropertiesAndroid.CredentialRequest, value)
+    }
