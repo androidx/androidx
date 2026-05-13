@@ -50,6 +50,11 @@ androidXMultiplatform {
             api(libs.kotlinTest)
         }
 
+        create("nonJsCommonMain").dependsOn(commonMain)
+        jvmMain.dependsOn(nonJsCommonMain)
+        nativeMain.dependsOn(nonJsCommonMain)
+        wasmJsMain.dependsOn(nonJsCommonMain)
+
         jvmMain.dependencies {
             implementation(libs.guavaAndroid)
             implementation(libs.junit)
