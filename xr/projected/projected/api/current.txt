@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.xr.projected {
 
+  public final class BatteryState {
+    method @InaccessibleFromKotlin public int getBatteryLevel();
+    method @InaccessibleFromKotlin public boolean isCharging();
+    property public int batteryLevel;
+    property public boolean isCharging;
+  }
+
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedActivityCompat implements java.lang.AutoCloseable {
     method public void close();
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
@@ -26,10 +33,12 @@ package androidx.xr.projected {
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedDeviceController implements java.lang.AutoCloseable {
+    method public void addBatteryStateChangedListener(kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function1<? super androidx.xr.projected.BatteryState,kotlin.Unit> listener);
     method public void close();
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
     method @InaccessibleFromKotlin public java.util.List<android.media.AudioDeviceInfo> getAudioDevices();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability> getCapabilities();
+    method public void removeBatteryStateChangedListener(kotlin.jvm.functions.Function1<? super androidx.xr.projected.BatteryState,kotlin.Unit> listener);
     property public java.util.List<android.media.AudioDeviceInfo> audioDevices;
     property public java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability> capabilities;
     field public static final androidx.xr.projected.ProjectedDeviceController.Companion Companion;

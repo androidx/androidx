@@ -25,7 +25,14 @@ import androidx.xr.projected.ProjectedDeviceController.Companion.create
 import androidx.xr.projected.binding.ProjectedServiceConnection
 import androidx.xr.projected.binding.ProjectedServiceConnection.ProjectedIntentAction.Companion.ACTION_BIND
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.platform.BatteryState as AidlBatteryState
+import androidx.xr.projected.platform.IBatteryStateListener
 import androidx.xr.projected.platform.IProjectedService
+import java.util.Collections
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * Controller for the Projected device.
@@ -79,11 +86,60 @@ private constructor(
     public val audioDevices: List<AudioDeviceInfo>
         get() = getAudioDevicesInternal()
 
+    private val batteryStateListeners =
+        Collections.synchronizedMap(mutableMapOf<(BatteryState) -> Unit, IBatteryStateListener>())
+
+    /**
+     * Adds a listener for battery state changes.
+     *
+     * The [listener] lambda will be executed in a new coroutine launched within the provided
+     * [context]. The listener will be automatically unregistered when the [context]'s [Job] is
+     * canceled.
+     */
+    public fun addBatteryStateChangedListener(
+        context: CoroutineContext,
+        listener: (BatteryState) -> Unit,
+    ) {
+        val aidlListener =
+            object : IBatteryStateListener.Stub() {
+                override fun onBatteryStateChanged(batteryState: AidlBatteryState) {
+                    // Launch in the provided CoroutineContext
+                    CoroutineScope(context).launch {
+                        listener(BatteryState(batteryState.isCharging, batteryState.batteryLevel))
+                    }
+                }
+
+                override fun getInterfaceVersion() = VERSION
+            }
+
+        projectedService.registerBatteryStateListener(aidlListener)
+        // Add to map only after successful registration
+        batteryStateListeners[listener] = aidlListener
+        // Unregister when the scope is canceled
+        context[Job]?.invokeOnCompletion { removeBatteryStateChangedListener(listener) }
+    }
+
+    /**
+     * Removes a previously added listener. Note: Listeners are also automatically removed when
+     * their associated CoroutineScope is canceled.
+     */
+    public fun removeBatteryStateChangedListener(listener: (BatteryState) -> Unit) {
+        batteryStateListeners.remove(listener)?.let { aidlListener ->
+            try {
+                projectedService.unregisterBatteryStateListener(aidlListener)
+            } catch (_: Exception) {
+                // Ignore errors during unregistration
+            }
+        }
+    }
+
     /**
      * Releases resources, unregistering any active listeners. This instance should not be used
      * after calling close.
      */
     override fun close() {
+        batteryStateListeners.keys.toList().forEach { removeBatteryStateChangedListener(it) }
+
         connection.disconnect()
     }
 
