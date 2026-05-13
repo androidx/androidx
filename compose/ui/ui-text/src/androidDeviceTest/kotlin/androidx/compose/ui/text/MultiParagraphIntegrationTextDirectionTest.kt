@@ -266,6 +266,7 @@ class MultiParagraphIntegrationTextDirectionTest {
             placeholders = placeholders,
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
+            softWrap = true,
         )
     }
 

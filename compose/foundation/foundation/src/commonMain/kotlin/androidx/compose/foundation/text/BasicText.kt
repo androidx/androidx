@@ -123,7 +123,12 @@ fun BasicText(
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
 
-    BackgroundTextMeasurement(text = text, style = style, fontFamilyResolver = fontFamilyResolver)
+    BackgroundTextMeasurement(
+        text = text,
+        style = style,
+        fontFamilyResolver = fontFamilyResolver,
+        softWrap = softWrap,
+    )
 
     val finalModifier =
         if (selectionController != null || onTextLayout != null || autoSize != null) {
@@ -233,6 +238,7 @@ fun BasicText(
             style = style,
             fontFamilyResolver = fontFamilyResolver,
             placeholders = null,
+            softWrap = softWrap,
         )
 
         // this is the same as text: String, use all the early exits
@@ -689,6 +695,7 @@ private fun LayoutWithLinksAndInlineContent(
         style = style,
         fontFamilyResolver = fontFamilyResolver,
         placeholders = placeholders,
+        softWrap = softWrap,
     )
 
     Layout(
@@ -740,6 +747,7 @@ internal expect fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    softWrap: Boolean,
 )
 
 /**
@@ -753,4 +761,5 @@ internal expect fun BackgroundTextMeasurement(
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
+    softWrap: Boolean,
 )

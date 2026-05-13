@@ -194,6 +194,7 @@ class ParagraphIntrinsicIntegrationTest {
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
             placeholders = listOf(),
+            softWrap = true,
         )
     }
 }

@@ -344,6 +344,7 @@ internal class MultiParagraphLayoutCache(
                     density = density!!,
                     fontFamilyResolver = fontFamilyResolver,
                     placeholders = placeholders.orEmpty(),
+                    softWrap = softWrap,
                 )
             } else {
                 localIntrinsics

@@ -52,6 +52,12 @@ actual fun ParagraphIntrinsics(
     fontFamilyResolver: FontFamily.Resolver,
 ): ParagraphIntrinsics = implementedInJetBrainsFork()
 
+@Deprecated(
+    "Use an override with `softWrap`",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, true, listOf())"
+    ),
+)
 actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
@@ -59,4 +65,14 @@ actual fun ParagraphIntrinsics(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     placeholders: List<Range<Placeholder>>,
+): ParagraphIntrinsics = implementedInJetBrainsFork()
+
+actual fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<Range<Placeholder>>,
+    softWrap: Boolean,
 ): ParagraphIntrinsics = implementedInJetBrainsFork()

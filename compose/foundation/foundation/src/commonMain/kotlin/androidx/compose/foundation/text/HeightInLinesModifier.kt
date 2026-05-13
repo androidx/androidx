@@ -301,6 +301,7 @@ private class HeightInLinesNode(
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
                     lines = 3,
+                    softWrap = true,
                 )
             val first = threeLinesParagraph.getLineHeight(0)
             val second = threeLinesParagraph.getLineHeight(1)
@@ -389,6 +390,7 @@ internal fun Modifier.legacyHeightInLines(
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
                     lines = 3,
+                    softWrap = true,
                 )
             val first = threeLinesParagraph.getLineHeight(0)
             val second = threeLinesParagraph.getLineHeight(1)

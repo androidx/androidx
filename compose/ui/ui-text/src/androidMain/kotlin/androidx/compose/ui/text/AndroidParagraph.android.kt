@@ -125,6 +125,7 @@ internal class AndroidParagraph(
                 placeholders = placeholders,
                 fontFamilyResolver = fontFamilyResolver,
                 density = density,
+                softWrap = true,
             ),
         maxLines = maxLines,
         overflow = overflow,
