@@ -26,6 +26,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.LongDef
 import androidx.annotation.RestrictTo
 import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.KeyedPdfObject
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
@@ -197,6 +198,22 @@ public interface PdfDocument : Closeable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation>
+
+    /**
+     * Retrieves a list of all objects for the specified page.
+     *
+     * @param pageNum The page number (0-indexed) from which to retrieve objects.
+     * @param types Bitmask to determine the types of page objects to include in the result.
+     *   Includes all types of page objects by default.
+     * @return A list of [KeyedPdfObject] objects on the page. Returns an empty list if there are no
+     *   objects on the page.
+     * @throws IllegalArgumentException if the page number is invalid.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public suspend fun getPageObjects(
+        pageNum: Int,
+        @PageObjectTypeFlags types: Long = PAGE_OBJECT_INCLUDE_ALL_TYPES,
+    ): List<KeyedPdfObject>
 
     /**
      * Gets a [BitmapSource] for retrieving bitmap representations of the specified page.
@@ -410,6 +427,14 @@ public interface PdfDocument : Closeable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public annotation class FormWidgetTypeFlags
 
+    @LongDef(
+        flag = true,
+        value = [PAGE_OBJECT_INCLUDE_ALL_TYPES, INCLUDE_IMAGE_PAGE_OBJECT, INCLUDE_PATH_PAGE_OBJECT],
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public annotation class PageObjectTypeFlags
+
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         LINEARIZATION_STATUS_NOT_LINEARIZED,
@@ -475,6 +500,16 @@ public interface PdfDocument : Closeable {
         public const val FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE: Long = 1 shl 6
         /** Flag to include [FormWidgetInfo.WIDGET_TYPE_SIGNATURE] in [getFormWidgetInfos] */
         public const val FORM_WIDGET_INCLUDE_SIGNATURE_TYPE: Long = 1 shl 7
+
+        /** Flag to include all types of page objects in [getPageObjects] */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val PAGE_OBJECT_INCLUDE_ALL_TYPES: Long = -1
+        /** Flag to include image page objects in [getPageObjects] */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val INCLUDE_IMAGE_PAGE_OBJECT: Long = 1 shl 0
+        /** Flag to include path page objects in [getPageObjects] */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val INCLUDE_PATH_PAGE_OBJECT: Long = 1 shl 1
 
         /** Indicates that the document is not linearized */
         public const val LINEARIZATION_STATUS_NOT_LINEARIZED: Int = 0

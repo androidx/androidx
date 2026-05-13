@@ -34,6 +34,8 @@ import androidx.pdf.DraftEditResult;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.annotation.models.PdfAnnotation;
 import androidx.pdf.annotation.models.PaginatedAnnotations;
+import androidx.pdf.annotation.models.KeyedPdfObject;
+import androidx.pdf.models.PaginatedObjects;
 import androidx.pdf.RenderParams;
 import androidx.pdf.annotation.models.PdfObject;
 
@@ -241,4 +243,23 @@ interface PdfDocumentRemote {
      * @return An int representing the document's linearization status.
      */
      int getLinearizationStatus();
+
+    /**
+    * Retrieves the objects present on the specified page in the paginated format.
+    *
+    * @param pageNum The 0-based index of the page from which to retrieve objects.
+    * @param types The types of objects to retrieve as a bitmask.
+    * @return Continuation token
+    */
+    PaginatedObjects getPageObjects(int pageNum, long types);
+
+    /**
+    * Retrieves the objects present on the specified page for the specific batch.
+    *
+    * @param pageNum The 0-based index of the page from which to retrieve objects.
+    * @param batchIndex The index of the batch to retrieve.
+    * @param types The types of objects to retrieve as a bitmask.
+    * @return Continuation token
+    */
+    PaginatedObjects getBatchedPageObjects(int pageNum, in int batchIndex, long types);
 }

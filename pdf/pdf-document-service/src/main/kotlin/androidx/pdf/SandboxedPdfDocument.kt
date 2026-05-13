@@ -36,6 +36,7 @@ import androidx.pdf.PdfDocument.BitmapSource
 import androidx.pdf.PdfDocument.DocumentClosedException
 import androidx.pdf.PdfDocument.PdfPageContent
 import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.KeyedPdfObject
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor
 import androidx.pdf.content.PageMatchBounds
@@ -336,6 +337,10 @@ public class SandboxedPdfDocument(
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> =
         getKeyedAnnotationsForPage(pageNum)
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> =
+        getKeyedObjectsForPage(pageNum, types)
+
     override fun addOnEditsAppliedListener(
         executor: Executor,
         listener: PdfDocument.OnEditsAppliedListener,
@@ -540,6 +545,29 @@ public class SandboxedPdfDocument(
 
             val remainingAnnotations = deferredRemainingBatches.awaitAll().flatten()
             firstAnnotations + remainingAnnotations
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    private suspend fun getKeyedObjectsForPage(pageNum: Int, types: Long): List<KeyedPdfObject> {
+        val firstBatch = withDocument { it.getPageObjects(pageNum, types) } ?: return emptyList()
+        if (firstBatch.totalBatchCount <= 1) {
+            return firstBatch.objects
+        }
+
+        return coroutineScope {
+            val firstObjects = firstBatch.objects
+            val deferredRemainingBatches =
+                (1 until firstBatch.totalBatchCount).map { batchIndex ->
+                    async {
+                        withDocument { remote ->
+                            remote.getBatchedPageObjects(pageNum, batchIndex, types).objects
+                        }
+                    }
+                }
+
+            val remainingObjects = deferredRemainingBatches.awaitAll().flatten()
+            firstObjects + remainingObjects
         }
     }
 

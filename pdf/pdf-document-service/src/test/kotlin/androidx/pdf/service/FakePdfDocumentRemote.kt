@@ -37,8 +37,9 @@ import androidx.pdf.TestDraftEditOperation
 import androidx.pdf.annotation.models.PaginatedAnnotations
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.models.Dimensions
+import androidx.pdf.models.PaginatedObjects
 
-class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
+internal class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
     private val behaviors = ArrayDeque<DraftEditResult>()
 
     fun setBehavior(result: DraftEditResult) {
@@ -168,6 +169,18 @@ class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
         point: PointF?,
         types: IntArray?,
     ): PdfObject? {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPageObjects(pageNum: Int, types: Long): PaginatedObjects? {
+        TODO("Not yet implemented")
+    }
+
+    override fun getBatchedPageObjects(
+        pageNum: Int,
+        batchIndex: Int,
+        types: Long,
+    ): PaginatedObjects? {
         TODO("Not yet implemented")
     }
 
