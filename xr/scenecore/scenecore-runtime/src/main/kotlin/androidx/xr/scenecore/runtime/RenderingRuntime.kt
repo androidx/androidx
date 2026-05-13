@@ -630,9 +630,11 @@ public interface RenderingRuntime : JxrRuntime {
     /**
      * Creates a MeshBuffer resource.
      *
-     * @param attributeIds The attribute IDs.
-     * @param attributeTypes The attribute types.
-     * @param bufferIndices The buffer indices.
+     * @param attributeIds The attribute IDs for each vertex attribute.
+     * @param attributeTypes The attribute types for each vertex attribute.
+     * @param bufferIndices The buffer indices for each vertex attribute.
+     * @param byteOffsets The byte offsets for each vertex attribute.
+     * @param byteStrides The byte strides for each buffer.
      * @param maxVertices The maximum number of vertices.
      * @param maxIndices The maximum number of indices.
      * @param vertexData The vertex data arrays.
@@ -645,6 +647,8 @@ public interface RenderingRuntime : JxrRuntime {
         attributeIds: IntArray,
         attributeTypes: IntArray,
         bufferIndices: ByteArray,
+        byteOffsets: IntArray,
+        byteStrides: IntArray,
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<ByteBuffer>?,

@@ -1115,6 +1115,8 @@ public class FakeImpressApiImpl : ImpressApi {
         attributeIds: IntArray,
         attributeTypes: IntArray,
         bufferIndices: ByteArray,
+        byteOffsets: IntArray,
+        byteStrides: IntArray,
         maxVertices: Int,
         maxIndices: Int,
         vertexData: Array<java.nio.ByteBuffer>?,
