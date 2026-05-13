@@ -111,6 +111,8 @@ public final class CondensedItemStyle {
         /**
          * Sets the {@link Background} for the container.
          *
+         * <p>{@code background} must conform to {@link BackgroundConstraints.COLOR_ONLY}.
+         *
          * @throws NullPointerException     if {@code background} is {@code null}
          * @throws IllegalArgumentException if {@code background} contains unsupported type
          */

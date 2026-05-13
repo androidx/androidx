@@ -1492,6 +1492,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getTitle();
     method public androidx.car.app.model.CarIcon? getTrailingImage();
     method public int getTrailingImageType();
+    method public boolean isIndexable();
     field public static final int IMAGE_TYPE_ICON = 1; // 0x1
     field public static final int IMAGE_TYPE_LARGE = 3; // 0x3
     field public static final int IMAGE_TYPE_SMALL = 2; // 0x2
@@ -1500,6 +1501,7 @@ package androidx.car.app.model {
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItem.Builder {
     ctor public CondensedItem.Builder();
     method public androidx.car.app.model.CondensedItem build();
+    method public androidx.car.app.model.CondensedItem.Builder setIndexable(boolean);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon, int);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);

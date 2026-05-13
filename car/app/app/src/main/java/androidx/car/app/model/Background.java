@@ -24,6 +24,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.CarColorConstraints;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -129,6 +130,7 @@ public final class Background {
          * @throws NullPointerException if {@code color} is {@code null}
          */
         public @NonNull Builder setColor(@NonNull CarColor color) {
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
             mColor = requireNonNull(color);
             return this;
         }

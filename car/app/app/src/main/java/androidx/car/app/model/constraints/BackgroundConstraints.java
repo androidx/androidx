@@ -35,10 +35,16 @@ import org.jspecify.annotations.NonNull;
 @ExperimentalCarApi
 public final class BackgroundConstraints {
 
+    /**
+     * Allow all backgrounds.
+     */
     public static final @NonNull BackgroundConstraints UNCONSTRAINED =
             new BackgroundConstraints.Builder().build();
 
 
+    /**
+     * Constraints that only allow color backgrounds.
+     */
     public static final @NonNull BackgroundConstraints COLOR_ONLY =
             new BackgroundConstraints.Builder().setImageAllowed(false).build();
 
