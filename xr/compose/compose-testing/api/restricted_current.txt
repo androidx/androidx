@@ -102,8 +102,7 @@ package androidx.xr.compose.testing {
     ctor public SubspaceSemanticsNodeInteractionCollection(androidx.xr.compose.testing.SubspaceTestContext testContext, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceTestContext {
-    ctor public SubspaceTestContext(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,? extends java.lang.Object?> testRule);
+  public final class SubspaceTestContext {
   }
 
 }
