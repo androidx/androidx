@@ -176,8 +176,11 @@ public open class UriDeepLinkMatcher<T : Any>(
     protected open fun matchUri(uri: DeepLinkUri): UriMatchResult<T>? {
         if (!uri.getScheme().equals(uriPattern.getScheme(), ignoreCase = true)) return null
         if (!uri.getAuthority().equals(uriPattern.getAuthority(), ignoreCase = true)) return null
-        val hasTrailingWildcard = uriPattern.getPathSegments().lastOrNull() == ".*"
-        if (!hasTrailingWildcard && uri.getPathSegments().size != uriPattern.getPathSegments().size)
+        val pathSegments = uriPattern.getPathSegments()
+        if (
+            pathSegments.lastIndexOf(".*") != pathSegments.lastIndex &&
+                uri.getPathSegments().size != pathSegments.size
+        )
             return null
 
         /**
@@ -219,18 +222,83 @@ public open class UriDeepLinkMatcher<T : Any>(
         }
         val decoder = DeepLinkDecoder(arguments)
         val key = decoder.decodeSerializableValue(serializer)
-        return UriMatchResult(key, arguments)
+        val isExactPath = pathArgs.isEmpty() && !uriPattern.getPathSegments().contains(".*")
+        return UriMatchResult(key, arguments, isExactPath, pathArgs.size)
     }
 }
 
 /**
  * The class that is returned when a [UriDeepLinkMatcher] matches with a [DeepLinkRequest]
  *
+ * **Match Order** When comparing two [UriMatchResult]s, the following criteria are used to
+ * determine the winner:
+ * 1. MatchResult type: This result wins if the other [MatchResult] is not a [UriMatchResult]
+ * 2. Exact Path: A match with an exact path wins over a match with path wildcard or path arguments.
+ * 3. Path Argument Count: A match with more extracted path arguments wins.
+ * 4. Presence of Arguments: A match that contains arguments wins over one that has none.
+ * 5. Total Argument Count: A match with more total arguments (path + query + fragment) wins.
+ *
  * @param key the navigation key representing the deep link target
  * @param arguments the map of arguments extracted from the [DeepLinkRequest]
  */
-public class UriMatchResult<T : Any>(key: T, arguments: Map<String, List<String>>) :
-    DeepLinkMatcher.MatchResult<T>(key)
+public open class UriMatchResult<T : Any>(key: T, public val arguments: Map<String, List<String>>) :
+    DeepLinkMatcher.MatchResult<T>(key) {
+
+    /**
+     * @param isExactPath true if path does not have wildcards or arguments
+     * @param matchingPathArgumentCount the number of matching path arguments
+     */
+    internal constructor(
+        key: T,
+        arguments: Map<String, List<String>>,
+        isExactPath: Boolean,
+        matchingPathArgumentCount: Int,
+    ) : this(key, arguments) {
+        this.isExactPath = isExactPath
+        this.matchingPathArgumentCount = matchingPathArgumentCount
+    }
+
+    protected var isExactPath: Boolean = false
+    private var matchingPathArgumentCount: Int = -1
+
+    /**
+     * Compares this matcher with the [other] for sorting order.
+     *
+     * Returns:
+     * - 1 if this result is bigger
+     * - 0 if they are equal
+     * - -1 if this result is smaller
+     *
+     * @param other the other [MatchResult] to compare with
+     * @see [UriMatchResult] for matching priority
+     */
+    override fun compareTo(other: DeepLinkMatcher.MatchResult<T>): Int {
+        if (other !is UriMatchResult) return 1
+        if (isExactPath && !other.isExactPath) {
+            return 1
+        } else if (!isExactPath && other.isExactPath) {
+            return -1
+        }
+        val pathSegmentDifference = matchingPathArgumentCount - other.matchingPathArgumentCount
+        if (pathSegmentDifference > 0) {
+            return 1
+        } else if (pathSegmentDifference < 0) {
+            return -1
+        }
+        if (this.arguments.isNotEmpty() && other.arguments.isEmpty()) {
+            return 1
+        } else if (this.arguments.isEmpty() && other.arguments.isNotEmpty()) {
+            return -1
+        }
+        val argCountDifference = arguments.size - other.arguments.size
+        if (argCountDifference > 0) {
+            return 1
+        } else if (argCountDifference < 0) {
+            return -1
+        }
+        return 0
+    }
+}
 
 internal object UriPatternParser {
     /**

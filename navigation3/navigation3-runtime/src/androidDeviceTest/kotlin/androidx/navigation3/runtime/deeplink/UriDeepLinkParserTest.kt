@@ -170,6 +170,15 @@ class UriDeepLinkParserTest {
     }
 
     @Test
+    fun testExtractPathArgs_extraLiteralInRequest() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users")
+        val parsedPath = UriPatternParser.parsePath(uriPattern)
+        val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/user/extra")
+        val result = UriRequestParser.extractPathArgs(parsedPath, requestedUri)
+        assertThat(result).isNull()
+    }
+
+    @Test
     fun testExtractPathArgs_missingPlaceholderInRequest() {
         val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/{id}")
         val parsedPath = UriPatternParser.parsePath(uriPattern)
