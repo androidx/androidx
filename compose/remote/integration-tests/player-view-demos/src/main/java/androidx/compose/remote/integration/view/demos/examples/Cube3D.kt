@@ -226,4 +226,4 @@ fun cube3d(): RemoteComposeContext {
     }
 }
 
-@Preview @Composable private fun Cube3dPreview() = RemoteDocPreview(cube3d())
+@Preview @Composable private fun Cube3dPreview() = RemoteDocumentPreview(cube3d())

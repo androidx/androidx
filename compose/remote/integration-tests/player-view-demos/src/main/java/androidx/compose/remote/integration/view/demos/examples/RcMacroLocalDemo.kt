@@ -127,5 +127,5 @@ private fun RemoteComposeContextAndroid.defineCounterButton(): Int {
 @Composable
 @Preview
 fun RcMacroLocalDemoPreview() {
-    RemoteDocPreview(RcMacroLocalDemo())
+    RemoteDocumentPreview(RcMacroLocalDemo())
 }

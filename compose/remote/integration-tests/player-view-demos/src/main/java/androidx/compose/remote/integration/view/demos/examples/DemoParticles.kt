@@ -706,6 +706,6 @@ fun RemoteComposeWriterAndroid.lookup2(
     )
 }
 
-@Preview @Composable private fun BallPreview() = RemoteDocPreview(ball())
+@Preview @Composable private fun BallPreview() = RemoteDocumentPreview(ball())
 
-@Preview @Composable private fun MazePreview() = RemoteDocPreview(maze())
+@Preview @Composable private fun MazePreview() = RemoteDocumentPreview(maze())

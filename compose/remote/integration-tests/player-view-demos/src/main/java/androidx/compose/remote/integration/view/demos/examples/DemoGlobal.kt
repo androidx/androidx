@@ -55,7 +55,7 @@ fun demoUseOfGlobal(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable private fun DemoUseOfGlobalPreview() = RemoteDocPreview(demoUseOfGlobal())
+@Preview @Composable private fun DemoUseOfGlobalPreview() = RemoteDocumentPreview(demoUseOfGlobal())
 
 @Suppress("RestrictedApiAndroidX")
 private fun RemoteComposeContextAndroid.date() {

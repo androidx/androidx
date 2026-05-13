@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun RcCollapsiblePriorityPreview() {
-    RemoteDocPreview(RcCollapsiblePriority())
+    RemoteDocumentPreview(RcCollapsiblePriority())
 }
 
 @Suppress("RestrictedApiAndroidX")

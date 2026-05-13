@@ -126,4 +126,4 @@ private fun getAllFonts(): Array<Font> {
     return fList
 }
 
-@Preview @Composable private fun FontListPreview() = RemoteDocPreview(fontList())
+@Preview @Composable private fun FontListPreview() = RemoteDocumentPreview(fontList())

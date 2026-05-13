@@ -310,7 +310,7 @@ fun colorList(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable private fun ColorListPreview() = RemoteDocPreview(colorList())
+@Preview @Composable private fun ColorListPreview() = RemoteDocumentPreview(colorList())
 
 @Suppress("RestrictedApiAndroidX")
 fun colorTable(): RemoteComposeWriter {
@@ -381,7 +381,7 @@ fun colorTable(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable private fun ColorTablePreview() = RemoteDocPreview(colorTable())
+@Preview @Composable private fun ColorTablePreview() = RemoteDocumentPreview(colorTable())
 
 @Suppress("RestrictedApiAndroidX")
 private fun RemoteComposeContextAndroid.makeColorTab(list: Array<String>) {

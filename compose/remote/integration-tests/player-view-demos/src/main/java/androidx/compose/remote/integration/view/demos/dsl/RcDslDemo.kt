@@ -36,7 +36,7 @@ import androidx.compose.remote.creation.dsl.setStrokeCap
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import kotlin.math.PI
@@ -45,7 +45,7 @@ import kotlin.math.PI
 @Composable
 @Preview
 fun RcDslDemoPreview() {
-    RemoteDocPreview(RemoteDocument(dslDemo()))
+    RemoteDocumentPreview(RemoteDocument(dslDemo()))
 }
 
 /** A simple demo using the new RemoteCompose DSL. */
@@ -104,14 +104,14 @@ fun dslDemo(): ByteArray {
 @Composable
 @Preview
 fun RcDslTheme1Preview() {
-    RemoteDocPreview(RemoteDocument(dslTheme1()))
+    RemoteDocumentPreview(RemoteDocument(dslTheme1()))
 }
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
 @Preview
 fun RcDslTheme2Preview() {
-    RemoteDocPreview(RemoteDocument(dslTheme2()))
+    RemoteDocumentPreview(RemoteDocument(dslTheme2()))
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -174,14 +174,14 @@ fun dslTheme2(): ByteArray {
 @Composable
 @Preview
 fun RcDslSimpleDemoPreview() {
-    RemoteDocPreview(RemoteDocument(dslSimpleDemo()))
+    RemoteDocumentPreview(RemoteDocument(dslSimpleDemo()))
 }
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
 @Preview
 fun RcDslSimpleClockPreview() {
-    RemoteDocPreview(RemoteDocument(dslSimpleClock()))
+    RemoteDocumentPreview(RemoteDocument(dslSimpleClock()))
 }
 
 @Suppress("RestrictedApiAndroidX")

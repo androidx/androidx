@@ -968,45 +968,45 @@ fun simpleJavaAnim(): RemoteComposeWriter {
 }
 
 /*
-@Preview @Composable private fun DemoTouchWrapPreview() = RemoteDocPreview(demoTouchWrap())
+@Preview @Composable private fun DemoTouchWrapPreview() = RemoteDocumentPreview(demoTouchWrap())
 
 
-@Preview @Composable private fun DemoTouch1Preview() = RemoteDocPreview(demoTouch1())
+@Preview @Composable private fun DemoTouch1Preview() = RemoteDocumentPreview(demoTouch1())
 
-@Preview @Composable private fun DemoTouch2Preview() = RemoteDocPreview(demoTouch2())
-
-@Preview
-@Composable
-private fun DemoTouchThumbWheel1Preview() = RemoteDocPreview(demoTouchThumbWheel1())
+@Preview @Composable private fun DemoTouch2Preview() = RemoteDocumentPreview(demoTouch2())
 
 @Preview
 @Composable
-private fun DemoTouchThumbWheel2Preview() = RemoteDocPreview(demoTouchThumbWheel2())
-
-@Preview @Composable private fun TouchStopGentlyPreview() = RemoteDocPreview(touchStopGently())
-
-@Preview @Composable private fun TouchStopEndsPreview() = RemoteDocPreview(touchStopEnds())
+private fun DemoTouchThumbWheel1Preview() = RemoteDocumentPreview(demoTouchThumbWheel1())
 
 @Preview
 @Composable
-private fun TouchStopInstantlyPreview() = RemoteDocPreview(touchStopInstantly())
+private fun DemoTouchThumbWheel2Preview() = RemoteDocumentPreview(demoTouchThumbWheel2())
+
+@Preview @Composable private fun TouchStopGentlyPreview() = RemoteDocumentPreview(touchStopGently())
+
+@Preview @Composable private fun TouchStopEndsPreview() = RemoteDocumentPreview(touchStopEnds())
 
 @Preview
 @Composable
-private fun TouchStopNotchesEvenPreview() = RemoteDocPreview(touchStopNotchesEven())
+private fun TouchStopInstantlyPreview() = RemoteDocumentPreview(touchStopInstantly())
+
+@Preview
+@Composable
+private fun TouchStopNotchesEvenPreview() = RemoteDocumentPreview(touchStopNotchesEven())
 
 
 @Preview
 @Composable
-private fun TouchStopNotchesPercentsPreview() = RemoteDocPreview(touchStopNotchesPercents())
+private fun TouchStopNotchesPercentsPreview() = RemoteDocumentPreview(touchStopNotchesPercents())
 
 @Preview
 @Composable
-private fun TouchStopNotchesAbsolutePreview() = RemoteDocPreview(touchStopNotchesAbsolute())
+private fun TouchStopNotchesAbsolutePreview() = RemoteDocumentPreview(touchStopNotchesAbsolute())
 
 @Preview
 @Composable
-private fun TouchStopAbsolutePosPreview() = RemoteDocPreview(touchStopAbsolutePos())
+private fun TouchStopAbsolutePosPreview() = RemoteDocumentPreview(touchStopAbsolutePos())
 
-@Preview @Composable private fun SimpleJavaAnimPreview() = RemoteDocPreview(simpleJavaAnim())
+@Preview @Composable private fun SimpleJavaAnimPreview() = RemoteDocumentPreview(simpleJavaAnim())
 */

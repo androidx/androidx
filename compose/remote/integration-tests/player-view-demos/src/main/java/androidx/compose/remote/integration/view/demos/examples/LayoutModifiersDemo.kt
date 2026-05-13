@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.sin
 import androidx.compose.remote.creation.toRad
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -105,8 +105,8 @@ fun LayoutModifierDemo2(): RemoteComposeContext {
 
 @Preview
 @Composable
-private fun LayoutModifierDemo1Preview() = RemoteDocPreview(LayoutModifierDemo1())
+private fun LayoutModifierDemo1Preview() = RemoteDocumentPreview(LayoutModifierDemo1())
 
 @Preview
 @Composable
-private fun LayoutModifierDemo2Preview() = RemoteDocPreview(LayoutModifierDemo2())
+private fun LayoutModifierDemo2Preview() = RemoteDocumentPreview(LayoutModifierDemo2())

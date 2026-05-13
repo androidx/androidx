@@ -118,4 +118,6 @@ fun RemoteComposeContextAndroid.txt(str: Int) {
     )
 }
 
-@Preview @Composable private fun DemoTextTransformPreview() = RemoteDocPreview(demoTextTransform())
+@Preview
+@Composable
+private fun DemoTextTransformPreview() = RemoteDocumentPreview(demoTextTransform())

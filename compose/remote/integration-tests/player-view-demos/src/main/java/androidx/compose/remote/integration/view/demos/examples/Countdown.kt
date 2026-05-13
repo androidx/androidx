@@ -27,7 +27,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.SIN
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -108,4 +108,4 @@ fun countDown(): RemoteComposeContext {
     return doc
 }
 
-@Preview @Composable private fun CountDownPreview() = RemoteDocPreview(countDown())
+@Preview @Composable private fun CountDownPreview() = RemoteDocumentPreview(countDown())

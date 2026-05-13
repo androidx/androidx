@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun RcScrollviewPreview() {
-    RemoteDocPreview(RcScrollview())
+    RemoteDocumentPreview(RcScrollview())
 }
 
 @Suppress("RestrictedApiAndroidX")

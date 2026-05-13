@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 private fun SlantedButtonPreview() {
     val context = LocalContext.current
-    RemoteDocPreview(SlantedButtonDemo())
+    RemoteDocumentPreview(SlantedButtonDemo())
 }
 
 @Suppress("RestrictedApiAndroidX")

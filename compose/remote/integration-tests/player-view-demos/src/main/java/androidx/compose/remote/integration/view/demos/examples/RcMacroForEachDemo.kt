@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun RcMacroForEachDemoPreview() {
-    RemoteDocPreview(RcMacroForEachDemo())
+    RemoteDocumentPreview(RcMacroForEachDemo())
 }
 
 @Suppress("RestrictedApiAndroidX")

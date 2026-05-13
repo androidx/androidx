@@ -48,7 +48,7 @@ import androidx.compose.remote.creation.dsl.widthIn
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import java.util.Random
@@ -65,7 +65,7 @@ private lateinit var fontSizes: RcTickerFontSizes
 @Preview
 @Suppress("RestrictedApiAndroidX")
 fun RcDslTickerPreview() {
-    RemoteDocPreview(RemoteDocument(dslTicker()))
+    RemoteDocumentPreview(RemoteDocument(dslTicker()))
 }
 
 /** Reimplementation of RcTicker using the new type-safe DSL. */

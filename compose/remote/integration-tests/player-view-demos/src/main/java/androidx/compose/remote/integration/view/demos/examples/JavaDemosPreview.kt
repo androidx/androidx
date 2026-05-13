@@ -21,12 +21,14 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
-private fun DemoAnchorTextPreview() = RemoteDocPreview(DemoAnchorText.anchoredText())
+private fun DemoAnchorTextPreview() = RemoteDocumentPreview(DemoAnchorText.anchoredText())
 
 @Preview
 @Composable
-private fun DemoAttributedStringPreview() = RemoteDocPreview(DemoAttributedString.demo())
+private fun DemoAttributedStringPreview() = RemoteDocumentPreview(DemoAttributedString.demo())
 
-@Preview @Composable private fun DemoPathsPreview() = RemoteDocPreview(DemoPaths.pathTest())
+@Preview @Composable private fun DemoPathsPreview() = RemoteDocumentPreview(DemoPaths.pathTest())
 
-@Preview @Composable private fun HostileActorPreview() = RemoteDocPreview(HostileActor.demoImage())
+@Preview
+@Composable
+private fun HostileActorPreview() = RemoteDocumentPreview(HostileActor.demoImage())

@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun RcFlowPreview() {
-    RemoteDocPreview(RcFlow())
+    RemoteDocumentPreview(RcFlow())
 }
 
 @Suppress("RestrictedApiAndroidX")

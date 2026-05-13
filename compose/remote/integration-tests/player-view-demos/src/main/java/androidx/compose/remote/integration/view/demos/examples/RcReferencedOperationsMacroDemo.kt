@@ -130,5 +130,5 @@ private fun RemoteComposeContextAndroid.DefineCardMacro() {
 @Preview
 @Composable
 private fun RcReferencedOperationsMacroDemoPreview() {
-    RemoteDocPreview(RcReferencedOperationsMacroDemo())
+    RemoteDocumentPreview(RcReferencedOperationsMacroDemo())
 }

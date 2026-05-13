@@ -101,6 +101,6 @@ fun demoGraphs2(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable private fun DemoGraphsPreview() = RemoteDocPreview(demoGraphs())
+@Preview @Composable private fun DemoGraphsPreview() = RemoteDocumentPreview(demoGraphs())
 
-@Preview @Composable private fun DemoGraphs2Preview() = RemoteDocPreview(demoGraphs2())
+@Preview @Composable private fun DemoGraphs2Preview() = RemoteDocumentPreview(demoGraphs2())

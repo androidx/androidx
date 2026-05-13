@@ -20,7 +20,7 @@ import android.graphics.Color
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
-import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import java.awt.font.TextAttribute
@@ -31,7 +31,7 @@ import java.text.AttributedString
 @Composable
 @Preview
 fun DemoAttributedStringPreview() {
-    RemoteDocPreview(RemoteDocument(demoAttributedString()))
+    RemoteDocumentPreview(RemoteDocument(demoAttributedString()))
 }
 
 @Suppress("RestrictedApiAndroidX")
