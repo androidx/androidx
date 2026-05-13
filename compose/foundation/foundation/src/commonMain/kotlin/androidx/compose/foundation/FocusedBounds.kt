@@ -35,6 +35,14 @@ import androidx.compose.ui.platform.InspectorInfo
  * Note that there may be some cases where the focused bounds change but the callback is _not_
  * invoked, but the last [LayoutCoordinates] will always return the most up-to-date bounds.
  */
+@Deprecated(
+    message =
+        "onFocusedBoundsChanged doesn't reliably observe focus bounds changes through layout " +
+            "coordinate changes and focus changes. In a future release, the existing best-effort " +
+            "implementation will be removed, resulting in this becoming a no-op Modifier where " +
+            "onPositioned will never be called. Use FocusTargetModifierNode.getFocusedRect() " +
+            "instead to query this information on demand as needed."
+)
 fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier =
     this then FocusedBoundsObserverElement(onPositioned)
 
