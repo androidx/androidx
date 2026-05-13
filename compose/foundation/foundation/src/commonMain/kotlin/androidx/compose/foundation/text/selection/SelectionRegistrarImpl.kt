@@ -102,13 +102,14 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
     override var subselections: LongObjectMap<Selection> by mutableStateOf(emptyLongObjectMap())
 
     override fun subscribe(selectable: Selectable): Selectable {
-        requirePrecondition(selectable.selectableId != SelectionRegistrar.InvalidSelectableId) {
-            "The selectable contains an invalid id: ${selectable.selectableId}"
+        val selectableId = selectable.selectableId
+        requirePrecondition(selectableId != SelectionRegistrar.InvalidSelectableId) {
+            "The selectable contains an invalid id: $selectableId"
         }
-        requirePrecondition(!_selectableMap.containsKey(selectable.selectableId)) {
-            "Another selectable with the id: $selectable.selectableId has already subscribed."
+        requirePrecondition(!_selectableMap.containsKey(selectableId)) {
+            "Another selectable with the id: $selectableId has already subscribed."
         }
-        _selectableMap[selectable.selectableId] = selectable
+        _selectableMap[selectableId] = selectable
         _selectables.add(selectable)
         sorted = false
         return selectable

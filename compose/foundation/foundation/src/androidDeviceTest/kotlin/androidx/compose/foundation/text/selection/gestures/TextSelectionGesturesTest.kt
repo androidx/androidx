@@ -17,8 +17,8 @@
 package androidx.compose.foundation.text.selection.gestures
 
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
-import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.gestures.AbstractSelectionGesturesTest.HorizontalDirection.START
 import androidx.compose.foundation.text.selection.gestures.AbstractSelectionGesturesTest.VerticalDirection.DOWN
 import androidx.compose.foundation.text.selection.gestures.AbstractSelectionGesturesTest.VerticalDirection.UP
@@ -29,7 +29,6 @@ import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -42,7 +41,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
     override val pointerAreaTag = "selectionContainer"
 
-    protected val selection = mutableStateOf<Selection?>(null)
+    protected val state = SelectionState()
 
     /**
      * Word to use in one-off tests. Subclasses may choose a RTL or BiDi 5 letter word for example.
@@ -55,11 +54,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
     @Composable
     override fun Content() {
-        SelectionContainer(
-            selection = selection.value,
-            onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag),
-        ) {
+        SelectionContainer(state = state, modifier = Modifier.testTag(pointerAreaTag)) {
             TextContent()
         }
     }

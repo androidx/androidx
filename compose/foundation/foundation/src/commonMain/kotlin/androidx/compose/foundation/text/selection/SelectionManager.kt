@@ -82,9 +82,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapNotNull
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -108,8 +110,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             if (value != null) {
                 updateHandleOffsets()
             }
-            // TODO: Update selectionRegistrar.subselections from the new selection before calling
-            //       updatePinnedSelectables()
+            // SelectionRegistrar.subselections are updated in selectAll, onRelease, and
+            // extendSelectionByWord already so they don't need to be updated here.
             updatePinnedSelectables()
         }
 
@@ -234,6 +236,18 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     var containerLayoutCoordinates: LayoutCoordinates? = null
         set(value) {
             field = value
+
+            // If we have a restored selection but no subselections yet, compute and restore them
+            // now that the layout is attached.
+            if (value != null && value.isAttached) {
+                selection?.let { currentSelection ->
+                    if (selectionRegistrar.subselections.isEmpty()) {
+                        updateSubSelections(currentSelection)
+                        focusRequester.requestFocus()
+                    }
+                }
+            }
+
             if (hasFocus && selection != null) {
                 val positionInWindow = value?.positionInWindow()
                 if (previousPosition != positionInWindow) {
@@ -653,6 +667,118 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
     }
 
+    /**
+     * Updates [SelectionRegistrar.subselections], called when selection changes due to programmatic
+     * actions.
+     */
+    internal fun updateSubSelections(selection: Selection?) {
+        if (selection == null) {
+            selectionRegistrar.subselections = emptyLongObjectMap()
+            return
+        }
+
+        val selectables = selectionRegistrar.sort(requireContainerCoordinates())
+        if (selectables.isEmpty()) return
+
+        selectionRegistrar.subselections =
+            createSubSelections(
+                selection = selection,
+                sortedItems = selectables,
+                getId = { it.selectableId },
+                getSelectAll = { selectable, isCrossed ->
+                    selectable.getSelectAllSelection()?.let { selectAll ->
+                        if (isCrossed) {
+                            Selection(selectAll.end, selectAll.start, handlesCrossed = true)
+                        } else {
+                            selectAll
+                        }
+                    }
+                },
+                createBoundarySelection = { selectable, isStart, offset, isCrossed ->
+                    selectable.getSelectAllSelection()?.let { selectAll ->
+                        if (isStart) {
+                            if (isCrossed) {
+                                Selection(selection.start, selectAll.start, handlesCrossed = true)
+                            } else {
+                                Selection(selection.start, selectAll.end, handlesCrossed = false)
+                            }
+                        } else {
+                            if (isCrossed) {
+                                Selection(selectAll.end, selection.end, handlesCrossed = true)
+                            } else {
+                                Selection(selectAll.start, selection.end, handlesCrossed = false)
+                            }
+                        }
+                    }
+                },
+            )
+    }
+
+    /** Sets Selection internally for testing purposes. */
+    @VisibleForTesting
+    internal fun setSelection(newSelection: Selection) {
+        updateSubSelections(newSelection)
+        onSelectionChange(newSelection)
+        previousSelectionLayout = null
+
+        // Request focus to show selection handles
+        focusRequester.requestFocus()
+        showToolbar = true
+    }
+
+    /**
+     * Sets the selection to the specified [TextRange] within the global space of all Texts inside
+     * the [SelectionContainer].
+     */
+    internal fun setSelection(range: TextRange) {
+        val coordinates = containerLayoutCoordinates ?: return
+        if (!coordinates.isAttached) return
+
+        val selectables = selectionRegistrar.sort(coordinates)
+        if (selectables.isEmpty()) return
+
+        val startAnchor = findAnchorForGlobalOffset(selectables, range.start) ?: return
+        val endAnchor = findAnchorForGlobalOffset(selectables, range.end) ?: return
+        val newSelection =
+            Selection(
+                start = startAnchor,
+                end = endAnchor,
+                handlesCrossed = range.start > range.end,
+            )
+
+        updateSubSelections(newSelection)
+        onSelectionChange(newSelection)
+        previousSelectionLayout = null
+
+        // Request focus to show selection handles
+        focusRequester.requestFocus()
+        showToolbar = true
+    }
+
+    /** Helper for setSelection function. */
+    private fun findAnchorForGlobalOffset(
+        selectables: List<Selectable>,
+        globalOffset: Int,
+    ): AnchorInfo? {
+        var runningLength = 0
+        selectables.fastForEach { selectable ->
+            val textLength = selectable.getText().length
+            if (globalOffset >= runningLength && globalOffset <= runningLength + textLength) {
+                val localOffset = globalOffset - runningLength
+                val textLayout = selectable.textLayoutResult()
+                val direction = textLayout?.getTextDirectionForOffset(localOffset) ?: return null
+
+                return AnchorInfo(
+                    direction = direction,
+                    offset = localOffset,
+                    selectableId = selectable.selectableId,
+                )
+            }
+            runningLength += textLength
+        }
+        return null
+    }
+
     /** Creates and sets a selection spanning the entire container. */
     internal fun selectAll() {
         val selectables = selectionRegistrar.sort(requireContainerCoordinates())
@@ -687,6 +813,150 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         selectionRegistrar.subselections = newSubSelections
         onSelectionChange(newSelection)
         previousSelectionLayout = null
+
+        // Request focus to show selection handles
+        focusRequester.requestFocus()
+        showToolbar = true
+    }
+
+    /**
+     * Extends the selection by a word in the current direction if possible. If nothing is selected,
+     * selects the first word.
+     */
+    internal fun extendSelectionByWord() {
+        val containerCoordinates = requireContainerCoordinates()
+        val selectables = selectionRegistrar.sort(containerCoordinates)
+        if (selectables.isEmpty()) return
+
+        val currentSelection = selection
+        if (currentSelection == null) {
+            val firstSelectable =
+                selectables.fastFirstOrNull { it.getText().isNotEmpty() } ?: return
+            val layoutResult = firstSelectable.textLayoutResult() ?: return
+            val boundary = layoutResult.getWordBoundary(0)
+
+            val startAnchor =
+                AnchorInfo(
+                    direction = layoutResult.getTextDirectionForOffset(0),
+                    offset = 0,
+                    selectableId = firstSelectable.selectableId,
+                )
+            val endAnchor =
+                AnchorInfo(
+                    direction = layoutResult.getTextDirectionForOffset(maxOf(0, boundary.end - 1)),
+                    offset = boundary.end,
+                    selectableId = firstSelectable.selectableId,
+                )
+
+            val newSelection = Selection(startAnchor, endAnchor, handlesCrossed = false)
+
+            val newSubSelections = mutableLongObjectMapOf<Selection>()
+            newSubSelections[firstSelectable.selectableId] = newSelection
+
+            selectionRegistrar.subselections = newSubSelections
+            onSelectionChange(newSelection)
+            previousSelectionLayout = null
+
+            // Request focus to show selection handles
+            focusRequester.requestFocus()
+            showToolbar = true
+            return
+        }
+
+        var currentSelectableId = currentSelection.end.selectableId
+        var currentIndex = selectables.indexOfFirst { it.selectableId == currentSelectableId }
+        if (currentIndex == -1) return
+
+        var currentSelectable = selectables[currentIndex]
+        var textLayoutResult = currentSelectable.textLayoutResult() ?: return
+        var maxOffset = currentSelectable.getText().length
+        var currentOffset = currentSelection.end.offset
+
+        if (currentSelection.handlesCrossed) {
+            while (currentOffset <= 0) {
+                if (currentIndex <= 0) return
+
+                currentIndex--
+                currentSelectable = selectables[currentIndex]
+                currentSelectableId = currentSelectable.selectableId
+                textLayoutResult = currentSelectable.textLayoutResult() ?: return
+                maxOffset = currentSelectable.getText().length
+                currentOffset = maxOffset
+            }
+
+            val boundaryOffset = maxOf(0, currentOffset - 1)
+            val boundary = textLayoutResult.getWordBoundary(boundaryOffset)
+
+            currentOffset =
+                if (boundary.start < currentOffset) {
+                    boundary.start
+                } else {
+                    val peekOffset = (currentOffset - 1).coerceAtLeast(0)
+                    val nextBoundaryStart = textLayoutResult.getWordBoundary(peekOffset).start
+
+                    if (nextBoundaryStart < currentOffset) nextBoundaryStart
+                    else (currentOffset - 1).coerceAtLeast(0)
+                }
+        } else {
+            while (currentOffset >= maxOffset) {
+                if (currentIndex >= selectables.lastIndex) return
+
+                currentIndex++
+                currentSelectable = selectables[currentIndex]
+                currentSelectableId = currentSelectable.selectableId
+                textLayoutResult = currentSelectable.textLayoutResult() ?: return
+                maxOffset = currentSelectable.getText().length
+                currentOffset = 0
+            }
+
+            val boundary = textLayoutResult.getWordBoundary(currentOffset)
+
+            currentOffset =
+                if (boundary.end > currentOffset) {
+                    boundary.end
+                } else {
+                    val peekOffset = (currentOffset + 1).coerceAtMost(maxOf(0, maxOffset - 1))
+                    val nextBoundaryEnd = textLayoutResult.getWordBoundary(peekOffset).end
+
+                    if (nextBoundaryEnd > currentOffset) nextBoundaryEnd
+                    else (currentOffset + 1).coerceAtMost(maxOffset)
+                }
+        }
+
+        val directionOffset =
+            if (currentSelection.handlesCrossed) {
+                currentOffset.coerceAtMost(maxOf(0, maxOffset - 1))
+            } else {
+                maxOf(0, currentOffset - 1)
+            }
+
+        val newEndAnchor =
+            AnchorInfo(
+                direction = textLayoutResult.getTextDirectionForOffset(directionOffset),
+                offset = currentOffset,
+                selectableId = currentSelectableId,
+            )
+
+        val handlesCrossed =
+            if (currentSelection.start.selectableId == currentSelectableId) {
+                currentSelection.start.offset > currentOffset
+            } else {
+                val startIndex =
+                    selectables.indexOfFirst {
+                        it.selectableId == currentSelection.start.selectableId
+                    }
+                startIndex > currentIndex
+            }
+
+        val newSelection = Selection(currentSelection.start, newEndAnchor, handlesCrossed)
+
+        updateSubSelections(newSelection)
+        onSelectionChange(newSelection)
+        previousSelectionLayout = null
+
+        // Request focus to show selection handles
+        focusRequester.requestFocus()
+        showToolbar = true
     }
 
     /**
@@ -729,6 +999,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
     }
 
+    /** Returns currently selected text concatenated by newline characters. */
     internal fun getSelectedText(): AnnotatedString? {
         if (selection == null || selectionRegistrar.subselections.isEmpty()) {
             return null
@@ -741,6 +1012,33 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 true
             }
         }
+    }
+
+    /** Returns currently selected texts as a list. */
+    internal fun getSelectedTexts(): List<AnnotatedString> {
+        if (selection == null || selectionRegistrar.subselections.isEmpty()) {
+            return emptyList()
+        }
+
+        val selectedTexts = mutableListOf<AnnotatedString>()
+
+        forEachSelectableWithSelection { _, text, selection, _ ->
+            val extractedText = text.subSequence(selection.min, selection.max)
+            selectedTexts.add(extractedText)
+            true
+        }
+
+        return selectedTexts
+    }
+
+    /** Returns a list of all selectable texts within the container in visual/layout order. */
+    internal fun getSelectableTexts(): List<AnnotatedString> {
+        if (selectionRegistrar.selectables.isEmpty()) return emptyList()
+
+        val coordinates = containerLayoutCoordinates ?: return emptyList()
+        if (!coordinates.isAttached) return emptyList()
+
+        return selectionRegistrar.sort(coordinates).fastMap { it.getText() }
     }
 
     /**
@@ -929,6 +1227,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     fun onRelease() {
         selectionRegistrar.subselections = emptyLongObjectMap()
         showToolbar = false
+        previousSelectionLayout = null
         if (selection != null) {
             onSelectionChange(null)
             if (isInTouchMode) {

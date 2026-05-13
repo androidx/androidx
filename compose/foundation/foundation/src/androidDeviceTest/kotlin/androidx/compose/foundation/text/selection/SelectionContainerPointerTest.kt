@@ -76,8 +76,8 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             release()
         }
 
-        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = 4, selectableId = 2)
+        assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = 4, selectableId = 2)
     }
 
     @Test
@@ -106,8 +106,8 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             release()
         }
 
-        assertAnchorInfo(selection.value?.start, offset = 7, selectableId = 2)
-        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 1)
+        assertAnchorInfo(state.selection?.start, offset = 7, selectableId = 2)
+        assertAnchorInfo(state.selection?.end, offset = 5, selectableId = 1)
     }
 
     @Test
@@ -123,8 +123,8 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             }
 
             // Assert. Should select "Demo".
-            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
-            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
+            assertThat(state.selection!!.start.offset).isEqualTo(textContent.indexOf('D'))
+            assertThat(state.selection!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
         }
 
     @Test
@@ -138,14 +138,14 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onSelectionContainer().performMouseInput {
                 doubleClick(Offset(textContent.indexOf('m') * characterSize, 0.5f * characterSize))
             }
-            rule.runOnIdle { assertThat(selection.value).isNotNull() }
+            rule.runOnIdle { assertThat(state.selection).isNotNull() }
 
             // Act. Click on the same place, and selection should be cleared.
             rule.onSelectionContainer().performMouseInput { click() }
 
             // Assert.
             // TODO(b/384750891) Cleared selection should be null
-            rule.runOnIdle { assertThat(selection.value!!.toTextRange()).isEqualTo(14.collapsed) }
+            rule.runOnIdle { assertThat(state.selection!!.toTextRange()).isEqualTo(14.collapsed) }
         }
 
     @Test
@@ -185,7 +185,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
 
             // Assert.
             // TODO(b/384750891) Cleared selection should be null
-            rule.runOnIdle { assertThat(selection.value!!.toTextRange()).isEqualTo(3.collapsed) }
+            rule.runOnIdle { assertThat(state.selection!!.toTextRange()).isEqualTo(3.collapsed) }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -215,7 +215,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onNodeWithTag(tag1, useUnmergedTree = true).performMouseInput { click() }
 
             // Assert.
-            rule.runOnIdle { assertThat(selection.value).isNull() }
+            rule.runOnIdle { assertThat(state.selection).isNull() }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -233,10 +233,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
                             ) {
                                 TestText("Button")
                             }
-                            SelectionContainer(
-                                selection = selection.value,
-                                onSelectionChange = { selection.value = it },
-                            ) {
+                            SelectionContainer(state = state) {
                                 TestText(textContent, Modifier.fillMaxSize())
                             }
                         }
@@ -253,7 +250,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onNodeWithTag(tag1, useUnmergedTree = true).performMouseInput { click() }
 
             // Assert.
-            rule.runOnIdle { assertThat(selection.value).isNull() }
+            rule.runOnIdle { assertThat(state.selection).isNull() }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -274,14 +271,14 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onSelectionContainer().performMouseInput {
                 doubleClick(Offset(textContent.indexOf('m') * characterSize, 0.5f * characterSize))
             }
-            rule.runOnIdle { assertThat(selection.value).isNotNull() }
+            rule.runOnIdle { assertThat(state.selection).isNotNull() }
 
             // Act. Click on the same place, and selection should be cleared.
             rule.onSelectionContainer().performMouseInput { click() }
 
             // Assert.
             // TODO(b/384750891) Cleared selection should be null
-            rule.runOnIdle { assertThat(selection.value!!.toTextRange()).isEqualTo(14.collapsed) }
+            rule.runOnIdle { assertThat(state.selection!!.toTextRange()).isEqualTo(14.collapsed) }
         }
 
     @Test
@@ -310,8 +307,8 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             release()
         }
 
-        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = 4, selectableId = 2)
+        assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = 4, selectableId = 2)
     }
 
     @Test
@@ -340,8 +337,8 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             release()
         }
 
-        assertAnchorInfo(selection.value?.start, offset = 7, selectableId = 2)
-        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 1)
+        assertAnchorInfo(state.selection?.start, offset = 7, selectableId = 2)
+        assertAnchorInfo(state.selection?.end, offset = 5, selectableId = 1)
     }
 
     @Test
@@ -357,8 +354,8 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             }
 
             // Assert. Should select "Demo".
-            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
-            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
+            assertThat(state.selection!!.start.offset).isEqualTo(textContent.indexOf('D'))
+            assertThat(state.selection!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
         }
 
     @Test
@@ -372,14 +369,14 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onSelectionContainer().performTrackpadInput {
                 doubleClick(Offset(textContent.indexOf('m') * characterSize, 0.5f * characterSize))
             }
-            rule.runOnIdle { assertThat(selection.value).isNotNull() }
+            rule.runOnIdle { assertThat(state.selection).isNotNull() }
 
             // Act. Click on the same place, and selection should be cleared.
             rule.onSelectionContainer().performTrackpadInput { click() }
 
             // Assert.
             // TODO(b/384750891) Cleared selection should be null
-            rule.runOnIdle { assertThat(selection.value!!.toTextRange()).isEqualTo(14.collapsed) }
+            rule.runOnIdle { assertThat(state.selection!!.toTextRange()).isEqualTo(14.collapsed) }
         }
 
     @Test
@@ -419,7 +416,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
 
             // Assert.
             // TODO(b/384750891) Cleared selection should be null
-            rule.runOnIdle { assertThat(selection.value!!.toTextRange()).isEqualTo(3.collapsed) }
+            rule.runOnIdle { assertThat(state.selection!!.toTextRange()).isEqualTo(3.collapsed) }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -449,7 +446,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onNodeWithTag(tag1, useUnmergedTree = true).performTrackpadInput { click() }
 
             // Assert.
-            rule.runOnIdle { assertThat(selection.value).isNull() }
+            rule.runOnIdle { assertThat(state.selection).isNull() }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -467,10 +464,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
                             ) {
                                 TestText("Button")
                             }
-                            SelectionContainer(
-                                selection = selection.value,
-                                onSelectionChange = { selection.value = it },
-                            ) {
+                            SelectionContainer(state = state) {
                                 TestText(textContent, Modifier.fillMaxSize())
                             }
                         }
@@ -487,7 +481,7 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onNodeWithTag(tag1, useUnmergedTree = true).performTrackpadInput { click() }
 
             // Assert.
-            rule.runOnIdle { assertThat(selection.value).isNull() }
+            rule.runOnIdle { assertThat(state.selection).isNull() }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -508,13 +502,13 @@ internal class SelectionContainerPointerTest : AbstractSelectionContainerTest() 
             rule.onSelectionContainer().performTrackpadInput {
                 doubleClick(Offset(textContent.indexOf('m') * characterSize, 0.5f * characterSize))
             }
-            rule.runOnIdle { assertThat(selection.value).isNotNull() }
+            rule.runOnIdle { assertThat(state.selection).isNotNull() }
 
             // Act. Click on the same place, and selection should be cleared.
             rule.onSelectionContainer().performTrackpadInput { click() }
 
             // Assert.
             // TODO(b/384750891) Cleared selection should be null
-            rule.runOnIdle { assertThat(selection.value!!.toTextRange()).isEqualTo(14.collapsed) }
+            rule.runOnIdle { assertThat(state.selection!!.toTextRange()).isEqualTo(14.collapsed) }
         }
 }

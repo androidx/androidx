@@ -23,8 +23,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.HandlePressedScope
-import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.SelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
@@ -68,7 +68,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
     private var text = "Text ${"Text".repeat(19)}"
 
     private lateinit var asserter: TextSelectionAsserter
-    private val selection = mutableStateOf<Selection?>(null)
+    val state = SelectionState()
 
     private val maxLinesState = mutableStateOf(Int.MAX_VALUE)
     private val overflowState = mutableStateOf(TextOverflow.Clip)
@@ -83,7 +83,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                         textToolbar = textToolbar,
                         spyTextActionModeCallback = spyTextActionModeCallback,
                         hapticFeedback = hapticFeedback,
-                        getActual = { selection.value },
+                        getActual = { state.selection },
                     ) {
                     override fun subAssert() {
                         Truth.assertAbout(SelectionSubject.withContent(textContent))
@@ -103,11 +103,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
 
     @Composable
     override fun Content() {
-        SelectionContainer(
-            selection = selection.value,
-            onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag),
-        ) {
+        SelectionContainer(state = state, modifier = Modifier.testTag(pointerAreaTag)) {
             Box(Modifier.padding(32.dp), Alignment.Center) {
                 BasicText(
                     text = text,
