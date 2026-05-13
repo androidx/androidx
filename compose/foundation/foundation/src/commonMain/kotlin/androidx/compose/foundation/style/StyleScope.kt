@@ -1516,6 +1516,7 @@ interface ShadowScope {
  */
 @ExperimentalFoundationStyleApi
 interface AnimateStyleScope {
+
     /**
      * Specifies a [Style] whose properties will be animated to when they change, using the provided
      * [AnimationSpec]. This allows for smooth transitions between style states with custom
