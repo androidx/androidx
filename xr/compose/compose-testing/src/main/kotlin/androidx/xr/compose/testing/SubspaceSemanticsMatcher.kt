@@ -16,15 +16,23 @@
 
 package androidx.xr.compose.testing
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
- * Wrapper for semantics matcher lambdas that allows to build string explaining to the developer
- * what conditions were being tested.
+ * Wrapper for semantics matcher lambdas that allows building a description string explaining to the
+ * developer what conditions were being tested.
+ *
+ * This class encapsulates a predicate that evaluates a [SubspaceSemanticsInfo] node to verify
+ * whether it matches the expected semantic properties. It is primarily used by the testing
+ * framework to locate nodes within a Subspace hierarchy.
+ *
+ * @param description A human-readable explanation of the condition being tested, used in test
+ *   failure messages.
+ * @param matcher The predicate function that evaluates a given [SubspaceSemanticsInfo].
+ * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
+ * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsMatcher(
     internal val description: String,
     private val matcher: (SubspaceSemanticsInfo) -> Boolean,
