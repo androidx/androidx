@@ -599,6 +599,11 @@ package androidx.xr.arcore {
     property public androidx.xr.arcore.Face.State? userFaceState;
   }
 
+  public final class PerceptionStateExt {
+    method @InaccessibleFromKotlin public static androidx.xr.arcore.PerceptionState? getPerceptionState(androidx.xr.runtime.CoreState);
+    property public static androidx.xr.arcore.PerceptionState? androidx.xr.runtime.CoreState.perceptionState;
+  }
+
   public final class Plane implements androidx.xr.arcore.Anchorable<androidx.xr.arcore.Plane.State> {
     method public androidx.xr.arcore.AnchorResult createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> getState();
