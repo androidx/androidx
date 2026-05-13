@@ -39,11 +39,14 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.xr.projected.BatteryState
 import androidx.xr.projected.ProjectedDeviceController.Capability
 import androidx.xr.projected.ProjectedDisplayController
 import androidx.xr.projected.ProjectedDisplayController.ProjectedLayoutParamsFlags
 import androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.platform.BatteryState as PlatformBatteryState
+import androidx.xr.projected.platform.IBatteryStateListener
 import androidx.xr.projected.platform.IEngagementModeCallback
 import androidx.xr.projected.platform.IEngagementModeService
 import androidx.xr.projected.platform.IProjectedDeviceStateListener
@@ -53,6 +56,7 @@ import androidx.xr.projected.platform.ProjectedDeviceState
 import androidx.xr.projected.platform.ProjectedInputEvent
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
+import java.util.Collections
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -238,6 +242,8 @@ public class ProjectedTestRule : TestRule {
     private val virtualDeviceManager =
         context.getSystemService(Context.VIRTUAL_DEVICE_SERVICE) as VirtualDeviceManager
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val batteryStateListeners =
+        Collections.synchronizedList(mutableListOf<IBatteryStateListener>())
     private val mockProjectedService: IProjectedService =
         mock<IProjectedService> {
             on { addWindowFlags(any()) } doAnswer
@@ -249,6 +255,18 @@ public class ProjectedTestRule : TestRule {
                 { invocation ->
                     val flag = invocation.arguments[0] as Int
                     projectedLayoutParamFlags = projectedLayoutParamFlags and flag.inv()
+                }
+            on { registerBatteryStateListener(any()) } doAnswer
+                { invocation ->
+                    val listener = invocation.arguments[0] as IBatteryStateListener
+                    batteryStateListeners.add(listener)
+                    null
+                }
+            on { unregisterBatteryStateListener(any()) } doAnswer
+                { invocation ->
+                    val listener = invocation.arguments[0] as IBatteryStateListener
+                    batteryStateListeners.remove(listener)
+                    null
                 }
         }
     private val mockProjectedServiceStub =
@@ -273,6 +291,7 @@ public class ProjectedTestRule : TestRule {
                     setInputDevices(listOf(INPUT_PROJECTED_AUDIO_DEVICE_INFO))
                     setOutputDevices(listOf(OUTPUT_PROJECTED_AUDIO_DEVICE_INFO))
                 }
+                batteryStateListeners.clear()
                 base?.evaluate()
             }
         }
@@ -289,6 +308,21 @@ public class ProjectedTestRule : TestRule {
         inputEventListenerCaptor.firstValue.onProjectedInputEvent(
             ProjectedInputEvent().apply { action = projectedInputAction.code }
         )
+    }
+
+    /**
+     * Updates battery state to the one provided. Calling this function notifies listeners
+     * registered using the [ProjectedDeviceController.addBatteryStateChangedListener()] API.
+     */
+    public fun setBatteryState(batteryState: BatteryState) {
+        val aidlState =
+            PlatformBatteryState().apply {
+                isCharging = batteryState.isCharging
+                batteryLevel = batteryState.batteryLevel
+            }
+        synchronized(batteryStateListeners) {
+            batteryStateListeners.forEach { listener -> listener.onBatteryStateChanged(aidlState) }
+        }
     }
 
     /**

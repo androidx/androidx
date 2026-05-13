@@ -13,6 +13,7 @@ package @SuppressCompatibility androidx.xr.projected.testing {
     method public void launchTestProjectedDeviceActivity(kotlin.jvm.functions.Function1<? super android.app.Activity,kotlin.Unit> block);
     method public void sendProjectedInputEvent(androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction projectedInputAction);
     method @InaccessibleFromKotlin public void setAudioDevices(java.util.List<android.media.AudioDeviceInfo>);
+    method public void setBatteryState(androidx.xr.projected.BatteryState batteryState);
     method @InaccessibleFromKotlin public void setCapabilities(java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability>);
     method @InaccessibleFromKotlin public void setDeviceConnected(boolean);
     method @InaccessibleFromKotlin public void setLifecycleState(androidx.lifecycle.Lifecycle.State);
