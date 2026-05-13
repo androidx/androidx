@@ -535,4 +535,6 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
             }
         }
     }
+
+    override val virtualPixelDensity: Float = 2000f
 }

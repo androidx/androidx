@@ -21,9 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.util.DisplayMetrics
 import android.view.View
-import androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -56,18 +54,7 @@ internal class EntityShadowRendererImpl(
     private var isVisible = false
 
     private val marginInMeters: Float
-        get() {
-            val defaultPixelDensity =
-                if (spatialApiVersion > 2) {
-                    xrExtensions.underlyingObject.config.defaultPixelsPerMeter()
-                } else {
-                    xrExtensions.config.defaultPixelsPerMeter(
-                        DisplayMetrics.DENSITY_DEVICE_STABLE.toFloat() /
-                            DisplayMetrics.DENSITY_DEFAULT.toFloat()
-                    )
-                }
-            return PANEL_BORDER_ADDED_MARGIN / defaultPixelDensity
-        }
+        get() = PANEL_BORDER_ADDED_MARGIN / RuntimeUtils.getDefaultPixelsPerMeter(xrExtensions)
 
     override fun enableShadow() {
         if (panelEntity != null) return
