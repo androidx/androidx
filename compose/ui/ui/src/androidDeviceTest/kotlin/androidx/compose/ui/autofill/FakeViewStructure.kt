@@ -16,11 +16,15 @@
 
 package androidx.compose.ui.autofill
 
+import android.credentials.GetCredentialException
+import android.credentials.GetCredentialRequest
+import android.credentials.GetCredentialResponse
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
+import android.os.OutcomeReceiver
 import android.view.View
 import android.view.ViewStructure
 import android.view.autofill.AutofillId
@@ -78,6 +82,8 @@ internal data class FakeViewStructure(
     @JvmField var localeList: LocaleList? = null,
 ) : ViewStructure() {
     @JvmField var extras: Bundle = Bundle()
+    @JvmField var credentialRequest: Any? = null
+    @JvmField var credentialCallback: Any? = null
 
     override fun getChildCount() = children.count()
 
@@ -283,5 +289,20 @@ internal data class FakeViewStructure(
 
     override fun setTextStyle(size: Float, fgColor: Int, bgColor: Int, style: Int) {
         TODO("not implemented")
+    }
+
+    @RequiresApi(35)
+    override fun setPendingCredentialRequest(
+        request: GetCredentialRequest,
+        callback: OutcomeReceiver<GetCredentialResponse, GetCredentialException>,
+    ) {
+        this.credentialRequest = request
+        this.credentialCallback = callback
+    }
+
+    @RequiresApi(35)
+    override fun clearCredentialManagerRequest() {
+        this.credentialRequest = null
+        this.credentialCallback = null
     }
 }

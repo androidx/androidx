@@ -37,6 +37,7 @@ import androidx.compose.ui.semantics.SemanticsInfo
 import androidx.compose.ui.semantics.SemanticsListener
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.state.ToggleableState
@@ -366,5 +367,7 @@ private fun SemanticsConfiguration.isRelatedToAutofill(): Boolean {
     return props.contains(SemanticsActions.OnAutofillText) ||
         props.contains(SemanticsActions.OnFillData) ||
         props.contains(SemanticsProperties.ContentType) ||
-        props.contains(SemanticsProperties.ContentDataType)
+        props.contains(SemanticsProperties.ContentDataType) ||
+        (Build.VERSION.SDK_INT >= 34 &&
+            props.contains(SemanticsPropertiesAndroid.CredentialRequest))
 }

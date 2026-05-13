@@ -4616,6 +4616,14 @@ package androidx.compose.ui.semantics {
     property public int rowSpan;
   }
 
+  @RequiresApi(34) public final class CredentialRequestData {
+    ctor public CredentialRequestData(android.credentials.GetCredentialRequest request, android.os.OutcomeReceiver<android.credentials.GetCredentialResponse,android.credentials.GetCredentialException> callback);
+    method @InaccessibleFromKotlin public android.os.OutcomeReceiver<android.credentials.GetCredentialResponse,android.credentials.GetCredentialException> getCallback();
+    method @InaccessibleFromKotlin public android.credentials.GetCredentialRequest getRequest();
+    property public android.os.OutcomeReceiver<android.credentials.GetCredentialResponse,android.credentials.GetCredentialException> callback;
+    property public android.credentials.GetCredentialRequest request;
+  }
+
   public final class CustomAccessibilityAction {
     ctor public CustomAccessibilityAction(String label, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<java.lang.Boolean> getAction();
@@ -4941,8 +4949,10 @@ package androidx.compose.ui.semantics {
 
   public final class SemanticsPropertiesAndroid {
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityClassName();
+    method @InaccessibleFromKotlin @RequiresApi(34) public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CredentialRequestData> getCredentialRequest();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getTestTagsAsResourceId();
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityClassName;
+    property @RequiresApi(34) public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CredentialRequestData> CredentialRequest;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> TestTagsAsResourceId;
     field public static final androidx.compose.ui.semantics.SemanticsPropertiesAndroid INSTANCE;
   }
@@ -5125,10 +5135,13 @@ package androidx.compose.ui.semantics {
     method public static <T> androidx.compose.ui.semantics.SemanticsPropertyKey<T> SemanticsPropertyKey(String name, String accessibilityExtraKey, optional kotlin.jvm.functions.Function2<? super T?,? super T,? extends T?> mergePolicy);
     method @BytecodeOnly public static androidx.compose.ui.semantics.SemanticsPropertyKey! SemanticsPropertyKey$default(String!, String!, kotlin.jvm.functions.Function2!, int, Object!);
     method @InaccessibleFromKotlin public static String getAccessibilityClassName(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method @InaccessibleFromKotlin @RequiresApi(34) public static androidx.compose.ui.semantics.CredentialRequestData getCredentialRequest(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static boolean getTestTagsAsResourceId(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static void setAccessibilityClassName(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
+    method @InaccessibleFromKotlin @RequiresApi(34) public static void setCredentialRequest(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.CredentialRequestData);
     method @InaccessibleFromKotlin public static void setTestTagsAsResourceId(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
     property public static String androidx.compose.ui.semantics.SemanticsPropertyReceiver.accessibilityClassName;
+    property @RequiresApi(34) public static androidx.compose.ui.semantics.CredentialRequestData androidx.compose.ui.semantics.SemanticsPropertyReceiver.credentialRequest;
     property public static boolean androidx.compose.ui.semantics.SemanticsPropertyReceiver.testTagsAsResourceId;
   }
 
