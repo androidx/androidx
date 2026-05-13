@@ -17,6 +17,7 @@
 package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.Trackable
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory
@@ -27,6 +28,7 @@ import androidx.xr.arcore.testing.internal.FakeRuntimeEye
 import androidx.xr.arcore.testing.internal.FakeRuntimeFace
 import androidx.xr.arcore.testing.internal.FakeRuntimeHand
 import androidx.xr.arcore.testing.internal.FakeRuntimeRenderViewpoint
+import androidx.xr.arcore.testing.internal.PendingTrackablesProvider
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.ExperimentalSceneSignalApi
@@ -39,7 +41,7 @@ import org.junit.rules.ExternalResource
  * A JUnit Rule for creating a test environment for ARCore for Jetpack XR applications. This rule
  * allows you to write unit tests where you alter the state of the perception system.
  */
-public class ArCoreTestRule : ExternalResource() {
+public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
 
     private val _persistedAnchorPoses: MutableMap<UUID, Pose> = mutableMapOf()
     private val _planes: MutableList<TestPlane> = mutableListOf()
@@ -49,6 +51,8 @@ public class ArCoreTestRule : ExternalResource() {
 
     internal lateinit var runtime: FakePerceptionRuntime
         private set
+
+    internal val pendingTrackables: MutableSet<TestTrackable> = mutableSetOf()
 
     /**
      * The maximum number of [androidx.xr.arcore.Anchor] objects that can be loaded at once in the
@@ -219,36 +223,23 @@ public class ArCoreTestRule : ExternalResource() {
      */
     public fun addTrackables(vararg trackables: TestTrackable) {
         trackables.forEach {
+            if (it.isAddedToTestRule) return@forEach
             it.arCoreTestRule = this
             when (it) {
                 is TestPlane -> {
                     _planes.add(it)
-                    if (it.isConfigured()) {
-                        runtime.perceptionManager.trackables.add(it.fakeRuntimeTrackable)
-                    }
                 }
                 is TestAugmentedObject -> {
                     _objects.add(it)
-                    if (it.isConfigured()) {
-                        runtime.perceptionManager.trackables.add(it.fakeRuntimeTrackable)
-                    }
                 }
                 is TestFace -> {
                     _faceMeshes.add(it)
-                    if (it.isConfigured()) {
-                        runtime.perceptionManager.trackables.add(it.fakeRuntimeTrackable)
-                    }
                 }
                 is TestAugmentedImage -> {
                     _images.add(it)
-                    if (it.isConfigured()) {
-                        runtime.perceptionManager.trackables.add(it.fakeRuntimeTrackable)
-                    }
                 }
             }
-            // TODO: b/497925970 ensure trackables added before they get configured are
-            // retroactively added to the PerceptionManager
-            updateFakeRuntimeTrackable(it)
+            pendingTrackables.add(it)
         }
         FakePerceptionRuntime.allowOneMoreCallToUpdate()
     }
@@ -277,83 +268,9 @@ public class ArCoreTestRule : ExternalResource() {
         FakePerceptionRuntime.allowOneMoreCallToUpdate()
     }
 
-    @Suppress("DEPRECATION")
-    private fun updateFakeRuntimeTrackable(testTrackable: TestTrackable) {
-        when (testTrackable) {
-            is TestPlane -> {
-                if (!testTrackable.isConfigured()) {
-                    return
-                }
-                testTrackable.fakeRuntimeTrackable.apply {
-                    centerPose = testTrackable.centerPose
-                    type = testTrackable.type.toRuntimeType()
-                    label = testTrackable.label.toRuntimeType()
-                    extents = testTrackable.extents
-                    vertices = testTrackable.vertices
-                    subsumedBy = testTrackable.subsumedBy?.fakeRuntimeTrackable
-                    trackingState =
-                        if (testTrackable.isVisible) {
-                            TrackingState.TRACKING
-                        } else {
-                            TrackingState.PAUSED
-                        }
-                }
-            }
-            is TestAugmentedObject -> {
-                if (!testTrackable.isConfigured()) {
-                    return
-                }
-                testTrackable.fakeRuntimeTrackable.apply {
-                    centerPose = testTrackable.centerPose
-                    extents = testTrackable.extents
-                    category = testTrackable.category
-                    trackingState =
-                        if (testTrackable.isVisible) {
-                            TrackingState.TRACKING
-                        } else {
-                            TrackingState.PAUSED
-                        }
-                }
-            }
-            is TestFace -> {
-                if (!testTrackable.isConfigured()) {
-                    return
-                }
-                testTrackable.fakeRuntimeTrackable.apply {
-                    centerPose = testTrackable.centerPose
-                    mesh = testTrackable.mesh
-                    noseTipPose = testTrackable.noseTipPose
-                    foreheadLeftPose = testTrackable.foreheadLeftPose
-                    foreheadRightPose = testTrackable.foreheadRightPose
-                    trackingState =
-                        if (testTrackable.isVisible) {
-                            TrackingState.TRACKING
-                        } else {
-                            TrackingState.PAUSED
-                        }
-                }
-            }
-            is TestAugmentedImage -> {
-                if (!testTrackable.isConfigured()) {
-                    return
-                }
-                testTrackable.fakeRuntimeTrackable.apply {
-                    centerPose = testTrackable.centerPose
-                    extents = testTrackable.extents
-                    index = testTrackable.index
-                    trackingState =
-                        if (testTrackable.isVisible) {
-                            TrackingState.TRACKING
-                        } else {
-                            TrackingState.PAUSED
-                        }
-                }
-            }
-        }
-    }
-
     internal fun registerWithRuntime(fakePerceptionRuntime: FakePerceptionRuntime) {
         runtime = fakePerceptionRuntime
+        runtime.addPendingTrackableProvider(this)
         for ((uuid, pose) in persistedAnchorPoses) {
             if (runtime.config.anchorPersistence == AnchorPersistenceMode.LOCAL) {
                 runtime.perceptionManager.persistedAnchorUUIDs[uuid] = pose
@@ -374,5 +291,19 @@ public class ArCoreTestRule : ExternalResource() {
         FakePerceptionRuntimeFactory.arCoreTestRule = null
         // TODO b/448689133: Remove this when no longer necessary
         androidx.xr.arcore.testing.FakePerceptionRuntimeFactory.createNewFakeRuntime = false
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    override fun getPendingTrackables(): Set<Trackable> {
+        val configuredPendingTrackables: MutableSet<Trackable> = mutableSetOf()
+        val pending = pendingTrackables.iterator()
+        while (pending.hasNext()) {
+            val testTrackable = pending.next()
+            if (testTrackable.isTrackableConfigured()) {
+                configuredPendingTrackables.add(testTrackable.fakeRuntimeTrackable)
+                pending.remove()
+            }
+        }
+        return configuredPendingTrackables
     }
 }

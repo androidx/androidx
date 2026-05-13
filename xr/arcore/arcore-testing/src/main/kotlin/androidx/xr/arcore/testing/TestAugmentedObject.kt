@@ -32,12 +32,12 @@ import androidx.xr.runtime.math.Pose
  */
 public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTrackable() {
 
-    internal val fakeRuntimeTrackable = FakeRuntimeAugmentedObject(category = category)
+    override val fakeRuntimeTrackable = FakeRuntimeAugmentedObject(category = category)
 
     override var isVisible: Boolean = true
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.trackingState =
                     if (value) {
                         TrackingState.TRACKING
@@ -51,7 +51,7 @@ public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTracka
     public var category: AugmentedObjectCategory = category
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.category = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -60,7 +60,7 @@ public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTracka
     public var centerPose: Pose = Pose()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.centerPose = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -69,13 +69,13 @@ public class TestAugmentedObject(category: AugmentedObjectCategory) : TestTracka
     public var extents: FloatSize3d = FloatSize3d()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.extents = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    internal fun isConfigured(): Boolean =
+    override fun isTrackableConfigured(): Boolean =
         if (isAddedToTestRule)
             arCoreTestRule.runtime.config.augmentedObjectCategories.contains(category)
         else false

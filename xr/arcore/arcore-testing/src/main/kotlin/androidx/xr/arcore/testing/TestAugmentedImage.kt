@@ -31,12 +31,12 @@ import androidx.xr.runtime.math.Pose
  */
 public class TestAugmentedImage(index: Int) : TestTrackable() {
 
-    internal val fakeRuntimeTrackable = FakeRuntimeAugmentedImage(index = index)
+    override val fakeRuntimeTrackable = FakeRuntimeAugmentedImage(index = index)
 
     override var isVisible: Boolean = true
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.trackingState =
                     if (value) {
                         TrackingState.TRACKING
@@ -50,7 +50,7 @@ public class TestAugmentedImage(index: Int) : TestTrackable() {
     public var index: Int = index
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.index = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -59,7 +59,7 @@ public class TestAugmentedImage(index: Int) : TestTrackable() {
     public var centerPose: Pose = Pose()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.centerPose = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -68,13 +68,13 @@ public class TestAugmentedImage(index: Int) : TestTrackable() {
     public var extents: FloatSize2d = FloatSize2d()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.extents = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    internal fun isConfigured(): Boolean =
+    override fun isTrackableConfigured(): Boolean =
         if (isAddedToTestRule)
             arCoreTestRule.runtime.config.augmentedImageDatabase?.entries?.getOrNull(index) != null
         else false

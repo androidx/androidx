@@ -31,7 +31,7 @@ public class TestFace public constructor() : TestTrackable() {
     override var isVisible: Boolean = true
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (isTrackableConfigured()) {
                 fakeRuntimeTrackable.trackingState =
                     if (value) {
                         TrackingState.TRACKING
@@ -42,7 +42,7 @@ public class TestFace public constructor() : TestTrackable() {
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    internal val fakeRuntimeTrackable: FakeRuntimeFace =
+    override val fakeRuntimeTrackable: FakeRuntimeFace =
         FakeRuntimeFace(
             trackingState =
                 if (isVisible) {
@@ -55,7 +55,7 @@ public class TestFace public constructor() : TestTrackable() {
     public var centerPose: Pose = Pose()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.centerPose = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -64,7 +64,7 @@ public class TestFace public constructor() : TestTrackable() {
     public var mesh: Mesh = Mesh(null, null, null, null)
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.mesh = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -73,7 +73,7 @@ public class TestFace public constructor() : TestTrackable() {
     public var noseTipPose: Pose = Pose()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.noseTipPose = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -82,7 +82,7 @@ public class TestFace public constructor() : TestTrackable() {
     public var foreheadLeftPose: Pose = Pose()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.foreheadLeftPose = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
@@ -91,14 +91,14 @@ public class TestFace public constructor() : TestTrackable() {
     public var foreheadRightPose: Pose = Pose()
         set(value) {
             field = value
-            if (isConfigured()) {
+            if (canBeTracked) {
                 fakeRuntimeTrackable.foreheadRightPose = value
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
     @SuppressWarnings("RestrictedApiAndroidX")
-    internal fun isConfigured() =
+    override fun isTrackableConfigured() =
         if (isAddedToTestRule) arCoreTestRule.runtime.config.faceTracking == FaceTrackingMode.MESHES
         else false
 }

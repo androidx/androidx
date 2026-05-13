@@ -234,7 +234,6 @@ package androidx.xr.arcore.testing {
   }
 
   public abstract class TestTrackable {
-    ctor public TestTrackable();
     method @InaccessibleFromKotlin public abstract boolean isVisible();
     method @InaccessibleFromKotlin public abstract void setVisible(boolean);
     property public abstract boolean isVisible;
