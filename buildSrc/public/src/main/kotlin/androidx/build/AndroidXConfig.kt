@@ -33,6 +33,11 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
         sdkString.toInt()
     }
 
+    override val minorApiLevel: Int? by lazy {
+        val minorString = project.extraPropertyOrNull(MINOR_API_LEVEL)?.toString()
+        minorString?.toInt()
+    }
+
     override val latestStableCompileSdk: Int by lazy {
         val sdkString = project.extraPropertyOrNull(LATEST_STABLE_COMPILE_SDK)?.toString()
         check(sdkString != null) { "$LATEST_STABLE_COMPILE_SDK is unset" }
@@ -44,6 +49,11 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
         extString?.toInt()
     }
 
+    override val latestStableMinorApiLevel: Int? by lazy {
+        val minorString = project.extraPropertyOrNull(LATEST_STABLE_MINOR_API_LEVEL)?.toString()
+        minorString?.toInt()
+    }
+
     override val minSdk: Int = 23
 
     override val targetSdk: Int by lazy {
@@ -52,8 +62,10 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
 
     companion object {
         private const val COMPILE_SDK = "androidx.compileSdk"
+        private const val MINOR_API_LEVEL = "androidx.minorApiLevel"
         private const val LATEST_STABLE_COMPILE_SDK = "androidx.latestStableCompileSdk"
         private const val LATEST_COMPILE_SDK_EXTENSION = "androidx.latestCompileSdkExtension"
+        private const val LATEST_STABLE_MINOR_API_LEVEL = "androidx.latestStableMinorApiLevel"
         private const val TARGET_SDK_VERSION = "androidx.targetSdkVersion"
 
         /**
@@ -63,7 +75,9 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
         val GRADLE_PROPERTIES =
             listOf(
                 COMPILE_SDK,
+                MINOR_API_LEVEL,
                 LATEST_STABLE_COMPILE_SDK,
+                LATEST_STABLE_MINOR_API_LEVEL,
                 LATEST_COMPILE_SDK_EXTENSION,
                 TARGET_SDK_VERSION,
             )
@@ -86,6 +100,14 @@ interface AndroidConfig {
     val compileSdk: Int
 
     /**
+     * The minor API level of the [compileSdk] that is available to use for AndroidX projects, or
+     * null if there isn't one.
+     *
+     * This may be specified in `gradle.properties` using `androidx.minorApiLevel`.
+     */
+    val minorApiLevel: Int?
+
+    /**
      * The latest stable compile SDK version that is available to use for AndroidX projects.
      *
      * This may be specified in `gradle.properties` using `androidx.latestStableCompileSdk`.
@@ -99,6 +121,14 @@ interface AndroidConfig {
      * This may be specified in `gradle.properties` using `androidx.latestCompileSdkExtension`.
      */
     val latestCompileSdkExtension: Int?
+
+    /**
+     * The minor API level of the [latestStableCompileSdk] that is available to use for AndroidX
+     * projects, or null if there isn't one.
+     *
+     * This may be specified in `gradle.properties` using `androidx.latestStableMinorApiLevel`.
+     */
+    val latestStableMinorApiLevel: Int?
 
     /** Default minimum SDK version used for AndroidX projects. */
     val minSdk: Int
@@ -137,9 +167,11 @@ fun Project.getPrebuiltsRoot(): File {
 fun Project.getAndroidJar(
     sdkNum: Int = project.defaultAndroidConfig.compileSdk,
     extNum: Int? = null,
+    minorNum: Int? = project.defaultAndroidConfig.minorApiLevel,
 ): FileCollection {
     val extString = extNum?.let { "-ext$it" }.orEmpty()
-    val compileSdk = "android-${sdkNum}$extString"
+    val minorString = minorNum?.let { ".$it" }.orEmpty()
+    val compileSdk = "android-${sdkNum}$minorString$extString"
     return files(
         arrayOf(
             File(getSdkPath(), "platforms/$compileSdk/android.jar"),

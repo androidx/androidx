@@ -23,10 +23,14 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 
 /** Returns a file tree representing the platform SDK suitable for use as a dependency. */
-fun Project.getSdkDependency(): FileTree =
-    fileTree("${getSdkPath()}/platforms/android-${project.defaultAndroidConfig.compileSdk}/") {
+fun Project.getSdkDependency(): FileTree {
+    val minorSuffix = project.defaultAndroidConfig.minorApiLevel?.let { ".$it" }.orEmpty()
+    return fileTree(
+        "${getSdkPath()}/platforms/android-${project.defaultAndroidConfig.compileSdk}$minorSuffix/"
+    ) {
         it.include("android.jar")
     }
+}
 
 /** Returns the root project's platform-specific SDK path as a file. */
 fun Project.getSdkPath(): File {

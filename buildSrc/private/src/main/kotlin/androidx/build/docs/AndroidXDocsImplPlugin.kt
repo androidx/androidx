@@ -661,8 +661,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     )
                     androidJars.setFrom(
                         project.getAndroidJar(
-                            project.defaultAndroidConfig.latestStableCompileSdk,
-                            project.defaultAndroidConfig.latestCompileSdkExtension,
+                            sdkNum = project.defaultAndroidConfig.latestStableCompileSdk,
+                            extNum = project.defaultAndroidConfig.latestCompileSdkExtension,
+                            minorNum = project.defaultAndroidConfig.latestStableMinorApiLevel,
                         )
                     )
                     nonKmpDependenciesClasspath.from(nonKmpDependencyClasspath)
