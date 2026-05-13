@@ -38,6 +38,21 @@ import java.nio.ByteOrder;
 class MetadataListReader {
 
     /**
+     * Maximum size of the emoji metadata. 10MB is more than enough for current emoji metadata.
+     */
+    private static final int MAX_METADATA_SIZE = 10 * 1024 * 1024;
+
+    /**
+     * SFNT version for TrueType fonts.
+     */
+    private static final int SFNT_VERSION_TTF = 0x00010000;
+
+    /**
+     * SFNT version for OpenType fonts with CFF data.
+     */
+    private static final int SFNT_VERSION_OTTO = 'O' << 24 | 'T' << 16 | 'T' << 8 | 'O';
+
+    /**
      * Meta tag for emoji metadata. This string is used by the font update script to insert the
      * emoji meta into the font. This meta table contains the list of all emojis which are stored in
      * binary format using FlatBuffers. This flat list is later converted by the system into a trie.
@@ -68,6 +83,12 @@ class MetadataListReader {
         final OffsetInfo offsetInfo = findOffsetInfo(openTypeReader);
         // skip to where metadata is
         openTypeReader.skip((int) (offsetInfo.getStartOffset() - openTypeReader.getPosition()));
+
+        // Ensure the metadata length is within reasonable bounds before allocation.
+        if (offsetInfo.getLength() > MAX_METADATA_SIZE) {
+            throw new IOException("Metadata length is too large.");
+        }
+
         // allocate a ByteBuffer and read into it since FlatBuffers can read only from a ByteBuffer
         final ByteBuffer buffer = ByteBuffer.allocate((int) offsetInfo.getLength());
         final int numRead = inputStream.read(buffer.array());
@@ -87,6 +108,12 @@ class MetadataListReader {
         final ByteBuffer newBuffer = byteBuffer.duplicate();
         final OpenTypeReader reader = new ByteBufferReader(newBuffer);
         final OffsetInfo offsetInfo = findOffsetInfo(reader);
+
+        // Ensure the metadata length is within reasonable bounds.
+        if (offsetInfo.getLength() > MAX_METADATA_SIZE) {
+            throw new IOException("Metadata length is too large.");
+        }
+
         // skip to where metadata is
         newBuffer.position((int) offsetInfo.getStartOffset());
         return MetadataList.getRootAsMetadataList(newBuffer);
@@ -114,12 +141,18 @@ class MetadataListReader {
      * @throws IOException
      */
     private static OffsetInfo findOffsetInfo(OpenTypeReader reader) throws IOException {
-        // skip sfnt version
-        reader.skip(OpenTypeReader.UINT32_BYTE_COUNT);
+        final long sfntVersion = reader.readUnsignedInt();
+        if (sfntVersion != SFNT_VERSION_TTF && sfntVersion != SFNT_VERSION_OTTO) {
+            // The file must be a valid TrueType or OpenType font.
+            throw new IOException("Cannot read metadata.");
+        }
         // start of Table Count
         final int tableCount = reader.readUnsignedShort();
         if (tableCount > 100) {
-            //something is wrong quit
+            // A typical font contains between 10 and 20 tables (e.g., cmap, glyf, head). Even
+            // extremely complex fonts with extensive OpenType features rarely exceed 40-50
+            // tables. A limit of 100 provides a 2x safety margin for all known legitimate fonts
+            // while preventing a large loop that could hang the main thread during font loading.
             throw new IOException("Cannot read metadata.");
         }
         //skip to begining of tables data
@@ -146,6 +179,14 @@ class MetadataListReader {
             reader.skip(
                     OpenTypeReader.UINT16_BYTE_COUNT * 2 + OpenTypeReader.UINT32_BYTE_COUNT * 2);
             final long mapsCount = reader.readUnsignedInt();
+            if (mapsCount > 100) {
+                // The 'meta' table stores high-level metadata as tag-data pairs (e.g., 'dlng' for
+                // design languages, or the 'Emji' tag used here). It typically contains fewer
+                // than 10 entries. A limit of 100 is far beyond any reasonable usage for a
+                // legitimate font and protects against malicious files attempting to cause CPU
+                // exhaustion during the linear search for the emoji metadata.
+                throw new IOException("Cannot read metadata.");
+            }
             for (int i = 0; i < mapsCount; i++) {
                 final int tag = reader.readTag();
                 final long dataOffset = reader.readUnsignedInt();
