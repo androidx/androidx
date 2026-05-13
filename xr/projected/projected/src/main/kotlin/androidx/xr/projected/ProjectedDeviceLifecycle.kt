@@ -30,6 +30,7 @@ import androidx.xr.projected.platform.ProjectedDeviceState
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /** Class representing lifecycle of a Projected device. */
@@ -108,6 +109,13 @@ internal class ProjectedDeviceLifecycle(
             serviceConnection?.isServiceConnected?.collect { isConnected ->
                 if (isConnected) {
                     handleLifecycleEventOnMainThread(Event.ON_CREATE)
+                    // Wait for the lifecycle to reach State.CREATED before registering the listener
+                    // to ensure the service connection is fully established and the lifecycle
+                    // is in a state to receive events.
+                    registry.currentStateFlow.first { state -> state == State.CREATED }
+                    projectedService?.registerProjectedDeviceStateListener(
+                        projectedDeviceStateListener
+                    )
                 } else {
                     if (registry.currentState.isAtLeast(State.CREATED)) {
                         handleLifecycleEventOnMainThread(Event.ON_DESTROY)
@@ -118,7 +126,6 @@ internal class ProjectedDeviceLifecycle(
 
         try {
             projectedService = serviceConnection?.connect()
-            projectedService?.registerProjectedDeviceStateListener(projectedDeviceStateListener)
         } catch (_: IllegalStateException) {
             // TODO(b/467064995) - Implement a proper error handling mechanism.
         }
