@@ -22,8 +22,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.HandlePressedScope
-import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.SelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
@@ -52,7 +52,8 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     override val pointerAreaTag = "selectionContainer"
 
     private val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
-    private val currentSelection = mutableStateOf<Selection?>(null)
+
+    private val state = SelectionState()
 
     private lateinit var asserter: TextSelectionAsserter
 
@@ -66,7 +67,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
                     textToolbar = textToolbar,
                     spyTextActionModeCallback = spyTextActionModeCallback,
                     hapticFeedback = hapticFeedback,
-                    getActual = { currentSelection.value },
+                    getActual = { state.selection },
                 ) {
                 override fun subAssert() {
                     Truth.assertAbout(SelectionSubject.withContent(textContent))
@@ -82,11 +83,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
 
     @Composable
     override fun Content() {
-        SelectionContainer(
-            selection = currentSelection.value,
-            onSelectionChange = { currentSelection.value = it },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
+        SelectionContainer(state = state, modifier = Modifier.fillMaxWidth()) {
             BasicText(
                 text = textContent.value,
                 style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),

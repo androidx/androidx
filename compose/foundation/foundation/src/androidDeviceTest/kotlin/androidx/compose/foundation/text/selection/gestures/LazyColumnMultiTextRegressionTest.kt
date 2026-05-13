@@ -34,13 +34,12 @@ import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallba
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.assertSelectionHandlesShown
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
@@ -206,7 +205,7 @@ class LazyColumnMultiTextRegressionTest {
     @Suppress("DEPRECATION")
     private inner class TestScope(
         private val pointerAreaTag: String,
-        private val selectionState: MutableState<Selection?>,
+        private val selectionState: SelectionState,
         private val clipboardManager: ClipboardManager,
         private val clipboard: Clipboard,
         private val textToolbar: TextToolbarWrapper,
@@ -215,7 +214,7 @@ class LazyColumnMultiTextRegressionTest {
     ) {
         val initialText = "Initial text"
         val selection: Selection?
-            get() = Snapshot.withoutReadObservation { selectionState.value }
+            get() = Snapshot.withoutReadObservation { selectionState.selection }
 
         val textToolbarRect: Rect?
             get() = textToolbar.mostRecentRect
@@ -399,7 +398,7 @@ class LazyColumnMultiTextRegressionTest {
     @Suppress("DEPRECATION")
     private fun runTest(block: TestScope.() -> Unit) {
         val tag = "tag"
-        val selection = mutableStateOf<Selection?>(null)
+        val state = SelectionState()
         val testViewConfiguration = TestViewConfiguration(minimumTouchTargetSize = DpSize.Zero)
         val spyTextActionModeCallback = SpyTextActionModeCallback()
         lateinit var clipboardManager: ClipboardManager
@@ -420,11 +419,7 @@ class LazyColumnMultiTextRegressionTest {
                     LocalViewConfiguration provides testViewConfiguration,
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        SelectionContainer(
-                            modifier = Modifier.height(100.dp),
-                            selection = selection.value,
-                            onSelectionChange = { selection.value = it },
-                        ) {
+                        SelectionContainer(modifier = Modifier.height(100.dp), state = state) {
                             LazyColumn(modifier = Modifier.testTag(tag)) {
                                 items(count = textCount) {
                                     BasicText(
@@ -447,7 +442,7 @@ class LazyColumnMultiTextRegressionTest {
         val scope =
             TestScope(
                 tag,
-                selection,
+                state,
                 clipboardManager,
                 clipboard,
                 textToolbar,

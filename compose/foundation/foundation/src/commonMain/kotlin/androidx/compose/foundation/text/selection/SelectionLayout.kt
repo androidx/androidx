@@ -19,8 +19,8 @@ package androidx.compose.foundation.text.selection
 import androidx.collection.LongIntMap
 import androidx.collection.LongObjectMap
 import androidx.collection.MutableLongIntMap
-import androidx.collection.MutableLongObjectMap
 import androidx.collection.buildLongObjectMap
+import androidx.collection.emptyLongObjectMap
 import androidx.collection.longObjectMapOf
 import androidx.collection.mutableLongIntMapOf
 import androidx.collection.mutableLongObjectMapOf
@@ -237,56 +237,34 @@ private class MultiSelectionLayout(
     }
 
     override fun createSubSelections(selection: Selection): LongObjectMap<Selection> =
-        // Selection is within one selectable, we can return a singleton map of this selection.
-        if (selection.start.selectableId == selection.end.selectableId) {
-            // this check, if not passed, leads to exceptions when selection
-            // highlighting is rendered, so check here instead.
-            checkPrecondition(
-                (selection.handlesCrossed && selection.start.offset >= selection.end.offset) ||
-                    (!selection.handlesCrossed && selection.start.offset <= selection.end.offset)
-            ) {
-                "unexpectedly miss-crossed selection: $selection"
-            }
-            longObjectMapOf(selection.start.selectableId, selection)
-        } else
-            mutableLongObjectMapOf<Selection>().apply {
-                val minAnchor = with(selection) { if (handlesCrossed) end else start }
-                createAndPutSubSelection(
-                    selection,
-                    firstInfo,
-                    minAnchor.offset,
-                    firstInfo.textLength,
-                )
-
-                forEachMiddleInfo { info ->
-                    createAndPutSubSelection(selection, info, minOffset = 0, info.textLength)
+        createSubSelections(
+            selection = selection,
+            sortedItems = infoList,
+            getId = { it.selectableId },
+            getSelectAll = { info, _ ->
+                if (selection.handlesCrossed) {
+                    info.makeSingleLayoutSelection(info.textLength, 0)
+                } else {
+                    info.makeSingleLayoutSelection(0, info.textLength)
                 }
-
-                val maxAnchor = with(selection) { if (handlesCrossed) start else end }
-                createAndPutSubSelection(selection, lastInfo, minOffset = 0, maxAnchor.offset)
-            }
-
-    private fun MutableLongObjectMap<Selection>.createAndPutSubSelection(
-        selection: Selection,
-        info: SelectableInfo,
-        minOffset: Int,
-        maxOffset: Int,
-    ) {
-        val subSelection =
-            if (selection.handlesCrossed) {
-                info.makeSingleLayoutSelection(start = maxOffset, end = minOffset)
-            } else {
-                info.makeSingleLayoutSelection(start = minOffset, end = maxOffset)
-            }
-
-        // this check, if not passed, leads to exceptions when selection
-        // highlighting is rendered, so check here instead.
-        checkPrecondition(minOffset <= maxOffset) {
-            "minOffset should be less than or equal to maxOffset: $subSelection"
-        }
-
-        put(info.selectableId, subSelection)
-    }
+            },
+            createBoundarySelection = { info, isStart, offset, _ ->
+                val isCrossed = selection.handlesCrossed
+                if (isStart) {
+                    if (isCrossed) {
+                        info.makeSingleLayoutSelection(start = offset, end = 0)
+                    } else {
+                        info.makeSingleLayoutSelection(start = offset, end = info.textLength)
+                    }
+                } else {
+                    if (isCrossed) {
+                        info.makeSingleLayoutSelection(start = info.textLength, end = offset)
+                    } else {
+                        info.makeSingleLayoutSelection(start = 0, end = offset)
+                    }
+                }
+            },
+        )
 
     override fun toString(): String =
         "MultiSelectionLayout(isStartHandle=$isStartHandle, " +
@@ -768,4 +746,49 @@ internal fun Selection?.isCollapsed(layout: SelectionLayout?): Boolean {
     }
 
     return allTextsEmpty
+}
+
+internal fun <T> createSubSelections(
+    selection: Selection,
+    sortedItems: List<T>,
+    getId: (T) -> Long,
+    getSelectAll: (T, handlesCrossed: Boolean) -> Selection?,
+    createBoundarySelection:
+        (item: T, isStart: Boolean, offset: Int, handlesCrossed: Boolean) -> Selection?,
+): LongObjectMap<Selection> {
+    val startId = selection.start.selectableId
+    val endId = selection.end.selectableId
+
+    if (startId == endId) {
+        return longObjectMapOf(startId, selection)
+    }
+
+    val startIndex = sortedItems.indexOfFirst { getId(it) == startId }
+    val endIndex = sortedItems.indexOfFirst { getId(it) == endId }
+
+    if (startIndex == -1 || endIndex == -1) {
+        return emptyLongObjectMap()
+    }
+
+    val firstIndex = minOf(startIndex, endIndex)
+    val lastIndex = maxOf(startIndex, endIndex)
+    val handlesCrossed = startIndex > endIndex
+
+    val result = mutableLongObjectMapOf<Selection>()
+
+    for (i in firstIndex..lastIndex) {
+        val item = sortedItems[i]
+        val id = getId(item)
+
+        val subSelection =
+            when (id) {
+                startId ->
+                    createBoundarySelection(item, true, selection.start.offset, handlesCrossed)
+                endId -> createBoundarySelection(item, false, selection.end.offset, handlesCrossed)
+                else -> getSelectAll(item, handlesCrossed)
+            }
+        subSelection?.let { result[id] = it }
+    }
+
+    return result
 }

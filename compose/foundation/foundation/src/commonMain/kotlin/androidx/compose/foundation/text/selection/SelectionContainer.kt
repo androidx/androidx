@@ -28,7 +28,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -50,19 +49,44 @@ import kotlinx.coroutines.launch
  * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn], within a [SelectionContainer] has
  * undefined behavior on text items that aren't composed. For example, texts that aren't composed
  * will not be included in copy operations and select all will not expand the selection to include
- * them.
+ * them. However, selected lazy layout items will be pinned so that they don't leave composition
+ * when scrolled off-screen.
  *
+ * @param modifier [Modifier] for SelectionContainer.
+ * @param content The content to be selectable.
  * @sample androidx.compose.foundation.samples.SelectionSample
  */
 @Composable
 fun SelectionContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    var selection by remember { mutableStateOf<Selection?>(null) }
-    SelectionContainer(
-        modifier = modifier,
-        selection = selection,
-        onSelectionChange = { selection = it },
-        children = content,
-    )
+    val state = rememberSelectionState()
+    SelectionContainer(modifier = modifier, state = state, children = content)
+}
+
+/**
+ * Enables text selection for its direct or indirect children. Allows passing in a [SelectionState]
+ * to observe currently selected text or perform selection actions such as selectAll or clear.
+ *
+ * Use of a lazy layout, such as [LazyRow][androidx.compose.foundation.lazy.LazyRow] or
+ * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn], within a [SelectionContainer] has
+ * undefined behavior on text items that aren't composed. For example, texts that aren't composed
+ * will not be included in copy operations and select all will not expand the selection to include
+ * them. However, selected lazy layout items will be pinned so that they don't disappear when
+ * scrolled off-screen.
+ *
+ * @param state [SelectionState] object containing the currently selected text and selection
+ *   actions. It is invalid for the same SelectionState to be passed to multiple
+ *   SelectionContainers.
+ * @param modifier [Modifier] for SelectionContainer.
+ * @param content The content to be selectable.
+ * @sample androidx.compose.foundation.samples.SelectAllSample
+ */
+@Composable
+fun SelectionContainer(
+    state: SelectionState,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    SelectionContainer(modifier = modifier, state = state, children = content)
 }
 
 /**
@@ -87,10 +111,8 @@ fun DisableSelection(content: @Composable () -> Unit) {
 internal fun SelectionContainer(
     /** A [Modifier] for SelectionContainer. */
     modifier: Modifier = Modifier,
-    /** Current Selection status. */
-    selection: Selection?,
-    /** A function containing customized behaviour when selection changes. */
-    onSelectionChange: (Selection?) -> Unit,
+    /** A [SelectionState] that holds current selection, selected text, and selection actions. */
+    state: SelectionState,
     /** Used for tests */
     onSelectionManagerCreated: ((SelectionManager) -> Unit)? = null,
     children: @Composable () -> Unit,
@@ -117,8 +139,11 @@ internal fun SelectionContainer(
             } else null
         }
     manager.textToolbar = LocalTextToolbar.current
-    manager.onSelectionChange = onSelectionChange
-    manager.selection = selection
+    manager.selection = state.selection
+    manager.onSelectionChange = { newSelection ->
+        state.selection = newSelection
+        state.updateSelectedTexts(manager.getSelectedTexts())
+    }
     @OptIn(ExperimentalFoundationApi::class)
     if (ComposeFoundationFlags.isSmartSelectionEnabled) {
         manager.platformSelectionBehaviors =
@@ -198,6 +223,22 @@ internal fun SelectionContainer(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    DisposableEffect(state, manager) {
+        if (state.manager != null && state.manager !== manager) {
+            error(
+                "A SelectionState can only be bound to one SelectionContainer. " +
+                    "Please use rememberSelectionState() to create a unique state for each container."
+            )
+        }
+        state.manager = manager
+        onDispose {
+            if (state.manager === manager) {
+                state.manager = null
+                state.selection = null
             }
         }
     }

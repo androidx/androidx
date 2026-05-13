@@ -117,14 +117,14 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         rule.onSelectionContainer().performTouchInput {
             longClick(Offset(x = position, y = position))
         }
-        rule.runOnIdle { assertThat(selection.value).isNotNull() }
+        rule.runOnIdle { assertThat(state.selection).isNotNull() }
 
         // Act.
         rule.onSelectionContainer().performTouchInput { click(Offset(x = position, y = position)) }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(selection.value).isNull()
+            assertThat(state.selection).isNull()
             verify(hapticFeedback, times(2))
                 .performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
@@ -174,8 +174,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
 
             rule.mainClock.advanceTimeByFrame()
             // Assert. Should select "Demo".
-            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
-            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
+            assertThat(state.selection!!.start.offset).isEqualTo(textContent.indexOf('D'))
+            assertThat(state.selection!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
             verify(hapticFeedback, times(1))
                 .performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
@@ -216,8 +216,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             rule.mainClock.advanceTimeByFrame()
 
             // Assert. Should select "Demo".
-            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('T'))
-            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('t') + 1)
+            assertThat(state.selection!!.start.offset).isEqualTo(textContent.indexOf('T'))
+            assertThat(state.selection!!.end.offset).isEqualTo(textContent.indexOf('t') + 1)
             verify(hapticFeedback, times(1))
                 .performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
@@ -253,8 +253,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         startSelection(tag1)
         dragHandleTo(Handle.SelectionEnd, offset = characterBox(tag2, 3).bottomRight)
 
-        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = 4, selectableId = 2)
+        assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = 4, selectableId = 2)
     }
 
     @Test
@@ -277,8 +277,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         startSelection(tag2, offset = 6) // second word should be selected
         dragHandleTo(Handle.SelectionStart, offset = characterBox(tag1, 5).bottomLeft)
 
-        assertAnchorInfo(selection.value?.start, offset = 5, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = 9, selectableId = 2)
+        assertAnchorInfo(state.selection?.start, offset = 5, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = 9, selectableId = 2)
     }
 
     @Test
@@ -303,8 +303,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         startSelection(tag1)
         dragHandleTo(Handle.SelectionEnd, offset = characterBox(tag2, 3).bottomRight)
 
-        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = textContent.length, selectableId = 1)
+        assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = textContent.length, selectableId = 1)
     }
 
     @Test
@@ -337,8 +337,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         startSelection(tag1)
         dragHandleTo(Handle.SelectionEnd, offset = characterBox(tag2, 3).bottomRight)
 
-        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = 4, selectableId = 2)
+        assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = 4, selectableId = 2)
     }
 
     @Test
@@ -362,8 +362,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 offset = characterBox(tag1, 4).bottomRight + Offset(x = 0f, y = fontSize.toPx()),
             )
 
-            assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-            assertAnchorInfo(selection.value?.end, offset = longText.length, selectableId = 1)
+            assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = longText.length, selectableId = 1)
         }
 
     @Test
@@ -388,8 +388,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 offset = characterBox(tag1, 4).bottomRight + Offset(x = 0f, y = fontSize.toPx()),
             )
 
-            assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-            assertAnchorInfo(selection.value?.end, offset = longText.length, selectableId = 1)
+            assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = longText.length, selectableId = 1)
         }
 
     @Test
@@ -412,8 +412,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         startSelection(tag1)
         dragHandleTo(handle = Handle.SelectionEnd, offset = characterBox(tag2, 4).bottomRight)
 
-        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 3)
+        assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = 5, selectableId = 3)
     }
 
     @Test
@@ -436,8 +436,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         startSelection(tag1)
         dragHandleTo(handle = Handle.SelectionEnd, offset = characterBox(tag2, 4).bottomRight)
 
-        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 3)
+        assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(state.selection?.end, offset = 5, selectableId = 3)
     }
 
     /**
@@ -558,7 +558,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             rule.onNodeWithTag(tag1, useUnmergedTree = true).performClick()
 
             // Assert.
-            rule.runOnIdle { assertThat(selection.value).isNull() }
+            rule.runOnIdle { assertThat(state.selection).isNull() }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -588,7 +588,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             rule.onNodeWithTag(tag1, useUnmergedTree = true).performClick()
 
             // Assert.
-            rule.runOnIdle { assertThat(selection.value).isNull() }
+            rule.runOnIdle { assertThat(state.selection).isNull() }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
         }
 
@@ -601,8 +601,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                     movableContentOf {
                         SelectionContainer(
                             modifier = Modifier.testTag("selectionContainer"),
-                            selection = selection.value,
-                            onSelectionChange = { selection.value = it },
+                            state = state,
                         ) {
                             TestText(textContent)
                         }
@@ -622,15 +621,15 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
 
             // Assert.
             rule.mainClock.advanceTimeByFrame()
-            assertAnchorInfo(selection.value?.start, offset = 5, selectableId = 1)
-            assertAnchorInfo(selection.value?.end, offset = 9, selectableId = 1)
+            assertAnchorInfo(state.selection?.start, offset = 5, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = 9, selectableId = 1)
 
             // Act 2. Remove movableContentOf from composition
             toggle = false
             rule.mainClock.advanceTimeByFrame()
 
             // Assert. No crash is enough
-            assertThat(selection.value).isNull()
+            assertThat(state.selection).isNull()
         }
 
     class DragGesture(
@@ -735,6 +734,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         withTextSelectionAutoScrollingEnabled {
             lateinit var selectionManager: SelectionManager
             val scrollState by mutableStateOf(ScrollState(0))
+            val selectionState = SelectionState()
             rule.setContent {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Box(
@@ -748,8 +748,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                                 .testTag("container")
                     ) {
                         SelectionContainer(
-                            selection = selection.value,
-                            onSelectionChange = { selection.value = it },
+                            state = selectionState,
                             onSelectionManagerCreated = { selectionManager = it },
                         ) {
                             Box(
@@ -790,9 +789,9 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             assertWithMessage("Failed to scroll to the end")
                 .that(scrollState.value + scrollState.viewportSize)
                 .isEqualTo(contentSize.height)
-            assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
+            assertAnchorInfo(selectionState.selection?.start, offset = 0, selectableId = 1)
             assertAnchorInfo(
-                selection.value?.end,
+                selectionState.selection?.end,
                 offset = 6, // "Line49".length
                 selectableId = 50,
             )
@@ -833,6 +832,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         withTextSelectionAutoScrollingEnabled {
             lateinit var selectionManager: SelectionManager
             val scrollState by mutableStateOf(ScrollState(0))
+            val selectionState = SelectionState()
             val contentText = (0 until 50).joinToString(separator = "\n") { "Line$it" }
             rule.setContent {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -847,8 +847,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                                 .testTag("container")
                     ) {
                         SelectionContainer(
-                            selection = selection.value,
-                            onSelectionChange = { selection.value = it },
+                            state = selectionState,
                             onSelectionManagerCreated = { selectionManager = it },
                         ) {
                             Box(
@@ -885,8 +884,12 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 .that(scrollState.value + scrollState.viewportSize)
                 .isEqualTo(contentSize.height)
 
-            assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
-            assertAnchorInfo(selection.value?.end, offset = contentText.length, selectableId = 1)
+            assertAnchorInfo(selectionState.selection?.start, offset = 0, selectableId = 1)
+            assertAnchorInfo(
+                selectionState.selection?.end,
+                offset = contentText.length,
+                selectableId = 1,
+            )
 
             assertThat(selectionManager.getSelectedText()?.text).isEqualTo(contentText)
         }
@@ -946,12 +949,12 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             val listState = LazyListState()
             val pinnedItemIndices = mutableSetOf<Int>()
             lateinit var selectionManager: SelectionManager
+            val selectionState = SelectionState()
             rule.setContent {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Box(Modifier.size(200.dp).testTag("container")) {
                         SelectionContainer(
-                            selection = selection.value,
-                            onSelectionChange = { selection.value = it },
+                            state = selectionState,
                             onSelectionManagerCreated = { selectionManager = it },
                         ) {
                             LazyColumn(state = listState) {
@@ -993,9 +996,9 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             assertWithMessage("Failed to scroll to the end")
                 .that(listState.canScrollForward)
                 .isFalse()
-            assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
+            assertAnchorInfo(selectionState.selection?.start, offset = 0, selectableId = 1)
             assertAnchorInfo(
-                selection.value?.end,
+                selectionState.selection?.end,
                 offset = 6, // "Line49".length
                 selectableId = 50,
             )
@@ -1006,7 +1009,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
 
             // Clear the selection and verify everything has been unpinned
             rule.onNodeWithTag("text49").performTouchInput { click() }
-            assertThat(selection.value).isNull()
+            assertThat(selectionState.selection).isNull()
             assertThat(pinnedItemIndices.isEmpty()).isTrue()
         }
     }
