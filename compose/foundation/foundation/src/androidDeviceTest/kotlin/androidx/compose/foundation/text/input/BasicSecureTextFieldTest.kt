@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import android.database.ContentObserver
-import android.net.Uri
+import android.os.Looper
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.ContentResolverForSecureTextField
+import androidx.compose.foundation.text.LocalTextFieldContentObserverRegistrationExecutor
 import androidx.compose.foundation.text.contentResolverForSecureTextField
 import androidx.compose.foundation.text.contextmenu.internal.ProvidePlatformTextContextMenuToolbar
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
@@ -74,6 +75,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -728,18 +730,59 @@ internal class BasicSecureTextFieldTest {
         }
     }
 
+    @Test
+    fun contentObserver_registersAndUnregistersOnBackgroundThread() = testSystemShowPassword {
+        val shouldCompose = mutableStateOf(true)
+        val backgroundExecutor = Executors.newSingleThreadExecutor()
+        onDestroy { backgroundExecutor.shutdown() }
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalTextFieldContentObserverRegistrationExecutor provides backgroundExecutor
+            ) {
+                if (shouldCompose.value) {
+                    BasicSecureTextField(rememberTextFieldState())
+                }
+            }
+        }
+
+        rule.waitUntil(5000) { registerCount == 1 }
+        assertThat(registerThread).isNotEqualTo(Looper.getMainLooper().thread)
+
+        shouldCompose.value = false
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.waitUntil(5000) { unregisterCount == 1 }
+        assertThat(unregisterThread).isNotEqualTo(Looper.getMainLooper().thread)
+    }
+
+    @Test
+    fun contentObserver_registersOnMainThreadByDefault() = testSystemShowPassword {
+        rule.setContent { BasicSecureTextField(rememberTextFieldState()) }
+
+        rule.waitForIdle()
+        assertRegistrationCount(1)
+        assertThat(registerThread).isEqualTo(Looper.getMainLooper().thread)
+    }
+
     private inline fun testSystemShowPassword(block: SystemPasswordControl.() -> Unit) {
+        val control = SystemPasswordControl()
         try {
-            block(SystemPasswordControl())
+            block(control)
         } finally {
             resetContentResolverForSecureTextField()
+            control.destroyAction?.invoke()
         }
     }
 
     private class SystemPasswordControl() {
         var registeredContentObserver: ContentObserver? = null
-        var registerCount: Int = 0
-        var unregisterCount: Int = 0
+        @Volatile var registerCount: Int = 0
+        @Volatile var unregisterCount: Int = 0
+        @Volatile var registerThread: Thread? = null
+        @Volatile var unregisterThread: Thread? = null
+
+        var destroyAction: (() -> Unit)? = null
 
         // initialize to false
         var currentShowPassword = false
@@ -747,16 +790,14 @@ internal class BasicSecureTextFieldTest {
         init {
             contentResolverForSecureTextField = {
                 object : ContentResolverForSecureTextField {
-                    override fun registerContentObserver(
-                        uri: Uri,
-                        notifyForDescendants: Boolean,
-                        observer: ContentObserver,
-                    ) {
+                    override fun registerContentObserver(observer: ContentObserver) {
+                        registerThread = Thread.currentThread()
                         registeredContentObserver = observer
                         registerCount++
                     }
 
                     override fun unregisterContentObserver(observer: ContentObserver) {
+                        unregisterThread = Thread.currentThread()
                         registeredContentObserver = null
                         unregisterCount++
                     }
@@ -780,6 +821,10 @@ internal class BasicSecureTextFieldTest {
 
         fun assertUnregistrationCount(count: Int) {
             assertThat(unregisterCount).isEqualTo(count)
+        }
+
+        fun onDestroy(block: () -> Unit) {
+            this.destroyAction = block
         }
     }
 }
