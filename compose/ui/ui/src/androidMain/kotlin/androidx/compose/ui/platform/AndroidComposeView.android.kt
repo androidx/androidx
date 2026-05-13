@@ -54,6 +54,7 @@ import android.view.MotionEvent.TOOL_TYPE_ERASER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import android.view.MotionEvent.TOOL_TYPE_STYLUS
 import android.view.ScrollCaptureTarget
+import android.view.SoundEffectConstants
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
@@ -81,6 +82,7 @@ import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -919,11 +921,36 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     /** Set to `true` when [sendHoverExitEvent] has been posted. */
     private var hoverExitReceived = false
 
+    @VisibleForTesting
+    internal var playNavigationSoundEffect: (FocusDirection, Boolean) -> Unit =
+        AndroidComposeViewNavigationSoundEffect(this)
+
     // Determines scroll/swipe to next or previous focusable element for indirect pointer events.
     private val indirectPointerNavigationGestureDetector =
         IndirectPointerNavigationGestureDetector(context) {
             focusOwner.moveFocus(focusDirection = it, wrapAroundForOneDimensionalFocus = false)
         }
+
+    private class AndroidComposeViewNavigationSoundEffect(private val view: View) :
+        (FocusDirection, Boolean) -> Unit {
+
+        override fun invoke(direction: FocusDirection, isFastScrolling: Boolean) {
+            @OptIn(ExperimentalComposeUiApi::class)
+            if (!AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) return
+
+            val androidDirection = direction.toAndroidFocusDirection() ?: return
+
+            val soundToPlay =
+                if (SDK_INT >= 31) {
+                    Api31Impl.getConstantForFocusDirection(androidDirection, isFastScrolling)
+                } else {
+                    // "Contant" is a typo in the framework API
+                    SoundEffectConstants.getContantForFocusDirection(androidDirection)
+                }
+
+            view.playSoundEffect(soundToPlay)
+        }
+    }
 
     /** Callback for [measureAndLayout] to update the pointer position 150ms after layout. */
     private val resendMotionEventOnLayout: () -> Unit = {
@@ -1240,7 +1267,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
         // If the root has focus, it means a sub-view is focused,
         // and is trying to move focus within itself.
-        if (hasFocus() && moveFocusInChildren(focusDirection)) return true
+        if (hasFocus() && moveFocusInChildren(focusDirection)) {
+            return true
+        }
 
         var foundFocusable = false
         val focusSearchResult =
@@ -1313,13 +1342,17 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             ) {
                 it.requestFocus(focusDirection)
             }
-        if (requestFocusWithPrevRect == true) return true
+        if (requestFocusWithPrevRect == true) {
+            return true
+        }
 
         val requestFocusWithoutPrevRect =
             focusOwner.focusSearch(focusDirection = focusDirection, focusedRect = null) {
                 it.requestFocus(focusDirection)
             }
-        if (requestFocusWithoutPrevRect == true) return true
+        if (requestFocusWithoutPrevRect == true) {
+            return true
+        }
 
         // If we landed on this view and a sub-view already has focus, it means that FocusFinder
         // could not find something else to focus on, and rolled over and returned back to this
@@ -3550,18 +3583,21 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     focusOwner.activeFocusTargetNode?.isInteropViewHost == true &&
                         moveFocusInChildren(focusDirection)
                 ) {
+                    playNavigationSoundEffect(focusDirection, event.nativeKeyEvent.repeatCount > 0)
                     return true
                 }
 
                 val focusedRect = getEmbeddedViewFocusRect()
-                val focusWasMovedOrCancelled =
+                val focusMoved =
                     focusOwner.focusSearch(focusDirection, focusedRect) {
                         it.requestFocus(focusDirection)
-                    } ?: true
+                    } ?: return true // null == cancel
 
-                // Consume the key event if we moved focus or if focus search or requestFocus is
-                // cancelled.
-                if (focusWasMovedOrCancelled) return true
+                // Consume the key event if we moved focus and play the sound effect
+                if (focusMoved) {
+                    playNavigationSoundEffect(focusDirection, event.nativeKeyEvent.repeatCount > 0)
+                    return true
+                }
 
                 // We ideally don't consume the key event, and let the framework handle it. This
                 // will move to embedded views or sibling views as needed. However for 1D focus
@@ -3587,18 +3623,26 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 if (hasFocus() && androidDirection != null) {
                     // A child AndroidView is focused. See if the view has a child that should be
                     // focused next.
-                    if (moveFocusInChildren(focusDirection)) return true
+                    if (moveFocusInChildren(focusDirection)) {
+                        playNavigationSoundEffect(
+                            focusDirection,
+                            event.nativeKeyEvent.repeatCount > 0,
+                        )
+                        return true
+                    }
                 }
             }
             val focusedRect = getEmbeddedViewFocusRect()
 
-            // Consume the key event if we moved focus or if focus search or requestFocus is
-            // cancelled.
-            val focusWasMovedOrCancelled =
+            val focusMoved =
                 focusOwner.focusSearch(focusDirection, focusedRect) {
                     it.requestFocus(focusDirection)
-                } ?: true
-            if (focusWasMovedOrCancelled) return true
+                } ?: return true // null = cancelled
+
+            if (focusMoved) {
+                playNavigationSoundEffect(focusDirection, event.nativeKeyEvent.repeatCount > 0)
+                return true
+            }
 
             // For 2D focus search, we don't need to wrap around, so we just return false. If there
             // are
@@ -3922,6 +3966,15 @@ private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionWrapper?
 @RequiresApi(30)
 private object Api30Impl {
     @DoNotInline fun isShowingLayoutBounds(view: View) = view.isShowingLayoutBounds
+}
+
+/** Split out to avoid class verification errors. This class will only be loaded when SDK >= 31. */
+@RequiresApi(31)
+private object Api31Impl {
+    @DoNotInline
+    fun getConstantForFocusDirection(direction: Int, isFastScrolling: Boolean): Int {
+        return SoundEffectConstants.getConstantForFocusDirection(direction, isFastScrolling)
+    }
 }
 
 @RequiresApi(35)

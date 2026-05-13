@@ -931,7 +931,9 @@ class SemanticsTests {
             .assert(
                 SemanticsMatcher("collapse onClick") {
                     it.config.getOrNull(SemanticsActions.OnClick)?.label == actionLabel &&
-                        it.config.getOrNull(SemanticsActions.OnClick)?.action?.invoke() == true
+                        rule.runOnIdle {
+                            it.config.getOrNull(SemanticsActions.OnClick)?.action?.invoke()
+                        } == true
                 }
             )
     }
@@ -953,7 +955,9 @@ class SemanticsTests {
             .assert(
                 SemanticsMatcher("collapse onClick") {
                     it.config.getOrNull(SemanticsActions.OnClick)?.label == actionLabel &&
-                        it.config.getOrNull(SemanticsActions.OnClick)?.action?.invoke() == true
+                        rule.runOnIdle {
+                            it.config.getOrNull(SemanticsActions.OnClick)?.action?.invoke()
+                        } == true
                 }
             )
     }

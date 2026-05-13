@@ -37,6 +37,7 @@ import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags.isMediaQueryIntegrationEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalMediaQueryApi
@@ -480,12 +481,23 @@ private constructor(
         val scrollCaptureInProgress =
             LocalScrollCaptureInProgress.current or owner.scrollCaptureInProgress
         val hostDefaultProvider = remember(owner.view) { ViewTreeHostDefaultProvider(owner.view) }
+        val soundEffect =
+            remember(owner.view) {
+                if (AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) {
+                    AndroidSoundEffect(owner.view)
+                } else {
+                    object : SoundEffect {
+                        override fun playClickSound() {}
+                    }
+                }
+            }
         @Suppress("UNCHECKED_CAST")
         CompositionLocalProvider(
             LocalLifecycleOwner provides lifecycleOwner,
             LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
             LocalImageVectorCache provides imageVectorCache,
             LocalResourceIdCache provides resourceIdCache,
+            LocalSoundEffect provides soundEffect,
             LocalContext provides owner.context,
             LocalInspectionTables provides inspectionTable,
             LocalConfiguration provides owner.configuration,

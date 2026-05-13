@@ -74,11 +74,13 @@ package androidx.compose.ui {
     property public boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     property public boolean isAlwaysScrollDuringScrollCaptureEnabled;
     property public boolean isFrameworkVelocityTrackerEnabled;
+    property public boolean isInteractionSoundEffectsEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     field public static boolean isAlwaysScrollDuringScrollCaptureEnabled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
+    field public static boolean isInteractionSoundEffectsEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
   }
 
@@ -4207,6 +4209,7 @@ package androidx.compose.ui.platform {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<androidx.compose.ui.text.intl.LocaleList> getLocalLocaleList();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> getLocalScrollCaptureInProgress();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> getLocalSoftwareKeyboardController();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoundEffect> getLocalSoundEffect();
     method @InaccessibleFromKotlin @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> getLocalTextInputService();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> getLocalTextToolbar();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> getLocalUriHandler();
@@ -4230,6 +4233,7 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.CompositionLocal<androidx.compose.ui.text.intl.LocaleList> LocalLocaleList;
     property public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> LocalScrollCaptureInProgress;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> LocalSoftwareKeyboardController;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoundEffect> LocalSoundEffect;
     property @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> LocalTextInputService;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> LocalTextToolbar;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
@@ -4339,6 +4343,15 @@ package androidx.compose.ui.platform {
   @androidx.compose.runtime.Stable public interface SoftwareKeyboardController {
     method public void hide();
     method public void show();
+  }
+
+  public interface SoundEffect {
+    method public void playClickSound();
+  }
+
+  public final class SoundEffectOnInteraction_androidKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void SoundEffectOnInteraction(boolean enabled, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void SoundEffectOnInteraction(boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
   }
 
   public final class TestTagKt {

@@ -84,4 +84,13 @@ object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isAlwaysScrollDuringScrollCaptureEnabled: Boolean = true
+
+    /**
+     * If enabled, interactions (like clicks) will automatically trigger interaction sound effects
+     * on Android.
+     */
+    // TODO: Remove this flag once it has soaked (b/495886959)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isInteractionSoundEffectsEnabled: Boolean = true
 }
