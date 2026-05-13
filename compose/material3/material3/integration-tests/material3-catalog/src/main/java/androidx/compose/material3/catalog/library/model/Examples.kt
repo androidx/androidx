@@ -167,7 +167,7 @@ import androidx.compose.material3.samples.ModalNavigationDrawerSample
 import androidx.compose.material3.samples.ModalWideNavigationRailSample
 import androidx.compose.material3.samples.MultiAspectCarouselLazyRowSample
 import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
-import androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
+import androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
 import androidx.compose.material3.samples.MultiSelectionListItemSample
 import androidx.compose.material3.samples.MultiSelectionSegmentedListItemSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
@@ -244,7 +244,7 @@ import androidx.compose.material3.samples.SimpleTextFieldSample
 import androidx.compose.material3.samples.SimpleTopAppBar
 import androidx.compose.material3.samples.SimpleTopAppBarWithAdaptiveActions
 import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
-import androidx.compose.material3.samples.SingleSelectConnectedButtonGroupWithFlowLayoutSample
+import androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
 import androidx.compose.material3.samples.SingleSelectionListItemSample
 import androidx.compose.material3.samples.SingleSelectionSegmentedListItemSample
 import androidx.compose.material3.samples.SliderSample
@@ -581,20 +581,20 @@ val ButtonGroupsExamples =
             ButtonGroupSample()
         },
         Example(
-            name = "SingleSelectConnectedButtonGroupWithFlowLayoutSample",
+            name = "SingleSelectConnectedButtonGroupSample",
             description = ButtonGroupsExampleDescription,
             sourceUrl = ButtonGroupsExampleSourceUrl,
             isExpressive = true,
         ) {
-            SingleSelectConnectedButtonGroupWithFlowLayoutSample()
+            SingleSelectConnectedButtonGroupSample()
         },
         Example(
-            name = "MultiSelectConnectedButtonGroupWithFlowLayoutSample",
+            name = "MultiSelectConnectedButtonGroupSample",
             description = ButtonGroupsExampleDescription,
             sourceUrl = ButtonGroupsExampleSourceUrl,
             isExpressive = true,
         ) {
-            MultiSelectConnectedButtonGroupWithFlowLayoutSample()
+            MultiSelectConnectedButtonGroupSample()
         },
         Example(
             name = "VerticalButtonGroupSample",
