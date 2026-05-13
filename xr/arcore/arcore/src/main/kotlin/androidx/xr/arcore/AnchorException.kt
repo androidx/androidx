@@ -39,9 +39,3 @@ public class AnchorRuntimeFailureException(
     message: String = "Unable to create anchor due to failure in the runtime.",
     cause: Throwable? = null,
 ) : RuntimeException(message, cause)
-
-/** Anchor was not created because the object is not anchorable. */
-public class AnchorUnsupportedObjectException(
-    message: String = "Unable to create anchor. Object is not anchorable.",
-    cause: Throwable? = null,
-) : RuntimeException(message, cause)
