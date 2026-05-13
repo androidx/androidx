@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
+import androidx.compose.ui.test.registerIdlingResource
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.espresso.Espresso
 import androidx.test.filters.LargeTest
