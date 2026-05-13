@@ -22,6 +22,7 @@ import androidx.camera.core.CameraPresenceListener
 import androidx.camera.core.CameraState
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.annotation.ExecutedBy
+import androidx.camera.core.impl.utils.Threads
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.lifecycle.Observer
 import java.util.concurrent.CopyOnWriteArrayList
@@ -334,9 +335,21 @@ public class CameraPresenceProvider(
                         backgroundExecutor.execute { triggerRefreshWithRetries() }
                     }
                 }
-            CameraXExecutors.mainThreadExecutor().execute {
-                cameraInfoInternal.cameraState.observeForever(stateObserver)
+
+            val observationTask = Runnable {
+                try {
+                    cameraInfoInternal.cameraState.observeForever(stateObserver)
+                } catch (e: RuntimeException) {
+                    Logger.e(TAG, "Failed to observe camera state for camera: $cameraIdStr", e)
+                }
             }
+
+            if (Threads.isMainThread()) {
+                observationTask.run()
+            } else {
+                CameraXExecutors.mainThreadExecutor().execute(observationTask)
+            }
+
             cameraStateObservers[cameraIdStr] = stateObserver
             Logger.d(TAG, "Registered state observer for camera: $cameraIdStr")
         }
@@ -399,9 +412,24 @@ public class CameraPresenceProvider(
             if (observer != null && repo != null) {
                 try {
                     val cameraInternal = repo.getCamera(systemCameraId)
-                    CameraXExecutors.mainThreadExecutor().execute {
-                        cameraInternal.cameraInfoInternal.cameraState.removeObserver(observer)
+                    val removalTask = Runnable {
+                        try {
+                            cameraInternal.cameraInfoInternal.cameraState.removeObserver(observer)
+                        } catch (e: RuntimeException) {
+                            Logger.e(
+                                TAG,
+                                "Failed to remove state observer for camera: $systemCameraId",
+                                e,
+                            )
+                        }
                     }
+
+                    if (Threads.isMainThread()) {
+                        removalTask.run()
+                    } else {
+                        CameraXExecutors.mainThreadExecutor().execute(removalTask)
+                    }
+
                     Logger.d(TAG, "Removed state observer for: $systemCameraId")
                 } catch (_: IllegalArgumentException) {
                     // Safe to ignore. Camera was already removed from repo.
@@ -423,19 +451,26 @@ public class CameraPresenceProvider(
 
         val repo = cameraRepository
         if (repo != null) {
-            val cameraInfosToRemoveObserver =
-                repo.cameras.mapNotNull { cameraInternal -> cameraInternal?.cameraInfoInternal }
+            val cameras = repo.cameras
             Logger.d(TAG, "Clearing all ${observersToClear.size} state observers.")
+
             observersToClear.forEach { (cameraId, observer) ->
-                CameraXExecutors.mainThreadExecutor().execute {
+                val cameraInternal =
+                    cameras.firstOrNull { it.cameraInfoInternal.cameraId == cameraId }
+                        ?: return@forEach
+                val removalTask = Runnable {
                     try {
-                        cameraInfosToRemoveObserver
-                            .firstOrNull { it.cameraId == cameraId }
-                            ?.cameraState
-                            ?.removeObserver(observer)
-                    } catch (_: IllegalArgumentException) {
-                        // Safe to ignore, the camera might have already been removed.
+                        cameraInternal.cameraInfoInternal.cameraState.removeObserver(observer)
+                    } catch (e: RuntimeException) {
+                        // Catching RuntimeException (including CME) to prevent looper death.
+                        Logger.e(TAG, "Failed to remove state observer for camera $cameraId", e)
                     }
+                }
+
+                if (Threads.isMainThread()) {
+                    removalTask.run()
+                } else {
+                    CameraXExecutors.mainThreadExecutor().execute(removalTask)
                 }
             }
         }
