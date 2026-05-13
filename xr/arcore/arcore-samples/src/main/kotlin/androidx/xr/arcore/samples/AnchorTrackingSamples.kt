@@ -23,7 +23,6 @@ import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.AnchorCreateTrackingUnavailable
 import androidx.xr.arcore.AnchorRuntimeFailureException
 import androidx.xr.arcore.AnchorUnsupportedLocationException
-import androidx.xr.arcore.AnchorUnsupportedObjectException
 import androidx.xr.arcore.TrackingState
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -89,9 +88,6 @@ fun callCreateAnchor(session: Session, pose: Pose) {
     } catch (e: AnchorUnsupportedLocationException) {
         // This exception is thrown when the underlying runtime does not support creating an anchor
         // at the provided location.
-    } catch (e: AnchorUnsupportedObjectException) {
-        // This exception is thrown when attempting to create an anchor from an object that does not
-        // implement the Anchorable interface.
     } catch (e: AnchorRuntimeFailureException) {
         // This exception is thrown when an unspecified error was encountered in the runtime while
         // attempting to create the anchor.

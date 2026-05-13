@@ -68,12 +68,6 @@ package androidx.xr.arcore {
     ctor @BytecodeOnly public AnchorUnsupportedLocationException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public final class AnchorUnsupportedObjectException extends java.lang.RuntimeException {
-    ctor public AnchorUnsupportedObjectException();
-    ctor public AnchorUnsupportedObjectException(optional String message, optional Throwable? cause);
-    ctor @BytecodeOnly public AnchorUnsupportedObjectException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-  }
-
   public interface Anchorable<T> extends androidx.xr.arcore.Trackable<T> {
     method public androidx.xr.arcore.AnchorResult createAnchor(androidx.xr.runtime.math.Pose pose);
   }
@@ -555,7 +549,6 @@ package androidx.xr.arcore {
   }
 
   public final class HitResult {
-    method public androidx.xr.arcore.AnchorResult createAnchor();
     method @InaccessibleFromKotlin public float getDistance();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getHitPose();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> getTrackable();
