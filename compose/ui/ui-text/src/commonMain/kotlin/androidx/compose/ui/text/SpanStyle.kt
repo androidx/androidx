@@ -776,13 +776,7 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
  * If one of the shadows is null, it is treated as a transparent shadow. If both are null, null is
  * returned.
  */
-@OptIn(ExperimentalTextApi::class)
 internal fun nullSafeLerp(lhs: Shadow?, rhs: Shadow?, fraction: Float): Shadow? {
-    // TODO(b/474421710) remove the next three lines once release is completed
-    if (!ComposeUiTextFlags.isCorrectShadowLerpWithNullsEnabled) {
-        return lerp(lhs ?: Shadow(), rhs ?: Shadow(), fraction)
-    }
-    // END FLAG REMOVAL BLOCK -- KEEP LINES BELOW THIS
     if (lhs == null && rhs == null) {
         return null
     }

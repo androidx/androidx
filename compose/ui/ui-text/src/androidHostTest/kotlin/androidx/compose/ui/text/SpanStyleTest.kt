@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -912,10 +911,8 @@ class SpanStyleTest {
         assertThat(newStyle.color).isEqualTo(Color.Unspecified)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lerp_shadow_start_null_interpolates() {
-        assumeTrue(ComposeUiTextFlags.isCorrectShadowLerpWithNullsEnabled)
         val start = Shadow(Color.Red, Offset(10f, 10f), 4f)
         val fraction = 0.5f
         val style1 = SpanStyle(shadow = start)
@@ -927,10 +924,8 @@ class SpanStyleTest {
             .isEqualTo(lerp(start, start.copy(color = start.color.copy(alpha = 0.0f)), fraction))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lerp_shadow_null_stop_interpolates() {
-        assumeTrue(ComposeUiTextFlags.isCorrectShadowLerpWithNullsEnabled)
         val stop = Shadow(Color.Blue, Offset(20f, 20f), 8f)
         val fraction = 0.5f
         val style1 = SpanStyle(shadow = null)
@@ -942,10 +937,8 @@ class SpanStyleTest {
             .isEqualTo(lerp(stop.copy(color = stop.color.copy(alpha = 0.0f)), stop, fraction))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lerp_shadow_start_stop_interpolates() {
-        assumeTrue(ComposeUiTextFlags.isCorrectShadowLerpWithNullsEnabled)
         val start = Shadow(Color.Red, Offset(10f, 10f), 4f)
         val stop = Shadow(Color.Blue, Offset(20f, 20f), 8f)
         val fraction = 0.5f
@@ -955,21 +948,5 @@ class SpanStyleTest {
         val newSpanStyle = lerp(start = style1, stop = style2, fraction = fraction)
 
         assertThat(newSpanStyle.shadow).isEqualTo(lerp(start, stop, fraction))
-    }
-
-    @OptIn(ExperimentalTextApi::class)
-    @Test
-    fun lerp_shadow_null_start_stop_interpolates_legacyTest() {
-        featureFlagTest(ComposeUiTextFlags::isCorrectShadowLerpWithNullsEnabled, false) {
-            val start: Shadow? = null
-            val stop = Shadow(Color.Blue, Offset(20f, 20f), 8f)
-            val fraction = 0.5f
-            val style1 = SpanStyle(shadow = start)
-            val style2 = SpanStyle(shadow = stop)
-
-            val newSpanStyle = lerp(start = style1, stop = style2, fraction = fraction)
-
-            assertThat(newSpanStyle.shadow).isEqualTo(lerp(Shadow(), stop, fraction))
-        }
     }
 }

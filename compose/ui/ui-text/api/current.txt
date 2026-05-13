@@ -166,12 +166,6 @@ package androidx.compose.ui.text {
     property public androidx.compose.ui.unit.TextUnit DefaultSize;
   }
 
-  @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public final class ComposeUiTextFlags {
-    property public boolean isCorrectShadowLerpWithNullsEnabled;
-    field public static final androidx.compose.ui.text.ComposeUiTextFlags INSTANCE;
-    field public static boolean isCorrectShadowLerpWithNullsEnabled;
-  }
-
   @kotlin.jvm.JvmInline public final value class EmojiSupportMatch {
     method @BytecodeOnly public static androidx.compose.ui.text.EmojiSupportMatch! box-impl(int);
     method @BytecodeOnly public int unbox-impl();
