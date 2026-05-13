@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -81,45 +80,6 @@ fun ButtonGroupSample() {
 @Sampled
 @Composable
 fun SingleSelectConnectedButtonGroupSample() {
-    val options = listOf("Work", "Restaurant", "Coffee")
-    val unCheckedIcons =
-        listOf(Icons.Outlined.Work, Icons.Outlined.Restaurant, Icons.Outlined.Coffee)
-    val checkedIcons = listOf(Icons.Filled.Work, Icons.Filled.Restaurant, Icons.Filled.Coffee)
-    var selectedIndex by remember { mutableIntStateOf(0) }
-
-    Row(
-        Modifier.padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-    ) {
-        val modifiers = listOf(Modifier.weight(1f), Modifier.weight(1.5f), Modifier.weight(1f))
-
-        options.forEachIndexed { index, label ->
-            ToggleButton(
-                checked = selectedIndex == index,
-                onCheckedChange = { selectedIndex = index },
-                modifier = modifiers[index].semantics { role = Role.RadioButton },
-                shapes =
-                    when (index) {
-                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                    },
-            ) {
-                Icon(
-                    if (selectedIndex == index) checkedIcons[index] else unCheckedIcons[index],
-                    contentDescription = "Localized description",
-                )
-                Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                Text(label)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Sampled
-@Composable
-fun SingleSelectConnectedButtonGroupWithFlowLayoutSample() {
     val options = listOf("Work", "Restaurant", "Coffee", "Search", "Home")
     val unCheckedIcons =
         listOf(
@@ -171,44 +131,6 @@ fun SingleSelectConnectedButtonGroupWithFlowLayoutSample() {
 @Sampled
 @Composable
 fun MultiSelectConnectedButtonGroupSample() {
-    val options = listOf("Work", "Restaurant", "Coffee")
-    val unCheckedIcons =
-        listOf(Icons.Outlined.Work, Icons.Outlined.Restaurant, Icons.Outlined.Coffee)
-    val checkedIcons = listOf(Icons.Filled.Work, Icons.Filled.Restaurant, Icons.Filled.Coffee)
-    val checked = remember { mutableStateListOf(false, false, false) }
-
-    Row(
-        Modifier.padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-    ) {
-        val modifiers = listOf(Modifier.weight(1f), Modifier.weight(1.5f), Modifier.weight(1f))
-        options.forEachIndexed { index, label ->
-            ToggleButton(
-                checked = checked[index],
-                onCheckedChange = { checked[index] = it },
-                modifier = modifiers[index],
-                shapes =
-                    when (index) {
-                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                    },
-            ) {
-                Icon(
-                    if (checked[index]) checkedIcons[index] else unCheckedIcons[index],
-                    contentDescription = "Localized description",
-                )
-                Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                Text(label)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Sampled
-@Composable
-fun MultiSelectConnectedButtonGroupWithFlowLayoutSample() {
     val options = listOf("Work", "Restaurant", "Coffee", "Search", "Home")
     val unCheckedIcons =
         listOf(

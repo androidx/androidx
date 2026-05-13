@@ -93,9 +93,7 @@ import kotlinx.coroutines.launch
  * that are asymmetric in shape and are used to make a selection.
  *
  * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupWithFlowLayoutSample
  * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
  * @param modifier the [Modifier] to be applied to the button group.
  * @param expandedRatio the percentage, represented by a float, of the width of the interacted child
  *   element that will be used to expand the interacted child element as well as compress the
@@ -157,9 +155,7 @@ fun ButtonGroup(
  * that are asymmetric in shape and are used to make a selection.
  *
  * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupWithFlowLayoutSample
  * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
  * @sample androidx.compose.material3.samples.VerticalButtonGroupSample
  * @param overflowIndicator composable that is displayed at the end of the button group if it needs
  *   to overflow. It receives a [ButtonGroupMenuState].
@@ -217,9 +213,7 @@ fun ButtonGroup(
  * that are asymmetric in shape and are used to make a selection.
  *
  * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupWithFlowLayoutSample
  * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
  * @sample androidx.compose.material3.samples.VerticalButtonGroupSample
  * @param overflowIndicator composable that is displayed at the end of the button group if it needs
  *   to overflow. It receives a [ButtonGroupMenuState].
