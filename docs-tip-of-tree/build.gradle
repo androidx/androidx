@@ -431,7 +431,6 @@ dependencies {
     docs(project(":xr:arcore:arcore-openxr"))
     docs(project(":xr:arcore:arcore-play-services"))
     docs(project(":xr:arcore:arcore-runtime"))
-    docs(project(":xr:arcore:arcore-projected"))
     docs(project(":xr:arcore:arcore-testing"))
     docs(project(":xr:compose:compose"))
     docs(project(":xr:compose:compose-testing"))
