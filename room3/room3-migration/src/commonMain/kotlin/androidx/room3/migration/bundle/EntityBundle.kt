@@ -31,6 +31,7 @@ public open class EntityBundle(
     @SerialName("primaryKey") override val primaryKey: PrimaryKeyBundle,
     @SerialName("indices") override val indices: List<IndexBundle> = emptyList(),
     @SerialName("foreignKeys") override val foreignKeys: List<ForeignKeyBundle> = emptyList(),
+    @SerialName("withoutRowId") public val withoutRowId: Boolean = false,
 ) : BaseEntityBundle(), SchemaEquality<EntityBundle> {
 
     /** Creates the list of SQL queries that are necessary to create this entity. */
@@ -43,6 +44,9 @@ public open class EntityBundle(
 
     override fun isSchemaEqual(other: EntityBundle): Boolean {
         if (tableName != other.tableName) {
+            return false
+        }
+        if (withoutRowId != other.withoutRowId) {
             return false
         }
         return checkSchemaEquality(fieldsByColumnName, other.fieldsByColumnName) &&

@@ -421,6 +421,23 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
     }
 
     @Test
+    fun withoutRowId_error() {
+        singleEntity(
+            """
+                @PrimaryKey
+                @ColumnInfo(name = "rowid")
+                public int rowId;
+                public String content;
+                """,
+            entityAttributes = mapOf("withoutRowId" to "true"),
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.FTS_ENTITY_CANNOT_USE_WITHOUT_ROWID)
+            }
+        }
+    }
+
+    @Test
     fun badPrefixValue_zero() {
         singleEntity(
             """
