@@ -97,8 +97,12 @@ internal class TextStringSimpleNode(
                 if (ComposeFoundationFlags.isInheritedTextStyleEnabled)
                     resolvedInheritedStyle ?: style
                 else style
-            if (_layoutCache == null) {
-                _layoutCache =
+            var result =
+                _layoutCache?.takeUnless {
+                    ComposeFoundationFlags.isInheritedTextStyleEnabled && it.style != style
+                }
+            if (result == null) {
+                result =
                     ParagraphLayoutCache(
                         text,
                         style,
@@ -108,8 +112,9 @@ internal class TextStringSimpleNode(
                         maxLines,
                         minLines,
                     )
+                _layoutCache = result
             }
-            return _layoutCache!!
+            return result
         }
 
     private var resolvedInheritedStyle: TextStyle? = null
@@ -125,30 +130,17 @@ internal class TextStringSimpleNode(
      */
     private fun IntrinsicMeasureScope.getLayoutCacheForMeasure(): ParagraphLayoutCache {
         if (ComposeFoundationFlags.isInheritedTextStyleEnabled) {
-            if (resolveInheritedStyle(StylePhase.Layout)) {
-                val style = resolvedInheritedStyle ?: style
-                layoutCache.update(
-                    text = text,
-                    style = style,
-                    fontFamilyResolver = fontFamilyResolver,
-                    overflow = overflow,
-                    softWrap = softWrap,
-                    maxLines = maxLines,
-                    minLines = minLines,
-                )
-            }
+            // Ensure the inherited style (if one is set) is up-to-date.
+            // If the inherited style changes the layout cache will be rebuilt in getLayoutCache().
+            resolveInheritedStyle(StylePhase.Layout)
         }
         val activeCache = getLayoutCache()
         activeCache.density = this@getLayoutCacheForMeasure
         return activeCache
     }
 
-    private fun resolveInheritedStyle(phase: StylePhase): Boolean {
-        val previousStyle = resolvedInheritedStyle
-        val newInheritedStyle = inheritedTextStyle(phase, style)
-        resolvedInheritedStyle = newInheritedStyle
-        if (previousStyle == null) return false
-        return previousStyle != newInheritedStyle
+    private fun resolveInheritedStyle(phase: StylePhase) {
+        resolvedInheritedStyle = inheritedTextStyle(phase, style)
     }
 
     /**
