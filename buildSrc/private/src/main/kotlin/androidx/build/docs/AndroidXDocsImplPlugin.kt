@@ -881,7 +881,6 @@ private val hiddenPackagesJava =
         "androidx\\.tv\\..*",
         "androidx\\.xr\\.glimmer.*",
         "androidx\\..*navigation3.*",
-        "androidx\\.media3\\.cast",
     )
 
 // List of annotations which should not be displayed in the docs

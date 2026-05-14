@@ -969,6 +969,8 @@ In Dokka K[0-9]+ it will be an error\. Also, please consider reporting your user
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/CredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See CredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean CredentialAuthPrompt\#authenticate\?
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/Class[0-9]+BiometricOrCredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See Class[0-9]+BiometricOrCredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean Class[0-9]+BiometricOrCredentialAuthPrompt\#authenticate\?
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/Class[0-9]+BiometricAuthExtensions\.kt:[0-9]+ Failed to resolve See Class[0-9]+BiometricAuthPrompt\.authenticate in DFunction authenticate\. Did you mean Class[0-9]+BiometricAuthPrompt\#authenticate\?
+# b/513146616
+WARN: Package androidx\.media3\.cast is a compose package but is included in java docs
 # https://youtrack.jetbrains.com/issue/KT-77220
 w: file://\$SUPPORT/compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/text/CoreTextField\.kt:[0-9]+:[0-9]+ Inconsistent target list for lambda annotation: \+androidx\.compose\.runtime\.DontMemoize \[EXPRESSION\] on androidx\.compose\.foundation\.text\.CoreTextField\$lambda\$[0-9]+
 # work/work-runtime/build.gradle b/407640603 and buildSrc:imports:binary-compatibility-validator:compileKotlin b/410631668
