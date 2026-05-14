@@ -255,7 +255,6 @@ dependencies {
     kmpDocs("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-beta01")
     kmpDocs("androidx.lifecycle:lifecycle-viewmodel-testing:2.11.0-beta01")
     docs("androidx.loader:loader:1.1.0")
-    docs("androidx.media:media:1.8.0")
     // androidx.media3 is not hosted in androidx
     docsWithoutApiSince("androidx.media3:media3-cast:1.10.1")
     docsWithoutApiSince("androidx.media3:media3-common:1.10.1")

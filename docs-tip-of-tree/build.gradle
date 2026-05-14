@@ -260,7 +260,6 @@ dependencies {
     docs(project(":loader:loader"))
     docs(project(":loader:loader-ktx"))
     // localbroadcastmanager is deprecated
-    docs(project(":media:media"))
     // androidx.media3 is not hosted in androidx
     docs(project(":mediarouter:mediarouter"))
     docs(project(":mediarouter:mediarouter-testing"))
