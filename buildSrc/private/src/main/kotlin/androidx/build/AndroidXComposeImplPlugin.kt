@@ -213,7 +213,8 @@ private fun configureComposeCompilerPlugin(project: Project) {
 private fun KotlinCompilationTask<*>.applyPlugin(plugins: FileCollection) =
     when (this) {
         is AbstractKotlinCompile<*> -> pluginClasspath.from(plugins)
-        is AbstractKotlinNativeCompile<*, *> -> compilerPluginClasspath = plugins
+        is AbstractKotlinNativeCompile<*, *> ->
+            compilerPluginClasspath = compilerPluginClasspath?.plus(plugins) ?: plugins
         else -> throw IllegalStateException("Unsupported Kotlin compilation task type")
     }
 
