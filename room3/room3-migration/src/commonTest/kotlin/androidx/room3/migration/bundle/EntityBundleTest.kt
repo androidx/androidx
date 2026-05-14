@@ -197,6 +197,33 @@ class EntityBundleTest {
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
+    @Test
+    fun schemaEquality_diffWithoutRowId_notEqual() {
+        val bundle =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = emptyList(),
+                withoutRowId = false,
+            )
+
+        val other =
+            EntityBundle(
+                tableName = "foo",
+                createSql = "sq",
+                fields = emptyList(),
+                primaryKey = PrimaryKeyBundle(false, listOf("foo")),
+                indices = emptyList(),
+                foreignKeys = emptyList(),
+                withoutRowId = true,
+            )
+
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
+    }
+
     private fun createFieldBundle(name: String): FieldBundle {
         return FieldBundle(
             fieldPath = "foo",

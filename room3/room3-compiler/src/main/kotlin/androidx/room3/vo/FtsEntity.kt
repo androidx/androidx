@@ -46,6 +46,7 @@ class FtsEntity(
         emptyList(),
         constructor,
         shadowTableName,
+        false,
     ) {
 
     override val createTableQuery by lazy { createTableQuery(tableName) }

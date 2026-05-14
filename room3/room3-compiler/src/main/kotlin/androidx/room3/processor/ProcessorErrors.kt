@@ -1290,4 +1290,9 @@ object ProcessorErrors {
 
     fun mismatchPairTripleQueryColumns(required: Int, typeName: String) =
         "Query returns less than $required columns but $typeName expects at least $required."
+
+    const val WITHOUT_ROWID_CANNOT_USE_AUTOINCREMENT =
+        "An entity with WITHOUT ROWID cannot use AUTOINCREMENT on their primary key."
+
+    const val FTS_ENTITY_CANNOT_USE_WITHOUT_ROWID = "An FTS entity cannot be create WITHOUT ROWID."
 }

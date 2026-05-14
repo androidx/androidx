@@ -2627,6 +2627,23 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun withoutRowId_errorAutoIncrement() {
+        val annotation = mapOf("withoutRowId" to "true")
+        singleEntity(
+            """
+                @PrimaryKey(autoGenerate = true)
+                int id;
+                String name;
+                """,
+            attributes = annotation,
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.WITHOUT_ROWID_CANNOT_USE_AUTOINCREMENT)
+            }
+        }
+    }
+
+    @Test
     fun typeAlias() {
         val src =
             Source.kotlin(

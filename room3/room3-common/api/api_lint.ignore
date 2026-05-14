@@ -5,6 +5,8 @@ GetterSetterNames: androidx.room3.Database#exportSchema:
     Invalid name for boolean property `exportSchema`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.room3.Entity#inheritSuperIndices:
     Invalid name for boolean property `inheritSuperIndices`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.room3.Entity#withoutRowId:
+    Invalid name for boolean property `withoutRowId`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.room3.ForeignKey#deferred:
     Invalid name for boolean property `deferred`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.room3.Index#unique:

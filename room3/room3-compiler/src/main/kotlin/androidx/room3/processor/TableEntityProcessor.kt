@@ -68,6 +68,7 @@ internal constructor(
                 foreignKeys = emptyList(),
                 constructor = null,
                 shadowTableName = null,
+                withoutRowId = false,
             )
         }
         context.checker.hasAnnotation(
@@ -80,16 +81,19 @@ internal constructor(
         val entityIndices: List<IndexInput>
         val foreignKeyInputs: List<ForeignKeyInput>
         val inheritSuperIndices: Boolean
+        val withoutRowId: Boolean
         if (annotation != null) {
             tableName = extractTableName(element, annotation)
             entityIndices = extractIndices(annotation, tableName)
             inheritSuperIndices = annotation["inheritSuperIndices"]?.asBoolean() ?: false
             foreignKeyInputs = extractForeignKeys(annotation)
+            withoutRowId = annotation["withoutRowId"]?.asBoolean() ?: false
         } else {
             tableName = element.name
             foreignKeyInputs = emptyList()
             entityIndices = emptyList()
             inheritSuperIndices = false
+            withoutRowId = false
         }
         context.checker.notBlank(
             tableName,
@@ -162,6 +166,13 @@ internal constructor(
             primaryKey.properties.firstOrNull()?.element ?: element,
             ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT,
         )
+        if (withoutRowId) {
+            context.checker.check(
+                !primaryKey.autoGenerateId,
+                element,
+                ProcessorErrors.WITHOUT_ROWID_CANNOT_USE_AUTOINCREMENT,
+            )
+        }
 
         val entityForeignKeys = validateAndCreateForeignKeyReferences(foreignKeyInputs, dataClass)
         checkIndicesForForeignKeys(entityForeignKeys, primaryKey, indices)
@@ -191,6 +202,7 @@ internal constructor(
                 foreignKeys = entityForeignKeys,
                 constructor = dataClass.constructor,
                 shadowTableName = null,
+                withoutRowId = withoutRowId,
             )
 
         return entity

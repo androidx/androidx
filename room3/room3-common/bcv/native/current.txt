@@ -172,7 +172,7 @@ open annotation class androidx.room3/Embedded : kotlin/Annotation { // androidx.
 }
 
 open annotation class androidx.room3/Entity : kotlin/Annotation { // androidx.room3/Entity|null[0]
-    constructor <init>(kotlin/String = ..., kotlin/Array<androidx.room3/Index> = ..., kotlin/Boolean = ..., kotlin/Array<kotlin/String> = ..., kotlin/Array<androidx.room3/ForeignKey> = ..., kotlin/Array<kotlin/String> = ...) // androidx.room3/Entity.<init>|<init>(kotlin.String;kotlin.Array<androidx.room3.Index>;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.Array<androidx.room3.ForeignKey>;kotlin.Array<kotlin.String>){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/Array<androidx.room3/Index> = ..., kotlin/Boolean = ..., kotlin/Array<kotlin/String> = ..., kotlin/Array<androidx.room3/ForeignKey> = ..., kotlin/Array<kotlin/String> = ..., kotlin/Boolean = ...) // androidx.room3/Entity.<init>|<init>(kotlin.String;kotlin.Array<androidx.room3.Index>;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.Array<androidx.room3.ForeignKey>;kotlin.Array<kotlin.String>;kotlin.Boolean){}[0]
 
     final val foreignKeys // androidx.room3/Entity.foreignKeys|{}foreignKeys[0]
         final fun <get-foreignKeys>(): kotlin/Array<androidx.room3/ForeignKey> // androidx.room3/Entity.foreignKeys.<get-foreignKeys>|<get-foreignKeys>(){}[0]
@@ -186,6 +186,8 @@ open annotation class androidx.room3/Entity : kotlin/Annotation { // androidx.ro
         final fun <get-primaryKeys>(): kotlin/Array<kotlin/String> // androidx.room3/Entity.primaryKeys.<get-primaryKeys>|<get-primaryKeys>(){}[0]
     final val tableName // androidx.room3/Entity.tableName|{}tableName[0]
         final fun <get-tableName>(): kotlin/String // androidx.room3/Entity.tableName.<get-tableName>|<get-tableName>(){}[0]
+    final val withoutRowId // androidx.room3/Entity.withoutRowId|{}withoutRowId[0]
+        final fun <get-withoutRowId>(): kotlin/Boolean // androidx.room3/Entity.withoutRowId.<get-withoutRowId>|<get-withoutRowId>(){}[0]
 }
 
 open annotation class androidx.room3/ExperimentalRoomApi : kotlin/Annotation { // androidx.room3/ExperimentalRoomApi|null[0]

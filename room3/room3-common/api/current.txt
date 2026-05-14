@@ -172,19 +172,21 @@ package androidx.room3 {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Entity {
-    ctor @KotlinOnly public Entity(optional String tableName, optional androidx.room3.Index[] indices, optional boolean inheritSuperIndices, optional String[] primaryKeys, optional androidx.room3.ForeignKey[] foreignKeys, optional String[] ignoredColumns);
+    ctor @KotlinOnly public Entity(optional String tableName, optional androidx.room3.Index[] indices, optional boolean inheritSuperIndices, optional String[] primaryKeys, optional androidx.room3.ForeignKey[] foreignKeys, optional String[] ignoredColumns, optional boolean withoutRowId);
     method @InaccessibleFromKotlin public abstract androidx.room3.ForeignKey[] foreignKeys() default {};
     method @InaccessibleFromKotlin public abstract String[] ignoredColumns() default {};
     method @InaccessibleFromKotlin public abstract androidx.room3.Index[] indices() default {};
     method @InaccessibleFromKotlin public abstract boolean inheritSuperIndices() default false;
     method @InaccessibleFromKotlin public abstract String[] primaryKeys() default {};
     method @InaccessibleFromKotlin public abstract String tableName() default "";
+    method @InaccessibleFromKotlin public abstract boolean withoutRowId() default false;
     property public abstract androidx.room3.ForeignKey[] foreignKeys;
     property public abstract String[] ignoredColumns;
     property public abstract androidx.room3.Index[] indices;
     property public abstract boolean inheritSuperIndices;
     property public abstract String[] primaryKeys;
     property public abstract String tableName;
+    property public abstract boolean withoutRowId;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRoomApi {
