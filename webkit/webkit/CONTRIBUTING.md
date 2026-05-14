@@ -10,7 +10,7 @@ repository, and then exposed in `androidx.webkit` afterwards.
 
 ## Code Location Overview
 
-![Code layout](docs/code_layout.svg)
+![Code layout](docs/code_layout.png)
 
 The code for Jetpack Webkit APIs live across the Chromium and
 AndroidX git repositories, and is split into 3 conceptual parts:
