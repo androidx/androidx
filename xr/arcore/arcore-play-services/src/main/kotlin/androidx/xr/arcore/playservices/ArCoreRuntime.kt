@@ -37,7 +37,6 @@ import com.google.ar.core.ArCoreApk
 import com.google.ar.core.ArCoreApk.Availability
 import com.google.ar.core.AugmentedImageDatabase
 import com.google.ar.core.Config as ArConfig
-import com.google.ar.core.Config as ArCoreConfig
 import com.google.ar.core.Config.AugmentedFaceMode
 import com.google.ar.core.Config.DepthMode
 import com.google.ar.core.Config.GeospatialMode as ArGeospatialMode
@@ -250,32 +249,6 @@ internal constructor(
     @RequiresApi(27)
     private fun setTextureUpdateModeToHardwareBuffer(config: ArConfig) {
         config.textureUpdateMode = TextureUpdateMode.EXPOSE_HARDWARE_BUFFER
-    }
-
-    private fun isDepthModeSupportedInArCore1x(depthEstimationMode: DepthEstimationMode): Boolean {
-        val arCoreDepthMode =
-            when (depthEstimationMode) {
-                DepthEstimationMode.SMOOTH_ONLY,
-                DepthEstimationMode.SMOOTH_AND_RAW -> ArCoreConfig.DepthMode.AUTOMATIC
-                DepthEstimationMode.RAW_ONLY -> ArCoreConfig.DepthMode.RAW_DEPTH_ONLY
-                else -> ArCoreConfig.DepthMode.DISABLED
-            }
-        return _session.isDepthModeSupported(arCoreDepthMode)
-    }
-
-    private fun isGeoSpatialModeSupportedInArCore1x(geospatialMode: GeospatialMode): Boolean {
-
-        // TODO: b/510879776 - Remove this code once GeospatialMode.INERTIAL is out in ARCore 1.55
-        if (geospatialMode == GeospatialMode.INERTIAL) {
-            return isPrototypeGeospatialModeSupported(ARCORE_GEOSPATIAL_MODE_INERTIAL)
-        }
-
-        val arCoreGeospatialMode =
-            when (geospatialMode) {
-                GeospatialMode.SPATIAL -> ArCoreConfig.GeospatialMode.ENABLED
-                else -> ArCoreConfig.GeospatialMode.DISABLED
-            }
-        return _session.isGeospatialModeSupported(arCoreGeospatialMode)
     }
 
     // TODO: b/510879776 - Remove this method once GeospatialMode.INERTIAL is out in ARCore 1.55

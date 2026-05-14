@@ -109,10 +109,6 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
         this.config = config
     }
 
-    override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
-        return xrDevicePreferredDisplayBlendMode
-    }
-
     override fun resume() {
         check(state == State.INITIALIZED || state == State.PAUSED)
         state = State.RESUMED

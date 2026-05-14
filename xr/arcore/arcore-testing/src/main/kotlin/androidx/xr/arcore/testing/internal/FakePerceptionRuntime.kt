@@ -78,10 +78,6 @@ internal class FakePerceptionRuntime(override val perceptionManager: FakePercept
         allowOneMoreCallToUpdate()
     }
 
-    override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
-        return xrDevicePreferredDisplayBlendMode
-    }
-
     override fun resume() {
         check(state == State.INITIALIZED || state == State.PAUSED)
         state = State.RESUMED

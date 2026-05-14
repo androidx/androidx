@@ -316,11 +316,6 @@ internal class OpenXrRuntime(
         this.config = config
     }
 
-    override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
-        val blendMode = nativeGetPreferredBlendMode()
-        return blendMode ?: DisplayBlendMode.NO_DISPLAY
-    }
-
     override fun destroy() {
         // TODO: b/422830134 - Remove this check once there are multiple OpenXrManagers.
         contextList.remove(context)
@@ -366,10 +361,6 @@ internal class OpenXrRuntime(
             nativeSetApiKeyAuth(apiKey)
         }
     }
-
-    private external fun nativeGetPreferredBlendMode(): DisplayBlendMode?
-
-    private external fun nativeIsGeospatialSupported(): Boolean
 
     private external fun nativeGetPointer(): Long
 
