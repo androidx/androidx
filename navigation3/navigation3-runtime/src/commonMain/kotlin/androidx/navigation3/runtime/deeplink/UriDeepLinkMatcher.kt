@@ -26,7 +26,8 @@ import kotlinx.serialization.KSerializer
 
 // catches placeholder pattern i.e. {argName}
 private val FILL_IN_PATTERN = Regex("\\{(.+?)\\}")
-private const val ANY_SYMBOLS_IN_THE_TAIL = "([\\s\\S]+?)?"
+// "?type=user_{id}" becomes "^user_([\\s\\S]+?)?$"
+private const val PLACEHOLDER_CONTENT_PATTERN = "([\\s\\S]+?)?"
 private val PATH_REGEX = Regex("([^/]*?|)")
 
 /**
@@ -69,14 +70,14 @@ private val PATH_REGEX = Regex("([^/]*?|)")
  * **Supported Query Pattern Types and Examples**
  * 1. Named Parameter
  *     - Pattern: `?name={name}`
- *     - Arguments: Extracts argument ["name].
+ *     - Arguments: Extracts argument ["name"].
  *     - Request: `?name=john`
  *     - Extracted values: Maps "name" to ["john"].
  * 2. Unnamed Parameter
  *     - Pattern: `?{rawQuery}`
  *     - Arguments: Extracts argument ["rawQuery"].
- *     - Request: `?age=30&city=someCity`
- *     - Extracted values: Maps "rawQuery" to ["age=30&city=someCity"].
+ *     - Request: `?anything&else`
+ *     - Extracted values: Maps "rawQuery" to ["anything", "else"].
  * 3. Partial Literal Matching
  *     - Pattern: `?type=user_{id}`
  *     - Arguments: Extracts argument ["id"].
@@ -97,6 +98,11 @@ private val PATH_REGEX = Regex("([^/]*?|)")
  *     - Arguments: Extracts argument ["type"].
  *     - Request: `?type=user_admin`
  *     - Extracted values: Maps "type" to ["admin"].
+ * 7. Mixed Named and Unnamed Parameters
+ *     - Pattern: `?user={name}&{other}`
+ *     - Arguments: Extracts arguments ["name", "other"].
+ *     - Request: `?user=john&something`
+ *     - Extracted values: Maps "name" to ["john"] and "other" to ["something"].
  *
  * **Unsupported Query Pattern Types and Examples**
  * 1. Repeated Parameter Names in Pattern
@@ -106,6 +112,8 @@ private val PATH_REGEX = Regex("([^/]*?|)")
  *     - Arguments: Extracts arguments ["name"].
  *     - Request: `?name=john&city=someCity`
  *     - Extracted values: Maps "name" to ["john"]. // city is ignored
+ * 3. Multiple Unnamed Parameters in Pattern
+ *     - Pattern: `?{arg1}&{arg2}`
  *
  * **Supported Fragment Pattern Types and Examples**
  * 1. Static Fragment
@@ -360,6 +368,7 @@ internal object UriPatternParser {
      * @see [UriDeepLinkMatcher] for supported query patterns and examples.
      */
     internal fun parseQuery(uriPattern: DeepLinkUri): Map<String, QueryParamPattern> = buildMap {
+        var unnamedParam: String? = null
         // get all query parameter names in the uriPattern, i.e.
         // "...?user={id}&place={location}" returns "user" and "place"
         // paramName of unnamed params is the entire "{argName}"
@@ -368,22 +377,31 @@ internal object UriPatternParser {
             // i.e. for "...?user={id}", getQueryParameters("user") returns ["{id}"]
             val queryParams = uriPattern.getQueryParameters(paramName)
             require(queryParams.size <= 1) {
-                "Query parameter $paramName must only be present once in the pattern."
+                "Query parameter [$paramName] must only be present once in the pattern [$uriPattern]."
             }
+            val firstParam = queryParams.firstOrNull() ?: ""
             val paramPattern = QueryParamPattern()
 
-            // checks if it is unnamed (i.e. ...?{rawQuery}) param or flag (i.e. ...?debug)
-            val first = queryParams.firstOrNull() ?: ""
-            if (first == "") paramPattern.isSingleQueryParamValueOnly = true
+            // "www.example.com?{arg}"
+            val isArg = FILL_IN_PATTERN.matches(paramName)
+            // "www.example.com?debug"
+            val isFlag = firstParam == ""
+
+            if (isArg) {
+                require(unnamedParam == null) {
+                    "DeepLink pattern [$uriPattern] already has unnamed query parameter $unnamedParam. Cannot add unnamed query parameter $paramName."
+                }
+                unnamedParam = paramName
+            }
             val queryParam =
-                if (paramPattern.isSingleQueryParamValueOnly) {
+                if (isArg || isFlag) {
+                    paramPattern.isUnnamedParams = true
                     paramName
                 } else {
-                    queryParams.first()
+                    firstParam
                 }
 
-            // split queryParam with FILL_IN_PATTERN as delimiter
-            // this allows us to interleave this regex pattern [literal, placeholder,
+            // splitting allows us to interleave this regex pattern [literal, placeholder,
             // literal,
             // placeholder...] later on if the
             // queryParam has multiple fill in patterns, i.e. "...?user=name_{first}_{last}"
@@ -394,10 +412,10 @@ internal object UriPatternParser {
             literals.fastForEachIndexed { index, literal ->
                 // no op if there are no literals before the first placeholder
                 argRegex.append(literal)
-                // check if we are at the end of the queryParam
+                // extract param names from placeholders (aka skips pure wildcards and flags)
                 if (index < matches.size) {
                     // interleave the placeholder regex
-                    argRegex.append(ANY_SYMBOLS_IN_THE_TAIL)
+                    argRegex.append(PLACEHOLDER_CONTENT_PATTERN)
                     paramPattern.addArgumentName(matches[index].groups[1]!!.value)
                 }
             }
@@ -405,13 +423,15 @@ internal object UriPatternParser {
             argRegex.append("$")
             paramPattern.paramRegex = saveWildcardInRegex(argRegex.toString())
 
-            // If no placeholders were found, but the pattern contains a wildcard,
-            // we treat the wildcard match as the argument value using the parameter name.
-            if (
-                paramPattern.arguments.isEmpty() && paramPattern.paramRegex?.contains(".*") == true
-            ) {
-                paramPattern.paramRegex = paramPattern.paramRegex?.replace(".*", "(.*)")
-                paramPattern.addArgumentName(paramName)
+            // Now extract param names for wildcard and flags
+            if (paramPattern.arguments.isEmpty()) {
+                if (paramPattern.paramRegex?.contains(".*") == true) {
+                    paramPattern.paramRegex = paramPattern.paramRegex?.replace(".*", "(.*)")
+                    paramPattern.addArgumentName(paramName)
+                } else if (isFlag) {
+                    paramPattern.paramRegex = "(${paramPattern.paramRegex?.removeSuffix("$")})$"
+                    paramPattern.addArgumentName(paramName)
+                }
             }
 
             put(paramName, paramPattern)
@@ -540,28 +560,21 @@ internal object UriRequestParser {
         requestedUri: DeepLinkUri,
     ): Map<String, List<String>> =
         buildMap<String, MutableList<String>> {
-            // match navigation 2 behavior where as long as any param is
-            // isSingleQueryParamValueOnly, all params will
-            // be treated as such (even named params)
-            val isSingleQueryParamValueOnly =
-                parsedQuery.any { it.value.isSingleQueryParamValueOnly }
+            val splitInputParams = requestedUri.getQuery()?.split("&") ?: emptyList()
+            val namedParamPatterns = parsedQuery.filterValues { !it.isUnnamedParams }.keys.toSet()
+
             parsedQuery.forEach { entry ->
                 val paramName = entry.key
                 val paramPattern = entry.value
 
-                // Get all actual values provided in the requested URI for this parameter name
-                // i.e. for paramName "user", returns ["john"]; for paramName "list", returns
-                // ["10",
-                // "20"]
-                val inputParamValues =
-                    if (isSingleQueryParamValueOnly) {
-                        // If this parameter is unnamed or has no args, capture the entire raw
-                        // query string
-                        listOf(requestedUri.getQuery().orEmpty())
-                    } else {
-                        requestedUri.getQueryParameters(paramName)
-                    }
-
+                var inputParamValues = requestedUri.getQueryParameters(paramName)
+                // Get unnamed inputs and flags (no extra named params)
+                if (paramPattern.isUnnamedParams) {
+                    inputParamValues =
+                        splitInputParams.fastFilter { part ->
+                            !part.contains('=') && part !in namedParamPatterns
+                        }
+                }
                 // Process each value (handles repeated query parameters like ?arg=1&arg=2)
                 inputParamValues.fastForEachOrForEach { inputParamValue ->
                     // Check if the actual value matches the pattern regex we built
@@ -570,18 +583,11 @@ internal object UriRequestParser {
                     if (argMatchResult != null) {
                         // If it matches, extract values for each argument name defined in the
                         // pattern
-                        if (
-                            paramPattern.arguments.isEmpty() &&
-                                paramPattern.isSingleQueryParamValueOnly
-                        ) {
-                            getOrPut(paramName) { mutableListOf() }.add("")
-                        } else {
-                            paramPattern.arguments.fastForEachIndexed { index, argName ->
-                                // Groups are 1-indexed, group 0 is the full match
-                                val value = argMatchResult.groups[index + 1]?.value.orEmpty()
-                                // Accumulate values for the argument name
-                                getOrPut(argName) { mutableListOf() }.add(value)
-                            }
+                        paramPattern.arguments.fastForEachIndexed { index, argName ->
+                            // Groups are 1-indexed, group 0 is the full match
+                            val value = argMatchResult.groups[index + 1]?.value.orEmpty()
+                            // Accumulate values for the argument name
+                            getOrPut(argName) { mutableListOf() }.add(value)
                         }
                     }
                 }
@@ -621,8 +627,8 @@ internal class QueryParamPattern {
     /** the argument names extracted from within the placeholder(s) of this query param */
     val arguments = mutableListOf<String>()
 
-    /** true if this param is a flag with no value in pattern, i.e. ?debug or ?{arg} */
-    var isSingleQueryParamValueOnly = false
+    /** true if this param is unnamed, i.e. ?{user} */
+    var isUnnamedParams = false
 
     fun addArgumentName(name: String) {
         arguments.add(name)

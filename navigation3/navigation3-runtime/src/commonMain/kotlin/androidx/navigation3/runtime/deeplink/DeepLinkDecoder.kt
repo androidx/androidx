@@ -49,7 +49,9 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
 
             // Check for unsupported collections
             if (kind == StructureKind.MAP) {
-                TODO("Map decoding is not supported yet")
+                throw IllegalArgumentException(
+                    "Cannot decode field [$name] for type with serial name${descriptor.serialName}. Map decoding is not supported."
+                )
             }
 
             // If it's a primitive, an enum, or a list, we check if it's in the map
@@ -81,19 +83,27 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
                 // getElementDescriptor(0) returns the type param of the collection
                 val elementDescriptor = descriptor.getElementDescriptor(0)
                 if (elementDescriptor.kind !is PrimitiveKind) {
-                    throw SerializationException("Only collections of primitives are supported")
+                    throw SerializationException(
+                        "Cannot decode collection of type with serial name ${elementDescriptor.serialName}. Only collections of primitives are supported."
+                    )
                 }
                 val values = arguments[currentName] ?: emptyList()
                 ListDecoder(values)
             }
-            StructureKind.MAP -> TODO()
-            else -> throw SerializationException("Unsupported structure kind: ${descriptor.kind}")
+            StructureKind.MAP ->
+                throw IllegalArgumentException(
+                    "Cannot decode type with serial name ${descriptor.serialName}. Map decoding is not supported."
+                )
+            else ->
+                throw SerializationException(
+                    "Cannot decode field [$currentName] for type with serial name ${descriptor.serialName}. Unsupported structure kind: ${descriptor.kind}"
+                )
         }
     }
 
     override fun decodeString(): String {
         val value = arguments[currentName]?.firstOrNull()
-        requireNotNull(value) { "Missing value for field $currentName" }
+        requireNotNull(value) { "Missing value for field [$currentName]" }
         return arguments[currentName]?.first()!!
     }
 
@@ -122,7 +132,7 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
         val index = enumDescriptor.getElementIndex(value)
         if (index == CompositeDecoder.UNKNOWN_NAME) {
             throw SerializationException(
-                "Unknown enum value: $value for enum ${enumDescriptor.serialName}"
+                "Unknown enum value [$value] for enum type with serial name ${enumDescriptor.serialName}"
             )
         }
         return index
