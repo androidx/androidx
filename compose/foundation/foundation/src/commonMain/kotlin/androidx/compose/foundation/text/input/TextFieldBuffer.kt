@@ -72,6 +72,17 @@ internal constructor(
             null
         }
 
+    /**
+     * Whether a text suggestion is selected, indicating that the transliterated text will be
+     * replaced by the selection. This is relevant for transliteration languages that support one or
+     * multiple text replacement suggestions for each text inputted. If true, then the user is
+     * currently selecting a replacement text.
+     *
+     * This is primarily used by accessibility services so that they are informed of when the user
+     * is currently selecting a replacement text.
+     */
+    internal var suggestionSelected: Boolean = false
+
     private var backingChangeTracker: ChangeTracker? =
         initialChanges?.let { ChangeTracker(initialChanges) }
 
