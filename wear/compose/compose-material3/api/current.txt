@@ -1350,10 +1350,15 @@ package androidx.wear.compose.material3 {
     ctor @BytecodeOnly public RevealState(int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public suspend Object? animateTo(androidx.wear.compose.material3.RevealValue targetValue, kotlin.coroutines.Continuation<? super java.lang.Void>);
     method @BytecodeOnly public Object? animateTo-1PKuNuk(int, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method public float dispatchRawDelta(float delta);
+    method public suspend Object? drag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material3.SwipeToRevealDragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! drag$default(androidx.wear.compose.material3.RevealState!, androidx.compose.foundation.MutatePriority!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
     method @BytecodeOnly public int getCurrentValue-OMiAi4w();
     method @InaccessibleFromKotlin public float getOffset();
     method @BytecodeOnly public int getTargetValue-OMiAi4w();
     method @InaccessibleFromKotlin public boolean isAnimationRunning();
+    method @KotlinOnly public float offsetOf(androidx.wear.compose.material3.RevealValue revealValue);
+    method @BytecodeOnly public float offsetOf-MpxWM6I(int);
     method @KotlinOnly public suspend Object? snapTo(androidx.wear.compose.material3.RevealValue targetValue, kotlin.coroutines.Continuation<? super java.lang.Void>);
     method @BytecodeOnly public Object? snapTo-1PKuNuk(int, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
     property public androidx.wear.compose.material3.RevealValue currentValue;
@@ -1811,6 +1816,8 @@ package androidx.wear.compose.material3 {
   }
 
   public final class SwipeToRevealDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior(androidx.wear.compose.material3.RevealState revealState);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior(androidx.wear.compose.material3.RevealState, androidx.compose.runtime.Composer?, int);
     method public androidx.wear.compose.foundation.GestureInclusion gestureInclusion(androidx.wear.compose.material3.RevealState state, optional @FloatRange(from=0.0, to=1.0) float edgeZoneFraction);
     method @BytecodeOnly public static androidx.wear.compose.foundation.GestureInclusion! gestureInclusion$default(androidx.wear.compose.material3.SwipeToRevealDefaults!, androidx.wear.compose.material3.RevealState!, float, int, Object!);
     method @InaccessibleFromKotlin public androidx.wear.compose.foundation.GestureInclusion getBidirectionalGestureInclusion();
@@ -1820,6 +1827,10 @@ package androidx.wear.compose.material3 {
     property public float LeftEdgeZoneFraction;
     property public androidx.wear.compose.foundation.GestureInclusion bidirectionalGestureInclusion;
     field public static final androidx.wear.compose.material3.SwipeToRevealDefaults INSTANCE;
+  }
+
+  public interface SwipeToRevealDragScope {
+    method public void dragTo(float newOffset);
   }
 
   public final class SwipeToRevealKt {
