@@ -81,6 +81,9 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:[InputFiles Classpath]
     abstract val androidJars: ConfigurableFileCollection
 
+    /** File to write trace to. */
+    @get:Internal abstract val traceFile: RegularFileProperty
+
     /** Lists all classpath files (jars and klibs) from [kmpDependenciesClasspathMap]. */
     @InputFiles
     @PathSensitive(PathSensitivity.NONE)
@@ -382,6 +385,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                         "versionMetadataFilenames" to getVersionMetadataFiles(),
                                         "validNullabilityAnnotations" to
                                             nullabilityAnnotations.get(),
+                                        "traceFile" to traceFile.get().asFile.absolutePath,
                                     )
                                 ),
                         )
