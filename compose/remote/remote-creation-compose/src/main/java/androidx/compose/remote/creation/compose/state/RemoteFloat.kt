@@ -1856,18 +1856,6 @@ public fun rememberNamedRemoteFloat(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-@Deprecated("Use rememberNamedRemoteFloat(name, domain, defaultValue = content)")
-public fun rememberRemoteFloat(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    content: RemoteFloatContext.() -> RemoteFloat,
-): RemoteFloat {
-    return rememberNamedRemoteFloat(name, domain, content)
-}
-
 /**
  * Creates a [RemoteFloat] using a [RemoteFloatContext] and a specified
  * [RemoteComposeCreationState].
@@ -1876,16 +1864,6 @@ public fun rememberRemoteFloat(
  * @param content A lambda that takes a [RemoteFloatContext] and returns a [RemoteFloat].
  * @return The created [RemoteFloat].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Deprecated("Use rememberRemoteFloatExpression(content = { content() })")
-public fun remoteFloat(
-    state: RemoteStateScope,
-    content: RemoteFloatContext.() -> RemoteFloat,
-): RemoteFloat {
-    val context = RemoteFloatContext(state)
-    val value = context.content()
-    return value
-}
 
 /**
  * Checks if a given float represents a time variable.

@@ -283,11 +283,6 @@ public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {
 }
 
 /** Factory composable for mutable remote long state. */
-@Composable
-@Deprecated("Use rememberMutableRemoteLong(value())")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun rememberRemoteLongValue(value: () -> Long): MutableRemoteLong =
-    rememberMutableRemoteLong(value())
 
 /**
  * Remembers a named remote long expression.
@@ -309,27 +304,6 @@ public fun rememberNamedRemoteLong(
 }
 
 /** A Composable function to remember and provide a **named** mutable remote long value. */
-@Composable
-@Deprecated("Use rememberNamedRemoteLong(name, domain, defaultValue = content)")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun rememberRemoteLongValue(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> Long,
-): RemoteLong {
-    return rememberNamedState(name, domain) {
-        val initial = value()
-        MutableRemoteLong(
-            constantValueOrNull = null,
-            cacheKey = RemoteNamedCacheKey(domain, name),
-        ) { creationState ->
-            val id = creationState.document.addNamedLong(domain.prefixed(name), initial)
-            creationState.document.setStringName(id, domain.prefixed(name))
-            id
-        }
-    }
-}
-
 internal enum class RemoteLongOp {
     Emulated,
     Add,

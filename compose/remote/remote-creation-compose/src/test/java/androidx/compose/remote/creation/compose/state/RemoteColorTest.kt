@@ -544,7 +544,7 @@ class RemoteColorTest {
     }
 
     @Test
-    fun copy_rememberRemoteColor_resultsSingleNamedColor() = runTest {
+    fun copy_rememberNamedRemoteColor_resultsSingleNamedColor() = runTest {
         val colorName = "TEST"
         val coreDoc =
             remoteCaptureRule.captureDocument(context = androidContext) {

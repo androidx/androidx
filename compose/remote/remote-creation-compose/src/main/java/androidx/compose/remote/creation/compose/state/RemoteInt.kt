@@ -531,18 +531,6 @@ internal constructor(
          * @param value The constant [Long] value.
          * @return A [RemoteIntExpression] representing the constant integer.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Deprecated("Use createForId")
-        public operator fun invoke(value: Long): RemoteInt {
-            if (isConstant(value)) {
-                return RemoteIntExpression(
-                    constantValueOrNull = value.toInt(),
-                    cacheKey = RemoteConstantCacheKey(value),
-                    arrayProvider = { _ -> longArrayOf(value) },
-                )
-            }
-            return createForId(value)
-        }
 
         /**
          * Creates a named [RemoteInt] with an initial value. Named remote ints can be set via
@@ -1240,12 +1228,6 @@ public fun rememberMutableRemoteInt(initialValue: Int): MutableRemoteInt {
  * @param value A lambda that provides the initial [Int] value for this remote integer.
  * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-@Deprecated("Use rememberMutableRemoteInt", ReplaceWith("rememberMutableRemoteInt(value())"))
-public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt =
-    rememberMutableRemoteInt(value())
 
 /**
  * A Composable function to remember and provide a **named** mutable remote integer value.
@@ -1256,29 +1238,6 @@ public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt =
  * @param value A lambda that provides the initial [Int] value for this remote integer.
  * @return A [RemoteInt] instance that will be remembered across recompositions.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-@Deprecated(
-    "Use rememberNamedRemoteInt",
-    ReplaceWith("rememberNamedRemoteInt(name, domain) { value().ri }"),
-)
-public fun rememberRemoteIntValue(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> Int,
-): RemoteInt {
-    return rememberNamedState(name, domain) {
-        MutableRemoteInt(
-            constantValueOrNull = null,
-            cacheKey = RemoteNamedCacheKey(domain, name),
-            idProvider = { creationState ->
-                val initial = value()
-                creationState.document.addNamedInt(domain.prefixed(name), initial)
-            },
-        )
-    }
-}
 
 /**
  * A Composable function to remember and provide a [RemoteInt] expression.
@@ -1286,20 +1245,6 @@ public fun rememberRemoteIntValue(
  * @param value A lambda that provides the [RemoteInt] expression.
  * @return A [RemoteIntExpression] representing the remembered remote integer.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-@Deprecated("Use rememberMutableRemoteInt", ReplaceWith("rememberMutableRemoteInt(value())"))
-public fun rememberRemoteInt(value: () -> RemoteInt): RemoteInt {
-    return remember {
-        val remoteInt = value()
-        RemoteIntExpression(
-            remoteInt.constantValueOrNull,
-            cacheKey = RemoteStateInstanceKey(),
-            remoteInt.arrayProvider,
-        )
-    }
-}
 
 /**
  * Remembers a named remote integer expression.
