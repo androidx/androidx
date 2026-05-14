@@ -66,18 +66,21 @@ public final class SectionHeaderTest {
     }
 
     @Test
-    public void setSubtitle_null() {
+    public void clearSubtitle() {
         SectionHeader header = new SectionHeader.Builder("title")
                 .setSubtitle("subtitle")
-                .setSubtitle((CharSequence) null)
+                .clearSubtitle()
                 .build();
         assertThat(header.getSubtitle()).isNull();
+    }
 
-        header = new SectionHeader.Builder("title")
-                .setSubtitle(CarText.create("subtitle"))
-                .setSubtitle((CarText) null)
-                .build();
-        assertThat(header.getSubtitle()).isNull();
+    @Test
+    public void setSubtitle_nullThrows() {
+        assertThrows(NullPointerException.class,
+                () -> new SectionHeader.Builder("title").setSubtitle((CharSequence) null));
+
+        assertThrows(NullPointerException.class,
+                () -> new SectionHeader.Builder("title").setSubtitle((CarText) null));
     }
 
     @Test

@@ -203,16 +203,13 @@ public final class SectionHeader {
          * <p>The subtitle must be a plain string with no spans other than those supported by
          * {@link CarTextConstraints#TEXT_WITH_COLORS}.
          *
-         * @param subtitle the subtitle to set, or {@code null} to clear the subtitle
+         * @param subtitle the subtitle to set
+         * @throws NullPointerException     if {@code subtitle} is {@code null}
          * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
          * @see CarText
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setSubtitle(@Nullable CharSequence subtitle) {
-            if (subtitle == null) {
-                mSubtitle = null;
-                return this;
-            }
+        public @NonNull Builder setSubtitle(@NonNull CharSequence subtitle) {
             mSubtitle = CarText.create(subtitle);
             CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mSubtitle);
             return this;
@@ -224,16 +221,26 @@ public final class SectionHeader {
          * <p>The subtitle must be a plain string with no spans other than those supported by
          * {@link CarTextConstraints#TEXT_WITH_COLORS}.
          *
-         * @param subtitle the subtitle to set, or {@code null} to clear the subtitle
+         * @param subtitle the subtitle to set
+         * @throws NullPointerException     if {@code subtitle} is {@code null}
          * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
          * @see CarText
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setSubtitle(@Nullable CarText subtitle) {
-            if (subtitle != null) {
-                CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(subtitle);
-            }
+        public @NonNull Builder setSubtitle(@NonNull CarText subtitle) {
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(requireNonNull(subtitle));
             mSubtitle = subtitle;
+            return this;
+        }
+
+        /**
+         * Clears the subtitle of the header.
+         *
+         * @return this builder to help chaining
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder clearSubtitle() {
+            mSubtitle = null;
             return this;
         }
 
