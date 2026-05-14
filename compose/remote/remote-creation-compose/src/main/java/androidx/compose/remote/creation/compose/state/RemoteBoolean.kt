@@ -443,13 +443,6 @@ public fun rememberMutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoo
     return remember { MutableRemoteBoolean(MutableRemoteInt(if (initialValue) 1 else 0)) }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Deprecated("Use rememberMutableRemoteBoolean(value())")
-@Composable
-@RemoteComposable
-public fun rememberRemoteBooleanValue(value: () -> Boolean): RemoteBoolean =
-    rememberMutableRemoteBoolean(value())
-
 /**
  * Remembers a named remote boolean expression.
  *

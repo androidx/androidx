@@ -513,26 +513,6 @@ public fun rememberNamedRemoteColor(
 }
 
 /**
- * A Composable function to remember and provide a named mutable [RemoteColor].
- *
- * @param name The unique name for this remote color.
- * @param domain The domain of the named color (defaults to [RemoteState.Domain.User]).
- * @param value A lambda that provides the initial [Color] value.
- * @return A [RemoteColor] instance that will be remembered across recompositions.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-@Deprecated("Use rememberNamedRemoteColor with content lambda providing RemoteColor")
-public fun rememberRemoteColor(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> Color,
-): RemoteColor {
-    return rememberNamedRemoteColor(name, value(), domain)
-}
-
-/**
  * Creates a remote color that interpolates between two integer ARGB colors based on a tween factor.
  *
  * @param from The starting color (ARGB integer).

@@ -996,17 +996,6 @@ public fun rememberMutableRemoteString(initialValue: String): MutableRemoteStrin
     return remember { MutableRemoteString(initialValue) }
 }
 
-/** Factory composable for mutable remote string state. */
-@Composable
-@Deprecated("Use rememberMutableRemoteString(content())")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun rememberRemoteString(value: () -> String): MutableRemoteString {
-    return remember {
-        val string = value()
-        MutableRemoteString(string)
-    }
-}
-
 /**
  * Remembers a named remote string expression.
  *
@@ -1043,43 +1032,6 @@ public fun rememberNamedRemoteString(
         )
     }
 }
-
-/**
- * A Composable function to remember and provide an anonymous (unnamed) mutable remote string.
- *
- * @param value A lambda that provides the initial [String] value for this remote string.
- * @return A [MutableRemoteString] instance that will be remembered across recompositions.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@Deprecated("Use rememberNamedRemoteString(name, domain, defaultValue = value())")
-public fun rememberRemoteString(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> String,
-): RemoteString {
-    return rememberNamedRemoteString(name = name, defaultValue = value(), domain = domain)
-}
-
-/**
- * A convenience Composable function to remember a **system-level** named remote string.
- *
- * This is a specialized version of [rememberRemoteString] where the `domain` is fixed to
- * [RemoteState.Domain.System].
- *
- * @param name The unique name for this system remote string.
- * @param value A lambda that provides the initial [String] value for this remote string.
- * @return A [MutableRemoteString] instance with a system domain, remembered across recompositions.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@Deprecated("Use rememberRemoteString with SYSTEM domain")
-public fun rememberSystemRemoteString(name: String, value: () -> String): RemoteString =
-    rememberNamedRemoteString(
-        name = name,
-        domain = RemoteState.Domain.System,
-        defaultValue = value(),
-    )
 
 /** Extension property to convert a [String] to a [RemoteString]. */
 public val String.rs: RemoteString

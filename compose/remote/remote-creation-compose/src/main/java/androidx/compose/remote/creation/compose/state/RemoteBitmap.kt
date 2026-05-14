@@ -201,13 +201,6 @@ public fun rememberMutableRemoteBitmap(initialValue: ImageBitmap): MutableRemote
     }
 }
 
-/** Factory composable for state. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@Deprecated("Use rememberMutableRemoteBitmap(value())")
-public fun rememberRemoteBitmapValue(value: () -> ImageBitmap): RemoteBitmap =
-    rememberMutableRemoteBitmap(value())
-
 /**
  * Remembers a named remote bitmap expression.
  *
@@ -231,18 +224,6 @@ public fun rememberNamedRemoteBitmap(
             creationState.document.addNamedBitmap(domain.prefixed(name), bitmap.asAndroidBitmap())
         }
     }
-}
-
-/** A Composable function to remember and provide a **named** mutable remote bitmap value. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@Deprecated("Use rememberNamedRemoteBitmap(name, domain, content = { RemoteBitmap(value()) })")
-public fun rememberRemoteBitmapValue(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> ImageBitmap,
-): RemoteBitmap {
-    return rememberNamedRemoteBitmap(name, domain, value)
 }
 
 /** A Composable function to remember and provide a **named** remote bitmap from a URL. */
