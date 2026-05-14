@@ -19,7 +19,7 @@ dependencies {
     implementation(project(":fragment:fragment-ktx"))
     implementation(project(":lifecycle:lifecycle-common"))
     implementation(project(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(project(":media:media"))
+    implementation("androidx.media:media:1.7.1")
     implementation(project(":viewpager:viewpager"))
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(project(":coordinatorlayout:coordinatorlayout"))

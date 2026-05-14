@@ -101,7 +101,6 @@ LIFECYCLE = "2.11.0-beta02"
 LIFECYCLE_EXTENSIONS = "2.2.0"
 LINT = "1.0.0-rc01"
 LOADER = "1.2.0-alpha01"
-MEDIA = "1.8.0-rc01"
 MEDIAROUTER = "1.9.0-alpha01"
 METRICS = "1.0.0-rc01"
 NAVIGATION = "2.10.0-alpha05"
@@ -266,7 +265,6 @@ LIFECYCLE = { group = "androidx.lifecycle", atomicGroupVersion = "versions.LIFEC
 LIFECYCLE_EXTENSIONS = { group = "androidx.lifecycle", atomicGroupVersion = "versions.LIFECYCLE_EXTENSIONS", overrideInclude = [ ":lifecycle:lifecycle-extensions" ] }
 LINT = { group = "androidx.lint", atomicGroupVersion = "versions.LINT" }
 LOADER = { group = "androidx.loader", atomicGroupVersion = "versions.LOADER" }
-MEDIA = { group = "androidx.media" }
 MEDIAROUTER = { group = "androidx.mediarouter", atomicGroupVersion = "versions.MEDIAROUTER" }
 METRICS = { group = "androidx.metrics", atomicGroupVersion = "versions.METRICS" }
 NAVIGATION = { group = "androidx.navigation", atomicGroupVersion = "versions.NAVIGATION" }
