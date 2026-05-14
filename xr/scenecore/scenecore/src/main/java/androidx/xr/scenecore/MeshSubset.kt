@@ -22,7 +22,6 @@ import androidx.annotation.IntRange
  *
  * This specifies how the index buffer maps vertices to geometric primitives.
  */
-@ExperimentalCustomMeshApi
 public class MeshSubsetTopology private constructor(private val value: Int) {
     public companion object {
         /** Every three indices form a separate triangle. */
@@ -59,7 +58,6 @@ public class MeshSubsetTopology private constructor(private val value: Int) {
  * @param indexCount The number of indices to draw.
  * @throws IllegalArgumentException if [indexOffset] or [indexCount] is negative.
  */
-@ExperimentalCustomMeshApi
 public class MeshSubset(
     public val topology: MeshSubsetTopology,
     @IntRange(from = 0) public val indexOffset: Int,

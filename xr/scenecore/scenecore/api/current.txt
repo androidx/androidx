@@ -126,7 +126,7 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.BoundsComponent create(androidx.xr.runtime.Session session);
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class ByteBufferRegion {
+  public final class ByteBufferRegion {
     ctor public ByteBufferRegion(java.nio.ByteBuffer buffer, @IntRange(from=0L) int offset, @IntRange(from=0L) int size);
     method @InaccessibleFromKotlin public java.nio.ByteBuffer getBuffer();
     method @InaccessibleFromKotlin public int getOffset();
@@ -141,7 +141,7 @@ package androidx.xr.scenecore {
     method protected abstract void onDetach(androidx.xr.scenecore.Entity entity);
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class CustomMesh implements java.lang.AutoCloseable {
+  public final class CustomMesh implements java.lang.AutoCloseable {
     method @MainThread public void close();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getBounds();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.MeshBuffer getMeshBuffer();
@@ -152,14 +152,14 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.CustomMesh.Companion Companion;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.BuilderFromMeshBuffer {
+  public static final class CustomMesh.BuilderFromMeshBuffer {
     ctor public CustomMesh.BuilderFromMeshBuffer(androidx.xr.runtime.Session session, androidx.xr.scenecore.MeshBuffer meshBuffer);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshBuffer addSubset(androidx.xr.scenecore.MeshSubset subset);
     method @MainThread public androidx.xr.scenecore.CustomMesh build();
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshBuffer setBounds(androidx.xr.runtime.math.BoundingBox bounds);
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.BuilderFromMeshData {
+  public static final class CustomMesh.BuilderFromMeshData {
     ctor public CustomMesh.BuilderFromMeshData(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addSubset(androidx.xr.scenecore.MeshSubset subset);
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData addVertexData(androidx.xr.scenecore.ByteBufferRegion vertexData);
@@ -169,7 +169,7 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.CustomMesh.BuilderFromMeshData setTopology(androidx.xr.scenecore.MeshSubsetTopology topology);
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class CustomMesh.Companion {
+  public static final class CustomMesh.Companion {
   }
 
   public class Entity extends androidx.xr.scenecore.BaseScenePose<androidx.xr.scenecore.runtime.ScenePose> {
@@ -226,9 +226,6 @@ package androidx.xr.scenecore {
     method public default void onMoveEnd(androidx.xr.scenecore.Entity entity, androidx.xr.runtime.math.Ray finalInputRay, androidx.xr.runtime.math.Pose finalPose, float finalScale, androidx.xr.scenecore.Entity? updatedParent);
     method public default void onMoveStart(androidx.xr.scenecore.Entity entity, androidx.xr.runtime.math.Ray initialInputRay, androidx.xr.runtime.math.Pose initialPose, float initialScale, androidx.xr.scenecore.Entity initialParent);
     method public default void onMoveUpdate(androidx.xr.scenecore.Entity entity, androidx.xr.runtime.math.Ray currentInputRay, androidx.xr.runtime.math.Pose currentPose, float currentScale);
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalCustomMeshApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSurfaceEntityPixelDimensionsApi {
@@ -558,7 +555,7 @@ package androidx.xr.scenecore {
     method @MainThread public void close();
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class MeshBuffer implements java.lang.AutoCloseable {
+  public final class MeshBuffer implements java.lang.AutoCloseable {
     method @MainThread public void close();
     method @MainThread public static androidx.xr.scenecore.MeshBuffer create(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, java.util.List<androidx.xr.scenecore.ByteBufferRegion> vertexData, androidx.xr.scenecore.ByteBufferRegion indexData);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.VertexLayout getVertexLayout();
@@ -566,11 +563,11 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.MeshBuffer.Companion Companion;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class MeshBuffer.Companion {
+  public static final class MeshBuffer.Companion {
     method @MainThread public androidx.xr.scenecore.MeshBuffer create(androidx.xr.runtime.Session session, androidx.xr.scenecore.VertexLayout vertexLayout, java.util.List<androidx.xr.scenecore.ByteBufferRegion> vertexData, androidx.xr.scenecore.ByteBufferRegion indexData);
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class MeshEntity extends androidx.xr.scenecore.Entity {
+  public final class MeshEntity extends androidx.xr.scenecore.Entity {
     method @MainThread public static androidx.xr.scenecore.MeshEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.CustomMesh mesh, java.util.List<? extends androidx.xr.scenecore.Material> materials);
     method @MainThread public static androidx.xr.scenecore.MeshEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.CustomMesh mesh, java.util.List<? extends androidx.xr.scenecore.Material> materials, optional @IntRange(from=0L, to=255L) int boneCount);
     method @MainThread public static androidx.xr.scenecore.MeshEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.CustomMesh mesh, java.util.List<? extends androidx.xr.scenecore.Material> materials, optional @IntRange(from=0L, to=255L) int boneCount, optional androidx.xr.runtime.math.Pose pose);
@@ -588,7 +585,7 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.MeshEntity.Companion Companion;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class MeshEntity.Companion {
+  public static final class MeshEntity.Companion {
     method @MainThread public androidx.xr.scenecore.MeshEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.CustomMesh mesh, java.util.List<? extends androidx.xr.scenecore.Material> materials);
     method @MainThread public androidx.xr.scenecore.MeshEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.CustomMesh mesh, java.util.List<? extends androidx.xr.scenecore.Material> materials, optional @IntRange(from=0L, to=255L) int boneCount);
     method @MainThread public androidx.xr.scenecore.MeshEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.CustomMesh mesh, java.util.List<? extends androidx.xr.scenecore.Material> materials, optional @IntRange(from=0L, to=255L) int boneCount, optional androidx.xr.runtime.math.Pose pose);
@@ -596,7 +593,7 @@ package androidx.xr.scenecore {
     method @BytecodeOnly @MainThread public static androidx.xr.scenecore.MeshEntity! create$default(androidx.xr.scenecore.MeshEntity.Companion!, androidx.xr.runtime.Session!, androidx.xr.scenecore.CustomMesh!, java.util.List!, int, androidx.xr.runtime.math.Pose!, androidx.xr.scenecore.Entity!, int, Object!);
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class MeshSubset {
+  public final class MeshSubset {
     ctor public MeshSubset(androidx.xr.scenecore.MeshSubsetTopology topology, @IntRange(from=0L) int indexOffset, @IntRange(from=0L) int indexCount);
     method @InaccessibleFromKotlin public int getIndexCount();
     method @InaccessibleFromKotlin public int getIndexOffset();
@@ -606,13 +603,13 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.MeshSubsetTopology topology;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class MeshSubsetTopology {
+  public final class MeshSubsetTopology {
     field public static final androidx.xr.scenecore.MeshSubsetTopology.Companion Companion;
     field public static final androidx.xr.scenecore.MeshSubsetTopology TRIANGLES;
     field public static final androidx.xr.scenecore.MeshSubsetTopology TRIANGLE_STRIP;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class MeshSubsetTopology.Companion {
+  public static final class MeshSubsetTopology.Companion {
     property public androidx.xr.scenecore.MeshSubsetTopology TRIANGLES;
     property public androidx.xr.scenecore.MeshSubsetTopology TRIANGLE_STRIP;
   }
@@ -1350,7 +1347,7 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.TextureSampler.WrapMode REPEAT;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexAttribute {
+  public final class VertexAttribute {
     field public static final androidx.xr.scenecore.VertexAttribute BONE_INDICES;
     field public static final androidx.xr.scenecore.VertexAttribute BONE_WEIGHTS;
     field public static final androidx.xr.scenecore.VertexAttribute COLOR;
@@ -1361,7 +1358,7 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.VertexAttribute UV1;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexAttribute.Companion {
+  public static final class VertexAttribute.Companion {
     property public androidx.xr.scenecore.VertexAttribute BONE_INDICES;
     property public androidx.xr.scenecore.VertexAttribute BONE_WEIGHTS;
     property public androidx.xr.scenecore.VertexAttribute COLOR;
@@ -1371,7 +1368,7 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.VertexAttribute UV1;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexAttributeDescriptor {
+  public final class VertexAttributeDescriptor {
     ctor public VertexAttributeDescriptor(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type);
     ctor public VertexAttributeDescriptor(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type, optional @IntRange(from=-1L, to=32767L) int offset);
     ctor @BytecodeOnly public VertexAttributeDescriptor(androidx.xr.scenecore.VertexAttribute!, androidx.xr.scenecore.VertexAttributeType!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1386,12 +1383,12 @@ package androidx.xr.scenecore {
     field public static final int MAX_OFFSET = 32767; // 0x7fff
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexAttributeDescriptor.Companion {
+  public static final class VertexAttributeDescriptor.Companion {
     property public static int AUTO_OFFSET;
     property public static int MAX_OFFSET;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexAttributeType {
+  public final class VertexAttributeType {
     field public static final androidx.xr.scenecore.VertexAttributeType.Companion Companion;
     field public static final androidx.xr.scenecore.VertexAttributeType FLOAT;
     field public static final androidx.xr.scenecore.VertexAttributeType FLOAT2;
@@ -1401,7 +1398,7 @@ package androidx.xr.scenecore {
     field public static final androidx.xr.scenecore.VertexAttributeType UBYTE4_NORM;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexAttributeType.Companion {
+  public static final class VertexAttributeType.Companion {
     property public androidx.xr.scenecore.VertexAttributeType FLOAT;
     property public androidx.xr.scenecore.VertexAttributeType FLOAT2;
     property public androidx.xr.scenecore.VertexAttributeType FLOAT3;
@@ -1410,7 +1407,7 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.VertexAttributeType UBYTE4_NORM;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexBufferLayout {
+  public final class VertexBufferLayout {
     ctor @BytecodeOnly public VertexBufferLayout(java.util.List!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public VertexBufferLayout(java.util.List<androidx.xr.scenecore.VertexAttributeDescriptor> attributes);
     ctor public VertexBufferLayout(java.util.List<androidx.xr.scenecore.VertexAttributeDescriptor> attributes, optional @IntRange(from=-1L, to=32767L) int stride);
@@ -1423,17 +1420,17 @@ package androidx.xr.scenecore {
     field public static final int MAX_STRIDE = 32767; // 0x7fff
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexBufferLayout.Companion {
+  public static final class VertexBufferLayout.Companion {
     property public static int AUTO_STRIDE;
     property public static int MAX_STRIDE;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public final class VertexLayout {
+  public final class VertexLayout {
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.VertexBufferLayout> getBuffers();
     property public java.util.List<androidx.xr.scenecore.VertexBufferLayout> buffers;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalCustomMeshApi public static final class VertexLayout.Builder {
+  public static final class VertexLayout.Builder {
     ctor public VertexLayout.Builder();
     method public androidx.xr.scenecore.VertexLayout.Builder addAttribute(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type);
     method public androidx.xr.scenecore.VertexLayout.Builder addAttribute(androidx.xr.scenecore.VertexAttribute attribute, androidx.xr.scenecore.VertexAttributeType type, optional @IntRange(from=-1L, to=32767L) int offset);

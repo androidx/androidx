@@ -34,7 +34,6 @@ import androidx.xr.scenecore.runtime.MeshEntity as RtMeshEntity
  *   inclusive. If 0, skinning is disabled. If non-zero, bone transforms can be set with
  *   [setBoneTransforms].
  */
-@ExperimentalCustomMeshApi
 public class MeshEntity
 private constructor(
     rtMeshEntity: RtMeshEntity,
