@@ -36,6 +36,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -309,19 +310,6 @@ public fun SwipeToReveal(
         }
 
     var componentWidthPx by remember { mutableFloatStateOf(0f) }
-    val revealedRatio: Float by
-        remember(screenWidthPx, anchorWidthPx) {
-            derivedStateOf {
-                if (secondaryAction == null || anchorWidthPx / screenWidthPx == 1f) 0.5f
-                else {
-                    val revealingAnchorPx = (anchorWidthPx / screenWidthPx) * componentWidthPx
-                    ((FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
-                            (screenWidthPx - componentWidthPx) / 2f -
-                            revealingAnchorPx) / (screenWidthPx - revealingAnchorPx))
-                        .coerceAtLeast(0f)
-                }
-            }
-        }
 
     CustomTouchSlopProvider(
         newTouchSlop = LocalViewConfiguration.current.touchSlop * CustomTouchSlopMultiplier
@@ -353,77 +341,53 @@ public fun SwipeToReveal(
                             allowSwipe &&
                                 revealState.currentValue != LeftRevealed &&
                                 revealState.currentValue != RightRevealed,
-                        flingBehavior =
-                            anchoredDraggableFlingBehavior(
-                                state = revealState.anchoredDraggableState,
-                                snapAnimationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
-                                positionalThreshold = { distance, isCompleting ->
-                                    if (
-                                        isCompleting &&
-                                            WearComposeMaterial3Flags
-                                                .isSwipeToRevealDualFlingThresholdEnabled
-                                    ) {
-                                        distance * revealedRatio
-                                    } else {
-                                        AnchoredDraggableDefaults.PositionalThreshold(distance)
-                                    }
-                                },
-                                density = LocalDensity.current,
-                                onFastFling = {
-                                    // Fast fling before user reaches Revealing anchors will skip
-                                    // second haptic feedback.
-                                    if (
-                                        revealState.targetValue == LeftRevealing ||
-                                            revealState.targetValue == RightRevealing
-                                    ) {
-                                        revealState.skipPartialHaptic = true
-                                    }
-                                },
-                            ),
+                        flingBehavior = SwipeToRevealDefaults.flingBehavior(revealState),
                     )
                     .onSizeChanged { size ->
                         // Update the total width which will be used to calculate the anchors
                         val width = size.width.toFloat()
+                        val hasNoSecondaryAction = secondaryAction == null
                         componentWidthPx = width
+
+                        val revealingAnchorPx =
+                            if (hasNoSecondaryAction && !hasPartiallyRevealedState) {
+                                null
+                            } else {
+                                (anchorWidthPx / screenWidthPx) * width
+                            }
+
+                        if (revealingAnchorPx != null) {
+                            revealState.revealThreshold =
+                                if (
+                                    WearComposeMaterial3Flags
+                                        .isSwipeToRevealDualFlingThresholdEnabled
+                                ) {
+                                    FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
+                                        (screenWidthPx - width) / 2f
+                                } else {
+                                    revealingAnchorPx
+                                }
+
+                            revealState.revealedRatio =
+                                calculateRevealedRatio(
+                                    hasNoSecondaryAction,
+                                    anchorWidthPx,
+                                    screenWidthPx,
+                                    componentWidthPx,
+                                    revealingAnchorPx,
+                                )
+                        }
                         val draggableAnchors = DraggableAnchors {
-                            for (anchor in anchors) {
-                                when (anchor) {
-                                    Covered -> 0f
-                                    LeftRevealing,
-                                    RightRevealing -> {
-                                        if (secondaryAction == null && !hasPartiallyRevealedState) {
-                                            null
-                                        } else {
-                                            val revealingAnchorPx =
-                                                (anchorWidthPx / screenWidthPx) * width
-                                            val result =
-                                                revealingAnchorPx *
-                                                    anchorSideMultiplier(anchor, direction)
-
-                                            if (anchor == RightRevealing) {
-                                                revealState.revealThreshold =
-                                                    if (
-                                                        WearComposeMaterial3Flags
-                                                            .isSwipeToRevealDualFlingThresholdEnabled
-                                                    ) {
-                                                        FULL_SWIPE_THRESHOLD_FRACTION *
-                                                            screenWidthPx -
-                                                            (screenWidthPx - width) / 2f
-                                                    } else {
-                                                        abs(result)
-                                                    }
-                                            }
-
-                                            result
-                                        }
-                                    }
-                                    LeftRevealed,
-                                    RightRevealed -> {
-                                        // Revealed positions are outside of screen bounds
-                                        screenWidthPx * anchorSideMultiplier(anchor, direction)
-                                    }
-                                    else -> null
-                                }?.let { anchor at it }
+                            Covered at 0f
+                            RightRevealed at -screenWidthPx * direction
+                            if (revealingAnchorPx != null) {
+                                RightRevealing at -revealingAnchorPx * direction
+                            }
+                            if (revealDirection == Bidirectional) {
+                                LeftRevealed at screenWidthPx * direction
+                                if (revealingAnchorPx != null) {
+                                    LeftRevealing at revealingAnchorPx * direction
+                                }
                             }
                         }
                         revealState.anchoredDraggableState.updateAnchors(draggableAnchors)
@@ -709,6 +673,22 @@ public fun SwipeToReveal(
     }
 }
 
+private fun calculateRevealedRatio(
+    hasNoSecondaryAction: Boolean,
+    anchorWidthPx: Float,
+    screenWidthPx: Float,
+    componentWidthPx: Float,
+    revealingAnchorPx: Float,
+): Float =
+    if (hasNoSecondaryAction || anchorWidthPx / screenWidthPx == 1f) {
+        0.5f
+    } else {
+        ((FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
+                (screenWidthPx - componentWidthPx) / 2f -
+                revealingAnchorPx) / (screenWidthPx - revealingAnchorPx))
+            .coerceAtLeast(0f)
+    }
+
 /**
  * Scope for the actions of a [SwipeToReveal] composable. Used to define the primary, secondary,
  * undo primary and undo secondary actions.
@@ -870,6 +850,53 @@ public object SwipeToRevealDefaults {
      */
     public val bidirectionalGestureInclusion: GestureInclusion
         get() = BidirectionalGestureInclusion
+
+    /**
+     * Creates and remembers the default fling behavior used by the SwipeToReveal component.
+     *
+     * This specialized behavior handles the physics of the swipe gesture, ensuring compliance with
+     * Wear Compose Material 3 UX guidelines.
+     *
+     * This should be used when building custom gesture modifiers (like nested scrolling) that need
+     * to perform a fling on a [RevealState] while maintaining the exact feel of the native
+     * component.
+     *
+     * @param revealState The [RevealState] associated with the component.
+     * @return A [TargetedFlingBehavior] configured for SwipeToReveal gestures.
+     */
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    @Composable
+    public fun flingBehavior(revealState: RevealState): TargetedFlingBehavior {
+        val density = LocalDensity.current
+
+        return remember(revealState, density) {
+            anchoredDraggableFlingBehavior(
+                state = revealState.anchoredDraggableState,
+                snapAnimationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
+                positionalThreshold = { distance, isCompleting ->
+                    if (
+                        isCompleting &&
+                            WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled
+                    ) {
+                        distance * revealState.revealedRatio
+                    } else {
+                        AnchoredDraggableDefaults.PositionalThreshold(distance)
+                    }
+                },
+                density = density,
+                onFastFling = {
+                    // Fast fling before user reaches Revealing anchors will skip second haptic
+                    // feedback.
+                    if (
+                        revealState.targetValue == LeftRevealing ||
+                            revealState.targetValue == RightRevealing
+                    ) {
+                        revealState.skipPartialHaptic = true
+                    }
+                },
+            )
+        }
+    }
 
     /** Width that's required to display both actions in a [SwipeToReveal] composable. */
     internal val DoubleActionAnchorWidth: Dp = 130.dp
@@ -1189,6 +1216,21 @@ public value class RevealDirection private constructor(private val value: Int) {
 }
 
 /**
+ * Scope used for suspending drag blocks. Allows setting [RevealState.offset] to a new value.
+ *
+ * @see [RevealState.drag] to learn how to start the drag and get the access to this scope.
+ */
+public interface SwipeToRevealDragScope {
+    /**
+     * Assign a new value for an offset value for [RevealState].
+     *
+     * @param newOffset new value for [RevealState.offset]. Will be coerced to the boundaries
+     *   defined by the available reveal targets
+     */
+    public fun dragTo(newOffset: Float)
+}
+
+/**
  * A class to keep track of the state of the composable. It can be used to customise the behavior
  * and state of the composable.
  *
@@ -1258,6 +1300,64 @@ public class RevealState(initialValue: RevealValue) {
         }
     }
 
+    /**
+     * Drag by the supplied [delta], coerce it in the swipe bounds and return the remaining
+     * available. These bounds are determined by the screen width and the configured
+     * [RevealDirection].
+     *
+     * @param delta The delta (positive or negative) to drag
+     * @return The consumed delta
+     */
+    public fun dispatchRawDelta(delta: Float): Float {
+        return anchoredDraggableState.dispatchRawDelta(delta)
+    }
+
+    /**
+     * Get the offset position for an associated [RevealValue]
+     *
+     * @param revealValue The value to look up
+     * @return The offset of the revealValue, or [Float.NaN] if the revealValue does not exist or
+     *   not supported by current SwipeToReveal and RevealState instance
+     */
+    public fun offsetOf(revealValue: RevealValue): Float {
+        return anchoredDraggableState.anchors.positionOf(revealValue)
+    }
+
+    /**
+     * Call this function to take control of the drag logic and mutate the offset.
+     *
+     * All actions that change the [offset] of this [RevealState] must be performed within a [drag]
+     * block (even if they don't call any other methods on this object) in order to guarantee that
+     * mutual exclusion is enforced. The offset provided to [SwipeToRevealDragScope.dragTo] will be
+     * coerced to the interval of the min/max offset values of [RevealValue].
+     *
+     * If [drag] is called from elsewhere with the [dragPriority] higher or equal to ongoing drag,
+     * the ongoing drag will be cancelled.
+     *
+     * <b>If layout dimensions change while the [block] is being executed, it will be cancelled and
+     * re-executed.</b>
+     *
+     * @param dragPriority of the drag operation
+     * @param block The suspending block where the drag mutations are performed
+     */
+    public suspend fun drag(
+        dragPriority: MutatePriority = MutatePriority.Default,
+        block: suspend SwipeToRevealDragScope.() -> Unit,
+    ) {
+        anchoredDraggableState.anchoredDrag(dragPriority) { anchors ->
+            val swipeToRevealDragScope =
+                object : SwipeToRevealDragScope {
+                    override fun dragTo(newOffset: Float) {
+                        val min = anchors.minPosition()
+                        val max = anchors.maxPosition()
+                        val coercedOffset = newOffset.coerceIn(min, max)
+                        this@anchoredDrag.dragTo(coercedOffset)
+                    }
+                }
+            swipeToRevealDragScope.block()
+        }
+    }
+
     internal val anchoredDraggableState = AnchoredDraggableState(initialValue = initialValue)
 
     /**
@@ -1282,6 +1382,12 @@ public class RevealState(initialValue: RevealValue) {
      */
     /* @FloatRange(from = 0.0) */
     internal var revealThreshold: Float by mutableFloatStateOf(0.0f)
+
+    /**
+     * The ratio used to calculate the positional threshold while swiping between Revealing and
+     * Revealed states.
+     */
+    internal var revealedRatio: Float = 0.5f
 
     /**
      * Require the current offset.
@@ -1499,9 +1605,6 @@ private fun endFadeInFraction(hasSecondaryAction: Boolean) =
     } else {
         SINGLE_ICON_FADE_IN_END_THRESHOLD_AS_SCREEN_WIDTH_PERCENTAGE
     }
-
-private fun anchorSideMultiplier(anchor: RevealValue, direction: Int) =
-    direction * (if (anchor == RightRevealing || anchor == RightRevealed) -1 else 1)
 
 /**
  * Copy from [androidx.compose.foundation.gestures.anchoredDraggableFlingBehavior], overriding the

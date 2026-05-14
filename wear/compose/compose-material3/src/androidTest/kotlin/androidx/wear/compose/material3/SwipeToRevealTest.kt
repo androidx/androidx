@@ -18,7 +18,14 @@ package androidx.wear.compose.material3
 
 import android.app.Activity
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +33,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
@@ -39,6 +47,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -57,6 +68,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso.onView
@@ -93,11 +105,16 @@ import androidx.wear.widget.SwipeDismissFrameLayout
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
@@ -1139,6 +1156,351 @@ class SwipeToRevealTest {
         verifyActionCenterVerticalAligned(60.dp, 70.dp)
     }
 
+    @Test
+    fun anchoredDrag_customAnimation_updatesOffset() {
+        lateinit var revealState: RevealState
+        lateinit var coroutineScope: CoroutineScope
+        val targetValue = RightRevealing
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            revealState = rememberRevealState()
+            SwipeToRevealWithDefaults(
+                revealState = revealState,
+                primaryAction = { DefaultPrimaryActionButton() },
+                content = { Box(Modifier.fillMaxSize().testTag(SWIPE_TO_REVEAL_TAG)) },
+            )
+        }
+
+        val targetOffset =
+            rule.runOnIdle { revealState.anchoredDraggableState.anchors.positionOf(targetValue) }
+        assertFalse(targetOffset.isNaN())
+
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle {
+            coroutineScope.launch {
+                revealState.drag {
+                    animate(
+                        initialValue = revealState.offset,
+                        targetValue = targetOffset,
+                        animationSpec = tween(durationMillis = 100),
+                    ) { value, _ ->
+                        dragTo(value)
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(50)
+        val offsetAt50 = revealState.offset
+        assertTrue(abs(offsetAt50) > 0)
+        assertTrue(abs(offsetAt50) < abs(targetOffset))
+
+        rule.mainClock.advanceTimeBy(50)
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertEquals(targetOffset, revealState.offset, 0.1f)
+        assertEquals(targetValue, revealState.currentValue)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun anchoredDrag_higherPriorityDrag_cancelsLowerPriorityDrag() {
+        lateinit var revealState: RevealState
+        var lowPriorityStarted = false
+        var lowPriorityCancelled = false
+        var highPriorityStarted = false
+        rule.setContent {
+            revealState = rememberRevealState(Covered)
+            SwipeToRevealWithDefaults(
+                revealState = revealState,
+                primaryAction = { DefaultPrimaryActionButton() },
+                content = { Box(Modifier.fillMaxSize().testTag(SWIPE_TO_REVEAL_TAG)) },
+            )
+        }
+
+        rule.waitForIdle()
+
+        runTest {
+            val lowPriorityJob = launch {
+                try {
+                    revealState.drag(MutatePriority.Default) {
+                        lowPriorityStarted = true
+                        // Suspend indefinitely to simulate an ongoing drag
+                        awaitCancellation()
+                    }
+                } catch (e: CancellationException) {
+                    lowPriorityCancelled = true
+                    throw e
+                }
+            }
+            runCurrent()
+
+            val highPriorityJob = launch {
+                revealState.drag(MutatePriority.UserInput) { highPriorityStarted = true }
+            }
+            runCurrent()
+
+            assertTrue("Low priority drag should have started", lowPriorityStarted)
+            assertTrue("Higher priority drag should have started", highPriorityStarted)
+            assertTrue("Lower priority drag should have been cancelled", lowPriorityCancelled)
+
+            lowPriorityJob.cancel()
+            highPriorityJob.cancel()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun anchoredDrag_lowerPriorityDrag_isCancelledIfHigherPriorityIsRunning() {
+        lateinit var revealState: RevealState
+        var lowPriorityStarted = false
+        var lowPriorityCancelled = false
+        var highPriorityCancelled = false
+        var highPriorityStarted = false
+        rule.setContent {
+            revealState = rememberRevealState(Covered)
+            SwipeToRevealWithDefaults(
+                revealState = revealState,
+                primaryAction = { DefaultPrimaryActionButton() },
+                content = { Box(Modifier.fillMaxSize().testTag(SWIPE_TO_REVEAL_TAG)) },
+            )
+        }
+
+        rule.waitForIdle()
+
+        runTest {
+            val highPriorityJob = launch {
+                try {
+                    revealState.drag(MutatePriority.UserInput) {
+                        highPriorityStarted = true
+                        // Suspend indefinitely to simulate an ongoing drag
+                        awaitCancellation()
+                    }
+                } catch (e: CancellationException) {
+                    highPriorityCancelled = true
+                    throw e
+                }
+            }
+            runCurrent()
+
+            val lowPriorityJob = launch {
+                try {
+                    revealState.drag(MutatePriority.Default) {
+                        lowPriorityStarted = true
+                        // Suspend indefinitely to simulate an ongoing drag
+                        awaitCancellation()
+                    }
+                } catch (e: CancellationException) {
+                    lowPriorityCancelled = true
+                    throw e
+                }
+            }
+            runCurrent()
+
+            assertTrue("Higher priority drag should have started", highPriorityStarted)
+            assertFalse("Higher priority drag should have not cancelled", highPriorityCancelled)
+            assertFalse("Lower priority drag should have not started", lowPriorityStarted)
+            assertTrue("Lower priority drag should have been cancelled", lowPriorityCancelled)
+
+            highPriorityJob.cancel()
+            lowPriorityJob.cancel()
+        }
+    }
+
+    @Test
+    fun anchoredDrag_withLowFlingVelocity_settlesAtRevealing() {
+        lateinit var revealState: RevealState
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var flingBehavior: TargetedFlingBehavior
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            revealState = rememberRevealState()
+            SwipeToRevealWithDefaults(
+                revealState = revealState,
+                primaryAction = {
+                    DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                },
+                secondaryAction = {
+                    DefaultSecondaryActionButton(modifier = Modifier.testTag(SECONDARY_ACTION_TAG))
+                },
+                content = { Box(Modifier.fillMaxSize().testTag(SWIPE_TO_REVEAL_TAG)) },
+            )
+            flingBehavior = SwipeToRevealDefaults.flingBehavior(revealState)
+        }
+
+        val directionMultiplier = -1
+        val scrollDistance =
+            with(rule.density) { directionMultiplier * MinimalSwipeDistance.toPx() }
+        val velocity = with(rule.density) { directionMultiplier * LowFlingVelocity.toPx() }
+
+        rule.runOnIdle {
+            coroutineScope.launch {
+                revealState.drag {
+                    val scrollScope =
+                        object : ScrollScope {
+                            override fun scrollBy(pixels: Float): Float {
+                                val start = revealState.offset
+                                if (start.isNaN()) return 0f
+
+                                dragTo(start + pixels)
+                                return revealState.offset - start
+                            }
+                        }
+                    scrollScope.scrollBy(scrollDistance)
+                    // Let the provided behavior run the physics!
+                    with(flingBehavior) {
+                        val unused = scrollScope.performFling(velocity)
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertEquals(RightRevealing, revealState.currentValue)
+    }
+
+    @Test
+    fun anchoredDrag_withHighFlingVelocity_settlesAtRevealed() {
+        lateinit var revealState: RevealState
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var flingBehavior: TargetedFlingBehavior
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            revealState = rememberRevealState()
+            SwipeToRevealWithDefaults(
+                revealState = revealState,
+                primaryAction = {
+                    DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                },
+                secondaryAction = {
+                    DefaultSecondaryActionButton(modifier = Modifier.testTag(SECONDARY_ACTION_TAG))
+                },
+                content = { Box(Modifier.fillMaxSize().testTag(SWIPE_TO_REVEAL_TAG)) },
+            )
+            flingBehavior = SwipeToRevealDefaults.flingBehavior(revealState)
+        }
+
+        val directionMultiplier = -1
+        val scrollDistance =
+            with(rule.density) { directionMultiplier * MinimalSwipeDistance.toPx() }
+        val velocity = with(rule.density) { directionMultiplier * HighFlingVelocity.toPx() }
+
+        rule.runOnIdle {
+            coroutineScope.launch {
+                revealState.drag {
+                    val scrollScope =
+                        object : ScrollScope {
+                            override fun scrollBy(pixels: Float): Float {
+                                val start = revealState.offset
+                                if (start.isNaN()) return 0f
+
+                                dragTo(start + pixels)
+                                return revealState.offset - start
+                            }
+                        }
+                    scrollScope.scrollBy(scrollDistance)
+                    // Let the provided behavior run the physics!
+                    with(flingBehavior) {
+                        val unused = scrollScope.performFling(velocity)
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertEquals(RightRevealed, revealState.currentValue)
+    }
+
+    @Test
+    fun anchoredDrag_dragTo_coercesToAnchors() {
+        lateinit var revealState: RevealState
+        lateinit var coroutineScope: CoroutineScope
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            revealState = rememberRevealState()
+            SwipeToRevealWithDefaults(
+                revealState = revealState,
+                primaryAction = { DefaultPrimaryActionButton() },
+                content = { Box(Modifier.fillMaxSize().testTag(SWIPE_TO_REVEAL_TAG)) },
+            )
+        }
+
+        val minOffset = rule.runOnIdle { revealState.anchoredDraggableState.anchors.minPosition() }
+        val maxOffset = rule.runOnIdle { revealState.anchoredDraggableState.anchors.maxPosition() }
+
+        rule.runOnIdle {
+            coroutineScope.launch {
+                revealState.drag {
+                    // try to drag way beyond the anchors
+                    dragTo(minOffset - 1000f)
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(minOffset, revealState.offset, 0.1f)
+
+        rule.runOnIdle { coroutineScope.launch { revealState.drag { dragTo(maxOffset + 1000f) } } }
+        rule.waitForIdle()
+        assertEquals(maxOffset, revealState.offset, 0.1f)
+    }
+
+    @Test
+    fun onDispatchRawDelta_withNestedScroll_updatesState() {
+        lateinit var revealState: RevealState
+        lateinit var coroutineScope: CoroutineScope
+        val scrollableContentTag = "scrollable-content"
+
+        val nestedScrollConnection =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    // When a vertical scroll happens, consume the delta and
+                    // dispatch it horizontally to the RevealState.
+                    // A negative delta from swiping up will cause a swipe-left motion.
+                    coroutineScope.launch { revealState.dispatchRawDelta(available.y) }
+                    // Consume the vertical scroll entirely.
+                    return available
+                }
+            }
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            revealState = rememberRevealState()
+            Box(Modifier.nestedScroll(nestedScrollConnection)) {
+                SwipeToRevealWithDefaults(
+                    revealState = revealState,
+                    primaryAction = {
+                        DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                    },
+                ) {
+                    // A scrollable child is needed to generate scroll events.
+                    Box(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .height(100.dp)
+                                .scrollable(
+                                    rememberScrollState(),
+                                    orientation = Orientation.Vertical,
+                                )
+                                .testTag(scrollableContentTag)
+                    ) {
+                        DefaultContent()
+                    }
+                }
+            }
+        }
+
+        // Perform a vertical swipe on the child content.
+        rule.onNodeWithTag(scrollableContentTag).performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        // Verify that the underlying action is now visible.
+        rule.onNodeWithTag(PRIMARY_ACTION_TAG).assertExists()
+    }
+
     private fun verifyActionCenterVerticalAligned(
         primaryActionHeight: Dp,
         secondaryActionHeight: Dp,
@@ -1188,6 +1550,49 @@ class SwipeToRevealTest {
     @Test
     fun onCreation_rtlWithLeftRevealed_throwsHelpfulMessage() {
         assertThrowsHelpfulMessage(initialValue = LeftRevealed)
+    }
+
+    @Test
+    fun offsetOfLeftRevealValue_inRtl_isNaN() {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            revealState = rememberRevealState()
+            SwipeToRevealWithDefaults(revealState = revealState, revealDirection = RightToLeft)
+        }
+        assertTrue(revealState.offsetOf(LeftRevealing).isNaN())
+        assertTrue(revealState.offsetOf(LeftRevealed).isNaN())
+    }
+
+    @Test
+    fun offsetOfRevealedValues_equalsToScreenWidth() {
+        lateinit var revealState: RevealState
+        val smallScreenWidthPx: Float = with(rule.density) { SMALL_SCREEN_WIDTH_DP.dp.toPx() }
+        rule.setContent {
+            revealState = rememberRevealState()
+            ScreenConfiguration(SMALL_SCREEN_WIDTH_DP) {
+                SwipeToRevealWithDefaults(
+                    revealState = revealState,
+                    revealDirection = Bidirectional,
+                )
+            }
+        }
+        assertEquals(revealState.offsetOf(LeftRevealed), smallScreenWidthPx)
+        assertEquals(revealState.offsetOf(RightRevealed), -smallScreenWidthPx)
+    }
+
+    @Test
+    fun offsetOfRevealingsValues_noPartiallyRevealedState_isNaN() {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            revealState = rememberRevealState()
+            SwipeToRevealWithDefaults(
+                revealState = revealState,
+                revealDirection = Bidirectional,
+                hasPartiallyRevealedState = false,
+            )
+        }
+        assertTrue(revealState.offsetOf(LeftRevealing).isNaN())
+        assertTrue(revealState.offsetOf(RightRevealing).isNaN())
     }
 
     @Test
@@ -1796,5 +2201,9 @@ class SwipeToRevealTest {
         private const val SECONDARY_ACTION_TAG = "SECONDARY_ACTION_TAG"
         private const val UNDO_PRIMARY_ACTION_TAG = "UNDO_PRIMARY_ACTION_TAG"
         private const val UNDO_SECONDARY_ACTION_TAG = "UNDO_SECONDARY_ACTION_TAG"
+        private const val SMALL_SCREEN_WIDTH_DP = 192
+        private val HighFlingVelocity: Dp = 1000.dp
+        private val LowFlingVelocity: Dp = 250.dp
+        private val MinimalSwipeDistance: Dp = 10.dp
     }
 }

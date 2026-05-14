@@ -1754,7 +1754,7 @@ internal fun <T> anchoredDraggableFlingBehavior(
             AnchoredDraggableLayoutInfoProvider(
                 state = state,
                 positionalThreshold = positionalThreshold,
-                velocityThreshold = { with(density) { 125.dp.toPx() } },
+                velocityThreshold = { with(density) { AnchoredDraggableMinFlingVelocity.toPx() } },
             ),
     )
 
