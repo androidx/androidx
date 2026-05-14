@@ -584,7 +584,7 @@ public fun ScreenScaffold(
         scrollInfoProvider = scrollInfoProvider,
         scrollIndicator = scrollIndicator,
         overscrollEffect = overscrollEffect,
-        content = {
+        content = { innerContentPadding ->
             var intrinsicButtonHeight by remember(edgeButton) { mutableStateOf<Float?>(null) }
             val currentEdgeButtonTargetHeight by
                 remember(scrollInfoProvider, lastItemOffsetCorrection) {
@@ -620,12 +620,12 @@ public fun ScreenScaffold(
                     }
                 }
             val mainContent: @Composable () -> Unit =
-                remember(contentPadding, effectiveEdgeButtonSpacing, content) {
+                remember(innerContentPadding, effectiveEdgeButtonSpacing, content) {
                     {
                         content(
                             // Replace bottom content padding adjusted for the edge button.
                             ReplacePaddingValues(
-                                contentPadding,
+                                innerContentPadding,
                                 with(localDensity) {
                                     (intrinsicButtonHeight?.toDp() ?: 0.dp) +
                                         effectiveEdgeButtonSpacing
