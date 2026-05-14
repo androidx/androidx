@@ -254,10 +254,12 @@ internal class BasicTextFieldStyledTextTest {
         rule.onNodeWithTag(tag).performTextInput(" World!")
 
         assertThat(state.text.toString()).isEqualTo("Hello World!")
-        assertThat(state.value.textStyleBuffer?.getAllStyles()?.size).isEqualTo(1)
-        assertThat(state.value.textStyleBuffer?.getAllStyles()?.get(0)?.item).isEqualTo(boldStyle)
-        assertThat(state.value.textStyleBuffer?.getAllStyles()?.get(0)?.start).isEqualTo(0)
-        assertThat(state.value.textStyleBuffer?.getAllStyles()?.get(0)?.end).isEqualTo(12)
+        val styles = state.textStyles.getSpanStyles(0, 12)
+        assertThat(styles.size).isEqualTo(1)
+        assertThat(styles[0].item).isEqualTo(boldStyle)
+        assertThat(styles[0].start).isEqualTo(0)
+        assertThat(styles[0].end).isEqualTo(12)
+        assertThat(state.textStyles.getParagraphStyles(0, 12)).isEmpty()
     }
 
     @Test
@@ -281,7 +283,7 @@ internal class BasicTextFieldStyledTextTest {
         assertThat(textLayoutResult.layoutInput.text.toString()).isEqualTo("Hello World!")
 
         assertThat(state.text.toString()).isEqualTo("Hello")
-        assertThat(state.value.textStyleBuffer?.getStyles<SpanStyle>(0, 5)).isNull()
+        assertThat(state.textStyles.getSpanStyles(0, 5)).isEmpty()
     }
 
     @Test

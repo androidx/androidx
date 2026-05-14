@@ -66,8 +66,8 @@ internal constructor(
     private val buffer = PartialGapBuffer(initialValue)
 
     internal var textStyleBuffer: TextStyleBuffer<AnnotatedString.Annotation>? =
-        if (initialValue.textStyleBuffer != null) {
-            TextStyleBuffer(initialValue.textStyleBuffer)
+        if (initialValue.textFieldTextStyles != null) {
+            TextStyleBuffer(initialValue.textFieldTextStyles.textStyleBuffer)
         } else {
             null
         }
@@ -416,8 +416,8 @@ internal constructor(
         selection = originalValue.selection
         clearChangeList()
         if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-            if (originalValue.textStyleBuffer != null) {
-                requireTextFieldBuffer().syncTo(originalValue.textStyleBuffer)
+            if (originalValue.textFieldTextStyles != null) {
+                requireTextFieldBuffer().syncTo(originalValue.textFieldTextStyles.textStyleBuffer)
             } else {
                 textStyleBuffer?.clear()
             }
@@ -486,9 +486,9 @@ internal constructor(
             composition = composition,
             composingAnnotations = composingAnnotations,
             outputAnnotations = outputAnnotations,
-            textStyleBuffer =
+            textFieldTextStyles =
                 if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-                    textStyleBuffer?.toImmutable()
+                    getTextFieldTextStyles()
                 } else {
                     null
                 },

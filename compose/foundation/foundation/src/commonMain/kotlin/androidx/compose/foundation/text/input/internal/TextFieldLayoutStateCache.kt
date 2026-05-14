@@ -159,7 +159,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
             if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
                 mergeNullableLists(
                     visualText.composingAnnotations,
-                    visualText.textStyleBuffer?.getAllStyles(),
+                    visualText.textFieldTextStyles?.textStyleBuffer?.getAllStyles(),
                 )
             } else {
                 mergeNullableLists(visualText.composingAnnotations, visualText.outputAnnotations)
