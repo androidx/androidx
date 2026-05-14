@@ -40,7 +40,7 @@ dependencies {
 
 androidx {
     name = "Remote Compose Lint Checks"
-    type = SoftwareType.STANDALONE_PUBLISHED_LINT
+    type = SoftwareType.LINT
     inceptionYear = "2026"
     description = "Remote Compose Lint Checks"
 }
