@@ -462,7 +462,7 @@ If you want to run a specific unit test, you can do it using
 ./gradlew <project-name>:test --tests androidx.core.view.DisplayCompatTest
 
 # Run a test for a JVM library
-./gradlew <project-name>:testDebugUnitTest --tests
+./gradlew <project-name>:testReleaseUnitTest --tests
 androidx.core.view.DisplayCompatTest
 ```
 
