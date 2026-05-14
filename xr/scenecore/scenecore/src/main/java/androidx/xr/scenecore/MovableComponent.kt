@@ -89,7 +89,6 @@ private constructor(
 
     private val moveListenersMap = ConcurrentHashMap<EntityMoveListener, Executor>()
 
-    @OptIn(ExperimentalCustomMeshApi::class)
     private val rtMoveEventListener: RtMoveEventListener = RtMoveEventListener { rtMoveEvent ->
         val moveEvent = rtMoveEvent.toMoveEvent(entityRegistry)
         var updatedReformEventInfo: UpdatedReformEventInfo? = null
@@ -230,7 +229,6 @@ private constructor(
 
     private data class UpdatedReformEventInfo(val pose: Pose, val parent: Entity?, val scale: Float)
 
-    @OptIn(ExperimentalCustomMeshApi::class)
     private fun getUpdatedReformEventPoseAndParent(moveEvent: MoveEvent): UpdatedReformEventInfo {
         val initialParent = moveEvent.initialParent
         val initialPose = moveEvent.currentPose

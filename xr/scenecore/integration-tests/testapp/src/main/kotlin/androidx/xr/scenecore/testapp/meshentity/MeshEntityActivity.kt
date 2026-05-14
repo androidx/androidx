@@ -57,7 +57,6 @@ import androidx.xr.runtime.math.Vector4
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.ByteBufferRegion
 import androidx.xr.scenecore.CustomMesh
-import androidx.xr.scenecore.ExperimentalCustomMeshApi
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.KhronosPbrMaterial
@@ -82,7 +81,6 @@ import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 @SuppressLint("RestrictedApi", "RestrictedApiAndroidX")
-@OptIn(ExperimentalCustomMeshApi::class)
 class MeshEntityActivity : AppCompatActivity() {
     private var session: Session? = null
     private var material: KhronosPbrMaterial? = null

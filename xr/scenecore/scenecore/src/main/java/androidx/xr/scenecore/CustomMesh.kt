@@ -32,7 +32,6 @@ import androidx.xr.scenecore.runtime.CustomMeshResource as RtCustomMeshResource
  * @property subsets The list of [MeshSubsets][MeshSubset] defining the parts of the mesh.
  * @property bounds The bounding box of the mesh, used for culling.
  */
-@ExperimentalCustomMeshApi
 public class CustomMesh
 private constructor(
     private val resource: RtCustomMeshResource,

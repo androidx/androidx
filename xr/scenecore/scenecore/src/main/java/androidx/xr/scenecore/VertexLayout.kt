@@ -23,7 +23,6 @@ import androidx.annotation.IntRange
  * This class is used to define the semantic meaning of a vertex attribute in a
  * [VertexAttributeDescriptor]. See [VertexAttributeType] for the supported data types.
  */
-@ExperimentalCustomMeshApi
 public class VertexAttribute private constructor(private val name: String) {
     public companion object {
         /** The position of the vertex. Must be a [VertexAttributeType.FLOAT3]. */
@@ -70,7 +69,6 @@ public class VertexAttribute private constructor(private val name: String) {
  * This class is used to define the data type and component count for a vertex attribute in a
  * [VertexAttributeDescriptor].
  */
-@ExperimentalCustomMeshApi
 public class VertexAttributeType private constructor(private val value: Int) {
     public companion object {
         /** A single 32-bit floating point value. */
@@ -133,7 +131,6 @@ public class VertexAttributeType private constructor(private val value: Int) {
  * @throws IllegalArgumentException if the given [type] is incompatible with the given [attribute],
  *   or if [offset] is not [AUTO_OFFSET] and is not between 0 and [MAX_OFFSET].
  */
-@ExperimentalCustomMeshApi
 public class VertexAttributeDescriptor
 @JvmOverloads
 constructor(
@@ -206,7 +203,6 @@ constructor(
  *   not between 1 and [MAX_STRIDE], if any attributes overlap, or if [stride] is not [AUTO_STRIDE]
  *   and is smaller than the minimum byte stride required to encompass all attributes.
  */
-@ExperimentalCustomMeshApi
 public class VertexBufferLayout
 @JvmOverloads
 constructor(
@@ -299,7 +295,6 @@ constructor(
  *   [VertexAttribute.POSITION] attribute, if it contains duplicate attributes, or if only one of
  *   [VertexAttribute.BONE_INDICES] or [VertexAttribute.BONE_WEIGHTS] is present.
  */
-@ExperimentalCustomMeshApi
 public class VertexLayout private constructor(public val buffers: List<VertexBufferLayout>) {
 
     /**
