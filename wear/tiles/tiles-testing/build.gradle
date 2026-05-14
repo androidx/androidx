@@ -41,6 +41,9 @@ dependencies {
     implementation("androidx.test:core:1.5.0")
     implementation(project(":wear:tiles:tiles"))
 
+    // Forcing this upgrade due to CVE-2026-0636. For more information, see b/504976861
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+
     testImplementation(libs.junit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
