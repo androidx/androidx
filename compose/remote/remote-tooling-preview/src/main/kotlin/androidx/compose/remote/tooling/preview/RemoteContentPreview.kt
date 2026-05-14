@@ -44,7 +44,7 @@ import kotlinx.coroutines.runBlocking
  *   with [@RemoteComposable].
  */
 @Composable
-public fun RemotePreview(
+public fun RemoteContentPreview(
     modifier: Modifier = Modifier,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     content: @RemoteComposable @Composable () -> Unit,

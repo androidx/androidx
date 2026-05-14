@@ -32,7 +32,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -76,4 +76,7 @@ fun SimplePath() {
     }
 }
 
-@Preview @Composable private fun SimplePathPreview() = RemotePreview { SimplePath() }
+@Suppress("RestrictedApiAndroidX")
+@Preview
+@Composable
+private fun SimplePathPreview() = RemoteContentPreview { SimplePath() }

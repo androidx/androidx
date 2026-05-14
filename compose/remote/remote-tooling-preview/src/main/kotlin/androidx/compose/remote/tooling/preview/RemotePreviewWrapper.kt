@@ -40,6 +40,6 @@ import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 public class RemotePreviewWrapper : PreviewWrapperProvider {
     @Composable
     override fun Wrap(content: @Composable (() -> Unit)) {
-        RemotePreview(profile = RcPlatformProfiles.ANDROIDX, content = content)
+        RemoteContentPreview(profile = RcPlatformProfiles.ANDROIDX, content = content)
     }
 }

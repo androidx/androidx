@@ -34,7 +34,7 @@ import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -64,7 +64,7 @@ fun RemoteButtonEnabled() {
 @Composable
 private fun RemoteButtonEnabledPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonEnabled() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonEnabled() } }
 
 @Composable
 @RemoteComposable
@@ -83,7 +83,7 @@ fun RemoteButtonWithBorder() {
 @Composable
 private fun RemoteButtonWithBorderPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonWithBorder() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithBorder() } }
 
 @Composable
 @RemoteComposable
@@ -117,7 +117,7 @@ fun RemoteButtonWithIcon() {
 @Composable
 private fun RemoteButtonWithIconPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonWithIcon() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithIcon() } }
 
 @Composable
 @RemoteComposable
@@ -141,7 +141,10 @@ fun RemoteButtonWithIconAndSecondaryLabel() {
 @Composable
 private fun RemoteButtonWithIconAndSecondaryLabelPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonWithIconAndSecondaryLabel() } }
+) =
+    RemoteContentPreview(profile = profile) {
+        Container { RemoteButtonWithIconAndSecondaryLabel() }
+    }
 
 @Composable
 @RemoteComposable
@@ -165,7 +168,7 @@ fun RemoteButtonWithBackground() {
 @Composable
 private fun RemoteButtonWithBackgroundPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonWithBackground() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithBackground() } }
 
 @Composable
 @RemoteComposable
@@ -182,7 +185,7 @@ fun RemoteButtonWithShape() {
 @Composable
 private fun RemoteButtonWithShapePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonWithShape() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithShape() } }
 
 @Composable
 @RemoteComposable
