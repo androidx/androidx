@@ -2041,7 +2041,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             """
                 @PrimaryKey
                 int id;
-                @Relation(parentColumn = "id", entityColumn = "uid")
+                @Relation(parentColumns = {"id"}, entityColumns = {"uid"})
                 java.util.List<User> users;
                 """,
             sources = listOf(COMMON.USER),
@@ -2513,7 +2513,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
 
                 static class A {
                     int entityId;
-                    @Relation(parentColumn = "entityId", entityColumn = "dataClassId")
+                    @Relation(parentColumns = {"entityId"}, entityColumns = {"dataClassId"})
                     List<MyEntity> myEntity;
                 }
                 """

@@ -51,5 +51,5 @@ interface UserDao {
 
 data class UserWithItems(
     @Embedded val user: User,
-    @Relation(parentColumn = "id", entityColumn = "ownerId") val items: List<Item>,
+    @Relation(parentColumns = ["id"], entityColumns = ["ownerId"]) val items: List<Item>,
 )

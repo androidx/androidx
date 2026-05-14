@@ -266,7 +266,7 @@ class AmbiguousColumnResolverTest {
 
     data class UserAndAvatar(
         @Embedded val user: User,
-        @Relation(parentColumn = "id", entityColumn = "userId") val avatar: Avatar?,
+        @Relation(parentColumns = ["id"], entityColumns = ["userId"]) val avatar: Avatar?,
     )
 
     data class UserAndComment(@Embedded val user: User, @Embedded val comment: Comment)

@@ -315,12 +315,12 @@ open annotation class androidx.room3/Insert : kotlin/Annotation { // androidx.ro
 }
 
 open annotation class androidx.room3/Junction : kotlin/Annotation { // androidx.room3/Junction|null[0]
-    constructor <init>(kotlin.reflect/KClass<*>, kotlin/String = ..., kotlin/String = ...) // androidx.room3/Junction.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String){}[0]
+    constructor <init>(kotlin.reflect/KClass<*>, kotlin/Array<kotlin/String> = ..., kotlin/Array<kotlin/String> = ...) // androidx.room3/Junction.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Array<kotlin.String>;kotlin.Array<kotlin.String>){}[0]
 
-    final val entityColumn // androidx.room3/Junction.entityColumn|{}entityColumn[0]
-        final fun <get-entityColumn>(): kotlin/String // androidx.room3/Junction.entityColumn.<get-entityColumn>|<get-entityColumn>(){}[0]
-    final val parentColumn // androidx.room3/Junction.parentColumn|{}parentColumn[0]
-        final fun <get-parentColumn>(): kotlin/String // androidx.room3/Junction.parentColumn.<get-parentColumn>|<get-parentColumn>(){}[0]
+    final val entityColumns // androidx.room3/Junction.entityColumns|{}entityColumns[0]
+        final fun <get-entityColumns>(): kotlin/Array<kotlin/String> // androidx.room3/Junction.entityColumns.<get-entityColumns>|<get-entityColumns>(){}[0]
+    final val parentColumns // androidx.room3/Junction.parentColumns|{}parentColumns[0]
+        final fun <get-parentColumns>(): kotlin/Array<kotlin/String> // androidx.room3/Junction.parentColumns.<get-parentColumns>|<get-parentColumns>(){}[0]
     final val value // androidx.room3/Junction.value|{}value[0]
         final fun <get-value>(): kotlin.reflect/KClass<*> // androidx.room3/Junction.value.<get-value>|<get-value>(){}[0]
 }
@@ -383,16 +383,16 @@ open annotation class androidx.room3/RawQuery : kotlin/Annotation { // androidx.
 }
 
 open annotation class androidx.room3/Relation : kotlin/Annotation { // androidx.room3/Relation|null[0]
-    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/String, kotlin/String, androidx.room3/Junction = ..., kotlin/Array<kotlin/String> = ...) // androidx.room3/Relation.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String;androidx.room3.Junction;kotlin.Array<kotlin.String>){}[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/Array<kotlin/String>, kotlin/Array<kotlin/String>, androidx.room3/Junction = ..., kotlin/Array<kotlin/String> = ...) // androidx.room3/Relation.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Array<kotlin.String>;kotlin.Array<kotlin.String>;androidx.room3.Junction;kotlin.Array<kotlin.String>){}[0]
 
     final val associateBy // androidx.room3/Relation.associateBy|{}associateBy[0]
         final fun <get-associateBy>(): androidx.room3/Junction // androidx.room3/Relation.associateBy.<get-associateBy>|<get-associateBy>(){}[0]
     final val entity // androidx.room3/Relation.entity|{}entity[0]
         final fun <get-entity>(): kotlin.reflect/KClass<*> // androidx.room3/Relation.entity.<get-entity>|<get-entity>(){}[0]
-    final val entityColumn // androidx.room3/Relation.entityColumn|{}entityColumn[0]
-        final fun <get-entityColumn>(): kotlin/String // androidx.room3/Relation.entityColumn.<get-entityColumn>|<get-entityColumn>(){}[0]
-    final val parentColumn // androidx.room3/Relation.parentColumn|{}parentColumn[0]
-        final fun <get-parentColumn>(): kotlin/String // androidx.room3/Relation.parentColumn.<get-parentColumn>|<get-parentColumn>(){}[0]
+    final val entityColumns // androidx.room3/Relation.entityColumns|{}entityColumns[0]
+        final fun <get-entityColumns>(): kotlin/Array<kotlin/String> // androidx.room3/Relation.entityColumns.<get-entityColumns>|<get-entityColumns>(){}[0]
+    final val parentColumns // androidx.room3/Relation.parentColumns|{}parentColumns[0]
+        final fun <get-parentColumns>(): kotlin/Array<kotlin/String> // androidx.room3/Relation.parentColumns.<get-parentColumns>|<get-parentColumns>(){}[0]
     final val projection // androidx.room3/Relation.projection|{}projection[0]
         final fun <get-projection>(): kotlin/Array<kotlin/String> // androidx.room3/Relation.projection.<get-projection>|<get-projection>(){}[0]
 }

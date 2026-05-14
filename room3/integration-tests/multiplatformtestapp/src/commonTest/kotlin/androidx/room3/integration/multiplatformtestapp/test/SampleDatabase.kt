@@ -241,29 +241,29 @@ interface SampleDao {
 
     data class Sample1And2(
         @Embedded val sample1: SampleEntity,
-        @Relation(parentColumn = "pk", entityColumn = "pk2") val sample2: SampleEntity2,
+        @Relation(parentColumns = ["pk"], entityColumns = ["pk2"]) val sample2: SampleEntity2,
     )
 
     data class Sample1And2Byte(
         @Embedded val sample1: SampleEntity1Byte,
-        @Relation(parentColumn = "pk", entityColumn = "pk2") val sample2: SampleEntity2Byte,
+        @Relation(parentColumns = ["pk"], entityColumns = ["pk2"]) val sample2: SampleEntity2Byte,
     )
 
     data class Sample1AndMany(
         @Embedded val sample1: SampleEntity,
-        @Relation(parentColumn = "pk", entityColumn = "pk2") val sample2s: List<SampleEntity2>,
+        @Relation(parentColumns = ["pk"], entityColumns = ["pk2"]) val sample2s: List<SampleEntity2>,
     )
 
     data class SampleManyAndMany(
         @Embedded val sample1: StringSampleEntity1,
         @Relation(
-            parentColumn = "stringPk1",
-            entityColumn = "stringPk2",
+            parentColumns = ["stringPk1"],
+            entityColumns = ["stringPk2"],
             associateBy =
                 Junction(
                     value = Sample1Sample2XRef::class,
-                    parentColumn = "sample1Key",
-                    entityColumn = "sample2Key",
+                    parentColumns = ["sample1Key"],
+                    entityColumns = ["sample2Key"],
                 ),
         )
         val sample2s: List<StringSampleEntity2>,

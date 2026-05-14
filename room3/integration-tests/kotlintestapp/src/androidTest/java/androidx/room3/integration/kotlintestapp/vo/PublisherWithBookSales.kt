@@ -24,8 +24,8 @@ data class PublisherWithBookSales
 constructor(
     @Embedded val publisher: Publisher,
     @Relation(
-        parentColumn = "publisherId", // publisher.publisherId
-        entityColumn = "bookPublisherId", // book.bookPublisherId
+        parentColumns = ["publisherId"], // publisher.publisherId
+        entityColumns = ["bookPublisherId"], // book.bookPublisherId
         entity = Book::class,
         projection = ["salesCnt"],
     )

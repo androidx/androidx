@@ -562,37 +562,37 @@ object ProcessorErrors {
 
     const val NOT_ENTITY_OR_VIEW = "The class must be either @Entity or @DatabaseView."
 
-    fun relationCannotFindEntityProperty(
+    fun relationCannotFindEntityProperties(
         entityName: String,
-        columnName: String,
+        columnNames: List<String>,
         availableColumns: List<String>,
     ) =
-        "Cannot find the child entity column `$columnName` in $entityName." +
+        "Cannot find the child entity columns [${columnNames.joinToString()}] in $entityName." +
             " Available columns are: ${availableColumns.joinToString()}"
 
-    fun relationCannotFindParentEntityProperty(
+    fun relationCannotFindParentEntityProperties(
         entityName: String,
-        columnName: String,
+        columnNames: List<String>,
         availableColumns: List<String>,
     ) =
-        "Cannot find the parent entity column `$columnName` in $entityName." +
+        "Cannot find the parent entity columns [${columnNames.joinToString()}] in $entityName." +
             " Available columns are: ${availableColumns.joinToString()}"
 
-    fun relationCannotFindJunctionEntityProperty(
+    fun relationCannotFindJunctionEntityProperties(
         entityName: String,
-        columnName: String,
+        columnNames: List<String>,
         availableColumns: List<String>,
     ) =
-        "Cannot find the child entity referencing column `$columnName` in the junction " +
+        "Cannot find the child entity referencing columns [${columnNames.joinToString()}] in the junction " +
             "$entityName. Available columns are: ${availableColumns.joinToString()}"
 
-    fun relationCannotFindJunctionParentProperty(
+    fun relationCannotFindJunctionParentProperties(
         entityName: String,
-        columnName: String,
+        columnNames: List<String>,
         availableColumns: List<String>,
     ) =
-        "Cannot find the parent entity referencing column `$columnName` in the junction " +
-            "$entityName. Options: ${availableColumns.joinToString()}"
+        "Cannot find the parent entity referencing columns [${columnNames.joinToString()}] in the junction " +
+            "$entityName. Available columns are: ${availableColumns.joinToString()}"
 
     fun junctionColumnWithoutIndex(entityName: String, columnName: String) =
         "The column $columnName in the junction entity $entityName is being used to resolve " +
@@ -601,6 +601,25 @@ object ProcessorErrors {
             "create an index that covers this column."
 
     const val RELATION_IN_ENTITY = "Entities cannot have relations."
+
+    const val RELATION_PARENT_COLUMNS_CANNOT_BE_EMPTY =
+        "Cannot have empty 'parentColumns' in @Relation."
+
+    const val RELATION_ENTITY_COLUMNS_CANNOT_BE_EMPTY =
+        "Cannot have empty 'entityColumns' in @Relation."
+
+    const val RELATION_COLUMNS_SIZE_MISMATCH =
+        "In @Relation both 'parentColumns' and 'entityColumns' must have the same number of columns."
+
+    const val JUNCTION_PARENT_COLUMNS_SIZE_MISMATCH =
+        "In a @Relation with a junction, 'parentColumns' size must match relation 'parentColumns size"
+
+    const val JUNCTION_ENTITY_COLUMNS_SIZE_MISMATCH =
+        "In a @Relation with a junction, 'entityColumns' size must match relation 'entityColumns' size"
+
+    const val RELATION_CANNOT_INFER_PROJECTION_FOR_COMPOSITE_RELATION =
+        "Cannot infer projection for composite relation when returning a single value. " +
+            "Please specify projection in @Relation."
 
     fun relationAffinityMismatch(
         parentColumn: String,
@@ -1268,4 +1287,7 @@ object ProcessorErrors {
 
     const val INVALID_NULLABLE_DAO_CONSTRUCTOR_PARAM =
         "The database parameter of a DAO constructor must not be nullable."
+
+    fun mismatchPairTripleQueryColumns(required: Int, typeName: String) =
+        "Query returns less than $required columns but $typeName expects at least $required."
 }

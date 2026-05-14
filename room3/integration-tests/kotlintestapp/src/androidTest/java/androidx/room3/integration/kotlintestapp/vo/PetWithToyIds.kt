@@ -23,8 +23,8 @@ class PetWithToyIds {
     @Embedded val pet: Pet?
 
     @Relation(
-        parentColumn = "petId",
-        entityColumn = "petId",
+        parentColumns = ["petId"],
+        entityColumns = ["petId"],
         projection = ["id"],
         entity = Toy::class,
     )

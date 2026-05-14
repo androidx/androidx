@@ -114,7 +114,7 @@ class DatabaseViewTest {
 
     data class TeamWithMembers(
         @Embedded val teamDetail: TeamDetail,
-        @Relation(parentColumn = "id", entityColumn = "teamId")
+        @Relation(parentColumns = ["id"], entityColumns = ["teamId"])
         val members: List<EmployeeWithManager>,
     )
 

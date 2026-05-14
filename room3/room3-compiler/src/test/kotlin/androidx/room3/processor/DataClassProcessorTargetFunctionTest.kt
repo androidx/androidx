@@ -436,7 +436,7 @@ class DataClassProcessorTargetFunctionTest {
                 @PrimaryKey
                 abstract long getId();
                 @AutoValue.CopyAnnotations
-                @Relation(parentColumn = "id", entityColumn = "parentId")
+                @Relation(parentColumns = {"id"}, entityColumns = {"parentId"})
                 abstract List<RelationDataClass> getRelations();
                 static MyDataClass create(long id, List<RelationDataClass> relations) {
                     return new AutoValue_MyDataClass(id, relations);
@@ -445,7 +445,7 @@ class DataClassProcessorTargetFunctionTest {
             """
                 @PrimaryKey
                 private final long id;
-                @Relation(parentColumn = "id", entityColumn = "parentId")
+                @Relation(parentColumns = {"id"}, entityColumns = {"parentId"})
                 private final List<RelationDataClass> relations;
                 AutoValue_MyDataClass(long id, List<RelationDataClass> relations) {
                     this.id = id;
@@ -453,7 +453,7 @@ class DataClassProcessorTargetFunctionTest {
                 }
                 @PrimaryKey
                 long getId() { return this.id; }
-                @Relation(parentColumn = "id", entityColumn = "parentId")
+                @Relation(parentColumns = {"id"}, entityColumns = {"parentId"})
                 List<RelationDataClass> getRelations() { return this.relations; }
                 """,
             Source.java("foo.bar.RelationDataClass", embeddedDataClass),

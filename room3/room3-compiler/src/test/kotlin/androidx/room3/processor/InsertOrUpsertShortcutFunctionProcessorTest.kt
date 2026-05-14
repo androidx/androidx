@@ -1031,7 +1031,7 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
 
             public class UserPets {
                 int uid;
-                @Relation(parentColumn = "uid", entityColumn = "ownerId")
+                @Relation(parentColumns = {"uid"}, entityColumns = {"ownerId"})
                 List<Pet> pets;
             }
             """,

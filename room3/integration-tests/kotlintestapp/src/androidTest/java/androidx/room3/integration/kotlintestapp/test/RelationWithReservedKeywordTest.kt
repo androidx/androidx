@@ -87,7 +87,7 @@ class RelationWithReservedKeywordTest {
     class CategoryWithTopics {
         @Embedded var category: Category? = null
 
-        @Relation(parentColumn = "id", entityColumn = "category_id", entity = Topic::class)
+        @Relation(parentColumns = ["id"], entityColumns = ["category_id"], entity = Topic::class)
         var topics: List<Topic> = emptyList()
     }
 

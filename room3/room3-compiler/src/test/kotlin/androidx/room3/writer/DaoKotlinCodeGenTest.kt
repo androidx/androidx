@@ -2058,6 +2058,48 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun queryResultAdapter_pairTriple() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+                import kotlin.Pair
+                import kotlin.Triple
+
+                @Dao
+                interface MyDao {
+                  @Query("SELECT 'Tom', 1 FROM MyEntity LIMIT 1")
+                  fun getPair(): Pair<String, Int>
+
+                  @Query("SELECT 'Tom', 1 FROM MyEntity LIMIT 1")
+                  fun getPairNullable(): Pair<String, Int>?
+
+                  @Query("SELECT 'Tom', 1 FROM MyEntity")
+                  fun getPairList(): List<Pair<String, Int>>
+
+                  @Query("SELECT 'Tom', 1 FROM MyEntity")
+                  fun getPairListNullableTypeArgs(): List<Pair<String?, Int>>
+
+                  @Query("SELECT 'Tom', 1, 0 FROM MyEntity LIMIT 1")
+                  fun getTriple(): Triple<String, Int, Boolean>
+                }
+
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    val pk: Int,
+                )
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+        )
+    }
+
+    @Test
     fun queryResultAdapter_list() {
         val dbSource =
             Source.kotlin(

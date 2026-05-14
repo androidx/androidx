@@ -323,7 +323,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
                 @Dao interface MyDao {
                     static class Merged extends User {
-                       @Relation(parentColumn = "name", entityColumn = "lastName",
+                       @Relation(parentColumns = {"name"}, entityColumns = {"lastName"},
                                  entity = User.class)
                        java.util.List<User> users;
                     }
@@ -352,7 +352,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
                 @Dao interface MyDao {
                     static class Merged extends User {
-                       @Relation(parentColumn = "name", entityColumn = "lastName",
+                       @Relation(parentColumns = {"name"}, entityColumns = {"lastName"},
                                  entity = User.class)
                        java.util.List<User> users;
                     }
@@ -380,7 +380,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
                 @Dao interface MyDao {
                     static class Merged extends User {
-                       @Relation(parentColumn = "name", entityColumn = "lastName",
+                       @Relation(parentColumns = {"name"}, entityColumns = {"lastName"},
                                  entity = User.class)
                        java.util.List<User> users;
                     }

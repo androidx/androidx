@@ -58,7 +58,7 @@ internal class MyDao_Impl(
           _tmpKey_1 = ByteArrayWrapper(_stmt.getBlob(_columnIndexOfArtistKey))
           _tmpArtist = _collectionArtist.get(_tmpKey_1)
           if (_tmpArtist == null) {
-            error("Relationship item 'artist' was expected to be NON-NULL but is NULL in @Relation involving a parent column named 'artistKey' and entityColumn named 'artistId'.")
+            error("Relationship item 'artist' was expected to be NON-NULL but is NULL in @Relation involving parent columns named 'artistKey' and entityColumns named 'artistId''.")
           }
           _result = SongWithArtist(_tmpSong,_tmpArtist)
         } else {
@@ -83,7 +83,8 @@ internal class MyDao_Impl(
       return
     }
     val _stringBuilder: StringBuilder = StringBuilder()
-    _stringBuilder.append("SELECT `artistId` FROM `Artist` WHERE `artistId` IN (")
+    _stringBuilder.append("SELECT `artistId` FROM `Artist`")
+    _stringBuilder.append(" WHERE `artistId` IN (")
     val _inputSize: Int = __mapKeySet.size
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
@@ -95,14 +96,14 @@ internal class MyDao_Impl(
       _argIndex++
     }
     try {
-      val _itemKeyIndex: Int = getColumnIndex(_stmt, "artistId")
-      if (_itemKeyIndex == -1) {
+      val _itemKeyIndex_0: Int = getColumnIndex(_stmt, "artistId")
+      if (_itemKeyIndex_0 == -1) {
         return
       }
       val _columnIndexOfArtistId: Int = 0
       while (_stmt.step()) {
         val _tmpKey: ByteArrayWrapper
-        _tmpKey = ByteArrayWrapper(_stmt.getBlob(_itemKeyIndex))
+        _tmpKey = ByteArrayWrapper(_stmt.getBlob(_itemKeyIndex_0))
         if (_map.containsKey(_tmpKey)) {
           val _item_1: Artist
           val _tmpArtistId: ByteArray

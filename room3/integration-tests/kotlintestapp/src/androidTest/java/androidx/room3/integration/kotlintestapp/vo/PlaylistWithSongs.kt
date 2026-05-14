@@ -22,9 +22,9 @@ import androidx.room3.Relation
 data class PlaylistWithSongs(
     @Embedded var playlist: Playlist,
     @Relation(
-        parentColumn = "mPlaylistId",
+        parentColumns = ["mPlaylistId"],
         entity = Song::class,
-        entityColumn = "mSongId",
+        entityColumns = ["mSongId"],
         associateBy = Junction(PlaylistSongXRef::class),
     )
     var songs: List<Song>,

@@ -289,8 +289,8 @@ class RawQueryFunctionProcessorTest {
                 public static class MyDataClass {
                     public String foo;
                     @Relation(
-                        parentColumn = "foo",
-                        entityColumn = "name"
+                        parentColumns = {"foo"},
+                        entityColumns = {"name"}
                     )
                     public java.util.List<User> users;
                 }

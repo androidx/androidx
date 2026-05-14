@@ -206,6 +206,8 @@ object KotlinTypeNames {
     val U_SHORT = XClassName.get("kotlin", "UShort")
     val U_INT = XClassName.get("kotlin", "UInt")
     val U_LONG = XClassName.get("kotlin", "ULong")
+    val PAIR = XClassName.get("kotlin", "Pair")
+    val TRIPLE = XClassName.get("kotlin", "Triple")
 }
 
 object KotlinUnsignedMemberNames {

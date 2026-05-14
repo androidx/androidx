@@ -30,7 +30,7 @@ public abstract class PersonWithCats {
     @Embedded
     public abstract Person getPerson();
     @AutoValue.CopyAnnotations
-    @Relation(parentColumn = "id", entityColumn = "ownerId")
+    @Relation(parentColumns = {"id"}, entityColumns = {"ownerId"})
     public abstract List<Pet.Cat> getCats();
 
     public static PersonWithCats create(Person person, List<Pet.Cat> cats) {
