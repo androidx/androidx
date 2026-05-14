@@ -132,6 +132,8 @@ class CameraAvailabilityTest(private val testConfig: CameraTestConfig) {
     @After
     fun tearDown() {
         cameraProvider?.shutdownAsync()?.get(10, TimeUnit.SECONDS)
+        shadowAgent.closeAllOpenDevices()
+        flushLoopers()
         testSchedulerThread.quitSafely()
         ShadowCameraBridge.agent = null
     }
