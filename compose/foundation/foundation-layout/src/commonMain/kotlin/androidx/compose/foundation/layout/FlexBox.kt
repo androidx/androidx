@@ -1744,12 +1744,31 @@ fun interface FlexBoxConfig {
      */
     fun FlexBoxConfigScope.configure()
 
+    /**
+     * Merges this config with another. Configs further "to the right" will override properties to
+     * the left of them, on a per-property basis.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxConfigCombineSample
+     * @param other the config to merge into the receiver.
+     */
+    infix fun then(other: FlexBoxConfig): FlexBoxConfig =
+        when {
+            (other === Companion) -> this
+            other is CombinedFlexBoxConfig -> CombinedFlexBoxConfig(this, *other.configs)
+            else -> CombinedFlexBoxConfig(this, other)
+        }
+
     companion object : FlexBoxConfig {
+
         /**
          * A default configuration that lays out items in a horizontal row without wrapping, with
+         *
          * items aligned to the start on both axes and no gaps.
          */
         override fun FlexBoxConfigScope.configure() {}
+
+        /** Identity elision: merging the identity with any config yields that config. */
+        override fun then(other: FlexBoxConfig): FlexBoxConfig = other
     }
 }
 
@@ -1919,11 +1938,11 @@ sealed interface FlexBoxConfigScope : Density {
      * This is a convenience function for uniform spacing across both axes.
      *
      * @sample androidx.compose.foundation.layout.samples.FlexBoxGapSample
-     * @param value The gap size to apply to both row and column gaps.
+     * @param all The gap size to apply to both row and column gaps.
      * @see rowGap
      * @see columnGap
      */
-    fun gap(value: Dp)
+    fun gap(all: Dp)
 
     /**
      * Sets [rowGap] and [columnGap] to different values.
@@ -1992,9 +2011,9 @@ internal class ResolvedFlexBoxConfig : FlexBoxConfigScope {
         this.alignItems = value
     }
 
-    override fun gap(value: Dp) {
-        rowGap = value
-        columnGap = value
+    override fun gap(all: Dp) {
+        rowGap = all
+        columnGap = all
     }
 
     override fun alignItems(alignmentLine: AlignmentLine) {
@@ -2124,6 +2143,27 @@ fun interface FlexConfig {
      * system during the measurement phase, not during composition.
      */
     fun FlexConfigScope.configure()
+
+    /**
+     * Merges this config with another. Configs further "to the right" will override properties to
+     * the left of them, on a per-property basis.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexConfigCombineSample
+     * @param other the config to merge into the receiver.
+     */
+    infix fun then(other: FlexConfig): FlexConfig =
+        when {
+            (other === Companion) -> this
+            other is CombinedFlexConfig -> CombinedFlexConfig(this, *other.configs)
+            else -> CombinedFlexConfig(this, other)
+        }
+
+    companion object : FlexConfig {
+        override fun FlexConfigScope.configure() {}
+
+        /** Merging the identity with any config yields that config. */
+        override fun then(other: FlexConfig): FlexConfig = other
+    }
 }
 
 /**
@@ -2474,6 +2514,179 @@ private class FlexLine {
     var crossAxisSize: Int = 0
     var crossStart: Int = 0
     var maxAboveBaseline: Int = 0
+}
+
+/**
+ * Combine two [FlexBoxConfig] objects together. Configs further "to the right" will override
+ * properties to the left of them, on a per-property basis.
+ */
+@ExperimentalFlexBoxApi
+fun FlexBoxConfig(first: FlexBoxConfig, second: FlexBoxConfig): FlexBoxConfig = first then second
+
+/**
+ * Combine three [FlexBoxConfig] objects together. Configs further "to the right" will override
+ * properties to the left of them, on a per-property basis.
+ */
+@ExperimentalFlexBoxApi
+fun FlexBoxConfig(
+    first: FlexBoxConfig,
+    second: FlexBoxConfig,
+    third: FlexBoxConfig,
+): FlexBoxConfig =
+    when {
+        first === FlexBoxConfig -> FlexBoxConfig(second, third)
+        second === FlexBoxConfig -> FlexBoxConfig(first, third)
+        third === FlexBoxConfig -> FlexBoxConfig(first, second)
+        first is CombinedFlexBoxConfig &&
+            second is CombinedFlexBoxConfig &&
+            third is CombinedFlexBoxConfig ->
+            FlexBoxConfig(*first.configs, *second.configs, *third.configs)
+        first is CombinedFlexBoxConfig && second is CombinedFlexBoxConfig ->
+            FlexBoxConfig(*first.configs, *second.configs, third)
+        first is CombinedFlexBoxConfig && third is CombinedFlexBoxConfig ->
+            FlexBoxConfig(*first.configs, second, *third.configs)
+        second is CombinedFlexBoxConfig && third is CombinedFlexBoxConfig ->
+            FlexBoxConfig(first, *second.configs, *third.configs)
+        first is CombinedFlexBoxConfig -> FlexBoxConfig(*first.configs, second, third)
+        second is CombinedFlexBoxConfig -> FlexBoxConfig(first, *second.configs, third)
+        third is CombinedFlexBoxConfig -> FlexBoxConfig(first, second, *third.configs)
+        else -> CombinedFlexBoxConfig(first, second, third)
+    }
+
+/**
+ * Combine multiple [FlexBoxConfig] objects together. Configs further "to the right" will override
+ * properties to the left of them, on a per-property basis.
+ *
+ * @sample androidx.compose.foundation.layout.samples.FlexBoxConfigCombineSample
+ */
+@ExperimentalFlexBoxApi
+fun FlexBoxConfig(vararg configs: FlexBoxConfig): FlexBoxConfig =
+    if (configs.isEmpty()) {
+        FlexBoxConfig
+    } else if (configs.any { it === FlexBoxConfig }) {
+        val count = configs.count { it !== FlexBoxConfig }
+        when (count) {
+            0 -> FlexBoxConfig
+            1 -> configs.first { it !== FlexBoxConfig }
+            else -> {
+                val filtered = arrayOfNulls<FlexBoxConfig>(count)
+                var cursor = 0
+                configs.forEach { config ->
+                    if (config !== FlexBoxConfig) {
+                        filtered[cursor++] = config
+                    }
+                }
+                @Suppress("UNCHECKED_CAST")
+                CombinedFlexBoxConfig(*(filtered as Array<FlexBoxConfig>))
+            }
+        }
+    } else {
+        CombinedFlexBoxConfig(*configs)
+    }
+
+/**
+ * Internal representation for a composition of two or more [FlexBoxConfig] objects.
+ *
+ * This class holds a **flat** array of configs. The [FlexBoxConfig] factory functions ensure that
+ * [CombinedFlexBoxConfig] instances are never nested — if a factory receives a
+ * [CombinedFlexBoxConfig] as input, its [configs] array is spread into the new result. This
+ * guarantees that [configure] is always a single-pass flat iteration regardless of how many
+ * composition steps produced this instance.
+ *
+ * @property configs the flattened array of configs to apply in order. Later entries override
+ *   earlier entries on a per-property basis.
+ */
+@ExperimentalFlexBoxApi
+internal class CombinedFlexBoxConfig(vararg val configs: FlexBoxConfig) : FlexBoxConfig {
+    override fun FlexBoxConfigScope.configure() {
+        configs.forEach { config -> with(config) { configure() } }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CombinedFlexBoxConfig) return false
+        return configs.contentEquals(other.configs)
+    }
+
+    override fun hashCode(): Int = configs.contentHashCode()
+}
+
+/**
+ * Combine two [FlexConfig] objects together. Configs further "to the right" will override
+ * properties to the left of them, on a per-property basis.
+ */
+@ExperimentalFlexBoxApi
+fun FlexConfig(first: FlexConfig, second: FlexConfig): FlexConfig = first then second
+
+/**
+ * Combine three [FlexConfig] objects together. Configs further "to the right" will override
+ * properties to the left of them, on a per-property basis.
+ */
+@ExperimentalFlexBoxApi
+fun FlexConfig(first: FlexConfig, second: FlexConfig, third: FlexConfig): FlexConfig =
+    when {
+        first === FlexConfig -> FlexConfig(second, third)
+        second === FlexConfig -> FlexConfig(first, third)
+        third === FlexConfig -> FlexConfig(first, second)
+        first is CombinedFlexConfig &&
+            second is CombinedFlexConfig &&
+            third is CombinedFlexConfig ->
+            FlexConfig(*first.configs, *second.configs, *third.configs)
+        first is CombinedFlexConfig && second is CombinedFlexConfig ->
+            FlexConfig(*first.configs, *second.configs, third)
+        first is CombinedFlexConfig && third is CombinedFlexConfig ->
+            FlexConfig(*first.configs, second, *third.configs)
+        second is CombinedFlexConfig && third is CombinedFlexConfig ->
+            FlexConfig(first, *second.configs, *third.configs)
+        first is CombinedFlexConfig -> FlexConfig(*first.configs, second, third)
+        second is CombinedFlexConfig -> FlexConfig(first, *second.configs, third)
+        third is CombinedFlexConfig -> FlexConfig(first, second, *third.configs)
+        else -> CombinedFlexConfig(first, second, third)
+    }
+
+/**
+ * Combine multiple [FlexConfig] objects together. Configs further "to the right" will override
+ * properties to the left of them, on a per-property basis.
+ *
+ * @sample androidx.compose.foundation.layout.samples.FlexConfigCombineSample
+ */
+@ExperimentalFlexBoxApi
+fun FlexConfig(vararg configs: FlexConfig): FlexConfig =
+    if (configs.isEmpty()) {
+        FlexConfig
+    } else if (configs.any { it === FlexConfig }) {
+        val count = configs.count { it !== FlexConfig }
+        when (count) {
+            0 -> FlexConfig
+            1 -> configs.first { it !== FlexConfig }
+            else -> {
+                val filtered = arrayOfNulls<FlexConfig>(count)
+                var cursor = 0
+                configs.forEach { config ->
+                    if (config !== FlexConfig) {
+                        filtered[cursor++] = config
+                    }
+                }
+                @Suppress("UNCHECKED_CAST") CombinedFlexConfig(*(filtered as Array<FlexConfig>))
+            }
+        }
+    } else {
+        CombinedFlexConfig(*configs)
+    }
+
+@OptIn(ExperimentalFlexBoxApi::class)
+internal class CombinedFlexConfig(vararg val configs: FlexConfig) : FlexConfig {
+    override fun FlexConfigScope.configure() {
+        configs.forEach { config -> with(config) { configure() } }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CombinedFlexConfig) return false
+        return configs.contentEquals(other.configs)
+    }
+
+    override fun hashCode(): Int = configs.contentHashCode()
 }
 
 /**

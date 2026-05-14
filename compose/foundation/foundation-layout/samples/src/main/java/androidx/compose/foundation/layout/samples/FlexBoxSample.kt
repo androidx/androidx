@@ -544,3 +544,58 @@ fun FlexBasisSample() {
         Box(Modifier.height(50.dp).background(Color.Blue).flex(PercentBasis))
     }
 }
+
+@OptIn(ExperimentalFlexBoxApi::class)
+@Sampled
+@Composable
+fun FlexBoxConfigCombineSample() {
+    // Define partial component layout tokens
+    val BaseRow = FlexBoxConfig {
+        direction(FlexDirection.Row)
+        wrap(FlexWrap.Wrap)
+    }
+    val CenteredAlignment = FlexBoxConfig { alignItems(FlexAlignItems.Center) }
+    val StandardGaps = FlexBoxConfig { gap(8.dp) }
+
+    // Combine tokens together cleanly via factory functions or infix `then`
+    val RowTokensCombined = FlexBoxConfig(BaseRow, CenteredAlignment, StandardGaps)
+
+    // An empty call returns the default identity element gracefully without allocations
+    val EmptyExtension = FlexBoxConfig()
+
+    FlexBox(modifier = Modifier.fillMaxWidth(), config = RowTokensCombined then EmptyExtension) {
+        repeat(4) { Box(Modifier.size(60.dp).background(Color.Magenta)) }
+    }
+}
+
+@OptIn(ExperimentalFlexBoxApi::class)
+@Sampled
+@Composable
+fun FlexConfigCombineSample() {
+    // Shared design system item style tokens
+    val SharedItemDefaults = FlexConfig {
+        shrink(1f)
+        basis(FlexBasis.Auto)
+    }
+
+    // Individual special-case item overrides
+    val GrowPriority = FlexConfig { grow(2f) }
+    val CenterAlignmentOverride = FlexConfig { alignSelf(FlexAlignSelf.Center) }
+
+    // Construct optimized configurations via combination APIs
+    val FlexibleHeroItem = SharedItemDefaults then GrowPriority then CenterAlignmentOverride
+    val StandardFlexibleItem = FlexConfig(SharedItemDefaults, GrowPriority)
+
+    // An empty call returns the identity element cleanly
+    val EmptyFlexExtension = FlexConfig()
+
+    FlexBox(modifier = Modifier.fillMaxWidth().height(120.dp)) {
+        // Applies premium combined config with extensions
+        Box(
+            Modifier.height(60.dp)
+                .background(Color.Cyan)
+                .flex(FlexibleHeroItem then EmptyFlexExtension)
+        )
+        Box(Modifier.height(60.dp).background(Color.Yellow).flex(StandardFlexibleItem))
+    }
+}
