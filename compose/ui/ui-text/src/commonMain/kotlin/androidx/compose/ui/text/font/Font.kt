@@ -209,7 +209,7 @@ internal constructor(
 }
 
 /**
- * Creates a Font with using resource ID.
+ * Creates a Font using a resource ID.
  *
  * By default, this will load fonts using [FontLoadingStrategy.Blocking], which blocks the first
  * frame they are used until the font is loaded. This is the correct behavior for small fonts
@@ -240,7 +240,7 @@ fun Font(
 ): Font = ResourceFont(resId, weight, style, loadingStrategy = FontLoadingStrategy.Blocking)
 
 /**
- * Creates a Font with using resource ID.
+ * Creates a Font using a resource ID.
  *
  * Allows control over [FontLoadingStrategy] strategy. You may supply
  * [FontLoadingStrategy.Blocking], or [FontLoadingStrategy.OptionalLocal] for fonts that are
@@ -266,6 +266,26 @@ fun Font(
     loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking,
 ): Font = ResourceFont(resId, weight, style, FontVariation.Settings(), loadingStrategy)
 
+/**
+ * Creates a Font using a resource ID and variation settings.
+ *
+ * Allows control over [FontLoadingStrategy] strategy. You may supply
+ * [FontLoadingStrategy.Blocking], or [FontLoadingStrategy.OptionalLocal] for fonts that are
+ * expected on the first frame.
+ *
+ * [FontLoadingStrategy.Async], will load the font in the background and cause text reflow when
+ * loading completes. Fonts loaded from a remote source via resources should use
+ * [FontLoadingStrategy.Async].
+ *
+ * @param resId The resource ID of the font file in font resources. i.e. "R.font.myfont".
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param loadingStrategy Load strategy for this font, may be async for async resource fonts
+ * @param variationSettings Variation settings to apply to the font
+ * @see FontFamily
+ */
 fun Font(
     resId: Int,
     weight: FontWeight = FontWeight.Normal,
