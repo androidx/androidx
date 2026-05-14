@@ -16,6 +16,8 @@
 
 package androidx.glance.wear.core
 
+import androidx.glance.wear.parcel.WearWidgetRequestParcel
+import androidx.glance.wear.proto.WearWidgetRequestProto
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -350,5 +352,82 @@ class WearWidgetParamsTest {
             )
 
         assertThat(params1.hashCode()).isNotEqualTo(params2.hashCode())
+    }
+
+    @Test
+    fun fromParcel_matchesOriginalParams_withCustomRendererVersion() {
+        val originalParams =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("ns", 123),
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 200.5f,
+                heightDp = 300.25f,
+                horizontalPaddingDp = 9f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+                rendererVersion = RendererVersion(2, 5, 3),
+            )
+
+        val parcel = originalParams.toParcel()
+        val restoredParams = WearWidgetParams.fromParcel(parcel)
+
+        assertThat(restoredParams).isEqualTo(originalParams)
+        assertThat(restoredParams.rendererVersion.major).isEqualTo(2)
+        assertThat(restoredParams.rendererVersion.minor).isEqualTo(5)
+        assertThat(restoredParams.rendererVersion.revision).isEqualTo(3)
+    }
+
+    @Test
+    fun fromParcel_usesDefaultRendererVersion_whenNotProvided() {
+        val payloadWithoutVersion =
+            WearWidgetRequestProto(
+                    id = 123,
+                    id_namespace = "ns",
+                    container_type = ContainerInfo.CONTAINER_TYPE_SMALL,
+                    width_dp = 200.5f,
+                    height_dp = 300.25f,
+                    horizontal_padding_dp = 9f,
+                    vertical_padding_dp = 8f,
+                    corner_radius_dp = 16f,
+                )
+                .encode()
+        val parcel = WearWidgetRequestParcel().apply { payload = payloadWithoutVersion }
+
+        val restoredParams = WearWidgetParams.fromParcel(parcel)
+
+        assertThat(restoredParams.rendererVersion.major)
+            .isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_MAJOR)
+        assertThat(restoredParams.rendererVersion.minor)
+            .isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_MINOR)
+        assertThat(restoredParams.rendererVersion.revision)
+            .isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_REVISION)
+    }
+
+    @Test
+    fun equals_differentRendererVersion() {
+        val params1 =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("ns", 123),
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 200.5f,
+                heightDp = 300.25f,
+                horizontalPaddingDp = 9f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+                rendererVersion = RendererVersion(1, 6, 0),
+            )
+        val params2 =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("ns", 123),
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 200.5f,
+                heightDp = 300.25f,
+                horizontalPaddingDp = 9f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+                rendererVersion = RendererVersion(2, 0, 0),
+            )
+
+        assertThat(params1).isNotEqualTo(params2)
     }
 }
