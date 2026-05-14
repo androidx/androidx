@@ -235,7 +235,7 @@ internal fun BottomSheetImpl(
                             with(density) { BottomSheetDefaults.BoundaryDampeningZone.toPx() }
                         if (distanceToFloor < dampeningZone) {
                             val factor = distanceToFloor / dampeningZone
-                            safeVelocity *= factor
+                            safeVelocity *= (factor * factor)
 
                             // Ensure previously valid velocities (above velocityThresholdPx) shrink
                             // at most to velocityThresholdPx to maintain a valid fling.
