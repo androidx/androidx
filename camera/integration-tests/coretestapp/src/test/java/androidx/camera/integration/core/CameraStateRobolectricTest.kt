@@ -41,7 +41,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
@@ -163,7 +162,7 @@ class CameraStateRobolectricTest(private val config: TestConfig) {
         testSchedulerThread = HandlerThread("CameraStateTestScheduler")
         testSchedulerThread.start()
         testSchedulerHandler = Handler(testSchedulerThread.looper)
-        testCameraExecutor = Executors.newFixedThreadPool(1)
+        testCameraExecutor = Executor { testSchedulerHandler.post(it) }
 
         val cameraXConfig =
             configBuilder
@@ -189,6 +188,8 @@ class CameraStateRobolectricTest(private val config: TestConfig) {
     @After
     fun tearDown() {
         cameraProvider?.shutdownAsync()?.get(10, TimeUnit.SECONDS)
+        shadowAgent.closeAllOpenDevices()
+        flushLoopers()
         testSchedulerThread.quitSafely()
         ShadowCameraBridge.agent = null
         ArchTaskExecutor.getInstance().setDelegate(null)
@@ -235,7 +236,9 @@ class CameraStateRobolectricTest(private val config: TestConfig) {
     }
 
     private fun addFakeCamera(cameraId: String) {
-        if (cameraManager.cameraIdList.contains(cameraId)) return
+        if (cameraManager.cameraIdList.contains(cameraId)) {
+            shadowCameraManager.removeCamera(cameraId)
+        }
 
         val characteristics = createFakeCameraCharacteristics(CameraMetadata.LENS_FACING_BACK)
         shadowCameraManager.addCamera(cameraId, characteristics)
