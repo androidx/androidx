@@ -99,6 +99,20 @@ import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExpandableHorizontalFloatingToolbarSample
 import androidx.compose.material3.samples.ExpandableVerticalFloatingToolbarSample
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
+import androidx.compose.material3.samples.ExpressiveOutlinedPasswordTextField
+import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldSample
+import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldWithErrorState
+import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldWithIcons
+import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldWithPlaceholder
+import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldWithPrefixAndSuffix
+import androidx.compose.material3.samples.ExpressiveOutlinedTextFieldWithSupportingText
+import androidx.compose.material3.samples.ExpressivePasswordTextField
+import androidx.compose.material3.samples.ExpressiveTextFieldSample
+import androidx.compose.material3.samples.ExpressiveTextFieldWithErrorState
+import androidx.compose.material3.samples.ExpressiveTextFieldWithIcons
+import androidx.compose.material3.samples.ExpressiveTextFieldWithPlaceholder
+import androidx.compose.material3.samples.ExpressiveTextFieldWithPrefixAndSuffix
+import androidx.compose.material3.samples.ExpressiveTextFieldWithSupportingText
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.ExtraLargeFilledSplitButtonSample
@@ -2636,6 +2650,118 @@ private const val TextFieldsExampleDescription = "Text fields examples"
 private const val TextFieldsExampleSourceUrl = "$SampleSourceUrl/TextFieldSamples.kt"
 val TextFieldsExamples =
     listOf(
+            Example(
+                name = "ExpressiveTextFieldSample",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveTextFieldSample()
+            },
+            Example(
+                name = "ExpressiveOutlinedTextFieldSample",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveOutlinedTextFieldSample()
+            },
+            Example(
+                name = "ExpressiveTextFieldWithIcons",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveTextFieldWithIcons()
+            },
+            Example(
+                name = "ExpressiveOutlinedTextFieldWithIcons",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveOutlinedTextFieldWithIcons()
+            },
+            Example(
+                name = "ExpressiveTextFieldWithPlaceholder",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveTextFieldWithPlaceholder()
+            },
+            Example(
+                name = "ExpressiveOutlinedTextFieldWithPlaceholder",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveOutlinedTextFieldWithPlaceholder()
+            },
+            Example(
+                name = "ExpressiveTextFieldWithPrefixAndSuffix",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveTextFieldWithPrefixAndSuffix()
+            },
+            Example(
+                name = "ExpressiveOutlinedTextFieldWithPrefixAndSuffix",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveOutlinedTextFieldWithPrefixAndSuffix()
+            },
+            Example(
+                name = "ExpressiveTextFieldWithSupportingText",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveTextFieldWithSupportingText()
+            },
+            Example(
+                name = "ExpressiveOutlinedTextFieldWithSupportingText",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveOutlinedTextFieldWithSupportingText()
+            },
+            Example(
+                name = "ExpressiveTextFieldWithErrorState",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveTextFieldWithErrorState()
+            },
+            Example(
+                name = "ExpressiveOutlinedTextFieldWithErrorState",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveOutlinedTextFieldWithErrorState()
+            },
+            Example(
+                name = "ExpressivePasswordTextField",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressivePasswordTextField()
+            },
+            Example(
+                name = "ExpressiveOutlinedPasswordTextField",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl,
+                isExpressive = true,
+            ) {
+                ExpressiveOutlinedPasswordTextField()
+            },
             Example(
                 name = "SimpleTextFieldSample",
                 description = TextFieldsExampleDescription,
