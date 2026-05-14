@@ -205,6 +205,16 @@ class DeepLinkDecoderTest {
         }
     }
 
+    @Test
+    fun testDecodeMapThrows() {
+        val arguments = mapOf("map" to listOf("1", "one"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<IllegalArgumentException> {
+            decoder.decodeSerializableValue(serializer<MapKey>())
+        }
+    }
+
     @Serializable data class SimpleKey(val name: String, val age: Int)
 
     @Serializable data class DefaultKey(val name: String = "default", val age: Int = 0)
@@ -238,4 +248,6 @@ class DeepLinkDecoderTest {
     @Serializable data class NonPrimitiveListKey(val list: List<SimpleKey>)
 
     @Serializable data class NonEmptyDefaultListKey(val list: List<Int> = listOf(1, 2, 3))
+
+    @Serializable data class MapKey(val map: Map<Int, String>)
 }
