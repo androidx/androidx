@@ -57,17 +57,18 @@ class SelectionState {
         }
 
     /**
-     * Current selected texts in the [SelectionContainer] corresponding to this SelectionState. Each
-     * text composable within the Selection is returned as an AnnotatedString in the list. This
-     * field is backed by [androidx.compose.runtime.mutableStateOf]
+     * Current selected texts in the [SelectionContainer] corresponding to this SelectionState, in
+     * visual/layout order. Each text composable within the Selection is returned as an
+     * AnnotatedString in the list. This field is backed by
+     * [androidx.compose.runtime.mutableStateOf].
      */
     private var _selectedTexts by mutableStateOf<List<AnnotatedString>>(emptyList())
 
     /**
      * The currently selected texts in the [SelectionContainer] corresponding to this
-     * SelectionState. Each text composable within the Selection is returned as an AnnotatedString
-     * in the list. This field is backed by [androidx.compose.runtime.mutableStateOf] so it can be
-     * observed by Composables.
+     * SelectionState, in visual/layout order. Each text composable within the Selection is returned
+     * as an AnnotatedString in the list. This field is backed by
+     * [androidx.compose.runtime.mutableStateOf] so it can be observed by Composables.
      */
     val selectedTexts: List<AnnotatedString>
         get() = _selectedTexts
@@ -98,7 +99,8 @@ class SelectionState {
     /**
      * Extends the current selection to the next word boundary, if there is another word boundary
      * available within the [SelectionContainer]. The next word is added at the active edge of the
-     * selection. So if the selection is dragged in reverse, this adds a word earlier in the text.
+     * selection, following the current text direction. So if the selection is dragged in reverse,
+     * this adds a word earlier in the text.
      *
      * If the next word in the selection is in a different Text composable, this extends to the next
      * Text. If there is no selection, this selects the first word in the [SelectionContainer].
@@ -115,9 +117,10 @@ class SelectionState {
 
     /**
      * Returns a list of all selectable texts within the [SelectionContainer] in visual/layout
-     * order. This returns the entire text content, not the selected or unselected portions. This
-     * creates a list of text from all selectable texts in the SelectionContainer, so it is not
-     * recommended for containers holding a large volume of text composables.
+     * order. This returns the entire text content, including all selected or unselected portions.
+     * Text nodes excluded from selection using [DisableSelection] will not be included in the list.
+     * Calling this function can be inefficient for containers holding a large volume of text
+     * composables.
      *
      * Note: This should not be called during composition as it requires the layout to be ready.
      *
@@ -151,13 +154,10 @@ class SelectionState {
         val Saver: Saver<SelectionState, Any> =
             listSaver(
                 save = { state ->
-                    val savedTexts =
+                    listOf(
                         state.selectedTexts.fastMap { text ->
                             with(AnnotatedString.Saver) { save(text) }
-                        }
-
-                    listOf(
-                        savedTexts,
+                        },
                         state.selection?.start?.offset,
                         state.selection?.start?.selectableId,
                         state.selection?.start?.direction?.name,
@@ -173,11 +173,12 @@ class SelectionState {
                     val savedTexts = savedList[0] as List<Any>
 
                     val annotatedStringSaver = AnnotatedString.Saver as Saver<AnnotatedString, Any>
-                    val selectedTexts =
+
+                    state.updateSelectedTexts(
                         savedTexts.fastMapNotNull { savedText ->
                             with(annotatedStringSaver) { restore(savedText) }
                         }
-                    state.updateSelectedTexts(selectedTexts)
+                    )
 
                     val startOffset = savedList[1] as? Int
                     if (startOffset != null) {
