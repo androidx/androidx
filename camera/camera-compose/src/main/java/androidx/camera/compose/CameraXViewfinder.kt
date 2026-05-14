@@ -24,6 +24,7 @@ import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.camera.viewfinder.compose.Viewfinder
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
+import androidx.camera.viewfinder.core.TransformationMode
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -159,6 +160,12 @@ public fun CameraXViewfinder(
                                 cropRectTop = transformInfo.cropRect.top.toFloat(),
                                 cropRectRight = transformInfo.cropRect.right.toFloat(),
                                 cropRectBottom = transformInfo.cropRect.bottom.toFloat(),
+                                transformationMode =
+                                    if (transformInfo.hasCameraTransform()) {
+                                        TransformationMode.DEFERRED
+                                    } else {
+                                        TransformationMode.PRE_APPLIED
+                                    },
                             ),
                         )
                 }

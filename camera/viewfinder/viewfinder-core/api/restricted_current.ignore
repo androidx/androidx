@@ -49,3 +49,5 @@ RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent
     Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.End.getIncrementalScaleFactor() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.Move#getIncrementalScaleFactor():
     Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.Move.getIncrementalScaleFactor() can no longer be resolved from Kotlin source
+RemovedMethod: androidx.camera.viewfinder.core.TransformationInfo#TransformationInfo(int, boolean, boolean, float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Binary breaking change: Removed constructor androidx.camera.viewfinder.core.TransformationInfo(int,boolean,boolean,float,float,float,float,int,kotlin.jvm.internal.DefaultConstructorMarker)

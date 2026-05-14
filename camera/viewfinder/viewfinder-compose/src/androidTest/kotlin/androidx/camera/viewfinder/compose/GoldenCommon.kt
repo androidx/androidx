@@ -19,6 +19,7 @@ package androidx.camera.viewfinder.compose
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.SurfaceUtil
+import androidx.camera.viewfinder.core.TransformationMode
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
@@ -136,10 +137,17 @@ fun drawFaceToSurface(
     coordinateTransformer: CoordinateTransformer,
     touchCoordinates: Offset?,
 ) {
+    val rotation =
+        if (testParams.transformationMode == TransformationMode.PRE_APPLIED) {
+            0
+        } else {
+            testParams.sourceRotation
+        }
+
     SurfaceUtil.setBuffersTransform(
         surface,
         toTransformEnum(
-            sourceRotation = testParams.sourceRotation,
+            sourceRotation = rotation,
             horizontalMirror = testParams.isMirroredHorizontally,
             verticalMirror = testParams.isMirroredVertically,
         ),
@@ -153,7 +161,6 @@ fun drawFaceToSurface(
             canvas = canvas,
             size = Size(resolution.width.toFloat(), resolution.height.toFloat()),
         ) {
-            val rotation = testParams.sourceRotation
             val iconSize = painter.calcFitSize(size, rotation)
             val mirrorX =
                 when (testParams.isMirroredHorizontally) {

@@ -26,6 +26,7 @@ import androidx.camera.viewfinder.compose.internal.ViewfinderExternalSurfaceScop
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
 import androidx.camera.viewfinder.core.TransformationInfo.Companion.DEFAULT
+import androidx.camera.viewfinder.core.TransformationMode
 import androidx.camera.viewfinder.core.ViewfinderDefaults
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
 import androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope
@@ -226,9 +227,15 @@ private fun TransformedSurface(
             val correctionMatrix = remember { Matrix() }
 
             transformationInfo.let {
+                val correctionDegrees =
+                    if (it.transformationMode == TransformationMode.DEFERRED) {
+                        displayRotationDegrees
+                    } else {
+                        0
+                    }
                 correctionMatrix.setFrom(
                     Transformations.getTextureViewCorrectionMatrix(
-                        displayRotationDegrees = displayRotationDegrees,
+                        displayRotationDegrees = correctionDegrees,
                         width = surfaceWidth,
                         height = surfaceHeight,
                     )

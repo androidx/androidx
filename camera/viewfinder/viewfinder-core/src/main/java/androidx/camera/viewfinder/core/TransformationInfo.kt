@@ -16,7 +16,50 @@
 
 package androidx.camera.viewfinder.core
 
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.camera.viewfinder.core.TransformationInfo.Companion.CROP_NONE
+
+/**
+ * The transformation mode of the source.
+ *
+ * This indicates how the source has been transformed before reaching the viewfinder.
+ */
+object TransformationMode {
+    /**
+     * Indicates that the transformation (such as rotation and scaling) is deferred to the consumer
+     * (e.g., the Viewfinder).
+     *
+     * The consumer is responsible for applying the transformation matrix associated with the
+     * buffers to make the frames appear correctly relative to the display.
+     *
+     * For example, when receiving buffers directly from a camera source via a SurfaceTexture, the
+     * viewfinder must apply the texture's transform matrix (which typically encodes
+     * sensor-to-display rotation).
+     *
+     * Note: Different [ImplementationMode]s (such as [ImplementationMode.EXTERNAL] vs.
+     * [ImplementationMode.EMBEDDED]) may apply this matrix differently due to their underlying
+     * implementation.
+     */
+    const val DEFERRED = 0
+
+    /**
+     * Indicates that the transformation has already been applied by the producer or an upstream
+     * pipeline before reaching the consumer.
+     *
+     * The consumer should ignore the transformation matrix associated with the buffers (or assume
+     * it is identity) and display the frames as-is relative to the display.
+     *
+     * For example, if an OpenGL pipeline has already rotated the images to an upright orientation,
+     * the viewfinder should not apply further rotation.
+     */
+    const val PRE_APPLIED = 1
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@IntDef(TransformationMode.DEFERRED, TransformationMode.PRE_APPLIED)
+@Retention(AnnotationRetention.SOURCE)
+annotation class TransformationModeValue
 
 /**
  * Transformation information associated with the preview output.
@@ -96,7 +139,19 @@ constructor(
      * height of the surface.
      */
     val cropRectBottom: Float = CROP_NONE,
+
+    /**
+     * The transformation mode of the source.
+     *
+     * This indicates how the source has been transformed before reaching the viewfinder.
+     *
+     * If not set, this value will default to [TransformationMode.DEFERRED].
+     */
+    @get:JvmName("getTransformationMode")
+    @TransformationModeValue
+    val transformationMode: Int = TransformationMode.DEFERRED,
 ) {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TransformationInfo) return false
@@ -108,6 +163,7 @@ constructor(
         if (cropRectTop != other.cropRectTop) return false
         if (cropRectRight != other.cropRectRight) return false
         if (cropRectBottom != other.cropRectBottom) return false
+        if (transformationMode != other.transformationMode) return false
 
         return true
     }
@@ -120,6 +176,7 @@ constructor(
         result = 31 * result + cropRectTop.hashCode()
         result = 31 * result + cropRectRight.hashCode()
         result = 31 * result + cropRectBottom.hashCode()
+        result = 31 * result + transformationMode.hashCode()
         return result
     }
 
@@ -131,7 +188,8 @@ constructor(
             "cropRectLeft=$cropRectLeft, " +
             "cropRectTop=$cropRectTop, " +
             "cropRectRight=$cropRectRight, " +
-            "cropRectBottom=$cropRectBottom" +
+            "cropRectBottom=$cropRectBottom, " +
+            "transformationMode=$transformationMode" +
             ")"
     }
 

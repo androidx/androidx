@@ -32,12 +32,14 @@ package androidx.camera.viewfinder.core {
     ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop);
     ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight);
     ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight, optional float cropRectBottom);
-    ctor @BytecodeOnly public TransformationInfo(int, boolean, boolean, float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public TransformationInfo(optional int sourceRotation, optional boolean isSourceMirroredHorizontally, optional boolean isSourceMirroredVertically, optional float cropRectLeft, optional float cropRectTop, optional float cropRectRight, optional float cropRectBottom, optional int transformationMode);
+    ctor @BytecodeOnly public TransformationInfo(int, boolean, boolean, float, float, float, float, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getCropRectBottom();
     method @InaccessibleFromKotlin public float getCropRectLeft();
     method @InaccessibleFromKotlin public float getCropRectRight();
     method @InaccessibleFromKotlin public float getCropRectTop();
     method @InaccessibleFromKotlin public int getSourceRotation();
+    method @InaccessibleFromKotlin public int getTransformationMode();
     method @InaccessibleFromKotlin public boolean isSourceMirroredHorizontally();
     method @InaccessibleFromKotlin public boolean isSourceMirroredVertically();
     property public float cropRectBottom;
@@ -47,6 +49,7 @@ package androidx.camera.viewfinder.core {
     property public boolean isSourceMirroredHorizontally;
     property public boolean isSourceMirroredVertically;
     property public int sourceRotation;
+    property public int transformationMode;
     field public static final float CROP_NONE = (0.0f/0.0f);
     field public static final androidx.camera.viewfinder.core.TransformationInfo.Companion Companion;
     field public static final androidx.camera.viewfinder.core.TransformationInfo DEFAULT;
@@ -55,6 +58,14 @@ package androidx.camera.viewfinder.core {
   public static final class TransformationInfo.Companion {
     property public static float CROP_NONE;
     property public androidx.camera.viewfinder.core.TransformationInfo DEFAULT;
+  }
+
+  public final class TransformationMode {
+    property public static int DEFERRED;
+    property public static int PRE_APPLIED;
+    field public static final int DEFERRED = 0; // 0x0
+    field public static final androidx.camera.viewfinder.core.TransformationMode INSTANCE;
+    field public static final int PRE_APPLIED = 1; // 0x1
   }
 
   public final class ViewfinderDefaults {
