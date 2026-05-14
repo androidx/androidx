@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCharacteristics
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.testing.FakeThreads
@@ -59,13 +58,11 @@ internal class Camera2MetadataCacheTest {
                     CameraCharacteristics.FLASH_INFO_AVAILABLE to false,
                 )
             )
-
         val cache =
             Camera2MetadataCache(
                 RobolectricCameras.application,
                 FakeThreads.fromTestScope(this),
                 Permissions(RobolectricCameras.application),
-                CameraPipe.CameraMetadataConfig(),
                 SystemTimeSource(),
             )
 

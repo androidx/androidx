@@ -28,7 +28,6 @@ import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.core.Debug
@@ -55,7 +54,6 @@ constructor(
     @CameraPipeContext private val cameraPipeContext: Context,
     private val threads: Threads,
     private val permissions: Permissions,
-    private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
     private val timeSource: TimeSource,
 ) : Camera2MetadataProvider {
 
@@ -165,18 +163,11 @@ constructor(
 
                 // Merge the camera specific and global cache blocklists together.
                 // this will prevent these values from being cached after first access.
-                val cameraBlocklist =
-                    if (shouldBlockSensorOrientationCache(characteristics)) {
-                        (cameraMetadataConfig.cameraCacheBlocklist[cameraId] ?: emptySet()) +
-                            CameraCharacteristics.SENSOR_ORIENTATION
-                    } else {
-                        cameraMetadataConfig.cameraCacheBlocklist[cameraId]
-                    }
                 val cacheBlocklist =
-                    if (cameraBlocklist == null) {
-                        cameraMetadataConfig.cacheBlocklist
+                    if (shouldBlockSensorOrientationCache(characteristics)) {
+                        setOf(CameraCharacteristics.SENSOR_ORIENTATION)
                     } else {
-                        cameraMetadataConfig.cacheBlocklist + cameraBlocklist
+                        emptySet()
                     }
 
                 val cameraMetadata =

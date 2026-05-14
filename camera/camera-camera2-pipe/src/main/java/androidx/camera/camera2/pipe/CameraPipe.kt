@@ -144,7 +144,6 @@ public interface CameraPipe {
     public data class Config(
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
-        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
         val cameraBackendConfig: CameraBackendConfig = CameraBackendConfig(),
         val cameraInteropConfig: CameraInteropConfig = CameraInteropConfig(),
         val imageSources: ImageSources? = null,
@@ -192,20 +191,6 @@ public interface CameraPipe {
         val defaultCameraHandler: Handler? = null,
         val defaultCameraHandlerFn: (() -> Handler)? = null,
         val testOnlyScope: CoroutineScope? = null,
-    )
-
-    /**
-     * Application level configuration options for [CameraMetadata] provider(s).
-     *
-     * @param cacheBlocklist is used to prevent the metadata backend from caching the results of
-     *   specific keys.
-     * @param cameraCacheBlocklist is used to prevent the metadata backend from caching the results
-     *   of specific keys for specific cameraIds.
-     */
-    public class CameraMetadataConfig(
-        public val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
-        public val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
-            emptyMap(),
     )
 
     /**
