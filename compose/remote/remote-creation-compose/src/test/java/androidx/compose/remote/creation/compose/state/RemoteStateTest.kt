@@ -45,12 +45,14 @@ class RemoteStateTest {
     fun domainToString() {
         assertEquals("USER", RemoteState.Domain.User.toString())
         assertEquals("SYSTEM", RemoteState.Domain.System.toString())
+        assertEquals("", RemoteState.Domain.None.toString())
     }
 
     @Test
     fun domainEquals() {
         assertEquals(RemoteState.Domain.User, RemoteState.Domain("USER"))
         assertNotEquals(RemoteState.Domain.User, RemoteState.Domain.System)
+        assertEquals(RemoteState.Domain.None, RemoteState.Domain(null))
     }
 
     @Test
