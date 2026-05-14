@@ -18,7 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.collection.buildObjectIntMap
-import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
@@ -149,7 +149,7 @@ class RemoteTextButtonTest {
     }
 
     private companion object {
-        private val testAction = HostAction("testAction".rs, 1.rf)
+        private val testAction = hostAction("testAction".rs, 1.rf)
 
         val FILLED_TONAL_COLOR
             @Composable

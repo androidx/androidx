@@ -38,7 +38,7 @@ import androidx.compose.remote.creation.compose.state.isLiteral
 internal class ValueChangeAction<T>(
     public val remoteValue: MutableRemoteState<T>,
     public val updatedValue: RemoteState<T>,
-) : Action {
+) : RemoteAction() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val actualMutable = remoteValue.asEncodedMutable
@@ -69,7 +69,7 @@ internal class ValueChangeAction<T>(
 internal class ValueFloatChangeAction(
     public val value: MutableRemoteFloat,
     public val updatedValue: Float,
-) : Action {
+) : RemoteAction() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val id = value.id
@@ -80,7 +80,7 @@ internal class ValueFloatChangeAction(
 internal class ValueFloatDpChangeAction(
     public val value: RemoteDp,
     public val updatedValue: Float,
-) : Action {
+) : RemoteAction() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val id = value.value.id

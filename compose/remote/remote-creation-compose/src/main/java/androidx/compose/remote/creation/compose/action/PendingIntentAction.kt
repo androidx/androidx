@@ -32,7 +32,7 @@ public fun pendingIntentAction(pendingIntent: PendingIntent): Action =
 
 /** Send the [PendingIntent] when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PendingIntentAction(public val pendingIntent: PendingIntent) : Action {
+internal class PendingIntentAction(public val pendingIntent: PendingIntent) : RemoteAction() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {

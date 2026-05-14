@@ -27,8 +27,8 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
-import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
@@ -740,7 +740,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             ) {
                 RemoteBox(
                     modifier =
-                        RemoteModifier.size(100.rdp).clickable(HostAction("my_host_action".rs))
+                        RemoteModifier.size(100.rdp).clickable(hostAction("my_host_action".rs))
                 )
             }
         }
@@ -773,7 +773,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
-                            .clickable(HostAction("my_host_action".rs, param))
+                            .clickable(hostAction("my_host_action".rs, param))
                 )
             }
         }

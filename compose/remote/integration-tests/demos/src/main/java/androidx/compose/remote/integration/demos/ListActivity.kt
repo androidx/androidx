@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -95,7 +95,7 @@ fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
                     RemoteModifier.fillMaxWidth()
                         .height(96.rdp)
                         .border(1.rdp, Color.LightGray.rc)
-                        .clickable(HostAction("abc".rs))
+                        .clickable(hostAction("abc".rs))
                         // Must be direct child of the scrollable item
                         .semantics(mergeDescendants = true) {},
                 contentAlignment = RemoteAlignment.Center,

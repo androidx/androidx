@@ -19,7 +19,7 @@ package androidx.wear.compose.remote.material3
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.collection.buildObjectIntMap
-import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -381,5 +381,5 @@ class RemoteButtonTest {
     // trim leading/trailing spaces from the whole string
     private fun String.normalizeWhiteSpace() = this.replace(Regex("\\s+"), " ").trim()
 
-    private val testAction = HostAction("testAction".rs, 1.rf)
+    private val testAction = hostAction("testAction".rs, 1.rf)
 }
