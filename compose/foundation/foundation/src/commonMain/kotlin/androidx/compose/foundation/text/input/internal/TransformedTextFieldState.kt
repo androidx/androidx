@@ -160,6 +160,23 @@ internal class TransformedTextFieldState(
         get() = textFieldState.userCommit
 
     /**
+     * Whether a text suggestion is selected in the underlying [TextFieldState], indicating that the
+     * transliterated text will be replaced by the selection. This is relevant for transliteration
+     * languages that support one or multiple text replacement suggestions for each text inputted.
+     * If true, then the user is currently selecting a replacement text but has not yet committed
+     * the replacement text i.e. the replacement suggestion is highlighted via hover or highlight
+     * focus.
+     *
+     * Will stay false if the text locale is not a transliteration language or if no suggestion is
+     * selected.
+     *
+     * This is primarily used by accessibility services so that they are informed of when the user
+     * is currently selecting a replacement text.
+     */
+    val suggestionSelected: Boolean
+        get() = textFieldState.suggestionSelected
+
+    /**
      * The text that should be presented to the user in most cases. If an [OutputTransformation] is
      * specified, this text has the transformation applied. If there's no transformation, this will
      * be the same as [untransformedText].

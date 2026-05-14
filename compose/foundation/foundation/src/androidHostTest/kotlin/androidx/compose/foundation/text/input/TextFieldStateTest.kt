@@ -926,6 +926,41 @@ class TextFieldStateTest {
             .isEqualTo(SpanStyle(color = Color.Blue))
     }
 
+    fun userCommitTextWithTextAttribute_textSuggestionSelected() {
+        val state = TextFieldState("hello")
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state))
+            .commitText("Hello", 1, isTextSuggestionSelected = true)
+
+        assertThat(state.userCommit).isTrue()
+        assertThat(state.suggestionSelected).isTrue()
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state))
+            .commitText("world", 6, isTextSuggestionSelected = false)
+
+        assertThat(state.userCommit).isTrue()
+        assertThat(state.suggestionSelected).isFalse()
+    }
+
+    @Test
+    fun userSetComposingTextWithTextAttribute_textSuggestionSelected() {
+        assertThat(state.composition).isNull()
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state))
+            .setComposingText("Hello", 1, null, isTextSuggestionSelected = true)
+
+        assertThat(state.composition).isEqualTo(TextRange(0, 5))
+        assertThat(state.suggestionSelected).isTrue()
+        assertThat(state.userCommit).isTrue()
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state))
+            .setComposingText("world", 1, null, isTextSuggestionSelected = false)
+
+        assertThat(state.composition).isEqualTo(TextRange(0, 5))
+        assertThat(state.userCommit).isTrue()
+        assertThat(state.suggestionSelected).isFalse()
+    }
+
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {
         val globalWriteObserverHandle =
             Snapshot.registerGlobalWriteObserver {

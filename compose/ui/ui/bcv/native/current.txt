@@ -2161,9 +2161,12 @@ final class androidx.compose.ui.semantics/CustomAccessibilityAction { // android
 
 final class androidx.compose.ui.semantics/InputTextSuggestionState { // androidx.compose.ui.semantics/InputTextSuggestionState|null[0]
     constructor <init>(kotlin/Boolean = ...) // androidx.compose.ui.semantics/InputTextSuggestionState.<init>|<init>(kotlin.Boolean){}[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.semantics/InputTextSuggestionState.<init>|<init>(kotlin.Boolean;kotlin.Boolean){}[0]
 
     final val isCommittedByInputMethodEditor // androidx.compose.ui.semantics/InputTextSuggestionState.isCommittedByInputMethodEditor|{}isCommittedByInputMethodEditor[0]
         final fun <get-isCommittedByInputMethodEditor>(): kotlin/Boolean // androidx.compose.ui.semantics/InputTextSuggestionState.isCommittedByInputMethodEditor.<get-isCommittedByInputMethodEditor>|<get-isCommittedByInputMethodEditor>(){}[0]
+    final val isTransliterationSuggestionSelected // androidx.compose.ui.semantics/InputTextSuggestionState.isTransliterationSuggestionSelected|{}isTransliterationSuggestionSelected[0]
+        final fun <get-isTransliterationSuggestionSelected>(): kotlin/Boolean // androidx.compose.ui.semantics/InputTextSuggestionState.isTransliterationSuggestionSelected.<get-isTransliterationSuggestionSelected>|<get-isTransliterationSuggestionSelected>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.semantics/InputTextSuggestionState.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.semantics/InputTextSuggestionState.hashCode|hashCode(){}[0]

@@ -122,6 +122,16 @@ internal constructor(
         private set
 
     /**
+     * True if a text suggestion is currently selected via hover or highlight focus, indicating that
+     * the transliterated text will be replaced by the selection. This is primarily used for
+     * transliteration languages that can have one or multiple suggestion text replacements and is
+     * used to inform accessibility services of whether a replacement text suggestion is selected.
+     * It does not indicate whether if the selected replacement text has been committed.
+     */
+    internal var suggestionSelected: Boolean by mutableStateOf(false)
+        private set
+
+    /**
      * The current text content. This value will automatically update when the user enters text or
      * otherwise changes the text field contents. To change it programmatically, call [edit].
      *
@@ -313,6 +323,7 @@ internal constructor(
             undoBehavior = undoBehavior,
         )
         userCommit = true
+        suggestionSelected = mainBuffer.suggestionSelected
     }
 
     /**

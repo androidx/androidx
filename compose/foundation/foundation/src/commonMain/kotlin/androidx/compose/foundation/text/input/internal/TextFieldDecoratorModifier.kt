@@ -544,7 +544,8 @@ internal class TextFieldDecoratorModifierNode(
         textSelectionRange = selection
         textCompositionRange = textFieldState.untransformedComposition
 
-        inputTextSuggestionState = InputTextSuggestionState(textFieldState.userCommit)
+        inputTextSuggestionState =
+            InputTextSuggestionState(textFieldState.userCommit, textFieldState.suggestionSelected)
 
         if (!enabled) disabled()
         if (isPassword) password()

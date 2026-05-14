@@ -161,15 +161,21 @@ internal class DefaultImeEditCommandScope(
 }
 
 /**
- * Commit final [text] to the text box and set the new cursor position.
+ * Commit final [text] to the text box and set the new cursor position. Also sets a new field
+ * 'suggestionSelected' in TextFieldState.
  *
  * See
  * [`commitText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)).
  *
  * @param text The text to commit.
  * @param newCursorPosition The cursor position after inserted text.
+ * @param isTextSuggestionSelected Whether a transliteration suggestion text is selected.
  */
-internal fun ImeEditCommandScope.commitText(text: String, newCursorPosition: Int) = edit {
+internal fun ImeEditCommandScope.commitText(
+    text: String,
+    newCursorPosition: Int,
+    isTextSuggestionSelected: Boolean = false,
+) = edit {
     // API description says to replace the ongoing composition text if there is any. Then, if
     // there is no composition text, insert text into cursor position or replace selection.
     val compositionRange = composition
@@ -192,6 +198,7 @@ internal fun ImeEditCommandScope.commitText(text: String, newCursorPosition: Int
             newCursor + newCursorPosition - text.length
         }
 
+    suggestionSelected = isTextSuggestionSelected
     selection = TextRange(newCursorInBuffer.coerceIn(0, length))
 }
 
@@ -231,7 +238,8 @@ internal fun ImeEditCommandScope.setComposingRegion(start: Int, end: Int) = edit
 
 /**
  * Replace the currently composing text with the given text, and set the new cursor position. Any
- * composing text set previously will be removed automatically.
+ * composing text set previously will be removed automatically. Also sets a new field
+ * 'suggestionSelected' in TextFieldState.
  *
  * See
  * [`setComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)).
@@ -240,11 +248,13 @@ internal fun ImeEditCommandScope.setComposingRegion(start: Int, end: Int) = edit
  * @param newCursorPosition The cursor position after setting composing text.
  * @param annotations Text annotations that IME attaches to the composing region. e.g. background
  *   color or underline styling.
+ * @param isTextSuggestionSelected Whether a transliteration suggestion text is selected.
  */
 internal fun ImeEditCommandScope.setComposingText(
     text: String,
     newCursorPosition: Int,
     annotations: List<PlacedAnnotation>? = null,
+    isTextSuggestionSelected: Boolean = false,
 ) = edit {
     val compositionRange = composition
     if (compositionRange != null) {
@@ -279,6 +289,7 @@ internal fun ImeEditCommandScope.setComposingText(
             newCursor + newCursorPosition - text.length
         }
 
+    suggestionSelected = isTextSuggestionSelected
     selection = TextRange(newCursorInBuffer.coerceIn(0, length))
 }
 
@@ -494,6 +505,10 @@ internal fun TextFieldBuffer.imeReplace(start: Int, end: Int, text: CharSequence
  */
 @VisibleForTesting
 internal fun TextFieldBuffer.imeDelete(start: Int, end: Int) {
+    // Reset the [suggestionSelected] state as text deletions will remove the selected state of
+    // the selected transliteration suggestion.
+    suggestionSelected = false
+
     val initialComposition = composition
 
     val min = minOf(start, end)

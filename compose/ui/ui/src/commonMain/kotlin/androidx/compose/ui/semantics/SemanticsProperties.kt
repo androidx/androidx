@@ -711,20 +711,35 @@ class ScrollAxisRange(
 /**
  * The state of an input text when suggestions are shown. This property specifies the different
  * available states the input text can be in when there are text suggestions available, typically
- * shown as a dialog window and when a user inputs a transliteration language such as Chinese,
- * Japanese, Korean, etc.
+ * shown as a dialog window and when a user inputs a transliteration language specifically Chinese,
+ * Japanese, Korean, and Vietnamese.
+ *
+ * This is supported only in SDK >= 37.
  *
  * @param isCommittedByInputMethodEditor whether the current text was committed by an input method
  *   editor done by the user, will stay false if the committed text was done programmatically, e.g.
  *   via Accessibility service.
+ * @param isTransliterationSuggestionSelected whether a replacement text suggestion is selected to
+ *   replace the transliterated text. If true, the text is from a transliteration language and is
+ *   currently displaying one or multiple text suggestion replacements and that one of the
+ *   suggestions is selected to replace the transliterated text. This does not indicate whether the
+ *   text replacement suggestion has been committed. Will stay false for non-transliteration
+ *   languages or if no suggestion is currently selected. If this were to be set to true for a
+ *   non-transliteration language, it may affect accessibility services from announcing events
+ *   correctly.
  */
-class InputTextSuggestionState(val isCommittedByInputMethodEditor: Boolean = false) {
+class InputTextSuggestionState(
+    val isCommittedByInputMethodEditor: Boolean = false,
+    val isTransliterationSuggestionSelected: Boolean = false,
+) {
     override fun toString(): String =
-        "InputTextSuggestionState(isCommittedByInputMethodEditor=${isCommittedByInputMethodEditor}"
+        "InputTextSuggestionState(isCommittedByInputMethodEditor=$isCommittedByInputMethodEditor," +
+            " suggestionSelected=$isTransliterationSuggestionSelected)"
 
     override fun hashCode(): Int {
-        val result = isCommittedByInputMethodEditor.hashCode()
-        return 31 * result
+        var result = isCommittedByInputMethodEditor.hashCode()
+        result = 31 * result + isTransliterationSuggestionSelected.hashCode()
+        return result
     }
 
     override fun equals(other: Any?): Boolean {
@@ -732,9 +747,20 @@ class InputTextSuggestionState(val isCommittedByInputMethodEditor: Boolean = fal
         if (other !is InputTextSuggestionState) return false
 
         if (isCommittedByInputMethodEditor != other.isCommittedByInputMethodEditor) return false
+        if (isTransliterationSuggestionSelected != other.isTransliterationSuggestionSelected)
+            return false
 
         return true
     }
+
+    @Suppress("unused")
+    @Deprecated(
+        message = "Use the new constructor that accepts the [isSuggestionSelected] parameter",
+        level = DeprecationLevel.HIDDEN,
+    )
+    constructor(
+        isCommittedByInputMethodEditor: Boolean = false
+    ) : this(isCommittedByInputMethodEditor, false)
 }
 
 /**

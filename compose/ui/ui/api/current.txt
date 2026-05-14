@@ -4567,10 +4567,14 @@ package androidx.compose.ui.semantics {
 
   public final class InputTextSuggestionState {
     ctor public InputTextSuggestionState();
-    ctor public InputTextSuggestionState(optional boolean isCommittedByInputMethodEditor);
-    ctor @BytecodeOnly public InputTextSuggestionState(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @Deprecated public InputTextSuggestionState(boolean);
+    ctor public InputTextSuggestionState(optional boolean isCommittedByInputMethodEditor, optional boolean isTransliterationSuggestionSelected);
+    ctor @BytecodeOnly public InputTextSuggestionState(boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @Deprecated public InputTextSuggestionState(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public boolean isCommittedByInputMethodEditor();
+    method @InaccessibleFromKotlin public boolean isTransliterationSuggestionSelected();
     property public boolean isCommittedByInputMethodEditor;
+    property public boolean isTransliterationSuggestionSelected;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class LiveRegionMode {
