@@ -321,7 +321,7 @@ private fun PagerScaffoldImpl(
     scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
 
     val screenIsActive = LocalScreenIsActive.current
-    LaunchedEffect(screenIsActive, scaffoldState) {
+    LaunchedEffect(screenIsActive) {
         if (screenIsActive) {
             scaffoldState.screenContent.addScreen(key, timeText = null, scrollInfoProvider)
         } else {
