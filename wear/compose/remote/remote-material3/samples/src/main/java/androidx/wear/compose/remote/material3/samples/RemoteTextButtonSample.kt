@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled

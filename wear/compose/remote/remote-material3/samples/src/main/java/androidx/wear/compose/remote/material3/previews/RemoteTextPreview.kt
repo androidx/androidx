@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
