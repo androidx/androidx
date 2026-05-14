@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.pdf.models.FormWidgetInfo
+import java.util.Collections
 
 /**
  * Parcelable class which serves as the model to store page level form widget metadata along with
@@ -32,17 +33,22 @@ internal class PdfFormFillingState(val numPages: Int) : Parcelable {
     /** Stores the list of form widgets present in each page */
     private val pageFormWidgetInfos = Array<List<FormWidgetInfo>?>(numPages) { null }
 
+    /** Stores the detected hint texts for form widgets on each page. */
+    private val hintTexts = arrayOfNulls<MutableMap<Int, String>>(numPages)
+
     init {
         require(numPages >= 0) { "Empty PDF" }
     }
 
     constructor(parcel: Parcel) : this(parcel.readInt()) {
         readFormWidgetInfosFromParcel(parcel)
+        readHintTextsFromParcel(parcel)
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(numPages)
         writeFormWidgetInfosToParcel(parcel)
+        writeHintTextsToParcel(parcel)
     }
 
     fun addPageFormWidgetInfos(pageNum: Int, formWidgetInfos: List<FormWidgetInfo>?) {
@@ -51,7 +57,30 @@ internal class PdfFormFillingState(val numPages: Int) : Parcelable {
     }
 
     fun getPageFormWidgetInfos(pageNum: Int): List<FormWidgetInfo> {
+        require(pageNum in 0 until numPages) { "Page number out of range" }
         return pageFormWidgetInfos[pageNum]?.toList() ?: emptyList()
+    }
+
+    fun addHintText(pageNum: Int, widgetIndex: Int, text: String) {
+        require(pageNum in 0 until numPages) { "Page number out of range" }
+        val pageMap =
+            synchronized(hintTexts) {
+                hintTexts[pageNum]
+                    ?: Collections.synchronizedMap(mutableMapOf<Int, String>()).also {
+                        hintTexts[pageNum] = it
+                    }
+            }
+        pageMap[widgetIndex] = text
+    }
+
+    fun getHintText(pageNum: Int, widgetIndex: Int): String? {
+        require(pageNum in 0 until numPages) { "Page number out of range" }
+        return synchronized(hintTexts) { hintTexts[pageNum]?.get(widgetIndex) }
+    }
+
+    fun hasHintsForPage(pageNum: Int): Boolean {
+        if (pageNum !in 0 until numPages) return false
+        return synchronized(hintTexts) { hintTexts[pageNum] != null }
     }
 
     override fun describeContents(): Int {
@@ -77,6 +106,44 @@ internal class PdfFormFillingState(val numPages: Int) : Parcelable {
                 val list = mutableListOf<FormWidgetInfo>()
                 parcel.readTypedList(list, FormWidgetInfo.CREATOR)
                 pageFormWidgetInfos[i] = list
+            }
+        }
+    }
+
+    private fun writeHintTextsToParcel(dest: Parcel) {
+        synchronized(hintTexts) {
+            for (i in 0 until numPages) {
+                val pageHints = hintTexts[i]
+                if (pageHints.isNullOrEmpty()) {
+                    dest.writeInt(-1)
+                } else {
+                    synchronized(pageHints) {
+                        dest.writeInt(pageHints.size)
+                        for ((widgetIndex, text) in pageHints) {
+                            dest.writeInt(widgetIndex)
+                            dest.writeString(text)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun readHintTextsFromParcel(parcel: Parcel) {
+        for (i in 0 until numPages) {
+            val widgetCount = parcel.readInt()
+            if (widgetCount == -1) {
+                hintTexts[i] = null
+            } else {
+                val pageMap = Collections.synchronizedMap(mutableMapOf<Int, String>())
+                repeat(widgetCount) {
+                    val widgetIndex = parcel.readInt()
+                    val text = parcel.readString()
+                    if (text != null) {
+                        pageMap[widgetIndex] = text
+                    }
+                }
+                hintTexts[i] = pageMap
             }
         }
     }
