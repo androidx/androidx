@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.CameraBackends
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.compat.AndroidDevicePolicyManagerWrapper
@@ -110,10 +109,6 @@ internal abstract class CameraPipeModule {
         fun provideContext(config: CameraPipe.Config): Context = config.appContext
 
         @Singleton @Provides @CameraPipeJob fun provideCameraPipeJob(): Job = Job()
-
-        @Provides
-        fun provideCameraMetadataConfig(config: CameraPipe.Config): CameraMetadataConfig =
-            config.cameraMetadataConfig
 
         @Reusable
         @Provides
