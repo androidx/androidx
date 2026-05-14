@@ -42,11 +42,13 @@ public class VertexAttribute private constructor(private val name: String) {
         @JvmField public val UV1: VertexAttribute = VertexAttribute("UV1")
         /**
          * The indices of the bones that affect this vertex. Must be a [VertexAttributeType.UBYTE4].
+         * If this attribute is present in a [VertexLayout], [BONE_WEIGHTS] must also be present.
          */
         @JvmField public val BONE_INDICES: VertexAttribute = VertexAttribute("BONE_INDICES")
         /**
          * The weights of the bones that affect this vertex. Must be a
-         * [VertexAttributeType.UBYTE4_NORM].
+         * [VertexAttributeType.UBYTE4_NORM]. If this attribute is present in a [VertexLayout],
+         * [BONE_INDICES] must also be present.
          */
         @JvmField public val BONE_WEIGHTS: VertexAttribute = VertexAttribute("BONE_WEIGHTS")
     }
@@ -65,7 +67,8 @@ public class VertexAttribute private constructor(private val name: String) {
 /**
  * Defines the type of data for a vertex attribute.
  *
- * This specifies the data type and component count for an attribute in the vertex buffer.
+ * This class is used to define the data type and component count for a vertex attribute in a
+ * [VertexAttributeDescriptor].
  */
 @ExperimentalCustomMeshApi
 public class VertexAttributeType private constructor(private val value: Int) {
@@ -102,6 +105,18 @@ public class VertexAttributeType private constructor(private val value: Int) {
             UBYTE4 -> "UBYTE4"
             else -> value.toString()
         }
+
+    internal fun getByteSize(): Int {
+        return when (this) {
+            FLOAT -> 4
+            FLOAT2 -> 8
+            FLOAT3 -> 12
+            FLOAT4 -> 16
+            UBYTE4_NORM -> 4
+            UBYTE4 -> 4
+            else -> throw IllegalStateException("Unknown VertexAttributeType")
+        }
+    }
 }
 
 /**
@@ -112,7 +127,7 @@ public class VertexAttributeType private constructor(private val value: Int) {
  * the same buffer, or at the beginning of the vertex data if this is the first attribute. The
  * offset cannot exceed [MAX_OFFSET].
  *
- * @param attribute The [VertexAttribute] semantic being described.
+ * @param attribute The [VertexAttribute] semantic of the attribute.
  * @param type The [VertexAttributeType] data type of the attribute.
  * @param offset The byte offset of the attribute from the start of the vertex data.
  * @throws IllegalArgumentException if the given [type] is incompatible with the given [attribute],
@@ -181,13 +196,15 @@ constructor(
 /**
  * Layout of a vertex buffer, composed of multiple attribute descriptors.
  *
- * If the stride is set to [AUTO_STRIDE], the stride will be computed automatically. The stride must
- * be [AUTO_STRIDE] or a positive value up to [MAX_STRIDE].
+ * If the stride is set to [AUTO_STRIDE], the stride will be computed automatically to be the
+ * minimum byte stride required to encompass all attributes in the buffer. The stride must be
+ * [AUTO_STRIDE] or a positive value up to [MAX_STRIDE].
  *
  * @param attributes List of [VertexAttributeDescriptor]s defining the layout within this buffer.
  * @param stride The byte stride of the buffer.
- * @throws IllegalArgumentException if [attributes] is empty, or if [stride] is not [AUTO_STRIDE]
- *   and not between 1 and [MAX_STRIDE].
+ * @throws IllegalArgumentException if [attributes] is empty, if [stride] is not [AUTO_STRIDE] and
+ *   not between 1 and [MAX_STRIDE], if any attributes overlap, or if [stride] is not [AUTO_STRIDE]
+ *   and is smaller than the minimum byte stride required to encompass all attributes.
  */
 @ExperimentalCustomMeshApi
 public class VertexBufferLayout
@@ -197,11 +214,24 @@ constructor(
     @IntRange(from = -1, to = 32767) public val stride: Int = AUTO_STRIDE,
 ) {
     public companion object {
-        /** Indicates that the buffer stride should be computed automatically. */
+        /**
+         * Indicates that the buffer stride should be computed automatically to be the minimum byte
+         * stride required to encompass all attributes in the buffer.
+         */
         public const val AUTO_STRIDE: Int = -1
 
         /** The maximum allowed byte stride for a vertex buffer (32767). */
         public const val MAX_STRIDE: Int = 32767
+
+        private class AttributeSpan(val descriptor: VertexAttributeDescriptor, val offset: Int) {
+            val size: Int = descriptor.type.getByteSize()
+            val end: Int
+                get() = offset + size
+
+            fun overlapsWith(other: AttributeSpan): Boolean {
+                return this.offset < other.end && other.offset < this.end
+            }
+        }
     }
 
     init {
@@ -210,6 +240,32 @@ constructor(
         }
         require(stride == AUTO_STRIDE || stride in 1..MAX_STRIDE) {
             "stride must be AUTO_STRIDE or between 1 and $MAX_STRIDE."
+        }
+
+        var minRequiredStride = 0
+        val spans = mutableListOf<AttributeSpan>()
+        for (descriptor in attributes) {
+            val effectiveOffset =
+                if (descriptor.offset == VertexAttributeDescriptor.AUTO_OFFSET) {
+                    if (spans.isEmpty()) 0 else spans.last().end
+                } else {
+                    descriptor.offset
+                }
+            val newSpan = AttributeSpan(descriptor, effectiveOffset)
+
+            for (existingSpan in spans) {
+                require(!newSpan.overlapsWith(existingSpan)) {
+                    "Attribute ${descriptor.attribute} overlaps with existing attribute " +
+                        "${existingSpan.descriptor.attribute} in the same buffer."
+                }
+            }
+            spans.add(newSpan)
+            minRequiredStride = maxOf(minRequiredStride, newSpan.end)
+        }
+
+        require(stride == AUTO_STRIDE || stride >= minRequiredStride) {
+            "stride ($stride) must be at least the minimum byte stride required to " +
+                "encompass all attributes in the buffer ($minRequiredStride)."
         }
     }
 
@@ -240,7 +296,8 @@ constructor(
  *
  * @param buffers List of [VertexBufferLayout]s defining the vertex layout.
  * @throws IllegalArgumentException if [buffers] is empty, if the layout does not contain a
- *   [VertexAttribute.POSITION] attribute, or if it contains duplicate attributes.
+ *   [VertexAttribute.POSITION] attribute, if it contains duplicate attributes, or if only one of
+ *   [VertexAttribute.BONE_INDICES] or [VertexAttribute.BONE_WEIGHTS] is present.
  */
 @ExperimentalCustomMeshApi
 public class VertexLayout private constructor(public val buffers: List<VertexBufferLayout>) {
@@ -248,12 +305,14 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
     /**
      * Builder for [VertexLayout].
      *
-     * This builder is capable of building a layout that describes the attributes of multiple vertex
-     * buffers. Attributes added with [addAttribute] belong to the current buffer. To start adding
-     * attributes to a new buffer, call [startNextBuffer].
+     * This builder is capable of building a layout where vertex attributes are spread across
+     * multiple vertex buffers. Attributes added with [addAttribute] belong to the current buffer.
+     * To start adding attributes to a new buffer, call [startNextBuffer].
      *
      * An [IllegalArgumentException] will be thrown by [addAttribute] if duplicate attributes are
-     * added, and by [build] if the layout does not contain a [VertexAttribute.POSITION] attribute.
+     * added, and by [build] if the layout does not contain a [VertexAttribute.POSITION] attribute,
+     * or if only one of [VertexAttribute.BONE_INDICES] or [VertexAttribute.BONE_WEIGHTS] is
+     * present.
      *
      * Basic example of creating a layout with a single vertex buffer:
      * ```
@@ -290,8 +349,10 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
          *
          * @param attribute The [VertexAttribute] semantic of the attribute.
          * @param type The [VertexAttributeType] data type of the attribute.
-         * @param offset The byte offset of the attribute from the start of the vertex data. See
-         *   [VertexAttributeDescriptor] for more details.
+         * @param offset The byte offset of the attribute from the start of the vertex data. If set
+         *   to [VertexAttributeDescriptor.AUTO_OFFSET], the attribute will be placed immediately
+         *   after the previous attribute in the same buffer, or at the beginning of the vertex data
+         *   if this is the first attribute.
          * @throws IllegalArgumentException if the attribute has already been added to the layout.
          */
         @Suppress("MissingGetterMatchingBuilder")
@@ -301,11 +362,7 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
             type: VertexAttributeType,
             @IntRange(from = -1, to = 32767) offset: Int = VertexAttributeDescriptor.AUTO_OFFSET,
         ): Builder {
-            require(addedAttributes.add(attribute)) {
-                "VertexLayout cannot contain duplicate attributes: $attribute"
-            }
-            currentAttributes.add(VertexAttributeDescriptor(attribute, type, offset))
-            return this
+            return addAttribute(VertexAttributeDescriptor(attribute, type, offset))
         }
 
         /**
@@ -326,10 +383,21 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
         /**
          * Sets the stride for the current buffer.
          *
-         * @param stride The byte stride of the buffer. See [VertexBufferLayout] for more details.
+         * @param stride The byte stride of the buffer. If set to [VertexBufferLayout.AUTO_STRIDE],
+         *   the stride will be computed automatically to be the minimum byte stride required to
+         *   encompass all attributes in the buffer. Otherwise, it must be a positive value up to
+         *   [VertexBufferLayout.MAX_STRIDE].
+         * @throws IllegalArgumentException if [stride] is not [VertexBufferLayout.AUTO_STRIDE] and
+         *   not between 1 and [VertexBufferLayout.MAX_STRIDE].
          */
         @Suppress("MissingGetterMatchingBuilder")
         public fun setStride(@IntRange(from = -1, to = 32767) stride: Int): Builder {
+            require(
+                stride == VertexBufferLayout.AUTO_STRIDE ||
+                    stride in 1..VertexBufferLayout.MAX_STRIDE
+            ) {
+                "stride must be AUTO_STRIDE or between 1 and ${VertexBufferLayout.MAX_STRIDE}."
+            }
             currentStride = stride
             return this
         }
@@ -338,11 +406,14 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
          * Commits the current buffer and prepares for the next buffer.
          *
          * This method will add the previously set attributes and stride to the layout as a new
-         * buffer layout, and then reset the buffer layout state. The stride will be reset to
+         * [VertexBufferLayout], and then reset the buffer layout state. The stride will be reset to
          * [VertexBufferLayout.AUTO_STRIDE]. Subsequent calls to [addAttribute] and [setStride] will
          * apply to a new buffer.
          *
          * @throws IllegalStateException if no attributes were added to the current buffer.
+         * @throws IllegalArgumentException if any attributes in the current buffer overlap, or if
+         *   an explicitly provided stride is smaller than the minimum byte stride required to
+         *   encompass all attributes in the buffer.
          */
         @Suppress("BuilderSetStyle")
         public fun startNextBuffer(): Builder {
@@ -358,8 +429,11 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
         /**
          * Builds the [VertexLayout].
          *
-         * @throws IllegalArgumentException if no attributes were added, or if the layout does not
-         *   contain a [VertexAttribute.POSITION] attribute.
+         * @throws IllegalArgumentException if no attributes were added, if the layout does not
+         *   contain a [VertexAttribute.POSITION] attribute, if only one of
+         *   [VertexAttribute.BONE_INDICES] or [VertexAttribute.BONE_WEIGHTS] is present, if any
+         *   attributes in the current buffer overlap, or if an explicitly provided stride is
+         *   smaller than the minimum byte stride required to encompass all attributes.
          */
         public fun build(): VertexLayout {
             if (currentAttributes.isNotEmpty()) {
@@ -369,6 +443,11 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
             require(buffers.isNotEmpty()) { "VertexLayout must contain at least one buffer." }
             require(addedAttributes.contains(VertexAttribute.POSITION)) {
                 "VertexLayout must contain a POSITION attribute."
+            }
+            val hasBoneIndices = addedAttributes.contains(VertexAttribute.BONE_INDICES)
+            val hasBoneWeights = addedAttributes.contains(VertexAttribute.BONE_WEIGHTS)
+            require(hasBoneIndices == hasBoneWeights) {
+                "VertexLayout must contain both BONE_INDICES and BONE_WEIGHTS, or neither."
             }
 
             return VertexLayout(buffers.toList())

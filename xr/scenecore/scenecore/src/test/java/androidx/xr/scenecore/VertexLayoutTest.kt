@@ -56,6 +56,51 @@ class VertexLayoutTest {
     }
 
     @Test
+    fun create_withBoneIndicesWithoutBoneWeights_throwsIllegalArgumentException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexLayout.Builder()
+                    .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3)
+                    .addAttribute(VertexAttribute.BONE_INDICES, VertexAttributeType.UBYTE4)
+                    .build()
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("VertexLayout must contain both BONE_INDICES and BONE_WEIGHTS, or neither.")
+    }
+
+    @Test
+    fun create_withBoneWeightsWithoutBoneIndices_throwsIllegalArgumentException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexLayout.Builder()
+                    .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3)
+                    .addAttribute(VertexAttribute.BONE_WEIGHTS, VertexAttributeType.UBYTE4_NORM)
+                    .build()
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("VertexLayout must contain both BONE_INDICES and BONE_WEIGHTS, or neither.")
+    }
+
+    @Test
+    fun create_withBothBoneIndicesAndBoneWeights_succeeds() {
+        val layout =
+            VertexLayout.Builder()
+                .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3)
+                .addAttribute(VertexAttribute.BONE_INDICES, VertexAttributeType.UBYTE4)
+                .addAttribute(VertexAttribute.BONE_WEIGHTS, VertexAttributeType.UBYTE4_NORM)
+                .build()
+        assertThat(layout.buffers.size).isEqualTo(1)
+        assertThat(layout.buffers[0].attributes.size).isEqualTo(3)
+        assertThat(layout.buffers[0].attributes[0].attribute).isEqualTo(VertexAttribute.POSITION)
+        assertThat(layout.buffers[0].attributes[1].attribute)
+            .isEqualTo(VertexAttribute.BONE_INDICES)
+        assertThat(layout.buffers[0].attributes[2].attribute)
+            .isEqualTo(VertexAttribute.BONE_WEIGHTS)
+    }
+
+    @Test
     fun addAttribute_withDuplicateAttributeParams_throwsIllegalArgumentException() {
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
@@ -107,6 +152,80 @@ class VertexLayoutTest {
     }
 
     @Test
+    fun createBufferLayout_withOverlappingAttributes_throwsIllegalArgumentException() {
+        var exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexBufferLayout(
+                    listOf(
+                        VertexAttributeDescriptor(
+                            VertexAttribute.POSITION,
+                            VertexAttributeType.FLOAT3,
+                            offset = 0,
+                        ),
+                        VertexAttributeDescriptor(
+                            VertexAttribute.NORMAL,
+                            VertexAttributeType.FLOAT3,
+                            offset = 4,
+                        ),
+                    )
+                )
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains(
+                "Attribute NORMAL overlaps with existing attribute POSITION in the same buffer."
+            )
+
+        exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexBufferLayout(
+                    listOf(
+                        VertexAttributeDescriptor(
+                            VertexAttribute.POSITION,
+                            VertexAttributeType.FLOAT3,
+                            offset = 4,
+                        ),
+                        VertexAttributeDescriptor(
+                            VertexAttribute.NORMAL,
+                            VertexAttributeType.FLOAT3,
+                            offset = 0,
+                        ),
+                    )
+                )
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains(
+                "Attribute NORMAL overlaps with existing attribute POSITION in the same buffer."
+            )
+
+        exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexBufferLayout(
+                    listOf(
+                        VertexAttributeDescriptor(
+                            VertexAttribute.POSITION,
+                            VertexAttributeType.FLOAT3,
+                            offset = 12,
+                        ),
+                        VertexAttributeDescriptor(
+                            VertexAttribute.NORMAL,
+                            VertexAttributeType.FLOAT3,
+                            offset = 0,
+                        ),
+                        VertexAttributeDescriptor(
+                            VertexAttribute.UV0,
+                            VertexAttributeType.FLOAT2,
+                        ), // AUTO_OFFSET = 12
+                    )
+                )
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Attribute UV0 overlaps with existing attribute POSITION in the same buffer.")
+    }
+
+    @Test
     fun create_withEmptyBuffers_throwsIllegalArgumentException() {
         val exception =
             assertThrows(IllegalArgumentException::class.java) { VertexLayout.Builder().build() }
@@ -142,6 +261,33 @@ class VertexLayoutTest {
     }
 
     @Test
+    fun builder_setInvalidStride_throwsIllegalArgumentException() {
+        var exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexLayout.Builder().setStride(0)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("stride must be AUTO_STRIDE or between 1 and 32767")
+
+        exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexLayout.Builder().setStride(-2)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("stride must be AUTO_STRIDE or between 1 and 32767")
+
+        exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexLayout.Builder().setStride(32768)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("stride must be AUTO_STRIDE or between 1 and 32767")
+    }
+
+    @Test
     fun createBufferLayout_withInvalidStride_throwsIllegalArgumentException() {
         val attributes =
             listOf(VertexAttributeDescriptor(VertexAttribute.POSITION, VertexAttributeType.FLOAT3))
@@ -169,5 +315,49 @@ class VertexLayoutTest {
         assertThat(exception)
             .hasMessageThat()
             .contains("stride must be AUTO_STRIDE or between 1 and 32767")
+    }
+
+    @Test
+    fun createBufferLayout_withStrideTooSmall_throwsIllegalArgumentException() {
+        val attributes =
+            listOf(
+                VertexAttributeDescriptor(
+                    VertexAttribute.POSITION,
+                    VertexAttributeType.FLOAT3,
+                    offset = 0,
+                ),
+                VertexAttributeDescriptor(
+                    VertexAttribute.NORMAL,
+                    VertexAttributeType.FLOAT3,
+                    offset = 12,
+                ),
+            )
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexBufferLayout(attributes, stride = 20) // Normal ends at 12 + 12 = 24
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains(
+                "stride (20) must be at least the minimum byte stride required to encompass all attributes in the buffer (24)."
+            )
+    }
+
+    @Test
+    fun builder_withStrideTooSmall_throwsIllegalArgumentException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VertexLayout.Builder()
+                    .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3, offset = 0)
+                    .addAttribute(VertexAttribute.NORMAL, VertexAttributeType.FLOAT3, offset = 12)
+                    .setStride(20) // Normal ends at 12 + 12 = 24
+                    .build()
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains(
+                "stride (20) must be at least the minimum byte stride required to encompass all attributes in the buffer (24)."
+            )
     }
 }
