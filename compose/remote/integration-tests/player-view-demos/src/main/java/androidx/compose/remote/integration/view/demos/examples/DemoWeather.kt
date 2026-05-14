@@ -45,7 +45,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.view.demos.R
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -110,7 +110,7 @@ fun WeatherDemo() {
     }
 }
 
-@Preview @Composable private fun WeatherDemoPreview() = RemotePreview { WeatherDemo() }
+@Preview @Composable private fun WeatherDemoPreview() = RemoteContentPreview { WeatherDemo() }
 
 @RemoteComposable
 @Composable
@@ -133,7 +133,7 @@ fun WeatherHeader() {
     }
 }
 
-@Preview @Composable private fun WeatherHeaderPreview() = RemotePreview { WeatherHeader() }
+@Preview @Composable private fun WeatherHeaderPreview() = RemoteContentPreview { WeatherHeader() }
 
 val rowHeight = 90.rdp
 val rowHeight2 = 122.rdp
@@ -151,7 +151,7 @@ fun WeatherBox() {
     }
 }
 
-@Preview @Composable private fun WeatherBoxPreview() = RemotePreview { WeatherBox() }
+@Preview @Composable private fun WeatherBoxPreview() = RemoteContentPreview { WeatherBox() }
 
 @RemoteComposable
 @Composable
@@ -176,7 +176,7 @@ fun WeatherBox2() {
     }
 }
 
-@Preview @Composable private fun WeatherBox2Preview() = RemotePreview { WeatherBox2() }
+@Preview @Composable private fun WeatherBox2Preview() = RemoteContentPreview { WeatherBox2() }
 
 @RemoteComposable
 @Composable
@@ -195,7 +195,7 @@ fun WeatherRow() {
     }
 }
 
-@Preview @Composable private fun WeatherRowPreview() = RemotePreview { WeatherRow() }
+@Preview @Composable private fun WeatherRowPreview() = RemoteContentPreview { WeatherRow() }
 
 @RemoteComposable
 @Composable
@@ -238,7 +238,7 @@ fun WeatherDays() {
     }
 }
 
-@Preview @Composable private fun WeatherDaysPreview() = RemotePreview { WeatherDays() }
+@Preview @Composable private fun WeatherDaysPreview() = RemoteContentPreview { WeatherDays() }
 
 @RemoteComposable
 @Composable

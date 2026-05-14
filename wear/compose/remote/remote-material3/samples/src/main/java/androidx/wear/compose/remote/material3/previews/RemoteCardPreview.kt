@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteCard
@@ -38,13 +38,13 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @Composable
 fun RemoteCardPreview(@PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile) =
-    RemotePreview(profile = profile) { Container { RemoteCardDefault() } }
+    RemoteContentPreview(profile = profile) { Container { RemoteCardDefault() } }
 
 @WearPreviewDevices
 @Composable
 fun RemoteCardOutlinePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteCardOutline() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteCardOutline() } }
 
 @Composable
 @RemoteComposable

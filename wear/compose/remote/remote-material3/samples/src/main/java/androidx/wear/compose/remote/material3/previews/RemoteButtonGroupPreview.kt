@@ -33,7 +33,7 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -61,7 +61,7 @@ fun RemoteButtonGroupThreeButtons() {
 @Composable
 private fun RemoteButtonGroupThreeButtonsPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonGroupThreeButtons() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonGroupThreeButtons() } }
 
 @Composable
 @RemoteComposable
@@ -76,7 +76,7 @@ fun RemoteButtonGroupTwoButtons() {
 @Composable
 private fun RemoteButtonGroupTwoButtonsPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteButtonGroupTwoButtons() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonGroupTwoButtons() } }
 
 @Composable
 @RemoteComposable

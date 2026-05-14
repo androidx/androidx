@@ -49,7 +49,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -249,8 +249,12 @@ fun ScrollViewDemo() {
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
 @Preview
 @Composable
-private fun CanvasCalendarMonthPreview() = RemotePreview { CanvasCalendarMonth() }
+private fun CanvasCalendarMonthPreview() = RemoteContentPreview { CanvasCalendarMonth() }
 
-@Preview @Composable private fun ScrollViewDemoPreview() = RemotePreview { ScrollViewDemo() }
+@Suppress("RestrictedApiAndroidX")
+@Preview
+@Composable
+private fun ScrollViewDemoPreview() = RemoteContentPreview { ScrollViewDemo() }

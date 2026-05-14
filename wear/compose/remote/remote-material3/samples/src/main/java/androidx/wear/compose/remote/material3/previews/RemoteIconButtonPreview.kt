@@ -28,7 +28,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -52,7 +52,7 @@ fun RemoteIconButtonEnabled() {
 @Composable
 private fun RemoteIconButtonEnabledPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteIconButtonEnabled() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonEnabled() } }
 
 @Composable
 @RemoteComposable
@@ -66,7 +66,7 @@ fun RemoteIconButtonTonal() {
 @Composable
 private fun RemoteIconButtonTonalPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteIconButtonTonal() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonTonal() } }
 
 @Composable
 @RemoteComposable
@@ -86,7 +86,7 @@ fun RemoteIconButtonOutlined() {
 @Composable
 private fun RemoteIconButtonOutlinedPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { RemoteIconButtonOutlined() } }
+) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonOutlined() } }
 
 private val tonalColors
     @Composable

@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
@@ -41,7 +41,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 private fun RemoteTextStylePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) =
-    RemotePreview(profile = profile) {
+    RemoteContentPreview(profile = profile) {
         Container {
             val text = "textWithStyle".rs
 
@@ -57,7 +57,7 @@ private fun RemoteTextStylePreview(
 private fun RemoteTextOverflowPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) =
-    RemotePreview(profile = profile) {
+    RemoteContentPreview(profile = profile) {
         Container {
             val text =
                 "a piece of writing in which the expression of feelings and ideas is given intensity by particular attention to diction (sometimes involving rhyme), rhythm, and imagery."

@@ -81,7 +81,7 @@ fun RemoteIconSimpleSample(modifier: RemoteModifier = RemoteModifier) {
 
 @WearPreviewDevices
 @Composable
-fun RemoteIconSimpleSamplePreview() = RemotePreview { Container { RemoteIconSimpleSample() } }
+fun RemoteIconSimpleSamplePreview() = RemoteContentPreview { Container { RemoteIconSimpleSample() } }
 ```
 
 ## Preview Patterns
@@ -95,7 +95,7 @@ Previews are located in `samples/src/main/java/.../previews/` and are essential 
 - **Testing**: Test ALL variants in an automated way.
 - **Annotations**:
     - Annotate the preview function with `@WearPreviewDevices`.
-- **RemotePreview**: Wrap the composable to be previewed in a `RemotePreview`.
+- **RemoteContentPreview**: Wrap the composable to be previewed in a `RemoteContentPreview`.
 - **Profile Parameters**: Use `@PreviewParameter(ProfilePreviewParameterProvider::class)` to test
   against different profiles if needed.
 - **Container**: Use a `Container` helper composable to center content.
@@ -108,7 +108,7 @@ Previews are located in `samples/src/main/java/.../previews/` and are essential 
 private fun RemoteIconPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) =
-    RemotePreview(profile = profile) {
+    RemoteContentPreview(profile = profile) {
         Container {
             RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
         }

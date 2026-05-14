@@ -20,14 +20,14 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 
 class RemoteComponentPreviewWrapper : PreviewWrapperProvider {
     @Composable
     override fun Wrap(content: @Composable (() -> Unit)) {
-        RemotePreview {
+        RemoteContentPreview {
             RemoteBox(
                 RemoteModifier.fillMaxSize(),
                 contentAlignment = RemoteAlignment.Center,

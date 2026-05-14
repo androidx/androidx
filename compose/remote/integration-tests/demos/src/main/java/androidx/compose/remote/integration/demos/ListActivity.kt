@@ -44,7 +44,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.demos.widget.listWidget
 import androidx.compose.remote.player.view.RemoteComposePlayer
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -114,5 +114,5 @@ fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
 @Preview
 @Composable
 fun ScrollableListPreview() {
-    RemotePreview { ScrollableList("ScrollableListPreview") }
+    RemoteContentPreview { ScrollableList("ScrollableListPreview") }
 }

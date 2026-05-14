@@ -50,7 +50,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.view.demos.examples.SwitchState.*
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,7 +75,7 @@ fun SwitchWidgetOnState(modifier: RemoteModifier = RemoteModifier, id: Int = 0) 
 
 @Preview
 @Composable
-private fun SwitchWidgetOnStatePreview() = RemotePreview { SwitchWidgetOnState() }
+private fun SwitchWidgetOnStatePreview() = RemoteContentPreview { SwitchWidgetOnState() }
 
 @Composable
 @RemoteComposable
@@ -99,7 +99,7 @@ fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier) {
 
 @Preview
 @Composable
-private fun SwitchWidgetOffStatePreview() = RemotePreview { SwitchWidgetOffState() }
+private fun SwitchWidgetOffStatePreview() = RemoteContentPreview { SwitchWidgetOffState() }
 
 @Composable
 @RemoteComposable
@@ -215,4 +215,6 @@ fun SwitchWidgetDemo() {
 val RemoteEnum<SwitchState>.visibility: RemoteInt
     get() = toRemoteInt { it.visibility }
 
-@Preview @Composable private fun SwitchWidgetDemoPreview() = RemotePreview { SwitchWidgetDemo() }
+@Preview
+@Composable
+private fun SwitchWidgetDemoPreview() = RemoteContentPreview { SwitchWidgetDemo() }

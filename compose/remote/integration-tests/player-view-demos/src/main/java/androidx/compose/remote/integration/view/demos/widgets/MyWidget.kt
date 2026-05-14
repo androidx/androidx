@@ -36,7 +36,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.widgets.RemoteComposeWidget
 import androidx.compose.remote.creation.compose.widgets.onClick
-import androidx.compose.remote.tooling.preview.RemotePreview
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -102,9 +102,9 @@ class MyWidget : RemoteComposeWidget() {
 @Suppress("RestrictedApiAndroidX")
 @Preview
 @Composable
-private fun ButtonPreview() = RemotePreview { MyWidget().Button("Click me") {} }
+private fun ButtonPreview() = RemoteContentPreview { MyWidget().Button("Click me") {} }
 
 @Suppress("RestrictedApiAndroidX")
 @Preview
 @Composable
-private fun ContentPreview() = RemotePreview { MyWidget().Content(LocalContext.current, 0) }
+private fun ContentPreview() = RemoteContentPreview { MyWidget().Content(LocalContext.current, 0) }
