@@ -91,6 +91,22 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_withInput_cutout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState("Text"),
+                    label = { Text("Label") },
+                    labelPosition = TextFieldLabelPosition.Cutout(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_withInput_cutout")
+    }
+
+    @Test
     fun textField_notFocused() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(TextFieldTag)) {
@@ -103,6 +119,22 @@ class TextFieldScreenshotTest {
         }
 
         assertAgainstGolden("filled_textField_not_focused")
+    }
+
+    @Test
+    fun textField_notFocused_cutout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = { Text("Label") },
+                    labelPosition = TextFieldLabelPosition.Cutout(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_not_focused_cutout")
     }
 
     @Test
@@ -120,6 +152,24 @@ class TextFieldScreenshotTest {
         rule.onNodeWithTag(TextFieldTag).focus()
 
         assertAgainstGolden("filled_textField_focused")
+    }
+
+    @Test
+    fun textField_focused_cutout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = { Text("Label") },
+                    labelPosition = TextFieldLabelPosition.Cutout(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("filled_textField_focused_cutout")
     }
 
     @Test
@@ -601,13 +651,26 @@ class TextFieldScreenshotTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
                 labelPosition =
-                    TextFieldLabelPosition.Attached(
-                        minimizedAlignment = Alignment.CenterHorizontally
-                    ),
+                    TextFieldLabelPosition.Inside(minimizedAlignment = Alignment.CenterHorizontally),
             )
         }
 
         assertAgainstGolden("textField_labelAlignment_centerHorizontally")
+    }
+
+    @Test
+    fun textField_labelAlignment_centerHorizontally_cutout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Text"),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition =
+                    TextFieldLabelPosition.Cutout(minimizedAlignment = Alignment.CenterHorizontally),
+            )
+        }
+
+        assertAgainstGolden("textField_labelAlignment_centerHorizontally_cutout")
     }
 
     @Test
@@ -617,11 +680,25 @@ class TextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = true),
             )
         }
 
         assertAgainstGolden("textField_alwaysMinimizeLabel_noPlaceholder")
+    }
+
+    @Test
+    fun textField_alwaysMinimizeLabel_noPlaceholder_cutout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Cutout(isAlwaysMinimized = true),
+            )
+        }
+
+        assertAgainstGolden("textField_alwaysMinimizeLabel_noPlaceholder_cutout")
     }
 
     @Test
@@ -631,12 +708,27 @@ class TextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = true),
                 placeholder = { Text("Placeholder") },
             )
         }
 
         assertAgainstGolden("textField_alwaysMinimizeLabel_withPlaceholder")
+    }
+
+    @Test
+    fun textField_alwaysMinimizeLabel_withPlaceholder_cutout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Cutout(isAlwaysMinimized = true),
+                placeholder = { Text("Placeholder") },
+            )
+        }
+
+        assertAgainstGolden("textField_alwaysMinimizeLabel_withPlaceholder_cutout")
     }
 
     @Test

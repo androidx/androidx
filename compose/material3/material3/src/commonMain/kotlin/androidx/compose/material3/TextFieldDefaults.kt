@@ -17,7 +17,6 @@
 package androidx.compose.material3
 
 import androidx.annotation.FloatRange
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,7 +41,6 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.internal.CommonDecorationBox
 import androidx.compose.material3.internal.SupportingTopPadding
 import androidx.compose.material3.internal.TextFieldPadding
-import androidx.compose.material3.internal.TextFieldType
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
@@ -92,10 +90,10 @@ object TextFieldDefaults {
      * A decorator used to create custom text fields based on
      * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [TextField], such as
+     * If your text field requires customizing elements that aren't exposed by [TextField], such as
      * the indicator line thickness, consider using this decorator to achieve the desired design.
      *
-     * For example, if you wish to customise the bottom indicator line, you can pass a custom
+     * For example, if you wish to customize the bottom indicator line, you can pass a custom
      * [Container] to this decorator's [container].
      *
      * This decorator is meant to be used in conjunction with the overload of [BasicTextField] that
@@ -151,7 +149,7 @@ object TextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Inside(),
         label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -161,12 +159,7 @@ object TextFieldDefaults {
         supportingText: @Composable (() -> Unit)? = null,
         isError: Boolean = false,
         colors: TextFieldColors = colors(),
-        contentPadding: PaddingValues =
-            if (label == null || labelPosition is TextFieldLabelPosition.Above) {
-                contentPaddingWithoutLabel()
-            } else {
-                contentPaddingWithLabel()
-            },
+        contentPadding: PaddingValues = defaultContentPadding(label, labelPosition),
         container: @Composable () -> Unit = {
             Container(
                 enabled = enabled,
@@ -189,11 +182,10 @@ object TextFieldDefaults {
             }
 
         CommonDecorationBox(
-            type = TextFieldType.Filled,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = labelPosition,
+            labelPosition = labelPosition.normalize(),
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -311,10 +303,10 @@ object TextFieldDefaults {
      * A decoration box used to create custom text fields based on
      * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [TextField], consider
+     * If your text field requires customizing elements that aren't exposed by [TextField], consider
      * using this decoration box to achieve the desired design.
      *
-     * For example, if you wish to customise the bottom indicator line, you can pass a custom
+     * For example, if you wish to customize the bottom indicator line, you can pass a custom
      * [Container] to this decoration box's [container].
      *
      * This decoration box is meant to be used in conjunction with overloads of [BasicTextField]
@@ -412,11 +404,10 @@ object TextFieldDefaults {
                 .text
 
         CommonDecorationBox(
-            type = TextFieldType.Filled,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = TextFieldLabelPosition.Attached(),
+            labelPosition = TextFieldLabelPosition.Inside(),
             label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -449,8 +440,8 @@ object TextFieldDefaults {
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
-     * Default content padding of the input field within the [TextField] when the label is null or
-     * positioned [TextFieldLabelPosition.Above].
+     * Default content padding of the input field within the [TextField] when the label is absent or
+     * not positioned inside the container.
      *
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
@@ -461,6 +452,20 @@ object TextFieldDefaults {
         end: Dp = TextFieldPadding,
         bottom: Dp = TextFieldPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
+
+    /**
+     * Default content padding of the input field within the [TextField] based on the presence of
+     * [label] and its [labelPosition].
+     */
+    internal fun defaultContentPadding(
+        label: @Composable (TextFieldLabelScope.() -> Unit)?,
+        labelPosition: TextFieldLabelPosition,
+    ): PaddingValues =
+        if (label != null && labelPosition.normalize() is TextFieldLabelPosition.Inside) {
+            contentPaddingWithLabel()
+        } else {
+            contentPaddingWithoutLabel()
+        }
 
     /**
      * Default padding applied to supporting text for both [TextField] and [OutlinedTextField]. See
@@ -717,6 +722,19 @@ object TextFieldDefaults {
                 .also { defaultTextFieldColorsCached = it }
     }
 
+    /** Returns the non-deprecated equivalent of this [TextFieldLabelPosition]. */
+    @Suppress("DEPRECATION")
+    internal fun TextFieldLabelPosition.normalize(): TextFieldLabelPosition =
+        if (this is TextFieldLabelPosition.Attached) {
+            TextFieldLabelPosition.Inside(
+                isAlwaysMinimized = alwaysMinimize,
+                minimizedAlignment = minimizedAlignment,
+                expandedAlignment = expandedAlignment,
+            )
+        } else {
+            this
+        }
+
     @Deprecated(
         message = "Renamed to TextFieldDefaults.Container",
         replaceWith =
@@ -831,10 +849,10 @@ object TextFieldDefaults {
         contentPaddingWithoutLabel(start = start, top = top, end = end, bottom = bottom)
 
     @Deprecated(
-        message = "Renamed to `OutlinedTextFieldDefaults.contentPadding`",
+        message = "Renamed to `OutlinedTextFieldDefaults.contentPaddingWithoutLabel`",
         replaceWith =
             ReplaceWith(
-                "OutlinedTextFieldDefaults.contentPadding(\n" +
+                "OutlinedTextFieldDefaults.contentPaddingWithoutLabel(\n" +
                     "        start = start,\n" +
                     "        top = top,\n" +
                     "        end = end,\n" +
@@ -850,7 +868,7 @@ object TextFieldDefaults {
         end: Dp = TextFieldPadding,
         bottom: Dp = TextFieldPadding,
     ): PaddingValues =
-        OutlinedTextFieldDefaults.contentPadding(
+        OutlinedTextFieldDefaults.contentPaddingWithoutLabel(
             start = start,
             top = top,
             end = end,
@@ -890,7 +908,7 @@ object OutlinedTextFieldDefaults {
      * A decorator used to create custom text fields based on
      * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
+     * If your text field requires customizing elements that aren't exposed by [OutlinedTextField],
      * such as the border thickness, consider using this decorator to achieve the desired design.
      *
      * For example, if you wish to customize the thickness of the border, you can pass a custom
@@ -937,7 +955,8 @@ object OutlinedTextFieldDefaults {
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decorator. Note that the padding values may not be respected if they are incompatible with
      *   the text field's size constraints or layout. See
-     *   [OutlinedTextFieldDefaults.contentPadding].
+     *   [OutlinedTextFieldDefaults.contentPaddingWithoutLabel] or
+     *   [OutlinedTextFieldDefaults.contentPaddingWithLabel].
      * @param container the container to be drawn behind the text field. By default, this is
      *   transparent and only includes a border. The cutout in the border to fit the [label] will be
      *   automatically added by the framework. Default colors for the container come from the
@@ -950,7 +969,7 @@ object OutlinedTextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Cutout(),
         label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -960,7 +979,7 @@ object OutlinedTextFieldDefaults {
         supportingText: @Composable (() -> Unit)? = null,
         isError: Boolean = false,
         colors: TextFieldColors = colors(),
-        contentPadding: PaddingValues = contentPadding(),
+        contentPadding: PaddingValues = defaultContentPadding(label, labelPosition),
         container: @Composable () -> Unit = {
             Container(
                 enabled = enabled,
@@ -982,11 +1001,10 @@ object OutlinedTextFieldDefaults {
             }
 
         CommonDecorationBox(
-            type = TextFieldType.Outlined,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = labelPosition,
+            labelPosition = labelPosition.normalize(),
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1055,7 +1073,7 @@ object OutlinedTextFieldDefaults {
      * A decoration box used to create custom text fields based on
      * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
-     * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
+     * If your text field requires customizing elements that aren't exposed by [OutlinedTextField],
      * consider using this decoration box to achieve the desired design.
      *
      * For example, if you wish to customize the thickness of the border, you can pass a custom
@@ -1105,7 +1123,8 @@ object OutlinedTextFieldDefaults {
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decoration box. Note that the padding values may not be respected if they are incompatible
      *   with the text field's size constraints or layout. See
-     *   [OutlinedTextFieldDefaults.contentPadding].
+     *   [OutlinedTextFieldDefaults.contentPaddingWithoutLabel] or
+     *   [OutlinedTextFieldDefaults.contentPaddingWithLabel].
      * @param container the container to be drawn behind the text field. By default, this is
      *   transparent and only includes a border. The cutout in the border to fit the [label] will be
      *   automatically added by the framework. Default colors for the container come from the
@@ -1128,7 +1147,7 @@ object OutlinedTextFieldDefaults {
         suffix: @Composable (() -> Unit)? = null,
         supportingText: @Composable (() -> Unit)? = null,
         colors: TextFieldColors = colors(),
-        contentPadding: PaddingValues = contentPadding(),
+        contentPadding: PaddingValues = contentPaddingWithoutLabel(),
         container: @Composable () -> Unit = {
             Container(
                 enabled = enabled,
@@ -1150,11 +1169,10 @@ object OutlinedTextFieldDefaults {
                 .text
 
         CommonDecorationBox(
-            type = TextFieldType.Outlined,
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = TextFieldLabelPosition.Attached(),
+            labelPosition = TextFieldLabelPosition.Cutout(),
             label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1172,17 +1190,64 @@ object OutlinedTextFieldDefaults {
     }
 
     /**
-     * Default content padding of the input field within the [OutlinedTextField].
+     * Default content padding of the input field within the [OutlinedTextField] when there is an
+     * inside label. Note that the top padding represents the padding above the label in the focused
+     * state. The input field is placed directly beneath the label.
      *
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
      */
-    fun contentPadding(
+    fun contentPaddingWithLabel(
+        start: Dp = TextFieldPadding,
+        top: Dp = TextFieldWithLabelVerticalPadding,
+        end: Dp = TextFieldPadding,
+        bottom: Dp = TextFieldWithLabelVerticalPadding,
+    ): PaddingValues = PaddingValues(start, top, end, bottom)
+
+    /**
+     * Default content padding of the input field within the [OutlinedTextField] when the label is
+     * absent or not positioned inside the container.
+     *
+     * Horizontal padding represents the distance between the input field and the leading/trailing
+     * icons (if present) or the horizontal edges of the container if there are no icons.
+     */
+    fun contentPaddingWithoutLabel(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         bottom: Dp = TextFieldPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
+
+    /**
+     * Default content padding of the input field within the [OutlinedTextField].
+     *
+     * Horizontal padding represents the distance between the input field and the leading/trailing
+     * icons (if present) or the horizontal edges of the container if there are no icons.
+     */
+    @Deprecated(
+        "Use contentPaddingWithoutLabel or contentPaddingWithLabel instead",
+        replaceWith = ReplaceWith("contentPaddingWithoutLabel(start, top, end, bottom)"),
+    )
+    fun contentPadding(
+        start: Dp = TextFieldPadding,
+        top: Dp = TextFieldPadding,
+        end: Dp = TextFieldPadding,
+        bottom: Dp = TextFieldPadding,
+    ): PaddingValues = contentPaddingWithoutLabel(start, top, end, bottom)
+
+    /**
+     * Default content padding of the input field within the [TextField] based on the presence of
+     * [label] and its [labelPosition].
+     */
+    internal fun defaultContentPadding(
+        label: @Composable (TextFieldLabelScope.() -> Unit)?,
+        labelPosition: TextFieldLabelPosition,
+    ): PaddingValues =
+        if (label != null && labelPosition is TextFieldLabelPosition.Inside) {
+            contentPaddingWithLabel()
+        } else {
+            contentPaddingWithoutLabel()
+        }
 
     /**
      * Creates a [TextFieldColors] that represents the default input text, container, and content
@@ -1426,6 +1491,19 @@ object OutlinedTextFieldDefaults {
                         errorSuffixColor = fromToken(OutlinedTextFieldTokens.InputSuffixColor),
                     )
                     .also { defaultOutlinedTextFieldColorsCached = it }
+        }
+
+    /** Returns the non-deprecated equivalent of this [TextFieldLabelPosition]. */
+    @Suppress("DEPRECATION")
+    internal fun TextFieldLabelPosition.normalize(): TextFieldLabelPosition =
+        if (this is TextFieldLabelPosition.Attached) {
+            TextFieldLabelPosition.Cutout(
+                isAlwaysMinimized = alwaysMinimize,
+                minimizedAlignment = minimizedAlignment,
+                expandedAlignment = expandedAlignment,
+            )
+        } else {
+            this
         }
 
     @Deprecated(
@@ -1936,11 +2014,7 @@ constructor(
 /** The position of the label with respect to the text field. */
 abstract class TextFieldLabelPosition private constructor() {
     /**
-     * The default label position according to the Material specification.
-     *
-     * For [TextField], the label is positioned inside the text field container. For
-     * [OutlinedTextField], the label is positioned inside the text field container when expanded
-     * and cuts into the border when minimized.
+     * Translates to [Inside] for [TextField], and [Cutout] for [OutlinedTextField].
      *
      * @param alwaysMinimize Whether to always keep the label of the text field minimized. If
      *   `false`, the label will expand to occupy the input area when the text field is unfocused
@@ -1949,11 +2023,16 @@ abstract class TextFieldLabelPosition private constructor() {
      * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
      * @param expandedAlignment The horizontal alignment of the label when it is expanded.
      */
+    @Deprecated(
+        "Use Inside for the default filled TextField behavior, or Cutout for the " +
+            "default OutlinedTextField behavior."
+    )
     class Attached(
         @get:Suppress("GetterSetterNames") val alwaysMinimize: Boolean = false,
         val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
         val expandedAlignment: Alignment.Horizontal = Alignment.Start,
     ) : TextFieldLabelPosition() {
+        @Suppress("DEPRECATION")
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Attached) return false
@@ -1975,6 +2054,95 @@ abstract class TextFieldLabelPosition private constructor() {
         override fun toString(): String {
             return "Attached(" +
                 "alwaysMinimize=$alwaysMinimize, " +
+                "minimizedAlignment=$minimizedAlignment, " +
+                "expandedAlignment=$expandedAlignment" +
+                ")"
+        }
+    }
+
+    /**
+     * The label is positioned inside the text field container.
+     *
+     * This is the default label position for [TextField].
+     *
+     * @param isAlwaysMinimized Whether to always keep the label of the text field minimized. If
+     *   `false`, the label will expand to occupy the input area when the text field is unfocused
+     *   and empty. If `true`, this allows displaying the placeholder, prefix, and suffix alongside
+     *   the label when the text field is unfocused and empty.
+     * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
+     * @param expandedAlignment The horizontal alignment of the label when it is expanded.
+     */
+    class Inside(
+        val isAlwaysMinimized: Boolean = false,
+        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    ) : TextFieldLabelPosition() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Inside) return false
+
+            if (isAlwaysMinimized != other.isAlwaysMinimized) return false
+            if (minimizedAlignment != other.minimizedAlignment) return false
+            if (expandedAlignment != other.expandedAlignment) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = isAlwaysMinimized.hashCode()
+            result = 31 * result + minimizedAlignment.hashCode()
+            result = 31 * result + expandedAlignment.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "Inside(" +
+                "isAlwaysMinimized=$isAlwaysMinimized, " +
+                "minimizedAlignment=$minimizedAlignment, " +
+                "expandedAlignment=$expandedAlignment" +
+                ")"
+        }
+    }
+
+    /**
+     * The label is positioned inside the text field container when expanded and cuts into the
+     * border when minimized.
+     *
+     * This is the default label position for [OutlinedTextField].
+     *
+     * @param isAlwaysMinimized Whether to always keep the label of the text field minimized. If
+     *   `false`, the label will expand to occupy the input area when the text field is unfocused
+     *   and empty. If `true`, this allows displaying the placeholder, prefix, and suffix alongside
+     *   the label when the text field is unfocused and empty.
+     * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
+     * @param expandedAlignment The horizontal alignment of the label when it is expanded.
+     */
+    class Cutout(
+        val isAlwaysMinimized: Boolean = false,
+        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    ) : TextFieldLabelPosition() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Cutout) return false
+
+            if (isAlwaysMinimized != other.isAlwaysMinimized) return false
+            if (minimizedAlignment != other.minimizedAlignment) return false
+            if (expandedAlignment != other.expandedAlignment) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = isAlwaysMinimized.hashCode()
+            result = 31 * result + minimizedAlignment.hashCode()
+            result = 31 * result + expandedAlignment.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "Cutout(" +
+                "isAlwaysMinimized=$isAlwaysMinimized, " +
                 "minimizedAlignment=$minimizedAlignment, " +
                 "expandedAlignment=$expandedAlignment" +
                 ")"
