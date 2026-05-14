@@ -47,22 +47,26 @@ class RubyLayoutRunTest {
     private val PAINT = TextPaint().apply { textSize = ONE_EM }
 
     private fun getVerticalAdvance(text: String, scaleFactor: Float = 1.0f): Float {
+        val oldFlags = PAINT.flags
         PAINT.flags = PAINT.flags or Paint.VERTICAL_TEXT_FLAG
         PAINT.textSize = ONE_EM * scaleFactor
         try {
             return PAINT.measureText(text)
         } finally {
             PAINT.textSize = ONE_EM
+            PAINT.flags = oldFlags
         }
     }
 
     private fun getHorizontalAdvance(text: String, scaleFactor: Float = 1.0f): Float {
+        val oldFlags = PAINT.flags
         PAINT.flags = PAINT.flags and Paint.VERTICAL_TEXT_FLAG.inv()
         PAINT.textSize = ONE_EM * scaleFactor
         try {
             return PAINT.measureText(text)
         } finally {
             PAINT.textSize = ONE_EM
+            PAINT.flags = oldFlags
         }
     }
 

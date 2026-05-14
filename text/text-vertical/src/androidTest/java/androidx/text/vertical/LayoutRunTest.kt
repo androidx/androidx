@@ -50,13 +50,23 @@ class LayoutRunTest {
     private val PAINT = TextPaint().apply { textSize = ONE_EM }
 
     private fun getVerticalAdvance(text: String): Float {
+        val oldFlags = PAINT.flags
         PAINT.flags = PAINT.flags or Paint.VERTICAL_TEXT_FLAG
-        return PAINT.measureText(text)
+        try {
+            return PAINT.measureText(text)
+        } finally {
+            PAINT.flags = oldFlags
+        }
     }
 
     private fun getHorizontalAdvance(text: String): Float {
+        val oldFlags = PAINT.flags
         PAINT.flags = PAINT.flags and Paint.VERTICAL_TEXT_FLAG.inv()
-        return PAINT.measureText(text)
+        try {
+            return PAINT.measureText(text)
+        } finally {
+            PAINT.flags = oldFlags
+        }
     }
 
     private fun getHorizontalLineHeight(text: String): Float {
