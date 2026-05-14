@@ -26,7 +26,10 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedSecureTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SecureTextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -112,6 +115,23 @@ internal class SecureTextFieldTestCase(private val type: TextFieldType) :
                     state = state,
                     modifier = modifier,
                     interactionSource = interactionSource,
+                )
+            TextFieldType.ExpressiveFilled ->
+                SecureTextField(
+                    state = state,
+                    modifier = modifier,
+                    interactionSource = interactionSource,
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                )
+            TextFieldType.ExpressiveOutlined ->
+                OutlinedSecureTextField(
+                    state = state,
+                    modifier = modifier,
+                    interactionSource = interactionSource,
+                    shape = OutlinedTextFieldDefaults.roundedShape,
+                    colors = OutlinedTextFieldDefaults.tonalColors(),
+                    labelPosition = TextFieldLabelPosition.Inside(),
                 )
         }
     }

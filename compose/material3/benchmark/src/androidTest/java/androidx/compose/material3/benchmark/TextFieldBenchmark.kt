@@ -22,7 +22,10 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
@@ -71,6 +74,19 @@ internal class TextFieldTestCase(private val type: TextFieldType) :
         when (type) {
             TextFieldType.Filled -> TextField(state)
             TextFieldType.Outlined -> OutlinedTextField(state)
+            TextFieldType.ExpressiveFilled ->
+                TextField(
+                    state = state,
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                )
+            TextFieldType.ExpressiveOutlined ->
+                OutlinedTextField(
+                    state = state,
+                    shape = OutlinedTextFieldDefaults.roundedShape,
+                    colors = OutlinedTextFieldDefaults.tonalColors(),
+                    labelPosition = TextFieldLabelPosition.Inside(),
+                )
         }
     }
 
@@ -91,4 +107,6 @@ internal class TextFieldTestCase(private val type: TextFieldType) :
 enum class TextFieldType {
     Filled,
     Outlined,
+    ExpressiveFilled,
+    ExpressiveOutlined,
 }
