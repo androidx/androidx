@@ -23,11 +23,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 add_library(
         testing_surface_jni SHARED
         jni_hooks.cpp
-        surface_jni.cpp)
+        surface_jni.cpp
+        native_hwbuffer_jni.cpp)
 
 find_library(android-lib android)
+find_library(egl-lib EGL)
+find_library(gles2-lib GLESv2)
+find_library(log-lib log)
 
-target_link_libraries(testing_surface_jni  ${android-lib})
+target_link_libraries(testing_surface_jni  ${android-lib} ${egl-lib} ${gles2-lib} ${log-lib})
 target_link_options(
         testing_surface_jni
         PRIVATE

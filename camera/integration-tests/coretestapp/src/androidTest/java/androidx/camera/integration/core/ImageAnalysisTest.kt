@@ -16,6 +16,7 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -24,6 +25,7 @@ import android.os.HandlerThread
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
@@ -67,9 +69,15 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -883,5 +891,83 @@ internal class ImageAnalysisTest(
             image.imageInfo.timestamp,
             image.imageInfo.rotationDegrees,
         )
+    }
+
+    @LabTestRule.LabTestFrontCamera
+    @Test
+    fun verifyHardwareBufferContentWithMLKit_onLabDevice_frontCamera() = runBlocking {
+        verifyHardwareBufferContentWithMLKit(CameraSelector.DEFAULT_FRONT_CAMERA)
+    }
+
+    @LabTestRule.LabTestRearCamera
+    @Test
+    fun verifyHardwareBufferContentWithMLKit_onLabDevice_rearCamera() = runBlocking {
+        verifyHardwareBufferContentWithMLKit(CameraSelector.DEFAULT_BACK_CAMERA)
+    }
+
+    private suspend fun verifyHardwareBufferContentWithMLKit(cameraSelector: CameraSelector) {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
+        assumeTrue(!isLegacyLevelDevice() && isHardwareBufferSupportedOnDevice())
+
+        val barcodeScanner =
+            BarcodeScanning.getClient(
+                BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
+            )
+        val imageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
+                .build()
+
+        val framesToSkip = 10
+        val framesToAnalyze = 5
+        val frameCounter = java.util.concurrent.atomic.AtomicInteger(0)
+        val latchForBarcodeDetect = CountDownLatch(1)
+
+        imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler)) { image ->
+            if (Build.VERSION.SDK_INT >= 28) {
+                val currentFrame = frameCounter.incrementAndGet()
+                if (currentFrame > framesToSkip && currentFrame <= framesToSkip + framesToAnalyze) {
+                    Api28Impl.getHardwareBuffer(image)?.use { hwBuffer ->
+                        val width = hwBuffer.width
+                        val height = hwBuffer.height
+                        val rgbaArray = ByteArray(width * height * 4)
+
+                        if (
+                            androidx.camera.testing.impl.NativeHardwareBufferConverter
+                                .convertToRgba(hwBuffer, rgbaArray)
+                        ) {
+                            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                            bitmap.copyPixelsFromBuffer(java.nio.ByteBuffer.wrap(rgbaArray))
+
+                            val inputImage =
+                                InputImage.fromBitmap(bitmap, image.imageInfo.rotationDegrees)
+                            barcodeScanner.process(inputImage).addOnSuccessListener { barcodes ->
+                                barcodes.forEach { barcode ->
+                                    if ("Hi, CamX!" == barcode.displayValue) {
+                                        latchForBarcodeDetect.countDown()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            image.close()
+        }
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
+        }
+
+        assertThat(latchForBarcodeDetect.await(15000, TimeUnit.MILLISECONDS)).isTrue()
+        barcodeScanner.close()
+    }
+
+    @RequiresApi(28)
+    private object Api28Impl {
+        @DoNotInline
+        fun getHardwareBuffer(image: ImageProxy): HardwareBuffer? {
+            return image.hardwareBuffer
+        }
     }
 }
