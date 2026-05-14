@@ -67,8 +67,8 @@ object Shell {
     }
 
     /**
-     * Equivalent of [psLineContainsProcess], but to be used with full process name string (e.g.
-     * from pgrep)
+     * Equivalent of [Shell.psLineContainsProcess], but to be used with full process name (e.g. from
+     * pgrep)
      */
     internal fun fullProcessNameMatchesProcess(
         fullProcessName: String,
@@ -91,7 +91,7 @@ object Shell {
         return executeScriptCaptureStdoutStderr("cat $path").stdout.trim().run {
             try {
                 toLong()
-            } catch (exception: NumberFormatException) {
+            } catch (_: NumberFormatException) {
                 // silently catch exception, as it may be not readable (e.g. due to offline)
                 null
             }
@@ -105,13 +105,7 @@ object Shell {
      * yet available
      */
     internal fun getChecksum(path: String): String {
-        val sum =
-            if (Build.VERSION.SDK_INT >= 23) {
-                md5sum(path)
-            } else {
-                // this isn't good, but it's good enough for API 22
-                return getFileSizeLsUnsafe(path) ?: ""
-            }
+        val sum = md5sum(path)
         if (sum.isBlank()) {
             if (!ShellImpl.isSessionRooted) {
                 val lsOutput = ShellImpl.executeCommandUnsafe("ls -l $path")
@@ -174,30 +168,11 @@ object Shell {
 
     /** Gets the file size for a given path. */
     internal fun getFileSizeUnsafe(path: String): Long {
-        // API 23 comes with the helpful stat command
-        val fileSize =
-            if (Build.VERSION.SDK_INT >= 23) {
-                // Using executeCommandUnsafe for perf reasons, but this API is still safe, given
-                // we validate the outputs.
-                ShellImpl.executeCommandUnsafe("stat -c %s $path").trim().toLongOrNull()
-            } else {
-                getFileSizeLsUnsafe(path)?.toLong()
-            }
+        // Using executeCommandUnsafe for perf reasons, but this API is still safe, given
+        // we validate the outputs.
+        val fileSize = ShellImpl.executeCommandUnsafe("stat -c %s $path").trim().toLongOrNull()
         require(fileSize != null) { "Unable to obtain file size for the file $path" }
         return fileSize
-    }
-
-    /**
-     * Only use this API on API 22 or lower.
-     *
-     * This command uses [ShellImpl.executeCommandUnsafe] for performance reasons. The caller should
-     * always validate the outputs for a given invocation.
-     *
-     * @return `null` when the file [path] cannot be found.
-     */
-    private fun getFileSizeLsUnsafe(path: String): String? {
-        val result = ShellImpl.executeCommandUnsafe("ls -l $path")
-        return if (result.isBlank()) null else result.split(Regex("\\s+"))[3]
     }
 
     /**
@@ -216,14 +191,7 @@ object Shell {
         }
 
         // Sets execution permissions on the script
-        if (Build.VERSION.SDK_INT >= 23) {
-            ShellImpl.executeCommandUnsafe("chmod +x $dst")
-        } else {
-            // chmod with support for +x only added in API 23
-            // While 777 is technically more permissive, this is only used for scripts and temporary
-            // files in tests, so we don't worry about permissions / access here
-            ShellImpl.executeCommandUnsafe("chmod 777 $dst")
-        }
+        ShellImpl.executeCommandUnsafe("chmod +x $dst")
 
         // validate checksums instead of checking stderr, since it's not yet safe to
         // read from stderr. This detects the problem where root left a stale executable
@@ -288,7 +256,7 @@ object Shell {
 
     /**
      * Convenience wrapper around [android.app.UiAutomation.executeShellCommand] which adds
-     * scripting functionality like piping and redirects, and which throws if stdout or stder was
+     * scripting functionality like piping and redirects, and which throws if stdout or stderr was
      * produced.
      *
      * Unlike `executeShellCommand()`, this method supports arbitrary multi-line shell expressions,
@@ -444,8 +412,8 @@ object Shell {
     }
 
     /**
-     * Creates a executable shell script that can be started. Similar to
-     * [executeScriptCaptureStdoutStderr] but allows deferring and caching script execution.
+     * Creates an executable shell script that can be started. Similar to
+     * [Shell.executeScriptCaptureStdoutStderr] but allows deferring and caching script execution.
      *
      * @param script Script content to run
      * @param stdin String to pass in as stdin to first command in script
@@ -460,31 +428,14 @@ object Shell {
     }
 
     fun getPidsForProcess(processName: String): List<Int> {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return pgrepLF(pattern = processName).mapNotNull { runningProcess ->
-                // aggressive safety - ensure target isn't subset of another running package
-                if (fullProcessNameMatchesProcess(runningProcess.processName, processName)) {
-                    runningProcess.pid
-                } else {
-                    null
-                }
+        return pgrepLF(pattern = processName).mapNotNull { runningProcess ->
+            // aggressive safety - ensure target isn't subset of another running package
+            if (fullProcessNameMatchesProcess(runningProcess.processName, processName)) {
+                runningProcess.pid
+            } else {
+                null
             }
         }
-
-        // NOTE: `pidof $processName` would work too, but filtering by process
-        // (the whole point of the command) doesn't work pre API 24
-
-        // Can't use ps -A pre API 26, arg isn't supported.
-        // Grep device side, since ps output by itself gets truncated
-        // NOTE: `ps | grep` is slow (multiple seconds), so avoid whenever possible!
-        return executeScriptCaptureStdout("ps | grep $processName")
-            .split(Regex("\r?\n"))
-            .map { it.trim() }
-            .filter { psLineContainsProcess(psOutputLine = it, processName = processName) }
-            .map {
-                // map to int - split, and take 2nd column (PID)
-                it.split(Regex("\\s+"))[1].toInt()
-            }
     }
 
     /**
@@ -496,7 +447,6 @@ object Shell {
      *
      * @return List of processes - pid & full process name
      */
-    @RequiresApi(23)
     fun pgrepLF(pattern: String): List<ProcessPid> {
         // Note: we use the unsafe variant for performance, since this is a
         // common operation, and pgrep is stable after API 23 see [ShellBehaviorTest#pgrep]
@@ -516,7 +466,6 @@ object Shell {
             }
     }
 
-    @RequiresApi(23)
     fun getRunningPidsAndProcessesForPackage(packageName: String): List<ProcessPid> {
         require(!packageName.contains(":")) { "Package $packageName must not contain ':'" }
         return pgrepLF(pattern = packageName.replace(".", "\\.")).filter {
@@ -526,25 +475,7 @@ object Shell {
 
     fun getRunningProcessesForPackage(packageName: String): List<String> {
         require(!packageName.contains(":")) { "Package $packageName must not contain ':'" }
-        if (Build.VERSION.SDK_INT >= 23) {
-            // uses pgrep which is nice and fast, but requires API 23
-            return getRunningPidsAndProcessesForPackage(packageName).map { it.processName }
-        }
-
-        // Grep device side, since ps output by itself gets truncated
-        // NOTE: Can't use ps -A pre API 26, arg isn't supported, but would need
-        // to pass it on 26 to see all processes.
-        // NOTE: `ps | grep` is slow (multiple seconds), so avoid whenever possible!
-        return executeScriptCaptureStdout("ps | grep $packageName")
-            .split(Regex("\r?\n"))
-            .map {
-                // get process name from end
-                it.substringAfterLast(" ")
-            }
-            .filter {
-                // allow primary or sub process
-                it == packageName || it.startsWith("$packageName:")
-            }
+        return getRunningPidsAndProcessesForPackage(packageName).map { it.processName }
     }
 
     /**
@@ -629,12 +560,28 @@ object Shell {
             ShellImpl.executeCommandUnsafe("ls $absoluteFilePath").trim() == absoluteFilePath
         }
 
-    fun amBroadcast(broadcastArguments: String): Int? {
+    // Broadcast results are parsed this way.
+    private val broadcastRegex =
+        Regex("Broadcast completed:\\s*result\\s*=\\s*(\\d+)\\s*(,\\s*data\\s*=\\s*\"(.*)\")?")
+
+    /**
+     * Invokes `am broadcast broadcastArguments` using the shell user.
+     *
+     * @return a [Pair] that optionally contains the result code and data. Note: A result code of
+     *   `null` typically means that the broadcast was unsuccessful.
+     */
+    fun amBroadcast(broadcastArguments: String): Pair<Int?, String?> {
         // unsafe here for perf, since we validate the return value so we don't need to check stderr
-        return ShellImpl.executeCommandUnsafe("am broadcast $broadcastArguments")
-            .substringAfter("Broadcast completed: result=")
-            .trim()
-            .toIntOrNull()
+        val response = ShellImpl.executeCommandUnsafe("am broadcast $broadcastArguments")
+        Log.d(BenchmarkState.TAG, "Broadcast response: $response")
+        val line =
+            response.lines().firstOrNull { it.contains(broadcastRegex) } ?: return (null to null)
+        val matcher = broadcastRegex.matchEntire(line) ?: return (null to null)
+        // Group 1 is the result code
+        val code = matcher.groupValues[1].toIntOrNull()
+        // Group 3 is data
+        val data = matcher.groupValues.getOrElse(3) { null }
+        return code to data
     }
 
     fun disablePackages(appPackages: List<String>) {

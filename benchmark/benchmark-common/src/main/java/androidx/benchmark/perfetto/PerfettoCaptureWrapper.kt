@@ -18,7 +18,6 @@ package androidx.benchmark.perfetto
 
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.InMemoryTracing
 import androidx.benchmark.Outputs
@@ -36,16 +35,13 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-/** Wrapper for [PerfettoCapture] which does nothing below API 23. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
-    private val TRACE_ENABLE_PROP = "persist.traced.enable"
+    private val traceEnabledProp = "persist.traced.enable"
 
     init {
-        if (Build.VERSION.SDK_INT >= 23) {
-            capture = PerfettoCapture()
-        }
+        capture = PerfettoCapture()
     }
 
     companion object {
@@ -59,7 +55,6 @@ class PerfettoCaptureWrapper {
         var inUse = false
     }
 
-    @RequiresApi(23)
     private fun start(
         config: PerfettoConfig,
         perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
@@ -83,7 +78,6 @@ class PerfettoCaptureWrapper {
         return true
     }
 
-    @RequiresApi(23)
     private fun stop(traceLabel: String, inMemoryTracingLabel: String?): String {
         return Outputs.writeFile(fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace") {
 
@@ -122,7 +116,7 @@ class PerfettoCaptureWrapper {
     ): String? {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         // skip if Perfetto not supported, or if caller opts out
-        if (Build.VERSION.SDK_INT < 23 || !isAbiSupported() || !enableTracing) {
+        if (!isAbiSupported() || !enableTracing) {
             block()
             return null
         }
@@ -142,7 +136,7 @@ class PerfettoCaptureWrapper {
         // https://perfetto.dev/docs/quickstart/android-tracing#starting-the-tracing-services
         val propOverride =
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                PropOverride(TRACE_ENABLE_PROP, "1")
+                PropOverride(traceEnabledProp, "1")
             } else null
 
         val path: String

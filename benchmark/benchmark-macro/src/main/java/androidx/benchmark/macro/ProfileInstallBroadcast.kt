@@ -42,7 +42,8 @@ object ProfileInstallBroadcast {
         // installed synchronously
         val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
         // Use an explicit broadcast given the app was force-stopped.
-        when (val result = Shell.amBroadcast("-a $action $packageName/$receiverName")) {
+        val (result, _) = Shell.amBroadcast("-a $action $packageName/$receiverName")
+        when (result) {
             null,
             // 0 is returned by the platform by default, and also if no broadcast receiver
             // receives the broadcast.
@@ -124,7 +125,7 @@ object ProfileInstallBroadcast {
         val action = "androidx.profileinstaller.action.SKIP_FILE"
         val operationKey = "EXTRA_SKIP_FILE_OPERATION"
         val extras = "$operationKey $operation"
-        val result = Shell.amBroadcast("-a $action -e $extras $packageName/$receiverName")
+        val (result, _) = Shell.amBroadcast("-a $action -e $extras $packageName/$receiverName")
         return when {
             result == null || result == 0 -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
@@ -155,7 +156,8 @@ object ProfileInstallBroadcast {
     fun saveProfile(packageName: String): String? {
         Log.d(TAG, "Profile Installer - Save Profile")
         val action = "androidx.profileinstaller.action.SAVE_PROFILE"
-        return when (val result = Shell.amBroadcast("-a $action $packageName/$receiverName")) {
+        val (result, _) = Shell.amBroadcast("-a $action $packageName/$receiverName")
+        return when (result) {
             null,
             0 -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
@@ -166,7 +168,7 @@ object ProfileInstallBroadcast {
             12 -> { // RESULT_SAVE_PROFILE_SIGNALLED
                 // While this is observed to be fast for simple/sample apps,
                 // this can take up significantly longer on large apps
-                // especially on low end devices (see b/316082056)
+                // especially on low-end devices (see b/316082056)
                 @Suppress("BanThreadSleep") Thread.sleep(1000)
                 null // success!
             }
@@ -215,7 +217,9 @@ object ProfileInstallBroadcast {
                 " -e $operationKey ${operation.extraValue}" +
                 pidExtra +
                 " $packageName/$receiverName"
-        return when (val result = Shell.amBroadcast(broadcastArguments)) {
+
+        val (result, _) = Shell.amBroadcast(broadcastArguments)
+        return when (result) {
             null,
             0,
             16 -> { // BENCHMARK_OPERATION_UNKNOWN
