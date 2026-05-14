@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.internal.throwIllegalStateException
+import androidx.compose.foundation.internal.throwIllegalStateExceptionForNullCheck
 import androidx.compose.foundation.text.input.ExpandPolicy
 import androidx.compose.foundation.text.input.TrackedRange
 import androidx.compose.ui.text.AnnotatedString
@@ -139,37 +140,45 @@ internal class TextStyleBuffer<T>(
      */
     inline fun <reified R : T> getStyles(start: Int, end: Int): List<TrackedRange<R>> {
         if (start > end) return emptyList()
-        val startInBuffer: Int
-        val endInBuffer: Int
-        if (start == end && start == gapStart) {
-            // Handle a collapsed query exactly at the gap start. We map it to [gapEnd, gapEnd].
-            //
-            // Example:
-            // - A style exists at [10, 20] with a non-expanding start.
-            // - A gap is inserted at 10 with length 100.
-            // - The style's range is mapped to [110, 120] in the gap buffer.
-            // - We query for styles at the collapsed range [10, 10].
-            //
-            // If we used the standard mapping logic below, the query [10, 10] would be mapped
-            // to [10, 110). The interval tree would fail to find an overlap between the query
-            // [10, 110) and the style [110, 120].
-            //
-            // By explicitly mapping the query to [110, 110] (i.e., [gapEnd, gapEnd]), the
-            // interval tree correctly identifies the overlap with [110, 120].
-            //
-            // Note: This mapping would theoretically miss a collapsed style [10, 10] that
-            // mapped to [10, 110), but TextStyleBuffer does not support collapsed styles.
-            startInBuffer = gapEnd
-            endInBuffer = gapEnd
-        } else {
-            // Map the query boundaries to cover the largest possible range in the gap buffer.
-            // By treating both the start and end as expanding.
-            startInBuffer = originalIndexToGapBuffer(start, isStart = true, expand = true)
-            endInBuffer = originalIndexToGapBuffer(end, isStart = false, expand = true)
-        }
-        return intervalTree.findIntervalsInRange<R, TrackedRange<R>>(startInBuffer, endInBuffer) {
-            packedHandle ->
+        val rangeInBuffer = originalToGapBufferForGetStyle(start, end)
+        return intervalTree.findIntervalsInRange<R, TrackedRange<R>>(
+            rangeInBuffer.start,
+            rangeInBuffer.end,
+        ) { packedHandle ->
             TrackedRange(id, IntervalHandle(packedHandle))
+        }
+    }
+
+    /**
+     * Similar to [getStyles] but return a list of immutable [AnnotatedString.Range]. Returns the
+     * styles with type [R] that overlap with the interval defined by [start] and [end]. The overlap
+     * is inclusive on [start] but exclusive at the [end].
+     *
+     * @return a list of [AnnotatedString.Range]s representing the styles in the buffer in the order
+     *   they are added.
+     */
+    inline fun <reified R : T> getImmutableStyles(
+        start: Int,
+        end: Int,
+    ): List<AnnotatedString.Range<R>> {
+        if (start > end) return emptyList()
+        val rangeInBuffer = originalToGapBufferForGetStyle(start, end)
+        return intervalTree.findIntervalsInRange<R, AnnotatedString.Range<R>>(
+            rangeInBuffer.start,
+            rangeInBuffer.end,
+        ) { packedHandle ->
+            val intervalHandle = IntervalHandle(packedHandle)
+            val item =
+                intervalTree.getItem<R>(intervalHandle)
+                    ?: throwIllegalStateExceptionForNullCheck(
+                        "IntIntervalTree's item should not be null"
+                    )
+            val interval = intervalTree.getInterval(intervalHandle)
+            AnnotatedString.Range(
+                item,
+                gapBufferToOriginalIndex(interval.start),
+                gapBufferToOriginalIndex(interval.end),
+            )
         }
     }
 
@@ -398,6 +407,42 @@ internal class TextStyleBuffer<T>(
         } else {
             index - gapLength
         }
+    }
+
+    /**
+     * Helper method to map a range in original text to the [TextRange] in gap buffer for getStyle
+     * purposes.
+     */
+    private fun originalToGapBufferForGetStyle(start: Int, end: Int): TextRange {
+        val startInBuffer: Int
+        val endInBuffer: Int
+        if (start == end && start == gapStart) {
+            // Handle a collapsed query exactly at the gap start. We map it to [gapEnd, gapEnd].
+            //
+            // Example:
+            // - A style exists at [10, 20] with a non-expanding start.
+            // - A gap is inserted at 10 with length 100.
+            // - The style's range is mapped to [110, 120] in the gap buffer.
+            // - We query for styles at the collapsed range [10, 10].
+            //
+            // If we used the standard mapping logic below, the query [10, 10] would be mapped
+            // to [10, 110). The interval tree would fail to find an overlap between the query
+            // [10, 110) and the style [110, 120].
+            //
+            // By explicitly mapping the query to [110, 110] (i.e., [gapEnd, gapEnd]), the
+            // interval tree correctly identifies the overlap with [110, 120].
+            //
+            // Note: This mapping would theoretically miss a collapsed style [10, 10] that
+            // mapped to [10, 110), but TextStyleBuffer does not support collapsed styles.
+            startInBuffer = gapEnd
+            endInBuffer = gapEnd
+        } else {
+            // Map the query boundaries to cover the largest possible range in the gap buffer.
+            // By treating both the start and end as expanding.
+            startInBuffer = originalIndexToGapBuffer(start, isStart = true, expand = true)
+            endInBuffer = originalIndexToGapBuffer(end, isStart = false, expand = true)
+        }
+        return TextRange(startInBuffer, endInBuffer)
     }
 
     /**

@@ -25,7 +25,11 @@ import androidx.compose.foundation.text.input.internal.withImeScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.TextAlign
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +37,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
@@ -876,6 +881,49 @@ class TextFieldStateTest {
         assertThat(oldValueCalled?.selection).isEqualTo(TextRange(3))
         assertThat(newValueCalled?.selection).isEqualTo(TextRange(0))
         assertThat(restartImeCalled).isFalse()
+    }
+
+    @Test
+    fun textStyles_reflectsAddedSpanStyle() {
+        val state = TextFieldState("hello")
+        state.edit { addStyle(SpanStyle(color = Color.Red), 0, 5) }
+
+        val spanStyles = state.textStyles.getSpanStyles(0, 5)
+        assertThat(spanStyles).hasSize(1)
+        assertThat(spanStyles[0].item).isEqualTo(SpanStyle(color = Color.Red))
+        assertThat(spanStyles[0].start).isEqualTo(0)
+        assertThat(spanStyles[0].end).isEqualTo(5)
+    }
+
+    @Test
+    fun textStyles_reflectsAddedParagraphStyle() {
+        val state = TextFieldState("hello")
+        state.edit { addStyle(ParagraphStyle(textAlign = TextAlign.Center), 0, 5) }
+
+        val paragraphStyles = state.textStyles.getParagraphStyles(0, 5)
+        assertThat(paragraphStyles).hasSize(1)
+        assertThat(paragraphStyles[0].item).isEqualTo(ParagraphStyle(textAlign = TextAlign.Center))
+        assertThat(paragraphStyles[0].start).isEqualTo(0)
+        assertThat(paragraphStyles[0].end).isEqualTo(5)
+    }
+
+    @Test
+    fun textStyles_isObservable() = runTestWithSnapshotsThenCancelChildren {
+        val state = TextFieldState("hello")
+        var recordedStyles: TextFieldTextStyles? = null
+
+        launch(Dispatchers.Unconfined) {
+            snapshotFlow { state.textStyles }.collect { recordedStyles = it }
+        }
+
+        assertThat(recordedStyles).isNotNull()
+        assertThat(recordedStyles?.getSpanStyles(0, 5)).isEmpty()
+
+        state.edit { addStyle(SpanStyle(color = Color.Blue), 0, 5) }
+
+        assertThat(recordedStyles?.getSpanStyles(0, 5)).hasSize(1)
+        assertThat(recordedStyles?.getSpanStyles(0, 5)?.get(0)?.item)
+            .isEqualTo(SpanStyle(color = Color.Blue))
     }
 
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {

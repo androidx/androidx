@@ -3037,11 +3037,13 @@ package androidx.compose.foundation.text.input {
     method @BytecodeOnly public androidx.compose.ui.text.TextRange? getComposition-MzsxiRA();
     method @BytecodeOnly public long getSelection-d9O1mEE();
     method @InaccessibleFromKotlin public CharSequence getText();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.text.input.TextFieldTextStyles getTextStyles();
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.UndoState getUndoState();
     method @kotlin.PublishedApi internal androidx.compose.foundation.text.input.TextFieldBuffer startEdit();
     property public androidx.compose.ui.text.TextRange? composition;
     property public androidx.compose.ui.text.TextRange selection;
     property public CharSequence text;
+    property public androidx.compose.foundation.text.input.TextFieldTextStyles textStyles;
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.UndoState undoState;
   }
 
@@ -3058,6 +3060,11 @@ package androidx.compose.foundation.text.input {
     method public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text.input.TextFieldState, String text);
     method public static void setTextAndSelectAll(androidx.compose.foundation.text.input.TextFieldState, String text);
     method public static androidx.compose.foundation.text.input.TextFieldBuffer toTextFieldBuffer(androidx.compose.foundation.text.input.TextFieldState);
+  }
+
+  public interface TextFieldTextStyles {
+    method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.ParagraphStyle>> getParagraphStyles(int start, int end);
+    method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>> getSpanStyles(int start, int end);
   }
 
   @kotlin.jvm.JvmInline public final value class TextObfuscationMode {

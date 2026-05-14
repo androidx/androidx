@@ -487,6 +487,11 @@ abstract interface androidx.compose.foundation.text.contextmenu.provider/TextCon
     abstract suspend fun showTextContextMenu(androidx.compose.foundation.text.contextmenu.provider/TextContextMenuDataProvider) // androidx.compose.foundation.text.contextmenu.provider/TextContextMenuProvider.showTextContextMenu|showTextContextMenu(androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider){}[0]
 }
 
+abstract interface androidx.compose.foundation.text.input/TextFieldTextStyles { // androidx.compose.foundation.text.input/TextFieldTextStyles|null[0]
+    abstract fun getParagraphStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/ParagraphStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getParagraphStyles|getParagraphStyles(kotlin.Int;kotlin.Int){}[0]
+    abstract fun getSpanStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/SpanStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getSpanStyles|getSpanStyles(kotlin.Int;kotlin.Int){}[0]
+}
+
 abstract interface androidx.compose.foundation.text/KeyboardActionScope { // androidx.compose.foundation.text/KeyboardActionScope|null[0]
     abstract fun defaultKeyboardAction(androidx.compose.ui.text.input/ImeAction) // androidx.compose.foundation.text/KeyboardActionScope.defaultKeyboardAction|defaultKeyboardAction(androidx.compose.ui.text.input.ImeAction){}[0]
 }
@@ -1220,6 +1225,8 @@ final class androidx.compose.foundation.text.input/TextFieldState { // androidx.
         final fun <get-selection>(): androidx.compose.ui.text/TextRange // androidx.compose.foundation.text.input/TextFieldState.selection.<get-selection>|<get-selection>(){}[0]
     final val text // androidx.compose.foundation.text.input/TextFieldState.text|{}text[0]
         final fun <get-text>(): kotlin/CharSequence // androidx.compose.foundation.text.input/TextFieldState.text.<get-text>|<get-text>(){}[0]
+    final val textStyles // androidx.compose.foundation.text.input/TextFieldState.textStyles|{}textStyles[0]
+        final fun <get-textStyles>(): androidx.compose.foundation.text.input/TextFieldTextStyles // androidx.compose.foundation.text.input/TextFieldState.textStyles.<get-textStyles>|<get-textStyles>(){}[0]
 
     final fun commitEdit(androidx.compose.foundation.text.input/TextFieldBuffer) // androidx.compose.foundation.text.input/TextFieldState.commitEdit|commitEdit(androidx.compose.foundation.text.input.TextFieldBuffer){}[0]
     final fun finishEditing() // androidx.compose.foundation.text.input/TextFieldState.finishEditing|finishEditing(){}[0]
