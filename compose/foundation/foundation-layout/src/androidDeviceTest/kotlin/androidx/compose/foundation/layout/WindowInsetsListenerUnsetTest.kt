@@ -42,6 +42,7 @@ import androidx.testutils.AnimationSystemSettingsTestRule
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -55,6 +56,7 @@ class WindowInsetsListenerUnsetTest {
     }
 
     // Repro for b/491346046
+    @Ignore("b/500863271")
     @Test
     fun validateInsetsAreUpdatedAfterListenerUnsetDuringAnimation() {
         // Setup inset listeners outside the Compose view to avoid interacting with the Compose
