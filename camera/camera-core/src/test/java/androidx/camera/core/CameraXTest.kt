@@ -183,9 +183,9 @@ class CameraXTest {
         cameraFactoryProvider: CameraFactory.Provider =
             CameraFactory.Provider { _, _, _, _, _, _ -> FakeCameraFactory() },
         cameraDeviceSurfaceManager: CameraDeviceSurfaceManager.Provider =
-            CameraDeviceSurfaceManager.Provider { _, _, _ -> FakeCameraDeviceSurfaceManager() },
+            CameraDeviceSurfaceManager.Provider { _, _, _, _ -> FakeCameraDeviceSurfaceManager() },
         useCaseConfigFactoryProvider: UseCaseConfigFactory.Provider =
-            UseCaseConfigFactory.Provider { FakeUseCaseConfigFactory() },
+            UseCaseConfigFactory.Provider { _, _ -> FakeUseCaseConfigFactory() },
         cameraExecutor: Executor = CameraXExecutors.directExecutor(),
         quirkSettings: QuirkSettings? = null,
     ) =

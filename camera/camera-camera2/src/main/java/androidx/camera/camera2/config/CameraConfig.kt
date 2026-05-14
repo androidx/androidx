@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.config
 
+import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
 import androidx.annotation.Nullable
@@ -25,6 +26,7 @@ import androidx.camera.camera2.adapter.CameraControlAdapter
 import androidx.camera.camera2.adapter.CameraInfoAdapter
 import androidx.camera.camera2.adapter.CameraInternalAdapter
 import androidx.camera.camera2.adapter.EncoderProfilesProviderAdapter
+import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.adapter.ZslControl
 import androidx.camera.camera2.adapter.ZslControlImpl
 import androidx.camera.camera2.compat.Camera2CameraControlCompat
@@ -32,6 +34,7 @@ import androidx.camera.camera2.compat.CameraCompatModule
 import androidx.camera.camera2.compat.EvCompCompat
 import androidx.camera.camera2.compat.ZoomCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
+import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.impl.CameraProperties
@@ -54,6 +57,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.DoNotDisturbException
+import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
@@ -178,6 +182,23 @@ public abstract class CameraModule {
             cameraQuirks: CameraQuirks,
         ): EncoderProfilesProvider {
             return EncoderProfilesProviderAdapter(cameraIdString, cameraQuirks.quirks)
+        }
+
+        @CameraScope
+        @Provides
+        public fun provideSupportedSurfaceCombination(
+            context: Context,
+            cameraProperties: CameraProperties,
+            encoderProfilesProvider: EncoderProfilesProvider,
+            extraSupportedSurfaceCombinationsContainer: ExtraSupportedSurfaceCombinationsContainer,
+        ): SupportedSurfaceCombination {
+            return SupportedSurfaceCombination(
+                context,
+                cameraProperties.metadata,
+                encoderProfilesProvider,
+                FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY,
+                extraSupportedSurfaceCombinationsContainer,
+            )
         }
     }
 

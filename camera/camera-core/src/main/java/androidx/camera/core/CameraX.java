@@ -431,7 +431,8 @@ public final class CameraX {
                                     + "UseCaseConfigFactory."));
                 }
 
-                mDefaultConfigFactory = configFactoryProvider.newInstance(appContext);
+                mDefaultConfigFactory = configFactoryProvider.newInstance(appContext,
+                        mCameraXConfig.isPreviewResolutionBypassEnabled());
 
                 mStreamSpecsCalculator = new StreamSpecsCalculatorImpl(mDefaultConfigFactory, null);
 
@@ -450,7 +451,8 @@ public final class CameraX {
                 }
                 mSurfaceManager = surfaceManagerProvider.newInstance(appContext,
                         mCameraFactory.getCameraManager(),
-                        mCameraFactory.getAvailableCameraIds());
+                        mCameraFactory.getAvailableCameraIds(),
+                        mCameraXConfig.getExtraSupportedSurfaceCombinations());
                 mStreamSpecsCalculator.setCameraDeviceSurfaceManager(mSurfaceManager);
 
                 if (cameraExecutor instanceof CameraExecutor) {

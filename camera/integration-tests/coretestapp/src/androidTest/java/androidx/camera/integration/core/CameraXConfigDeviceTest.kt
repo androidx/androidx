@@ -18,6 +18,8 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AE
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
@@ -47,6 +49,8 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.camera.core.internal.compat.quirk.ImageCaptureRotationOptionQuirk
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -519,6 +523,249 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
     }
 
     @Test
+    fun extraSupportedSurfaceCombinations_respectsCameraId() = runTest {
+        val selector = CameraUtil.assumeFirstAvailableCameraSelector()
+        val cameraId = CameraUtil.getCameraIdWithLensFacing(selector.lensFacing!!)
+        assumeTrue(cameraId != null)
+
+        val otherCameraId =
+            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().firstOrNull { it != cameraId }
+        assumeTrue(otherCameraId != null)
+
+        val characteristics = CameraUtil.getCameraCharacteristics(selector.lensFacing!!)
+        assumeTrue(characteristics != null)
+        val map = characteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        val sizes = map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
+        val maxSize = sizes.maxByOrNull { it.width * it.height }
+        assumeTrue(maxSize != null && maxSize.width * maxSize.height > 1920 * 1080)
+
+        // 1. Set combination restricted to DIFFERENT camera ID. Should be capped at 1080p.
+        val configWithWrongId =
+            CameraXConfig.Builder.fromConfig(baseConfig)
+                .setPreviewResolutionBypassEnabled(true)
+                .setExtraSupportedSurfaceCombinations(
+                    otherCameraId!! + "=PRIV:MAXIMUM, JPEG:MAXIMUM"
+                )
+                .build()
+
+        initializeProviderWithConfig(configWithWrongId)
+
+        val preview1 =
+            Preview.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+        val imageCapture1 =
+            ImageCapture.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+
+        val lifecycleOwner1 = FakeLifecycleOwner()
+        lifecycleOwner1.startAndResume()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            cameraProvider!!.bindToLifecycle(lifecycleOwner1, selector, preview1, imageCapture1)
+        }
+
+        val res1 = preview1.resolutionInfo?.resolution
+        assertThat(res1).isNotNull()
+        // Should STILL be capped because the extra combination didn't apply to THIS camera
+        assertThat(res1!!.width * res1.height).isAtMost(1920 * 1080)
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { cameraProvider!!.unbindAll() }
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        ProcessCameraProvider.getInstance(context).get().shutdownAsync().await()
+
+        // 2. Set combination restricted to CORRECT camera ID. Should be > 1080p.
+        val configWithCorrectId =
+            CameraXConfig.Builder.fromConfig(baseConfig)
+                .setPreviewResolutionBypassEnabled(true)
+                .setExtraSupportedSurfaceCombinations(cameraId!! + "=PRIV:MAXIMUM, JPEG:MAXIMUM")
+                .build()
+
+        initializeProviderWithConfig(configWithCorrectId)
+
+        val preview2 =
+            Preview.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+        val imageCapture2 =
+            ImageCapture.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+
+        val lifecycleOwner2 = FakeLifecycleOwner()
+        lifecycleOwner2.startAndResume()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            cameraProvider!!.bindToLifecycle(lifecycleOwner2, selector, preview2, imageCapture2)
+        }
+
+        val res2 = preview2.resolutionInfo?.resolution
+        assertThat(res2).isNotNull()
+        assertThat(res2!!.width * res2.height).isGreaterThan(1920 * 1080)
+    }
+
+    @Test
+    fun extraSupportedSurfaceCombinations_ignoresInvalidCameraId() = runTest {
+        val selector = CameraUtil.assumeFirstAvailableCameraSelector()
+
+        val characteristics = CameraUtil.getCameraCharacteristics(selector.lensFacing!!)
+        assumeTrue(characteristics != null)
+        val map = characteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        val sizes = map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
+        val maxSize = sizes.maxByOrNull { it.width * it.height }
+        assumeTrue(maxSize != null && maxSize.width * maxSize.height > 1920 * 1080)
+
+        // Set combination with INVALID camera ID. Should be ignored and preview should be capped.
+        val customConfig =
+            CameraXConfig.Builder.fromConfig(baseConfig)
+                .setPreviewResolutionBypassEnabled(true)
+                .setExtraSupportedSurfaceCombinations("invalid_id=PRIV:MAXIMUM, JPEG:MAXIMUM")
+                .build()
+
+        initializeProviderWithConfig(customConfig)
+
+        val preview =
+            Preview.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+        val imageCapture =
+            ImageCapture.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+
+        val lifecycleOwner = FakeLifecycleOwner()
+        lifecycleOwner.startAndResume()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            cameraProvider!!.bindToLifecycle(lifecycleOwner, selector, preview, imageCapture)
+        }
+
+        val res = preview.resolutionInfo?.resolution
+        assertThat(res).isNotNull()
+        // Should STILL be capped at 1080p because "invalid_id" doesn't match any real camera
+        assertThat(res!!.width * res.height).isAtMost(1920 * 1080)
+    }
+
+    @Test
+    fun previewResolutionBypass_allowsPreviewOver1080p() = runTest {
+        val selector = CameraUtil.assumeFirstAvailableCameraSelector()
+        assumeTrue(selector.lensFacing != null)
+
+        val characteristics = CameraUtil.getCameraCharacteristics(selector.lensFacing!!)
+        assumeTrue(characteristics != null)
+        val map = characteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        val sizes = map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
+        val maxSize = sizes.maxByOrNull { it.width * it.height }
+        assumeTrue(maxSize != null && maxSize.width * maxSize.height > 1920 * 1080)
+
+        // 1. Without bypass, preview should be capped at 1080p
+        initializeProviderWithConfig(baseConfig)
+
+        val previewWithoutBypass =
+            Preview.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+
+        val imageCaptureWithoutBypass =
+            ImageCapture.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+
+        val lifecycleOwner1 = FakeLifecycleOwner()
+        lifecycleOwner1.startAndResume()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            cameraProvider!!.bindToLifecycle(
+                lifecycleOwner1,
+                selector,
+                previewWithoutBypass,
+                imageCaptureWithoutBypass,
+            )
+        }
+
+        val resolutionWithoutBypass = previewWithoutBypass.resolutionInfo?.resolution
+        assertThat(resolutionWithoutBypass).isNotNull()
+        assertThat(resolutionWithoutBypass!!.width * resolutionWithoutBypass.height)
+            .isAtMost(1920 * 1080)
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { cameraProvider!!.unbindAll() }
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        ProcessCameraProvider.getInstance(context).get().shutdownAsync().await()
+
+        // 2. With bypass and extra surface combinations, preview should be > 1080p
+        val customConfig =
+            CameraXConfig.Builder.fromConfig(baseConfig)
+                .setPreviewResolutionBypassEnabled(true)
+                .setExtraSupportedSurfaceCombinations("PRIV:MAXIMUM, JPEG:MAXIMUM")
+                .build()
+
+        initializeProviderWithConfig(customConfig)
+
+        val previewWithBypass =
+            Preview.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+
+        val imageCapture =
+            ImageCapture.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+
+        val lifecycleOwner2 = FakeLifecycleOwner()
+        lifecycleOwner2.startAndResume()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            cameraProvider!!.bindToLifecycle(
+                lifecycleOwner2,
+                selector,
+                previewWithBypass,
+                imageCapture,
+            )
+        }
+
+        val resolutionWithBypass = previewWithBypass.resolutionInfo?.resolution
+        assertThat(resolutionWithBypass).isNotNull()
+        assertThat(resolutionWithBypass!!.width * resolutionWithBypass.height)
+            .isGreaterThan(1920 * 1080)
+    }
+
+    @Test
     fun customUseCaseConfigFactoryProvider_isUsedByCameraX() {
         // Arrange: Create a verifiable provider that delegates to the real one.
         val originalProvider = baseConfig.getUseCaseConfigFactoryProvider(null)!!
@@ -789,9 +1036,15 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
             context: Context,
             cameraManager: Any?,
             availableCameraIds: Set<String>,
+            extraSupportedSurfaceCombinations: String?,
         ): CameraDeviceSurfaceManager {
             isNewInstanceCalled = true
-            return delegate.newInstance(context, cameraManager, availableCameraIds)
+            return delegate.newInstance(
+                context,
+                cameraManager,
+                availableCameraIds,
+                extraSupportedSurfaceCombinations,
+            )
         }
     }
 
@@ -807,9 +1060,12 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         var isNewInstanceCalled = false
             private set
 
-        override fun newInstance(context: Context): UseCaseConfigFactory {
+        override fun newInstance(
+            context: Context,
+            isPreviewResolutionBypassEnabled: Boolean,
+        ): UseCaseConfigFactory {
             isNewInstanceCalled = true
-            return delegate.newInstance(context)
+            return delegate.newInstance(context, isPreviewResolutionBypassEnabled)
         }
     }
 

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.config
 
 import android.content.Context
+import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.impl.DisplayInfoManager
 import androidx.camera.camera2.pipe.CameraDevices
@@ -69,6 +70,16 @@ public class CameraAppConfig(
     public fun provideDisplayInfoManager(context: Context): DisplayInfoManager {
         return DisplayInfoManager.getInstance(context)
     }
+
+    @Provides
+    @Singleton
+    public fun provideExtraSupportedSurfaceCombinationsContainer(
+        cameraXConfig: CameraXConfig
+    ): ExtraSupportedSurfaceCombinationsContainer {
+        return ExtraSupportedSurfaceCombinationsContainer(
+            cameraXConfig.extraSupportedSurfaceCombinations
+        )
+    }
 }
 
 /** Dagger component for Application (Process) scoped dependencies. */
@@ -80,6 +91,9 @@ public interface CameraAppComponent {
     public fun getCameraPipe(): CameraPipe
 
     public fun getCameraDevices(): CameraDevices
+
+    public fun getExtraSupportedSurfaceCombinationsContainer():
+        ExtraSupportedSurfaceCombinationsContainer
 
     @Component.Builder
     public interface Builder {

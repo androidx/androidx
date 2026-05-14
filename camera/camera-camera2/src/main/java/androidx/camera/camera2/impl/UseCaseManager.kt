@@ -40,7 +40,6 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.concurrent.CameraCoordinator
-import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
@@ -106,6 +105,7 @@ constructor(
     private val cameraProperties: CameraProperties,
     private val cameraXConfig: CameraXConfig,
     private val cameraGraphConfigProvider: CameraGraphConfigProvider,
+    private val supportedSurfaceCombination: SupportedSurfaceCombination,
     context: Context,
     displayInfoManager: DisplayInfoManager,
 ) {
@@ -135,16 +135,6 @@ constructor(
 
     private val meteringRepeating =
         MeteringRepeating.Builder(cameraProperties, displayInfoManager).build()
-
-    private val supportedSurfaceCombination =
-        SupportedSurfaceCombination(
-            context,
-            cameraProperties.metadata,
-            encoderProfilesProvider,
-            // TODO: b/406367951 - Create and use a proper impl. of FeatureCombinationQuery in
-            //   order to handle MeteringRepeating scenarios
-            FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY,
-        )
 
     private val dynamicRangeResolver = DynamicRangeResolver(cameraProperties.metadata)
     private val defaultCameraGraphFactory: (CameraGraph.Config) -> CameraGraph = { config ->

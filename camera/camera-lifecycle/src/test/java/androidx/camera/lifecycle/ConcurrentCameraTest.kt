@@ -475,8 +475,8 @@ class ConcurrentCameraTest {
         val appConfigBuilder =
             CameraXConfig.Builder()
                 .setCameraFactoryProvider(cameraFactoryProvider)
-                .setDeviceSurfaceManagerProvider { _, _, _ -> FakeCameraDeviceSurfaceManager() }
-                .setUseCaseConfigFactoryProvider { FakeUseCaseConfigFactory() }
+                .setDeviceSurfaceManagerProvider { _, _, _, _ -> FakeCameraDeviceSurfaceManager() }
+                .setUseCaseConfigFactoryProvider { _, _ -> FakeUseCaseConfigFactory() }
 
         return appConfigBuilder.build()
     }

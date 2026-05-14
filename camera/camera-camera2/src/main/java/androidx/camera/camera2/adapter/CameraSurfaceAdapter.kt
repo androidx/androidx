@@ -24,6 +24,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
+import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.config.CameraAppComponent
 import androidx.camera.camera2.config.CameraModule
@@ -54,9 +55,13 @@ public class CameraSurfaceAdapter(
     private val context: Context,
     cameraComponent: Any?,
     availableCameraIds: Set<String>,
+    private val extraSupportedSurfaceCombinations: String? = null,
 ) : CameraDeviceSurfaceManager {
     private val component = cameraComponent as CameraAppComponent
     private val lock = Any()
+
+    private val extraSupportedSurfaceCombinationsContainer =
+        ExtraSupportedSurfaceCombinationsContainer(extraSupportedSurfaceCombinations)
 
     @GuardedBy("lock")
     private var supportedSurfaceCombinationMap = mapOf<String, SupportedSurfaceCombination>()
@@ -157,6 +162,7 @@ public class CameraSurfaceAdapter(
                         } else {
                             FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY
                         },
+                        extraSupportedSurfaceCombinationsContainer,
                     )
             }
         } catch (e: DoNotDisturbException) {
