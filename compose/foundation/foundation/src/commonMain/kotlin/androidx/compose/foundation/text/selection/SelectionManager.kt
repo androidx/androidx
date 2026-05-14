@@ -671,12 +671,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * Updates [SelectionRegistrar.subselections], called when selection changes due to programmatic
      * actions.
      */
-    internal fun updateSubSelections(selection: Selection?) {
-        if (selection == null) {
-            selectionRegistrar.subselections = emptyLongObjectMap()
-            return
-        }
-
+    internal fun updateSubSelections(selection: Selection) {
         val selectables = selectionRegistrar.sort(requireContainerCoordinates())
         if (selectables.isEmpty()) return
 
