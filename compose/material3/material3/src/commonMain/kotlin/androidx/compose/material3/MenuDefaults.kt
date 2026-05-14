@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -588,6 +589,13 @@ object MenuDefaults {
                             fromToken(VibrantMenuTokens.ItemSelectedTrailingIconColor),
                     )
                     .also { defaultMenuSelectableItemVibrantColorsCached = it }
+        }
+
+    /** Default horizontal arrangement for a menu item. */
+    val DropdownMenuItemHorizontalArrangement: Arrangement.Horizontal
+        get() {
+            val spacing = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
+            return MenuArrangement(spacing)
         }
 
     /** Default padding used for [DropdownMenuItem]. */
