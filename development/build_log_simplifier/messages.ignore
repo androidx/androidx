@@ -839,6 +839,8 @@ WARN: .*\/unzippedJvmSources\/androidx\/credentials\/SignalCredentialStateReques
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
 # b/484051200
 WARN: .*\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/runtime\/rxjava[2-3]\/RxJava[2-3]Adapter\.kt:[0-9]+ Unresolved receiver .* in DFunction subscribeAsState
+# b/512535811
+WARN: Couldn't resolve link: \[androidx\.xr\.scenecore\.guava\.hitTestAsync\] in .*\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/runtime\/HitTestResult\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
 [0-9]+ cpus, so not storing build metrics.
 64 cpus, so storing build metrics.
 # b/351805708: upstream bug in Kotlin: can't have a nested class with different expect from parent
