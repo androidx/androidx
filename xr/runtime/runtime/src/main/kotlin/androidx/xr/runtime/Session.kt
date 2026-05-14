@@ -80,7 +80,12 @@ public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val lifecycleOwner: LifecycleOwner,
 ) {
 
-    @Deprecated("Use the constructor with an explicit LifecycleOwner instead.")
+    @Deprecated(
+        "Use Session.create(context, coroutineContext, lifecycleOwner) instead and retrieve the session value from a SessionCreateSuccess result.",
+        ReplaceWith(
+            "(Session.create(context = activity, coroutineContext = coroutineScope.coroutineContext, lifecycleOwner = activity) as SessionCreateSuccess).session"
+        ),
+    )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @JvmOverloads
     public constructor(
@@ -155,7 +160,12 @@ public constructor(
             lifecycleOwner: LifecycleOwner = context as LifecycleOwner,
         ): SessionCreateResult = createInternal(context, coroutineContext, lifecycleOwner, true)
 
-        @Deprecated(message = "Use the create method that takes a Context instead.")
+        @Deprecated(
+            message = "Use Session.create(context, coroutineContext, lifecycleOwner) instead.",
+            ReplaceWith(
+                "Session.create(context = activity, coroutineContext = coroutineContext, lifecycleOwner = activity)"
+            ),
+        )
         @JvmOverloads
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
