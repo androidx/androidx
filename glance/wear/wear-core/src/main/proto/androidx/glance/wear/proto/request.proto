@@ -20,7 +20,6 @@ package androidx.glance.wear.proto;
 
 // Encodes data for a Widget Request.
 message WearWidgetRequestProto {
-
   // The ID of the widget instance for which an update is being requested.
   uint32 id = 1;
 
@@ -44,4 +43,16 @@ message WearWidgetRequestProto {
 
   // The corner radius in dp of the container for the widget.
   float corner_radius_dp = 8;
+
+  // The major version of the Wear Tiles/Widgets renderer. This corresponds to
+  // `1` in `1.6.0`.
+  uint32 renderer_version_major = 9;
+
+  // The minor version of the Wear Tiles/Widgets renderer. This corresponds to
+  // `6` in `1.6.0`.
+  uint32 renderer_version_minor = 10;
+
+  // The revision version of the Wear Tiles/Widgets renderer. This corresponds
+  // to `0` in `1.6.0`.
+  uint32 renderer_version_revision = 11;
 }

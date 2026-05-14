@@ -12,5 +12,6 @@
         <intent>
             <action android:name="androidx.glance.wear.action.BIND_UPDATE_REQUESTER" />
         </intent>
+        <package android:name="com.google.android.wearable.protolayout.renderer" />
     </queries>
 </manifest>
