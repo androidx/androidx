@@ -39,7 +39,7 @@ android {
 androidx {
     name = "androidx.core:core-locationbutton-testing"
     type = SoftwareType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CORE_LOCATIONBUTTON_TESTING
+    mavenVersion = LibraryVersions.CORE_LOCATIONBUTTON
     inceptionYear = "2026"
     description = "Testing utilities for androidx.core.locationbutton.*"
 }

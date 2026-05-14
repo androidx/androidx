@@ -45,7 +45,7 @@ android {
 androidx {
     name = "core:core-locationbutton"
     type = SoftwareType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CORE
+    mavenVersion = LibraryVersions.CORE_LOCATIONBUTTON
     inceptionYear = "2026"
     description = "LocationButton view library"
 }
