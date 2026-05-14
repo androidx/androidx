@@ -36,7 +36,6 @@ import java.nio.ByteBuffer
  *
  * @property vertexLayout The [VertexLayout] describing the structure of the vertex data.
  */
-@ExperimentalCustomMeshApi
 public class MeshBuffer
 private constructor(
     private val resource: RtMeshBufferResource,

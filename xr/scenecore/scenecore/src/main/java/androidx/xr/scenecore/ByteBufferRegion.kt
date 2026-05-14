@@ -30,7 +30,6 @@ import java.nio.ByteBuffer
  * @throws IllegalArgumentException if `offset` or `size` is negative, or if `offset + size` exceeds
  *   `buffer.capacity()`.
  */
-@ExperimentalCustomMeshApi
 public class ByteBufferRegion(
     public val buffer: ByteBuffer,
     @IntRange(from = 0) public val offset: Int,
