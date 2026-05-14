@@ -21,7 +21,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -33,7 +32,7 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.defaultErrorSemantics
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.minimizedLabelHalfHeight
+import androidx.compose.material3.internal.topPaddingForLabelCutout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -41,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -130,7 +128,7 @@ fun SecureTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Inside(),
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -170,6 +168,7 @@ fun SecureTextField(
             state = state,
             modifier =
                 modifier
+                    .topPaddingForLabelCutout(label, labelPosition)
                     .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                     .defaultMinSize(
                         minWidth = TextFieldDefaults.MinWidth,
@@ -295,7 +294,7 @@ fun OutlinedSecureTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Cutout(),
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -312,7 +311,8 @@ fun OutlinedSecureTextField(
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
+    contentPadding: PaddingValues =
+        OutlinedTextFieldDefaults.defaultContentPadding(label, labelPosition),
     interactionSource: MutableInteractionSource? = null,
 ) {
     @Suppress("NAME_SHADOWING")
@@ -330,17 +330,7 @@ fun OutlinedSecureTextField(
             state = state,
             modifier =
                 modifier
-                    .then(
-                        if (label != null && labelPosition !is TextFieldLabelPosition.Above) {
-                            Modifier
-                                // Merge semantics at the beginning of the modifier chain to ensure
-                                // padding is considered part of the text field.
-                                .semantics(mergeDescendants = true) {}
-                                .padding(top = minimizedLabelHalfHeight())
-                        } else {
-                            Modifier
-                        }
-                    )
+                    .topPaddingForLabelCutout(label, labelPosition)
                     .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                     .defaultMinSize(
                         minWidth = OutlinedTextFieldDefaults.MinWidth,

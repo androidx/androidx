@@ -189,7 +189,7 @@ fun TextFieldWithPlaceholder() {
             state = rememberTextFieldState(),
             lineLimits = TextFieldLineLimits.SingleLine,
             label = { Text("Email") },
-            labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = alwaysMinimizeLabel),
+            labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel),
             placeholder = { Text("example@gmail.com") },
         )
     }
@@ -210,7 +210,7 @@ fun TextFieldWithPrefixAndSuffix() {
             state = rememberTextFieldState(),
             lineLimits = TextFieldLineLimits.SingleLine,
             label = { Text("Label") },
-            labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = alwaysMinimizeLabel),
+            labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = alwaysMinimizeLabel),
             prefix = { Text("www.") },
             suffix = { Text(".com") },
             placeholder = { Text("google") },

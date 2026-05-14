@@ -47,6 +47,7 @@ import androidx.compose.material3.TextFieldDefaults.defaultTextFieldColors
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.defaultErrorSemantics
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.topPaddingForLabelCutout
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
@@ -205,7 +206,7 @@ fun TextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Inside(),
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -223,12 +224,7 @@ fun TextField(
     scrollState: ScrollState = rememberScrollState(),
     shape: Shape = TextFieldDefaults.shape,
     colors: TextFieldColors = TextFieldDefaults.colors(),
-    contentPadding: PaddingValues =
-        if (label == null || labelPosition is TextFieldLabelPosition.Above) {
-            TextFieldDefaults.contentPaddingWithoutLabel()
-        } else {
-            TextFieldDefaults.contentPaddingWithLabel()
-        },
+    contentPadding: PaddingValues = TextFieldDefaults.defaultContentPadding(label, labelPosition),
     interactionSource: MutableInteractionSource? = null,
 ) {
     @Suppress("NAME_SHADOWING")
@@ -246,6 +242,7 @@ fun TextField(
             state = state,
             modifier =
                 modifier
+                    .topPaddingForLabelCutout(label, labelPosition)
                     .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                     .defaultMinSize(
                         minWidth = TextFieldDefaults.MinWidth,

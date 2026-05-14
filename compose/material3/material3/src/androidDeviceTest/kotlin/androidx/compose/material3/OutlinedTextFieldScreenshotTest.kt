@@ -93,6 +93,21 @@ class OutlinedTextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_withInput_inside() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = "Text"
+            OutlinedTextField(
+                state = rememberTextFieldState(text),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Inside(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_withInput_inside")
+    }
+
+    @Test
     fun outlinedTextField_notFocused() {
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
@@ -103,6 +118,20 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         assertAgainstGolden("outlined_textField_not_focused")
+    }
+
+    @Test
+    fun outlinedTextField_notFocused_inside() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Inside(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_not_focused_inside")
     }
 
     @Test
@@ -118,6 +147,22 @@ class OutlinedTextFieldScreenshotTest {
         rule.onNodeWithTag(TextFieldTag).focus()
 
         assertAgainstGolden("outlined_textField_focused")
+    }
+
+    @Test
+    fun outlinedTextField_focused_inside() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Inside(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("outlined_textField_focused_inside")
     }
 
     @Test
@@ -623,13 +668,26 @@ class OutlinedTextFieldScreenshotTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
                 labelPosition =
-                    TextFieldLabelPosition.Attached(
-                        minimizedAlignment = Alignment.CenterHorizontally
-                    ),
+                    TextFieldLabelPosition.Cutout(minimizedAlignment = Alignment.CenterHorizontally),
             )
         }
 
         assertAgainstGolden("outlinedTextField_labelAlignment_centerHorizontally")
+    }
+
+    @Test
+    fun outlinedTextField_labelAlignment_centerHorizontally_inside() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState("Text"),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition =
+                    TextFieldLabelPosition.Inside(minimizedAlignment = Alignment.CenterHorizontally),
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_labelAlignment_centerHorizontally_inside")
     }
 
     @Test
@@ -639,11 +697,25 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Cutout(isAlwaysMinimized = true),
             )
         }
 
         assertAgainstGolden("outlinedTextField_alwaysMinimizeLabel_noPlaceholder")
+    }
+
+    @Test
+    fun outlinedTextField_alwaysMinimizeLabel_noPlaceholder_inside() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = true),
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_alwaysMinimizeLabel_noPlaceholder_inside")
     }
 
     @Test
@@ -653,12 +725,27 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Cutout(isAlwaysMinimized = true),
                 placeholder = { Text("Placeholder") },
             )
         }
 
         assertAgainstGolden("outlinedTextField_alwaysMinimizeLabel_withPlaceholder")
+    }
+
+    @Test
+    fun outlinedTextField_alwaysMinimizeLabel_withPlaceholder_inside() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Inside(isAlwaysMinimized = true),
+                placeholder = { Text("Placeholder") },
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_alwaysMinimizeLabel_withPlaceholder_inside")
     }
 
     @Test
@@ -674,6 +761,22 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         assertAgainstGolden("outlinedTextField_prefixSuffix_withLabelAndInput")
+    }
+
+    @Test
+    fun outlinedTextField_prefixSuffix_withLabelAndInput_inside() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState("Text"),
+                label = { Text("Label") },
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                prefix = { Text("P:") },
+                suffix = { Text(":S") },
+                labelPosition = TextFieldLabelPosition.Inside(),
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_prefixSuffix_withLabelAndInput_inside")
     }
 
     @Test

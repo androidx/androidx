@@ -37,6 +37,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldDefaults.normalize
 import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -97,14 +98,8 @@ import androidx.compose.ui.util.lerp as lerpInt
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-internal enum class TextFieldType {
-    Filled,
-    Outlined,
-}
-
 @Composable
 internal fun CommonDecorationBox(
-    type: TextFieldType,
     visualText: CharSequence,
     innerTextField: @Composable () -> Unit,
     labelPosition: TextFieldLabelPosition,
@@ -242,90 +237,83 @@ internal fun CommonDecorationBox(
     val labelProgressProducer = { labelProgress?.value ?: 1f }
     val placeholderAlphaProducer = { placeholderAlpha?.value ?: 0f }
     val affixAlphaProducer = { affixAlpha?.value ?: 0f }
-    when (type) {
-        TextFieldType.Filled -> {
-            val containerWithId: @Composable () -> Unit = {
-                Box(Modifier.layoutId(ContainerId), propagateMinConstraints = true) { container() }
-            }
 
-            TextFieldLayout(
-                modifier = Modifier,
-                textField = innerTextField,
-                placeholder = decoratedPlaceholder,
-                label = decoratedLabel,
-                leading = decoratedLeading,
-                trailing = decoratedTrailing,
-                prefix = decoratedPrefix,
-                suffix = decoratedSuffix,
-                container = containerWithId,
-                supporting = decoratedSupporting,
-                singleLine = singleLine,
-                labelPosition = labelPosition,
-                labelProgress = labelProgressProducer,
-                placeholderAlpha = placeholderAlphaProducer,
-                affixAlpha = affixAlphaProducer,
-                paddingValues = contentPadding,
-            )
+    if (labelPosition is TextFieldLabelPosition.Cutout) {
+        val cutoutSize = remember { mutableStateOf(Size.Zero) }
+        val borderContainerWithId: @Composable () -> Unit = {
+            Box(
+                Modifier.layoutId(ContainerId)
+                    .outlineCutout(
+                        labelSize = cutoutSize::value,
+                        alignment = labelPosition.minimizedAlignment,
+                        paddingValues = contentPadding,
+                    ),
+                propagateMinConstraints = true,
+            ) {
+                container()
+            }
         }
-        TextFieldType.Outlined -> {
-            // Outlined cutout
-            val cutoutSize = remember { mutableStateOf(Size.Zero) }
-            val borderContainerWithId: @Composable () -> Unit = {
-                Box(
-                    Modifier.layoutId(ContainerId)
-                        .outlineCutout(
-                            labelSize = cutoutSize::value,
-                            alignment = labelPosition.minimizedAlignment,
-                            paddingValues = contentPadding,
-                        ),
-                    propagateMinConstraints = true,
+
+        CutoutTextFieldLayout(
+            modifier = Modifier,
+            textField = innerTextField,
+            placeholder = decoratedPlaceholder,
+            label = decoratedLabel,
+            leading = decoratedLeading,
+            trailing = decoratedTrailing,
+            prefix = decoratedPrefix,
+            suffix = decoratedSuffix,
+            supporting = decoratedSupporting,
+            singleLine = singleLine,
+            onLabelMeasured = {
+                val progress = labelProgressProducer()
+                val labelWidth = it.width * progress
+                val labelHeight = it.height * progress
+                if (
+                    cutoutSize.value.width != labelWidth || cutoutSize.value.height != labelHeight
                 ) {
-                    container()
+                    cutoutSize.value = Size(labelWidth, labelHeight)
                 }
-            }
-
-            OutlinedTextFieldLayout(
-                modifier = Modifier,
-                textField = innerTextField,
-                placeholder = decoratedPlaceholder,
-                label = decoratedLabel,
-                leading = decoratedLeading,
-                trailing = decoratedTrailing,
-                prefix = decoratedPrefix,
-                suffix = decoratedSuffix,
-                supporting = decoratedSupporting,
-                singleLine = singleLine,
-                onLabelMeasured = {
-                    if (labelPosition is TextFieldLabelPosition.Above) {
-                        return@OutlinedTextFieldLayout
-                    }
-                    val progress = labelProgressProducer()
-                    val labelWidth = it.width * progress
-                    val labelHeight = it.height * progress
-                    if (
-                        cutoutSize.value.width != labelWidth ||
-                            cutoutSize.value.height != labelHeight
-                    ) {
-                        cutoutSize.value = Size(labelWidth, labelHeight)
-                    }
-                },
-                labelPosition = labelPosition,
-                labelProgress = labelProgressProducer,
-                placeholderAlpha = placeholderAlphaProducer,
-                affixAlpha = affixAlphaProducer,
-                container = borderContainerWithId,
-                paddingValues = contentPadding,
-            )
+            },
+            labelPosition = labelPosition,
+            labelProgress = labelProgressProducer,
+            placeholderAlpha = placeholderAlphaProducer,
+            affixAlpha = affixAlphaProducer,
+            container = borderContainerWithId,
+            paddingValues = contentPadding,
+        )
+    } else {
+        val containerWithId: @Composable () -> Unit = {
+            Box(Modifier.layoutId(ContainerId), propagateMinConstraints = true) { container() }
         }
+
+        InsideTextFieldLayout(
+            modifier = Modifier,
+            textField = innerTextField,
+            placeholder = decoratedPlaceholder,
+            label = decoratedLabel,
+            leading = decoratedLeading,
+            trailing = decoratedTrailing,
+            prefix = decoratedPrefix,
+            suffix = decoratedSuffix,
+            container = containerWithId,
+            supporting = decoratedSupporting,
+            singleLine = singleLine,
+            labelPosition = labelPosition,
+            labelProgress = labelProgressProducer,
+            placeholderAlpha = placeholderAlphaProducer,
+            affixAlpha = affixAlphaProducer,
+            paddingValues = contentPadding,
+        )
     }
 }
 
 /**
- * Composable responsible for measuring and laying out leading and trailing icons, label,
- * placeholder and the input field.
+ * Text field layout with inside label placement. Responsible for measuring and laying out leading
+ * and trailing icons, label, placeholder, and the input field.
  */
 @Composable
-internal fun TextFieldLayout(
+internal fun InsideTextFieldLayout(
     modifier: Modifier,
     textField: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
@@ -486,12 +474,11 @@ internal fun TextFieldLayout(
 }
 
 /**
- * Layout of the leading and trailing icons and the text field, label and placeholder in
- * [OutlinedTextField]. It doesn't use Row to position the icons and middle part because label
- * should not be positioned in the middle part.
+ * Text field layout with cutout label placement. Responsible for measuring and laying out leading
+ * and trailing icons, label, placeholder, and the input field.
  */
 @Composable
-internal fun OutlinedTextFieldLayout(
+internal fun CutoutTextFieldLayout(
     modifier: Modifier,
     textField: @Composable () -> Unit,
     placeholder: @Composable ((Modifier) -> Unit)?,
@@ -1960,21 +1947,34 @@ private fun DecoratedLabel(
     Decoration(labelContentColor.value, labelTextStyle) { labelScope.content() }
 }
 
+@Suppress("DEPRECATION")
 private val TextFieldLabelPosition.showExpandedLabel: Boolean
-    get() = this is TextFieldLabelPosition.Attached && !alwaysMinimize
+    get() =
+        when (this) {
+            is TextFieldLabelPosition.Inside -> !isAlwaysMinimized
+            is TextFieldLabelPosition.Cutout -> !isAlwaysMinimized
+            is TextFieldLabelPosition.Attached -> !alwaysMinimize
+            else -> false
+        }
 
+@Suppress("DEPRECATION")
 internal val TextFieldLabelPosition.minimizedAlignment: Alignment.Horizontal
     get() =
         when (this) {
             is TextFieldLabelPosition.Above -> alignment
+            is TextFieldLabelPosition.Inside -> minimizedAlignment
+            is TextFieldLabelPosition.Cutout -> minimizedAlignment
             is TextFieldLabelPosition.Attached -> minimizedAlignment
             else -> throw IllegalArgumentException("Unknown position: $this")
         }
 
+@Suppress("DEPRECATION")
 internal val TextFieldLabelPosition.expandedAlignment: Alignment.Horizontal
     get() =
         when (this) {
             is TextFieldLabelPosition.Above -> alignment
+            is TextFieldLabelPosition.Inside -> expandedAlignment
+            is TextFieldLabelPosition.Cutout -> expandedAlignment
             is TextFieldLabelPosition.Attached -> expandedAlignment
             else -> throw IllegalArgumentException("Unknown position: $this")
         }
@@ -2137,6 +2137,40 @@ internal fun minimizedLabelHalfHeight(): Dp {
     val fallbackValue = TypeScaleTokens.BodySmallLineHeight
     val value = if (compositionLocalValue.isSp) compositionLocalValue else fallbackValue
     return with(LocalDensity.current) { value.toDp() / 2 }
+}
+
+/**
+ * Adds top padding and merges semantics when the label is in the [TextFieldLabelPosition.Cutout]
+ * position.
+ */
+@Composable
+internal fun Modifier.topPaddingForLabelCutout(
+    label: @Composable (TextFieldLabelScope.() -> Unit)?,
+    labelPosition: TextFieldLabelPosition,
+): Modifier = topPaddingForLabelCutout(hasLabel = label != null, labelPosition = labelPosition)
+
+@Composable
+internal fun Modifier.topPaddingForLabelCutout(
+    label: @Composable (() -> Unit)?,
+    labelPosition: TextFieldLabelPosition,
+): Modifier = topPaddingForLabelCutout(hasLabel = label != null, labelPosition = labelPosition)
+
+@Composable
+private fun Modifier.topPaddingForLabelCutout(
+    hasLabel: Boolean,
+    labelPosition: TextFieldLabelPosition,
+): Modifier {
+    return this.then(
+        if (hasLabel && labelPosition.normalize() is TextFieldLabelPosition.Cutout) {
+            Modifier
+                // Merge semantics at the beginning of the modifier chain to ensure padding is
+                // considered part of the text field.
+                .semantics(mergeDescendants = true) {}
+                .padding(top = minimizedLabelHalfHeight())
+        } else {
+            Modifier
+        }
+    )
 }
 
 internal val TextFieldPadding = 16.dp
