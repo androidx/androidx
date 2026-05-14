@@ -34,8 +34,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @property state the current [Geospatial.State]
  */
-internal class OpenXrGeospatial
-internal constructor(
+internal class OpenXrGeospatial(
     private val xrResources: XrResources,
     private val timeSource: OpenXrTimeSource,
 ) : Geospatial, Updatable {

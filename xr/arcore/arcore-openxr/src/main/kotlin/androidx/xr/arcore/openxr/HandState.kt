@@ -27,8 +27,8 @@ import androidx.xr.runtime.math.Pose
  *   [XrHandJointEXT](https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrHandJointEXT.html)
  */
 internal class HandState(
-    internal val trackingState: TrackingState = TrackingState.PAUSED,
-    internal val handJoints: List<Pose> = listOf(),
+    val trackingState: TrackingState = TrackingState.PAUSED,
+    val handJoints: List<Pose> = listOf(),
 ) {
     init {
         require(trackingState != TrackingState.TRACKING || handJoints.isNotEmpty()) {

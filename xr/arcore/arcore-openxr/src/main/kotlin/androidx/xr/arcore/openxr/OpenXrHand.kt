@@ -32,7 +32,7 @@ import java.nio.FloatBuffer
  *   [XrHandJointLocationEXT](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrHandJointLocationEXT)
  *   data
  */
-internal class OpenXrHand internal constructor(private val isLeftHand: Boolean) : Hand, Updatable {
+internal class OpenXrHand(private val isLeftHand: Boolean) : Hand, Updatable {
 
     override var trackingState: TrackingState = TrackingState.PAUSED
         private set
