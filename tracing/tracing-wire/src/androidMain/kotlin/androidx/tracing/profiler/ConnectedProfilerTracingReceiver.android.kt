@@ -32,8 +32,9 @@ import kotlinx.coroutines.launch
 
 // Actions
 internal const val ACTION_START = "androidx.tracing.profiler.action.START"
-internal const val FLUSH_TRACES_GET_PATH = "androidx.tracing.profiler.action.FLUSH_TRACES_GET_PATH"
-internal const val ACTION_STOP = "androidx.tracing.action.profiler.STOP"
+internal const val ACTION_FLUSH_TRACES_GET_PATH =
+    "androidx.tracing.profiler.action.FLUSH_TRACES_GET_PATH"
+internal const val ACTION_STOP = "androidx.tracing.profiler.action.STOP"
 
 // Result codes
 internal const val RESULT_CODE_NO_TRACE_DRIVER = -2
@@ -59,7 +60,7 @@ public class ConnectedProfilerTracingReceiver : BroadcastReceiver() {
         when (action) {
             ACTION_START -> start(context)
             ACTION_STOP -> stop(context)
-            FLUSH_TRACES_GET_PATH -> flushTraces(context)
+            ACTION_FLUSH_TRACES_GET_PATH -> flushTraces(context)
             else -> {
                 Log.w(TAG, "Unknown intent action: $action. Ignoring.")
             }

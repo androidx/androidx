@@ -90,6 +90,8 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":startup:startup-runtime"))
+    androidTestImplementation(project(":tracing:tracing-wire"))
 }
 
 androidx {
