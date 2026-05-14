@@ -125,7 +125,8 @@ abstract class BasePagingTest {
         data class SampleRelation(
             val pk3: Long,
             @ColumnInfo(defaultValue = "0") val data3: Long,
-            @Relation(parentColumn = "pk3", entityColumn = "pk3") val relationEntity: SampleEntity3,
+            @Relation(parentColumns = ["pk3"], entityColumns = ["pk3"])
+            val relationEntity: SampleEntity3,
         )
 
         @Query("SELECT * FROM SampleEntity") fun getAllIds(): PagingSource<Int, SampleEntity>

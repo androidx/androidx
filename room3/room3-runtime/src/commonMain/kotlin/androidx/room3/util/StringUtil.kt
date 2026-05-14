@@ -39,6 +39,38 @@ public fun appendPlaceholders(builder: StringBuilder, count: Int) {
 }
 
 /**
+ * Adds row value placeholders (e.g., (?, ?)) to the given string. Each tuplet is separated by a
+ * comma.
+ *
+ * @param builder The StringBuilder for the query
+ * @param count Number of tuplets
+ * @param columnsSize Size of each tuplet
+ */
+public fun appendRowValuePlaceholders(builder: StringBuilder, count: Int, columnsSize: Int) {
+    if (count <= 0) return
+    val placeholder =
+        when (columnsSize) {
+            2 -> "(?, ?)"
+            3 -> "(?, ?, ?)"
+            else -> {
+                val sb = StringBuilder("(")
+                for (i in 0 until columnsSize) {
+                    if (i > 0) sb.append(", ")
+                    sb.append("?")
+                }
+                sb.append(")")
+                sb.toString()
+            }
+        }
+    for (i in 0 until count) {
+        builder.append(placeholder)
+        if (i < count - 1) {
+            builder.append(", ")
+        }
+    }
+}
+
+/**
  * Splits a comma separated list of integers to integer list.
  *
  * If an input is malformed, it is omitted from the result.

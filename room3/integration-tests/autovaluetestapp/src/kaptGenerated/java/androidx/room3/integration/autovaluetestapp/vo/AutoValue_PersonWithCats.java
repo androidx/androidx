@@ -12,7 +12,7 @@ final class AutoValue_PersonWithCats extends PersonWithCats {
   @Embedded
   private final Person person;
 
-  @Relation(parentColumn = "id", entityColumn = "ownerId")
+  @Relation(parentColumns = {"id"}, entityColumns = {"ownerId"})
   private final List<Pet.Cat> cats;
 
   AutoValue_PersonWithCats(
@@ -34,7 +34,7 @@ final class AutoValue_PersonWithCats extends PersonWithCats {
     return person;
   }
 
-  @Relation(parentColumn = "id", entityColumn = "ownerId")
+  @Relation(parentColumns = {"id"}, entityColumns = {"ownerId"})
   @Override
   public List<Pet.Cat> getCats() {
     return cats;

@@ -29,6 +29,7 @@ import androidx.room3.ext.CollectionTypeNames.INT_SPARSE_ARRAY
 import androidx.room3.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room3.ext.CommonTypeNames
 import androidx.room3.ext.GuavaTypeNames
+import androidx.room3.ext.KotlinTypeNames
 import androidx.room3.ext.SUPPORTED_VALUES_TYPES
 import androidx.room3.ext.getValueClassUnderlyingInfo
 import androidx.room3.ext.isByteBuffer
@@ -80,6 +81,7 @@ import androidx.room3.solver.query.result.MultimapQueryResultAdapter.Companion.v
 import androidx.room3.solver.query.result.MultimapQueryResultAdapter.Companion.validateMapValueTypeArg
 import androidx.room3.solver.query.result.MultimapQueryResultAdapter.MapType.Companion.isSparseArray
 import androidx.room3.solver.query.result.OptionalQueryResultAdapter
+import androidx.room3.solver.query.result.PairTripleRowAdapter
 import androidx.room3.solver.query.result.QueryResultAdapter
 import androidx.room3.solver.query.result.QueryResultBinder
 import androidx.room3.solver.query.result.RowAdapter
@@ -614,6 +616,9 @@ private constructor(
         } else if (typeMirror.typeArguments.isEmpty()) {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleItemQueryResultAdapter(rowAdapter)
+        } else if (typeMirror.isTypeOf(Pair::class) || typeMirror.isTypeOf(Triple::class)) {
+            val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
+            return SingleItemQueryResultAdapter(rowAdapter)
         } else if (typeMirror.rawType.asTypeName() == GuavaTypeNames.OPTIONAL) {
             checkTypeNullability(typeMirror, extras, "Optional")
             // Handle Guava Optional by unpacking its generic type argument and adapting that.
@@ -969,11 +974,38 @@ private constructor(
                 !typeMirror.asTypeName().isPrimitive &&
                 !typeMirror.isKotlinUnit()
         ) {
+            val resultInfo = query.resultInfo
             if (typeMirror.typeArguments.isNotEmpty()) {
-                // TODO one day support this
+                fun createPairTripleRowAdapter(type: XType): PairTripleRowAdapter? {
+                    val typeName = type.rawType.asTypeName()
+                    val readersRequired =
+                        when (typeName) {
+                            KotlinTypeNames.PAIR -> 2
+                            KotlinTypeNames.TRIPLE -> 3
+                            else -> error("Only Pair and Triple type names are supported.")
+                        }
+                    if (resultInfo != null && resultInfo.columns.size < readersRequired) {
+                        context.logger.e(
+                            ProcessorErrors.mismatchPairTripleQueryColumns(
+                                readersRequired,
+                                typeName.toString(context.codeLanguage),
+                            )
+                        )
+                        return null
+                    }
+                    val readers =
+                        List(readersRequired) { index ->
+                            findStatementValueReader(type.typeArguments[index].type, null)
+                                ?: return null
+                        }
+                    return PairTripleRowAdapter(type, readers)
+                }
+                if (typeMirror.isTypeOf(Pair::class) || typeMirror.isTypeOf(Triple::class)) {
+                    return createPairTripleRowAdapter(typeMirror)
+                }
+                // TODO: Support more type argument row adapters
                 return null
             }
-            val resultInfo = query.resultInfo
 
             val (rowAdapter, rowAdapterLogs) =
                 if (resultInfo != null && query.errors.isEmpty() && resultInfo.error == null) {

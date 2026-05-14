@@ -19,11 +19,11 @@ package androidx.room3.vo
 import androidx.room3.compiler.processing.XType
 import androidx.room3.solver.query.parameter.QueryParameterAdapter
 
-/** Holds the parameter for a {@link QueryMethod}. */
+/** Holds the parameter for a [QueryFunction]. */
 data class QueryParameter(
-    // this is name seen by java
+    // this is name seen in source code
     val name: String,
-    // this is the name used in the query. Might be different for kotlin queries
+    // this is the name used in the query, might be different from source.
     val sqlName: String,
     val type: XType,
     val queryParamAdapter: QueryParameterAdapter?,

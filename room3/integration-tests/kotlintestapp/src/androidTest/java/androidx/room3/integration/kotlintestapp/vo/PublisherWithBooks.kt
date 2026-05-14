@@ -22,8 +22,8 @@ import androidx.room3.Relation
 class PublisherWithBooks {
     @Embedded var publisher: Publisher? = null
     @Relation(
-        parentColumn = "publisherId", // publisher.publisherId
-        entityColumn = "bookPublisherId", // book.bookPublisherId
+        parentColumns = ["publisherId"], // publisher.publisherId
+        entityColumns = ["bookPublisherId"], // book.bookPublisherId
         entity = Book::class,
     )
     var books: List<Book>? = null

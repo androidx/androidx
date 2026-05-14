@@ -332,6 +332,7 @@ package androidx.room3.util {
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {
     method public static void appendPlaceholders(StringBuilder builder, int count);
+    method public static void appendRowValuePlaceholders(StringBuilder builder, int count, int columnsSize);
     method public static String? joinIntoString(java.util.List<java.lang.Integer>? input);
     method public static java.util.List<java.lang.Integer>? splitToIntList(String? input);
   }

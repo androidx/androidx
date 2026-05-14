@@ -19,6 +19,6 @@ package androidx.room3.vo
 /** Value object defining a junction table for a [Relation]. */
 data class Junction(
     val entity: EntityOrView,
-    val parentProperty: Property,
-    val entityProperty: Property,
+    val parentProperties: List<Property>,
+    val entityProperties: List<Property>,
 )

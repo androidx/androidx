@@ -337,12 +337,12 @@ package androidx.room3 {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface Junction {
-    ctor @KotlinOnly public Junction(kotlin.reflect.KClass<? extends java.lang.Object?> value, optional String parentColumn, optional String entityColumn);
-    method @InaccessibleFromKotlin public abstract String entityColumn() default "";
-    method @InaccessibleFromKotlin public abstract String parentColumn() default "";
+    ctor @KotlinOnly public Junction(kotlin.reflect.KClass<? extends java.lang.Object?> value, optional String[] parentColumns, optional String[] entityColumns);
+    method @InaccessibleFromKotlin public abstract String[] entityColumns() default {};
+    method @InaccessibleFromKotlin public abstract String[] parentColumns() default {};
     method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?> value();
-    property public abstract String entityColumn;
-    property public abstract String parentColumn;
+    property public abstract String[] entityColumns;
+    property public abstract String[] parentColumns;
     property public abstract kotlin.reflect.KClass<? extends java.lang.Object?> value;
   }
 
@@ -409,16 +409,16 @@ package androidx.room3 {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Relation {
-    ctor @KotlinOnly public Relation(optional kotlin.reflect.KClass<? extends java.lang.Object?> entity, String parentColumn, String entityColumn, optional androidx.room3.Junction associateBy, optional String[] projection);
+    ctor @KotlinOnly public Relation(optional kotlin.reflect.KClass<? extends java.lang.Object?> entity, String[] parentColumns, String[] entityColumns, optional androidx.room3.Junction associateBy, optional String[] projection);
     method @InaccessibleFromKotlin public abstract androidx.room3.Junction associateBy() default androidx.room3.Junction(Any::class);
     method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?> entity() default Any::class;
-    method @InaccessibleFromKotlin public abstract String entityColumn();
-    method @InaccessibleFromKotlin public abstract String parentColumn();
+    method @InaccessibleFromKotlin public abstract String[] entityColumns();
+    method @InaccessibleFromKotlin public abstract String[] parentColumns();
     method @InaccessibleFromKotlin public abstract String[] projection() default {};
     property public abstract androidx.room3.Junction associateBy;
     property public abstract kotlin.reflect.KClass<? extends java.lang.Object?> entity;
-    property public abstract String entityColumn;
-    property public abstract String parentColumn;
+    property public abstract String[] entityColumns;
+    property public abstract String[] parentColumns;
     property public abstract String[] projection;
   }
 

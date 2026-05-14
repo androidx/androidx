@@ -36,7 +36,7 @@ import kotlin.reflect.KClass
  * data class AlbumNameAndAllSongs (
  *     val id: Int,
  *     val name: String,
- *     @Relation(parentColumn = "id", entityColumn = "albumId")
+ *     @Relation(parentColumns = ["id"], entityColumns = ["albumId"])
  *     val songs: List<Song>
  * )
  *
@@ -68,7 +68,7 @@ import kotlin.reflect.KClass
  * data class AlbumAllSongs (
  *     @Embedded
  *     val album: Album,
- *     @Relation(parentColumn = "id", entityColumn = "albumId", entity = Song::class)
+ *     @Relation(parentColumns = ["id"], entityColumns = ["albumId"], entity = Song::class)
  *     val songs: List<SongNameAndId>
  * )
  *
@@ -91,8 +91,8 @@ import kotlin.reflect.KClass
  *     @Embedded
  *     val album: Album,
  *     @Relation(
- *         parentColumn = "id",
- *         entityColumn = "albumId",
+ *         parentColumns = ["id"],
+ *         entityColumns = ["albumId"],
  *         entity = Song::class,
  *         projection = ["name"]
  *     )
@@ -124,24 +124,24 @@ public annotation class Relation(
     @Suppress("KotlinDefaultParameterOrder") val entity: KClass<*> = Any::class,
 
     /**
-     * Reference column in the parent data class.
+     * Reference columns in the parent data class.
      *
-     * In a one-to-one or one-to-many relation, this value will be matched against the column
-     * defined in [entityColumn]. In a many-to-many using [associateBy] then this value will be
-     * matched against the [Junction.parentColumn]
+     * In a one-to-one or one-to-many relation, these values will be matched against the columns
+     * defined in [entityColumns]. In a many-to-many using [associateBy] then these values will be
+     * matched against the [Junction.parentColumns]
      *
-     * @return The column reference in the parent object.
+     * @return The column references in the parent object.
      */
-    val parentColumn: String,
+    val parentColumns: Array<String>,
 
     /**
-     * The column to match in the [entity].
+     * The columns to match in the [entity].
      *
-     * In a one-to-one or one-to-many relation, this value will be matched against the column
-     * defined in [parentColumn]. In a many-to-many using [associateBy] then this value will be
-     * matched against the [Junction.entityColumn].
+     * In a one-to-one or one-to-many relation, these values will be matched against the columns
+     * defined in [parentColumns]. In a many-to-many using [associateBy] then these values will be
+     * matched against the [Junction.entityColumns].
      */
-    val entityColumn: String,
+    val entityColumns: Array<String>,
 
     /**
      * The entity or view to be used as an associative table (also known as a junction table) when

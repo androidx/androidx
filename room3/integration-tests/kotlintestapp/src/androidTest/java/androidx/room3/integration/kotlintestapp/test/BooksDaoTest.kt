@@ -459,4 +459,40 @@ class BooksDaoTest(useDriver: UseDriver) : TestDatabaseTest(useDriver) {
             }
         }
     }
+
+    @Test
+    fun pairRowAdapter() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1.copy(salesCnt = 10), TestUtil.BOOK_2.copy(salesCnt = 20))
+        val result = booksDao.getBookWithMostSales()
+        assertThat(result).isEqualTo(TestUtil.BOOK_2.title to 20)
+    }
+
+    @Test
+    fun pairRowAdapterList() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(
+            TestUtil.BOOK_1.copy(salesCnt = 10),
+            TestUtil.BOOK_2.copy(salesCnt = 20),
+            TestUtil.BOOK_3.copy(salesCnt = 15),
+        )
+        val result = booksDao.getTopSoldBooks()
+        assertThat(result)
+            .containsExactly(
+                TestUtil.BOOK_2.title to 20,
+                TestUtil.BOOK_3.title to 15,
+                TestUtil.BOOK_1.title to 10,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun tripleRowAdapter() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        val result = booksDao.getPublisherNameAndIdAndStatic()
+        assertThat(result)
+            .isEqualTo(Triple(TestUtil.PUBLISHER.name, TestUtil.PUBLISHER.publisherId, "static"))
+    }
 }

@@ -36,13 +36,13 @@ import kotlin.reflect.KClass
  *     @Embedded
  *     val playlist: Playlist,
  *     @Relation(
- *         parentColumn = "playlistId",
+ *         parentColumns = ["playlistId"],
  *         entity = Song::class,
- *         entityColumn = "songId",
+ *         entityColumns = ["songId"],
  *         associateBy = Junction(
  *             value = PlaylistSongXRef::class,
- *             parentColumn = "pId",
- *             entityColumn = "sId"
+ *             parentColumns = ["pId"],
+ *             entityColumns = ["sId"]
  *         )
  *     )
  *     val songs: List<String>
@@ -72,16 +72,16 @@ public annotation class Junction(
     val value: KClass<*>,
 
     /**
-     * The junction column that will be used to match against the [Relation.parentColumn].
+     * The junction columns that will be used to match against the [Relation.parentColumns].
      *
-     * If not specified it defaults to [Relation.parentColumn].
+     * If not specified it defaults to [Relation.parentColumns].
      */
-    val parentColumn: String = "",
+    val parentColumns: Array<String> = [],
 
     /**
-     * The junction column that will be used to match against the [Relation.entityColumn].
+     * The junction columns that will be used to match against the [Relation.entityColumns].
      *
-     * If not specified it defaults to [Relation.entityColumn].
+     * If not specified it defaults to [Relation.entityColumns].
      */
-    val entityColumn: String = "",
+    val entityColumns: Array<String> = [],
 )

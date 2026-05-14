@@ -58,7 +58,7 @@ internal class MyDao_Impl(
           _tmpKey_1 = _stmt.getLong(_columnIndexOfArtistKey)
           _tmpArtist = _collectionArtist.get(_tmpKey_1)
           if (_tmpArtist == null) {
-            error("Relationship item 'artist' was expected to be NON-NULL but is NULL in @Relation involving a parent column named 'artistKey' and entityColumn named 'artistId'.")
+            error("Relationship item 'artist' was expected to be NON-NULL but is NULL in @Relation involving parent columns named 'artistKey' and entityColumns named 'artistId''.")
           }
           _result = SongWithArtist(_tmpSong,_tmpArtist)
         } else {
@@ -123,7 +123,7 @@ internal class MyDao_Impl(
           }
         }
         _stmt.reset()
-        __fetchRelationshipSongAsSong_1(_connection, _collectionSongs)
+        __fetchRelationshipSongAsSongWithPlaylistSongXRef(_connection, _collectionSongs)
         val _result: PlaylistAndSongs
         if (_stmt.step()) {
           val _tmpPlaylist: Playlist
@@ -157,7 +157,8 @@ internal class MyDao_Impl(
       return
     }
     val _stringBuilder: StringBuilder = StringBuilder()
-    _stringBuilder.append("SELECT `artistId` FROM `Artist` WHERE `artistId` IN (")
+    _stringBuilder.append("SELECT `artistId` FROM `Artist`")
+    _stringBuilder.append(" WHERE `artistId` IN (")
     val _inputSize: Int = __mapKeySet.size
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
@@ -169,14 +170,14 @@ internal class MyDao_Impl(
       _argIndex++
     }
     try {
-      val _itemKeyIndex: Int = getColumnIndex(_stmt, "artistId")
-      if (_itemKeyIndex == -1) {
+      val _itemKeyIndex_0: Int = getColumnIndex(_stmt, "artistId")
+      if (_itemKeyIndex_0 == -1) {
         return
       }
       val _columnIndexOfArtistId: Int = 0
       while (_stmt.step()) {
         val _tmpKey: Long
-        _tmpKey = _stmt.getLong(_itemKeyIndex)
+        _tmpKey = _stmt.getLong(_itemKeyIndex_0)
         if (_map.containsKey(_tmpKey)) {
           val _item_1: Artist
           val _tmpArtistId: Long
@@ -202,7 +203,8 @@ internal class MyDao_Impl(
       return
     }
     val _stringBuilder: StringBuilder = StringBuilder()
-    _stringBuilder.append("SELECT `songId`,`artistKey` FROM `Song` WHERE `artistKey` IN (")
+    _stringBuilder.append("SELECT `songId`, `artistKey` FROM `Song`")
+    _stringBuilder.append(" WHERE `artistKey` IN (")
     val _inputSize: Int = __mapKeySet.size
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
@@ -214,15 +216,15 @@ internal class MyDao_Impl(
       _argIndex++
     }
     try {
-      val _itemKeyIndex: Int = getColumnIndex(_stmt, "artistKey")
-      if (_itemKeyIndex == -1) {
+      val _itemKeyIndex_0: Int = getColumnIndex(_stmt, "artistKey")
+      if (_itemKeyIndex_0 == -1) {
         return
       }
       val _columnIndexOfSongId: Int = 0
       val _columnIndexOfArtistKey: Int = 1
       while (_stmt.step()) {
         val _tmpKey: Long
-        _tmpKey = _stmt.getLong(_itemKeyIndex)
+        _tmpKey = _stmt.getLong(_itemKeyIndex_0)
         val _tmpRelation: MutableList<Song>? = _map.get(_tmpKey)
         if (_tmpRelation != null) {
           val _item_1: Song
@@ -239,19 +241,20 @@ internal class MyDao_Impl(
     }
   }
 
-  private suspend fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
+  private suspend fun __fetchRelationshipSongAsSongWithPlaylistSongXRef(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return
     }
     if (_map.size > 999) {
       recursiveFetchMap(_map, true) { _tmpMap ->
-        __fetchRelationshipSongAsSong_1(_connection, _tmpMap)
+        __fetchRelationshipSongAsSongWithPlaylistSongXRef(_connection, _tmpMap)
       }
       return
     }
     val _stringBuilder: StringBuilder = StringBuilder()
-    _stringBuilder.append("SELECT `Song`.`songId` AS `songId`,`Song`.`artistKey` AS `artistKey`,_junction.`playlistKey` FROM `PlaylistSongXRef` AS _junction INNER JOIN `Song` ON (_junction.`songKey` = `Song`.`songId`) WHERE _junction.`playlistKey` IN (")
+    _stringBuilder.append("SELECT `Song`.`songId` AS `songId`, `Song`.`artistKey` AS `artistKey`, _junction.`playlistKey` FROM `PlaylistSongXRef` AS _junction INNER JOIN `Song` ON _junction.`songKey` = `Song`.`songId`")
+    _stringBuilder.append(" WHERE _junction.`playlistKey` IN (")
     val _inputSize: Int = __mapKeySet.size
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
@@ -263,16 +266,15 @@ internal class MyDao_Impl(
       _argIndex++
     }
     try {
-      // _junction.playlistKey
-      val _itemKeyIndex: Int = 2
-      if (_itemKeyIndex == -1) {
+      val _itemKeyIndex_0: Int = 2
+      if (_itemKeyIndex_0 == -1) {
         return
       }
       val _columnIndexOfSongId: Int = 0
       val _columnIndexOfArtistKey: Int = 1
       while (_stmt.step()) {
         val _tmpKey: Long
-        _tmpKey = _stmt.getLong(_itemKeyIndex)
+        _tmpKey = _stmt.getLong(_itemKeyIndex_0)
         val _tmpRelation: MutableList<Song>? = _map.get(_tmpKey)
         if (_tmpRelation != null) {
           val _item_1: Song

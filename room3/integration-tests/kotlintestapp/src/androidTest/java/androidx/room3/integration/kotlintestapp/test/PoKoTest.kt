@@ -64,21 +64,22 @@ class PoKoTest {
 
     class SampleParentWithChildren(
         @Embedded val parent: SampleEntity,
-        @Relation(parentColumn = "number", entityColumn = "parentNumber")
+        @Relation(parentColumns = ["number"], entityColumns = ["parentNumber"])
         val children: Set<SampleChild>,
     )
 
     class SampleParentWithChild(
         @Embedded val parent: SampleEntity,
-        @Relation(parentColumn = "number", entityColumn = "parentNumber") val child: SampleChild?,
+        @Relation(parentColumns = ["number"], entityColumns = ["parentNumber"])
+        val child: SampleChild?,
     )
 
     class SampleParentWithChildrenIds(
         @Embedded val parent: SampleEntity,
         @Relation(
             entity = SampleChild::class,
-            parentColumn = "number",
-            entityColumn = "parentNumber",
+            parentColumns = ["number"],
+            entityColumns = ["parentNumber"],
             projection = ["childId"],
         )
         val childrenIds: List<Int>,
@@ -86,15 +87,16 @@ class PoKoTest {
 
     class SampleChildWithItems(
         @Embedded val child: SampleChild,
-        @Relation(parentColumn = "childId", entityColumn = "ownerId") val items: List<SampleItem>,
+        @Relation(parentColumns = ["childId"], entityColumns = ["ownerId"])
+        val items: List<SampleItem>,
     )
 
     class SampleParentWithChildrenAndItems(
         @Embedded val parent: SampleEntity,
         @Relation(
             entity = SampleChild::class,
-            parentColumn = "number",
-            entityColumn = "parentNumber",
+            parentColumns = ["number"],
+            entityColumns = ["parentNumber"],
         )
         val children: List<SampleChildWithItems>,
     )

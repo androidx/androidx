@@ -21,46 +21,20 @@ import androidx.room3.compiler.processing.XType
 /** Value object created from processing a @Relation annotation. */
 class Relation(
     val entity: EntityOrView,
-    // return type. e..g. String in @Relation List<String>
+    // return type. e.g. String in @Relation List<String>
     val dataClassType: XType,
     // property in data class that holds these relations (e.g. List<Pet> pets)
     val property: Property,
-    // the parent property referenced for matching
-    val parentProperty: Property,
-    // the property referenced for querying. does not need to be in the response but the query
+    // the parent properties referenced for matching
+    val parentProperties: List<Property>,
+    // the properties referenced for querying. does not need to be in the response but the query
     // we generate always has it in the response.
-    val entityProperty: Property,
+    val entityProperties: List<Property>,
     // Used for joining on a many-to-many relation
     val junction: Junction?,
     // the projection for the query
     val projection: List<String>,
 ) {
+    val hasCompositeKey = parentProperties.size > 1
     val dataClassTypeName by lazy { dataClassType.asTypeName() }
-
-    fun createLoadAllSql(): String {
-        val resultProperties = projection.toSet()
-        return createSelect(resultProperties)
-    }
-
-    private fun createSelect(resultProperties: Set<String>) = buildString {
-        if (junction != null) {
-            val resultColumns =
-                resultProperties.map { "`${entity.tableName}`.`$it` AS `$it`" } +
-                    "_junction.`${junction.parentProperty.columnName}`"
-            append("SELECT ${resultColumns.joinToString(",")}")
-            append(" FROM `${junction.entity.tableName}` AS _junction")
-            append(
-                " INNER JOIN `${entity.tableName}` ON" +
-                    " (_junction.`${junction.entityProperty.columnName}`" +
-                    " = `${entity.tableName}`.`${entityProperty.columnName}`)"
-            )
-            append(" WHERE _junction.`${junction.parentProperty.columnName}` IN (:args)")
-        } else {
-            val resultColumns =
-                resultProperties.map { "`$it`" }.toSet() + "`${entityProperty.columnName}`"
-            append("SELECT ${resultColumns.joinToString(",")}")
-            append(" FROM `${entity.tableName}`")
-            append(" WHERE `${entityProperty.columnName}` IN (:args)")
-        }
-    }
 }
