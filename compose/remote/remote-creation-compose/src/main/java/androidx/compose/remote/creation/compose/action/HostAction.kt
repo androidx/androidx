@@ -26,14 +26,48 @@ import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 
-/** Run the named host action when invoked. */
+/**
+ * Creates an [Action] that triggers a named action on the host.
+ *
+ * @param name The name of the action.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class HostAction(
+public fun hostAction(name: RemoteString): Action = HostAction(name, HostAction.Type.NONE)
+
+/**
+ * Creates an [Action] that triggers a named action on the host with a float value.
+ *
+ * @param name The name of the action.
+ * @param value The float value to pass with the action.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun hostAction(name: RemoteString, value: RemoteFloat): Action = HostAction(name, value)
+
+/**
+ * Creates an [Action] that triggers a named action on the host with an int value.
+ *
+ * @param name The name of the action.
+ * @param value The int value to pass with the action.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun hostAction(name: RemoteString, value: RemoteInt): Action = HostAction(name, value)
+
+/**
+ * Creates an [Action] that triggers a named action on the host with a string value.
+ *
+ * @param name The name of the action.
+ * @param value The string value to pass with the action.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun hostAction(name: RemoteString, value: RemoteString): Action = HostAction(name, value)
+
+/** Run the named host action when invoked. */
+internal class HostAction(
     public val name: RemoteString,
     public val type: Type = Type.INT,
     public val id: Int = 0,
     public val value: RemoteState<*>? = null,
-) : Action {
+) : RemoteAction() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public enum class Type(public val value: Int) {

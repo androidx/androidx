@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.CombinedAction
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.TouchActionModifier
@@ -28,7 +29,11 @@ internal class TouchDownActionModifier(public val actions: List<Action>) : Remot
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return TouchActionModifier(
             TouchActionModifier.DOWN,
-            @Suppress("ListIterator") actions.map { action -> with(action) { toRemoteAction() } },
+            @Suppress("ListIterator")
+            actions.mapNotNull { action ->
+                if (action is RemoteAction) with(action) { toRemoteAction() }
+                else if (action is CombinedAction) with(action) { toRemoteAction() } else null
+            },
         )
     }
 }

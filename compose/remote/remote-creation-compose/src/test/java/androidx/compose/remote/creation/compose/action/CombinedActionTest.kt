@@ -36,14 +36,14 @@ class CombinedActionTest {
         val recordedWrites = mutableListOf<String>()
 
         val action1 =
-            object : Action {
+            object : RemoteAction() {
                 override fun RemoteStateScope.toRemoteAction(): CoreAction = CoreAction {
                     recordedWrites.add("action1")
                 }
             }
 
         val action2 =
-            object : Action {
+            object : RemoteAction() {
                 override fun RemoteStateScope.toRemoteAction(): CoreAction = CoreAction {
                     recordedWrites.add("action2")
                 }

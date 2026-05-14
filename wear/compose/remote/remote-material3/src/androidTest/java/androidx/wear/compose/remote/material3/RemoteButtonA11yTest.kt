@@ -15,7 +15,7 @@
  */
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rs
@@ -43,7 +43,7 @@ class RemoteButtonA11yTest {
     @Test
     fun button_isFocusable() {
         remoteComposeTestRule.runTest {
-            RemoteButton(onClick = HostAction("click".rs)) { RemoteText("text".rs) }
+            RemoteButton(onClick = hostAction("click".rs)) { RemoteText("text".rs) }
         }
 
         uiAutomator {
@@ -57,7 +57,7 @@ class RemoteButtonA11yTest {
     @Test
     fun compactButton_isFocusable() {
         remoteComposeTestRule.runTest {
-            RemoteCompactButton(onClick = HostAction("click".rs)) { RemoteText("text".rs) }
+            RemoteCompactButton(onClick = hostAction("click".rs)) { RemoteText("text".rs) }
         }
 
         uiAutomator {
@@ -72,7 +72,7 @@ class RemoteButtonA11yTest {
     fun buttonWithSecondaryLabelAndIcon_isFocusable() {
         remoteComposeTestRule.runTest {
             RemoteButton(
-                onClick = HostAction("click".rs),
+                onClick = hostAction("click".rs),
                 secondaryLabel = { RemoteText("text".rs) },
                 icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = "VolumeUp".rs) },
             ) {}
@@ -89,7 +89,7 @@ class RemoteButtonA11yTest {
     @Test
     fun iconButton_isFocusable() {
         remoteComposeTestRule.runTest {
-            RemoteIconButton(onClick = HostAction("click".rs)) {
+            RemoteIconButton(onClick = hostAction("click".rs)) {
                 RemoteIcon(TestImageVectors.VolumeUp, contentDescription = "Add".rs)
             }
         }
@@ -105,7 +105,7 @@ class RemoteButtonA11yTest {
     @Test
     fun textButton_isFocusable() {
         remoteComposeTestRule.runTest {
-            RemoteTextButton(onClick = HostAction("click".rs)) { RemoteText("text".rs) }
+            RemoteTextButton(onClick = hostAction("click".rs)) { RemoteText("text".rs) }
         }
 
         uiAutomator {

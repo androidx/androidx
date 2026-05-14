@@ -18,16 +18,17 @@ package androidx.compose.remote.creation.compose.widgets
 
 import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 
 /** Keep track of lambda to be run when the corresponding id is sent back by the widget */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WidgetLambdaAction(public val widgetId: Int, public val content: () -> Unit) : Action {
+internal class WidgetLambdaAction(public val widgetId: Int, public val content: () -> Unit) :
+    RemoteAction() {
 
-    override fun RemoteStateScope.toRemoteAction():
-        androidx.compose.remote.creation.actions.Action {
+    override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val actionId = widgetId * 1000 + counter
         val action = HostAction(actionId, -1) // metadata)
         map[actionId] = this@WidgetLambdaAction

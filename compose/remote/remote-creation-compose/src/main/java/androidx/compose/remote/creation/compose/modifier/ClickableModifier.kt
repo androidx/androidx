@@ -20,7 +20,9 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.CombinedAction
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.modifiers.ClickActionModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.semantics.Role
 
@@ -30,8 +32,12 @@ internal class ClickableModifier(
 ) : RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.ClickActionModifier(
-            @Suppress("ListIterator") actions.map { action -> with(action) { toRemoteAction() } },
+        return ClickActionModifier(
+            @Suppress("ListIterator")
+            actions.mapNotNull { action ->
+                if (action is RemoteAction) with(action) { toRemoteAction() }
+                else if (action is CombinedAction) with(action) { toRemoteAction() } else null
+            },
             clickType,
         )
     }

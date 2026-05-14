@@ -17,7 +17,7 @@
 package androidx.compose.remote.a11y
 
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction
-import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -165,7 +165,7 @@ class ListA11yTest {
                         RemoteModifier.fillMaxWidth()
                             .height(192.rdp)
                             .border(1.rdp, Color.LightGray.rc)
-                            .clickable(HostAction("abc".rs, i.ri))
+                            .clickable(hostAction("abc".rs, i.ri))
                             // Must be direct child of the scrollable item
                             .semantics(mergeDescendants = true) {},
                     contentAlignment = RemoteAlignment.Center,

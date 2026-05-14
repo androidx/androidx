@@ -32,8 +32,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -161,7 +161,7 @@ fun GesturePropagationDemo() {
                         modifier =
                             RemoteModifier.size(80.rdp)
                                 .background(RemoteColor(Color.Red))
-                                .clickable(HostAction(remoteComposeClick.rs)),
+                                .clickable(hostAction(remoteComposeClick.rs)),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
                         RemoteText("HostAction.".rs)
@@ -185,9 +185,9 @@ fun GesturePropagationDemo() {
                             RemoteModifier.size(80.rdp)
                                 .background(RemoteColor(Color.Red))
                                 .combinedClickable(
-                                    onClick = HostAction(remoteComposeClick.rs),
-                                    onDoubleClick = HostAction(remoteComposeDoubleClick.rs),
-                                    onLongClick = HostAction(remoteComposeLongClick.rs),
+                                    onClick = hostAction(remoteComposeClick.rs),
+                                    onDoubleClick = hostAction(remoteComposeDoubleClick.rs),
+                                    onLongClick = hostAction(remoteComposeLongClick.rs),
                                 ),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
