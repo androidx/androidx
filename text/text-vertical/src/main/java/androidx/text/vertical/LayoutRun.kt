@@ -16,6 +16,7 @@
 
 package androidx.text.vertical
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.FontMetrics
@@ -182,14 +183,7 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
         val fontMetrics = FontMetricsInt()
 
         var textWidth = 0f
-        text.forStyleRuns(start, end, paint, HORIZONTAL) {
-            rStart,
-            rEnd,
-            rPaint,
-            _,
-            _,
-            _,
-            emphasisScale ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, emphasisScale ->
             val emphasisWidth = rPaint.textSize * emphasisScale
 
             val rCount = rEnd - rStart
@@ -232,14 +226,7 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
     override fun draw(canvas: Canvas, originX: Float, originY: Float, paint: TextPaint) {
         var x = originX + leftSideOffset + (width - textWidth) / 2 // centering
         val y = originY - ascent
-        text.forStyleRuns(start, end, paint, HORIZONTAL) {
-            rStart,
-            rEnd,
-            rPaint,
-            bgColor,
-            fontShear,
-            _,
-            _ ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, _, _ ->
             rPaint.withTextScaleX(scaleX) {
                 val w = measureText(text, rStart, rEnd)
                 val h = descent - ascent
@@ -267,11 +254,9 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
             val span = emphasisSpans.last() // The last span wins
             val xOffset = paint.textSize * (1f + span.scale) / 2
             paint.withTextScale(span.scale) {
-                withVerticalFlag(VERTICAL) {
-                    val letterWidth = measureText(span.letter)
-                    val yOffset = (letterWidth - height) / 2f
-                    canvas.drawText(span.letter, originX + xOffset, originY - yOffset, this)
-                }
+                val letterWidth = measureTextVertical(span.letter)
+                val yOffset = (letterWidth - height) / 2f
+                canvas.drawTextVertical(span.letter, originX + xOffset, originY - yOffset, this)
             }
         }
     }
@@ -309,7 +294,7 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
         var descent = 0f
 
         val metrics = FontMetrics()
-        text.forStyleRuns(start, end, paint, HORIZONTAL) { rStart, rEnd, rPaint, _, _, _, _ ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
             height += rPaint.measureText(text, rStart, rEnd)
             leftSide = min(leftSide, -rPaint.textSize * 0.5f)
             rightSide = max(rightSide, rPaint.textSize * 0.5f)
@@ -332,14 +317,7 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
             rotate(90f, 0f, 0f)
 
             var x = 0f
-            text.forStyleRuns(start, end, paint, HORIZONTAL) {
-                rStart,
-                rEnd,
-                rPaint,
-                bgColor,
-                fontShear,
-                _,
-                _ ->
+            text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, _, _ ->
                 val width = rPaint.measureText(text, rStart, rEnd)
                 drawBackground(x, ascent, width, descent - ascent, bgColor)
 
@@ -362,7 +340,7 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun getCharAdvances(out: FloatArray, paint: TextPaint) {
-        text.forStyleRuns(start, end, paint, HORIZONTAL) { rStart, rEnd, rPaint, _, _, _, _ ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
             rPaint.getRunCharacterAdvance(
                 text,
                 rStart,
@@ -398,17 +376,10 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
         var left = 0f
         var right = 0f
 
-        text.forStyleRuns(start, end, paint, VERTICAL) {
-            rStart,
-            rEnd,
-            rPaint,
-            _,
-            _,
-            _,
-            emphasisScale ->
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, emphasisScale ->
             val emphasisWidth = rPaint.textSize * emphasisScale
 
-            height += rPaint.measureText(text, rStart, rEnd)
+            height += rPaint.measureTextVertical(text, rStart, rEnd)
             left = min(left, -rPaint.textSize * 0.5f)
             right = max(right, rPaint.textSize * 0.5f + emphasisWidth)
         }
@@ -417,10 +388,9 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
         this.rightSideOffset = right
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun draw(canvas: Canvas, originX: Float, originY: Float, paint: TextPaint) {
         var y = originY
-        text.forStyleRuns(start, end, paint, VERTICAL) {
+        text.forStyleRuns(start, end, paint) {
             rStart,
             rEnd,
             rPaint,
@@ -442,12 +412,12 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
             }
 
             if (fontShear == 0f) {
-                canvas.drawText(text, rStart, rEnd, originX, y, rPaint)
+                canvas.drawTextVertical(text, rStart, rEnd, originX, y, rPaint)
             } else {
                 canvas.withSave {
                     translate(originX, y)
                     skew(0f, -fontShear)
-                    drawText(text, rStart, rEnd, 0f, 0f, rPaint)
+                    drawTextVertical(text, rStart, rEnd, 0f, 0f, rPaint)
                 }
             }
 
@@ -456,11 +426,11 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                 val xOffset = rPaint.textSize * (1f + emphasisScale) / 2
 
                 val letterWidth =
-                    rPaint.withTextScale(emphasisScale) { measureText(emphasisLetter) }
+                    rPaint.withTextScale(emphasisScale) { measureTextVertical(emphasisLetter) }
 
                 text.forEachGrapheme(rStart, rEnd, rPaint.textLocale) { gStart, gEnd ->
                     val positions = FloatArray(gEnd - gStart)
-                    rPaint.getRunCharacterAdvance(
+                    rPaint.getRunCharacterAdvanceVertical(
                         text,
                         gStart,
                         gEnd,
@@ -497,8 +467,8 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun getCharAdvances(out: FloatArray, paint: TextPaint) {
-        text.forStyleRuns(start, end, paint, VERTICAL) { rStart, rEnd, rPaint, _, _, _, _ ->
-            rPaint.getRunCharacterAdvance(
+        text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, _, _ ->
+            rPaint.getRunCharacterAdvanceVertical(
                 text,
                 rStart,
                 rEnd, // target range
@@ -520,29 +490,25 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
  * @param start The inclusive start index of the range to process.
  * @param end The exclusive end index of the range to process.
  * @param basePaint The base paint to use for drawing.
- * @param isVertical If true, sets the vertical text flag; otherwise, clears it.
  */
 internal inline fun CharSequence.forStyleRuns(
     start: Int,
     end: Int,
     basePaint: TextPaint,
-    isVertical: Boolean,
     crossinline block: (Int, Int, Paint, Int, Float, String?, Float) -> Unit,
 ) {
     // Easy case: if the text is a non-styled text, just call back entire text with applying
     // vertical flag.
     if (this !is Spanned) {
-        basePaint.withVerticalFlag(isVertical) {
-            block(
-                start,
-                end,
-                this,
-                0 /* bgColor */,
-                0f /* fontShear */,
-                null /* letter */,
-                0f, /* scale */
-            )
-        }
+        block(
+            start,
+            end,
+            basePaint,
+            0 /* bgColor */,
+            0f /* fontShear */,
+            null /* letter */,
+            0f, /* scale */
+        )
         return
     }
 
@@ -565,9 +531,17 @@ internal inline fun CharSequence.forStyleRuns(
                     emphasisScale = it.scale
                 }
             }
-            workPaint.withVerticalFlag(isVertical) {
-                block(current, rEnd, this, bgColor, fontShear, emphasisLetter, emphasisScale)
-            }
+
+            block(
+                current,
+                rEnd,
+                workPaint,
+                workPaint.bgColor,
+                fontShear,
+                emphasisLetter,
+                emphasisScale,
+            )
+
             current = rEnd
         }
     }
@@ -576,22 +550,15 @@ internal inline fun CharSequence.forStyleRuns(
 /**
  * Executes a block of code with a temporary [Paint.VERTICAL_TEXT_FLAG] flag.
  *
- * @param isVertical True to add the flag, false to remove it.
  * @param block A lambda to execute with the modified paint.
  */
-internal inline fun <T : Paint> T.withVerticalFlag(
-    isVertical: Boolean,
-    crossinline block: T.() -> Unit,
-) {
+@SuppressLint("WrongConstant")
+@RequiresApi(Build.VERSION_CODES.BAKLAVA)
+internal inline fun <T : Paint, U> T.withVerticalFlag(crossinline block: T.() -> U): U {
     val originalFlags = flags
-    flags =
-        if (isVertical) {
-            flags or Paint.VERTICAL_TEXT_FLAG
-        } else {
-            flags and Paint.VERTICAL_TEXT_FLAG.inv()
-        }
+    flags = flags or Paint.VERTICAL_TEXT_FLAG
     try {
-        block()
+        return block()
     } finally {
         flags = originalFlags
     }

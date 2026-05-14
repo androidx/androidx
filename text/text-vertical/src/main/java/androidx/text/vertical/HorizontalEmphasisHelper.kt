@@ -82,7 +82,7 @@ internal class HorizontalEmphasisSpanLayout(
 
         // Calculate drawing position of emphasis letter.
         positions = FloatArray(copied.length) { Float.NaN }
-        copied.forStyleRuns(0, end - start, wPaint, false) { ss, se, paint, _, _, _, _ ->
+        copied.forStyleRuns(0, end - start, wPaint) { ss, se, paint, _, _, _, _ ->
             copied.forEachGrapheme(ss, se, paint.textLocale) { gs, ge ->
                 if (isEmphasisTarget(Character.codePointAt(copied, gs))) {
                     val width = paint.measureText(copied, gs, ge)
