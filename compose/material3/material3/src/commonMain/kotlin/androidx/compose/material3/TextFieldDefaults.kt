@@ -41,9 +41,11 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.internal.CommonDecorationBox
 import androidx.compose.material3.internal.SupportingTopPadding
 import androidx.compose.material3.internal.TextFieldPadding
+import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
+import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -67,6 +69,11 @@ object TextFieldDefaults {
     /** Default shape for a [TextField]. */
     val shape: Shape
         @Composable get() = FilledTextFieldTokens.ContainerShape.value
+
+    /** A rounded shape for a [TextField], as recommended by Expressive style. */
+    val roundedShape: Shape
+        // TODO(b/448727879): reference the actual token once it is in place
+        @Composable get() = ShapeKeyTokens.CornerMedium.value
 
     /**
      * The default min height applied to a [TextField]. Note that you can override it by applying
@@ -488,6 +495,17 @@ object TextFieldDefaults {
         MaterialTheme.colorScheme.defaultTextFieldColors(LocalTextSelectionColors.current)
 
     /**
+     * Creates a [TextFieldColors] that represents the Expressive style input text, container, and
+     * content colors (including label, placeholder, icons, etc.) used in a [TextField] with tonal
+     * colors.
+     *
+     * This should be used in conjunction with [TextFieldLabelPosition.Inside].
+     */
+    @Composable
+    fun tonalColors() =
+        MaterialTheme.colorScheme.tonalTextFieldColors(LocalTextSelectionColors.current)
+
+    /**
      * Creates a [TextFieldColors] that represents the default input text, container, and content
      * colors (including label, placeholder, icons, etc.) used in a [TextField].
      *
@@ -722,6 +740,94 @@ object TextFieldDefaults {
                 .also { defaultTextFieldColorsCached = it }
     }
 
+    internal fun ColorScheme.tonalTextFieldColors(
+        localTextSelectionColors: TextSelectionColors
+    ): TextFieldColors {
+        // TODO(b/448727879): Reference the actual token once it is in place.
+        return tonalTextFieldColorsCached?.let { cachedColors ->
+            if (cachedColors.textSelectionColors == localTextSelectionColors) {
+                cachedColors
+            } else {
+                cachedColors.copy(textSelectionColors = localTextSelectionColors).also {
+                    tonalTextFieldColorsCached = it
+                }
+            }
+        }
+            ?: TextFieldColors(
+                    // Unfocused
+                    unfocusedContainerColor = fromToken(ColorSchemeKeyTokens.SurfaceContainer),
+                    unfocusedIndicatorColor = Color.Transparent,
+                    unfocusedTextColor = fromToken(ColorSchemeKeyTokens.OnSurface),
+                    unfocusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    unfocusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Focused
+                    focusedContainerColor = fromToken(ColorSchemeKeyTokens.SurfaceContainer),
+                    focusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+
+                    // Disabled
+                    disabledContainerColor =
+                        fromToken(ColorSchemeKeyTokens.SurfaceContainer)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledIndicatorColor = Color.Transparent,
+                    disabledTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurface)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledLabelColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledLabelOpacity),
+                    disabledLeadingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
+                    disabledTrailingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
+                    disabledSupportingTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnBackground)
+                            .copy(alpha = FilledTextFieldTokens.DisabledSupportingOpacity),
+                    disabledPlaceholderColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledPrefixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+                    disabledSuffixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
+
+                    // Error
+                    errorContainerColor = fromToken(ColorSchemeKeyTokens.ErrorContainer),
+                    errorIndicatorColor = Color.Transparent,
+                    errorTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    errorLabelColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorTrailingIconColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorCursorColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorSupportingTextColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Other
+                    cursorColor = fromToken(ColorSchemeKeyTokens.Primary),
+                    textSelectionColors = localTextSelectionColors,
+                )
+                .also { tonalTextFieldColorsCached = it }
+    }
+
     /** Returns the non-deprecated equivalent of this [TextFieldLabelPosition]. */
     @Suppress("DEPRECATION")
     internal fun TextFieldLabelPosition.normalize(): TextFieldLabelPosition =
@@ -885,6 +991,11 @@ object OutlinedTextFieldDefaults {
     /** Default shape for an [OutlinedTextField]. */
     val shape: Shape
         @Composable get() = OutlinedTextFieldTokens.ContainerShape.value
+
+    /** A rounded shape for an [OutlinedTextField], as recommended by Expressive style. */
+    val roundedShape: Shape
+        // TODO(b/448727879): reference the actual token once it is in place
+        @Composable get() = ShapeKeyTokens.CornerMedium.value
 
     /**
      * The default min height applied to an [OutlinedTextField]. Note that you can override it by
@@ -1256,6 +1367,17 @@ object OutlinedTextFieldDefaults {
     @Composable fun colors() = MaterialTheme.colorScheme.defaultOutlinedTextFieldColors
 
     /**
+     * Creates a [TextFieldColors] that represents the Expressive style input text, container, and
+     * content colors (including label, placeholder, icons, etc.) used in an [OutlinedTextField]
+     * with tonal colors.
+     *
+     * This should be used in conjunction with [TextFieldLabelPosition.Inside].
+     */
+    @Composable
+    fun tonalColors() =
+        MaterialTheme.colorScheme.tonalOutlinedTextFieldColors(LocalTextSelectionColors.current)
+
+    /**
      * Creates a [TextFieldColors] that represents the default input text, container, and content
      * colors (including label, placeholder, icons, etc.) used in an [OutlinedTextField].
      *
@@ -1492,6 +1614,94 @@ object OutlinedTextFieldDefaults {
                     )
                     .also { defaultOutlinedTextFieldColorsCached = it }
         }
+
+    internal fun ColorScheme.tonalOutlinedTextFieldColors(
+        localTextSelectionColors: TextSelectionColors
+    ): TextFieldColors {
+        // TODO(b/448727879): Reference the actual token once it is in place.
+        return tonalOutlinedTextFieldColorsCached?.let { cachedColors ->
+            if (cachedColors.textSelectionColors == localTextSelectionColors) {
+                cachedColors
+            } else {
+                cachedColors.copy(textSelectionColors = localTextSelectionColors).also {
+                    tonalOutlinedTextFieldColorsCached = it
+                }
+            }
+        }
+            ?: TextFieldColors(
+                    // Unfocused
+                    unfocusedContainerColor = fromToken(ColorSchemeKeyTokens.OnPrimary),
+                    unfocusedIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
+                    unfocusedTextColor = fromToken(ColorSchemeKeyTokens.OnSurface),
+                    unfocusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    unfocusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    unfocusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Focused
+                    focusedContainerColor = fromToken(ColorSchemeKeyTokens.OnPrimary),
+                    focusedIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
+                    focusedTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedLabelColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedTrailingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedSupportingTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    focusedPrefixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    focusedSuffixColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+
+                    // Disabled
+                    disabledContainerColor =
+                        fromToken(ColorSchemeKeyTokens.OnPrimary)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledIndicatorColor = fromToken(ColorSchemeKeyTokens.OutlineVariant),
+                    disabledTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurface)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledLabelColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledLabelOpacity),
+                    disabledLeadingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledLeadingIconOpacity),
+                    disabledTrailingIconColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
+                    disabledSupportingTextColor =
+                        fromToken(ColorSchemeKeyTokens.OnBackground)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
+                    disabledPlaceholderColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledPrefixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+                    disabledSuffixColor =
+                        fromToken(ColorSchemeKeyTokens.OnSurfaceVariant)
+                            .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
+
+                    // Error
+                    errorContainerColor = fromToken(ColorSchemeKeyTokens.ErrorContainer),
+                    errorIndicatorColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorTextColor = fromToken(ColorSchemeKeyTokens.OnBackground),
+                    errorLabelColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorLeadingIconColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorTrailingIconColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorCursorColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorSupportingTextColor = fromToken(ColorSchemeKeyTokens.Error),
+                    errorPlaceholderColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorPrefixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                    errorSuffixColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+
+                    // Other
+                    cursorColor = fromToken(ColorSchemeKeyTokens.Primary),
+                    textSelectionColors = localTextSelectionColors,
+                )
+                .also { tonalOutlinedTextFieldColorsCached = it }
+    }
 
     /** Returns the non-deprecated equivalent of this [TextFieldLabelPosition]. */
     @Suppress("DEPRECATION")
