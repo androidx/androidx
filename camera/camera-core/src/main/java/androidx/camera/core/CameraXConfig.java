@@ -33,6 +33,7 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.QuirkSettings;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -130,6 +131,12 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
 
     static final Option<Boolean> OPTION_REPEATING_STREAM_FORCED = Option.create(
             "camerax.core.appConfig.repeatingStreamForced", boolean.class);
+
+    static final Option<Boolean> OPTION_PREVIEW_RESOLUTION_BYPASS_ENABLED = Option.create(
+            "camerax.core.appConfig.previewResolutionBypassEnabled", boolean.class);
+
+    static final Option<String> OPTION_EXTRA_SUPPORTED_SURFACE_COMBINATIONS = Option.create(
+            "camerax.core.appConfig.extraSupportedSurfaceCombinations", String.class);
 
     // *********************************************************************************************
 
@@ -260,6 +267,22 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @Nullable QuirkSettings getQuirkSettings() {
         return mConfig.retrieveOption(OPTION_QUIRK_SETTINGS, null);
+    }
+
+    /**
+     * Returns whether the preview resolution restriction should be bypassed.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isPreviewResolutionBypassEnabled() {
+        return mConfig.retrieveOption(OPTION_PREVIEW_RESOLUTION_BYPASS_ENABLED, false);
+    }
+
+    /**
+     * Returns the formatted string of extra supported surface combinations.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @Nullable String getExtraSupportedSurfaceCombinations() {
+        return mConfig.retrieveOption(OPTION_EXTRA_SUPPORTED_SURFACE_COMBINATIONS, null);
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -508,6 +531,99 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         @RestrictTo(Scope.LIBRARY_GROUP)
         public @NonNull Builder setQuirkSettings(@NonNull QuirkSettings quirkSettings) {
             getMutableConfig().insertOption(OPTION_QUIRK_SETTINGS, quirkSettings);
+            return this;
+        }
+
+        /**
+         * Sets whether to bypass the default 1080p preview resolution restriction.
+         *
+         * <p>By default, CameraX caps the {@link androidx.camera.core.Preview} resolution to 1080p
+         * (1920x1080) or the device's screen resolution, whichever is smaller, to balance power
+         * and performance.
+         *
+         * <p>Setting this to {@code true} allows the Preview use case to select resolutions higher
+         * than 1080p, up to the maximum resolution supported by the camera and display. This is
+         * intended for partner use cases that require high-resolution preview streams (e.g., when
+         * the preview is also used for high-res image processing).
+         *
+         * @param bypassEnabled {@code true} to bypass the 1080p preview restriction, {@code false}
+         *                      to retain the default behavior.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setPreviewResolutionBypassEnabled(boolean bypassEnabled) {
+            getMutableConfig().insertOption(OPTION_PREVIEW_RESOLUTION_BYPASS_ENABLED,
+                    bypassEnabled);
+            return this;
+        }
+
+        /**
+         * Sets the formatted string of extra supported surface combinations.
+         *
+         * <p>This allows partners to inject custom surface combinations that they know are
+         * supported by specific camera hardware, even if the device's reported hardware level does
+         * not officially guarantee them. This extends the combinations available during UseCase
+         * resolution negotiation.
+         *
+         * <p><b>Format String Syntax:</b>
+         * <ul>
+         * <li>(Optional) A camera ID to apply the combination only to a specific camera. This
+         * camera ID maps to the Camera2 ID (e.g., "0" or "1"). If specified, prefix the
+         * combination with the camera ID followed by an equals sign {@code '='}. If not specified,
+         * the combination applies to all cameras.</li>
+         * <li>Each surface configuration consists of a format and a size separated by a colon
+         * {@code ':'}.</li>
+         * <li>Multiple surface configurations within a single combination are separated by a
+         * comma {@code ','}.</li>
+         * </ul>
+         *
+         * <p><b>Valid Formats:</b> {@code PRIV}, {@code YUV}, {@code JPEG}, {@code RAW}
+         * <br><b>Valid Sizes:</b> {@code VGA}, {@code PREVIEW}, {@code RECORD}, {@code MAXIMUM},
+         * etc.
+         * (See {@code SurfaceConfig.ConfigType} and {@code SurfaceConfig.ConfigSize} for all
+         * valid values).
+         *
+         * <p><b>Example:</b>
+         * <p>To add support for a combination of a {@code MAXIMUM} resolution PRIV stream
+         * (e.g., for high-res Preview) and a {@code MAXIMUM} resolution JPEG stream (for high-res
+         * ImageCapture) to all cameras:
+         * <pre>
+         * builder.setExtraSupportedSurfaceCombinations("PRIV:MAXIMUM, JPEG:MAXIMUM");
+         * </pre>
+         *
+         * <p>To add multiple combinations, optionally restricting one to a specific Camera2 ID
+         * (e.g., Camera "0"):
+         * <pre>
+         * builder.setExtraSupportedSurfaceCombinations(
+         *     "0=PRIV:PREVIEW, YUV:RECORD, JPEG:MAXIMUM", // Applies only to camera 0
+         *     "PRIV:PREVIEW, JPEG:MAXIMUM"                // Applies to all cameras
+         * );
+         * </pre>
+         *
+         * @param combinations the formatted string(s) of extra supported surface combinations.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setExtraSupportedSurfaceCombinations(
+                @NonNull String... combinations) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < combinations.length; i++) {
+                String combination = combinations[i];
+                Preconditions.checkArgument(combination != null, "combination cannot be null");
+                Preconditions.checkArgument(!combination.contains("|"),
+                        "combination cannot contain reserved character '|'");
+                if (combination.trim().isEmpty()) {
+                    continue;
+                }
+                if (sb.length() > 0) {
+                    sb.append(" | ");
+                }
+                sb.append(combination);
+            }
+            if (sb.length() > 0) {
+                getMutableConfig().insertOption(OPTION_EXTRA_SUPPORTED_SURFACE_COMBINATIONS,
+                        sb.toString());
+            }
             return this;
         }
 

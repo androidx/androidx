@@ -46,11 +46,13 @@ public interface CameraDeviceSurfaceManager extends InternalCameraPresenceListen
          * @param context            the android context
          * @param cameraManager      the camera manager object used to query the camera information.
          * @param availableCameraIds current available camera ids.
+         * @param extraSupportedSurfaceCombinations extra supported surface combinations.
          * @return the factory instance
          * @throws InitializationException if it fails to create the factory
          */
         @NonNull CameraDeviceSurfaceManager newInstance(@NonNull Context context,
-                @Nullable Object cameraManager, @NonNull Set<String> availableCameraIds)
+                @Nullable Object cameraManager, @NonNull Set<String> availableCameraIds,
+                @Nullable String extraSupportedSurfaceCombinations)
                 throws InitializationException;
     }
 

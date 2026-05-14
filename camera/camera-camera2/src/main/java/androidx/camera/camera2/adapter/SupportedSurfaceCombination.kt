@@ -100,6 +100,9 @@ public class SupportedSurfaceCombination(
     private val cameraMetadata: CameraMetadata,
     private val encoderProfilesProvider: EncoderProfilesProvider,
     private val featureCombinationQuery: FeatureCombinationQuery,
+    private val extraSupportedSurfaceCombinationsContainer:
+        ExtraSupportedSurfaceCombinationsContainer =
+        ExtraSupportedSurfaceCombinationsContainer(),
 ) {
     private val cameraId = cameraMetadata.camera.value
     private val hardwareLevel =
@@ -127,8 +130,6 @@ public class SupportedSurfaceCombination(
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val surfaceSizeDefinitionFormats = mutableListOf<Int>()
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
-    private val extraSupportedSurfaceCombinationsContainer =
-        ExtraSupportedSurfaceCombinationsContainer()
     private val displayInfoManager = DisplayInfoManager.getInstance(context)
     private val resolutionCorrector = ResolutionCorrector()
     private val targetAspectRatio: TargetAspectRatio = TargetAspectRatio()

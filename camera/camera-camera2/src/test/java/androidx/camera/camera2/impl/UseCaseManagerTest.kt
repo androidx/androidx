@@ -35,11 +35,13 @@ import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.adapter.SessionConfigAdapter
+import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.adapter.TestDeferrableSurface
 import androidx.camera.camera2.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.quirk.CaptureIntentPreviewQuirk
+import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
@@ -63,6 +65,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
@@ -762,6 +765,14 @@ class UseCaseManagerTest {
                     DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
                 cameraXConfig = cameraXConfig ?: CameraXConfig.Builder().build(),
                 cameraGraphConfigProvider = configProvider,
+                supportedSurfaceCombination =
+                    SupportedSurfaceCombination(
+                        ApplicationProvider.getApplicationContext(),
+                        cameraProperties.metadata,
+                        FakeEncoderProfilesProvider.Builder().build(),
+                        FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY,
+                        ExtraSupportedSurfaceCombinationsContainer(),
+                    ),
             )
             .also { useCaseManagerList.add(it) }
     }

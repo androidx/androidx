@@ -865,7 +865,7 @@ class PreviewTest {
             null,
             previewToDetach.getDefaultConfig(
                 true,
-                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context),
+                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context, false),
             ),
         )
 

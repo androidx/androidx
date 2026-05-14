@@ -5266,7 +5266,11 @@ class SupportedSurfaceCombinationTest {
         cameraFactory!!.cameraManager = mockCameraAppComponent
         val cameraXConfig =
             CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
-                .setDeviceSurfaceManagerProvider { context: Context?, _: Any?, _: Set<String?>? ->
+                .setDeviceSurfaceManagerProvider {
+                    context: Context?,
+                    _: Any?,
+                    _: Set<String?>?,
+                    _: String? ->
                     CameraSurfaceAdapter(context!!, mockCameraAppComponent, setOf(cameraId))
                 }
                 .setCameraFactoryProvider {

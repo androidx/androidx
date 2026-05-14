@@ -52,7 +52,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
  * and aspect ratios for the display.
  */
 @Suppress("DEPRECATION")
-public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
+public class CameraUseCaseAdapter(
+    context: Context,
+    private val isPreviewResolutionBypassEnabled: Boolean = false,
+) : UseCaseConfigFactory {
     private val displayInfoManager = DisplayInfoManager.getInstance(context)
 
     init {
@@ -133,7 +136,7 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             DefaultSessionOptionsUnpacker,
         )
 
-        if (captureType == CaptureType.PREVIEW) {
+        if (captureType == CaptureType.PREVIEW && !isPreviewResolutionBypassEnabled) {
             val previewSize = displayInfoManager.getPreviewSize()
             mutableConfig.insertOption(ImageOutputConfig.OPTION_MAX_RESOLUTION, previewSize)
         }
