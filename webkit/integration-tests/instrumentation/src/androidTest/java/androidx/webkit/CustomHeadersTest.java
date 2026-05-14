@@ -322,6 +322,7 @@ public class CustomHeadersTest {
     @Test
     public void headerPresentOnPrefetchRequests() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.PROFILE_URL_PREFETCH);
+        WebkitUtils.checkFeature(WebViewFeature.PREFETCH_CACHE_V1);
         try (MockWebServer server = new MockWebServer()) {
             MockWebServerHttpsUtil.enableHttps(server);
             server.start();
