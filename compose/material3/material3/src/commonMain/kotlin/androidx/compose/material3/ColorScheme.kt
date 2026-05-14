@@ -707,6 +707,9 @@ class ColorScheme(
     internal var defaultOutlinedTextFieldColorsCached: TextFieldColors? = null
     internal var defaultTextFieldColorsCached: TextFieldColors? = null
 
+    internal var tonalTextFieldColorsCached: TextFieldColors? = null
+    internal var tonalOutlinedTextFieldColorsCached: TextFieldColors? = null
+
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
 

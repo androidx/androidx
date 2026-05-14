@@ -91,6 +91,40 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_withInput_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState("Text"),
+                    label = { Text("Label") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_withInput_roundedAndTonal")
+    }
+
+    @Test
+    fun textField_withInput_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState("Text"),
+                    label = { Text("Label") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_withInput_roundedAndTonal_dark")
+    }
+
+    @Test
     fun textField_withInput_cutout() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(TextFieldTag)) {
@@ -107,6 +141,42 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_withInput_cutout_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState("Text"),
+                    label = { Text("Label") },
+                    labelPosition = TextFieldLabelPosition.Cutout(),
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_withInput_cutout_roundedAndTonal")
+    }
+
+    @Test
+    fun textField_withInput_cutout_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState("Text"),
+                    label = { Text("Label") },
+                    labelPosition = TextFieldLabelPosition.Cutout(),
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_withInput_cutout_roundedAndTonal_dark")
+    }
+
+    @Test
     fun textField_notFocused() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(TextFieldTag)) {
@@ -119,6 +189,40 @@ class TextFieldScreenshotTest {
         }
 
         assertAgainstGolden("filled_textField_not_focused")
+    }
+
+    @Test
+    fun textField_notFocused_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = { Text("Label") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_not_focused_roundedAndTonal")
+    }
+
+    @Test
+    fun textField_notFocused_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = { Text("Label") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("filled_textField_not_focused_roundedAndTonal_dark")
     }
 
     @Test
@@ -152,6 +256,44 @@ class TextFieldScreenshotTest {
         rule.onNodeWithTag(TextFieldTag).focus()
 
         assertAgainstGolden("filled_textField_focused")
+    }
+
+    @Test
+    fun textField_focused_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = { Text("Label") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("filled_textField_focused_roundedAndTonal")
+    }
+
+    @Test
+    fun textField_focused_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = { Text("Label") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("filled_textField_focused_roundedAndTonal_dark")
     }
 
     @Test
@@ -205,6 +347,42 @@ class TextFieldScreenshotTest {
         rule.onNodeWithTag(TextFieldTag).focus()
 
         assertAgainstGolden("filled_textField_focused_errorState")
+    }
+
+    @Test
+    fun textField_error_focused_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Input"),
+                label = { Text("Label") },
+                isError = true,
+                shape = TextFieldDefaults.roundedShape,
+                colors = TextFieldDefaults.tonalColors(),
+                modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("filled_textField_focused_errorState_roundedAndTonal")
+    }
+
+    @Test
+    fun textField_error_focused_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Input"),
+                label = { Text("Label") },
+                isError = true,
+                shape = TextFieldDefaults.roundedShape,
+                colors = TextFieldDefaults.tonalColors(),
+                modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("filled_textField_focused_errorState_roundedAndTonal_dark")
     }
 
     @Test
@@ -445,6 +623,38 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_disabled_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Text"),
+                modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                enabled = false,
+                shape = TextFieldDefaults.roundedShape,
+                colors = TextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden("textField_disabled_roundedAndTonal")
+    }
+
+    @Test
+    fun textField_disabled_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Text"),
+                modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                enabled = false,
+                shape = TextFieldDefaults.roundedShape,
+                colors = TextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden("textField_disabled_roundedAndTonal_dark")
+    }
+
+    @Test
     fun textField_disabled_notFocusable() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
@@ -580,6 +790,40 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_supportingText_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    supportingText = { Text("Supporting text") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("textField_supportingText_roundedAndTonal")
+    }
+
+    @Test
+    fun textField_supportingText_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(TextFieldTag)) {
+                TextField(
+                    state = rememberTextFieldState(),
+                    supportingText = { Text("Supporting text") },
+                    shape = TextFieldDefaults.roundedShape,
+                    colors = TextFieldDefaults.tonalColors(),
+                    modifier = Modifier.requiredWidth(280.dp),
+                )
+            }
+        }
+
+        assertAgainstGolden("textField_supportingText_roundedAndTonal_dark")
+    }
+
+    @Test
     fun textField_errorSupportingText() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
@@ -641,6 +885,50 @@ class TextFieldScreenshotTest {
         }
 
         assertAgainstGolden("textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting")
+    }
+
+    @Test
+    fun textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Above(),
+                leadingIcon = { Icon(Icons.Default.Call, null) },
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
+                placeholder = { Text("Placeholder") },
+                supportingText = { Text("Supporting") },
+                shape = TextFieldDefaults.roundedShape,
+                colors = TextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden(
+            "textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal"
+        )
+    }
+
+    @Test
+    fun textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Above(),
+                leadingIcon = { Icon(Icons.Default.Call, null) },
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
+                placeholder = { Text("Placeholder") },
+                supportingText = { Text("Supporting") },
+                shape = TextFieldDefaults.roundedShape,
+                colors = TextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden(
+            "textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal_dark"
+        )
     }
 
     @Test

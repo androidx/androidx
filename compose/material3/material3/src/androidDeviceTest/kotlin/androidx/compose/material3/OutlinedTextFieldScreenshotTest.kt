@@ -93,6 +93,38 @@ class OutlinedTextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_withInput_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = "Text"
+            OutlinedTextField(
+                state = rememberTextFieldState(text),
+                label = { Text("Label") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_withInput_roundedAndTonal")
+    }
+
+    @Test
+    fun outlinedTextField_withInput_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            val text = "Text"
+            OutlinedTextField(
+                state = rememberTextFieldState(text),
+                label = { Text("Label") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_withInput_roundedAndTonal_dark")
+    }
+
+    @Test
     fun outlinedTextField_withInput_inside() {
         rule.setMaterialContent(lightColorScheme()) {
             val text = "Text"
@@ -108,6 +140,40 @@ class OutlinedTextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_withInput_inside_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = "Text"
+            OutlinedTextField(
+                state = rememberTextFieldState(text),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Inside(),
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_withInput_inside_roundedAndTonal")
+    }
+
+    @Test
+    fun outlinedTextField_withInput_inside_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            val text = "Text"
+            OutlinedTextField(
+                state = rememberTextFieldState(text),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Inside(),
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_withInput_inside_roundedAndTonal_dark")
+    }
+
+    @Test
     fun outlinedTextField_notFocused() {
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
@@ -118,6 +184,36 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         assertAgainstGolden("outlined_textField_not_focused")
+    }
+
+    @Test
+    fun outlinedTextField_notFocused_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text("Label") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_not_focused_roundedAndTonal")
+    }
+
+    @Test
+    fun outlinedTextField_notFocused_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text("Label") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        assertAgainstGolden("outlined_textField_not_focused_roundedAndTonal_dark")
     }
 
     @Test
@@ -147,6 +243,40 @@ class OutlinedTextFieldScreenshotTest {
         rule.onNodeWithTag(TextFieldTag).focus()
 
         assertAgainstGolden("outlined_textField_focused")
+    }
+
+    @Test
+    fun outlinedTextField_focused_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text("Label") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("outlined_textField_focused_roundedAndTonal")
+    }
+
+    @Test
+    fun outlinedTextField_focused_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text("Label") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("outlined_textField_focused_roundedAndTonal_dark")
     }
 
     @Test
@@ -197,6 +327,44 @@ class OutlinedTextFieldScreenshotTest {
         rule.onNodeWithTag(TextFieldTag).focus()
 
         assertAgainstGolden("outlined_textField_focused_errorState")
+    }
+
+    @Test
+    fun outlinedTextField_error_focused_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = "Input"
+            OutlinedTextField(
+                state = rememberTextFieldState(text),
+                label = { Text("Label") },
+                isError = true,
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("outlined_textField_focused_errorState_roundedAndTonal")
+    }
+
+    @Test
+    fun outlinedTextField_error_focused_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            val text = "Input"
+            OutlinedTextField(
+                state = rememberTextFieldState(text),
+                label = { Text("Label") },
+                isError = true,
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("outlined_textField_focused_errorState_roundedAndTonal_dark")
     }
 
     @Test
@@ -422,6 +590,38 @@ class OutlinedTextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_disabled_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState("Text"),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                enabled = false,
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_disabled_roundedAndTonal")
+    }
+
+    @Test
+    fun outlinedTextField_disabled_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState("Text"),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                enabled = false,
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_disabled_roundedAndTonal_dark")
+    }
+
+    @Test
     fun outlinedTextField_disabled_notFocusable() {
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
@@ -572,6 +772,38 @@ class OutlinedTextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_supportingText_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag).fillMaxWidth(),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                supportingText = { Text("Supporting text") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_supportingText_roundedAndTonal")
+    }
+
+    @Test
+    fun outlinedTextField_supportingText_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag).fillMaxWidth(),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                supportingText = { Text("Supporting text") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_supportingText_roundedAndTonal_dark")
+    }
+
+    @Test
     fun outlinedTextField_errorSupportingText() {
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
@@ -657,6 +889,50 @@ class OutlinedTextFieldScreenshotTest {
 
         assertAgainstGolden(
             "outlinedTextField_labelPositionAbove_withIcons_andPlaceholder_andSupporting"
+        )
+    }
+
+    @Test
+    fun outlinedTextField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Above(),
+                leadingIcon = { Icon(Icons.Default.Call, null) },
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
+                placeholder = { Text("Placeholder") },
+                supportingText = { Text("Supporting") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden(
+            "outlinedTextField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal"
+        )
+    }
+
+    @Test
+    fun outlinedTextField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Above(),
+                leadingIcon = { Icon(Icons.Default.Call, null) },
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
+                placeholder = { Text("Placeholder") },
+                supportingText = { Text("Supporting") },
+                shape = OutlinedTextFieldDefaults.roundedShape,
+                colors = OutlinedTextFieldDefaults.tonalColors(),
+            )
+        }
+
+        assertAgainstGolden(
+            "outlinedTextField_labelPositionAbove_withIcons_andPlaceholder_andSupporting_roundedAndTonal_dark"
         )
     }
 

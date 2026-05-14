@@ -2948,12 +2948,16 @@ package androidx.compose.material3 {
     method @BytecodeOnly public float getFocusedBorderThickness-D9Ej5fM();
     method @BytecodeOnly public float getMinHeight-D9Ej5fM();
     method @BytecodeOnly public float getMinWidth-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getRoundedShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getUnfocusedBorderThickness-D9Ej5fM();
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TextFieldColors tonalColors();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TextFieldColors tonalColors(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.ui.unit.Dp FocusedBorderThickness;
     property public androidx.compose.ui.unit.Dp MinHeight;
     property public androidx.compose.ui.unit.Dp MinWidth;
     property public androidx.compose.ui.unit.Dp UnfocusedBorderThickness;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape roundedShape;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.compose.material3.OutlinedTextFieldDefaults INSTANCE;
   }
@@ -4394,6 +4398,7 @@ package androidx.compose.material3 {
     method @BytecodeOnly public float getMinHeight-D9Ej5fM();
     method @BytecodeOnly public float getMinWidth-D9Ej5fM();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getRoundedShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @Deprecated public float getUnfocusedBorderThickness-D9Ej5fM();
     method @BytecodeOnly public float getUnfocusedIndicatorThickness-D9Ej5fM();
@@ -4409,6 +4414,8 @@ package androidx.compose.material3 {
     method @KotlinOnly @Deprecated public androidx.compose.foundation.layout.PaddingValues textFieldWithoutLabelPadding(optional androidx.compose.ui.unit.Dp start, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp end, optional androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly @Deprecated public androidx.compose.foundation.layout.PaddingValues textFieldWithoutLabelPadding-a9UjIt4(float, float, float, float);
     method @BytecodeOnly @Deprecated public static androidx.compose.foundation.layout.PaddingValues! textFieldWithoutLabelPadding-a9UjIt4$default(androidx.compose.material3.TextFieldDefaults!, float, float, float, float, int, Object!);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TextFieldColors tonalColors();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TextFieldColors tonalColors(androidx.compose.runtime.Composer?, int);
     property @Deprecated public androidx.compose.ui.unit.Dp FocusedBorderThickness;
     property public androidx.compose.ui.unit.Dp FocusedIndicatorThickness;
     property public androidx.compose.ui.unit.Dp MinHeight;
@@ -4417,6 +4424,7 @@ package androidx.compose.material3 {
     property public androidx.compose.ui.unit.Dp UnfocusedIndicatorThickness;
     property @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape filledShape;
     property @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape outlinedShape;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape roundedShape;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.compose.material3.TextFieldDefaults INSTANCE;
   }
