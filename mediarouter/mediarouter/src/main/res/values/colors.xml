@@ -39,8 +39,4 @@
     <color name="mr_cast_progressbar_progress_and_thumb_dark">#5195EA</color>
     <color name="mr_cast_progressbar_background_light">#CBCCCD</color>
     <color name="mr_cast_progressbar_background_dark">#5F6368</color>
-
-    <color name="dialog_color_primary">#FF1565C0</color>
-    <color name="dialog_color_primary_dark">#FFFFFFFF</color>
-    <color name="dialog_color_background">#FFFFFF</color>
 </resources>
