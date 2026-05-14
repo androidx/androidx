@@ -36,7 +36,7 @@ import java.io.InputStream
 @Suppress("RestrictedApiAndroidX")
 class SolidColorBitmapLoader : BitmapLoader {
     override fun loadBitmap(url: String): InputStream {
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
 
         val color =
             try {
