@@ -96,6 +96,11 @@ final class <#A: androidx.navigation3.runtime/NavKey> androidx.navigation3.runti
     final fun retainAll(kotlin.collections/Collection<#A>): kotlin/Boolean // androidx.navigation3.runtime/NavBackStack.retainAll|retainAll(kotlin.collections.Collection<1:0>){}[0]
     final fun set(kotlin/Int, #A): #A // androidx.navigation3.runtime/NavBackStack.set|set(kotlin.Int;1:0){}[0]
     final fun subList(kotlin/Int, kotlin/Int): kotlin.collections/MutableList<#A> // androidx.navigation3.runtime/NavBackStack.subList|subList(kotlin.Int;kotlin.Int){}[0]
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // androidx.navigation3.runtime/NavBackStack.Companion|null[0]
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<androidx.navigation3.runtime/NavBackStack<#A2>> // androidx.navigation3.runtime/NavBackStack.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // androidx.navigation3.runtime/NavBackStack.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
 }
 
 final class <#A: kotlin/Any> androidx.navigation3.runtime.deeplink/StaticKeyDeepLinkMatcher : androidx.navigation3.runtime.deeplink/DeepLinkMatcher<#A> { // androidx.navigation3.runtime.deeplink/StaticKeyDeepLinkMatcher|null[0]
