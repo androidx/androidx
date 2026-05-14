@@ -58,8 +58,8 @@ import java.util.UUID
  * @property rightDepth the right [Depth], or null if not available
  * @property monoDepth the mono [Depth], or null if not available
  */
-internal class OpenXrPerceptionManager
-internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManager {
+internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource) :
+    PerceptionManager {
 
     override fun createAnchor(pose: Pose): Anchor {
         val nativeAnchor = nativeCreateAnchor(pose, lastUpdateXrTime)
@@ -166,7 +166,7 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
      *
      * @param xrTime the number of nanoseconds since the start of the OpenXR epoch
      */
-    public fun update(xrTime: Long) {
+    internal fun update(xrTime: Long) {
         for (updatable in xrResources.updatables) {
             updatable.update(xrTime)
         }

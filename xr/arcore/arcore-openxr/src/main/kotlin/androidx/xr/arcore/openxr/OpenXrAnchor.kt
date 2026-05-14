@@ -37,8 +37,7 @@ import kotlin.concurrent.withLock
  * @property persistenceState the [Anchor.PersistenceState] for this anchor
  * @property uuid the [UUID] that identifies this Anchor if it is persisted
  */
-internal class OpenXrAnchor
-internal constructor(
+internal class OpenXrAnchor(
     override val nativePointer: Long,
     private val xrResources: XrResources,
     loadedUuid: UUID? = null,

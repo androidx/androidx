@@ -39,11 +39,10 @@ import androidx.xr.runtime.math.Vector2
  * @property subsumedBy the plane that subsumed this plane
  * @property trackingState the [TrackingState] of the plane
  */
-internal class OpenXrPlane
-internal constructor(
-    internal val planeId: Long,
+internal class OpenXrPlane(
+    val planeId: Long,
     override val type: Plane.Type,
-    internal val timeSource: OpenXrTimeSource,
+    val timeSource: OpenXrTimeSource,
     private val xrResources: XrResources,
 ) : Plane, Updatable {
     override var label: Plane.Label = Plane.Label.UNKNOWN

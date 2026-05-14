@@ -26,7 +26,7 @@ import androidx.xr.runtime.math.Pose
  * @property pose the [Pose] of the render viewpoint
  * @property fieldOfView the [FieldOfView] of the render viewpoint
  */
-internal class OpenXrRenderViewpoint internal constructor() : RenderViewpoint {
+internal class OpenXrRenderViewpoint() : RenderViewpoint {
 
     override var pose: Pose = Pose()
         private set

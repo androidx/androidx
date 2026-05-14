@@ -35,11 +35,10 @@ import androidx.xr.runtime.math.Pose
  * @property extents the extents of the object
  * @property trackingState the [TrackingState] of the object
  */
-internal class OpenXrAugmentedObject
-internal constructor(
-    internal val objectId: Long,
-    internal val timeSource: OpenXrTimeSource,
-    internal val xrResources: XrResources,
+internal class OpenXrAugmentedObject(
+    val objectId: Long,
+    val timeSource: OpenXrTimeSource,
+    val xrResources: XrResources,
 ) : AugmentedObject, Updatable {
     override var category: AugmentedObjectCategory = AugmentedObjectCategory.UNKNOWN
         private set

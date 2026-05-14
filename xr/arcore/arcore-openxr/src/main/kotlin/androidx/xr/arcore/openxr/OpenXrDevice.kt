@@ -25,7 +25,7 @@ import androidx.xr.runtime.math.Pose
  *
  * @property devicePose the [Pose] of the device
  */
-internal class OpenXrDevice internal constructor() : ArDevice, Updatable {
+internal class OpenXrDevice() : ArDevice, Updatable {
 
     override var devicePose: Pose = Pose()
         private set
