@@ -2331,13 +2331,16 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (state.willRunPredictiveAnimations()) {
             updatePositionToRowMapInPostLayout();
         }
-        // check if we need align to mFocusPosition, this is usually true unless in smoothScrolling;
+        // Check if we need align to mFocusPosition.
+        // If it's the first layout (getChildCount() is 0), we always need align.
+        // For consequent layout, this is usually true unless in smoothScrolling;
         // or in dragging and settling we are dealing it in a different way that we update
         // mFocusPosition during scrolling; or when in touch mode idle and strategy is not "snap".
-        final boolean scrollToFocus = !isSmoothScrolling()
-                && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == 0
-                && (!mBaseGridView.isInTouchMode()
-                    || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP);
+        final boolean scrollToFocus = getChildCount() == 0
+                || (!isSmoothScrolling()
+                        && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == 0
+                        && (!mBaseGridView.isInTouchMode()
+                            || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP));
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
             mSubFocusPosition = 0;
