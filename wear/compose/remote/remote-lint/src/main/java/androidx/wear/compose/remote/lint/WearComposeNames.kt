@@ -24,10 +24,12 @@ internal object WearComposeNames {
     object Material {
         val PackageName = Package("androidx.wear.compose.material")
         val LocalTextStyle = Name(PackageName, "LocalTextStyle")
+        val LocalContentColor = Name(PackageName, "LocalContentColor")
     }
 
     object Material3 {
         val PackageName = Package("androidx.wear.compose.material3")
         val LocalTextStyle = Name(PackageName, "LocalTextStyle")
+        val LocalContentColor = Name(PackageName, "LocalContentColor")
     }
 }

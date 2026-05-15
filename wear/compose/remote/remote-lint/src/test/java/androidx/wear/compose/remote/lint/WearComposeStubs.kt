@@ -36,6 +36,22 @@ object WearComposeStubs {
                 .trimIndent()
         )
 
+    val WearMaterialLocalContentColorStub: TestFile =
+        kotlin(
+            """
+            package androidx.wear.compose.material
+
+            import androidx.compose.runtime.ProvidableCompositionLocal
+            import androidx.compose.ui.graphics.Color
+
+            object LocalContentColor : ProvidableCompositionLocal<Color>() {
+                val current: Color = Color.Black
+                override infix fun provides(value: Color): Any = Any()
+            }
+            """
+                .trimIndent()
+        )
+
     val WearMaterial3LocalTextStyleStub: TestFile =
         kotlin(
             """
@@ -47,6 +63,22 @@ object WearComposeStubs {
             object LocalTextStyle : ProvidableCompositionLocal<TextStyle>() {
                 val current: TextStyle = TextStyle()
                 override infix fun provides(value: TextStyle): Any = Any()
+            }
+            """
+                .trimIndent()
+        )
+
+    val WearMaterial3LocalContentColorStub: TestFile =
+        kotlin(
+            """
+            package androidx.wear.compose.material3
+
+            import androidx.compose.runtime.ProvidableCompositionLocal
+            import androidx.compose.ui.graphics.Color
+
+            object LocalContentColor : ProvidableCompositionLocal<Color>() {
+                val current: Color = Color.Black
+                override infix fun provides(value: Color): Any = Any()
             }
             """
                 .trimIndent()

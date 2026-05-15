@@ -34,6 +34,7 @@ internal object RemoteNames {
         object Material3 {
             val PackageName = Package("androidx.wear.compose.remote.material3")
             val LocalRemoteTextStyle = Name(PackageName, "LocalRemoteTextStyle")
+            val LocalRemoteContentColor = Name(PackageName, "LocalRemoteContentColor")
         }
     }
 }
