@@ -56,7 +56,7 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
         }
         project.check(componentsExtension.pluginVersion >= AndroidPluginVersion(8, 5)) {
             "The Room Gradle plugin is only compatible with Android Gradle plugin (AGP) " +
-                "version 8.10.0 or higher (found ${componentsExtension.pluginVersion})."
+                "version 8.5.0 or higher (found ${componentsExtension.pluginVersion})."
         }
         componentsExtension.onVariants { variant ->
             configureAndroidVariant(project, roomExtension, variant)
