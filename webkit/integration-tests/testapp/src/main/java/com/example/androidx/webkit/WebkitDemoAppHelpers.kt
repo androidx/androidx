@@ -26,6 +26,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets.UTF_8
 
 /**
  * Inserts the [WebView] version in the current Activity title. This assumes the title has already
@@ -94,3 +99,8 @@ fun AppCompatActivity.setUpDemoAppActivity() {
  */
 fun areAllFeaturesSupported(vararg features: String) =
     features.all { feature -> WebViewFeature.isFeatureSupported(feature) }
+
+/** Reads text from an [InputStream] and returns the content as a [String]. */
+fun InputStream.readText(charSet: Charset = UTF_8): String {
+    return BufferedReader(InputStreamReader(this, charSet)).use { it.readText() }
+}

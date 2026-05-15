@@ -46,7 +46,8 @@ class CustomHeaderActivity : AppCompatActivity() {
             showMessage(R.string.webkit_api_not_available)
             return
         }
-        HttpServer(SERVER_PORT, { HttpServer.EchoRequestHandler(it) }, {}).start()
+        HttpServer(SERVER_PORT, { HttpServer.EchoRequestHandler(it, this) }, callback = null)
+            .start()
 
         webView = findViewById(R.id.custom_header_webview)
         profile = ProfileStore.getInstance().getProfile(Profile.DEFAULT_PROFILE_NAME)!!

@@ -17,7 +17,6 @@
 package com.example.androidx.webkit
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.widget.Button
@@ -83,15 +82,16 @@ class ProxyOverrideActivity : AppCompatActivity() {
         // Initialize proxy server
         // Skip this step if you already have a proxy url
         proxy =
-            HttpServer(/* port= */ 0, HttpServer::ProxyRequestHandler) {
+            HttpServer(port = 0, { HttpServer.ProxyRequestHandler(it, this) }) {
                 // on request callback, called when url loaded
                 runOnUiThread {
-                    Log.i("ISAAC", "${proxy!!.requestCount}")
-                    requestCountTextView.text =
-                        resources.getString(
-                            R.string.proxy_override_requests_served,
-                            proxy!!.requestCount,
-                        )
+                    proxy?.let {
+                        requestCountTextView.text =
+                            resources.getString(
+                                R.string.proxy_override_requests_served,
+                                it.getRequestCount(),
+                            )
+                    }
                 }
             }
         proxy?.start()
@@ -106,7 +106,7 @@ class ProxyOverrideActivity : AppCompatActivity() {
             .setProxyOverride(
                 ProxyConfig.Builder()
                     // Use your proxy URL here
-                    .addProxyRule("localhost:${proxy!!.port}")
+                    .addProxyRule("localhost:${proxy!!.getPort()}")
                     // Add as many URLs to the bypass list as you need
                     .addBypassRule(PROXY_BYPASS_URL)
                     .addBypassRule(ANOTHER_PROXY_BYPASS_URL)
