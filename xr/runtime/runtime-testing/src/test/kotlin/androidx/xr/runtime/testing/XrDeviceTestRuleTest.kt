@@ -20,7 +20,6 @@ import androidx.activity.ComponentActivity
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.DisplayBlendMode
-import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
 import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.testing.internal.FakeSpatialApiVersionProvider
 import androidx.xr.runtime.testing.internal.FakeXrDeviceCapabilityProviderFactory
@@ -53,7 +52,6 @@ class XrDeviceTestRuleTest {
         assertThat(FakeSpatialApiVersionProvider.xrDeviceTestRule).isEqualTo(underTest)
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun preferredDisplayBlendMode_returnedByDevice() {
         val device = XrDevice.getCurrentDevice(activity)

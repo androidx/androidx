@@ -76,7 +76,6 @@ import androidx.xr.arcore.testapp.helloar.rendering.PlaneRenderer
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -124,7 +123,6 @@ class GeospatialActivity : ComponentActivity() {
         private const val SAVED_ANCHORS_KEY = "geospatial_anchors"
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = getPreferences(MODE_PRIVATE)

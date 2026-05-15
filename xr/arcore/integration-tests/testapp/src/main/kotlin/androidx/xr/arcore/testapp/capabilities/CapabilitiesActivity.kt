@@ -45,7 +45,6 @@ import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.DepthEstimationMode
-import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
 import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
@@ -72,7 +71,6 @@ class CapabilitiesActivity : ComponentActivity() {
     private val geospatialCaps = listOf(GeospatialMode.DISABLED, GeospatialMode.SPATIAL)
     private val renderingCaps = listOf(RenderingMode.MONO, RenderingMode.STEREO)
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

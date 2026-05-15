@@ -70,7 +70,6 @@ import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
-import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
 import androidx.xr.runtime.RenderingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.XrDevice
@@ -104,7 +103,6 @@ class PersistentAnchorsActivity : ComponentActivity() {
     private lateinit var renderViewpoints: List<RenderViewpoint>
     private val panelInViewStatus = MutableStateFlow<List<Pair<String, Boolean>>>(emptyList())
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
