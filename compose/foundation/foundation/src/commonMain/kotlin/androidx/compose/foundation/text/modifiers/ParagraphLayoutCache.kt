@@ -48,7 +48,7 @@ import kotlin.math.min
  */
 internal class ParagraphLayoutCache(
     private var text: String,
-    internal var style: TextStyle,
+    private var style: TextStyle,
     private var fontFamilyResolver: FontFamily.Resolver,
     private var overflow: TextOverflow = TextOverflow.Clip,
     private var softWrap: Boolean = true,

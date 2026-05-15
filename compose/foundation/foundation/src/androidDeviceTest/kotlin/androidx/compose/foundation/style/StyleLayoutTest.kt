@@ -27,35 +27,25 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import kotlin.test.assertTrue
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -419,70 +409,6 @@ class StyleLayoutTest {
         rule.mainClock.advanceTimeBy(50)
         styleState.isFocused = false
         rule.mainClock.advanceTimeByFrame()
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun testRecycling() {
-        val items = List(100) { "Item $it" }
-        val zeroItem = "zero item"
-        val listTag = "list"
-        val swipeDistance = 300.dp
-        withStyleInheritance {
-            rule.setContent {
-                LazyColumn(modifier = Modifier.testTag(listTag)) {
-                    items(items) { item ->
-                        BasicText(
-                            item,
-                            modifier =
-                                Modifier.styleable(null) {
-                                        contentPadding(10.dp)
-                                        if (item.endsWith("0")) {
-                                            fontWeight(FontWeight.Bold)
-                                            contentColor(Color.Red)
-                                        } else {
-                                            fontWeight(FontWeight.Normal)
-                                        }
-                                    }
-                                    .let { if (item == "Item 0") it.testTag(zeroItem) else it },
-                        )
-                    }
-                }
-            }
-
-            rule.waitForIdle()
-
-            // Capture the original image of the item
-            val image = rule.onNodeWithTag(zeroItem).captureToImage()
-            val bitmap = image.asAndroidBitmap()
-
-            // Ensure the style was actually applied
-            image.assertContainsColor(Color.Red)
-
-            // Scroll the item out of view
-            rule.onNodeWithTag(listTag).performTouchInput {
-                swipeWithVelocity(
-                    start = center,
-                    end = Offset(center.x, center.y - with(rule.density) { swipeDistance.toPx() }),
-                    endVelocity = 0f,
-                )
-            }
-            rule.waitForIdle()
-
-            // Scroll the item back into view.
-            rule.onNodeWithTag(listTag).performTouchInput {
-                swipeWithVelocity(
-                    start = center,
-                    end = Offset(center.x, center.y + with(rule.density) { swipeDistance.toPx() }),
-                    endVelocity = 0f,
-                )
-            }
-            rule.waitForIdle()
-
-            // Ensure the item matches the original item
-            val newBitmap = rule.onNodeWithTag(zeroItem).captureToImage().asAndroidBitmap()
-            assertTrue(bitmap.approximatelyEqualTo(newBitmap), "Images are not equal")
-        }
     }
 }
 
