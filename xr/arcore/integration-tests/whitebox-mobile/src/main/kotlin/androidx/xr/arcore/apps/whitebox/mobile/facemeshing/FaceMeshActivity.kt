@@ -50,7 +50,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLImageKHR
-import androidx.xr.arcore.ExperimentalFaceApi
 import androidx.xr.arcore.Face
 import androidx.xr.arcore.FaceMeshRegion
 import androidx.xr.arcore.apps.whitebox.mobile.common.ArCoreVerificationHelper
@@ -124,7 +123,6 @@ class FaceMeshActivity : ComponentActivity(), SampleRender.Companion.Renderer {
         sessionHelper.tryCreateSession()
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Suppress("RestrictedApiAndroidX")
     override fun onResume() {
         super.onResume()
@@ -224,7 +222,6 @@ class FaceMeshActivity : ComponentActivity(), SampleRender.Companion.Renderer {
         framebuffer.resize(width, height)
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @SuppressWarnings("RestrictedApiAndroidX")
     override fun onDrawFrame(render: SampleRender) {
         val cameraState = session.state.value.cameraState

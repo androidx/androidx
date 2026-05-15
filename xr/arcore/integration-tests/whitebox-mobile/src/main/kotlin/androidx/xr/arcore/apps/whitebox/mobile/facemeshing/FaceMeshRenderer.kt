@@ -17,7 +17,6 @@
 package androidx.xr.arcore.apps.whitebox.mobile.facemeshing
 
 import android.util.Log
-import androidx.xr.arcore.ExperimentalFaceApi
 import androidx.xr.arcore.Face
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.IndexBuffer
@@ -63,7 +62,6 @@ class FaceMeshRenderer(val render: SampleRender, textureAssetPath: String) {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Suppress("RestrictedApiAndroidX")
     // TODO(b/505135098) - Fix frame rate on face mesh rendering.
     fun draw(

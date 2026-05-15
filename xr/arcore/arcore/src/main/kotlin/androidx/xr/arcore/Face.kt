@@ -72,7 +72,6 @@ internal constructor(
          * @param session the [Session] to track faces from
          */
         @JvmStatic
-        @ExperimentalFaceApi
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictedApiAndroidX")
         public fun subscribe(session: Session): StateFlow<Collection<Face>> {
@@ -213,7 +212,6 @@ internal constructor(
          *   Session is not configured with [FaceTrackingMode.MESHES]
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @ExperimentalFaceApi
         public fun getMeshCenterPose(): Pose? = centerPose
 
         /**
@@ -222,9 +220,7 @@ internal constructor(
          * @return the Face's [Mesh], or `null` if the Session is not configured with
          *   [FaceTrackingMode.MESHES]
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @ExperimentalFaceApi
-        public fun getMeshData(): Mesh? = mesh
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun getMeshData(): Mesh? = mesh
 
         /**
          * Gets the confidence value of the face tracker for the given region.
@@ -253,7 +249,6 @@ internal constructor(
          * @return a [Map] of [FaceMeshRegion] to [Pose]
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @ExperimentalFaceApi
         public fun getRegionPoseMap(): Map<FaceMeshRegion, Pose?> =
             mapOf(
                 FaceMeshRegion.NOSE_TIP to noseTipPose,
@@ -261,7 +256,6 @@ internal constructor(
                 FaceMeshRegion.FOREHEAD_RIGHT to foreheadRightPose,
             )
 
-        @OptIn(ExperimentalFaceApi::class)
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is State) return false
@@ -276,7 +270,6 @@ internal constructor(
                 owner == other.owner
         }
 
-        @OptIn(ExperimentalFaceApi::class)
         override fun hashCode(): Int {
             var result = trackingState.hashCode()
             result = 31 * result + blendShapeValues.contentHashCode()
@@ -338,12 +331,3 @@ internal constructor(
 
     override fun toString(): String = "Face(runtimeFace=$runtimeFace, state=${state.value})"
 }
-
-/**
- * Marks experimental properties of the [Face] API.
- *
- * These properties are subject to change or removal in a future release.
- */
-@RequiresOptIn(message = "This is an experimental API. It may be changed or removed in the future.")
-@Retention(AnnotationRetention.BINARY)
-public annotation class ExperimentalFaceApi

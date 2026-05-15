@@ -121,7 +121,7 @@ class FaceTest {
         assertFailsWith<IllegalStateException> { Face.getUserFace(session) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalFaceApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun subscribe_collectReturnsFaceMesh() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
@@ -139,7 +139,6 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun subscribe_faceTrackingDisabled_throwsIllegalStateException() {
         session.configure(Config(faceTracking = FaceTrackingMode.DISABLED))
@@ -147,7 +146,6 @@ class FaceTest {
         assertFailsWith<IllegalStateException> { Face.subscribe(session) }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun subscribe_faceTrackingConfiguredForBlendShapes_throwsIllegalStateException() {
         session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
@@ -242,7 +240,6 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_trackingStateMatchesRuntime() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
@@ -268,7 +265,6 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_centerPoseMatchesRuntime() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
@@ -291,7 +287,6 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_noseTipPoseMatchesRuntime() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
@@ -314,7 +309,6 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_foreheadLeftPoseMatchesRuntime() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
@@ -337,7 +331,6 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_foreheadRightPoseMatchesRuntime() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
@@ -360,7 +353,6 @@ class FaceTest {
         }
     }
 
-    @OptIn(ExperimentalFaceApi::class)
     @Test
     fun update_mesh_matchesRuntime() {
         session.configure(Config(faceTracking = FaceTrackingMode.MESHES))

@@ -34,7 +34,6 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalXrServiceAvailabilityApi::class)
 class XrServiceAvailabilityTest {
 
     private lateinit var context: Application

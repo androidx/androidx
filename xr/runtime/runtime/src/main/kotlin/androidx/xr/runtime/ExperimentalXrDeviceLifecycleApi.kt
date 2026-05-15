@@ -16,6 +16,8 @@
 
 package androidx.xr.runtime
 
+import androidx.annotation.RestrictTo
+
 /**
  * Marks XrDevice lifecycle APIs that are experimental and likely to change or be removed in the
  * future.
@@ -26,4 +28,5 @@ package androidx.xr.runtime
  */
 @RequiresOptIn(message = "This is an experimental API. It may be changed or removed in the future.")
 @Retention(AnnotationRetention.BINARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class ExperimentalXrDeviceLifecycleApi()

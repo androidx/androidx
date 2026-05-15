@@ -21,11 +21,9 @@ import android.os.Build
 import androidx.annotation.RestrictTo
 
 /** Provides information about the XR API availability. */
-@ExperimentalXrServiceAvailabilityApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object XrServiceAvailability {
     /** Includes all supported states for the XR service availability. */
-    @ExperimentalXrServiceAvailabilityApi
     public class XrServiceAvailabilityStatus private constructor(private val code: Int) {
         public companion object {
             /** XR service availability is unknown. */
@@ -52,7 +50,6 @@ public object XrServiceAvailability {
      * @param context any [Context] object.
      */
     @JvmStatic
-    @ExperimentalXrServiceAvailabilityApi
     public fun checkProjectedServiceAvailability(context: Context): XrServiceAvailabilityStatus {
         if (isProjectedServiceUnsupported(context)) {
             return XrServiceAvailabilityStatus.UNSUPPORTED
