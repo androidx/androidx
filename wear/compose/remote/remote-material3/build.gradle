@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    lintChecks(project(":wear:compose:remote:remote-lint"))
+    lintPublish(project(":wear:compose:remote:remote-lint"))
+
     api("androidx.wear.compose:compose-material3:1.5.5")
     implementation(project(":compose:remote:remote-creation-compose"))
     implementation(project(":compose:remote:remote-creation"))
