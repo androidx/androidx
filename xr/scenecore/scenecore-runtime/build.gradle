@@ -52,8 +52,6 @@ dependencies {
     testImplementation(project(":xr:scenecore:scenecore-testing"))
 
     // For com.android.extensions.xr
-    // TODO(b/447454270): Remove this once extensions are in g3.
-    compileOnly(libs.androidExtensionsXr)
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
     testImplementation(libs.androidExtensionsXr)
 }
