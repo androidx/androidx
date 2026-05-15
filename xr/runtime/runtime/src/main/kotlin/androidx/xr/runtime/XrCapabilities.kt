@@ -135,10 +135,12 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
          * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
          */
         // TODO: remove this once we've migrated all 1P apps.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated("Use SPATIAL instead.", replaceWith = ReplaceWith("SPATIAL"))
         @JvmField
         public val LAST_KNOWN: DeviceTrackingMode = SPATIAL
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated("Use SPATIAL instead.", ReplaceWith("SPATIAL"))
         @JvmField
         public val SPATIAL_LAST_KNOWN: DeviceTrackingMode = SPATIAL
@@ -156,7 +158,7 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
         @JvmField
         public val INERTIAL: DeviceTrackingMode = DeviceTrackingMode(2)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated("Use INERTIAL instead.", ReplaceWith("INERTIAL"))
         @JvmField
         public val INERTIAL_LAST_KNOWN: DeviceTrackingMode = INERTIAL
