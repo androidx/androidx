@@ -18,9 +18,11 @@ package androidx.xr.compose.testapp.spatialcompose
 
 import android.content.Intent
 import android.media.MediaPlayer
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -362,15 +364,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                             when (menu) {
                                 VideoMenuState.HOME -> {
                                     Column(modifier = Modifier.padding(24.dp)) {
-                                        Button(
-                                            onClick = {
-                                                val intent =
-                                                    Intent(Intent.ACTION_PICK).apply {
-                                                        type = "video/*"
-                                                    }
-                                                pickMedia.launch(intent)
-                                            }
-                                        ) {
+                                        Button(onClick = { launchPickMedia() }) {
                                             Text("Select media")
                                         }
 
@@ -684,6 +678,32 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun launchPickMedia() {
+        // Scan the Downloads directory to ensure newly pushed files are indexed.
+        val downloadsDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        if (downloadsDir.exists()) {
+            val files = downloadsDir.listFiles()
+            if (files != null) {
+                MediaScannerConnection.scanFile(
+                    this@SpatialComposeVideoPlayer,
+                    files.map { it.absolutePath }.toTypedArray(),
+                    null,
+                    null,
+                )
+            }
+        }
+
+        val intent =
+            Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "video/*"
+                // Attempt to default to Downloads directory
+                putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(DOWNLOADS_URI))
+            }
+        pickMedia.launch(intent)
     }
 
     fun getFeatheringEffect(value: Float, featheringType: FeatheringType): SpatialFeatheringEffect {
@@ -1075,5 +1095,10 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private companion object {
+        private const val DOWNLOADS_URI =
+            "content://com.android.externalstorage.documents/document/primary:Download"
     }
 }
