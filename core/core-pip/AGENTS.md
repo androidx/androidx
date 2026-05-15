@@ -1,6 +1,14 @@
-# Core PiP Agent Guidelines
+# Core Jetpack Picture-in-Picture Agent Guidelines
 
-- For instructions and context on the usage of the library, refer to the README file:
+## General Instructions:
+
+- **Developer Guidance** for developer guidance refer to:
+https://developer.android.com/develop/ui/views/pip-jetpack
+
+- **API reference** refer to
 @./src/main/java/androidx/core/androidx-core-core-pip-documentation.md
 
-- For context on the platform Picture-in-Picture APIs, please refer to https://developer.android.com/develop/ui/views/picture-in-picture.
+- **Language**: Prefer Kotlin to Java for new files. When migrating files,
+convert them from Java to idiomatic Kotlin.
+
+- For context on the platform Picture-in-Picture APIs, refer to https://developer.android.com/develop/ui/views/picture-in-picture.
