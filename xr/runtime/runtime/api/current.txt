@@ -224,14 +224,12 @@ package androidx.xr.runtime {
     field public static final androidx.xr.runtime.GeospatialMode DISABLED;
     field public static final androidx.xr.runtime.GeospatialMode INERTIAL;
     field public static final androidx.xr.runtime.GeospatialMode SPATIAL;
-    field @Deprecated public static final androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
   }
 
   public static final class GeospatialMode.Companion {
     property public androidx.xr.runtime.GeospatialMode DISABLED;
     property public androidx.xr.runtime.GeospatialMode INERTIAL;
     property public androidx.xr.runtime.GeospatialMode SPATIAL;
-    property @Deprecated public androidx.xr.runtime.GeospatialMode VPS_AND_GPS;
   }
 
   public final class HandTrackingMode {
@@ -334,10 +332,6 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.RequiredCalibrationType calibrationType;
   }
 
-  @Deprecated public final class SessionConfigureGooglePlayServicesLocationLibraryNotLinked extends androidx.xr.runtime.SessionConfigureResult {
-    ctor @Deprecated public SessionConfigureGooglePlayServicesLocationLibraryNotLinked();
-  }
-
   public final class SessionConfigureLibraryNotLinked extends androidx.xr.runtime.SessionConfigureResult {
     ctor public SessionConfigureLibraryNotLinked(String libraryName);
     method @InaccessibleFromKotlin public String getLibraryName();
@@ -405,33 +399,6 @@ package androidx.xr.runtime {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="Access to native pointers is discouraged and the data returned by this API may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface UnstableNativeResourceApi {
-  }
-
-  @Deprecated public final class VpsAvailabilityAvailable extends androidx.xr.runtime.VpsAvailabilityResult {
-    ctor @Deprecated public VpsAvailabilityAvailable();
-  }
-
-  @Deprecated public final class VpsAvailabilityErrorInternal extends androidx.xr.runtime.VpsAvailabilityResult {
-    ctor @Deprecated public VpsAvailabilityErrorInternal();
-  }
-
-  @Deprecated public final class VpsAvailabilityNetworkError extends androidx.xr.runtime.VpsAvailabilityResult {
-    ctor @Deprecated public VpsAvailabilityNetworkError();
-  }
-
-  @Deprecated public final class VpsAvailabilityNotAuthorized extends androidx.xr.runtime.VpsAvailabilityResult {
-    ctor @Deprecated public VpsAvailabilityNotAuthorized();
-  }
-
-  @Deprecated public final class VpsAvailabilityResourceExhausted extends androidx.xr.runtime.VpsAvailabilityResult {
-    ctor @Deprecated public VpsAvailabilityResourceExhausted();
-  }
-
-  @Deprecated public abstract sealed exhaustive class VpsAvailabilityResult {
-  }
-
-  @Deprecated public final class VpsAvailabilityUnavailable extends androidx.xr.runtime.VpsAvailabilityResult {
-    ctor @Deprecated public VpsAvailabilityUnavailable();
   }
 
   public final class XrDevice {
@@ -598,7 +565,6 @@ package androidx.xr.runtime.math {
     method public static androidx.xr.runtime.math.Matrix4 fromTrs(androidx.xr.runtime.math.Vector3 translation, androidx.xr.runtime.math.Quaternion rotation, androidx.xr.runtime.math.Vector3 scale);
     method @InaccessibleFromKotlin public float[] getData();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Matrix4 getInverse();
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.math.Pose getPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quaternion getRotation();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getScale();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getTranslation();
@@ -610,7 +576,6 @@ package androidx.xr.runtime.math {
     property public float[] data;
     property public androidx.xr.runtime.math.Matrix4 inverse;
     property public boolean isTrs;
-    property @Deprecated public androidx.xr.runtime.math.Pose pose;
     property public androidx.xr.runtime.math.Quaternion rotation;
     property public androidx.xr.runtime.math.Vector3 scale;
     property public androidx.xr.runtime.math.Vector3 translation;

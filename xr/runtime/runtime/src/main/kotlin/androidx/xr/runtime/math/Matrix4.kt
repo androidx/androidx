@@ -16,6 +16,7 @@
 
 package androidx.xr.runtime.math
 
+import androidx.annotation.RestrictTo
 import kotlin.math.sqrt
 
 /**
@@ -65,6 +66,7 @@ public class Matrix4(dataToCopy: FloatArray) {
         replaceWith = ReplaceWith("toPose()"),
         level = DeprecationLevel.WARNING,
     )
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val pose: Pose
         get() = toPose()
 

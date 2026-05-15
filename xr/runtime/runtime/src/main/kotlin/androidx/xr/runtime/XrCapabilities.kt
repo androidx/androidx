@@ -340,6 +340,7 @@ public class GeospatialMode private constructor(public val mode: Int) {
 
         @Deprecated("Use SPATIAL instead.", ReplaceWith("SPATIAL"))
         @JvmField
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public val VPS_AND_GPS: GeospatialMode = SPATIAL
 
         /**

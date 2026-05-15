@@ -485,12 +485,6 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.Hand right(androidx.xr.runtime.Session session);
   }
 
-  @Deprecated public enum Hand.HandSide {
-    enum_constant @Deprecated public static final androidx.xr.arcore.Hand.HandSide LEFT;
-    enum_constant @Deprecated public static final androidx.xr.arcore.Hand.HandSide RIGHT;
-    enum_constant @Deprecated public static final androidx.xr.arcore.Hand.HandSide UNKNOWN;
-  }
-
   public static final class Hand.State implements androidx.xr.arcore.Trackable.State {
     method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
     method @InaccessibleFromKotlin public java.nio.FloatBuffer getHandJointsBuffer();

@@ -84,7 +84,7 @@ internal constructor(
      *
      * Your app must be properly set up to communicate with the Google Cloud ARCore API in order to
      * obtain a result from this call, otherwise the result will be
-     * [androidx.xr.runtime.VpsAvailabilityNotAuthorized].
+     * [androidx.xr.arcore.runtime.VpsAvailabilityNotAuthorized].
      *
      * @param latitude the latitude in degrees
      * @param longitude the longitude in degrees
