@@ -19,6 +19,7 @@ package androidx.compose.ui.test.junit4
 import androidx.activity.ComponentActivity
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.AndroidComposeUiTestEnvironment
 import androidx.compose.ui.test.ComposeAccessibilityValidator
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -280,9 +281,11 @@ fun createEmptyComposeRule(
 class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>
 private constructor(
     val activityRule: R,
-    private val environment: AndroidComposeUiTestEnvironment<A>,
+    private val environmentFactory: () -> AndroidComposeUiTestEnvironment<A>,
 ) : ComposeContentTestRule {
-    private val composeTest = environment.test
+    private var environment: AndroidComposeUiTestEnvironment<A> = environmentFactory()
+    private val composeTest: AndroidComposeUiTest<A>
+        get() = environment.test
 
     /**
      * Android specific implementation of [ComposeContentTestRule], where compose content is hosted
@@ -395,12 +398,14 @@ private constructor(
         useStandardTestDispatcherForComposition: Boolean,
         activityProvider: (R) -> A,
     ) : this(
-        activityRule,
-        createTestEnvironment(
-            effectContext = effectContext,
-            useStandardTestDispatcher = useStandardTestDispatcherForComposition,
-            content = { activityProvider(activityRule) },
-        ),
+        activityRule = activityRule,
+        environmentFactory = {
+            createTestEnvironment(
+                effectContext = effectContext,
+                useStandardTestDispatcher = useStandardTestDispatcherForComposition,
+                content = { activityProvider(activityRule) },
+            )
+        },
     )
 
     /**
@@ -438,7 +443,13 @@ private constructor(
 
         return object : Statement() {
             override fun evaluate() {
-                environment.runTest { activityRule.apply(testWithDisposal, description).evaluate() }
+                try {
+                    environment.runTest {
+                        activityRule.apply(testWithDisposal, description).evaluate()
+                    }
+                } finally {
+                    environment = environmentFactory()
+                }
             }
         }
     }
