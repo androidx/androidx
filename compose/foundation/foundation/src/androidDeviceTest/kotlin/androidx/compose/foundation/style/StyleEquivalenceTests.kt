@@ -61,6 +61,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -378,6 +380,32 @@ class StyleEquivalenceTests {
         )
     }
 
+    @Test // b/509438572
+    fun textStylePriority() {
+        checkEquivalence(
+            styleVersion = {
+                Box(
+                    modifier =
+                        Modifier.styleable(null) {
+                            contentPadding(10.dp)
+                            contentColor(Color.Red)
+                            fontWeight(FontWeight.Bold)
+                        }
+                ) {
+                    BasicText("Expected yellow", style = TextStyle(color = Color.Yellow))
+                }
+            },
+            modifierVersion = {
+                Box(modifier = Modifier.padding(10.dp)) {
+                    BasicText(
+                        "Expected yellow",
+                        style = TextStyle(color = Color.Yellow, fontWeight = FontWeight.Bold),
+                    )
+                }
+            },
+        )
+    }
+
     /** Validate the style and the modifier version produce the same drawing. */
     @SdkSuppress(minSdkVersion = 26)
     private fun checkEquivalence(
@@ -385,81 +413,83 @@ class StyleEquivalenceTests {
         modifierVersion: @Composable () -> Unit,
         debug: Boolean = false,
     ) {
-        if (debug) {
-            // When debugging it will show renderings in a column and wait for
-            // the button to be clicked.
-            var done = false
-            rule.setContent {
-                Column(modifier = Modifier.padding(bottom = 10.dp)) {
-                    BasicText("Style version")
-                    Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) {
-                        styleVersion()
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    BasicText("No style version")
-                    Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) {
-                        modifierVersion()
-                    }
-                    if (!done) {
-                        Box(
-                            modifier =
-                                Modifier.border(
-                                        10.dp,
-                                        color = Color.LightGray,
-                                        RoundedCornerShape(15.dp),
-                                    )
-                                    .background(Color.Cyan, RoundedCornerShape(15.dp))
-                                    .padding(20.dp)
-                                    .clickable { done = true }
-                        ) {
-                            BasicText("Done")
+        withStyleInheritance {
+            if (debug) {
+                // When debugging it will show renderings in a column and wait for
+                // the button to be clicked.
+                var done = false
+                rule.setContent {
+                    Column(modifier = Modifier.padding(bottom = 10.dp)) {
+                        BasicText("Style version")
+                        Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) {
+                            styleVersion()
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        BasicText("No style version")
+                        Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) {
+                            modifierVersion()
+                        }
+                        if (!done) {
+                            Box(
+                                modifier =
+                                    Modifier.border(
+                                            10.dp,
+                                            color = Color.LightGray,
+                                            RoundedCornerShape(15.dp),
+                                        )
+                                        .background(Color.Cyan, RoundedCornerShape(15.dp))
+                                        .padding(20.dp)
+                                        .clickable { done = true }
+                            ) {
+                                BasicText("Done")
+                            }
                         }
                     }
                 }
-            }
-            rule.waitUntil(1000 * 60 * 2) { done }
-        } else {
-            var withStyle by mutableStateOf(true)
-            rule.setContent {
-                if (withStyle) {
-                    styleVersion()
-                } else {
-                    modifierVersion()
-                }
-            }
-            val styleBitmap = rule.onRoot().captureToImage().asAndroidBitmap()
-            withStyle = false
-            rule.waitForIdle()
-            val modifierBitmap = rule.onRoot().captureToImage().asAndroidBitmap()
-
-            assertEquals(modifierBitmap.width, styleBitmap.width, "Width mismatch")
-            assertEquals(modifierBitmap.height, styleBitmap.height, "Height mismatch")
-            if (
-                modifierBitmap.width == styleBitmap.width &&
-                    modifierBitmap.height == styleBitmap.height
-            ) {
-                val matcher = MSSIMMatcher(threshold = 0.995)
-                val result =
-                    matcher.compareBitmaps(
-                        styleBitmap.toIntArray(),
-                        modifierBitmap.toIntArray(),
-                        modifierBitmap.width,
-                        modifierBitmap.height,
-                    )
-                if (!result.matches) {
-                    val message = buildString {
-                        appendLine("Style and modifier versions are different")
-                        appendLine()
-                        appendLine("Styles")
-                        append(styleBitmap.renderedToString())
-                        appendLine()
-                        appendLine("Modifiers")
-                        append(modifierBitmap.renderedToString())
-                        appendLine()
-                        appendLine("Difference")
-                        append(styleBitmap.differenceToString(modifierBitmap))
+                rule.waitUntil(1000 * 60 * 2) { done }
+            } else {
+                var withStyle by mutableStateOf(true)
+                rule.setContent {
+                    if (withStyle) {
+                        styleVersion()
+                    } else {
+                        modifierVersion()
                     }
-                    error(message)
+                }
+                val styleBitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+                withStyle = false
+                rule.waitForIdle()
+                val modifierBitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+
+                assertEquals(modifierBitmap.width, styleBitmap.width, "Width mismatch")
+                assertEquals(modifierBitmap.height, styleBitmap.height, "Height mismatch")
+                if (
+                    modifierBitmap.width == styleBitmap.width &&
+                        modifierBitmap.height == styleBitmap.height
+                ) {
+                    val matcher = MSSIMMatcher(threshold = 0.995)
+                    val result =
+                        matcher.compareBitmaps(
+                            styleBitmap.toIntArray(),
+                            modifierBitmap.toIntArray(),
+                            modifierBitmap.width,
+                            modifierBitmap.height,
+                        )
+                    if (!result.matches) {
+                        val message = buildString {
+                            appendLine("Style and modifier versions are different")
+                            appendLine()
+                            appendLine("Styles")
+                            append(styleBitmap.renderedToString())
+                            appendLine()
+                            appendLine("Modifiers")
+                            append(modifierBitmap.renderedToString())
+                            appendLine()
+                            appendLine("Difference")
+                            append(styleBitmap.differenceToString(modifierBitmap))
+                        }
+                        error(message)
+                    }
                 }
             }
         }
