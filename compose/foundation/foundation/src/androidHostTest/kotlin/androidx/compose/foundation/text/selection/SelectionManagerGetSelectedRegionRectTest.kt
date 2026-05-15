@@ -18,9 +18,6 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -256,48 +253,4 @@ class SelectionManagerGetSelectedRegionRectTest {
             this.boundingBoxes = boundingBoxes
             this.layoutCoordinatesToReturn = rootOffset?.let { FakeCoordinates(it) }
         }
-
-    private class FakeCoordinates(private val rootOffset: Offset = Offset.Zero) :
-        LayoutCoordinates {
-        override fun localToRoot(relativeToLocal: Offset): Offset = rootOffset + relativeToLocal
-
-        override fun localPositionOf(
-            sourceCoordinates: LayoutCoordinates,
-            relativeToSource: Offset,
-        ): Offset {
-            val rootCoordinates = sourceCoordinates.localToRoot(relativeToSource)
-            return rootCoordinates - rootOffset
-        }
-
-        // FAKES
-        override val size: IntSize
-            get() = fake()
-
-        override val providedAlignmentLines: Set<AlignmentLine>
-            get() = fake()
-
-        override val parentLayoutCoordinates: LayoutCoordinates
-            get() = fake()
-
-        override val parentCoordinates: LayoutCoordinates
-            get() = fake()
-
-        override val isAttached: Boolean
-            get() = fake()
-
-        override fun windowToLocal(relativeToWindow: Offset): Offset = fake()
-
-        override fun localToWindow(relativeToLocal: Offset): Offset = fake()
-
-        override fun localBoundingBoxOf(
-            sourceCoordinates: LayoutCoordinates,
-            clipBounds: Boolean,
-        ): Rect = fake()
-
-        override fun get(alignmentLine: AlignmentLine): Int = fake()
-
-        private fun fake(): Nothing {
-            throw UnsupportedOperationException("This fake does not support this.")
-        }
-    }
 }
