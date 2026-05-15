@@ -36,7 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.VerticalPager
@@ -153,6 +155,224 @@ fun OneHandedGestureTransformingLazyColumnSample() {
                         onGesture = { OneHandedGestureDefaults.scrollDown(tlcState) },
                         onShowIndicator = { scrollGestureIndicatorVisible = true },
                     ),
+        ) {
+            items(10) { Text("Item $it") }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun OneHandedGestureScalingLazyColumnSample() {
+    val backDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val onClick =
+        remember<() -> Unit> { { backDispatcherOwner?.onBackPressedDispatcher?.onBackPressed() } }
+    val slcState = rememberScalingLazyListState()
+    var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    ScreenScaffold(
+        scrollState = slcState,
+        edgeButton = {
+            var buttonGestureIndicatorVisible by remember { mutableStateOf(false) }
+            EdgeButton(
+                onClick = onClick,
+                interactionSource = interactionSource,
+                modifier =
+                    if (slcState.canScrollForward) {
+                        Modifier
+                    } else {
+                        // Apply the one-handed gesture modifier only when the container cannot
+                        // scroll further, ensuring the EdgeButton is fully visible and interactive
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            priority = GesturePriority.Clickable,
+                            interactionSource = interactionSource,
+                            onShowIndicator = { buttonGestureIndicatorVisible = true },
+                            onGesture = onClick,
+                        )
+                    } then
+                        Modifier.scrollable(
+                            slcState,
+                            orientation = Orientation.Vertical,
+                            reverseDirection = true,
+                            overscrollEffect = rememberOverscrollEffect(),
+                        ),
+            ) {
+                OneHandedGestureIndicator(
+                    buttonGestureIndicatorVisible,
+                    { buttonGestureIndicatorVisible = false },
+                ) {
+                    Text("Close")
+                }
+            }
+        },
+        scrollIndicator = {
+            OneHandedGestureScrollIndicator(
+                scrollGestureIndicatorVisible,
+                onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
+                slcState,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        },
+    ) { contentPadding ->
+        ScalingLazyColumn(
+            state = slcState,
+            contentPadding = contentPadding,
+            modifier =
+                Modifier.fillMaxSize()
+                    .oneHandedGesture(
+                        action = GestureAction.Primary,
+                        priority = GesturePriority.Scrollable,
+                        onGesture = { OneHandedGestureDefaults.scrollDown(slcState) },
+                        onShowIndicator = { scrollGestureIndicatorVisible = true },
+                    ),
+            autoCentering = null,
+        ) {
+            items(10) { Text("Item $it") }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
+    val backDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val onClick =
+        remember<() -> Unit> { { backDispatcherOwner?.onBackPressedDispatcher?.onBackPressed() } }
+    val tlcState = rememberTransformingLazyColumnState()
+    var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    ScreenScaffold(
+        scrollState = tlcState,
+        edgeButton = {
+            var buttonGestureIndicatorVisible by remember { mutableStateOf(false) }
+            EdgeButton(
+                onClick = onClick,
+                interactionSource = interactionSource,
+                modifier =
+                    if (tlcState.canScrollForward) {
+                        Modifier
+                    } else {
+                        // Apply the one-handed gesture modifier only when the container cannot
+                        // scroll further, ensuring the EdgeButton is fully visible and interactive
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            priority = GesturePriority.Clickable,
+                            interactionSource = interactionSource,
+                            onShowIndicator = { buttonGestureIndicatorVisible = true },
+                            onGesture = onClick,
+                        )
+                    } then
+                        Modifier.scrollable(
+                            tlcState,
+                            orientation = Orientation.Vertical,
+                            reverseDirection = true,
+                            overscrollEffect = rememberOverscrollEffect(),
+                        ),
+            ) {
+                OneHandedGestureIndicator(
+                    buttonGestureIndicatorVisible,
+                    { buttonGestureIndicatorVisible = false },
+                ) {
+                    Text("Close")
+                }
+            }
+        },
+        scrollIndicator = {
+            OneHandedGestureScrollIndicator(
+                scrollGestureIndicatorVisible,
+                onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
+                tlcState,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        },
+    ) { contentPadding ->
+        TransformingLazyColumn(
+            state = tlcState,
+            contentPadding = contentPadding,
+            modifier =
+                Modifier.fillMaxSize()
+                    .oneHandedGesture(
+                        action = GestureAction.Primary,
+                        priority = GesturePriority.Scrollable,
+                        onGesture = { OneHandedGestureDefaults.scrollToNextItem(tlcState) },
+                        onShowIndicator = { scrollGestureIndicatorVisible = true },
+                    ),
+        ) {
+            items(10) { Text("Item $it") }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
+    val backDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val onClick =
+        remember<() -> Unit> { { backDispatcherOwner?.onBackPressedDispatcher?.onBackPressed() } }
+    val slcState = rememberScalingLazyListState()
+    var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    ScreenScaffold(
+        scrollState = slcState,
+        edgeButton = {
+            var buttonGestureIndicatorVisible by remember { mutableStateOf(false) }
+            EdgeButton(
+                onClick = onClick,
+                interactionSource = interactionSource,
+                modifier =
+                    if (slcState.canScrollForward) {
+                        Modifier
+                    } else {
+                        // Apply the one-handed gesture modifier only when the container cannot
+                        // scroll further, ensuring the EdgeButton is fully visible and interactive
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            priority = GesturePriority.Clickable,
+                            interactionSource = interactionSource,
+                            onShowIndicator = { buttonGestureIndicatorVisible = true },
+                            onGesture = onClick,
+                        )
+                    } then
+                        Modifier.scrollable(
+                            slcState,
+                            orientation = Orientation.Vertical,
+                            reverseDirection = true,
+                            overscrollEffect = rememberOverscrollEffect(),
+                        ),
+            ) {
+                OneHandedGestureIndicator(
+                    buttonGestureIndicatorVisible,
+                    { buttonGestureIndicatorVisible = false },
+                ) {
+                    Text("Close")
+                }
+            }
+        },
+        scrollIndicator = {
+            OneHandedGestureScrollIndicator(
+                scrollGestureIndicatorVisible,
+                onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
+                slcState,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        },
+    ) { contentPadding ->
+        ScalingLazyColumn(
+            state = slcState,
+            contentPadding = contentPadding,
+            modifier =
+                Modifier.fillMaxSize()
+                    .oneHandedGesture(
+                        action = GestureAction.Primary,
+                        priority = GesturePriority.Scrollable,
+                        onGesture = { OneHandedGestureDefaults.scrollToNextItem(slcState) },
+                        onShowIndicator = { scrollGestureIndicatorVisible = true },
+                    ),
+            autoCentering = null,
         ) {
             items(10) { Text("Item $it") }
         }

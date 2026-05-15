@@ -18,10 +18,52 @@ package androidx.wear.compose.material3.onehandedgesture
 
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.PagerState
 
 public object OneHandedGestureDefaults {
+    /**
+     * A scroll implementation tailored for use with [TransformingLazyColumnState].
+     *
+     * This logic handles one-handed gesture by first attempting to scroll the list by half the
+     * viewport. If the list cannot scroll further forward, it scrolls back to the start.
+     *
+     * Sample demonstrating gesture handling with [TransformingLazyColumnState]:
+     *
+     * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
+     * @param scrollState The scroll state associated with a transforming lazy column.
+     */
+    public suspend fun scrollDown(scrollState: TransformingLazyColumnState) {
+        if (!scrollState.canScrollForward) {
+            scrollState.animateScrollToItem(0)
+            return
+        }
+
+        scrollState.animateScrollBy(scrollState.layoutInfo.viewportSize.height * 0.5f)
+    }
+
+    /**
+     * A scroll implementation tailored for use with [ScalingLazyListState].
+     *
+     * This logic handles one-handed gesture by first attempting to scroll the list by half the
+     * viewport. If the list cannot scroll further forward, it scrolls back to the start.
+     *
+     * Sample demonstrating gesture handling with [ScalingLazyListState]:
+     *
+     * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
+     * @param scrollState The scroll state associated with a scaling lazy column.
+     */
+    public suspend fun scrollDown(scrollState: ScalingLazyListState) {
+        if (!scrollState.canScrollForward) {
+            scrollState.animateScrollToItem(0)
+            return
+        }
+
+        scrollState.animateScrollBy(scrollState.layoutInfo.viewportSize.height * 0.5f)
+    }
+
     /**
      * A scroll implementation tailored for use with [TransformingLazyColumnState].
      *
@@ -31,10 +73,10 @@ public object OneHandedGestureDefaults {
      *
      * Sample demonstrating gesture handling with [TransformingLazyColumnState]:
      *
-     * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
+     * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollToNextItemSample
      * @param scrollState The scroll state associated with a transforming lazy column.
      */
-    public suspend fun scrollDown(scrollState: TransformingLazyColumnState) {
+    public suspend fun scrollToNextItem(scrollState: TransformingLazyColumnState) {
         if (!scrollState.canScrollForward) {
             scrollState.animateScrollToItem(0)
             return
@@ -52,6 +94,52 @@ public object OneHandedGestureDefaults {
                 targetItem.offset + targetItem.measuredHeight / 2f -
                     layoutInfo.viewportSize.height.toFloat() / 2f
             )
+        } else {
+            scrollState.animateScrollBy(layoutInfo.viewportSize.height * 0.5f)
+        }
+    }
+
+    /**
+     * A scroll implementation tailored for use with [ScalingLazyListState].
+     *
+     * This logic handles one-handed gesture by first attempting to scroll to the next item in the
+     * list (or scrolling through the current item if it exceeds the viewport size). If the list
+     * cannot scroll further forward, it scrolls back to the start.
+     *
+     * Sample demonstrating gesture handling with [ScalingLazyListState]:
+     *
+     * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnScrollToNextItemSample
+     * @param scrollState The scroll state associated with a scaling lazy column.
+     */
+    public suspend fun scrollToNextItem(scrollState: ScalingLazyListState) {
+        if (!scrollState.canScrollForward) {
+            scrollState.animateScrollToItem(0)
+            return
+        }
+
+        val layoutInfo = scrollState.layoutInfo
+        val anchorIndex = scrollState.centerItemIndex
+
+        var itemCenterOffset = scrollState.centerItemScrollOffset.toFloat()
+        if (layoutInfo.anchorType == ScalingLazyListAnchorType.ItemStart) {
+            val centerItem =
+                layoutInfo.visibleItemsInfo.fastFirstOrNull {
+                    it.index == scrollState.centerItemIndex
+                }
+            itemCenterOffset += (centerItem?.size ?: 0) / 2.0f
+        }
+
+        val targetIndex = if (itemCenterOffset < 0) anchorIndex else anchorIndex + 1
+
+        val targetItem = layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
+
+        if (targetItem != null && targetItem.size < layoutInfo.viewportSize.height) {
+            var offsetFromItemCenter = targetItem.offset.toFloat()
+            if (layoutInfo.anchorType == ScalingLazyListAnchorType.ItemStart) {
+                offsetFromItemCenter += targetItem.size / 2.0f
+            }
+
+            scrollState.animateScrollBy(offsetFromItemCenter)
         } else {
             scrollState.animateScrollBy(layoutInfo.viewportSize.height * 0.5f)
         }

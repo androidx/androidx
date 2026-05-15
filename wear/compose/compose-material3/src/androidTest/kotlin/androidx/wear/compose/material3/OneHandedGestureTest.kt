@@ -55,7 +55,11 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
@@ -66,6 +70,7 @@ import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
 import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
@@ -532,6 +537,26 @@ class OneHandedGestureTest {
     }
 
     @Test
+    fun test_slc_scroll_down_anchor_start() {
+        test_slc_scroll_down(ScalingLazyListAnchorType.ItemStart)
+    }
+
+    @Test
+    fun test_slc_scroll_down_anchor_center() {
+        test_slc_scroll_down(ScalingLazyListAnchorType.ItemCenter)
+    }
+
+    @Test
+    fun test_slc_scroll_next_item_anchor_start() {
+        test_slc_scroll_next_item(ScalingLazyListAnchorType.ItemStart)
+    }
+
+    @Test
+    fun test_slc_scroll_next_item_anchor_center() {
+        test_slc_scroll_next_item(ScalingLazyListAnchorType.ItemCenter)
+    }
+
+    @Test
     fun gesture_indicator_colors() {
         val tintColor = Color.Yellow
         rule.verifyColors(expectedContentColor = tintColor) {
@@ -625,6 +650,81 @@ class OneHandedGestureTest {
         expectedContainerColor?.let { image.assertContainsColor(it) }
 
         image.assertContainsColor(expectedContentColor)
+    }
+
+    private fun test_slc_scroll_down(anchorType: ScalingLazyListAnchorType) {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var state: ScalingLazyListState? = null
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    state = rememberScalingLazyListState()
+                    ScalingLazyColumn(
+                        state = state,
+                        modifier =
+                            Modifier.background(Color.Black)
+                                .fillMaxSize()
+                                .oneHandedGesture(
+                                    action = GestureAction.Primary,
+                                    onGesture = { OneHandedGestureDefaults.scrollDown(state) },
+                                ),
+                        anchorType = anchorType,
+                    ) {
+                        items(10) { Text("Item $it") }
+                    }
+                }
+            }
+        }
+
+        // scrollDown() scrolls 50% of the screen, making centerItemIndex to move 1 -> 5 -> 9 -> 1
+        val expectedIndex = listOf(1, 5, 9)
+        repeat(10) { iteration ->
+            rule.runOnIdle {
+                assertEquals(expectedIndex[iteration % expectedIndex.size], state!!.centerItemIndex)
+                sdkGestureInputManager.performGesture(sdkActionPrimary)
+            }
+        }
+    }
+
+    private fun test_slc_scroll_next_item(anchorType: ScalingLazyListAnchorType) {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var state: ScalingLazyListState? = null
+        val numberOfItems = 10
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    state = rememberScalingLazyListState()
+                    ScalingLazyColumn(
+                        state = state,
+                        modifier =
+                            Modifier.background(Color.Black)
+                                .fillMaxSize()
+                                .oneHandedGesture(
+                                    action = GestureAction.Primary,
+                                    onGesture = { OneHandedGestureDefaults.scrollToNextItem(state) },
+                                ),
+                        anchorType = anchorType,
+                    ) {
+                        items(numberOfItems) { Text("Item $it") }
+                    }
+                }
+            }
+        }
+
+        var expectedIndex = 1
+        repeat(numberOfItems * 2) {
+            rule.runOnIdle {
+                assertEquals(expectedIndex, state!!.centerItemIndex)
+                sdkGestureInputManager.performGesture(sdkActionPrimary)
+                if (expectedIndex == numberOfItems - 1) {
+                    expectedIndex = 1
+                } else {
+                    expectedIndex++
+                }
+            }
+        }
     }
 
     @Composable

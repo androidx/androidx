@@ -705,8 +705,20 @@ public fun AlertDialogContent(
 ) {
     val scrollableLayout: @Composable () -> Unit = {
         val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-        ScreenScaffold(scrollState = state, modifier = modifier, contentPadding = contentPadding) {
-            contentPadding ->
+        var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
+        ScreenScaffold(
+            scrollState = state,
+            modifier = modifier,
+            scrollIndicator = {
+                OneHandedGestureScrollIndicator(
+                    scrollGestureIndicatorVisible,
+                    onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
+                    state,
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                )
+            },
+            contentPadding = contentPadding,
+        ) { contentPadding ->
             ScalingLazyColumn(
                 scalingParams = AlertScalingParams,
                 state = state,
@@ -714,7 +726,14 @@ public fun AlertDialogContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = verticalArrangement,
                 autoCentering = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .alertDialogGesture(
+                            action = GestureAction.Primary,
+                            priority = GesturePriority.Scrollable,
+                            onGesture = { OneHandedGestureDefaults.scrollDown(state) },
+                            onShowIndicator = { scrollGestureIndicatorVisible = true },
+                        ),
             ) {
                 alertDialogCommonContent(icon = icon, title = title, text = text, content = content)
                 item {
@@ -920,8 +939,20 @@ public fun AlertDialogContent(
 ) {
     val scrollableLayout: @Composable () -> Unit = {
         val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-        ScreenScaffold(scrollState = state, modifier = modifier, contentPadding = contentPadding) {
-            contentPadding ->
+        var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
+        ScreenScaffold(
+            scrollState = state,
+            modifier = modifier,
+            scrollIndicator = {
+                OneHandedGestureScrollIndicator(
+                    scrollGestureIndicatorVisible,
+                    onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
+                    state,
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                )
+            },
+            contentPadding = contentPadding,
+        ) { contentPadding ->
             ScalingLazyColumn(
                 scalingParams = AlertScalingParams,
                 state = state,
@@ -929,7 +960,14 @@ public fun AlertDialogContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = verticalArrangement,
                 autoCentering = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .alertDialogGesture(
+                            action = GestureAction.Primary,
+                            priority = GesturePriority.Scrollable,
+                            onGesture = { OneHandedGestureDefaults.scrollDown(state) },
+                            onShowIndicator = { scrollGestureIndicatorVisible = true },
+                        ),
             ) {
                 alertDialogCommonContent(icon = icon, title = title, text = text, content = content)
             }
@@ -1115,12 +1153,21 @@ public fun AlertDialogContent(
     // (unlike the confirm/dismiss and button-stack layouts) - so DynamicScrollableOrFixedLayout
     // is not needed.
     val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+    var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
     val noTextAndContent = text == null && content == null
     ScreenScaffold(
         scrollState = state,
         edgeButton = edgeButton,
         modifier = modifier,
         contentPadding = contentPadding,
+        scrollIndicator = {
+            OneHandedGestureScrollIndicator(
+                scrollGestureIndicatorVisible,
+                onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
+                state,
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        },
         edgeButtonSpacing =
             if (noTextAndContent) AlertEdgeButtonSpacingWithoutTextAndContent
             else AlertEdgeButtonSpacing,
@@ -1132,7 +1179,14 @@ public fun AlertDialogContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = verticalArrangement,
             autoCentering = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier.fillMaxSize()
+                    .alertDialogGesture(
+                        action = GestureAction.Primary,
+                        priority = GesturePriority.Scrollable,
+                        onGesture = { OneHandedGestureDefaults.scrollDown(state) },
+                        onShowIndicator = { scrollGestureIndicatorVisible = true },
+                    ),
         ) {
             alertDialogCommonContent(icon = icon, title = title, text = text, content = content)
         }
