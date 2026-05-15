@@ -82,5 +82,6 @@ jobs:
             -x validateIntegrationPatches
             -x checkKotlinApiTarget
             -x jsBrowserTest
+            -x wasmJsBrowserTest
           # Disable the cache since this is the only build using the latest KSP.
           gradle-cache-disabled: true
