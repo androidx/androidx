@@ -404,6 +404,31 @@ class WearWidgetParamsTest {
     }
 
     @Test
+    fun fromParcel_usesProvidedDefaultRendererVersion_whenNotProvided() {
+        val payloadWithoutVersion =
+            WearWidgetRequestProto(
+                    id = 123,
+                    id_namespace = "ns",
+                    container_type = ContainerInfo.CONTAINER_TYPE_SMALL,
+                    width_dp = 200.5f,
+                    height_dp = 300.25f,
+                    horizontal_padding_dp = 9f,
+                    vertical_padding_dp = 8f,
+                    corner_radius_dp = 16f,
+                )
+                .encode()
+        val parcel = WearWidgetRequestParcel().apply { payload = payloadWithoutVersion }
+        val customDefault = RendererVersion(5, 12, 99)
+
+        val restoredParams =
+            WearWidgetParams.fromParcel(parcel, getDefaultRendererVersion = { customDefault })
+
+        assertThat(restoredParams.rendererVersion.major).isEqualTo(5)
+        assertThat(restoredParams.rendererVersion.minor).isEqualTo(12)
+        assertThat(restoredParams.rendererVersion.revision).isEqualTo(99)
+    }
+
+    @Test
     fun equals_differentRendererVersion() {
         val params1 =
             WearWidgetParams(
