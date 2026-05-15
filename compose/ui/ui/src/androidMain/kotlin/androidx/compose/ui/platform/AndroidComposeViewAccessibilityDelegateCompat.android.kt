@@ -2760,6 +2760,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                                         }
                                 }
                             event.className = TextFieldClassName
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                                Api37Impl.setInputTextSuggestionTextChangeTypes(newNode, event)
+                            }
                             sendEvent(event)
 
                             // (b/247891690) second event with the correct cursor position (see
@@ -3368,6 +3372,42 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     )
                 }
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    private object Api37Impl {
+        @JvmStatic
+        fun setInputTextSuggestionTextChangeTypes(node: SemanticsNode, event: AccessibilityEvent) {
+            val inputTextSuggestionState =
+                node.unmergedConfig.getOrNull(SemanticsProperties.InputTextSuggestionState)
+            val textCompositionRange =
+                node.unmergedConfig.getOrNull(SemanticsProperties.TextCompositionRange)
+            var textChangeTypes = AccessibilityEvent.TEXT_CHANGE_TYPE_UNDEFINED
+
+            if (textCompositionRange != null) {
+                textChangeTypes =
+                    textChangeTypes or AccessibilityEvent.TEXT_CHANGE_TYPE_IN_COMPOSITION
+            }
+
+            if (
+                inputTextSuggestionState != null &&
+                    inputTextSuggestionState.isTransliterationSuggestionSelected
+            ) {
+                textChangeTypes =
+                    textChangeTypes or
+                        AccessibilityEvent.TEXT_CHANGE_TYPE_CONVERSION_SUGGESTION_SELECTED_BY_IME
+            }
+
+            if (
+                inputTextSuggestionState != null &&
+                    inputTextSuggestionState.isCommittedByInputMethodEditor
+            ) {
+                textChangeTypes =
+                    textChangeTypes or AccessibilityEvent.TEXT_CHANGE_TYPE_COMMITTED_BY_IME
+            }
+
+            event.textChangeTypes = event.textChangeTypes or textChangeTypes
         }
     }
 }

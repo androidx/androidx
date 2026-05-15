@@ -73,6 +73,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testClipEntry
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.InputTextSuggestionState
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -96,6 +97,7 @@ import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.inputTextSuggestionState
 import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.maxTextLength
@@ -115,6 +117,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
+import androidx.compose.ui.semantics.textCompositionRange
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.TestActivity
@@ -2255,6 +2258,99 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         setSource(androidComposeView, virtualId)
                     }
                 )
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun textChanged_inputTextSuggestionState_sendTextChangeEvent() {
+        // Arrange.
+        var textChanged by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    setText { true }
+                    textSelectionRange = TextRange(4)
+                    editableText = AnnotatedString(if (!textChanged) "1234" else "1235")
+                    inputTextSuggestionState =
+                        InputTextSuggestionState(
+                            isCommittedByInputMethodEditor = true,
+                            isTransliterationSuggestionSelected = true,
+                        )
+                    textCompositionRange = TextRange(0, 4)
+                }
+            )
+        }
+
+        // Act.
+        rule.runOnIdle { textChanged = true }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        rule.runOnIdle {
+            val event =
+                dispatchedAccessibilityEvents.find { it.eventType == TYPE_VIEW_TEXT_CHANGED }
+            assertThat(event).isNotNull()
+            assertThat(event!!.className.toString()).isEqualTo("android.widget.EditText")
+            assertThat(event.text.toString()).isEqualTo("[1235]")
+            assertThat(event.beforeText.toString()).isEqualTo("1234")
+            assertThat(event.fromIndex).isEqualTo(3)
+            assertThat(event.addedCount).isEqualTo(1)
+            assertThat(event.removedCount).isEqualTo(1)
+
+            val expectedFlags =
+                AccessibilityEvent.TEXT_CHANGE_TYPE_IN_COMPOSITION or
+                    AccessibilityEvent.TEXT_CHANGE_TYPE_CONVERSION_SUGGESTION_SELECTED_BY_IME or
+                    AccessibilityEvent.TEXT_CHANGE_TYPE_COMMITTED_BY_IME
+
+            assertThat(event.textChangeTypes and expectedFlags).isEqualTo(expectedFlags)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun textChanged_basicTextField_inputTextSuggestionState_sendTextChangeEvent() {
+        // Arrange.
+        var textChanged by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier =
+                    Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                        editableText = AnnotatedString(if (!textChanged) "1234" else "1235")
+                        inputTextSuggestionState =
+                            InputTextSuggestionState(
+                                isCommittedByInputMethodEditor = true,
+                                isTransliterationSuggestionSelected = true,
+                            )
+                        textCompositionRange = TextRange(0, 4)
+                    },
+            )
+        }
+
+        // Act.
+        rule.runOnIdle { textChanged = true }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        rule.runOnIdle {
+            val event =
+                dispatchedAccessibilityEvents.find { it.eventType == TYPE_VIEW_TEXT_CHANGED }
+            assertThat(event).isNotNull()
+            assertThat(event!!.className.toString()).isEqualTo("android.widget.EditText")
+            assertThat(event.text.toString()).isEqualTo("[1235]")
+            assertThat(event.fromIndex).isEqualTo(3)
+            assertThat(event.addedCount).isEqualTo(1)
+            assertThat(event.removedCount).isEqualTo(1)
+
+            val expectedFlags =
+                AccessibilityEvent.TEXT_CHANGE_TYPE_IN_COMPOSITION or
+                    AccessibilityEvent.TEXT_CHANGE_TYPE_CONVERSION_SUGGESTION_SELECTED_BY_IME or
+                    AccessibilityEvent.TEXT_CHANGE_TYPE_COMMITTED_BY_IME
+
+            assertThat(event.textChangeTypes and expectedFlags).isEqualTo(expectedFlags)
         }
     }
 
