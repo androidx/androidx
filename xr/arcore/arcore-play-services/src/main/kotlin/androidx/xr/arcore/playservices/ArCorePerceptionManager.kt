@@ -235,6 +235,8 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         synchronized(frameLock) {
             _latestFrame = session.update()
             if (lastFrameTimestampNs == _latestFrame.timestamp) {
+                arDevice.update(_latestFrame)
+                geospatial.update(session)
                 return
             }
             lastFrameTimestampNs = _latestFrame.timestamp
