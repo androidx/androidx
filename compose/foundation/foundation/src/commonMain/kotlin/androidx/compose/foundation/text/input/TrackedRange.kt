@@ -28,14 +28,14 @@ import kotlin.jvm.JvmInline
  * on [TextFieldBuffer]:
  * - `TrackedRange<*>.textRange`
  * - `TrackedRange<*>.expandPolicy`
- * - `TrackedRange<*>.exists`
+ * - `TrackedRange<*>.valid`
  * - `TrackedRange<SpanStyle>.spanStyle`
  * - `TrackedRange<ParagraphStyle>.paragraphStyle`
  *
  * All the extension properties reflect the up-to-date state of the style range. e.g. The
  * `textRange` of this [TrackedRange] will automatically update when the text is edited. If the
- * style's range collapses to zero length due to text edits, the style will cease to exist and
- * `exists` will return false.
+ * style's range collapses to zero length due to text edits, the style will be removed and `valid`
+ * will return false.
  *
  * This object's lifecycle is bound to the [TextFieldBuffer] which is returned by
  * [TextFieldState.edit], [InputTransformation.transformInput] and

@@ -920,9 +920,9 @@ internal constructor(
     /**
      * Whether this [TrackedRange] is still valid in the buffer.
      *
-     * A style ceases to exist when [removeStyle] is called or when its range collapses to a length
-     * of zero due to text edits. Once it no longer exists, accessing or modifying its properties
-     * will throw an [IllegalStateException].
+     * A [TrackedRange] is removed from this buffer when [removeStyle] is called, or when its length
+     * collapses to zero due to text edits. Once it's no longer valid, accessing or modifying its
+     * other properties will throw an [IllegalStateException].
      *
      * This property is only accessible within the [TextFieldBuffer] scope where the [TrackedRange]
      * was created.
