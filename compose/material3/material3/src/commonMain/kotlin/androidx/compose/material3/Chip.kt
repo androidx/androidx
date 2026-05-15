@@ -3858,8 +3858,7 @@ class SelectableChipElevation(
  *   Chip configurations.
  */
 @Immutable
-class ChipColors
-constructor(
+class ChipColors(
     val containerColor: Color,
     val labelColor: Color,
     val leadingIconContentColor: Color,
@@ -3984,25 +3983,38 @@ internal val ColorScheme.defaultSuggestionChipColors: ChipColors
 /**
  * Represents the container and content colors used in a selectable chip in different states.
  *
- * See [FilterChipDefaults.filterChipColors] and [FilterChipDefaults.elevatedFilterChipColors] for
- * the default colors used in [FilterChip].
+ * @param containerColor the container color of this chip when enabled
+ * @param labelColor the label color of this chip when enabled
+ * @param leadingIconColor the color of this chip's start icon when enabled
+ * @param trailingIconColor the color of this chip's end icon when enabled
+ * @param disabledContainerColor the container color of this chip when not enabled
+ * @param disabledLabelColor the label color of this chip when not enabled
+ * @param disabledLeadingIconColor the color of this chip's start icon when not enabled
+ * @param disabledTrailingIconColor the color of this chip's end icon when not enabled
+ * @param selectedContainerColor the container color of this chip when selected and enabled
+ * @param disabledSelectedContainerColor the container color of this chip when selected and not
+ *   enabled
+ * @param selectedLabelColor the label color of this chip when selected and enabled
+ * @param selectedLeadingIconColor the color of this chip's start icon when selected and enabled
+ * @param selectedTrailingIconColor the color of this chip's end icon when selected and enabled
+ * @constructor create an instance with arbitrary colors, see [FilterChipDefaults.filterChipColors]
+ *   and [FilterChipDefaults.elevatedFilterChipColors] for the default colors used in [FilterChip].
  */
 @Immutable
-class SelectableChipColors
-constructor(
-    private val containerColor: Color,
-    private val labelColor: Color,
-    private val leadingIconColor: Color,
-    private val trailingIconColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledLabelColor: Color,
-    private val disabledLeadingIconColor: Color,
-    private val disabledTrailingIconColor: Color,
-    private val selectedContainerColor: Color,
-    private val disabledSelectedContainerColor: Color,
-    private val selectedLabelColor: Color,
-    private val selectedLeadingIconColor: Color,
-    private val selectedTrailingIconColor: Color,
+class SelectableChipColors(
+    val containerColor: Color,
+    val labelColor: Color,
+    val leadingIconColor: Color,
+    val trailingIconColor: Color,
+    val disabledContainerColor: Color,
+    val disabledLabelColor: Color,
+    val disabledLeadingIconColor: Color,
+    val disabledTrailingIconColor: Color,
+    val selectedContainerColor: Color,
+    val disabledSelectedContainerColor: Color,
+    val selectedLabelColor: Color,
+    val selectedLeadingIconColor: Color,
+    val selectedTrailingIconColor: Color,
     // TODO(b/113855296): Support other states: hover, focus, drag
 ) {
     /**

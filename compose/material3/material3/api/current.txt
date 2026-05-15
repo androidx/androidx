@@ -3512,6 +3512,32 @@ package androidx.compose.material3 {
     method @KotlinOnly public androidx.compose.material3.SelectableChipColors copy(optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color labelColor, optional androidx.compose.ui.graphics.Color leadingIconColor, optional androidx.compose.ui.graphics.Color trailingIconColor, optional androidx.compose.ui.graphics.Color disabledContainerColor, optional androidx.compose.ui.graphics.Color disabledLabelColor, optional androidx.compose.ui.graphics.Color disabledLeadingIconColor, optional androidx.compose.ui.graphics.Color disabledTrailingIconColor, optional androidx.compose.ui.graphics.Color selectedContainerColor, optional androidx.compose.ui.graphics.Color disabledSelectedContainerColor, optional androidx.compose.ui.graphics.Color selectedLabelColor, optional androidx.compose.ui.graphics.Color selectedLeadingIconColor, optional androidx.compose.ui.graphics.Color selectedTrailingIconColor);
     method @BytecodeOnly public androidx.compose.material3.SelectableChipColors copy-daRQuJA(long, long, long, long, long, long, long, long, long, long, long, long, long);
     method @BytecodeOnly public static androidx.compose.material3.SelectableChipColors! copy-daRQuJA$default(androidx.compose.material3.SelectableChipColors!, long, long, long, long, long, long, long, long, long, long, long, long, long, int, Object!);
+    method @BytecodeOnly public long getContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getDisabledContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getDisabledLabelColor-0d7_KjU();
+    method @BytecodeOnly public long getDisabledLeadingIconColor-0d7_KjU();
+    method @BytecodeOnly public long getDisabledSelectedContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getDisabledTrailingIconColor-0d7_KjU();
+    method @BytecodeOnly public long getLabelColor-0d7_KjU();
+    method @BytecodeOnly public long getLeadingIconColor-0d7_KjU();
+    method @BytecodeOnly public long getSelectedContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getSelectedLabelColor-0d7_KjU();
+    method @BytecodeOnly public long getSelectedLeadingIconColor-0d7_KjU();
+    method @BytecodeOnly public long getSelectedTrailingIconColor-0d7_KjU();
+    method @BytecodeOnly public long getTrailingIconColor-0d7_KjU();
+    property public androidx.compose.ui.graphics.Color containerColor;
+    property public androidx.compose.ui.graphics.Color disabledContainerColor;
+    property public androidx.compose.ui.graphics.Color disabledLabelColor;
+    property public androidx.compose.ui.graphics.Color disabledLeadingIconColor;
+    property public androidx.compose.ui.graphics.Color disabledSelectedContainerColor;
+    property public androidx.compose.ui.graphics.Color disabledTrailingIconColor;
+    property public androidx.compose.ui.graphics.Color labelColor;
+    property public androidx.compose.ui.graphics.Color leadingIconColor;
+    property public androidx.compose.ui.graphics.Color selectedContainerColor;
+    property public androidx.compose.ui.graphics.Color selectedLabelColor;
+    property public androidx.compose.ui.graphics.Color selectedLeadingIconColor;
+    property public androidx.compose.ui.graphics.Color selectedTrailingIconColor;
+    property public androidx.compose.ui.graphics.Color trailingIconColor;
   }
 
   @androidx.compose.runtime.Immutable public final class SelectableChipElevation {
