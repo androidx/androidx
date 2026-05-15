@@ -26,9 +26,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,6 +56,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 import androidx.car.app.CarAppService;
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.SessionInfo;
 import androidx.car.app.SessionInfoIntentEncoder;
 import androidx.car.app.activity.renderer.ICarAppActivity;
@@ -64,6 +67,7 @@ import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.activity.renderer.surface.SurfaceControlCallback;
 import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
@@ -133,6 +137,86 @@ public class CarAppActivityTest {
             verify(mRenderService, times(1)).onNewIntent(activity.getIntent(),
                     mFakeCarAppServiceComponent, activity.getDisplayId());
 
+        });
+    }
+
+    @Test
+    public void testOnNewIntent_propagatesIntent() {
+        runOnActivity((scenario, activity) -> {
+            // Reset mock to clear calls from initial activity launch
+            reset(mRenderService);
+            when(mRenderService.onNewIntent(any(), any(), anyInt())).thenReturn(true);
+
+            Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+            newIntent.putExtra("test_key", "test_value");
+
+            scenario.onActivity(a -> a.onNewIntent(newIntent));
+
+            // Verify onNewIntent is called with the new intent.
+            verify(mRenderService, times(1)).onNewIntent(argThat((Intent intent) ->
+                            "test_value".equals(intent.getStringExtra("test_key"))),
+                    eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
+
+            // Properties check: Surface should be visible when connected
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.VISIBLE);
+            assertThat(activity.mErrorMessageView.getVisibility()).isEqualTo(View.GONE);
+            assertThat(activity.mLoadingView.getVisibility()).isEqualTo(View.GONE);
+        });
+    }
+
+    @Test
+    public void testOnNewIntent_whenConnected_doesNotRebind() {
+        runOnActivity((scenario, activity) -> {
+            // Reset mock to clear calls from initial activity launch
+            reset(mRenderService);
+            when(mRenderService.onNewIntent(any(), any(), anyInt())).thenReturn(true);
+            when(mRenderService.initialize(any(), any(), anyInt())).thenReturn(true);
+
+            Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+            scenario.onActivity(a -> a.onNewIntent(newIntent));
+
+            // Verify initialize was NOT called because it was already connected
+            verify(mRenderService, never()).initialize(any(), any(), anyInt());
+
+            // Properties check: Surface should still be visible
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.VISIBLE);
+        });
+    }
+
+    @Test
+    public void testOnNewIntent_whenDisconnected_rebinds() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel viewModel = activity.mViewModel;
+            assertThat(viewModel).isNotNull();
+
+            // Force an error state
+            scenario.onActivity(a -> viewModel.onError(ErrorHandler.ErrorType.HOST_ERROR));
+            org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+            // Verify surface is hidden on error
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.GONE);
+
+            reset(mRenderService);
+            when(mRenderService.onNewIntent(any(), any(), anyInt())).thenReturn(true);
+            when(mRenderService.initialize(any(), any(), anyInt())).thenReturn(true);
+            when(mRenderService.performHandshake(any(), anyInt())).thenReturn(
+                    Bundleable.create(new HandshakeInfo("", CarAppApiLevels.getLatest())));
+
+            Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
+            scenario.onActivity(a -> a.onNewIntent(newIntent));
+            org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+            // Verify initialize WAS called (since we were disconnected)
+            verify(mRenderService, times(1)).initialize(any(), eq(mFakeCarAppServiceComponent),
+                    eq(activity.getDisplayId()));
+
+            // Verify onNewIntent was called
+            verify(mRenderService, times(1)).onNewIntent(argThat((Intent intent) ->
+                            intent.getComponent().equals(newIntent.getComponent())),
+                    eq(mFakeCarAppServiceComponent), eq(activity.getDisplayId()));
+
+            // Properties check: Surface should be visible again after rebind
+            assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.VISIBLE);
         });
     }
 
