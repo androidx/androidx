@@ -545,17 +545,16 @@ internal class CoreModelEntity() : CoreEntity() {
         set(value) {
             onEntity {
                 if (super.size != value) {
-                    val heightScale =
-                        value.height / (intrinsicSize.height.toFloat().coerceAtLeast(1f))
-                    val widthScale = value.width / (intrinsicSize.width.toFloat().coerceAtLeast(1f))
-                    val depthScale = value.depth / (intrinsicSize.depth.toFloat().coerceAtLeast(1f))
+                    val heightScale = value.height / (modelSize.height.toFloat().coerceAtLeast(1f))
+                    val widthScale = value.width / (modelSize.width.toFloat().coerceAtLeast(1f))
+                    val depthScale = value.depth / (modelSize.depth.toFloat().coerceAtLeast(1f))
                     scale = minOf(heightScale, widthScale, depthScale)
                 }
                 super.size = value
             }
         }
 
-    val intrinsicSize: IntVolumeSize
+    val modelSize: IntVolumeSize
         get() =
             @OptIn(ExperimentalGltfComposeMethod::class)
             density?.let { density ->
