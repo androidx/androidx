@@ -35,6 +35,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics:$composeVersion")
     implementation(project(":glance:wear:wear"))
     implementation(project(":wear:compose:remote:remote-material3"))
+    implementation("androidx.core:core:1.18.0")
 }
 
 android {

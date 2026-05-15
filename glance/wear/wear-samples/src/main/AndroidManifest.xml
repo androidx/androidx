@@ -15,6 +15,9 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
     <application
         android:allowBackup="true"
@@ -59,6 +62,23 @@
             <meta-data
                 android:name="androidx.glance.wear.widget.provider"
                 android:resource="@xml/material3_theme_widget_info" />
+        </service>
+
+        <service
+            android:name=".HealthDataWidgetService"
+            android:exported="true"
+            android:icon="@drawable/ic_health_metrics"
+            android:label="@string/health_data_widget_label"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+
+            <intent-filter>
+                <action android:name="androidx.glance.wear.action.BIND_WIDGET_PROVIDER" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="androidx.glance.wear.widget.provider"
+                android:resource="@xml/health_data_widget_info" />
         </service>
 
         <uses-library

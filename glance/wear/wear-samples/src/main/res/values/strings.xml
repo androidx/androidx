@@ -23,4 +23,6 @@
     <string name="hello">Hello Wear Widget!</string>
     <string name="material3_theme_widget_label">AX Material3 theme widget</string>
     <string name="material3_theme_widget_description">AX Material3 theme sample</string>
+    <string name="health_data_widget_label">AX Health Data widget</string>
+    <string name="health_data_widget_description">AX Health Data sample</string>
 </resources>
