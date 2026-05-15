@@ -108,7 +108,10 @@ public constructor(
 
     public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun fromParcel(parcel: WearWidgetRequestParcel): WearWidgetParams {
+        public fun fromParcel(
+            parcel: WearWidgetRequestParcel,
+            getDefaultRendererVersion: () -> RendererVersion = { RendererVersion() },
+        ): WearWidgetParams {
             val requestProto = WearWidgetRequestProto.ADAPTER.decode(parcel.payload)
             return WearWidgetParams(
                 instanceId =
@@ -121,7 +124,7 @@ public constructor(
                 cornerRadiusDp = requestProto.corner_radius_dp,
                 rendererVersion =
                     if (requestProto.renderer_version_major == 0) {
-                        RendererVersion()
+                        getDefaultRendererVersion()
                     } else {
                         RendererVersion(
                             major = requestProto.renderer_version_major,

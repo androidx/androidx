@@ -24,6 +24,7 @@ import androidx.glance.wear.ActiveWidgetStore
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.core.ActiveWearWidgetHandle
+import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetEventBatch
 import androidx.glance.wear.core.WearWidgetParams
 import java.io.IOException
@@ -63,7 +64,11 @@ internal class WearWidgetProviderImpl(
         requireNotNull(callback) { "Invalid widget callback." }
         mainScope.launch {
             // TODO: Report errors in the callback if any of the following steps fail.
-            val params = WearWidgetParams.fromParcel(requestParcel)
+            val params =
+                WearWidgetParams.fromParcel(
+                    parcel = requestParcel,
+                    getDefaultRendererVersion = { RendererVersion.fromPlHostPackage(context) },
+                )
 
             launch {
                 activeWidgetStore?.markWidgetAsActive(providerName, params.instanceId.id)
