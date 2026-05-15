@@ -16,13 +16,10 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
@@ -132,7 +129,6 @@ public final class Banner implements Item {
      * @see Builder#setLeadingIcon(CarIcon)
      *
      */
-    @RestrictTo(LIBRARY)
     public @Nullable BannerElement getLeadingElement() {
         return mLeadingElement;
     }
@@ -145,7 +141,6 @@ public final class Banner implements Item {
      * @see Builder#addTrailingImage(CarIcon)
      *
      */
-    @RestrictTo(LIBRARY)
     public @NonNull List<BannerElement> getTrailingElements() {
         return mTrailingElements;
     }

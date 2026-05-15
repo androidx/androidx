@@ -1303,9 +1303,11 @@ package androidx.car.app.model {
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Banner implements androidx.car.app.model.Item {
     method public androidx.car.app.model.Background? getBackground();
     method public java.util.List<androidx.car.app.model.Action!> getBelowActions();
+    method public androidx.car.app.model.BannerElement? getLeadingElement();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
     method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
+    method public java.util.List<androidx.car.app.model.BannerElement!> getTrailingElements();
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class Banner.Builder {
@@ -1323,6 +1325,15 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Banner.Builder setSubtitle(CharSequence);
     method public androidx.car.app.model.Banner.Builder setTitle(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Banner.Builder setTitle(CharSequence);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class BannerElement {
+    method public androidx.car.app.model.Action? getAction();
+    method public androidx.car.app.model.CarIcon? getIcon();
+    method public int getType();
+    field public static final int TYPE_ACTION = 1; // 0x1
+    field public static final int TYPE_ICON = 2; // 0x2
+    field public static final int TYPE_IMAGE = 3; // 0x3
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class BannerSection extends androidx.car.app.model.Section<androidx.car.app.model.Banner!> {
