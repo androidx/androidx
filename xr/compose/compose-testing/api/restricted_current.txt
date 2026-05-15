@@ -59,19 +59,15 @@ package androidx.xr.compose.testing {
   }
 
   public final class SubspaceFiltersKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyAncestor(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyChild(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyDescendant(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnySibling(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher! hasContentDescription$default(String!, boolean, boolean, int, Object!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasParent(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasTestTag(String testTag);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isFocusable();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isFocused();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isNotFocusable();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isNotFocused();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isRoot();
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyAncestor(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyChild(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyDescendant(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnySibling(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.xr.compose.testing.SubspaceSemanticsMatcher! hasContentDescription$default(String!, boolean, boolean, int, Object!);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasParent(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasTestTag(String testTag);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isRoot();
   }
 
   public final class SubspaceSemanticsMatcher {
