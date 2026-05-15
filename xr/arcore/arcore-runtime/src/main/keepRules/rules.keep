@@ -25,8 +25,8 @@
 -if class androidx.xr.arcore.Plane
 -keep class androidx.xr.arcore.runtime.Plane$Label$Companion { *; }
 
--keep class androidx.xr.arcore.runtime.PerceptionRuntime { *; }
--keep class * implements androidx.xr.arcore.runtime.PerceptionRuntime { *; }
-
-# androidx.xr.arcore.runtime.TrackingState is referenced by native code.
+-if class ** implements androidx.xr.arcore.runtime.Trackable
 -keep class androidx.xr.arcore.runtime.TrackingState { *; }
+
+-if class androidx.xr.arcore.runtime.TrackingState
+-keep class androidx.xr.arcore.runtime.TrackingState$Companion { *; }
