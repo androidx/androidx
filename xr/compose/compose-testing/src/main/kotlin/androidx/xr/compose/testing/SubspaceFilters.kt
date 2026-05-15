@@ -16,62 +16,22 @@
 
 package androidx.xr.compose.testing
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.util.fastAny
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
- * Verifies that the node is focusable.
+ * Verifies the 3D semantic node's content description for accessibility services.
  *
- * @return matcher that matches the node if it is focusable.
- * @see SemanticsProperties.Focused
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public fun isFocusable(): SubspaceSemanticsMatcher = hasKey(SemanticsProperties.Focused)
-
-/**
- * Verifies that the node is not focusable.
+ * Note that 2D UI content rendered inside a Subspace panel (like text or buttons) maintains a
+ * separate 2D semantics tree.
  *
- * @return matcher that matches the node if it is not focusable.
- * @see SemanticsProperties.Focused
+ * @param value The exact or partial description string expected on the spatial node.
+ * @param substring If true, matches any node whose description contains [value]. Defaults to false.
+ * @param ignoreCase If true, case differences are ignored during comparison. Defaults to false.
+ * @return a matcher validating the presence of the content description.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public fun isNotFocusable(): SubspaceSemanticsMatcher =
-    SubspaceSemanticsMatcher.keyNotDefined(SemanticsProperties.Focused)
-
-/**
- * Verifies that the node is focused.
- *
- * @return matcher that matches the node if it is focused.
- * @see SemanticsProperties.Focused
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public fun isFocused(): SubspaceSemanticsMatcher =
-    SubspaceSemanticsMatcher.expectValue(SemanticsProperties.Focused, true)
-
-/**
- * Verifies that the node is not focused.
- *
- * @return matcher that matches the node if it is not focused.
- * @see SemanticsProperties.Focused
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public fun isNotFocused(): SubspaceSemanticsMatcher =
-    SubspaceSemanticsMatcher.expectValue(SemanticsProperties.Focused, false)
-
-/**
- * Verifies the node's content description.
- *
- * @param value Value to match as one of the items in the list of content descriptions.
- * @param substring Whether to use substring matching.
- * @param ignoreCase Whether case should be ignored.
- * @return true if the node's content description contains the given [value].
- * @see SemanticsProperties.ContentDescription
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasContentDescription(
     value: String,
     substring: Boolean = false,
@@ -100,33 +60,33 @@ public fun hasContentDescription(
 }
 
 /**
- * Verifies the node's test tag.
+ * Verifies the 3D semantic node's test tag.
  *
- * @param testTag Value to match.
- * @return true if the node is annotated by the given test tag.
- * @see SemanticsProperties.TestTag
+ * This is the primary mechanism for addressing spatial containers, anchors, and 3D panels in
+ * Compose for XR tests.
+ *
+ * @param testTag The string identifier assigned to the spatial element.
+ * @return a matcher for the specified [testTag].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasTestTag(testTag: String): SubspaceSemanticsMatcher =
     SubspaceSemanticsMatcher.expectValue(SemanticsProperties.TestTag, testTag)
 
 /**
- * Verifies that the node is the root semantics node.
+ * Verifies that the node is the root of the 3D semantics hierarchy.
  *
- * There is always one root in every node tree, added implicitly by Compose.
- *
- * @return true if the node is the root semantics node.
+ * @return a matcher that matches the root semantics node.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun isRoot(): SubspaceSemanticsMatcher = SubspaceSemanticsMatcher("isRoot") { it.isRoot }
 
 /**
- * Verifies the node's parent.
+ * Verifies the direct parent of a 3D semantic node.
  *
- * @param matcher The matcher to use to check the parent.
- * @return true if the node's parent satisfies the given matcher.
+ * This is indispensable for nested spatial compositions, such as a `PlanarEmbeddedSubspace`
+ * composed inside a `SpatialPanel`, to confirm exact container anchoring.
+ *
+ * @param matcher The semantic check to evaluate against the parent node.
+ * @return a matcher validating the parent's properties.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasParent(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     return SubspaceSemanticsMatcher("hasParentThat(${matcher.description})") {
         it.parentInfo?.run { matcher.matches(this) } ?: false
@@ -134,12 +94,14 @@ public fun hasParent(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatche
 }
 
 /**
- * Verifies the node's children.
+ * Verifies whether any immediate child of the 3D semantic node satisfies the given criteria.
  *
- * @param matcher The matcher to use to check the children.
- * @return true if the node has at least one child that satisfies the given matcher.
+ * Useful when testing spatial composite layouts or multiple anchored floating panels grouped under
+ * a common parent semantic container.
+ *
+ * @param matcher The semantic criteria for the expected child.
+ * @return a matcher validating the node's children.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasAnyChild(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     return SubspaceSemanticsMatcher("hasAnyChildThat(${matcher.description})") {
         matcher.matchesAny(it.childrenInfo)
@@ -147,13 +109,13 @@ public fun hasAnyChild(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatc
 }
 
 /**
- * Verifies the node's siblings.
+ * Verifies whether the 3D semantic node has any sibling satisfying the given condition.
  *
- * @param matcher The matcher to use to check the siblings. Sibling is defined as a any other node
- *   that shares the same parent.
- * @return true if the node has at least one sibling that satisfies the given matcher.
+ * A sibling is defined as any other spatial node sharing the exact same parent container.
+ *
+ * @param matcher The semantic criteria to evaluate against siblings.
+ * @return a matcher validating the node's siblings.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasAnySibling(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     return SubspaceSemanticsMatcher("hasAnySiblingThat(${matcher.description})") {
         val node = it
@@ -166,10 +128,9 @@ public fun hasAnySibling(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMa
 }
 
 /**
- * Verifies the node's ancestors.
+ * Verifies whether any ancestor in the path to the 3D semantics root satisfies the given matcher.
  *
- * @param matcher The matcher to use to check the ancestors. Example: For the following tree
- *
+ * Example: For the following spatial semantic tree:
  * ```
  * |-X
  * |-A
@@ -180,9 +141,9 @@ public fun hasAnySibling(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMa
  *
  * In case of C1, we would check the matcher against A and B.
  *
- * @return true if the node has at least one ancestor that satisfies the given matcher.
+ * @param matcher The semantic criteria to evaluate against all ancestors up to the root.
+ * @return a matcher validating the presence of the specified ancestor.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasAnyAncestor(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     return SubspaceSemanticsMatcher("hasAnyAncestorThat(${matcher.description})") {
         matcher.matchesAny(it.ancestors)
@@ -190,10 +151,11 @@ public fun hasAnyAncestor(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsM
 }
 
 /**
- * Verifies the node's descendants.
+ * Verifies whether any descendant of the 3D semantic node satisfies the given condition.
  *
- * @param matcher The matcher to use to check the descendants. Example: For the following tree
+ * Recursively descends the 3D semantic structure to locate deeply nested elements.
  *
+ * Example usage:
  * ```
  * |-X
  * |-A
@@ -204,9 +166,9 @@ public fun hasAnyAncestor(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsM
  *
  * In case of A, we would check the matcher against B, C1 and C2.
  *
- * @return true if the node has at least one descendant that satisfies the given matcher.
+ * @param matcher The semantic criteria for the expected descendant.
+ * @return a matcher validating the presence of the specified descendant.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasAnyDescendant(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     fun checkIfSubtreeMatches(
         matcher: SubspaceSemanticsMatcher,
@@ -241,6 +203,3 @@ private val SubspaceSemanticsInfo.ancestors: Iterable<SubspaceSemanticsInfo>
                 }
             }
         }
-
-private fun hasKey(key: SemanticsPropertyKey<*>): SubspaceSemanticsMatcher =
-    SubspaceSemanticsMatcher.keyIsDefined(key)

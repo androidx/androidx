@@ -58,6 +58,18 @@ package androidx.xr.compose.testing {
     method public static androidx.xr.compose.unit.DpVolumeSize getSize(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
   }
 
+  public final class SubspaceFiltersKt {
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyAncestor(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyChild(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyDescendant(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnySibling(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.xr.compose.testing.SubspaceSemanticsMatcher! hasContentDescription$default(String!, boolean, boolean, int, Object!);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasParent(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasTestTag(String testTag);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isRoot();
+  }
+
   public final class SubspaceSemanticsMatcher {
     ctor public SubspaceSemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.node.SubspaceSemanticsInfo,java.lang.Boolean> matcher);
   }
