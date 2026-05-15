@@ -100,7 +100,7 @@ These interfaces are shared with the AndroidX library code, and allows the
 client library to communicate with the Chromium WebView implementation via
 reflection.
 
-NOTE: Because the system WebView and the application code that uses the
+**Note:** Because the system WebView and the application code that uses the
 `androidx.webkit` library are loaded by separate classloaders by the Android
 Runtime, the boundary interfaces can only use classes that are part of the
 Android Framework API or Java Language for parameters and return types. Custom
@@ -198,17 +198,21 @@ Features added to the array of supported features does not need to have the
 ### Rolling the boundary interfaces
 
 After changes are made to the boundary interfaces, the AndroidX repository must
-be updated to use the latest version.  Googlers can run the
-`clank/bin/roll_boundary_interfaces.py` script from a checkout of Chromium,
-while external contributors should ask their Google liaison to perform this
-step.
+be updated to use the latest version.
 
-HINT: For local development before the interfaces have been rolled, the
+***note
+**Note:** Googlers can run the
+`clank/bin/roll_boundary_interfaces.py` script from a checkout of Chromium,
+while external contributors should ask their Google liaison (usually the person
+who performs the code review for the feature) to perform this step.
+***
+
+Hint: For local development before the interfaces have been rolled, the
 boundary interface changes can be copied into the
 `external/webview_support_interfaces` folder found in the root of the
 `androidx-main` checkout.
 
-Note: The new version of the boundary interfaces must still compile when
+**Note:** The new version of the boundary interfaces must still compile when
 matched with the current head of the `androidx-main` branch. In particular,
 this means:
 
