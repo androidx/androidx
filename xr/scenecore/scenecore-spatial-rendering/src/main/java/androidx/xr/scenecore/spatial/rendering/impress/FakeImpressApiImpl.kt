@@ -58,7 +58,17 @@ public class FakeImpressApiImpl : ImpressApi {
     )
 
     /** Test bookkeeping data for a Android Surface */
-    public class TestSurface(id: Int) : Surface(SurfaceTexture(id))
+    public class TestSurface private constructor(private val ownedSurfaceTexture: SurfaceTexture) :
+        Surface(ownedSurfaceTexture) {
+
+        public constructor(id: Int) : this(SurfaceTexture(id))
+
+        /** Releases the Surface and the owned SurfaceTexture. */
+        override fun release() {
+            super.release()
+            ownedSurfaceTexture.release()
+        }
+    }
 
     /** Test bookkeeping data for a StereoSurfaceEntity */
     public data class StereoSurfaceEntityData(
@@ -356,7 +366,8 @@ public class FakeImpressApiImpl : ImpressApi {
             }
         }
         impressNodes.remove(gltfNodeData)
-        stereoSurfaceEntities.remove(impressNode)
+        val surfaceData = stereoSurfaceEntities.remove(impressNode)
+        (surfaceData?.surface as? TestSurface)?.release()
     }
 
     /** This method parents an Impress node to another using their respective node objects. */
@@ -1109,6 +1120,10 @@ public class FakeImpressApiImpl : ImpressApi {
         gltfModels.clear()
         textureImages.clear()
         materials.clear()
+
+        // Release any remaining surfaces
+        stereoSurfaceEntities.values.forEach { data -> (data.surface as? TestSurface)?.release() }
+        stereoSurfaceEntities.clear()
     }
 
     override fun createMeshBuffer(
