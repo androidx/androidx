@@ -559,7 +559,7 @@ private fun ComposeContentTestRule.onChildWith(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun withStyleInheritance(block: () -> Unit) {
+internal fun withStyleInheritance(block: () -> Unit) {
     val previous = ComposeFoundationFlags.isInheritedTextStyleEnabled
     ComposeFoundationFlags.isInheritedTextStyleEnabled = true
     try {

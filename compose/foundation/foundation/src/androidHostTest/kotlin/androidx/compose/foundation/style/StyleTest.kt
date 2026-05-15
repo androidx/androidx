@@ -875,6 +875,191 @@ class StyleTest {
         state[ExtendedStyleStateKey] = false
         resolved(style, state) { assertEquals(Color.Red, it.backgroundColor) }
     }
+
+    @Test
+    fun textStyle_check_color() {
+        checkToTextStyle(
+            TextStyle(color = Color.Red),
+            { contentColor(Color.Blue) },
+            { contentColor },
+            { color },
+        )
+    }
+
+    @Test
+    fun textStyle_check_color_or_brush() {
+        // When a color is supplied by the text style, ignore the style brush
+        val resolvedStyles = ResolvedStyle()
+        val properties = StyleProperties()
+        val redToBlue = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        resolvedStyles.buildForTesting({ contentBrush(redToBlue) }, Density(1f))
+        resolvedStyles.resolveInto(PhaseFlagMask, properties)
+
+        // Convert to a text without the textStyle
+        val styleOnlyTextStyle = properties.toTextStyle(emptyTextStyle)
+        assertEquals(properties.contentBrush, styleOnlyTextStyle.brush)
+
+        // Convert to a text with the textStyle
+        val textStyle = TextStyle(color = Color.Red)
+        val textStyleWithSuppliedTextStyle = properties.toTextStyle(textStyle)
+        assertEquals(textStyle.color, textStyleWithSuppliedTextStyle.color)
+    }
+
+    @Test
+    fun textStyle_check_brush_or_color() {
+        // When a brush is supplied by the text style, ignore the style color
+        val resolvedStyles = ResolvedStyle()
+        val properties = StyleProperties()
+        val redToBlue = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        resolvedStyles.buildForTesting({ contentColor(Color.Blue) }, Density(1f))
+        resolvedStyles.resolveInto(PhaseFlagMask, properties)
+
+        // Convert to a text without the textStyle
+        val styleOnlyTextStyle = properties.toTextStyle(emptyTextStyle)
+        assertEquals(properties.contentColor, styleOnlyTextStyle.color)
+
+        // Convert to a text with the textStyle
+        val textStyle = TextStyle(brush = redToBlue)
+        val textStyleWithSuppliedTextStyle = properties.toTextStyle(textStyle)
+        assertEquals(textStyle.brush, textStyleWithSuppliedTextStyle.brush)
+    }
+
+    @Test
+    fun textStyle_check_brush() {
+        val redToBlue = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val blueToRed = Brush.linearGradient(listOf(Color.Blue, Color.Red))
+        checkToTextStyle(
+            TextStyle(brush = redToBlue),
+            { contentBrush(blueToRed) },
+            { contentBrush },
+            { brush },
+        )
+    }
+
+    @Test
+    fun textStyle_check_fontFamily() {
+        checkToTextStyle(
+            TextStyle(fontFamily = FontFamily.Serif),
+            { fontFamily(FontFamily.Cursive) },
+            { fontFamily },
+            { fontFamily },
+        )
+    }
+
+    @Test
+    fun textStyle_check_textMotion() {
+        checkToTextStyle(
+            TextStyle(textMotion = TextMotion.Static),
+            { textMotion(TextMotion.Animated) },
+            { textMotion },
+            { textMotion },
+        )
+    }
+
+    @Test
+    fun textStyle_check_textIndent() {
+        checkToTextStyle(
+            TextStyle(textIndent = TextIndent(1.sp, 2.sp)),
+            { textIndent(TextIndent(2.sp, 1.sp)) },
+            { textIndent },
+            { textIndent },
+        )
+    }
+
+    @Test
+    fun textStyle_check_fontSize() {
+        checkToTextStyle(TextStyle(fontSize = 1.sp), { fontSize(2.sp) }, { fontSize }, { fontSize })
+    }
+
+    @Test
+    fun textStyle_check_lineHeight() {
+        checkToTextStyle(
+            TextStyle(lineHeight = 1.sp),
+            { lineHeight(2.sp) },
+            { lineHeight },
+            { lineHeight },
+        )
+    }
+
+    @Test
+    fun textStyle_check_letterSpacing() {
+        checkToTextStyle(
+            TextStyle(letterSpacing = 1.sp),
+            { letterSpacing(2.sp) },
+            { letterSpacing },
+            { letterSpacing },
+        )
+    }
+
+    @Test
+    fun textStyle_check_baselineShift() {
+        checkToTextStyle(
+            TextStyle(baselineShift = BaselineShift.Superscript),
+            { baselineShift(BaselineShift.Subscript) },
+            { baselineShift },
+            { baselineShift },
+        )
+    }
+
+    @Test
+    fun textStyle_check_lineBreak() {
+        checkToTextStyle(
+            TextStyle(lineBreak = LineBreak.Paragraph),
+            { lineBreak(LineBreak.Simple) },
+            { lineBreak },
+            { lineBreak },
+        )
+    }
+
+    @Test
+    fun textStyle_check_hyphens() {
+        checkToTextStyle(
+            TextStyle(hyphens = Hyphens.Auto),
+            { hyphens(Hyphens.None) },
+            { hyphens },
+            { hyphens },
+        )
+    }
+
+    @Test
+    fun textStyle_check_fontSynthesis() {
+        checkToTextStyle(
+            TextStyle(fontSynthesis = FontSynthesis.Weight),
+            { fontSynthesis(FontSynthesis.None) },
+            { fontSynthesis },
+            { fontSynthesis },
+        )
+    }
+
+    @Test
+    fun textStyle_check_textDirection() {
+        checkToTextStyle(
+            TextStyle(textDirection = TextDirection.Rtl),
+            { textDirection(TextDirection.Ltr) },
+            { textDirection },
+            { textDirection },
+        )
+    }
+
+    @Test
+    fun textStyle_check_fontStyle() {
+        checkToTextStyle(
+            TextStyle(fontStyle = FontStyle.Italic),
+            { fontStyle(FontStyle.Normal) },
+            { fontStyle },
+            { fontStyle },
+        )
+    }
+
+    @Test
+    fun textStyle_check_textAlign() {
+        checkToTextStyle(
+            TextStyle(textAlign = TextAlign.Center),
+            { textAlign(TextAlign.End) },
+            { textAlign },
+            { textAlign },
+        )
+    }
 }
 
 fun styleTest(vararg expected: String, block: MutableList<String>.() -> Style) {
@@ -973,4 +1158,29 @@ internal fun ExtendedStyleScope.extended(block: () -> Unit) = state(ExtendedStyl
 internal fun ExtendedStyle.toStyle() = Style {
     val scope = object : StyleScope by this, ExtendedStyleScope {}
     with(scope) { applyStyle() }
+}
+
+private val emptyTextStyle = TextStyle()
+
+private fun <T> checkToTextStyle(
+    textStyle: TextStyle,
+    style: Style,
+    readStyleProperty: StyleProperties.() -> T,
+    readTextProperties: TextStyle.() -> T,
+) {
+    val resolvedStyles = ResolvedStyle()
+    val properties = StyleProperties()
+    resolvedStyles.buildForTesting(style, Density(1f))
+    resolvedStyles.resolveInto(PhaseFlagMask, properties)
+
+    // Convert to a text without the textStyle
+    val styleOnlyTextStyle = properties.toTextStyle(emptyTextStyle)
+    assertEquals(properties.readStyleProperty(), styleOnlyTextStyle.readTextProperties())
+
+    // Convert to a text with the textStyle
+    val textStyleWithSuppliedTextStyle = properties.toTextStyle(textStyle)
+    assertEquals(
+        textStyle.readTextProperties(),
+        textStyleWithSuppliedTextStyle.readTextProperties(),
+    )
 }
