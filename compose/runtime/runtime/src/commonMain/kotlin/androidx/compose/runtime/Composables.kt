@@ -83,7 +83,7 @@ public inline fun <T> remember(
     vararg keys: Any?,
     crossinline calculation: @DisallowComposableCalls () -> T,
 ): T {
-    var invalid = false
+    var invalid = currentComposer.changed(keys.size)
     for (key in keys) invalid = invalid or currentComposer.changed(key)
     return currentComposer.cache(invalid, calculation)
 }

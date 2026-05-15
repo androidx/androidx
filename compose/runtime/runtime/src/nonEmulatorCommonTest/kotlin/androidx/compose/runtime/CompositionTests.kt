@@ -57,6 +57,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -1114,6 +1115,73 @@ class CompositionTests {
         validate { this.Test(1, 2, 3, 4, 6) }
 
         assertEquals(2, count)
+    }
+
+    @Test
+    fun testRememberVarargParametersDropped() = compositionTest {
+        var keys by mutableStateOf(arrayOf<Any?>(1, 2, 3, 4, 5))
+        val rememberedObjects = mutableSetOf<Any>()
+        lateinit var scope: RecomposeScope
+
+        compose {
+            scope = currentRecomposeScope
+            rememberedObjects +=
+                remember(*keys) { Any() }
+                    .also {
+                        assertEquals(
+                            Any::class,
+                            it::class,
+                            "Remembered object is not an instance of Any",
+                        )
+                    }
+        }
+
+        val baselineSlotCount = composition!!.getSlots().count()
+        assertEquals(1, rememberedObjects.size, "Unexpected number of unique remembered values")
+
+        scope.invalidate()
+        expectNoChanges()
+        assertEquals(1, rememberedObjects.size, "Unexpected number of unique remembered values")
+
+        keys = keys.drop(1)
+        expectChanges()
+        assertEquals(2, rememberedObjects.size, "Unexpected number of unique remembered values")
+        assertEquals(
+            baselineSlotCount - 1,
+            composition!!.getSlots().count(),
+            "SlotTable did not deallocate the slot of the removed key",
+        )
+
+        keys = keys.drop(1)
+        expectChanges()
+        assertEquals(3, rememberedObjects.size, "Unexpected number of unique remembered values")
+        assertEquals(
+            baselineSlotCount - 2,
+            composition!!.getSlots().count(),
+            "SlotTable did not deallocate the slot of the removed key",
+        )
+
+        keys = emptyArray()
+        expectChanges()
+        assertEquals(4, rememberedObjects.size, "Unexpected number of unique remembered values")
+        assertEquals(
+            baselineSlotCount - 5,
+            composition!!.getSlots().count(),
+            "SlotTable did not deallocate the slot of the removed key",
+        )
+
+        scope.invalidate()
+        expectNoChanges()
+        assertEquals(4, rememberedObjects.size, "Unexpected number of unique remembered values")
+
+        composition!!.getSlots().forEach { slot ->
+            if (slot !== rememberedObjects.last() && slot in rememberedObjects) {
+                fail(
+                    "Remembered object #${rememberedObjects.indexOf(slot)} ($slot) is no longer " +
+                        "referenced by composition, but leaked in the SlotTable."
+                )
+            }
+        }
     }
 
     @Test
@@ -5070,6 +5138,9 @@ var stateB by mutableIntStateOf(2000)
 fun use(@Suppress("UNUSED_PARAMETER") v: Int) {}
 
 fun calculateSomething() = 4
+
+private inline fun <reified T> Array<T>.drop(n: Int): Array<T> =
+    Array((size - n).coerceAtLeast(0)) { this[it] }
 
 @Composable // used in testRestartOfDefaultFunctions
 fun Defaults(a: Int = 1, b: Int = 2, c: Int = 3, d: Int = calculateSomething()) {
