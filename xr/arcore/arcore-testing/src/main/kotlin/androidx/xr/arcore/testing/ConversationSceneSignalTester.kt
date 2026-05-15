@@ -17,11 +17,10 @@
 package androidx.xr.arcore.testing
 
 import androidx.xr.arcore.testing.internal.FakeRuntimeConversationState
-import androidx.xr.runtime.ExperimentalSceneSignalApi
 import androidx.xr.runtime.PreviewSpatialApi
 
 /** A test utility for manipulating Conversation Scene Signals in the mocked AR environment. */
-@ExperimentalSceneSignalApi
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @PreviewSpatialApi
 public class ConversationSceneSignalTester
 internal constructor(

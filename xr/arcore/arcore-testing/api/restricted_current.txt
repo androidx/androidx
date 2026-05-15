@@ -9,7 +9,6 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public int getAnchorResourceLimit();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> getAugmentedImages();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> getAugmentedObjects();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.ConversationSceneSignalTester getConversationSceneSignal();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.ArDeviceTester getDeviceTester();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.FaceTester getFaceTester();
     method @InaccessibleFromKotlin public androidx.xr.arcore.testing.GeospatialTester getGeospatialTester();
@@ -30,7 +29,6 @@ package androidx.xr.arcore.testing {
     property public int anchorResourceLimit;
     property public java.util.List<androidx.xr.arcore.testing.TestAugmentedImage> augmentedImages;
     property public java.util.List<androidx.xr.arcore.testing.TestAugmentedObject> augmentedObjects;
-    property @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public androidx.xr.arcore.testing.ConversationSceneSignalTester conversationSceneSignal;
     property public androidx.xr.arcore.testing.ArDeviceTester deviceTester;
     property public androidx.xr.arcore.testing.FaceTester faceTester;
     property public androidx.xr.arcore.testing.GeospatialTester geospatialTester;
@@ -55,15 +53,6 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
     property public boolean isCameraTracking;
     property public androidx.xr.runtime.math.Pose pose;
-  }
-
-  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSceneSignalApi @androidx.xr.runtime.PreviewSpatialApi public final class ConversationSceneSignalTester {
-    method @InaccessibleFromKotlin public float getConfidence();
-    method @InaccessibleFromKotlin public int getType();
-    method @InaccessibleFromKotlin public void setConfidence(float);
-    method @InaccessibleFromKotlin public void setType(int);
-    property public float confidence;
-    property public int type;
   }
 
   public final class DepthTester {

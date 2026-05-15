@@ -58,7 +58,7 @@ constructor(
     public val augmentedImageDatabase: AugmentedImageDatabase? = null,
 ) {
 
-    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
+    @OptIn(PreviewSpatialApi::class)
     private var _sceneSignalTypes: Set<SceneSignalType> = emptySet()
 
     /**
@@ -121,8 +121,8 @@ constructor(
      *   [SceneSignalType]. Setting this to an empty set (default) will disable all scene signal
      *   types.
      */
-    @ExperimentalSceneSignalApi
     @PreviewSpatialApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         config: Config,
         sceneSignalTypes: Set<SceneSignalType>,
@@ -142,7 +142,7 @@ constructor(
         this._sceneSignalTypes = sceneSignalTypes
     }
 
-    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
+    @OptIn(PreviewSpatialApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Config) return false
@@ -163,7 +163,7 @@ constructor(
         return true
     }
 
-    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
+    @OptIn(PreviewSpatialApi::class)
     override fun hashCode(): Int {
         var result = planeTracking.hashCode()
         result = 31 * result + handTracking.hashCode()
@@ -180,12 +180,12 @@ constructor(
         return result
     }
 
-    @ExperimentalSceneSignalApi
     @PreviewSpatialApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getSceneSignalTypes(): Set<SceneSignalType> = _sceneSignalTypes
 
     @JvmOverloads
-    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
+    @OptIn(PreviewSpatialApi::class)
     public fun copy(
         planeTracking: PlaneTrackingMode = this.planeTracking,
         handTracking: HandTrackingMode = this.handTracking,
@@ -217,7 +217,7 @@ constructor(
 
     @Suppress("MissingJvmstatic")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(ExperimentalSceneSignalApi::class, PreviewSpatialApi::class)
+    @OptIn(PreviewSpatialApi::class)
     public fun copy(
         planeTracking: PlaneTrackingMode = this.planeTracking,
         handTracking: HandTrackingMode = this.handTracking,
