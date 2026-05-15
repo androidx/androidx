@@ -683,7 +683,7 @@ internal class ScrollStateAdapter(
             }
         }
 
-    override var jiggleAmount: Float = 0.0f
+    override var jiggleAmount: Float by mutableFloatStateOf(0.0f)
 
     override val sizeFraction: Float
         get() {
@@ -731,7 +731,7 @@ internal class ScalingLazyColumnStateAdapter(
     private var currentSizeFraction: Float = 0f
     private var previousItemsCount: Int = 0
 
-    override var jiggleAmount: Float = 0.0f
+    override var jiggleAmount: Float by mutableFloatStateOf(0.0f)
 
     // TODO: b/368270238 - Fix calculation on a small content size.
     override val positionFraction: Float
@@ -985,7 +985,7 @@ internal class LazyColumnStateAdapter(
     private var latestSizeFraction: Float = 0f
     private var previousItemsCount: Int = 0
 
-    override var jiggleAmount: Float = 0.0f
+    override var jiggleAmount: Float by mutableFloatStateOf(0.0f)
 
     // TODO: b/368270238 - Fix calculation on a small content size.
     override val positionFraction: Float

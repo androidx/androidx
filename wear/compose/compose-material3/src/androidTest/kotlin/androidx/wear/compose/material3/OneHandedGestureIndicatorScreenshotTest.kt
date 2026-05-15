@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.internal.Icons
@@ -99,6 +100,27 @@ class OneHandedGestureIndicatorScreenshotTest {
                     gestureIndicatorVisible = true,
                     onGestureIndicatorFinished = {},
                     state = rememberTransformingLazyColumnState(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun oneHandedGesture_slc_scroll_indicator(
+        @TestParameter wrist: Wrist,
+        @TestParameter layoutDirection: LayoutDirection,
+    ) {
+        verifyOneHandedGestureContentScreenshot(
+            testName = testName,
+            screenshotRule = screenshotRule,
+            layoutDirection = layoutDirection,
+            wrist = wrist,
+        ) {
+            Box(modifier = Modifier.testTag(TEST_TAG)) {
+                OneHandedGestureScrollIndicator(
+                    gestureIndicatorVisible = true,
+                    onGestureIndicatorFinished = {},
+                    state = rememberScalingLazyListState(),
                 )
             }
         }
