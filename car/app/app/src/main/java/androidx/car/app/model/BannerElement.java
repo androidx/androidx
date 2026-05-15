@@ -36,7 +36,6 @@ import java.util.Objects;
  * An internal wrapper class for elements (actions, icons, images) that can be displayed
  * as leading or trailing items in a {@link Banner}.
  */
-@RestrictTo(LIBRARY)
 @ExperimentalCarApi
 @CarProtocol
 @KeepFields
