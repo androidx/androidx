@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
@@ -56,4 +58,8 @@ protobuf {
             }
         }
     }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    incremental = false
 }
