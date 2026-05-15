@@ -453,10 +453,17 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
 
-        requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
-        requireNonNull(mActivityLifecycleDelegate).registerRendererCallback(null);
+        CarAppViewModel viewModel = requireNonNull(mViewModel);
 
-        requireNonNull(mViewModel).bind(intent, mCarActivity, getDisplayId());
+        if (viewModel.getState().getValue() == CarAppViewModel.State.CONNECTED) {
+            Log.i(LogTags.TAG, "onNewIntent: ViewModel already connected.");
+            viewModel.updateActivityIntent(intent);
+        } else {
+            Log.i(LogTags.TAG, "onNewIntent: ViewModel not connected, rebinding service.");
+            requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
+            requireNonNull(mActivityLifecycleDelegate).registerRendererCallback(null);
+            viewModel.bind(intent, mCarActivity, getDisplayId());
+        }
     }
 
     // TODO(b/189864400): Address WindowManager#getDefaultDisplay() deprecation

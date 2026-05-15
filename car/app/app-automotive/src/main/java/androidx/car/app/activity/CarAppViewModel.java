@@ -132,6 +132,13 @@ public class CarAppViewModel extends AndroidViewModel implements
         mServiceConnectionManager.bind(intent, iCarAppActivity, displayId);
     }
 
+    /**
+     * Updates the activity intent for the connected {@code rendererService}.
+     */
+    void updateActivityIntent(@NonNull Intent intent) {
+        mServiceConnectionManager.updateActivityIntent(intent);
+    }
+
     /** Closes the connection to the renderer service if any. */
     void unbind() {
         mServiceConnectionManager.unbind();
