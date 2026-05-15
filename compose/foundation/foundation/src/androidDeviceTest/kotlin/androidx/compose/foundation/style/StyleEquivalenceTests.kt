@@ -496,15 +496,6 @@ class StyleEquivalenceTests {
     }
 }
 
-internal fun Bitmap.approximatelyEqualTo(bitmap: Bitmap): Boolean {
-    if (width != bitmap.width || height != bitmap.height) {
-        return false
-    }
-    val matcher = MSSIMMatcher(threshold = 0.995)
-    val result = matcher.compareBitmaps(this.toIntArray(), bitmap.toIntArray(), width, height)
-    return result.matches
-}
-
 private fun Bitmap.toIntArray(): IntArray {
     val bitmapArray = IntArray(width * height)
     getPixels(bitmapArray, 0, width, 0, 0, width, height)
