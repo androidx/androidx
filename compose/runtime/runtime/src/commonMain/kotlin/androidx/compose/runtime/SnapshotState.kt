@@ -197,8 +197,7 @@ internal open class SnapshotMutableStateImpl<T>(
 
         override fun create() = StateStateRecord(currentSnapshot().snapshotId, value)
 
-        override fun create(snapshotId: SnapshotId) =
-            StateStateRecord(currentSnapshot().snapshotId, value)
+        override fun create(snapshotId: SnapshotId) = StateStateRecord(snapshotId, value)
 
         var value: T = myValue
     }
