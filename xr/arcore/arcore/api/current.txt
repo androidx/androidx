@@ -422,19 +422,6 @@ package androidx.xr.arcore {
     property public androidx.xr.arcore.FaceConfidenceRegion RIGHT_UPPER;
   }
 
-  public final class FaceMeshRegion {
-    field public static final androidx.xr.arcore.FaceMeshRegion.Companion Companion;
-    field public static final androidx.xr.arcore.FaceMeshRegion FOREHEAD_LEFT;
-    field public static final androidx.xr.arcore.FaceMeshRegion FOREHEAD_RIGHT;
-    field public static final androidx.xr.arcore.FaceMeshRegion NOSE_TIP;
-  }
-
-  public static final class FaceMeshRegion.Companion {
-    property public androidx.xr.arcore.FaceMeshRegion FOREHEAD_LEFT;
-    property public androidx.xr.arcore.FaceMeshRegion FOREHEAD_RIGHT;
-    property public androidx.xr.arcore.FaceMeshRegion NOSE_TIP;
-  }
-
   public final class Geospatial {
     method public suspend Object? checkVpsAvailability(double latitude, double longitude, kotlin.coroutines.Continuation<? super androidx.xr.arcore.VpsAvailabilityResult>);
     method public androidx.xr.arcore.AnchorResult createAnchor(double latitude, double longitude, double altitude, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion);

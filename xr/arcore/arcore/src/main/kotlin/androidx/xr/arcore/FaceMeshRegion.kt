@@ -16,7 +16,10 @@
 
 package androidx.xr.arcore
 
+import androidx.annotation.RestrictTo
+
 /** Regions of a tracked [Face]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FaceMeshRegion private constructor(private val value: Int) {
     public companion object {
         /** The region at the tip of the nose */
