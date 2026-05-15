@@ -36,7 +36,6 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLExceptio
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.PlaneRenderer
 import androidx.xr.arcore.perceptionState
-import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
@@ -105,7 +104,7 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
         virtualSceneFramebuffer.resize(width, height)
     }
 
-    @OptIn(ExperimentalCameraApi::class)
+    @SuppressWarnings("RestrictedApiAndroidX")
     override fun onDrawFrame(render: SampleRender) {
         try {
             backgroundRenderer.setUseDepthVisualization(render, false)

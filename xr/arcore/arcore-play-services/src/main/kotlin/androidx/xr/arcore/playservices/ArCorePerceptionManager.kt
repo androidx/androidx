@@ -290,7 +290,6 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         xrResources.clear()
     }
 
-    @ExperimentalCameraApi
     override fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
         if (rotation != displayRotation || width != displayWidth || height != displayHeight) {
             displayRotation = rotation

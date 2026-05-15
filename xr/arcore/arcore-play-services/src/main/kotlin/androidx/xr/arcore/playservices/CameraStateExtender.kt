@@ -18,6 +18,7 @@
 package androidx.xr.arcore.playservices
 
 import android.os.Build
+import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.CoreState
@@ -180,7 +181,7 @@ internal class CameraStateExtender : StateExtender {
  * Provides the latest [CameraState], which contains the latest information about the device camera,
  * such as pose, projection, and timestamp for the current frame.
  */
-@ExperimentalCameraApi
 @Suppress("ExperimentalPropertyAnnotation")
 public val CoreState.cameraState: CameraState?
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     get() = CameraStateExtender.cameraStateMap[this.timeMark]
