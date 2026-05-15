@@ -29,7 +29,7 @@ import kotlin.collections.ArrayList
  * a path.
  */
 @Suppress("NotCloseable", "TopLevelBuilder")
-public class RemotePathBuilder internal constructor() {
+public class RemotePathBuilder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     // 88% of Material icons use 32 or fewer path nodes
     private val _nodes = ArrayList<RemotePathNode>(32)
@@ -418,4 +418,10 @@ public class RemotePathBuilder internal constructor() {
     public fun build(creationState: RemoteStateScope): RemotePath {
         return nodes.toRemotePath(creationState = creationState)
     }
+}
+
+/** DSL for building a [RemotePathBuilder]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemotePath.Companion.Builder(block: RemotePathBuilder.() -> Unit): RemotePathBuilder {
+    return RemotePathBuilder().apply(block)
 }
