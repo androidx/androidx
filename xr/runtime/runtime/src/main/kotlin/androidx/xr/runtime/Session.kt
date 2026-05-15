@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -125,7 +126,7 @@ public constructor(
         /**
          * Creates a new [Session].
          *
-         * It is strongly recommended to call this method from a background thread (e.g.,
+         * This method must be called from a worker thread (e.g.,
          * [Dispatchers.IO][kotlinx.coroutines.Dispatchers.IO]).
          * > **Thread Safety Warning:** This method performs significant disk I/O, including loading
          * > native libraries. If StrictMode is enabled, calling this on the **Main Thread** (UI
@@ -154,6 +155,7 @@ public constructor(
          */
         @JvmOverloads
         @JvmStatic
+        @WorkerThread
         public fun create(
             context: Context,
             coroutineContext: CoroutineContext = EmptyCoroutineContext,

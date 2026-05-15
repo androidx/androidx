@@ -84,7 +84,9 @@ import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.scene
 import java.io.File
 import java.nio.file.Paths
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TAG = "JXR-SurfaceEntity-SurfaceEntityImageActivity"
 private const val MAX_CORNER_RADIUS = 0.5f
@@ -189,29 +191,36 @@ class SurfaceEntityImageActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val session = (Session.create(context = this) as SessionCreateSuccess).session
-        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
-        val arDevice = ArDevice.getInstance(session)
-        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
-        session.scene.keyEntity = session.scene.mainPanelEntity
-
-        checkExternalStoragePermission()
-
-        // Set up the MoveableComponent so the user can move the Main Panel out of the way of
-        // video canvases which appear behind it.
-        if (movableComponentMP == null) {
-            movableComponentMP = MovableComponent.createSystemMovable(session)
-            session.scene.mainPanelEntity.addComponent(movableComponentMP!!)
-        }
-
-        // This will be re-used throughout the life of the Activity.
-        movieParent =
-            Entity.create(session, name = "movieParent", parent = session.scene.activitySpace)
-
         lifecycleScope.launch {
+            val sessionResult =
+                withContext(Dispatchers.IO) {
+                    Session.create(context = this@SurfaceEntityImageActivity)
+                }
+            if (sessionResult !is SessionCreateSuccess) {
+                finish()
+                return@launch
+            }
+            val session = sessionResult.session
+            session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+            val arDevice = ArDevice.getInstance(session)
+            session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+            session.scene.keyEntity = session.scene.mainPanelEntity
+
+            checkExternalStoragePermission()
+
+            // Set up the MoveableComponent so the user can move the Main Panel out of the way of
+            // video canvases which appear behind it.
+            if (movableComponentMP == null) {
+                movableComponentMP = MovableComponent.createSystemMovable(session)
+                session.scene.mainPanelEntity.addComponent(movableComponentMP!!)
+            }
+
+            // This will be re-used throughout the life of the Activity.
+            movieParent = Entity.create(session, "movieParent")
+
             alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))
+            setContent { HelloWorld(session, arDevice, activity) }
         }
-        setContent { HelloWorld(session, arDevice, activity) }
     }
 
     override fun onDestroy() {
