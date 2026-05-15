@@ -28,7 +28,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.PackageManagerUtils.XR_PROJECTED_SYSTEM_FEATURE
 import androidx.xr.runtime.testing.XrDeviceTestRule
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Before
@@ -63,16 +62,6 @@ class XrDeviceTest {
         }
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
-    @Test
-    fun lifecycle_returnsLifecycleFromSession() {
-        val session = createSession()
-        val xrDevice = XrDevice.getCurrentDevice(session)
-
-        assertThat(xrDevice.getLifecycle()).isEqualTo((session.lifecycleOwner.lifecycle))
-    }
-
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun getCurrentDevice_returnsCachedDevice() {
         val device1 = XrDevice.getCurrentDevice(activity)
@@ -81,7 +70,6 @@ class XrDeviceTest {
         assertThat(device1).isSameInstanceAs(device2)
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun getCurrentDevice_returnsDifferentDeviceForDifferentContext() {
         val device1 = XrDevice.getCurrentDevice(activity)
@@ -92,7 +80,7 @@ class XrDeviceTest {
         assertThat(device1).isNotSameInstanceAs(device2)
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class, UnstableNativeResourceApi::class)
+    @OptIn(UnstableNativeResourceApi::class)
     @Test
     fun getCurrentDevice_withExtensions_addsExtensionsAndReturnsDevice() {
         androidx.xr.runtime.internal.XrInstanceManager.resetInitForTesting()
@@ -105,7 +93,6 @@ class XrDeviceTest {
         assertThat(extraExtensions).containsExactly("XR_ANDROID_trackables_marker")
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isHandTrackingModeSupported_returnsFalseWhenInternalModeNotSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -115,7 +102,6 @@ class XrDeviceTest {
         assertThat(device.isHandTrackingModeSupported(HandTrackingMode.BOTH)).isFalse()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isHandTrackingModeSupported_returnsTrueWhenInternalModeSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -126,7 +112,6 @@ class XrDeviceTest {
         assertThat(device.isHandTrackingModeSupported(HandTrackingMode.BOTH)).isTrue()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isEyeTrackingModeSupported_returnsFalseWhenInternalModeNotSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -137,7 +122,6 @@ class XrDeviceTest {
         assertThat(device.isEyeTrackingModeSupported(EyeTrackingMode.COARSE_TRACKING)).isFalse()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isEyeTrackingModeSupported_returnsTrueWhenInternalModeSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -153,7 +137,6 @@ class XrDeviceTest {
         assertThat(device.isEyeTrackingModeSupported(EyeTrackingMode.COARSE_TRACKING)).isTrue()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isDepthEstimationModeSupported_returnsFalseWhenInternalModeNotSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -166,7 +149,6 @@ class XrDeviceTest {
             .isFalse()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isDepthEstimationModeSupported_returnsTrueWhenInternalModeSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -185,7 +167,6 @@ class XrDeviceTest {
             .isTrue()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isGeospatialModeSupported_returnsFalseWhenInternalModeNotSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -195,7 +176,6 @@ class XrDeviceTest {
         assertThat(device.isGeospatialModeSupported(GeospatialMode.SPATIAL)).isFalse()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isGeospatialModeSupported_returnsTrueWhenInternalModeSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -206,7 +186,6 @@ class XrDeviceTest {
         assertThat(device.isGeospatialModeSupported(GeospatialMode.SPATIAL)).isTrue()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isRenderingModeSupported_returnsFalseWhenInternalModeNotSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -216,7 +195,6 @@ class XrDeviceTest {
         assertThat(device.isRenderingModeSupported(RenderingMode.STEREO)).isFalse()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Test
     fun isRenderingModeSupported_returnsTrueWhenInternalModeSupported() {
         val device = XrDevice.getCurrentDevice(activity)
@@ -263,12 +241,6 @@ class XrDeviceTest {
         shadowPackageManager.setSystemFeature(XR_PROJECTED_SYSTEM_FEATURE, true)
 
         assertThat(XrDevice.isProjectedServiceAvailable(context)).isFalse()
-    }
-
-    private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {
-        val result = Session.create(activity, coroutineDispatcher)
-        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
-        return (result as SessionCreateSuccess).session
     }
 
     companion object {

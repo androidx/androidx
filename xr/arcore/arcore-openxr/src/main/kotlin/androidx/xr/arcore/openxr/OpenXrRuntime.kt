@@ -100,10 +100,7 @@ internal class OpenXrRuntime(
     var instanceProcAddr: Long = 0L
         private set
 
-    @OptIn(
-        androidx.xr.runtime.UnstableNativeResourceApi::class,
-        androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi::class,
-    )
+    @OptIn(androidx.xr.runtime.UnstableNativeResourceApi::class)
     override fun initialize() {
         nativePointer = nativeGetPointer()
         val nativeInstanceData = XrDevice.getCurrentDevice(context).getNativeInstanceData(context)

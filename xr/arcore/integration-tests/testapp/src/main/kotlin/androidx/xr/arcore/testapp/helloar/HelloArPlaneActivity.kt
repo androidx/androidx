@@ -55,7 +55,6 @@ import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.DisplayBlendMode
-import androidx.xr.runtime.ExperimentalXrDeviceLifecycleApi
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -105,7 +104,6 @@ class HelloArPlaneActivity : ComponentActivity() {
         sessionHelper.tryCreateSession()
     }
 
-    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
     @Composable
     @Suppress("deprecation")
     fun HelloPlanes(session: Session) {
