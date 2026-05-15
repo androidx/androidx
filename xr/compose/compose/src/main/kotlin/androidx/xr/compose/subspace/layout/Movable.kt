@@ -633,8 +633,7 @@ internal class MovableNode(
  * @property scale The initial scale of the composable as a result of its motion. This value will
  *   change with the composable's depth when scaleWithDistance is true on the modifier.
  * @property size The [IntVolumeSize] value that includes the width, height and depth of the
- *
- *   composable, factoring in shrinking or stretching due to [scale].
+ *   composable, factoring in shrinking or stretching due to [SpatialMoveEvent.scale].
  */
 @Deprecated(message = "Use SpatialMoveEvent instead")
 public typealias SpatialMoveStartEvent = SpatialMoveEvent
@@ -650,7 +649,7 @@ public typealias SpatialMoveStartEvent = SpatialMoveEvent
  * @property scale The final scale of the composable as a result of its motion. This value will
  *   change with the composable's depth when scaleWithDistance is true on the modifier.
  * @property size The [IntVolumeSize] value that includes the width, height and depth of the
- *   composable, factoring in shrinking or stretching due to [scale].
+ *   composable, factoring in shrinking or stretching due to [SpatialMoveEvent.scale].
  */
 @Deprecated(message = "Use SpatialMoveEvent instead")
 public typealias SpatialMoveEndEvent = SpatialMoveEvent

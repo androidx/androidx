@@ -218,10 +218,10 @@ internal constructor(
      * surface anchors at time. Attempting to resolve more than 100 surface anchors will return an
      * [AnchorCreateResourcesExhausted] result.
      *
-     * Creating a Terrain anchor requires an active Earth which is [EarthState.Running]. If it is
-     * not, then this function returns an [AnchorCreateTrackingUnavailable] result. This call also
-     * requires a working internet connection to communicate with the ARCore API on Google Cloud.
-     * ARCore will continue to retry if it is unable to establish a connection to the ARCore
+     * Creating a Terrain anchor requires an active Earth which is [GeospatialState.RUNNING]. If it
+     * is not, then this function returns an [AnchorCreateTrackingUnavailable] result. This call
+     * also requires a working internet connection to communicate with the ARCore API on Google
+     * Cloud. ARCore will continue to retry if it is unable to establish a connection to the ARCore
      * service.
      *
      * A Terrain anchor's tracking state will be [androidx.xr.arcore.TrackingState.PAUSED] if the

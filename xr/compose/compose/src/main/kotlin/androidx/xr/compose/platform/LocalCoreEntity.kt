@@ -74,9 +74,9 @@ internal fun View.findViewEntity(): CoreEntity? {
 /**
  * Determines the parent [CoreEntity] for spatial composable positioning.
  * 1. When the element is placed inside a Subspace composition the parent is pulled from
- *    [LocalOpaqueEntity].
+ *    [LocalOpaqueEntity]
  * 2. If the element is part of a standard 2D Compose composition that has a registered view-backed
- *    entity in [LocalViewEntity]
+ *    entity in [LocalView]
  * 3. If the element is not inside an active Subspace or a 2D view with a backing entity, it
  *    defaults to the application's root entity, typically the [LocalCoreMainPanelEntity]. This
  *    occurs when the element is the root spatial content, ex: `setContent { Orbiter(...) }`.
