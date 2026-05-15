@@ -1,24 +1,6 @@
 // Signature format: 4.0
 package androidx.xr.runtime.testing {
 
-  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSpatialApiVersionProvider implements androidx.xr.runtime.SpatialApiVersionProvider {
-    ctor @Deprecated public FakeSpatialApiVersionProvider();
-    method @InaccessibleFromKotlin @Deprecated public int getPreviewSpatialApiVersion();
-    method @InaccessibleFromKotlin @Deprecated public int getSpatialApiVersion();
-    property @Deprecated public int previewSpatialApiVersion;
-    property @Deprecated public int spatialApiVersion;
-    field @Deprecated public static final androidx.xr.runtime.testing.FakeSpatialApiVersionProvider.Companion Companion;
-  }
-
-  @Deprecated public static final class FakeSpatialApiVersionProvider.Companion {
-    method @InaccessibleFromKotlin @Deprecated public Integer? getTestPreviewSpatialApiVersion();
-    method @InaccessibleFromKotlin @Deprecated public Integer? getTestSpatialApiVersion();
-    method @InaccessibleFromKotlin @Deprecated public void setTestPreviewSpatialApiVersion(Integer?);
-    method @InaccessibleFromKotlin @Deprecated public void setTestSpatialApiVersion(Integer?);
-    property @Deprecated public Integer? testPreviewSpatialApiVersion;
-    property @Deprecated public Integer? testSpatialApiVersion;
-  }
-
   public final class XrDeviceTestRule extends org.junit.rules.ExternalResource {
     ctor public XrDeviceTestRule();
     method protected void before();
