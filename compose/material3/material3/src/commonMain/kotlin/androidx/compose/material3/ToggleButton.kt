@@ -108,6 +108,7 @@ import androidx.compose.ui.unit.dp
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ToggleButton(
     checked: Boolean,
@@ -200,6 +201,7 @@ fun ToggleButton(
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ElevatedToggleButton(
     checked: Boolean,
@@ -272,6 +274,7 @@ fun ElevatedToggleButton(
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TonalToggleButton(
     checked: Boolean,
@@ -342,6 +345,7 @@ fun TonalToggleButton(
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OutlinedToggleButton(
     checked: Boolean,
