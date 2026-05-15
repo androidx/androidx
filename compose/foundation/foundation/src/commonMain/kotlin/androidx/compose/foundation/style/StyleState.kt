@@ -30,11 +30,15 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.SnapshotId
+import androidx.compose.runtime.snapshots.StateObject
+import androidx.compose.runtime.snapshots.StateRecord
+import androidx.compose.runtime.snapshots.readable
+import androidx.compose.runtime.snapshots.withCurrent
+import androidx.compose.runtime.snapshots.writable
 import androidx.compose.ui.state.ToggleableState
 
 private const val PressedStateMask = 1 shl 0
@@ -165,22 +169,6 @@ open class StyleStateKey<T>(internal val defaultValue: T) {
     }
 }
 
-/**
- * A utility function used to update boolean values of the predefined state of a [StyleState].
- *
- * @param predefinedState the value of [MutableStyleState.predefinedState] to update
- * @param mask the value mask of the state to update.
- * @param include whether to include the state or exclude it.
- * @see FocusedStateMask
- * @see HoveredStateMask
- * @see PressedStateMask
- * @see SelectedStateMask
- * @see ToggleStateMask
- */
-@Suppress("NOTHING_TO_INLINE")
-private inline fun updateFromMask(predefinedState: Int, mask: Int, include: Boolean): Int =
-    (predefinedState and mask.inv()) or if (include) mask else 0
-
 internal interface PredefinedKey
 
 /** [StyleStateKey] for boolean values that are stored in [MutableStyleState.predefinedState] */
@@ -188,10 +176,10 @@ internal interface PredefinedKey
 internal class BooleanPredefinedKey(val mask: Int, defaultValue: Boolean = false) :
     StyleStateKey<Boolean>(defaultValue), PredefinedKey {
     override fun getValueFrom(state: MutableStyleState): Boolean =
-        state.predefinedState and mask != 0
+        state.predefinedState.getFlag(mask)
 
     override fun setValueTo(value: Boolean, state: MutableStyleState) {
-        state.predefinedState = updateFromMask(mask, state.predefinedState, value)
+        state.predefinedState.updateFlag(mask, value)
     }
 }
 
@@ -203,20 +191,21 @@ internal class BooleanPredefinedKey(val mask: Int, defaultValue: Boolean = false
 internal object PredefinedToggleStateKey :
     StyleStateKey<ToggleableState>(ToggleableState.Off), PredefinedKey {
     override fun getValueFrom(state: MutableStyleState): ToggleableState =
-        when (state.predefinedState and ToggleStateMask) {
+        when (state.predefinedState.flags and ToggleStateMask) {
             ToggleStateOn -> ToggleableState.On
             ToggleStateOff -> ToggleableState.Off
             else -> ToggleableState.Indeterminate
         }
 
     override fun setValueTo(value: ToggleableState, state: MutableStyleState) {
-        state.predefinedState =
-            (state.predefinedState and ToggleStateMask.inv()) or
-                when (value) {
-                    ToggleableState.On -> ToggleStateOn
-                    ToggleableState.Off -> ToggleStateOff
-                    else -> ToggleStateIndeterminate
-                }
+        state.predefinedState.updateFlags(
+            ToggleStateMask,
+            when (value) {
+                ToggleableState.On -> ToggleStateOn
+                ToggleableState.Off -> ToggleStateOff
+                else -> ToggleStateIndeterminate
+            },
+        )
     }
 }
 
@@ -501,36 +490,36 @@ class MutableStyleState
 @RememberInComposition
 constructor(override val interactionSource: InteractionSource?) : StyleState() {
     internal var customStates = mutableStateMapOf<StyleStateKey<*>, Any>()
-    internal var predefinedState: Int by mutableIntStateOf(EnabledStateMask)
+    internal var predefinedState = MutableStateFlagSet(EnabledStateMask)
 
     override var isEnabled: Boolean
-        get() = predefinedState and EnabledStateMask != 0
+        get() = predefinedState.getFlag(EnabledStateMask)
         set(value) {
-            predefinedState = updateFromMask(predefinedState, EnabledStateMask, value)
+            predefinedState.updateFlag(EnabledStateMask, value)
         }
 
     override var isFocused: Boolean
-        get() = predefinedState and FocusedStateMask != 0
+        get() = predefinedState.getFlag(FocusedStateMask)
         set(value) {
-            predefinedState = updateFromMask(predefinedState, FocusedStateMask, value)
+            predefinedState.updateFlag(FocusedStateMask, value)
         }
 
     override var isHovered: Boolean
-        get() = predefinedState and HoveredStateMask != 0
+        get() = predefinedState.getFlag(HoveredStateMask)
         set(value) {
-            predefinedState = updateFromMask(predefinedState, HoveredStateMask, value)
+            predefinedState.updateFlag(HoveredStateMask, value)
         }
 
     override var isPressed: Boolean
-        get() = predefinedState and PressedStateMask != 0
+        get() = predefinedState.getFlag(PressedStateMask)
         set(value) {
-            predefinedState = updateFromMask(predefinedState, PressedStateMask, value)
+            predefinedState.updateFlag(PressedStateMask, value)
         }
 
     override var isSelected: Boolean
-        get() = predefinedState and SelectedStateMask != 0
+        get() = predefinedState.getFlag(SelectedStateMask)
         set(value) {
-            predefinedState = updateFromMask(predefinedState, SelectedStateMask, value)
+            predefinedState.updateFlag(SelectedStateMask, value)
         }
 
     override var triStateToggle: ToggleableState
@@ -684,5 +673,62 @@ private class InteractionSet<T : Interaction> {
                 }
             }
         }
+    }
+}
+
+/**
+ * A custom mutable state object that allows treating an integer as a bit set.
+ *
+ * This doesn't use [androidx.compose.runtime.MutableIntState] because there is no way to update a
+ * bit in intValue without reading it. It is important that the write not count as a read so that it
+ * can be updated in composition without causing a read from composition.
+ */
+internal class MutableStateFlagSet(flags: Int) : StateObject {
+    private var next = FlagStateStateRecord(Snapshot.current.snapshotId, flags)
+
+    override val firstStateRecord: StateRecord
+        get() = next
+
+    override fun prependStateRecord(value: StateRecord) {
+        next = value as FlagStateStateRecord
+    }
+
+    val flags: Int
+        get() = next.readable(this).value
+
+    /**
+     * Helper function to retrieve the value of one bit.
+     *
+     * Callers should ensure that [mask] only has one bit is set as this returns if any bits are set
+     * in [mask], not if all of them are set.
+     *
+     * More specialized uses of flags (e.g. multiple bits treated as a single value) should use
+     * [flags] and [updateFlags] instead of [getFlag] and [updateFlag]. See
+     * [PredefinedToggleStateKey] for an example of using more than one bit at a time.
+     */
+    fun getFlag(mask: Int) = flags and mask != 0
+
+    fun updateFlag(mask: Int, value: Boolean) = updateFlags(mask, if (value) mask else 0)
+
+    fun updateFlags(mask: Int, values: Int) {
+        next.withCurrent {
+            val current = it.value
+            val newValue = (current and mask.inv()) or values
+            if (current != newValue) {
+                next.writable(this) { this.value = newValue }
+            }
+        }
+    }
+
+    private class FlagStateStateRecord(snapshotId: SnapshotId, var value: Int) :
+        StateRecord(snapshotId) {
+        override fun assign(value: StateRecord) {
+            this.value = (value as FlagStateStateRecord).value
+        }
+
+        override fun create(): StateRecord = create(Snapshot.current.snapshotId)
+
+        override fun create(snapshotId: SnapshotId): StateRecord =
+            FlagStateStateRecord(snapshotId, value)
     }
 }
