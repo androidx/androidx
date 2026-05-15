@@ -64,6 +64,8 @@ import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.requiredSize
+import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
@@ -409,6 +411,37 @@ class SubspaceTest {
     }
 
     @Test
+    fun subspace_withFillMaxSizeModifierAndFraction_shouldRespectRecommendedContentBox() {
+        var density: Density? = null
+        configureSessionWithRecommendedBox()
+
+        composeTestRule.setContent {
+            density = LocalDensity.current
+            Subspace(modifier = SubspaceModifier.fillMaxSize(0.5f)) {
+                SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {}
+            }
+        }
+
+        assertNotNull(density)
+        val fullWidthPx =
+            with(density) { Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this) }
+        val fullHeightPx =
+            with(density) { Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this) }
+        val fullDepthPx =
+            with(density) { Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this) }
+
+        val expectedWidthPx = (fullWidthPx * 0.5f).toInt()
+        val expectedHeightPx = (fullHeightPx * 0.5f).toInt()
+        val expectedDepthPx = (fullDepthPx * 0.5f).toInt()
+
+        composeTestRule
+            .onSubspaceNodeWithTag("box")
+            .assertWidthIsEqualTo(with(composeTestRule.density) { expectedWidthPx.toDp() })
+            .assertHeightIsEqualTo(with(composeTestRule.density) { expectedHeightPx.toDp() })
+            .assertDepthIsEqualTo(with(composeTestRule.density) { expectedDepthPx.toDp() })
+    }
+
+    @Test
     fun subspace_whenUnbounded_withFillMaxSize_doesNotRespectConstraints() {
         composeTestRule.setContent {
             Subspace(allowUnboundedSubspace = true) {
@@ -505,19 +538,77 @@ class SubspaceTest {
     }
 
     @Test
-    fun subspace_withLargerThanDefaultModifier_respectsModifier() {
+    fun subspace_withLargerThanDefaultModifier_isConstrainedToRecommendedBox() {
         val largeSize = 500000000.dp
         configureSessionWithRecommendedBox()
+        var expectedWidth: Dp = 0.dp
+        var expectedHeight: Dp = 0.dp
+        var expectedDepth: Dp = 0.dp
+
         composeTestRule.setContent {
+            val density = LocalDensity.current
+            expectedWidth =
+                with(density) {
+                    Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this).toDp()
+                }
+            expectedHeight =
+                with(density) {
+                    Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this).toDp()
+                }
+            expectedDepth =
+                with(density) {
+                    Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this).toDp()
+                }
+
             // The user provides a modifier bigger than the recommended box.
             Subspace(modifier = SubspaceModifier.size(largeSize)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
 
-        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(largeSize)
-        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(largeSize)
-        composeTestRule.onSubspaceNodeWithTag("panel").assertDepthIsEqualTo(largeSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(expectedWidth)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(expectedHeight)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertDepthIsEqualTo(expectedDepth)
+    }
+
+    @Test
+    fun subspace_withRequiredSizeModifier_overridesDefaultContentBox() {
+        val requiredSize = 50000.dp
+        configureSessionWithRecommendedBox()
+        composeTestRule.setContent {
+            // The user provides a requiredSize.
+            Subspace(modifier = SubspaceModifier.requiredSize(requiredSize)) {
+                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(requiredSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(requiredSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertDepthIsEqualTo(requiredSize)
+    }
+
+    @Test
+    fun subspace_withRequiredSizeInModifier_overridesDefaultContentBox() {
+        val requiredMaxSize = 50000.dp
+        configureSessionWithRecommendedBox()
+        composeTestRule.setContent {
+            // The user provides a requiredSizeIn.
+            // Since fillMaxSize is 1f, it fills the maximum size.
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = requiredMaxSize,
+                        maxHeight = requiredMaxSize,
+                        maxDepth = requiredMaxSize,
+                    )
+            ) {
+                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(requiredMaxSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(requiredMaxSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertDepthIsEqualTo(requiredMaxSize)
     }
 
     @Test
@@ -1294,6 +1385,96 @@ class SubspaceTest {
             val headPanelPose = assertExistenceAndGetNodeWorldPose("HeadPanel")
             assertThat(headPanelPose).isEqualTo(ArDeviceTarget.DEFAULT_OFFSET)
         }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_withFillMaxSizeModifierAndFraction_shouldRespectRecommendedContentBox() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+
+            var density: Density? = null
+
+            composeTestRule.setContent {
+                density = LocalDensity.current
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(),
+                    modifier = SubspaceModifier.fillMaxSize(0.5f),
+                ) {
+                    SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {}
+                }
+            }
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertNotNull(density)
+            val fullWidthPx =
+                with(density) { Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(this) }
+            val fullHeightPx =
+                with(density) { Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(this) }
+            val fullDepthPx =
+                with(density) { Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(this) }
+
+            val expectedWidthPx = (fullWidthPx * 0.5f).toInt()
+            val expectedHeightPx = (fullHeightPx * 0.5f).toInt()
+            val expectedDepthPx = (fullDepthPx * 0.5f).toInt()
+
+            composeTestRule
+                .onSubspaceNodeWithTag("box")
+                .assertWidthIsEqualTo(with(composeTestRule.density) { expectedWidthPx.toDp() })
+                .assertHeightIsEqualTo(with(composeTestRule.density) { expectedHeightPx.toDp() })
+                .assertDepthIsEqualTo(with(composeTestRule.density) { expectedDepthPx.toDp() })
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_withRequiredSizeModifier_overridesDefaultContentBox() {
+        val session = configureSessionWithDeviceTracking()
+        val requiredSize = 50000.dp
+
+        composeTestRule.setContent {
+            // The user provides a requiredSize.
+            FollowingSubspace(
+                target = FollowTarget.ArDevice(session),
+                behavior = FollowBehavior.Soft(),
+                modifier = SubspaceModifier.requiredSize(requiredSize),
+            ) {
+                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(requiredSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(requiredSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertDepthIsEqualTo(requiredSize)
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_withRequiredSizeInModifier_overridesDefaultContentBox() {
+        val session = configureSessionWithDeviceTracking()
+        val requiredMaxSize = 50000.dp
+
+        composeTestRule.setContent {
+            // The user provides a requiredSizeIn.
+            // Since fillMaxSize is 1f, it fills the maximum size.
+            FollowingSubspace(
+                target = FollowTarget.ArDevice(session),
+                behavior = FollowBehavior.Soft(),
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = requiredMaxSize,
+                        maxHeight = requiredMaxSize,
+                        maxDepth = requiredMaxSize,
+                    ),
+            ) {
+                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(requiredMaxSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(requiredMaxSize)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertDepthIsEqualTo(requiredMaxSize)
+    }
 
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)

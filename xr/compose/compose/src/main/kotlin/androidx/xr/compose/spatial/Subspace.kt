@@ -219,7 +219,7 @@ private fun Subspace(
             if (allowUnboundedSubspace) {
                 modifier
             } else {
-                modifier.then(SubspaceModifier.recommendedSizeIfUnbounded())
+                SubspaceModifier.recommendedSizeIfUnbounded().then(modifier)
             }
         SpatialBox(modifier = finalModifier, content = content)
     }
