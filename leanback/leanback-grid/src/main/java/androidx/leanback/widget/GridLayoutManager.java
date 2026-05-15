@@ -2057,10 +2057,12 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Fast layout when there is no structure change, adapter change, etc.
      * It will layout all views was layout requested or updated, until hit a view
      * with different size,  then it break and detachAndScrap all views after that.
+     * @return True if need align afterward, which happens if fastRelayout removed all children.
      */
-    private void fastRelayout() {
+    private boolean fastRelayout() {
+        boolean needAlign = false;
         boolean invalidateAfter = false;
-        final int childCount = getChildCount();
+        final int childCount = getChildCount(); // Always > 0 when layoutInit() returns true
         int position = mGrid.getFirstVisibleIndex();
         int index = 0;
         mFlag &= ~PF_FAST_RELAYOUT_UPDATED_SELECTED_POSITION;
@@ -2122,6 +2124,11 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 detachAndScrapView(v, mRecycler);
             }
             mGrid.invalidateItemsAfter(position);
+            if (getChildCount() == 0) {
+                // If invalidate after removed all views, the newly added views are not aligned
+                // so we need align.
+                needAlign = true;
+            }
             if ((mFlag & PF_PRUNE_CHILD) != 0) {
                 // in regular prune child mode, we just append items up to edge limit
                 appendVisibleItems();
@@ -2142,6 +2149,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         updateScrollLimits();
         updateSecondaryScrollLimits();
+        return needAlign;
     }
 
     @Override
@@ -2331,16 +2339,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (state.willRunPredictiveAnimations()) {
             updatePositionToRowMapInPostLayout();
         }
-        // Check if we need align to mFocusPosition.
-        // If it's the first layout (getChildCount() is 0), we always need align.
-        // For consequent layout, this is usually true unless in smoothScrolling;
-        // or in dragging and settling we are dealing it in a different way that we update
-        // mFocusPosition during scrolling; or when in touch mode idle and strategy is not "snap".
-        final boolean scrollToFocus = getChildCount() == 0
-                || (!isSmoothScrolling()
-                        && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == 0
-                        && (!mBaseGridView.isInTouchMode()
-                            || mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP));
+
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
             mSubFocusPosition = 0;
@@ -2362,12 +2361,26 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             deltaSecondary = state.getRemainingScrollHorizontal();
             deltaPrimary = state.getRemainingScrollVertical();
         }
-        if (layoutInit()) {
+        boolean doFastRelayout = layoutInit();
+        boolean fastRelayoutNeedAlign = false;
+        if (doFastRelayout) {
             mFlag |= PF_FAST_RELAYOUT;
             // If grid view is empty, we will start from mFocusPosition
             mGrid.setStart(mFocusPosition);
-            fastRelayout();
-        } else {
+            fastRelayoutNeedAlign = fastRelayout();
+        }
+        // Check if we need align to mFocusPosition.
+        // This is usually true unless in three special cases:
+        // 1. smoothScrolling
+        // 2. dragging and settling we are dealing it in a different way that we update
+        //    mFocusPosition during scrolling
+        // 3. In touch mode performed fastRelayout() that didn't require align.
+        boolean scrollToFocus = !isSmoothScrolling()
+                && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == 0
+                && !(mBaseGridView.isInTouchMode()
+                        && mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP
+                        && (doFastRelayout && !fastRelayoutNeedAlign));
+        if (!doFastRelayout) {
             mFlag &= ~PF_FAST_RELAYOUT;
             // layoutInit() has detached all views, so start from scratch
             mFlag = (mFlag & ~PF_IN_LAYOUT_SEARCH_FOCUS)
