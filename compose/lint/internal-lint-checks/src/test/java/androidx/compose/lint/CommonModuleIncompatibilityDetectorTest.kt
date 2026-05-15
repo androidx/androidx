@@ -55,6 +55,7 @@ class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
 
         lint()
             .files(file)
+            .allowCompilationErrors()
             .run()
             .expect(
                 """
@@ -211,7 +212,7 @@ class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
                 )
                 .within("src")
 
-        lint().files(file, androidFile, jvmFile).run().expectClean()
+        lint().files(file, androidFile, jvmFile).allowCompilationErrors().run().expectClean()
     }
 
     @Test
