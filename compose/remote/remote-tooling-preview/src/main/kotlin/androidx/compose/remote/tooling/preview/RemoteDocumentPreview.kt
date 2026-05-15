@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.compose.remote.tooling.preview
 
-import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
