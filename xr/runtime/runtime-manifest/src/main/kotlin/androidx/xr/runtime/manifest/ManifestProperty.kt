@@ -205,9 +205,10 @@ public val PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION: String =
 public val CATEGORY_XR_PROJECTED_LAUNCHER: String = "android.intent.category.XR_PROJECTED_LAUNCHER"
 
 /**
- * Activity level [ActivityInfo.Property][android.content.pm.ActivityInfo.Property] to inform the
- * system that the activity should be displayed on a projected display, rather than on the device
- * display.
+ * Activity level
+ * [ActivityInfo.requiredDisplayCategory][android.content.pm.ActivityInfo.requiredDisplayCategory]
+ * to inform the system that the activity should be displayed on a projected display, rather than on
+ * the device display.
  *
  * **Syntax:**
  *

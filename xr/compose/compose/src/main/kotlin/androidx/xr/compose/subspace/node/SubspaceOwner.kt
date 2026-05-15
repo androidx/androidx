@@ -21,8 +21,8 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Owner interface that defines the connection to the underlying element system.
  *
- * On Android, this connects to Android [elements][androidx.xr.subspace.Element] and all layout,
- * draw, input, and accessibility is hooked through them.
+ * On Android, this connects to Android [elements][SubspaceLayoutNode] and all layout, draw, input,
+ * and accessibility is hooked through them.
  *
  * See [androidx.compose.ui.node.Owner]
  */
