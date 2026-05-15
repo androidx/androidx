@@ -82,6 +82,19 @@ following sections:
    document before implementation starts can help reduce the risk of issues at
    this stage.
 
+### Feature Sponsorship
+In order to ensure a smooth experience for external contributors, the WebView
+team will assign a feature sponsor to assist you during the development once
+your feature design has been approved.
+
+The sponsor will be responsible for:
+
+* Initial code reviews. Changes will also likely require review of relevant
+  code owners, but the sponsor should take the first look.
+* Assisting with internal-only processes and tool execution, for example
+  rolling boundary interfaces (see below).
+* Shepherding the feature through the release process where needed.
+
 ## Implementing a feature in Chromium
 
 All WebView APIs are implemented as public methods on the [Chromium WebView
