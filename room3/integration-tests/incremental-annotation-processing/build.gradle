@@ -43,10 +43,10 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(gradleTestKit())
 
-    testPlugin("com.android.tools.build:gradle:8.5.2")
-    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950")
-    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950:linux")
-    testPlugin("com.android.tools.build:aapt2:8.5.2-11315950:osx")
+    testPlugin("com.android.tools.build:gradle:8.10.0")
+    testPlugin("com.android.tools.build:aapt2:8.10.0-12782657")
+    testPlugin("com.android.tools.build:aapt2:8.10.0-12782657:linux")
+    testPlugin("com.android.tools.build:aapt2:8.10.0-12782657:osx")
     testPlugin(libs.kotlinGradlePlugin)
     testPlugin(libs.kspGradlePlugin)
 }
