@@ -743,7 +743,7 @@ class CameraInfoAdapterTest {
                     FakeCameraProperties(
                         FakeCameraMetadata(
                             characteristics = mapOf(),
-                            extensions =
+                            extensionMetadata =
                                 extensions.associateWith {
                                     FakeCameraExtensionMetadata(
                                         camera = CameraId("0"),
@@ -767,7 +767,7 @@ class CameraInfoAdapterTest {
                     FakeCameraProperties(
                         FakeCameraMetadata(
                             characteristics = mapOf(),
-                            extensions =
+                            extensionMetadata =
                                 extensions.associateWith {
                                     FakeCameraExtensionMetadata(
                                         camera = CameraId("0"),

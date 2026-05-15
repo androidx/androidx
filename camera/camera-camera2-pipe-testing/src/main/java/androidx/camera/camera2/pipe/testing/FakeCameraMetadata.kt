@@ -55,6 +55,8 @@ public interface DeviceTemplate {
         metadataOverrides: Map<Metadata.Key<*>, Any?> = emptyMap(),
         requestKeysOverrides: Set<CaptureRequest.Key<*>> = emptySet(),
         resultKeysOverrides: Set<CaptureResult.Key<*>> = emptySet(),
+        extensionMetadata: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
+        physicalMetadata: Map<CameraId, FakeCameraMetadata> = emptyMap(),
     ): FakeCameraMetadata
 }
 
@@ -70,7 +72,7 @@ public class FakeCameraMetadata(
     override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
     public val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
-    private val extensions: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
+    private val extensionMetadata: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
 ) : FakeMetadata(metadata), CameraMetadata {
 
     override val keys: Set<CameraCharacteristics.Key<*>> = keys ?: characteristics.keys
@@ -85,7 +87,7 @@ public class FakeCameraMetadata(
 
     override val physicalCameraIds: Set<CameraId> = physicalMetadata.keys
     override val supportedExtensions: Set<Int>
-        get() = extensions.keys
+        get() = extensionMetadata.keys
 
     override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata =
         physicalMetadata[cameraId]!!
@@ -94,11 +96,11 @@ public class FakeCameraMetadata(
         physicalMetadata[cameraId]!!
 
     override suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata {
-        return extensions[extension]!!
+        return extensionMetadata[extension]!!
     }
 
     override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
-        return extensions[extension]!!
+        return extensionMetadata[extension]!!
     }
 
     override fun <T : Any> unwrapAs(type: Class<T>): T? = null
@@ -112,13 +114,15 @@ public class FakeCameraMetadata(
          */
         @JvmStatic
         public fun fromTemplate(
-            template: DeviceTemplate,
+            template: DeviceTemplate = HighEndDeviceTemplate,
             cameraId: CameraId = FakeCameraIds.default,
             lensFacing: Int? = null,
             characteristicsOverrides: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
             metadataOverrides: Map<Metadata.Key<*>, Any?> = emptyMap(),
             requestKeysOverrides: Set<CaptureRequest.Key<*>> = emptySet(),
             resultKeysOverrides: Set<CaptureResult.Key<*>> = emptySet(),
+            extensionMetadata: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
+            physicalMetadata: Map<CameraId, FakeCameraMetadata> = emptyMap(),
         ): FakeCameraMetadata {
             val overrides =
                 if (lensFacing != null) {
@@ -134,6 +138,8 @@ public class FakeCameraMetadata(
                 metadataOverrides = metadataOverrides,
                 requestKeysOverrides = requestKeysOverrides,
                 resultKeysOverrides = resultKeysOverrides,
+                extensionMetadata = extensionMetadata,
+                physicalMetadata = physicalMetadata,
             )
         }
     }

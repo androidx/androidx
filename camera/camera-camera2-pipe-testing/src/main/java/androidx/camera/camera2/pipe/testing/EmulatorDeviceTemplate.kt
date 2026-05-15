@@ -154,6 +154,8 @@ public object EmulatorDeviceTemplate : DeviceTemplate {
         metadataOverrides: Map<Metadata.Key<*>, Any?>,
         requestKeysOverrides: Set<CaptureRequest.Key<*>>,
         resultKeysOverrides: Set<CaptureResult.Key<*>>,
+        extensionMetadata: Map<Int, FakeCameraExtensionMetadata>,
+        physicalMetadata: Map<CameraId, FakeCameraMetadata>,
     ): FakeCameraMetadata {
         val lensFacingOverrides =
             if (
@@ -197,6 +199,8 @@ public object EmulatorDeviceTemplate : DeviceTemplate {
                     CaptureResult.CONTROL_AWB_STATE,
                 ) + resultKeysOverrides,
             cameraId = cameraId,
+            extensionMetadata = extensionMetadata,
+            physicalMetadata = physicalMetadata,
         )
     }
 }

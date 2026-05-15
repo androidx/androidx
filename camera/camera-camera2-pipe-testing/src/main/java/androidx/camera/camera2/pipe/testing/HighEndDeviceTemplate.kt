@@ -121,6 +121,8 @@ public object HighEndDeviceTemplate : DeviceTemplate {
         metadataOverrides: Map<Metadata.Key<*>, Any?>,
         requestKeysOverrides: Set<CaptureRequest.Key<*>>,
         resultKeysOverrides: Set<CaptureResult.Key<*>>,
+        extensionMetadata: Map<Int, FakeCameraExtensionMetadata>,
+        physicalMetadata: Map<CameraId, FakeCameraMetadata>,
     ): FakeCameraMetadata {
         val lensFacingOverrides =
             if ((lensFacing ?: LENS_FACING_BACK) == LENS_FACING_FRONT) {
@@ -149,6 +151,8 @@ public object HighEndDeviceTemplate : DeviceTemplate {
             resultKeys =
                 setOf(CaptureResult.CONTROL_AE_STATE, CaptureResult.CONTROL_AF_STATE) +
                     resultKeysOverrides,
+            extensionMetadata = extensionMetadata,
+            physicalMetadata = physicalMetadata,
         )
     }
 }
