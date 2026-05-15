@@ -66,9 +66,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.CancellationException
 
 /**
  * This composable renders a glTF or .glb model that is loaded asynchronously from the provided
@@ -91,6 +89,10 @@ import kotlinx.coroutines.supervisorScope
  *   the model has finished loading. You can use the [state] parameter to observe the loading status
  *   via [SpatialGltfModelState.status].
  *
+ * **Failure Behavior:** If the model fails to load for any reason, this composable will render
+ * nothing. You can inspect the exact reason for the failure by observing
+ * [SpatialGltfModelState.status].
+ *
  * @param state A [SpatialGltfModelState] object to observe and control the SpatialGltfModel. This
  *   can be created using [rememberSpatialGltfModelState]. The state should be created with a
  *   [SpatialGltfModelSource] that defines where to load the 3D model from. Use the helper functions
@@ -106,35 +108,17 @@ public fun SpatialGltfModel(
     modifier: SubspaceModifier = SubspaceModifier,
     content: @Composable @SubspaceComposable () -> Unit = {},
 ) {
-    var loadingFailed by remember(state) { mutableStateOf(false) }
-    if (loadingFailed) return // Do not proceed until the source has changed.
-
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val coreModelEntity = remember { CoreModelEntity() }
-    var intrinsicSize by remember { mutableStateOf(IntVolumeSize.Zero) }
 
-    LaunchedEffect(state) {
-        supervisorScope {
-            launch(
-                CoroutineExceptionHandler { _, throwable ->
-                    state.setLoadResult(Result.failure(throwable.cause ?: throwable))
-                    loadingFailed = true
-                }
-            ) {
-                val model = state.source.createModel(session)
-                val entity =
-                    GltfModelEntity.create(session, model, parent = session.scene.activitySpace)
-                coreModelEntity.attachEntity(entity)
-                state.setLoadResult(Result.success(coreModelEntity))
-                intrinsicSize = coreModelEntity.intrinsicSize
-            }
-        }
-    }
+    LaunchedEffect(state, session, coreModelEntity) { state.load(session, coreModelEntity) }
+
+    if (state.status is SpatialGltfModelStatus.Failed) return // Do not proceed if loading failed
 
     SubspaceLayout(
         modifier = modifier,
         coreEntity = coreModelEntity,
-        measurePolicy = SpatialGltfModelMeasurePolicy(intrinsicSize),
+        measurePolicy = SpatialGltfModelMeasurePolicy(state.modelSize),
         content = content,
     )
 }
@@ -173,7 +157,9 @@ private class SpatialGltfModelStateHolder(val state: SpatialGltfModelState) : Re
  * @param source The [SpatialGltfModelSource] that defines where to load the 3D model from.
  */
 public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) : AutoCloseable {
-    private val coreEntityActionQueue = ActionQueue<CoreModelEntity>()
+
+    internal var modelSize by mutableStateOf(IntVolumeSize.Zero)
+        private set
 
     /**
      * The current [SpatialGltfModelStatus] of the glTF model.
@@ -185,6 +171,9 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
      */
     public val status: SpatialGltfModelStatus
         get() = _status.value
+
+    private val _status: MutableState<SpatialGltfModelStatus> =
+        mutableStateOf(SpatialGltfModelStatus.Loading)
 
     /**
      * The subnodes defined in the glTF model.
@@ -200,9 +189,6 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
 
     private val _nodes: SnapshotStateList<GltfModelNode> = mutableStateListOf()
 
-    private val _status: MutableState<SpatialGltfModelStatus> =
-        mutableStateOf(SpatialGltfModelStatus.Loading)
-
     /**
      * The animations defined in the glTF model.
      *
@@ -216,23 +202,32 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
 
     private val _animations: SnapshotStateList<SpatialGltfModelAnimation> = mutableStateListOf()
 
-    internal fun setLoadResult(result: Result<CoreModelEntity>) {
-        result
-            .onSuccess { coreEntity ->
-                coreEntityActionQueue.value = coreEntity
-                _status.value = SpatialGltfModelStatus.Loaded
-                _nodes.clear()
-                _nodes.addAll(coreEntity.nodes)
+    internal suspend fun load(session: Session, coreModelEntity: CoreModelEntity) {
+        try {
+            _status.value = SpatialGltfModelStatus.Loading
+            val model = source.createModel(session)
+            val entity =
+                GltfModelEntity.create(session, model, parent = session.scene.activitySpace)
 
-                // Usage of the Animation API requires SDK >= 26
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    _animations.clear()
-                    _animations.addAll(
-                        coreEntity.animations?.fastMap(::SpatialGltfModelAnimation) ?: emptyList()
-                    )
-                }
+            coreModelEntity.attachEntity(entity)
+
+            modelSize = coreModelEntity.modelSize
+
+            _nodes.clear()
+            _nodes.addAll(coreModelEntity.nodes)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                _animations.clear()
+                _animations.addAll(
+                    coreModelEntity.animations?.fastMap(::SpatialGltfModelAnimation) ?: emptyList()
+                )
             }
-            .onFailure { exception -> _status.value = SpatialGltfModelStatus.Failed(exception) }
+
+            _status.value = SpatialGltfModelStatus.Loaded
+        } catch (throwable: Throwable) {
+            if (throwable is CancellationException) throw throwable
+            _status.value = SpatialGltfModelStatus.Failed(throwable.cause ?: throwable)
+        }
     }
 
     override fun close() {
@@ -368,7 +363,7 @@ public interface SpatialGltfModelSource {
     }
 }
 
-private class SpatialGltfModelMeasurePolicy(private val intrinsicSize: IntVolumeSize) :
+private class SpatialGltfModelMeasurePolicy(private val modelSize: IntVolumeSize) :
     SubspaceMeasurePolicy {
     override fun SubspaceMeasureScope.measure(
         measurables: List<SubspaceMeasurable>,
@@ -376,16 +371,16 @@ private class SpatialGltfModelMeasurePolicy(private val intrinsicSize: IntVolume
     ): SubspaceMeasureResult {
 
         val boxSize: IntVolumeSize =
-            if (intrinsicSize == IntVolumeSize.Zero) {
+            if (modelSize == IntVolumeSize.Zero) {
                 IntVolumeSize(constraints.minWidth, constraints.minHeight, constraints.minDepth)
             } else {
                 val scales =
-                    constraints.map(intrinsicSize.toFloatSize3d()) { value, min, max ->
+                    constraints.map(modelSize.toFloatSize3d()) { value, min, max ->
                         value.coerceIn(min, max) / value.coerceAtLeast(1f)
                     }
                 val scaleFactor = minOf(scales.width, scales.height, scales.depth)
 
-                constraints.map(intrinsicSize) { value, min, max ->
+                constraints.map(modelSize) { value, min, max ->
                     (value * scaleFactor).roundToInt().coerceIn(min, max)
                 }
             }
@@ -424,11 +419,11 @@ private class SpatialGltfModelMeasurePolicy(private val intrinsicSize: IntVolume
 
         other as SpatialGltfModelMeasurePolicy
 
-        return intrinsicSize == other.intrinsicSize
+        return modelSize == other.modelSize
     }
 
     override fun hashCode(): Int {
-        return intrinsicSize.hashCode()
+        return modelSize.hashCode()
     }
 }
 
