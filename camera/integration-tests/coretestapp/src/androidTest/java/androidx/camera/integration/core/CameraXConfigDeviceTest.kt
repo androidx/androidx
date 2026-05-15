@@ -49,8 +49,8 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.camera.core.internal.compat.quirk.ImageCaptureRotationOptionQuirk
+import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -550,20 +550,20 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
 
         initializeProviderWithConfig(configWithWrongId)
 
+        val resolutionFilter = ResolutionFilter { supportedSizes, _ ->
+            supportedSizes.sortedByDescending { it.width * it.height }
+        }
+
         val preview1 =
             Preview.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
         val imageCapture1 =
             ImageCapture.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
 
@@ -594,17 +594,13 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         val preview2 =
             Preview.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
         val imageCapture2 =
             ImageCapture.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
 
@@ -639,20 +635,20 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
 
         initializeProviderWithConfig(customConfig)
 
+        val resolutionFilter = ResolutionFilter { supportedSizes, _ ->
+            supportedSizes.sortedByDescending { it.width * it.height }
+        }
+
         val preview =
             Preview.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
         val imageCapture =
             ImageCapture.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
 
@@ -683,21 +679,21 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         // 1. Without bypass, preview should be capped at 1080p
         initializeProviderWithConfig(baseConfig)
 
+        val resolutionFilter = ResolutionFilter { supportedSizes, _ ->
+            supportedSizes.sortedByDescending { it.width * it.height }
+        }
+
         val previewWithoutBypass =
             Preview.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
 
         val imageCaptureWithoutBypass =
             ImageCapture.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
 
@@ -733,18 +729,14 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         val previewWithBypass =
             Preview.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
 
         val imageCapture =
             ImageCapture.Builder()
                 .setResolutionSelector(
-                    ResolutionSelector.Builder()
-                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                        .build()
+                    ResolutionSelector.Builder().setResolutionFilter(resolutionFilter).build()
                 )
                 .build()
 
