@@ -32,6 +32,7 @@ import androidx.compose.foundation.MutatePriority.PreventUserInput
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -49,7 +50,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -120,7 +120,9 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.center
@@ -134,6 +136,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
@@ -242,6 +245,9 @@ fun TimePicker(
     layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
 ) {
     val a11yServicesEnabled by rememberAccessibilityServiceState()
+    val isKeyboardMode = LocalInputModeManager.current.inputMode == InputMode.Keyboard
+    val autoSwitch = !a11yServicesEnabled && !isKeyboardMode
+
     val userOverride = remember { Ref<Boolean>() }
 
     val analogState = remember(state) { AnalogTimePickerState(state, userOverride) }
@@ -259,14 +265,14 @@ fun TimePicker(
             state = analogState,
             modifier = modifier,
             colors = colors,
-            autoSwitchToMinute = !a11yServicesEnabled,
+            autoSwitchToMinute = autoSwitch,
         )
     } else {
         HorizontalTimePicker(
             state = analogState,
             modifier = modifier,
             colors = colors,
-            autoSwitchToMinute = !a11yServicesEnabled,
+            autoSwitchToMinute = autoSwitch,
         )
     }
 }
@@ -823,6 +829,11 @@ internal class AnalogTimePickerState(
 ) : TimePickerState by state, RememberObserver {
 
     var currentDiameter by mutableStateOf(0.dp)
+    var isDialFocusable by mutableStateOf(false)
+    val dialFocusRequester = FocusRequester()
+    val hourNodeFocusRequester = FocusRequester()
+    val minuteNodeFocusRequester = FocusRequester()
+    val amPmNodeFocusRequester = FocusRequester()
 
     val currentAngle: Float
         get() = anim.value
@@ -1279,6 +1290,14 @@ private fun VerticalClockDisplay(state: TimePickerState, colors: TimePickerColor
 
 @Composable
 private fun ClockDisplayNumbers(state: TimePickerState, colors: TimePickerColors) {
+    val scope = rememberCoroutineScope()
+
+    val onActivate: () -> Unit = {
+        if (state is AnalogTimePickerState) {
+            state.isDialFocusable = true
+        }
+    }
+
     CompositionLocalProvider(
         LocalTextStyle provides TimeSelectorLabelTextFont.value,
         // Always display the TimeSelectors from left to right.
@@ -1286,23 +1305,52 @@ private fun ClockDisplayNumbers(state: TimePickerState, colors: TimePickerColors
     ) {
         Row {
             TimeSelector(
-                modifier = Modifier.size(TimeSelectorContainerWidth, TimeSelectorContainerHeight),
+                modifier =
+                    Modifier.size(TimeSelectorContainerWidth, TimeSelectorContainerHeight)
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && state is AnalogTimePickerState) {
+                                state.isDialFocusable = false
+                            }
+                        }
+                        .then(
+                            if (state is AnalogTimePickerState)
+                                Modifier.focusRequester(state.hourNodeFocusRequester)
+                            else Modifier
+                        ),
                 value = state.hourForDisplay,
                 state = state,
                 selection = TimePickerSelectionMode.Hour,
                 colors = colors,
                 isValid = true,
+                onSelectorActivated = onActivate,
             )
             DisplaySeparator(
                 Modifier.size(DisplaySeparatorWidth, PeriodSelectorVerticalContainerHeight)
             )
             TimeSelector(
-                modifier = Modifier.size(TimeSelectorContainerWidth, TimeSelectorContainerHeight),
+                modifier =
+                    Modifier.size(TimeSelectorContainerWidth, TimeSelectorContainerHeight)
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused && state is AnalogTimePickerState) {
+                                state.isDialFocusable = false
+                            }
+                        }
+                        .focusProperties {
+                            if (state is AnalogTimePickerState && state.isDialFocusable) {
+                                down = state.dialFocusRequester
+                            }
+                        }
+                        .then(
+                            if (state is AnalogTimePickerState)
+                                Modifier.focusRequester(state.minuteNodeFocusRequester)
+                            else Modifier
+                        ),
                 value = state.minute,
                 state = state,
                 selection = TimePickerSelectionMode.Minute,
                 colors = colors,
                 isValid = true,
+                onSelectorActivated = onActivate,
             )
         }
     }
@@ -1417,12 +1465,22 @@ private fun PeriodToggleImpl(
     Layout(
         modifier =
             modifier
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused && state is AnalogTimePickerState) {
+                        state.isDialFocusable = false
+                    }
+                }
                 .semantics {
                     isTraversalGroup = true
                     this.contentDescription = contentDescription
                 }
                 .selectableGroup()
-                .border(border = borderStroke, shape = shape),
+                .border(border = borderStroke, shape = shape)
+                .then(
+                    if (state is AnalogTimePickerState)
+                        Modifier.focusRequester(state.amPmNodeFocusRequester)
+                    else Modifier
+                ),
         measurePolicy = measurePolicy,
         content = {
             ToggleItem(
@@ -1511,6 +1569,7 @@ private fun TimeSelector(
     selection: TimePickerSelectionMode,
     colors: TimePickerColors,
     isValid: Boolean,
+    onSelectorActivated: () -> Unit = {},
 ) {
     LaunchedEffect(isValid) { if (!isValid) {} }
 
@@ -1541,6 +1600,7 @@ private fun TimeSelector(
             if (selection != state.selection) {
                 state.selection = selection
             }
+            onSelectorActivated()
         },
         selected = selected,
         shape = TimeSelectorContainerShape.value,
@@ -1710,6 +1770,12 @@ internal fun ClockFace(
     autoSwitchToMinute: Boolean,
 ) {
     val focusManager = LocalFocusManager.current
+    // A11y: Focus requesters for the boundary nodes (first and last) to loop the focus search.
+    val firstOuterReq = remember { FocusRequester() }
+    val lastOuterReq = remember { FocusRequester() }
+    val firstInnerReq = remember { FocusRequester() }
+    val lastInnerReq = remember { FocusRequester() }
+
     // TODO Load the motionScheme tokens from the component tokens file
     Crossfade(
         modifier =
@@ -1723,10 +1789,15 @@ internal fun ClockFace(
                         MotionSchemeKeyTokens.DefaultSpatial.value(),
                     )
                 )
-                .drawSelector(state, colors),
+                .drawSelector(state, colors)
+                .focusGroup(),
         targetState = state.clockFaceValues,
         animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
     ) { screen ->
+        val isActiveScreen = screen === state.clockFaceValues
+        val isMinute = state.selection == TimePickerSelectionMode.Minute
+        val is24Hour = state.is24hour && state.selection == TimePickerSelectionMode.Hour
+
         CircularLayout(
             modifier = Modifier.size(ClockDialContainerSize).semantics { selectableGroup() },
             radiusToSizeRatio = OuterCircleToSizeRatio,
@@ -1736,21 +1807,58 @@ internal fun ClockFace(
             ) {
                 repeat(screen.size) { index ->
                     val outerValue =
-                        if (!state.is24hour || state.selection == TimePickerSelectionMode.Minute) {
+                        if (!state.is24hour || isMinute) {
                             screen[index]
                         } else {
                             screen[index] % 12
                         }
+
                     ClockText(
-                        modifier = Modifier.semantics { traversalIndex = index.toFloat() + 1f },
+                        modifier =
+                            Modifier.semantics { traversalIndex = index.toFloat() + 1f }
+                                .then(
+                                    if (index == 0) {
+                                        Modifier.focusRequester(firstOuterReq)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                                .then(
+                                    if (index == screen.lastIndex) {
+                                        Modifier.focusRequester(lastOuterReq)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                                .focusProperties {
+                                    // Loop focus: e.g., moving backward from the first node goes to
+                                    // the last node.
+                                    // If 24-hour mode is active, it bridges to the inner circle
+                                    // instead.
+                                    if (index == 0)
+                                        previous =
+                                            if (state.is24hour && !isMinute) {
+                                                lastInnerReq
+                                            } else {
+                                                lastOuterReq
+                                            }
+                                    if (index == screen.lastIndex)
+                                        next =
+                                            if (state.is24hour && !isMinute) {
+                                                firstInnerReq
+                                            } else {
+                                                firstOuterReq
+                                            }
+                                },
                         state = state,
                         value = outerValue,
                         autoSwitchToMinute = autoSwitchToMinute,
                         focusManager = focusManager,
+                        isActiveScreen = isActiveScreen,
                     )
                 }
 
-                if (state.selection == TimePickerSelectionMode.Hour && state.is24hour) {
+                if (is24Hour) {
                     CircularLayout(
                         modifier =
                             Modifier.layoutId(LayoutId.InnerCircle)
@@ -1760,13 +1868,38 @@ internal fun ClockFace(
                     ) {
                         repeat(ExtraHours.size) { index ->
                             val innerValue = ExtraHours[index]
+                            val flatIndex = index + 12
+                            val isFirst = index == 0
+                            val isLast = index == ExtraHours.lastIndex
+
                             ClockText(
                                 modifier =
-                                    Modifier.semantics { traversalIndex = 12 + index.toFloat() },
+                                    Modifier.semantics { traversalIndex = flatIndex.toFloat() + 1f }
+                                        .then(
+                                            if (isFirst) {
+                                                Modifier.focusRequester(firstInnerReq)
+                                            } else {
+                                                Modifier
+                                            }
+                                        )
+                                        .then(
+                                            if (isLast) {
+                                                Modifier.focusRequester(lastInnerReq)
+                                            } else {
+                                                Modifier
+                                            }
+                                        )
+                                        .focusProperties {
+                                            // Connect the inner circle back to the outer circle to
+                                            // complete the loop.
+                                            if (isFirst) previous = lastOuterReq
+                                            if (isLast) next = firstOuterReq
+                                        },
                                 state = state,
                                 value = innerValue,
                                 autoSwitchToMinute = autoSwitchToMinute,
                                 focusManager = focusManager,
+                                isActiveScreen = isActiveScreen,
                             )
                         }
                     }
@@ -1848,7 +1981,9 @@ private fun ClockText(
     value: Int,
     autoSwitchToMinute: Boolean,
     focusManager: FocusManager,
+    isActiveScreen: Boolean,
 ) {
+    val inputModeManager = LocalInputModeManager.current
     val style = ClockDialLabelTextFont.value
     val density: Density = LocalDensity.current
     val maxDist = with(density) { MaxDistance.toPx() }
@@ -1865,6 +2000,19 @@ private fun ClockText(
         )
 
     val text = value.toLocalString()
+    val isTheSelectedValue =
+        remember(state.selection, state.hour, state.minute, state.is24hour, value) {
+            if (state.selection == TimePickerSelectionMode.Hour) {
+                if (state.is24hour) {
+                    value == state.hour
+                } else {
+                    value == state.hourForDisplay
+                }
+            } else {
+                val closestMinute = (kotlin.math.round(state.minute / 5f) * 5).toInt() % 60
+                value == closestMinute
+            }
+        }
     val selected by
         remember(state) {
             derivedStateOf {
@@ -1874,25 +2022,41 @@ private fun ClockText(
             }
         }
 
-    val onClockTextClick: () -> Unit = {
+    val onClockTextClick: (autoSwitch: Boolean) -> Unit = { autoSwitch ->
         scope.launch {
             state.onTap(
                 x = center.x,
                 y = center.y,
                 maxDist = maxDist,
-                autoSwitchToMinute = autoSwitchToMinute,
+                autoSwitchToMinute = autoSwitch,
                 center = parentCenter,
                 animationSpec = SnapSpec(),
             )
         }
     }
-    val focusable = LocalInputModeManager.current.inputMode != InputMode.Touch
+
+    if (isTheSelectedValue && isActiveScreen) {
+        LaunchedEffect(state.isDialFocusable) {
+            if (state.isDialFocusable) {
+                state.dialFocusRequester.requestFocus()
+            }
+        }
+    }
 
     // TODO Load the motionScheme tokens from the component tokens file
     Box(
         contentAlignment = Alignment.Center,
         modifier =
             modifier
+                .then(
+                    // This logic ensures that only the selected value on the dial is the target for
+                    // the dialFocusRequester. This is needed for keyboard navigation.
+                    if (isTheSelectedValue) {
+                        Modifier.focusRequester(state.dialFocusRequester)
+                    } else {
+                        Modifier
+                    }
+                )
                 .onGloballyPositioned {
                     parentCenter = it.parentCoordinates?.size?.center ?: IntOffset.Zero
                     boundsInParent = it.boundsInParent()
@@ -1901,12 +2065,44 @@ private fun ClockText(
                 .minimumInteractiveComponentSize()
                 .size(MinimumInteractiveSize)
                 .onKeyEvent {
-                    if (it.type == KeyEventType.KeyDown && it.isEnter) {
-                        // Emit ripple.
-                        scope.launch { interactionSource.emit(PressInteraction.Press(center)) }
+                    // Handle keyboard navigation within the clock face to meet a11y requirements.
+                    if (it.type == KeyEventType.KeyDown) {
+                        // A11y focus trap: Arrow keys loop focus inside the clock face
+                        if (it.key == Key.DirectionDown || it.key == Key.DirectionRight) {
+                            focusManager.moveFocus(FocusDirection.Next)
+                            return@onKeyEvent true
+                        } else if (it.key == Key.DirectionUp || it.key == Key.DirectionLeft) {
+                            focusManager.moveFocus(FocusDirection.Previous)
+                            return@onKeyEvent true
+                        }
+                        // A11y: Tab / Shift+Tab escapes the clock face to input toggles
+                        if (it.key == Key.Tab) {
+                            if (it.isShiftPressed) {
+                                state.isDialFocusable = false
+                                // Move focus back to the current active input toggle
+                                if (state.selection == TimePickerSelectionMode.Hour) {
+                                    state.hourNodeFocusRequester.requestFocus()
+                                } else {
+                                    state.minuteNodeFocusRequester.requestFocus()
+                                }
+                            } else {
+                                if (state.selection == TimePickerSelectionMode.Hour) {
+                                    state.minuteNodeFocusRequester.requestFocus()
+                                } else {
+                                    if (state.is24hour) {
+                                        // there is no AM/PM toggle
+                                        state.minuteNodeFocusRequester.requestFocus()
+                                        focusManager.moveFocus(FocusDirection.Next)
+                                    } else {
+                                        state.amPmNodeFocusRequester.requestFocus()
+                                    }
+                                }
+                            }
+                            return@onKeyEvent true
+                        }
                     }
                     if (it.isClick) {
-                        onClockTextClick()
+                        onClockTextClick(false)
                         // Make sure indication is cleared.
                         scope.launch {
                             interactionSource.emit(
@@ -1915,25 +2111,19 @@ private fun ClockText(
                         }
                         return@onKeyEvent true
                     }
-                    // The arrow keys navigation should follow the same flow as tabbing navigation.
-                    // Down/Right moves focus forward and Up/Left moves focus backwards.
-                    if (it.type == KeyEventType.KeyDown) {
-                        if (it.key == Key.DirectionDown || it.key == Key.DirectionRight) {
-                            focusManager.moveFocus(FocusDirection.Next)
-                            return@onKeyEvent true
-                        } else if (it.key == Key.DirectionUp || it.key == Key.DirectionLeft) {
-                            focusManager.moveFocus(FocusDirection.Previous)
-                            return@onKeyEvent true
-                        }
-                    }
-
                     false
                 }
+                .focusProperties {
+                    canFocus =
+                        isActiveScreen &&
+                            state.isDialFocusable &&
+                            inputModeManager.inputMode != InputMode.Touch
+                }
                 .indication(interactionSource, ripple(radius = MinimumInteractiveSize / 2))
-                .focusable(focusable, interactionSource)
+                .focusable(true, interactionSource)
                 .semantics(mergeDescendants = true) {
                     onClick {
-                        onClockTextClick()
+                        onClockTextClick(autoSwitchToMinute)
                         true
                     }
                     this.selected = selected
