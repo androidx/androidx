@@ -222,10 +222,7 @@ public final class TimeFormatText implements TimeDependentText {
 
     private long getOffset(long date) {
         sDate.setTime(date);
-        if (mTimeZone.inDaylightTime(sDate)) {
-            return (long) mTimeZone.getRawOffset() + mTimeZone.getDSTSavings();
-        }
-        return mTimeZone.getRawOffset();
+        return mTimeZone.getOffset(date);
     }
 
     private @NonNull String getDateFormatWithoutText(String format) {
