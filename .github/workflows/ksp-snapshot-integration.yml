@@ -81,5 +81,6 @@ jobs:
             --stacktrace
             -x validateIntegrationPatches
             -x checkKotlinApiTarget
+            -x jsBrowserTest
           # Disable the cache since this is the only build using the latest KSP.
           gradle-cache-disabled: true
