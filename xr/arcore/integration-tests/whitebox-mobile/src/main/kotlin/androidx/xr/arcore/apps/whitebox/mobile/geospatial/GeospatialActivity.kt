@@ -66,7 +66,6 @@ import androidx.xr.arcore.Plane
 import androidx.xr.arcore.apps.whitebox.mobile.common.SessionLifecycleHelper
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.hitTest
-import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Config
@@ -125,7 +124,8 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
         surfaceView.onPause()
     }
 
-    @OptIn(UnsupportedArCoreCompatApi::class, ExperimentalCameraApi::class)
+    @OptIn(UnsupportedArCoreCompatApi::class)
+    @SuppressWarnings("RestrictedApiAndroidX")
     private fun getHits() {
         if (lifecycle.currentStateFlow.value == Lifecycle.State.RESUMED) {
             val pose: Pose? = session.state.value.cameraState?.displayOrientedPose

@@ -59,7 +59,6 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Framebuffer
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLException
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
-import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.CameraFacingDirection
@@ -225,8 +224,8 @@ class FaceMeshActivity : ComponentActivity(), SampleRender.Companion.Renderer {
         framebuffer.resize(width, height)
     }
 
-    @OptIn(ExperimentalFaceApi::class, ExperimentalCameraApi::class)
-    @Suppress("RestrictedApiAndroidX")
+    @OptIn(ExperimentalFaceApi::class)
+    @SuppressWarnings("RestrictedApiAndroidX")
     override fun onDrawFrame(render: SampleRender) {
         val cameraState = session.state.value.cameraState
 

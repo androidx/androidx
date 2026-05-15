@@ -60,7 +60,6 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLException
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
 import androidx.xr.arcore.perceptionState
-import androidx.xr.arcore.playservices.ExperimentalCameraApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Config
@@ -156,7 +155,7 @@ class DepthActivity :
         virtualSceneFramebuffer.resize(width, height)
     }
 
-    @OptIn(ExperimentalCameraApi::class)
+    @SuppressWarnings("RestrictedApiAndroidX")
     override fun onDrawFrame(render: SampleRender) {
         if (!::backgroundRenderer.isInitialized) {
             return
@@ -249,7 +248,6 @@ class DepthActivity :
     }
 
     @Composable
-    @OptIn(ExperimentalCameraApi::class)
     private fun MainPanel() {
         val state by session.state.collectAsStateWithLifecycle()
         val perceptionState = state.perceptionState

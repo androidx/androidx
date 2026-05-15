@@ -19,6 +19,7 @@ package androidx.xr.arcore.playservices
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.CoreState
 import androidx.xr.runtime.math.Matrix4
@@ -42,6 +43,7 @@ import kotlin.time.ComparableTimeMark
  *   device coordinates to normalized texture coordinates
  * @sample androidx.xr.arcore.samples.getARCoreHardwareBuffer
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CameraState
 internal constructor(
     public val timeMark: ComparableTimeMark,
