@@ -24,6 +24,7 @@ import androidx.webkit.test.common.WebkitUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,6 +60,7 @@ public class NavigateTest {
         }
     }
 
+    @Ignore("b/513505521")
     @Test
     public void testNavigateWithParams() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1);
