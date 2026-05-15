@@ -27,7 +27,11 @@ class WearRemoteIssueRegistry : IssueRegistry() {
     override val api = 16
     override val minApi = CURRENT_API
     override val issues
-        get() = listOf(LocalTextStyleDetector.LocalTextStyleUsage)
+        get() =
+            listOf(
+                LocalTextStyleDetector.LocalTextStyleUsage,
+                LocalContentColorDetector.LocalContentColorUsage,
+            )
 
     override val vendor =
         Vendor(
