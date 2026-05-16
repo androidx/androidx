@@ -33,49 +33,31 @@ public class FakeAnchorEntity internal constructor(fakeInternal: InternalFakeAnc
 
     public constructor() : this(InternalFakeAnchorEntity())
 
-    /**
-     * The underlying [androidx.xr.arcore.runtime.Anchor] instance that this fake entity represents,
-     * set when [setAnchor] is called.
-     *
-     * @see androidx.xr.arcore.runtime.Anchor
-     * @see androidx.xr.arcore.testing.FakeRuntimeAnchor
-     */
-    internal var anchor: Anchor? = null
-
-    private var onStateChangedListener: OnStateChangedListener? =
-        OnStateChangedListener { newState ->
-            _state = newState
-        }
-
-    private var _state: @AnchorEntity.State Int = AnchorEntity.State.UNANCHORED
+    private val internalAnchorEntity: InternalFakeAnchorEntity
+        get() = fakeInternal as InternalFakeAnchorEntity
 
     /** The current state of the anchor. */
     override val state: @AnchorEntity.State Int
-        get() = _state
+        get() = internalAnchorEntity.state
 
     /** Registers a listener to be called when the state of the anchor changes. */
     @Suppress("ExecutorRegistration")
     override fun setOnStateChangedListener(onStateChangedListener: OnStateChangedListener?) {
-        this.onStateChangedListener = onStateChangedListener
-        onStateChangedListener?.onStateChanged(_state)
+        internalAnchorEntity.setOnStateChangedListener(onStateChangedListener)
     }
 
     override fun setAnchor(anchor: Anchor): Boolean {
-        // detach current
-        this.anchor?.detach()
-        this.anchor = anchor
-        onStateChangedListener?.onStateChanged(AnchorEntity.State.ANCHORED)
-        return true
+        return internalAnchorEntity.setAnchor(anchor)
     }
 
     @Suppress("RestrictedApiAndroidX")
     override fun getPose(relativeTo: Int): Pose {
-        return anchor?.runtimeAnchor?.pose ?: Pose.Identity
+        return internalAnchorEntity.getPose(relativeTo)
     }
 
     @Suppress("RestrictedApiAndroidX")
     override fun dispose() {
-        anchor?.runtimeAnchor?.detach()
+        internalAnchorEntity.dispose()
     }
 
     /**
@@ -87,6 +69,6 @@ public class FakeAnchorEntity internal constructor(fakeInternal: InternalFakeAnc
      * responds correctly to state updates.
      */
     public fun onStateChanged(newState: @AnchorEntity.State Int) {
-        onStateChangedListener?.onStateChanged(newState)
+        internalAnchorEntity.onStateChanged(newState)
     }
 }
