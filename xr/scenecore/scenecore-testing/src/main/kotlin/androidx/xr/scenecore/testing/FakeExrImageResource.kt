@@ -20,11 +20,15 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.ExrImageResource
+import androidx.xr.scenecore.testing.internal.FakeExrImageResource as InternalFakeExrImageResource
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.ExrImageResource] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeExrImageResource(public val mToken: Long) : ExrImageResource {
+
+    internal var fakeInternal: InternalFakeExrImageResource = InternalFakeExrImageResource(mToken)
+
     /**
      * The asset name that was used to "load" this fake resource.
      *

@@ -23,6 +23,7 @@ import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.BoundsComponent
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfEntity
+import androidx.xr.scenecore.testing.internal.FakeBoundsComponent as InternalFakeBoundsComponent
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -31,6 +32,9 @@ import java.util.function.Consumer
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeBoundsComponent : FakeComponent(), BoundsComponent {
+
+    internal var fakeInternal: InternalFakeBoundsComponent = InternalFakeBoundsComponent()
+
     public var entity: GltfEntity? = null
         private set
 
@@ -70,7 +74,7 @@ public class FakeBoundsComponent : FakeComponent(), BoundsComponent {
         for (entry in listeners.entries) {
             val executor = entry.value
             val listener = entry.key
-            executor.execute(Runnable { listener.accept(boundingBox) })
+            executor.execute { listener.accept(boundingBox) }
         }
     }
 }

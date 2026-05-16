@@ -18,8 +18,10 @@ package androidx.xr.scenecore
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SoundEffectPoolComponent as RtSoundEffectPoolComponent
 
 /**
  * Provides positional sound pool audio playback for an [Entity].
@@ -40,7 +42,8 @@ private constructor(
 
     private var attachedEntity: Entity? = null
 
-    internal val rtComponent =
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtComponent: RtSoundEffectPoolComponent =
         sceneRuntime.createSoundEffectPoolComponent(soundEffectPool.rtSoundEffectPool)
 
     override fun onAttach(entity: Entity): Boolean {

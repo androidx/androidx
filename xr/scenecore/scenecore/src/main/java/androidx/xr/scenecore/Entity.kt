@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference
  * relationship with each other and are used to build a spatial scene graph.
  *
  * There are several different Entity types with Entity being the base class. The position of most
- * Entity types can updated within the scene graph by updating their [Pose]. Additionally, the
+ * Entity types can be updated within the scene graph by updating their [Pose]. Additionally, the
  * Entity's scale, and alpha can be updated. Components can be attached to Entities to enable
  * additional behaviors.
  *
@@ -50,7 +50,8 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
 
     private var _rtEntity: RtEntity? = null
 
-    internal val rtEntity: RtEntity
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtEntity: RtEntity
         get() {
             checkNotDisposed()
             return _rtEntity!!

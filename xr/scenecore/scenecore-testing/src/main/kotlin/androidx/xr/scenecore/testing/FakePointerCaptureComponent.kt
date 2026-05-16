@@ -24,6 +24,7 @@ import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.PointerCaptureComponent
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener
+import androidx.xr.scenecore.testing.internal.FakePointerCaptureComponent as InternalFakePointerCaptureComponent
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [FakePointerCaptureComponent] */
@@ -49,6 +50,9 @@ public class FakePointerCaptureComponent(
      */
     internal val stateListener: StateListener? = null,
 ) : FakeComponent(), PointerCaptureComponent {
+
+    internal var fakeInternal: InternalFakePointerCaptureComponent =
+        InternalFakePointerCaptureComponent(executor, stateListener)
 
     /**
      * This property reflects the `inputListener` parameter that was passed to the runtime's factory

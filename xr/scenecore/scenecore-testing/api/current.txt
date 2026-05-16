@@ -1,1 +1,11 @@
 // Signature format: 4.0
+package androidx.xr.scenecore.testing {
+
+  public final class SceneCoreTestRule extends org.junit.rules.ExternalResource {
+    ctor public SceneCoreTestRule();
+    method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);
+    method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Entity entity);
+  }
+
+}
+

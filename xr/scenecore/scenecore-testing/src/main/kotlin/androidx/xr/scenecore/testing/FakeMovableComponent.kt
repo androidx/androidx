@@ -25,12 +25,15 @@ import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.MovableComponent
 import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
+import androidx.xr.scenecore.testing.internal.FakeMovableComponent as InternalFakeMovableComponent
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MovableComponent] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeMovableComponent : FakeComponent(), MovableComponent {
+
+    internal var fakeInternal: InternalFakeMovableComponent = InternalFakeMovableComponent()
 
     /**
      * This property reflects the `systemMovable` parameter that was passed to the runtime's factory
@@ -56,11 +59,7 @@ public class FakeMovableComponent : FakeComponent(), MovableComponent {
     public var userAnchorable: Boolean = false
         internal set
 
-    /**
-     * Sets the scale with distance mode.
-     *
-     * @param scaleWithDistanceMode The scale with distance mode to set
-     */
+    /** Sets the scale with distance mode. */
     override var scaleWithDistanceMode: Int = MovableComponent.ScaleWithDistanceMode.DEFAULT
 
     /** Sets the size of the interaction highlight extent. */
@@ -90,7 +89,7 @@ public class FakeMovableComponent : FakeComponent(), MovableComponent {
      * @param moveEventListener The move event listener to set.
      */
     override fun addMoveEventListener(moveEventListener: MoveEventListener) {
-        moveEventListenersMap.put(moveEventListener, defaultExecutor)
+        moveEventListenersMap[moveEventListener] = defaultExecutor
     }
 
     /**

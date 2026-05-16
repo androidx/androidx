@@ -17,8 +17,10 @@
 package androidx.xr.scenecore
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.media3.exoplayer.audio.AudioOutputProvider
 import androidx.xr.runtime.Session
+import androidx.xr.scenecore.runtime.PositionalAudioComponent as RtPositionalAudioComponent
 import androidx.xr.scenecore.runtime.SceneRuntime
 
 /**
@@ -34,7 +36,8 @@ public class PositionalAudioComponent
 internal constructor(context: Context, sceneRuntime: SceneRuntime, params: PointSourceParams) :
     Component() {
 
-    internal val rtComponent =
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtComponent: RtPositionalAudioComponent =
         sceneRuntime.createPositionalAudioComponent(context, params.rtPointSourceParams)
 
     private var attachedEntity: Entity? = null

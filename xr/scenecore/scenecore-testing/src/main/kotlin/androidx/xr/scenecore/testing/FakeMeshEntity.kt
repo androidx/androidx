@@ -25,15 +25,24 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
+import androidx.xr.scenecore.testing.internal.FakeMeshEntity as InternalFakeMeshEntity
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MeshEntity] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class FakeMeshEntity(
+public open class FakeMeshEntity
+internal constructor(
     private val feature: MeshFeature? = null,
     private val executor: Executor? = null,
-) : FakeEntity(), MeshEntity {
+    fakeInternal: InternalFakeMeshEntity,
+) : FakeEntity(fakeInternal = fakeInternal), MeshEntity {
+
+    public constructor(
+        feature: MeshFeature? = null,
+        executor: Executor? = null,
+    ) : this(feature, executor, InternalFakeMeshEntity(feature, executor))
+
     override val meshBoundingBox: BoundingBox =
         feature?.meshBoundingBox ?: BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
 

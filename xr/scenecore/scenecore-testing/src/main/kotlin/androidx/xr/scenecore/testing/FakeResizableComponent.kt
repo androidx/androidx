@@ -24,6 +24,7 @@ import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
+import androidx.xr.scenecore.testing.internal.FakeResizableComponent as InternalFakeResizableComponent
 import java.util.concurrent.Executor
 import kotlin.collections.iterator
 
@@ -39,6 +40,17 @@ public class FakeResizableComponent(
     @get:Suppress("GetterSetterNames") override var autoUpdateSize: Boolean = false,
     @get:Suppress("GetterSetterNames") override var forceShowResizeOverlay: Boolean = false,
 ) : FakeComponent(), ResizableComponent {
+
+    internal var fakeInternal: InternalFakeResizableComponent =
+        InternalFakeResizableComponent(
+            size,
+            minimumSize,
+            maximumSize,
+            isFixedAspectRatioEnabled,
+            autoHideContent,
+            autoUpdateSize,
+            forceShowResizeOverlay,
+        )
 
     /**
      * For test purposes only.

@@ -32,10 +32,11 @@ plugins {
 
 dependencies {
     api(libs.jspecify)
-    api(project(":xr:runtime:runtime-testing"))
     api(project(":xr:arcore:arcore-testing"))
-    api(project(":xr:scenecore:scenecore-runtime"))
+    api(project(":xr:scenecore:scenecore"))
 
+    implementation(project(":xr:runtime:runtime-testing"))
+    implementation(project(":xr:scenecore:scenecore-runtime"))
     implementation("com.google.ar:impress:0.0.15")
     implementation(libs.testExtTruth)
     implementation("androidx.annotation:annotation:1.8.1")
@@ -46,6 +47,8 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.testExtJunit)
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation("androidx.appcompat:appcompat:1.2.0")
 
     androidTestImplementation(libs.kotlinCoroutinesTest)
 

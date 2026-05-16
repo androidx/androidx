@@ -24,11 +24,16 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundEffect
 import androidx.xr.scenecore.runtime.SoundEffectPoolComponent
 import androidx.xr.scenecore.runtime.Stream
+import androidx.xr.scenecore.testing.internal.FakeSoundEffectPoolComponent as InternalFakeSoundEffectPoolComponent
 
 /** Test-only implementation of [SoundEffectPoolComponent]. */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolComponent {
+
+    internal var fakeInternal: InternalFakeSoundEffectPoolComponent =
+        InternalFakeSoundEffectPoolComponent()
+
     public var lastPlayedSoundEffect: SoundEffect? = null
     public var lastPlayedParams: PointSourceParams? = null
     public var lastPlayedEntity: Entity? = null

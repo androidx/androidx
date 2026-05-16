@@ -62,6 +62,7 @@ import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.flow.Flow
@@ -74,6 +75,20 @@ import kotlinx.coroutines.flow.mapNotNull
  */
 internal class FakeSceneRuntime(val executor: Executor? = null) :
     SceneRuntime, RenderingEntityFactory {
+
+    init {
+        instance = this
+    }
+
+    override fun destroy() {
+        _state = State.DESTROYED
+        _spatialCapabilitiesChangedMap.clear()
+        _spatialVisibilityChangedMap.clear()
+        _perceivedResolutionChangedMap.clear()
+        _boundaryConsentChangedMap.clear()
+
+        instance = null
+    }
 
     /* Tracks the current state of the adapter according to where it is in its lifecycle. */
     enum class State {
@@ -454,6 +469,13 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
                 SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT or
                 SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL or
                 SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
+
+        @Volatile private var instanceRef: WeakReference<FakeSceneRuntime>? = null
+        internal var instance: FakeSceneRuntime?
+            get() = instanceRef?.get()
+            private set(value) {
+                instanceRef = value?.let { WeakReference(it) }
+            }
     }
 
     private var _isBoundaryConsentGranted = false

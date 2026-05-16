@@ -21,14 +21,22 @@ package androidx.xr.scenecore.testing
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
+import androidx.xr.scenecore.testing.internal.FakeSubspaceNodeEntity as InternalFakeSubspaceNodeEntity
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SubspaceNodeEntity]. */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeSubspaceNodeEntity(
+public class FakeSubspaceNodeEntity
+internal constructor(
     /**
      * The size of the [androidx.xr.scenecore.runtime.SubspaceNodeEntity] in meters, in unscaled
      * local space.
      */
-    public override var size: Dimensions = Dimensions(2f, 1f, 0f)
-) : SubspaceNodeEntity, FakeEntity()
+    public override var size: Dimensions = Dimensions(2f, 1f, 0f),
+    fakeInternal: InternalFakeSubspaceNodeEntity,
+) : SubspaceNodeEntity, FakeEntity(fakeInternal = fakeInternal) {
+
+    public constructor(
+        size: Dimensions = Dimensions(2f, 1f, 0f)
+    ) : this(size, InternalFakeSubspaceNodeEntity(size))
+}

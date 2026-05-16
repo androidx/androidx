@@ -26,7 +26,6 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Trackable
 import androidx.xr.runtime.math.Pose
@@ -66,6 +65,8 @@ import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
+import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
+import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.flow.Flow
@@ -80,6 +81,8 @@ import kotlinx.coroutines.flow.mapNotNull
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSceneRuntime(public val executor: Executor? = null) :
     SceneRuntime, RenderingEntityFactory {
+
+    internal var internalRuntime: InternalFakeSceneRuntime = InternalFakeSceneRuntime(executor)
 
     /* Tracks the current state of the adapter according to where it is in its lifecycle. */
     public enum class State {
@@ -230,7 +233,11 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
 
     override fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity {
         val entityName = name ?: ""
-        val entity = FakeEntity(entityName)
+        val entity =
+            FakeEntity(
+                entityName,
+                internalRuntime.createEntity(pose, name, parent) as InternalFakeEntity,
+            )
         entity.setPose(pose)
         entity.parent = parent
 
@@ -526,15 +533,18 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      */
     public fun onBoundaryConsentChanged(boundaryConsent: Boolean) {
         val oldBoundaryConsent = _isBoundaryConsentGranted
-        val newBoundaryConsent = boundaryConsent
-        _isBoundaryConsentGranted = newBoundaryConsent
+        _isBoundaryConsentGranted = boundaryConsent
 
-        if (oldBoundaryConsent != newBoundaryConsent) {
+        if (oldBoundaryConsent != boundaryConsent) {
             _boundaryConsentChangedMap.forEach { (listener, executor) ->
-                executor.execute { listener.accept(newBoundaryConsent) }
+                executor.execute { listener.accept(boundaryConsent) }
             }
         }
     }
 
     override val virtualPixelDensity: Float = 2000f
+
+    override fun destroy() {
+        internalRuntime.destroy()
+    }
 }

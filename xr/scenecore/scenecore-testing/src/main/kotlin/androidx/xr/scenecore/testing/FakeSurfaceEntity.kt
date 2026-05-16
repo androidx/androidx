@@ -32,6 +32,7 @@ import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity.Shape
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TextureResource
+import androidx.xr.scenecore.testing.internal.FakeSurfaceEntity as InternalFakeSurfaceEntity
 
 /**
  * Test-only implementation of [androidx.xr.scenecore.runtime.SurfaceEntity].
@@ -44,8 +45,16 @@ import androidx.xr.scenecore.runtime.TextureResource
  */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeSurfaceEntity(private val feature: SurfaceFeature? = null) :
-    FakeEntity(), SurfaceEntity {
+public class FakeSurfaceEntity
+internal constructor(
+    private val feature: SurfaceFeature? = null,
+    fakeInternal: InternalFakeSurfaceEntity,
+) : FakeEntity(fakeInternal = fakeInternal), SurfaceEntity {
+
+    public constructor(
+        feature: SurfaceFeature? = null
+    ) : this(feature, InternalFakeSurfaceEntity(feature))
+
     private var _stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE
 
     /**

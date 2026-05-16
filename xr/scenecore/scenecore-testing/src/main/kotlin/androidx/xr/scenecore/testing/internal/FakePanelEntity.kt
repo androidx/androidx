@@ -30,7 +30,7 @@ import androidx.xr.scenecore.runtime.ScenePose
 import kotlin.math.roundToInt
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.PanelEntity] */
-internal open class FakePanelEntity(public val view: View? = null, name: String = "") :
+internal open class FakePanelEntity(val view: View? = null, name: String = "") :
     FakeEntity(name), PanelEntity {
 
     private val context = view?.context

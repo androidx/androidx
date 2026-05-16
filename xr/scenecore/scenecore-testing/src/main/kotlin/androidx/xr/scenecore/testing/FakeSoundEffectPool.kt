@@ -23,12 +23,16 @@ import android.content.res.AssetFileDescriptor
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.SoundEffect
 import androidx.xr.scenecore.runtime.SoundEffectPool
+import androidx.xr.scenecore.testing.internal.FakeSoundEffectPool as InternalFakeSoundEffectPool
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [SoundEffectPool]. */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeSoundEffectPool : SoundEffectPool {
+
+    internal var fakeInternal: InternalFakeSoundEffectPool = InternalFakeSoundEffectPool()
+
     public var loadedResId: Int? = null
     public var loadedAfd: AssetFileDescriptor? = null
     public var unloadedSoundEffect: SoundEffect? = null

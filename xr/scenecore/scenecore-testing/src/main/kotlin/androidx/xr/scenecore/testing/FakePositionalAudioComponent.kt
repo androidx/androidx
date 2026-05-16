@@ -24,6 +24,7 @@ import androidx.media3.exoplayer.audio.AudioOutputProvider
 import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
 import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.PositionalAudioComponent
+import androidx.xr.scenecore.testing.internal.FakePositionalAudioComponent as InternalFakePositionalAudioComponent
 
 /** Test-only implementation of [PositionalAudioComponent]. */
 @Deprecated("Use SceneCoreTestRule instead.")
@@ -32,6 +33,9 @@ public class FakePositionalAudioComponent(
     internal val context: Context,
     public var params: PointSourceParams,
 ) : FakeComponent(), PositionalAudioComponent {
+
+    internal var fakeInternal: InternalFakePositionalAudioComponent =
+        InternalFakePositionalAudioComponent(context, params)
 
     public var getAudioOutputProviderCount: Int = 0
 

@@ -38,6 +38,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironmentExt
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.TextureSampler
+import java.lang.ref.WeakReference
 import java.nio.ByteBuffer
 
 /**
@@ -55,9 +56,19 @@ internal class FakeRenderingRuntime(
         FakeSpatialEnvironmentFeature()
 
     init {
+        instance = this
         (sceneRuntime.spatialEnvironment as SpatialEnvironmentExt).onRenderingFeatureReady(
             spatialEnvironmentFeature
         )
+    }
+
+    internal companion object {
+        @Volatile private var instanceRef: WeakReference<FakeRenderingRuntime>? = null
+        internal var instance: FakeRenderingRuntime?
+            get() = instanceRef?.get()
+            private set(value) {
+                instanceRef = value?.let { WeakReference(it) }
+            }
     }
 
     override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
@@ -617,5 +628,10 @@ internal class FakeRenderingRuntime(
 
     override fun destroy() {
         _state = State.DESTROYED
+        reflectionTexture = null
+        createdWaterMaterials.clear()
+        createdKhronosPbrMaterials.clear()
+
+        instance = null
     }
 }

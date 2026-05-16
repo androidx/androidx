@@ -18,8 +18,10 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.scenecore.runtime.BoundsComponent as RtBoundsComponent
 import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.SceneRuntime
 import java.util.concurrent.ConcurrentHashMap
@@ -43,7 +45,7 @@ import java.util.function.Consumer
  * defaults to the main thread. Listeners should be unregistered using [removeBoundsUpdateListener]
  * when no longer needed to prevent resource leaks.
  *
- * Create instances of this component using the [BoundsComponent.create] factory method.
+ * Create instances of this component using the [create] factory method.
  *
  * @see GltfModelEntity
  * @see BoundingBox
@@ -55,7 +57,8 @@ private constructor(
     initialListener: BiConsumer<Entity, BoundingBox>? = null,
 ) : Component() {
 
-    internal val rtBoundsComponent by lazy { sceneRuntime.createBoundsComponent() }
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtBoundsComponent: RtBoundsComponent by lazy { sceneRuntime.createBoundsComponent() }
     internal val boundsUpdateListenerMap =
         ConcurrentHashMap<BiConsumer<Entity, BoundingBox>, Pair<Executor, Consumer<BoundingBox>>>()
 

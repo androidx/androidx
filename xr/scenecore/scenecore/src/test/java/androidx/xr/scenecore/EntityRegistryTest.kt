@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.xr.scenecore
 
 import android.os.Build
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -29,7 +28,6 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.testing.FakeEntity
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
 import kotlin.time.Duration.Companion.seconds
@@ -63,7 +61,12 @@ class EntityRegistryTest {
     @Before
     fun setUp() {
         val testDispatcher = StandardTestDispatcher()
-        val result = Session.create(activity, testDispatcher)
+        val result =
+            Session.create(
+                context = activity,
+                coroutineContext = testDispatcher,
+                lifecycleOwner = activity as LifecycleOwner,
+            )
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
@@ -119,7 +122,7 @@ class EntityRegistryTest {
     }
 
     @Test
-    fun disposeEntity_removesEntityfromEntityRegistry() {
+    fun disposeEntity_removesEntityFromEntityRegistry() {
         createEntity()
         createPanelEntity()
         createAnchorEntity()
@@ -142,7 +145,7 @@ class EntityRegistryTest {
     }
 
     @Test
-    fun clearEntityRegistry_removesAllEntityfromEntityRegistry() {
+    fun clearEntityRegistry_removesAllEntityFromEntityRegistry() {
         createEntity()
         createPanelEntity()
         createAnchorEntity()
@@ -180,7 +183,7 @@ class EntityRegistryTest {
                 gltfModelEntity,
             )
 
-        entityRegistry.removeEntity(panelEntity.rtEntity as FakeEntity)
+        entityRegistry.removeEntity(panelEntity.rtEntity)
 
         assertThat(entityRegistry.getAllEntities().size).isAtLeast(4)
         assertThat(entityRegistry.getAllEntities()).doesNotContain(panelEntity)
