@@ -51,6 +51,7 @@ internal class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
         entity: Entity,
     ) {
         _paramsWithEntity[mediaPlayer] = params to entity
+        _soundFieldAttributes.remove(mediaPlayer)
     }
 
     private var _soundFieldAttributes: MutableMap<MediaPlayer, SoundFieldAttributes> =
@@ -79,5 +80,6 @@ internal class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
         attributes: SoundFieldAttributes,
     ) {
         _soundFieldAttributes[mediaPlayer] = attributes
+        _paramsWithEntity.remove(mediaPlayer)
     }
 }

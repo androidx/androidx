@@ -24,13 +24,21 @@ import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper
 import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
+import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
+import androidx.xr.scenecore.testing.internal.FakeMediaPlayerExtensionsWrapper as InternalFakeMediaPlayerExtensionsWrapper
+import java.util.Collections
+import java.util.WeakHashMap
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
-    private var _paramsWithEntity: MutableMap<MediaPlayer, Pair<PointSourceParams, Entity>> =
-        mutableMapOf()
+public class FakeMediaPlayerExtensionsWrapper
+internal constructor(internal var fakeInternal: InternalFakeMediaPlayerExtensionsWrapper) :
+    MediaPlayerExtensionsWrapper {
+    public constructor() : this(InternalFakeMediaPlayerExtensionsWrapper())
+
+    /** Mapping between [InternalFakeEntity] and [FakeEntity] */
+    internal val entityMap = Collections.synchronizedMap(WeakHashMap<Entity, Entity>())
 
     /**
      * For test purposes only.
@@ -42,7 +50,11 @@ public class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
      * `PointSourceParams` to the `MediaPlayer`.
      */
     public val paramsWithEntity: Map<MediaPlayer, Pair<PointSourceParams, Entity>>
-        get() = _paramsWithEntity
+        get() =
+            fakeInternal.paramsWithEntity.mapValues { (_, pair) ->
+                val (params, rtEntity) = pair
+                params to requireNotNull(entityMap[rtEntity])
+            }
 
     /**
      * Sets the PointSourceParams of the MediaPlayer.
@@ -55,11 +67,10 @@ public class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
         params: PointSourceParams,
         entity: Entity,
     ) {
-        _paramsWithEntity[mediaPlayer] = params to entity
+        val internalFakeEntity = (entity as FakeEntity).fakeInternal as InternalFakeEntity
+        entityMap[internalFakeEntity] = entity
+        fakeInternal.setPointSourceParams(mediaPlayer, params, internalFakeEntity)
     }
-
-    private var _soundFieldAttributes: MutableMap<MediaPlayer, SoundFieldAttributes> =
-        mutableMapOf()
 
     /**
      * For test purposes only.
@@ -71,7 +82,7 @@ public class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
      * `SoundFieldAttributes` to the `MediaPlayer`.
      */
     public val soundFieldAttributes: Map<MediaPlayer, SoundFieldAttributes>
-        get() = _soundFieldAttributes
+        get() = fakeInternal.soundFieldAttributes
 
     /**
      * Sets the SoundFieldAttributes of the MediaPlayer.
@@ -83,6 +94,6 @@ public class FakeMediaPlayerExtensionsWrapper : MediaPlayerExtensionsWrapper {
         mediaPlayer: MediaPlayer,
         attributes: SoundFieldAttributes,
     ) {
-        _soundFieldAttributes[mediaPlayer] = attributes
+        fakeInternal.setSoundFieldAttributes(mediaPlayer, attributes)
     }
 }
