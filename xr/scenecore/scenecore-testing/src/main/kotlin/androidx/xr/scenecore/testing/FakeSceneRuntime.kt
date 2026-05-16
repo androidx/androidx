@@ -66,6 +66,7 @@ import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
+import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -116,7 +117,9 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     override val activitySpace: FakeActivitySpace = FakeActivitySpace()
 
     override val perceptionSpaceActivityPose: PerceptionSpaceScenePose =
-        FakePerceptionSpaceScenePose()
+        FakePerceptionSpaceScenePose(
+            internalRuntime.perceptionSpaceActivityPose as InternalFakePerceptionSpaceScenePose
+        )
 
     override val soundPoolExtensionsWrapper: SoundPoolExtensionsWrapper =
         FakeSoundPoolExtensionsWrapper()
@@ -163,7 +166,10 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         }
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
-        return FakePerceptionSpaceScenePose()
+        return FakePerceptionSpaceScenePose(
+            internalRuntime.getScenePoseFromPerceptionPose(pose)
+                as InternalFakePerceptionSpaceScenePose
+        )
     }
 
     public var deviceDpPerMeter: Float = DEFAULT_DP_PER_METER

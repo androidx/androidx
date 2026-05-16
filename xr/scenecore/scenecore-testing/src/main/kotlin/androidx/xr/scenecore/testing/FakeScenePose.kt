@@ -58,7 +58,8 @@ internal constructor(internal var fakeInternal: InternalFakeScenePose) : BaseSce
      *
      * @return Total [androidx.xr.runtime.math.Vector3] scale applied to self and children.
      */
-    override val worldSpaceScale: Vector3 = Vector3.One
+    override val worldSpaceScale: Vector3
+        get() = fakeInternal.worldSpaceScale
 
     /**
      * Returns the scale in the activity space. This is used by [transformPoseTo] in its

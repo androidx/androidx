@@ -16,7 +16,15 @@
 
 package androidx.xr.scenecore.testing.internal
 
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 
 /** A fake ScenePose representing a perception space. */
-internal class FakePerceptionSpaceScenePose : FakeScenePose(), PerceptionSpaceScenePose
+internal class FakePerceptionSpaceScenePose internal constructor(val pose: Pose = Pose()) :
+    FakeScenePose(), PerceptionSpaceScenePose {
+
+    override var activitySpacePose: Pose = pose
+
+    override var activitySpaceScale: Vector3 = Vector3.One
+}
