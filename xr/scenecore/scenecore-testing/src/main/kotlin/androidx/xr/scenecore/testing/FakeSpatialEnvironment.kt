@@ -20,9 +20,9 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.SpatialEnvironment
-import androidx.xr.scenecore.runtime.SpatialEnvironment.Companion.NO_PASSTHROUGH_OPACITY_PREFERENCE
 import androidx.xr.scenecore.runtime.SpatialEnvironmentExt
 import androidx.xr.scenecore.runtime.SpatialEnvironmentFeature
+import androidx.xr.scenecore.testing.internal.FakeSpatialEnvironment as InternalFakeSpatialEnvironment
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
@@ -35,10 +35,11 @@ import java.util.function.Consumer
  */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt {
-    private var _currentPassthroughOpacity: Float = 0.0f
-    private var _isPreferredSpatialEnvironmentActive: Boolean = false
-    private var renderingFeature: SpatialEnvironmentFeature? = null
+public class FakeSpatialEnvironment
+internal constructor(internal var fakeInternal: InternalFakeSpatialEnvironment) :
+    SpatialEnvironment, SpatialEnvironmentExt {
+
+    public constructor() : this(InternalFakeSpatialEnvironment())
 
     /**
      * A map storing the registered passthrough opacity listeners, keyed by their associated
@@ -52,11 +53,8 @@ public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt 
      * Note that because the `Executor` is used as the key, only one listener can be associated with
      * each unique `Executor` instance.
      */
-    public val passthroughOpacityChangedListenerMap: MutableMap<Consumer<Float>, Executor> =
-        mutableMapOf(
-            Consumer<Float> { opacity -> _currentPassthroughOpacity = opacity } to
-                Executor { command -> command.run() }
-        )
+    public val passthroughOpacityChangedListenerMap: MutableMap<Consumer<Float>, Executor>
+        get() = fakeInternal.passthroughOpacityChangedListenerMap
 
     /**
      * A map storing the registered spatial environment state listeners, keyed by their associated
@@ -70,63 +68,50 @@ public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt 
      * <p>Note that because the `Executor` is used as the key, only one listener can be associated
      * with each unique `Executor` instance.
      */
-    public val spatialEnvironmentChangedListenerMap: MutableMap<Consumer<Boolean>, Executor> =
-        mutableMapOf(
-            Consumer<Boolean> { active -> _isPreferredSpatialEnvironmentActive = active } to
-                Executor { command -> command.run() }
-        )
+    public val spatialEnvironmentChangedListenerMap: MutableMap<Consumer<Boolean>, Executor>
+        get() = fakeInternal.spatialEnvironmentChangedListenerMap
 
     override val currentPassthroughOpacity: Float
-        get() = _currentPassthroughOpacity
+        get() = fakeInternal.currentPassthroughOpacity
 
     override var preferredSpatialEnvironment: SpatialEnvironment.SpatialEnvironmentPreference?
-        get() {
-            if (renderingFeature == null) {
-                throw UnsupportedOperationException(
-                    "Did you forget to add scenecore-spatial-rendering in dependencies?"
-                )
-            }
-
-            return renderingFeature!!.preferredSpatialEnvironment
-        }
+        get() = fakeInternal.preferredSpatialEnvironment
         set(value) {
-            if (renderingFeature == null) {
-                throw UnsupportedOperationException(
-                    "Did you forget to add scenecore-spatial-rendering in dependencies?"
-                )
-            }
-
-            renderingFeature!!.preferredSpatialEnvironment = value
+            fakeInternal.preferredSpatialEnvironment = value
         }
 
-    override var preferredPassthroughOpacity: Float = NO_PASSTHROUGH_OPACITY_PREFERENCE
+    override var preferredPassthroughOpacity: Float
+        get() = fakeInternal.preferredPassthroughOpacity
+        set(value) {
+            fakeInternal.preferredPassthroughOpacity = value
+        }
 
     override fun addOnPassthroughOpacityChangedListener(
         executor: Executor,
         listener: Consumer<Float>,
     ) {
-        passthroughOpacityChangedListenerMap[listener] = executor
+        fakeInternal.addOnPassthroughOpacityChangedListener(executor, listener)
     }
 
     override fun removeOnPassthroughOpacityChangedListener(listener: Consumer<Float>) {
-        passthroughOpacityChangedListenerMap.remove(listener)
+        fakeInternal.removeOnPassthroughOpacityChangedListener(listener)
     }
 
     override val isPreferredSpatialEnvironmentActive: Boolean
-        get() = _isPreferredSpatialEnvironmentActive
+        get() = fakeInternal.isPreferredSpatialEnvironmentActive
 
     override fun addOnSpatialEnvironmentChangedListener(
         executor: Executor,
         listener: Consumer<Boolean>,
     ) {
-        spatialEnvironmentChangedListenerMap[listener] = executor
+        fakeInternal.addOnSpatialEnvironmentChangedListener(executor, listener)
     }
 
     override fun removeOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
-        spatialEnvironmentChangedListenerMap.remove(listener)
+        fakeInternal.removeOnSpatialEnvironmentChangedListener(listener)
     }
 
     override fun onRenderingFeatureReady(feature: SpatialEnvironmentFeature) {
-        renderingFeature = feature
+        fakeInternal.onRenderingFeatureReady(feature)
     }
 }
