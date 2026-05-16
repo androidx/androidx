@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testing
 
+import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.SpatialWindow
@@ -69,6 +70,7 @@ public class SceneCoreTestRule : ExternalResource() {
             EntityTester.create(entity)
         } else {
             when (entity) {
+                is AnchorEntity -> AnchorEntityTester.create(entity)
                 else -> null
             }
         }

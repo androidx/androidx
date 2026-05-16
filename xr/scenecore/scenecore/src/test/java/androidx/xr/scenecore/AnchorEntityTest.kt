@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
 package androidx.xr.scenecore
 
@@ -22,7 +21,7 @@ import android.os.Looper
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -35,8 +34,9 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.testing.FakeAnchorEntity
+import androidx.xr.scenecore.testing.AnchorEntityTester
 import androidx.xr.scenecore.testing.MemoryUtils
+import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.lang.ref.WeakReference
@@ -57,6 +57,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -65,8 +66,9 @@ import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
 class AnchorEntityTest {
-    private val fakeAnchorEntity = FakeAnchorEntity()
-    private lateinit var entityRegistry: EntityRegistry
+
+    @Rule @JvmField val scenecoreTestRule = SceneCoreTestRule()
+
     private lateinit var session: Session
     private lateinit var anchor: Anchor
     // TODO: b/494308962 Remove references to arcore-testing Fakes
@@ -99,8 +101,10 @@ class AnchorEntityTest {
 
     @After
     fun tearDown() {
-        anchor.runtimeAnchor.detach()
-        if (activity.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+        if (::anchor.isInitialized) {
+            anchor.runtimeAnchor.detach()
+        }
+        if (::activityController.isInitialized) {
             activityController.destroy()
         }
     }
@@ -266,7 +270,6 @@ class AnchorEntityTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     @Suppress("DEPRECATION")
-    // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun createViaSemantic_zeroTimeout_keepsSearching() {
         runTest(testDispatcher) {
             val anchorAttempts = 100
@@ -307,15 +310,15 @@ class AnchorEntityTest {
 
     @Test
     fun addOriginChangedListener_receivesOnOriginChangedListenerCallbacks() {
+        val anchorEntity = AnchorEntity.create(session, anchor)
+        val tester = scenecoreTestRule.createTester<AnchorEntityTester>(anchorEntity)
         var listenerCalled = false
-        val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
         anchorEntity.addOriginChangedListener(directExecutor()) { listenerCalled = true }
 
-        assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
         assertThat(listenerCalled).isFalse()
 
-        // Simulates a runtime callback.
-        fakeAnchorEntity.onOriginChanged()
+        // Simulates a runtime callback via tester.
+        tester.triggerOnOriginChanged()
 
         assertThat(listenerCalled).isTrue()
     }
@@ -413,22 +416,23 @@ class AnchorEntityTest {
 
     @Test
     fun disposeInternal_clearsListeners() {
-        val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
-
-        anchorEntity.addOriginChangedListener(directExecutor()) {}
-        anchorEntity.addOriginChangedListener(directExecutor()) {}
-
-        assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
+        val anchorEntity = AnchorEntity.create(session, anchor)
+        val tester = scenecoreTestRule.createTester<AnchorEntityTester>(anchorEntity)
+        var listenerCalledCount = 0
+        anchorEntity.addOriginChangedListener(directExecutor()) { listenerCalledCount++ }
 
         anchorEntity.disposeInternal()
+
+        // After dispose, triggering via tester should not increment the count.
+        tester.triggerOnOriginChanged()
         shadowOf(Looper.getMainLooper()).idle()
 
-        assertThat(fakeAnchorEntity.onOriginChangedListener).isNull()
+        assertThat(listenerCalledCount).isEqualTo(0)
     }
 
     @Test
     fun disposeInternal_callingTwiceDoesNotCrash() {
-        val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityRegistry)
+        val anchorEntity = AnchorEntity.create(session, anchor)
         anchorEntity.disposeInternal()
         anchorEntity.disposeInternal()
     }
@@ -436,10 +440,8 @@ class AnchorEntityTest {
     @Test
     fun garbageCollection_disposesEntity() {
         fun createAnchorEntity(): WeakReference<AnchorEntity> {
-            val localFakeAnchorEntity = FakeAnchorEntity()
-            val localEntityRegistry = EntityRegistry()
-            val anchorEntity = AnchorEntity.create(localFakeAnchorEntity, localEntityRegistry)
-            return WeakReference(anchorEntity)
+            val localAnchorEntity = AnchorEntity.create(session, anchor)
+            return WeakReference(localAnchorEntity)
         }
 
         val anchorEntityRef = createAnchorEntity()
@@ -449,13 +451,17 @@ class AnchorEntityTest {
     }
 
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher) {
-        val result = Session.create(activity, coroutineDispatcher)
+        val result =
+            Session.create(
+                activity,
+                coroutineDispatcher,
+                lifecycleOwner = activity as LifecycleOwner,
+            )
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         session = (result as SessionCreateSuccess).session
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion.Identity)
         anchor = (Anchor.create(session, anchorPose) as AnchorCreateSuccess).anchor
-        entityRegistry = session.scene.entityRegistry
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

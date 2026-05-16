@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.xr.scenecore.testing {
 
+  public final class AnchorEntityTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorEntity.State? getState();
+    method @InaccessibleFromKotlin public void setState(androidx.xr.scenecore.AnchorEntity.State?);
+    method public void triggerOnOriginChanged();
+    property public androidx.xr.scenecore.AnchorEntity.State? state;
+  }
+
   public final class SceneCoreTestRule extends org.junit.rules.ExternalResource {
     ctor public SceneCoreTestRule();
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);

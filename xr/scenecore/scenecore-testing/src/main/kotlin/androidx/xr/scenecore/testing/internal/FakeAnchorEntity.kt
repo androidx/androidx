@@ -54,7 +54,8 @@ internal class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
         // detach current
         this.anchor?.detach()
         this.anchor = anchor
-        onStateChangedListener?.onStateChanged(AnchorEntity.State.ANCHORED)
+        _state = AnchorEntity.State.ANCHORED
+        onStateChangedListener?.onStateChanged(_state)
         return true
     }
 
@@ -77,6 +78,7 @@ internal class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
      * responds correctly to state updates.
      */
     fun onStateChanged(newState: @AnchorEntity.State Int) {
+        _state = newState
         onStateChangedListener?.onStateChanged(newState)
     }
 }

@@ -64,6 +64,7 @@ import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
+import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAnchorEntity
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
@@ -220,7 +221,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun createAnchorEntity(): AnchorEntity {
-        return FakeAnchorEntity()
+        return FakeAnchorEntity(internalRuntime.createAnchorEntity() as InternalFakeAnchorEntity)
     }
 
     override fun createGltfEntity(
