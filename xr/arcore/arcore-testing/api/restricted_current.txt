@@ -97,26 +97,6 @@ package androidx.xr.arcore.testing {
     property public boolean isValid;
   }
 
-  @Deprecated public final class FakeRuntimeAugmentedImage {
-    ctor @Deprecated public FakeRuntimeAugmentedImage();
-    ctor @BytecodeOnly @Deprecated public FakeRuntimeAugmentedImage(androidx.xr.arcore.runtime.TrackingState!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize2d!, int, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @Deprecated public FakeRuntimeAugmentedImage(optional androidx.xr.arcore.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize2d extents, optional int index, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);
-    method @InaccessibleFromKotlin @Deprecated public java.util.Collection<androidx.xr.arcore.runtime.Anchor> getAnchors();
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.math.Pose getCenterPose();
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.math.FloatSize2d getExtents();
-    method @InaccessibleFromKotlin @Deprecated public int getIndex();
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.arcore.runtime.TrackingState getTrackingState();
-    method @InaccessibleFromKotlin @Deprecated public void setCenterPose(androidx.xr.runtime.math.Pose);
-    method @InaccessibleFromKotlin @Deprecated public void setExtents(androidx.xr.runtime.math.FloatSize2d);
-    method @InaccessibleFromKotlin @Deprecated public void setIndex(int);
-    method @InaccessibleFromKotlin @Deprecated public void setTrackingState(androidx.xr.arcore.runtime.TrackingState);
-    property @Deprecated public java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors;
-    property @Deprecated public androidx.xr.runtime.math.Pose centerPose;
-    property @Deprecated public androidx.xr.runtime.math.FloatSize2d extents;
-    property @Deprecated public int index;
-    property @Deprecated public androidx.xr.arcore.runtime.TrackingState trackingState;
-  }
-
   public final class GeospatialTester {
     method @InaccessibleFromKotlin public android.util.Range<java.lang.Double> getAllowedAnchorLatitudeRange();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getExpectedAnchorPose();

@@ -16,6 +16,8 @@
 
 package androidx.xr.runtime
 
+import androidx.annotation.RestrictTo
+
 /** Result of a [Session.create] call. */
 public sealed class SessionCreateResult
 
@@ -78,6 +80,7 @@ public class SessionConfigureSuccess : SessionConfigureResult()
         "SessionConfigureLibraryNotLinked(\"com.google.android.gms:play-services-location\")"
     ),
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SessionConfigureGooglePlayServicesLocationLibraryNotLinked() : SessionConfigureResult()
 
 /**

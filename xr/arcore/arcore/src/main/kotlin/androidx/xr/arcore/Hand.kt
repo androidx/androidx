@@ -110,18 +110,6 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
         }
     }
 
-    /** @deprecated Use [HandSide][androidx.xr.arcore.HandSide] instead. */
-    @Deprecated(
-        "Use androidx.xr.arcore.HandSide instead.",
-        ReplaceWith("androidx.xr.arcore.HandSide"),
-    )
-    public enum class HandSide {
-        LEFT,
-        RIGHT,
-        /** The handedness is not available if it is not explicitly set. */
-        UNKNOWN,
-    }
-
     /**
      * The representation of the current state of a [Hand].
      *
