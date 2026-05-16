@@ -163,14 +163,6 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.DisplayBlendMode NO_DISPLAY;
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalXrDeviceLifecycleApi {
-    ctor @KotlinOnly public ExperimentalXrDeviceLifecycleApi();
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalXrServiceAvailabilityApi {
-    ctor @KotlinOnly public ExperimentalXrServiceAvailabilityApi();
-  }
-
   public final class EyeTrackingMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
@@ -273,9 +265,6 @@ package androidx.xr.runtime {
   public static final class PlaneTrackingMode.Companion {
     property public androidx.xr.runtime.PlaneTrackingMode DISABLED;
     property public androidx.xr.runtime.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is in an unstable preview state and requires a developer platform version to work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewProjectedApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This API is in an unstable preview state and requires a developer preview system image work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewSpatialApi {
