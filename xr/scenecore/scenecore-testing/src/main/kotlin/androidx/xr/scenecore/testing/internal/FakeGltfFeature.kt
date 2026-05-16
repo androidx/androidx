@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("BanConcurrentHashMap")
+
 package androidx.xr.scenecore.testing.internal
 
 import androidx.xr.runtime.math.BoundingBox
@@ -23,48 +25,82 @@ import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import androidx.xr.scenecore.runtime.GltfModelResource
 import androidx.xr.scenecore.runtime.NodeHolder
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfFeature] */
 internal class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
     FakeBaseRenderingFeature(nodeHolder), GltfFeature {
-    private var mockGltfFeature: GltfFeature? = null
+
+    internal var loadedGltf: GltfModelResource? = null
+
+    private val _nodes: MutableList<GltfModelNodeFeature> = mutableListOf()
 
     override val nodes: List<GltfModelNodeFeature>
-        get() = mockGltfFeature?.nodes ?: emptyList()
+        get() = _nodes
 
-    override val size: FloatSize3d = mockGltfFeature?.size ?: FloatSize3d(1f, 1f, 1f)
+    fun addNode(node: GltfModelNodeFeature) {
+        _nodes.add(node)
+    }
+
+    override val size: FloatSize3d = FloatSize3d(1f, 1f, 1f)
+
+    private val animationFeatureList = mutableListOf<GltfAnimationFeature>()
+
+    fun addAnimation(animation: GltfAnimationFeature) {
+        animationFeatureList.add(animation)
+    }
 
     override fun getAnimations(executor: Executor): List<GltfAnimationFeature> {
-        return mockGltfFeature?.getAnimations(executor) ?: emptyList()
+        return animationFeatureList
+    }
+
+    private var boundingBox: BoundingBox = BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+
+    fun setGltfModelBoundingBox(boundingBox: BoundingBox) {
+        this.boundingBox = boundingBox
     }
 
     override fun getGltfModelBoundingBox(): BoundingBox {
-        return mockGltfFeature?.getGltfModelBoundingBox()
-            ?: BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+        return boundingBox
     }
+
+    var enableCollider: Boolean = false
+        private set
 
     override fun setColliderEnabled(enableCollider: Boolean) {
-        mockGltfFeature?.setColliderEnabled(enableCollider)
+        this.enableCollider = enableCollider
     }
 
+    private val _animationStateListeners: MutableMap<Consumer<Int>, Executor> = ConcurrentHashMap()
+    val animationStateListeners: Map<Consumer<Int>, Executor>
+        get() = _animationStateListeners
+
     override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
-        mockGltfFeature?.addAnimationStateListener(executor, listener)
+        _animationStateListeners[listener] = executor
     }
 
     override fun removeAnimationStateListener(listener: Consumer<Int>) {
-        mockGltfFeature?.removeAnimationStateListener(listener)
+        _animationStateListeners.remove(listener)
     }
 
+    private val _boundsUpdateListeners: MutableSet<Consumer<BoundingBox>> = CopyOnWriteArraySet()
+    val boundsUpdateListeners: Set<Consumer<BoundingBox>>
+        get() = _boundsUpdateListeners
+
     override fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
-        mockGltfFeature?.addOnBoundsUpdateListener(listener)
+        _boundsUpdateListeners.add(listener)
     }
 
     override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
-        mockGltfFeature?.removeOnBoundsUpdateListener(listener)
+        _boundsUpdateListeners.remove(listener)
     }
+
+    var reformAffordanceEnabled: Boolean = false
 
     override fun setReformAffordanceEnabled(
         entity: GltfEntity,
@@ -72,18 +108,11 @@ internal class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
         executor: Executor,
         systemMovable: Boolean,
     ) {
-        mockGltfFeature?.setReformAffordanceEnabled(entity, enabled, executor, systemMovable)
+        reformAffordanceEnabled = enabled
     }
 
     override fun dispose() {
-        mockGltfFeature?.dispose()
-    }
-
-    companion object {
-        fun createWithMockFeature(feature: GltfFeature, nodeHolder: NodeHolder<*>): GltfFeature {
-            val fakeGltfFeature = FakeGltfFeature(nodeHolder)
-            fakeGltfFeature.mockGltfFeature = feature
-            return fakeGltfFeature
-        }
+        _animationStateListeners.clear()
+        _boundsUpdateListeners.clear()
     }
 }

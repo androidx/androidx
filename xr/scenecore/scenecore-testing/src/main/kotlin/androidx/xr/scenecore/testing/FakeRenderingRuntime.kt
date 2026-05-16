@@ -41,6 +41,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironmentExt
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.TextureSampler
+import androidx.xr.scenecore.testing.internal.FakeGltfFeature as InternalFakeGltfFeature
 import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime as InternalFakeRenderingRuntime
 import java.nio.ByteBuffer
 
@@ -533,7 +534,11 @@ public class FakeRenderingRuntime(
         loadedGltf: GltfModelResource,
         parentEntity: Entity?,
     ): GltfEntity {
-        return entityFactory.createGltfEntity(FakeGltfFeature(createNode()), pose, parentEntity)
+        val nodeHolder = createNode()
+        val fakeInternal =
+            InternalFakeGltfFeature(nodeHolder).apply { this.loadedGltf = loadedGltf }
+        val gltfFeature = FakeGltfFeature(nodeHolder, fakeInternal)
+        return entityFactory.createGltfEntity(gltfFeature, pose, parentEntity)
     }
 
     override fun createSurfaceEntity(

@@ -23,31 +23,59 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import androidx.xr.scenecore.runtime.MaterialResource
+import androidx.xr.scenecore.testing.internal.FakeGltfModelNodeFeature as InternalFakeGltfModelNodeFeature
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfModelNodeFeature] */
 // TODO(b/481429599): Audit usage of LIBRARY_GROUP_PREFIX in SceneCore and migrate it over to
 // LIBRARY_GROUP.
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeGltfModelNodeFeature(override val name: String? = "test_node") :
-    GltfModelNodeFeature {
+public class FakeGltfModelNodeFeature
+internal constructor(
+    override val name: String? = "test_node",
+    internal val fakeInternal: InternalFakeGltfModelNodeFeature,
+) : GltfModelNodeFeature {
 
-    override var localPose: Pose = Pose.Identity
-    override var localScale: Vector3 = Vector3(1f, 1f, 1f)
-    override var modelPose: Pose = Pose.Identity
-    override var modelScale: Vector3 = Vector3(1f, 1f, 1f)
+    public constructor(
+        name: String? = "test_node"
+    ) : this(name, InternalFakeGltfModelNodeFeature(name))
 
-    public val materialOverrides: MutableMap<Int, MaterialResource> = mutableMapOf()
+    override var localPose: Pose
+        get() = fakeInternal.localPose
+        set(value) {
+            fakeInternal.localPose = value
+        }
+
+    override var localScale: Vector3
+        get() = fakeInternal.localScale
+        set(value) {
+            fakeInternal.localScale = value
+        }
+
+    override var modelPose: Pose
+        get() = fakeInternal.modelPose
+        set(value) {
+            fakeInternal.modelPose = value
+        }
+
+    override var modelScale: Vector3
+        get() = fakeInternal.modelScale
+        set(value) {
+            fakeInternal.modelScale = value
+        }
+
+    public val materialOverrides: MutableMap<Int, MaterialResource>
+        get() = fakeInternal.materialOverrides
 
     override fun setMaterialOverride(material: MaterialResource, primitiveIndex: Int) {
-        materialOverrides[primitiveIndex] = material
+        fakeInternal.setMaterialOverride(material, primitiveIndex)
     }
 
     override fun clearMaterialOverride(primitiveIndex: Int) {
-        materialOverrides.remove(primitiveIndex)
+        fakeInternal.clearMaterialOverride(primitiveIndex)
     }
 
     override fun clearMaterialOverrides() {
-        materialOverrides.clear()
+        fakeInternal.clearMaterialOverrides()
     }
 }

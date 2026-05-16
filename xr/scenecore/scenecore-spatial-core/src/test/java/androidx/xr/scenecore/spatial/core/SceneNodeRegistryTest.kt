@@ -33,7 +33,6 @@ import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
-import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.Node
 import com.google.common.truth.Truth.assertThat
@@ -42,6 +41,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -246,11 +246,11 @@ class SceneNodeRegistryTest {
     /** Creates a generic glTF entity. */
     private fun createGltfEntity(): GltfEntity {
         val nodeHolder = NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
-        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+        whenever(mockGltfFeature.getNodeHolder()).thenReturn(nodeHolder)
         val gltfEntity =
             GltfEntityImpl(
                 activity,
-                fakeGltfFeature,
+                mockGltfFeature,
                 activitySpace,
                 xrExtensions,
                 sceneNodeRegistry,

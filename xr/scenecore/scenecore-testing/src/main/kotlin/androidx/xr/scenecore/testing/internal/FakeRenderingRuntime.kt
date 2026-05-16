@@ -530,7 +530,11 @@ internal class FakeRenderingRuntime(
         loadedGltf: GltfModelResource,
         parentEntity: Entity?,
     ): GltfEntity {
-        return entityFactory.createGltfEntity(FakeGltfFeature(createNode()), pose, parentEntity)
+        return entityFactory.createGltfEntity(
+            FakeGltfFeature(createNode()).apply { this.loadedGltf = loadedGltf },
+            pose,
+            parentEntity,
+        )
     }
 
     override fun createSurfaceEntity(

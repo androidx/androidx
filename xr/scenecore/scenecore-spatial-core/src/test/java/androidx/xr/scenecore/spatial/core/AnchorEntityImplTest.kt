@@ -37,7 +37,6 @@ import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
-import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
@@ -51,6 +50,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -129,17 +129,17 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
     override val activitySpaceEntity: ActivitySpaceImpl
         get() = activitySpace
 
-    private val mockGltfFeature: GltfFeature = mock<GltfFeature>()
-
     private fun createGltfEntity(): GltfEntityImpl {
-        val nodeHolder = NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
+        val mockGltfFeature = mock<GltfFeature>()
         val activityController = Robolectric.buildActivity(Activity::class.java)
         val activity = activityController.create().start().get()
-        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+
+        val nodeHolder = NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
+        whenever(mockGltfFeature.getNodeHolder()).thenReturn(nodeHolder)
 
         return GltfEntityImpl(
             activity,
-            fakeGltfFeature,
+            mockGltfFeature,
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
