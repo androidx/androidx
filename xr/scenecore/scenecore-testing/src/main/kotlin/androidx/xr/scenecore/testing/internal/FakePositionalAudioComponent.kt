@@ -28,11 +28,18 @@ internal class FakePositionalAudioComponent(
     var params: PointSourceParams,
 ) : FakeComponent(), PositionalAudioComponent {
 
+    private var audioOutputProvider: AudioOutputProvider =
+        AudioTrackAudioOutputProvider.Builder(context).build()
+
     var getAudioOutputProviderCount: Int = 0
 
     override fun getAudioOutputProvider(): AudioOutputProvider {
         getAudioOutputProviderCount++
-        return AudioTrackAudioOutputProvider.Builder(context).build()
+        return audioOutputProvider
+    }
+
+    internal fun setAudioOutputProvider(audioOutputProvider: AudioOutputProvider) {
+        this.audioOutputProvider = audioOutputProvider
     }
 
     override fun setPointSourceParams(params: PointSourceParams) {

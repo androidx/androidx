@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
 
@@ -28,7 +29,8 @@ import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
 // TODO: b/430650745 - reevaluate the usefulness of this class prior to the beta release
 // TODO: b/426001209 - add additional parameters to PointSourceParams
 public class PointSourceParams() {
-    internal val rtPointSourceParams: RtPointSourceParams by lazy { RtPointSourceParams() }
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtPointSourceParams: RtPointSourceParams by lazy { RtPointSourceParams() }
 }
 
 internal fun RtPointSourceParams.toPointSourceParams(session: Session): PointSourceParams? {
