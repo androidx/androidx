@@ -26,11 +26,8 @@ import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
-import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpaceValue
 import androidx.xr.scenecore.testing.internal.FakeActivitySpace as InternalFakeActivitySpace
-import java.util.Collections
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * A test double for [androidx.xr.scenecore.runtime.ActivitySpace], designed for use in unit or
@@ -38,8 +35,9 @@ import java.util.concurrent.atomic.AtomicReference
  */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeActivitySpace internal constructor(fakeInternal: InternalFakeActivitySpace) :
-    FakeSystemSpaceEntity(fakeInternal), ActivitySpace {
+public class FakeActivitySpace
+internal constructor(private val internalActivitySpace: InternalFakeActivitySpace) :
+    FakeSystemSpaceEntity(internalActivitySpace), ActivitySpace {
 
     public constructor() : this(InternalFakeActivitySpace())
 
@@ -49,47 +47,26 @@ public class FakeActivitySpace internal constructor(fakeInternal: InternalFakeAc
     )
     public constructor(unscaledGravityAlignedActivitySpace: Boolean) : this()
 
-    private val _bounds: AtomicReference<Dimensions> =
-        AtomicReference<Dimensions>(
-            Dimensions(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        )
-    private val _onBoundsChangedListeners: MutableSet<ActivitySpace.OnBoundsChangedListener> =
-        Collections.synchronizedSet(
-            mutableSetOf(
-                ActivitySpace.OnBoundsChangedListener { newBounds -> _bounds.set(newBounds) }
-            )
-        )
-
     /** Returns the bounds of this ActivitySpace. */
     override val bounds: Dimensions
-        get() = _bounds.get()
+        get() = internalActivitySpace.bounds
 
     /** Returns the pose for this ActivitySpace, relative to the given space. */
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
-        return when (relativeTo) {
-            Space.PARENT -> {
-                throw UnsupportedOperationException(
-                    "ActivitySpace is a root space and it does not have a parent."
-                )
-            }
-            Space.ACTIVITY -> {
-                Pose.Identity
-            }
-            else -> {
-                super<FakeSystemSpaceEntity>.getPose(relativeTo)
-            }
-        }
+        return internalActivitySpace.getPose(relativeTo)
+    }
+
+    override fun setPose(pose: Pose, @SpaceValue relativeTo: Int) {
+        internalActivitySpace.setPose(pose, relativeTo)
     }
 
     /**
      * For test purposes only.
      *
      * The set of listeners to be called when the bounds of the primary Activity change.
-     *
-     * @param bounds The new bounds of the primary Activity in Meters
      */
     public val onBoundsChangedListeners: Set<ActivitySpace.OnBoundsChangedListener>
-        get() = _onBoundsChangedListeners
+        get() = internalActivitySpace.onBoundsChangedListeners
 
     /**
      * For test purposes only.
@@ -100,9 +77,7 @@ public class FakeActivitySpace internal constructor(fakeInternal: InternalFakeAc
      * @param bounds The new bounds to propagate to the listeners.
      */
     public fun onBoundsChanged(bounds: Dimensions) {
-        val listeners =
-            synchronized(_onBoundsChangedListeners) { _onBoundsChangedListeners.toSet() }
-        listeners.forEach { it.onBoundsChanged(bounds) }
+        internalActivitySpace.onBoundsChanged(bounds)
     }
 
     /**
@@ -113,7 +88,7 @@ public class FakeActivitySpace internal constructor(fakeInternal: InternalFakeAc
      */
     @Suppress("ExecutorRegistration")
     override fun addOnBoundsChangedListener(listener: ActivitySpace.OnBoundsChangedListener) {
-        _onBoundsChangedListeners.add(listener)
+        internalActivitySpace.addOnBoundsChangedListener(listener)
     }
 
     /**
@@ -123,7 +98,7 @@ public class FakeActivitySpace internal constructor(fakeInternal: InternalFakeAc
      * @param listener The listener to unregister.
      */
     override fun removeOnBoundsChangedListener(listener: ActivitySpace.OnBoundsChangedListener) {
-        _onBoundsChangedListeners.remove(listener)
+        internalActivitySpace.removeOnBoundsChangedListener(listener)
     }
 
     /**
@@ -131,25 +106,25 @@ public class FakeActivitySpace internal constructor(fakeInternal: InternalFakeAc
      * [hitTestRelativeToActivityPose]. This can be modified in tests to simulate different hit test
      * outcomes.
      */
-    public var activitySpaceHitTestResult: HitTestResult =
-        HitTestResult(
-            hitPosition = null,
-            surfaceNormal = null,
-            surfaceType = HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN,
-            distance = 0f,
-        )
+    public var activitySpaceHitTestResult: HitTestResult
+        get() = internalActivitySpace.activitySpaceHitTestResult
+        set(value) {
+            internalActivitySpace.activitySpaceHitTestResult = value
+        }
 
     override suspend fun hitTestRelativeToActivityPose(
         origin: Vector3,
         direction: Vector3,
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
         scenePose: ScenePose,
-    ): HitTestResult = activitySpaceHitTestResult
+    ): HitTestResult =
+        internalActivitySpace.hitTestRelativeToActivityPose(
+            origin,
+            direction,
+            hitTestFilter,
+            scenePose,
+        )
 
     override val recommendedContentBoxInFullSpace: BoundingBox
-        get() =
-            BoundingBox.fromMinMax(
-                min = Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
-                max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
-            )
+        get() = internalActivitySpace.recommendedContentBoxInFullSpace
 }
