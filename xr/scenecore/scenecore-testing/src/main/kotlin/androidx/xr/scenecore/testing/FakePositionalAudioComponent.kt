@@ -21,7 +21,6 @@ package androidx.xr.scenecore.testing
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.media3.exoplayer.audio.AudioOutputProvider
-import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
 import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.PositionalAudioComponent
 import androidx.xr.scenecore.testing.internal.FakePositionalAudioComponent as InternalFakePositionalAudioComponent
@@ -29,22 +28,35 @@ import androidx.xr.scenecore.testing.internal.FakePositionalAudioComponent as In
 /** Test-only implementation of [PositionalAudioComponent]. */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakePositionalAudioComponent(
+public class FakePositionalAudioComponent
+internal constructor(
     internal val context: Context,
-    public var params: PointSourceParams,
+    internal val initialParams: PointSourceParams,
+    internal var fakeInternal: InternalFakePositionalAudioComponent,
 ) : FakeComponent(), PositionalAudioComponent {
 
-    internal var fakeInternal: InternalFakePositionalAudioComponent =
-        InternalFakePositionalAudioComponent(context, params)
+    public constructor(
+        context: Context,
+        initialParams: PointSourceParams,
+    ) : this(context, initialParams, InternalFakePositionalAudioComponent(context, initialParams))
 
-    public var getAudioOutputProviderCount: Int = 0
+    public var params: PointSourceParams
+        get() = fakeInternal.params
+        set(value) {
+            fakeInternal.params = value
+        }
+
+    public var getAudioOutputProviderCount: Int
+        get() = fakeInternal.getAudioOutputProviderCount
+        set(value) {
+            fakeInternal.getAudioOutputProviderCount = value
+        }
 
     override fun getAudioOutputProvider(): AudioOutputProvider {
-        getAudioOutputProviderCount++
-        return AudioTrackAudioOutputProvider.Builder(context).build()
+        return fakeInternal.getAudioOutputProvider()
     }
 
     override fun setPointSourceParams(params: PointSourceParams) {
-        this.params = params
+        fakeInternal.setPointSourceParams(params)
     }
 }

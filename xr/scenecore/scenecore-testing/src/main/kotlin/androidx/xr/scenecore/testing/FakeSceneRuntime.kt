@@ -68,6 +68,7 @@ import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAn
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import androidx.xr.scenecore.testing.internal.FakeMeshEntity as InternalFakeMeshEntity
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
+import androidx.xr.scenecore.testing.internal.FakePositionalAudioComponent as InternalFakePositionalAudioComponent
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
 import androidx.xr.scenecore.testing.internal.FakeSoundEffectPoolComponent as InternalFakeSoundEffectPoolComponent
 import androidx.xr.scenecore.testing.internal.FakeSurfaceEntity as InternalFakeSurfaceEntity
@@ -128,7 +129,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         FakeSoundPoolExtensionsWrapper()
 
     override val audioTrackExtensionsWrapper: FakeAudioTrackExtensionsWrapper =
-        FakeAudioTrackExtensionsWrapper(requireNotNull(internalRuntime).audioTrackExtensionsWrapper)
+        FakeAudioTrackExtensionsWrapper(internalRuntime.audioTrackExtensionsWrapper)
 
     override val mediaPlayerExtensionsWrapper: FakeMediaPlayerExtensionsWrapper =
         FakeMediaPlayerExtensionsWrapper()
@@ -556,7 +557,12 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         context: Context,
         params: PointSourceParams,
     ): PositionalAudioComponent {
-        return FakePositionalAudioComponent(context, params)
+        return FakePositionalAudioComponent(
+            context,
+            params,
+            internalRuntime.createPositionalAudioComponent(context, params)
+                as InternalFakePositionalAudioComponent,
+        )
     }
 
     override fun createSoundFieldAudioComponent(
