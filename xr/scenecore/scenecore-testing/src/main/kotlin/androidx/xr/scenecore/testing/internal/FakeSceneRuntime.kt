@@ -149,7 +149,7 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
         FakeSpatialModeChangeListener()
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
-        return FakePerceptionSpaceScenePose()
+        return FakePerceptionSpaceScenePose(pose)
     }
 
     var deviceDpPerMeter: Float = DEFAULT_DP_PER_METER

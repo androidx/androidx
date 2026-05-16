@@ -19,9 +19,32 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
+import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 
 /** A fake ScenePose representing a perception space. */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakePerceptionSpaceScenePose() : FakeScenePose(), PerceptionSpaceScenePose
+public class FakePerceptionSpaceScenePose
+internal constructor(fakeInternal: InternalFakePerceptionSpaceScenePose) :
+    FakeScenePose(fakeInternal), PerceptionSpaceScenePose {
+
+    public constructor(pose: Pose = Pose()) : this(InternalFakePerceptionSpaceScenePose(pose))
+
+    internal val pose: Pose
+        get() = (fakeInternal as InternalFakePerceptionSpaceScenePose).pose
+
+    override var activitySpacePose: Pose
+        get() = fakeInternal.activitySpacePose
+        set(value) {
+            fakeInternal.activitySpacePose = value
+        }
+
+    override var activitySpaceScale: Vector3
+        get() = fakeInternal.activitySpaceScale
+        set(value) {
+            fakeInternal.activitySpaceScale = value
+        }
+}
