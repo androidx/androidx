@@ -69,7 +69,7 @@ class SoundEffectPoolTest {
         val soundEffect = soundEffectPool.load(activity, resId)
 
         val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.loadedResId).isEqualTo(resId)
+        assertThat(fakePool.loadedResourceIds).contains(resId)
         assertThat(soundEffect.id).isEqualTo(resId)
     }
 
@@ -81,19 +81,21 @@ class SoundEffectPoolTest {
         val soundEffect = soundEffectPool.load(afd)
 
         val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.loadedAfd).isEqualTo(afd)
+        assertThat(fakePool.loadedAssetDescriptors).contains(afd)
         assertThat(soundEffect).isNotNull()
     }
 
     @Test
     fun unload_callsRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
-        val soundEffect = soundEffectPool.load(activity, 123)
+        val resId = 123
+        val soundEffect = soundEffectPool.load(activity, resId)
+        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
+        assertThat(fakePool.loadedResourceIds).contains(resId)
 
         soundEffectPool.unload(soundEffect)
 
-        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.unloadedSoundEffect?.id).isEqualTo(soundEffect.id)
+        assertThat(fakePool.loadedResourceIds).doesNotContain(resId)
     }
 
     @Test
