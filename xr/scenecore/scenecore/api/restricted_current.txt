@@ -721,6 +721,13 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.ScenePose getScenePoseFromPerceptionPose(androidx.xr.runtime.math.Pose pose);
   }
 
+  public final class PixelDensity {
+    method public float convertMetersToPixels(float meters);
+    method public float convertPixelsToMeters(float pixels);
+    method @InaccessibleFromKotlin public float getPixelsPerMeter();
+    property public float pixelsPerMeter;
+  }
+
   public final class PlaneOrientation {
     field public static final java.util.Set<androidx.xr.scenecore.PlaneOrientation> ALL;
     field public static final androidx.xr.scenecore.PlaneOrientation.Companion Companion;
@@ -875,7 +882,7 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.PerceptionSpace getPerceptionSpace();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.SpatialCapability> getSpatialCapabilities();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatialEnvironment getSpatialEnvironment();
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public float getVirtualPixelDensity();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PixelDensity getVirtualPixelDensity();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
     method public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void removeSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
@@ -892,7 +899,7 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.PerceptionSpace perceptionSpace;
     property public java.util.Set<androidx.xr.scenecore.SpatialCapability> spatialCapabilities;
     property public androidx.xr.scenecore.SpatialEnvironment spatialEnvironment;
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public float virtualPixelDensity;
+    property public androidx.xr.scenecore.PixelDensity virtualPixelDensity;
   }
 
   public interface ScenePose {
