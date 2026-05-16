@@ -107,13 +107,10 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     public val state: Enum<State>
         get() = _state
 
-    override var spatialCapabilities: SpatialCapabilities =
-        SpatialCapabilities(ALL_SPATIAL_CAPABILITIES)
+    override var spatialCapabilities: SpatialCapabilities
+        get() = internalRuntime.spatialCapabilities
         private set(value) {
-            field = value
-            spatialCapabilitiesChangedMap.forEach { (consumer, executor) ->
-                executor.execute { consumer.accept(value) }
-            }
+            internalRuntime.spatialCapabilities = value
         }
 
     override val activitySpace: FakeActivitySpace = FakeActivitySpace()
@@ -132,12 +129,38 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
 
     override val mainPanelEntity: PanelEntity = FakePanelEntity()
 
-    override var keyEntity: Entity? = null
+    private var _keyEntity: Entity? = null
+
+    override var keyEntity: Entity?
+        get() = _keyEntity
+        set(value) {
+            _keyEntity = value
+
+            when (value) {
+                null -> {
+                    internalRuntime.keyEntity = null
+                }
+                is FakeEntity -> {
+                    internalRuntime.keyEntity = value.fakeInternal as InternalFakeEntity
+                }
+
+                else -> {
+                    // When integrated with Compose, the keyEntity might be a Compose-specific
+                    // representation of an Entity. In such cases, this FakeSceneRuntime does
+                    // not need to do anything with it, as the Compose integration handles
+                    // the key entity state separately. Only FakeEntity types, which are
+                    // created by this FakeSceneRuntime, need to be mirrored to the internalRuntime.
+                }
+            }
+        }
 
     override val spatialEnvironment: FakeSpatialEnvironment = FakeSpatialEnvironment()
 
-    override var spatialModeChangeListener: SpatialModeChangeListener? =
-        FakeSpatialModeChangeListener()
+    override var spatialModeChangeListener: SpatialModeChangeListener?
+        get() = internalRuntime.spatialModeChangeListener
+        set(value) {
+            internalRuntime.spatialModeChangeListener = value
+        }
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
         return FakePerceptionSpaceScenePose()
@@ -269,21 +292,17 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      * correct listeners are registered with their intended executors.
      */
     public val spatialCapabilitiesChangedMap: Map<Consumer<SpatialCapabilities>, Executor>
-        get() = _spatialCapabilitiesChangedMap
-
-    private val _spatialCapabilitiesChangedMap:
-        MutableMap<Consumer<SpatialCapabilities>, Executor> =
-        mutableMapOf()
+        get() = internalRuntime.spatialCapabilitiesChangedMap
 
     override fun addSpatialCapabilitiesChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<SpatialCapabilities>,
     ) {
-        _spatialCapabilitiesChangedMap[listener] = callbackExecutor
+        internalRuntime.addSpatialCapabilitiesChangedListener(callbackExecutor, listener)
     }
 
     override fun removeSpatialCapabilitiesChangedListener(listener: Consumer<SpatialCapabilities>) {
-        _spatialCapabilitiesChangedMap.remove(listener)
+        internalRuntime.removeSpatialCapabilitiesChangedListener(listener)
     }
 
     /**
@@ -298,20 +317,17 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      * correct listener is registered or that it has been successfully cleared.
      */
     public val spatialVisibilityChangedMap: Map<Consumer<SpatialVisibility>, Executor>
-        get() = _spatialVisibilityChangedMap
-
-    private val _spatialVisibilityChangedMap: MutableMap<Consumer<SpatialVisibility>, Executor> =
-        mutableMapOf()
+        get() = internalRuntime.spatialVisibilityChangedMap
 
     override fun setSpatialVisibilityChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<SpatialVisibility>,
     ) {
-        _spatialVisibilityChangedMap[listener] = callbackExecutor
+        internalRuntime.setSpatialVisibilityChangedListener(callbackExecutor, listener)
     }
 
     override fun clearSpatialVisibilityChangedListener() {
-        _spatialVisibilityChangedMap.clear()
+        internalRuntime.clearSpatialVisibilityChangedListener()
     }
 
     /**
@@ -326,20 +342,17 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      * correct listeners are registered or that they have been successfully removed.
      */
     public val perceivedResolutionChangedMap: Map<Consumer<PixelDimensions>, Executor>
-        get() = _perceivedResolutionChangedMap
-
-    private val _perceivedResolutionChangedMap: MutableMap<Consumer<PixelDimensions>, Executor> =
-        mutableMapOf()
+        get() = internalRuntime.perceivedResolutionChangedMap
 
     override fun addPerceivedResolutionChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<PixelDimensions>,
     ) {
-        _perceivedResolutionChangedMap[listener] = callbackExecutor
+        internalRuntime.addPerceivedResolutionChangedListener(callbackExecutor, listener)
     }
 
     override fun removePerceivedResolutionChangedListener(listener: Consumer<PixelDimensions>) {
-        _perceivedResolutionChangedMap.remove(listener)
+        internalRuntime.removePerceivedResolutionChangedListener(listener)
     }
 
     /**
@@ -364,14 +377,16 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     }
 
     override fun requestFullSpaceMode() {
-        spatialCapabilities = SpatialCapabilities(ALL_SPATIAL_CAPABILITIES)
+        internalRuntime.requestFullSpaceMode()
+        // FakeActivitySpace has not bypassed data to internal, use current.
         activitySpace.onBoundsChanged(
             Dimensions(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
         )
     }
 
     override fun requestHomeSpaceMode() {
-        spatialCapabilities = SpatialCapabilities(0)
+        internalRuntime.requestHomeSpaceMode()
+        // FakeActivitySpace has not bypassed data to internal, use current.
         activitySpace.onBoundsChanged(Dimensions(1f, 1f, 1f))
     }
 
@@ -380,11 +395,14 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     override fun setFullSpaceModeWithEnvironmentInherited(bundle: Bundle): Bundle = bundle
 
     /** This value is used to verify the result of [enablePanelDepthTest] in tests. */
-    public var enabledPanelDepthTest: Boolean = false
-        internal set
+    public var enabledPanelDepthTest: Boolean
+        get() = internalRuntime.enabledPanelDepthTest
+        internal set(value) {
+            internalRuntime.enabledPanelDepthTest = value
+        }
 
     override fun enablePanelDepthTest(enabled: Boolean) {
-        enabledPanelDepthTest = enabled
+        internalRuntime.enablePanelDepthTest(enabled)
     }
 
     override fun createInteractableComponent(
@@ -469,9 +487,8 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
                 SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
     }
 
-    private var _isBoundaryConsentGranted = false
     override val isBoundaryConsentGranted: Boolean
-        get() = _isBoundaryConsentGranted
+        get() = internalRuntime.isBoundaryConsentGranted
 
     /**
      * For test purposes only.
@@ -484,19 +501,17 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      * correct listeners are registered with their intended executors.
      */
     public val boundaryConsentChangedMap: Map<Consumer<Boolean>, Executor>
-        get() = _boundaryConsentChangedMap
-
-    private val _boundaryConsentChangedMap: MutableMap<Consumer<Boolean>, Executor> = mutableMapOf()
+        get() = internalRuntime.boundaryConsentChangedMap
 
     override fun addOnBoundaryConsentChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<Boolean>,
     ) {
-        _boundaryConsentChangedMap[listener] = callbackExecutor
+        internalRuntime.addOnBoundaryConsentChangedListener(callbackExecutor, listener)
     }
 
     override fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
-        _boundaryConsentChangedMap.remove(listener)
+        internalRuntime.removeOnBoundaryConsentChangedListener(listener)
     }
 
     override fun createPositionalAudioComponent(
@@ -532,14 +547,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      * @param boundaryConsent The new value for boundary consent.
      */
     public fun onBoundaryConsentChanged(boundaryConsent: Boolean) {
-        val oldBoundaryConsent = _isBoundaryConsentGranted
-        _isBoundaryConsentGranted = boundaryConsent
-
-        if (oldBoundaryConsent != boundaryConsent) {
-            _boundaryConsentChangedMap.forEach { (listener, executor) ->
-                executor.execute { listener.accept(boundaryConsent) }
-            }
-        }
+        internalRuntime.onBoundaryConsentChanged(boundaryConsent)
     }
 
     override val virtualPixelDensity: Float = 2000f

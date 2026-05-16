@@ -87,6 +87,9 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
         _perceivedResolutionChangedMap.clear()
         _boundaryConsentChangedMap.clear()
 
+        keyEntity = null
+        enabledPanelDepthTest = false
+
         instance = null
     }
 
@@ -115,7 +118,7 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
 
     override var spatialCapabilities: SpatialCapabilities =
         SpatialCapabilities(ALL_SPATIAL_CAPABILITIES)
-        private set(value) {
+        set(value) {
             field = value
             spatialCapabilitiesChangedMap.forEach { (consumer, executor) ->
                 executor.execute { consumer.accept(value) }
@@ -358,11 +361,11 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
      * Stores the ratio that was last provided to the [setPreferredAspectRatio] method. Tests can
      * inspect this property to verify the correct ratio was set.
      */
-    var lastSetPreferredAspectRatioRatio: Float = -1f
+    var lastSetPreferredAspectRatio: Float = -1f
 
     override fun setPreferredAspectRatio(activity: Activity, preferredRatio: Float) {
         lastSetPreferredAspectRatioActivity = activity
-        lastSetPreferredAspectRatioRatio = preferredRatio
+        lastSetPreferredAspectRatio = preferredRatio
     }
 
     override fun requestFullSpaceMode() {
