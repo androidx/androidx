@@ -25,13 +25,47 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
 import androidx.xr.scenecore.runtime.SpatializerConstants
+import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
+import androidx.xr.scenecore.testing.internal.FakeSoundPoolExtensionsWrapper as InternalFakeSoundPoolExtensionsWrapper
+import java.util.Collections
+import java.util.WeakHashMap
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
+public class FakeSoundPoolExtensionsWrapper
+internal constructor(internal var fakeInternal: InternalFakeSoundPoolExtensionsWrapper) :
+    SoundPoolExtensionsWrapper {
+    public constructor() : this(InternalFakeSoundPoolExtensionsWrapper())
 
-    private var playAsPointSourceResult: Int = 0
+    /** Mapping between [InternalFakeEntity] and [FakeEntity] */
+    internal val entityMap = Collections.synchronizedMap(WeakHashMap<Entity, Entity>())
+    public val lastPlayedSoundPool: SoundPool?
+        get() = fakeInternal.lastPlayedSoundPool
+
+    public val lastPlayedSoundId: Int?
+        get() = fakeInternal.lastPlayedSoundId
+
+    public val lastPlayedParams: PointSourceParams?
+        get() = fakeInternal.lastPlayedParams
+
+    public val lastPlayedEntity: Entity?
+        get() = fakeInternal.lastPlayedEntity?.let { entityMap[it] }
+
+    public val lastPlayedVolume: Float?
+        get() = fakeInternal.lastPlayedVolume
+
+    public val lastPlayedPriority: Int?
+        get() = fakeInternal.lastPlayedPriority
+
+    public val lastPlayedLoop: Int?
+        get() = fakeInternal.lastPlayedLoop
+
+    public val lastPlayedRate: Float?
+        get() = fakeInternal.lastPlayedRate
+
+    public val lastPlayedSoundFieldAttributes: SoundFieldAttributes?
+        get() = fakeInternal.lastPlayedSoundFieldAttributes
 
     /**
      * For test purposes only. Sets the value that will be returned by the [play] method for point
@@ -44,7 +78,7 @@ public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
      *   available).
      */
     public fun setPlayAsPointSourceResult(result: Int) {
-        playAsPointSourceResult = result
+        fakeInternal.setPlayAsPointSourceResult(result)
     }
 
     /**
@@ -69,10 +103,20 @@ public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
         loop: Int,
         rate: Float,
     ): Int {
-        return playAsPointSourceResult
-    }
+        val internalFakeEntity = (entity as? FakeEntity)?.fakeInternal as? InternalFakeEntity
+        internalFakeEntity?.let { entityMap[it] = entity }
 
-    private var playAsSoundFieldResult: Int = 0
+        return fakeInternal.play(
+            soundPool,
+            soundId,
+            params,
+            internalFakeEntity,
+            volume,
+            priority,
+            loop,
+            rate,
+        )
+    }
 
     /**
      * For test purposes only. Sets the value that will be returned by the [play] method for sound
@@ -85,7 +129,7 @@ public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
      *   available).
      */
     public fun setPlayAsSoundFieldResult(result: Int) {
-        playAsSoundFieldResult = result
+        fakeInternal.setPlayAsSoundFieldResult(result)
     }
 
     /**
@@ -109,7 +153,7 @@ public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
         loop: Int,
         rate: Float,
     ): Int {
-        return playAsSoundFieldResult
+        return fakeInternal.play(soundPool, soundId, attributes, volume, priority, loop, rate)
     }
 
     /**
@@ -119,7 +163,12 @@ public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
      * [androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper.getSpatialSourceType] like the
      * setSourceType does in scenecore unit tests.
      */
-    @SpatializerConstants.SourceType public var sourceType: Int = 0
+    @SpatializerConstants.SourceType
+    public var sourceType: Int
+        get() = fakeInternal.sourceType
+        set(value) {
+            fakeInternal.sourceType = value
+        }
 
     /**
      * Returns the spatial source type of the sound.
@@ -130,6 +179,6 @@ public class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
      */
     @SpatializerConstants.SourceType
     override fun getSpatialSourceType(soundPool: SoundPool, streamId: Int): Int {
-        return sourceType
+        return fakeInternal.getSpatialSourceType(soundPool, streamId)
     }
 }

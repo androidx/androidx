@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore
 
 import android.media.SoundPool
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
-import androidx.xr.scenecore.runtime.Entity as RtEntity
-import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
-import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper as RtSoundPoolExtensionsWrapper
-import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilities
-import androidx.xr.scenecore.runtime.SpatializerConstants as RtSpatializerConstants
+import androidx.xr.runtime.SessionCreateSuccess
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
@@ -46,63 +36,34 @@ import org.robolectric.RobolectricTestRunner
 class SpatialSoundPoolTest {
 
     @Suppress("DEPRECATION")
-    // TODO: b/494308962 Remove references to arcore-testing Fakes
-    private val fakePerceptionRuntimeFactory =
-        androidx.xr.arcore.testing.FakePerceptionRuntimeFactory()
-    private var mockSceneRuntime: SceneRuntime = mock()
-
-    private var mockRtSoundPoolExtensions: RtSoundPoolExtensionsWrapper = mock()
-
-    private val mockEntity = mock<RtEntity>()
     private val activity =
         Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
-    private val mockActivitySpace = mock<RtActivitySpace>()
 
     private lateinit var session: Session
 
     @Before
-    @SuppressWarnings("RestrictTo")
     fun setUp() {
-        mockSceneRuntime.stub {
-            on { spatialEnvironment } doReturn mock()
-            on { activitySpace } doReturn mockActivitySpace
-            on { perceptionSpaceActivityPose } doReturn mock()
-            on { mainPanelEntity } doReturn mock()
-            on { createEntity(any(), any(), any()) } doReturn mockEntity
-            on { spatialCapabilities } doReturn RtSpatialCapabilities(0)
-        }
+        val testDispatcher = StandardTestDispatcher()
+        val result = Session.create(activity, testDispatcher)
 
-        mockRtSoundPoolExtensions = mock()
-        whenever(mockSceneRuntime.soundPoolExtensionsWrapper).thenReturn(mockRtSoundPoolExtensions)
-        session =
-            Session(
-                activity,
-                runtimes =
-                    listOf(fakePerceptionRuntimeFactory.createRuntime(activity), mockSceneRuntime),
-                lifecycleOwner = activity,
-            )
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+
+        session = (result as SessionCreateSuccess).session
     }
 
     @Test
     fun playWithPointSource_callsRuntimeSoundPoolPlayPointSource() {
         val expectedStreamId = 1234
-
         val soundPool = SoundPool.Builder().build()
         val entity = Entity.create(session, "test", parent = session.scene.activitySpace)
         val pointSourceAttributes = PointSourceParams()
-        whenever(
-                mockRtSoundPoolExtensions.play(
-                    eq(soundPool),
-                    any(),
-                    any<RtPointSourceParams>(),
-                    any<RtEntity>(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                )
-            )
-            .thenReturn(expectedStreamId)
+
+        val fakeSceneRuntime =
+            session.sceneRuntime as androidx.xr.scenecore.testing.FakeSceneRuntime
+        val fakeSoundPoolExtensions =
+            fakeSceneRuntime.soundPoolExtensionsWrapper
+                as androidx.xr.scenecore.testing.FakeSoundPoolExtensionsWrapper
+        fakeSoundPoolExtensions.setPlayAsPointSourceResult(expectedStreamId)
 
         val actualStreamId =
             SpatialSoundPool.play(
@@ -116,39 +77,54 @@ class SpatialSoundPoolTest {
                 TEST_LOOP,
                 TEST_RATE,
             )
-        verify(mockRtSoundPoolExtensions)
-            .play(
-                eq(soundPool),
-                eq(TEST_SOUND_ID),
-                any(),
-                eq(mockEntity),
-                eq(TEST_VOLUME),
-                eq(TEST_PRIORITY),
-                eq(TEST_LOOP),
-                eq(TEST_RATE),
-            )
+
+        assertThat(fakeSoundPoolExtensions.lastPlayedSoundPool).isEqualTo(soundPool)
+        assertThat(fakeSoundPoolExtensions.lastPlayedSoundId).isEqualTo(TEST_SOUND_ID)
+        assertThat(fakeSoundPoolExtensions.lastPlayedParams)
+            .isEqualTo(pointSourceAttributes.rtPointSourceParams)
+        assertThat(fakeSoundPoolExtensions.lastPlayedEntity).isEqualTo(entity.rtEntity)
+        assertThat(fakeSoundPoolExtensions.lastPlayedVolume).isEqualTo(TEST_VOLUME)
+        assertThat(fakeSoundPoolExtensions.lastPlayedPriority).isEqualTo(TEST_PRIORITY)
+        assertThat(fakeSoundPoolExtensions.lastPlayedLoop).isEqualTo(TEST_LOOP)
+        assertThat(fakeSoundPoolExtensions.lastPlayedRate).isEqualTo(TEST_RATE)
         assertThat(actualStreamId).isEqualTo(expectedStreamId)
     }
 
     @Test
     fun playWithSoundField_callsRuntimeSoundPoolPlaySoundField() {
+        val expectedStreamId = 5678
         val soundPool = SoundPool.Builder().build()
         val soundFieldAttributes =
             SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
-        assertThat(
-                SpatialSoundPool.play(
-                    session,
-                    soundPool,
-                    TEST_SOUND_ID,
-                    soundFieldAttributes,
-                    TEST_VOLUME,
-                    TEST_PRIORITY,
-                    TEST_LOOP,
-                    TEST_RATE,
-                )
+        val fakeSceneRuntime =
+            session.sceneRuntime as androidx.xr.scenecore.testing.FakeSceneRuntime
+        val fakeSoundPoolExtensions =
+            fakeSceneRuntime.soundPoolExtensionsWrapper
+                as androidx.xr.scenecore.testing.FakeSoundPoolExtensionsWrapper
+        fakeSoundPoolExtensions.setPlayAsSoundFieldResult(expectedStreamId)
+
+        val actualStreamId =
+            SpatialSoundPool.play(
+                session,
+                soundPool,
+                TEST_SOUND_ID,
+                soundFieldAttributes,
+                TEST_VOLUME,
+                TEST_PRIORITY,
+                TEST_LOOP,
+                TEST_RATE,
             )
-            .isEqualTo(0)
+
+        assertThat(fakeSoundPoolExtensions.lastPlayedSoundPool).isEqualTo(soundPool)
+        assertThat(fakeSoundPoolExtensions.lastPlayedSoundId).isEqualTo(TEST_SOUND_ID)
+        assertThat(fakeSoundPoolExtensions.lastPlayedSoundFieldAttributes)
+            .isEqualTo(soundFieldAttributes.rtSoundFieldAttributes)
+        assertThat(fakeSoundPoolExtensions.lastPlayedVolume).isEqualTo(TEST_VOLUME)
+        assertThat(fakeSoundPoolExtensions.lastPlayedPriority).isEqualTo(TEST_PRIORITY)
+        assertThat(fakeSoundPoolExtensions.lastPlayedLoop).isEqualTo(TEST_LOOP)
+        assertThat(fakeSoundPoolExtensions.lastPlayedRate).isEqualTo(TEST_RATE)
+        assertThat(actualStreamId).isEqualTo(expectedStreamId)
     }
 
     @Test
@@ -156,8 +132,13 @@ class SpatialSoundPoolTest {
         val expected = SpatializerConstants.SourceType.SOUND_FIELD
         val soundPool = SoundPool.Builder().build()
 
-        whenever(mockRtSoundPoolExtensions.getSpatialSourceType(any(), any()))
-            .thenReturn(RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
+        val fakeSceneRuntime =
+            session.sceneRuntime as androidx.xr.scenecore.testing.FakeSceneRuntime
+        val fakeSoundPoolExtensions =
+            fakeSceneRuntime.soundPoolExtensionsWrapper
+                as androidx.xr.scenecore.testing.FakeSoundPoolExtensionsWrapper
+        fakeSoundPoolExtensions.sourceType =
+            androidx.xr.scenecore.runtime.SpatializerConstants.SOURCE_TYPE_SOUND_FIELD
 
         assertThat(SpatialSoundPool.getSpatialSourceType(session, soundPool, TEST_STREAM_ID))
             .isEqualTo(expected)
