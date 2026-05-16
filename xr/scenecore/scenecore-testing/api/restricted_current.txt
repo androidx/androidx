@@ -5,8 +5,15 @@ package androidx.xr.scenecore.testing {
     ctor public SceneCoreTestRule();
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Entity entity);
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
     method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Component component);
     method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Entity entity);
+    property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
+  }
+
+  public final class SpatialWindowTester {
+    method @InaccessibleFromKotlin public float getPreferredAspectRatio();
+    property public float preferredAspectRatio;
   }
 
 }

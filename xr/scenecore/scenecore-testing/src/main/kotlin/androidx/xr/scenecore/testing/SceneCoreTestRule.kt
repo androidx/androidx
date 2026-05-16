@@ -18,6 +18,9 @@ package androidx.xr.scenecore.testing
 
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.SpatialWindow
+import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime
+import androidx.xr.scenecore.testing.internal.FakeSceneRuntime
 import org.junit.rules.ExternalResource
 
 /**
@@ -51,6 +54,13 @@ import org.junit.rules.ExternalResource
  * ```
  */
 public class SceneCoreTestRule : ExternalResource() {
+
+    private inline fun <T> requireRuntimesReady(block: () -> T): T {
+        check(FakeSceneRuntime.instance != null && FakeRenderingRuntime.instance != null) {
+            "SceneCore testing runtimes are not ready. Did you create a Session?"
+        }
+        return block()
+    }
 
     // TODO: b/512223711 - Add testers for specific entities/components in follow-up PRs.
     @PublishedApi
@@ -133,4 +143,12 @@ public class SceneCoreTestRule : ExternalResource() {
                 "Expected tester of type ${T::class.simpleName}, but actual component created a ${tester::class.simpleName}"
             )
     }
+
+    // region Spatial Properties
+
+    /** Provides the [SpatialWindowTester] test data accessor for the [SpatialWindow]. */
+    public val spatialWindowTester: SpatialWindowTester
+        get() = requireRuntimesReady { SpatialWindowTester.instance }
+
+    // endregion
 }

@@ -373,7 +373,11 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      * Stores the [Activity] that was last provided to the [setPreferredAspectRatio] method. Tests
      * can inspect this property to verify the correct activity was used.
      */
-    public var lastSetPreferredAspectRatioActivity: Activity? = null
+    public var lastSetPreferredAspectRatioActivity: Activity?
+        get() = internalRuntime.lastSetPreferredAspectRatioActivity
+        set(value) {
+            internalRuntime.lastSetPreferredAspectRatioActivity = value
+        }
 
     /**
      * For test purposes only.
@@ -381,11 +385,14 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
      * Stores the ratio that was last provided to the [setPreferredAspectRatio] method. Tests can
      * inspect this property to verify the correct ratio was set.
      */
-    public var lastSetPreferredAspectRatioRatio: Float = -1f
+    public var lastSetPreferredAspectRatioRatio: Float
+        get() = internalRuntime.lastSetPreferredAspectRatio
+        set(value) {
+            internalRuntime.lastSetPreferredAspectRatio = value
+        }
 
     override fun setPreferredAspectRatio(activity: Activity, preferredRatio: Float) {
-        lastSetPreferredAspectRatioActivity = activity
-        lastSetPreferredAspectRatioRatio = preferredRatio
+        internalRuntime.setPreferredAspectRatio(activity, preferredRatio)
     }
 
     override fun requestFullSpaceMode() {
