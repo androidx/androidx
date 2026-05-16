@@ -43,6 +43,7 @@ import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.TextureSampler
 import androidx.xr.scenecore.testing.internal.FakeGltfFeature as InternalFakeGltfFeature
 import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime as InternalFakeRenderingRuntime
+import androidx.xr.scenecore.testing.internal.FakeSurfaceFeature as InternalFakeSurfaceFeature
 import java.nio.ByteBuffer
 
 /**
@@ -550,7 +551,9 @@ public class FakeRenderingRuntime(
         superSampling: Int,
         parentEntity: Entity?,
     ): SurfaceEntity {
-        val surfaceFeature = FakeSurfaceFeature(createNode())
+        val nodeHolder = createNode()
+
+        val surfaceFeature = FakeSurfaceFeature(nodeHolder, InternalFakeSurfaceFeature(nodeHolder))
         surfaceFeature.stereoMode = stereoMode
         surfaceFeature.shape = shape
 

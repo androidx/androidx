@@ -222,7 +222,7 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
         pose: Pose,
         parentEntity: Entity?,
     ): SurfaceEntity {
-        val surfaceEntity = FakeSurfaceEntity()
+        val surfaceEntity = FakeSurfaceEntity(feature as FakeSurfaceFeature)
         surfaceEntity.setPose(pose)
         surfaceEntity.parent = parentEntity
 
