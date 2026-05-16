@@ -24,29 +24,108 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundEffect
 import androidx.xr.scenecore.runtime.SoundEffectPoolComponent
 import androidx.xr.scenecore.runtime.Stream
+import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import androidx.xr.scenecore.testing.internal.FakeSoundEffectPoolComponent as InternalFakeSoundEffectPoolComponent
+import java.lang.ref.WeakReference
+import java.util.Collections
+import java.util.WeakHashMap
 
 /** Test-only implementation of [SoundEffectPoolComponent]. */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolComponent {
+public class FakeSoundEffectPoolComponent
+internal constructor(internal val fakeInternal: InternalFakeSoundEffectPoolComponent) :
+    FakeComponent(), SoundEffectPoolComponent {
 
-    internal var fakeInternal: InternalFakeSoundEffectPoolComponent =
-        InternalFakeSoundEffectPoolComponent()
+    public constructor() : this(InternalFakeSoundEffectPoolComponent())
 
-    public var lastPlayedSoundEffect: SoundEffect? = null
-    public var lastPlayedParams: PointSourceParams? = null
-    public var lastPlayedEntity: Entity? = null
-    public var lastPlayedVolume: Float? = null
-    public var lastPlayedPriority: Int? = null
-    public var lastPlayedIsLooping: Boolean? = null
-    public var lastPausedStream: Stream? = null
-    public var lastResumedStream: Stream? = null
-    public var lastStoppedStream: Stream? = null
-    public var lastSetVolumeStream: Stream? = null
-    public var lastSetVolumeVolume: Float? = null
-    public var lastSetLoopingStream: Stream? = null
-    public var lastSetLoopingIsLooping: Boolean? = null
+    /** Mapping between [InternalFakeEntity] and [FakeEntity] */
+    internal val entityMap =
+        Collections.synchronizedMap(WeakHashMap<Entity, WeakReference<Entity>>())
+
+    public var lastPlayedEntity: Entity?
+        get() = fakeInternal.lastPlayedEntity?.let { entityMap[it]?.get() }
+        set(value) {
+            val fakeEntity = value as? FakeEntity
+            val internalEntity = fakeEntity?.fakeInternal as? InternalFakeEntity
+
+            fakeInternal.lastPlayedEntity = internalEntity
+            if (internalEntity != null) {
+                entityMap[internalEntity] = WeakReference(fakeEntity)
+            }
+        }
+
+    public var lastPlayedSoundEffect: SoundEffect?
+        get() = fakeInternal.lastPlayedSoundEffect
+        set(value) {
+            fakeInternal.lastPlayedSoundEffect = value
+        }
+
+    public var lastPlayedParams: PointSourceParams?
+        get() = fakeInternal.lastPlayedParams
+        set(value) {
+            fakeInternal.lastPlayedParams = value
+        }
+
+    public var lastPlayedVolume: Float?
+        get() = fakeInternal.lastPlayedVolume
+        set(value) {
+            fakeInternal.lastPlayedVolume = value
+        }
+
+    public var lastPlayedPriority: Int?
+        get() = fakeInternal.lastPlayedPriority
+        set(value) {
+            fakeInternal.lastPlayedPriority = value
+        }
+
+    public var lastPlayedIsLooping: Boolean?
+        get() = fakeInternal.lastPlayedIsLooping
+        set(value) {
+            fakeInternal.lastPlayedIsLooping = value
+        }
+
+    public var lastPausedStream: Stream?
+        get() = fakeInternal.lastPausedStream
+        set(value) {
+            fakeInternal.lastPausedStream = value
+        }
+
+    public var lastResumedStream: Stream?
+        get() = fakeInternal.lastResumedStream
+        set(value) {
+            fakeInternal.lastResumedStream = value
+        }
+
+    public var lastStoppedStream: Stream?
+        get() = fakeInternal.lastStoppedStream
+        set(value) {
+            fakeInternal.lastStoppedStream = value
+        }
+
+    public var lastSetVolumeStream: Stream?
+        get() = fakeInternal.lastSetVolumeStream
+        set(value) {
+            fakeInternal.lastSetVolumeStream = value
+        }
+
+    public var lastSetVolumeVolume: Float?
+        get() = fakeInternal.lastSetVolumeVolume
+        set(value) {
+            fakeInternal.lastSetVolumeVolume = value
+        }
+
+    public var lastSetLoopingStream: Stream?
+        get() = fakeInternal.lastSetLoopingStream
+        set(value) {
+            fakeInternal.lastSetLoopingStream = value
+        }
+
+    public var lastSetLoopingIsLooping: Boolean?
+        get() = fakeInternal.lastSetLoopingIsLooping
+        set(value) {
+            fakeInternal.lastSetLoopingIsLooping = value
+        }
 
     override fun play(
         soundEffect: SoundEffect,
@@ -56,34 +135,35 @@ public class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolComp
         priority: Int,
         isLooping: Boolean,
     ): Stream {
-        lastPlayedSoundEffect = soundEffect
-        lastPlayedParams = pointSourceParams
+        val internalEntity = (entity as? FakeEntity)?.fakeInternal as? InternalFakeEntity
         lastPlayedEntity = entity
-        lastPlayedVolume = volume
-        lastPlayedPriority = priority
-        lastPlayedIsLooping = isLooping
-        return Stream(1)
+        return fakeInternal.play(
+            soundEffect,
+            pointSourceParams,
+            internalEntity,
+            volume,
+            priority,
+            isLooping,
+        )
     }
 
     override fun pause(stream: Stream) {
-        lastPausedStream = stream
+        fakeInternal.pause(stream)
     }
 
     override fun resume(stream: Stream) {
-        lastResumedStream = stream
+        fakeInternal.resume(stream)
     }
 
     override fun stop(stream: Stream) {
-        lastStoppedStream = stream
+        fakeInternal.stop(stream)
     }
 
     override fun setVolume(stream: Stream, volume: Float) {
-        lastSetVolumeStream = stream
-        lastSetVolumeVolume = volume
+        fakeInternal.setVolume(stream, volume)
     }
 
     override fun setLooping(stream: Stream, isLooping: Boolean) {
-        lastSetLoopingStream = stream
-        lastSetLoopingIsLooping = isLooping
+        fakeInternal.setLooping(stream, isLooping)
     }
 }
