@@ -554,15 +554,19 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
     public fun requestHomeSpaceMode(): Unit = sceneRuntime.requestHomeSpaceMode()
 
     /**
-     * The default pixel density of a [PanelEntity], expressed in pixels per meter.
+     * Provides access to the [PixelDensity] standards for this scene.
      *
-     * This value represents a standard conversion factor within [ActivitySpace]. It defines the
-     * number of virtual pixels that correspond to one meter in virtual space, serving as a baseline
-     * for determining the resolution and visual clarity of spatial entities such as [PanelEntity].
+     * This specific density represents the default number of **virtual pixels** that correspond to
+     * one physical meter in [ActivitySpace].
      *
-     * This density is a static property of the user's device and does not change with user-level
-     * display preference overrides.
+     * Since the spatial coordinate system is emulated, these pixels represent content units
+     * (texture resolution) used to define entities such as [PanelEntity], rather than physical
+     * display pixels.
+     *
+     * It is a static hardware constant and ignores user-level display preference overrides (system
+     * density changes).
      */
-    public val virtualPixelDensity: Float
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) get() = sceneRuntime.virtualPixelDensity
+    public val virtualPixelDensity: PixelDensity by lazy {
+        PixelDensity(sceneRuntime.virtualPixelDensity)
+    }
 }

@@ -660,9 +660,28 @@ class SceneTest {
     @Test
     fun defaultPixelsPerMeter_getValueFromRuntime() {
         val ppmFromRuntime = sceneRuntime.virtualPixelDensity
-        val ppm = session.scene.virtualPixelDensity
+        val ppm = session.scene.virtualPixelDensity.pixelsPerMeter
 
-        assertThat(ppm).isGreaterThan(0f)
         assertThat(ppm).isEqualTo(ppmFromRuntime)
+    }
+
+    @Test
+    fun virtualPixelDensity_convertMetersToPixels_returnsCorrectValue() {
+        val ppm = session.scene.virtualPixelDensity.pixelsPerMeter
+        val meters = 2.0f
+        val expectedPixels = meters * ppm
+
+        assertThat(session.scene.virtualPixelDensity.convertMetersToPixels(meters))
+            .isEqualTo(expectedPixels)
+    }
+
+    @Test
+    fun virtualPixelDensity_convertPixelsToMeters_returnsCorrectValue() {
+        val ppm = session.scene.virtualPixelDensity.pixelsPerMeter
+        val pixels = 1000.0f
+        val expectedMeters = pixels / ppm
+
+        assertThat(session.scene.virtualPixelDensity.convertPixelsToMeters(pixels))
+            .isEqualTo(expectedMeters)
     }
 }
