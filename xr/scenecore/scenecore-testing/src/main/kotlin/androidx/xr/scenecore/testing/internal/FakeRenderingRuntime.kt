@@ -104,7 +104,8 @@ internal class FakeRenderingRuntime(
 
     override fun destroyExrImage(exrImage: ExrImageResource) {}
 
-    override suspend fun loadTexture(assetName: String): TextureResource = FakeResource()
+    override suspend fun loadTexture(assetName: String): TextureResource =
+        FakeTexture().apply { this.assetName = assetName }
 
     /**
      * For test purposes only.
@@ -112,19 +113,18 @@ internal class FakeRenderingRuntime(
      * Controls the `TextureResource` instance returned by [borrowReflectionTexture] and
      * [getReflectionTextureFromIbl].
      *
-     * <p>Tests can set this property to a [FakeResource] instance to simulate the availability of a
+     * <p>Tests can set this property to a [FakeTexture] instance to simulate the availability of a
      * reflection texture. This allows verification that the code under test correctly handles the
-     * borrowed or retrieved texture. Calling [destroyTexture] will reset this property to `null`,
-     * enabling tests to also verify resource cleanup behavior.
+     * borrowed or retrieved texture.
      */
-    internal var reflectionTexture: FakeResource? = null
+    internal var reflectionTexture: FakeTexture? = null
 
     override fun borrowReflectionTexture(): TextureResource? {
         return reflectionTexture
     }
 
     override fun destroyTexture(texture: TextureResource) {
-        reflectionTexture = null
+        (texture as? FakeTexture)?.isDestroyed = true
     }
 
     override fun getReflectionTextureFromIbl(iblToken: ExrImageResource): TextureResource? {

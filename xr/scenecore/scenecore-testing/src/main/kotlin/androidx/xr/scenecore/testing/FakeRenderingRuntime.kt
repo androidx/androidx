@@ -45,6 +45,7 @@ import androidx.xr.scenecore.testing.internal.FakeExrImageResource as InternalFa
 import androidx.xr.scenecore.testing.internal.FakeGltfFeature as InternalFakeGltfFeature
 import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime as InternalFakeRenderingRuntime
 import androidx.xr.scenecore.testing.internal.FakeSurfaceFeature as InternalFakeSurfaceFeature
+import androidx.xr.scenecore.testing.internal.FakeTexture as InternalFakeTexture
 import java.nio.ByteBuffer
 
 /**
@@ -111,7 +112,10 @@ public class FakeRenderingRuntime(
 
     override fun destroyExrImage(exrImage: ExrImageResource) {}
 
-    override suspend fun loadTexture(assetName: String): TextureResource = FakeResource()
+    override suspend fun loadTexture(assetName: String): TextureResource =
+        FakeTexture(internalRuntime.loadTexture(assetName) as InternalFakeTexture).apply {
+            this.assetName = assetName
+        }
 
     /**
      * For test purposes only.
@@ -119,19 +123,26 @@ public class FakeRenderingRuntime(
      * Controls the `TextureResource` instance returned by [borrowReflectionTexture] and
      * [getReflectionTextureFromIbl].
      *
-     * <p>Tests can set this property to a [FakeResource] instance to simulate the availability of a
+     * <p>Tests can set this property to a [FakeTexture] instance to simulate the availability of a
      * reflection texture. This allows verification that the code under test correctly handles the
-     * borrowed or retrieved texture. Calling [destroyTexture] will reset this property to `null`,
-     * enabling tests to also verify resource cleanup behavior.
+     * borrowed or retrieved texture.
      */
-    internal var reflectionTexture: FakeResource? = null
+    internal var reflectionTexture: FakeTexture?
+        get() =
+            internalRuntime.reflectionTexture?.let {
+                FakeTexture.wrap(it as TextureResource) as FakeTexture
+            }
+        set(value) {
+            internalRuntime.reflectionTexture =
+                value?.let { FakeTexture.unwrap(it as TextureResource) as InternalFakeTexture }
+        }
 
     override fun borrowReflectionTexture(): TextureResource? {
         return reflectionTexture
     }
 
     override fun destroyTexture(texture: TextureResource) {
-        reflectionTexture = null
+        internalRuntime.destroyTexture(FakeTexture.unwrap(texture))
     }
 
     override fun getReflectionTextureFromIbl(iblToken: ExrImageResource): TextureResource? {
