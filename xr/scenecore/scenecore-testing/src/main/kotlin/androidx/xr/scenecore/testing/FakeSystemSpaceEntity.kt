@@ -39,10 +39,8 @@ internal constructor(fakeInternal: InternalFakeSystemSpaceEntity) :
 
     private var openXrReferenceSpaceTransform: Matrix4? = null
 
-    public var onOriginChangedListener: Runnable? = null
-        private set
-
-    private var onOriginChangedExecutor: Executor? = null
+    public val onOriginChangedListener: Runnable?
+        get() = (fakeInternal as InternalFakeSystemSpaceEntity).onOriginChangedListener
 
     /**
      * Registers a listener to be called when the underlying space's origin has moved or changed.
@@ -53,8 +51,10 @@ internal constructor(fakeInternal: InternalFakeSystemSpaceEntity) :
      */
     @Suppress("ExecutorRegistration")
     override fun setOnOriginChangedListener(listener: Runnable?, executor: Executor?) {
-        onOriginChangedListener = listener
-        onOriginChangedExecutor = executor
+        (fakeInternal as InternalFakeSystemSpaceEntity).setOnOriginChangedListener(
+            listener,
+            executor,
+        )
     }
 
     /**
@@ -65,9 +65,7 @@ internal constructor(fakeInternal: InternalFakeSystemSpaceEntity) :
      * and verify that your code responds correctly to space updates.
      */
     public fun onOriginChanged() {
-        onOriginChangedListener?.let { listener ->
-            onOriginChangedExecutor?.execute(listener) ?: listener.run()
-        }
+        (fakeInternal as InternalFakeSystemSpaceEntity).onOriginChanged()
     }
 
     public fun setOpenXrReferenceSpaceTransform(fromTrs: Matrix4) {

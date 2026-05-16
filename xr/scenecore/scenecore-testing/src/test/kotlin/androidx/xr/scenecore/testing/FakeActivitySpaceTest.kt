@@ -19,12 +19,19 @@
 package androidx.xr.scenecore.testing
 
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.ActivitySpace
+import androidx.xr.scenecore.runtime.Component
 import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.HitTestResult
+import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.ScenePose
+import androidx.xr.scenecore.runtime.Space
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -39,6 +46,105 @@ class FakeActivitySpaceTest {
     @Before
     fun setUp() {
         underTest = FakeActivitySpace()
+    }
+
+    @Test
+    fun setPose_isReflectedInGetPose() {
+        val testPose = Pose(Vector3(1f, 2f, 3f), Quaternion(0.1f, 0.2f, 0.3f, 0.4f))
+        underTest.setPose(testPose, Space.REAL_WORLD)
+        assertThat(underTest.getPose(Space.REAL_WORLD)).isEqualTo(testPose)
+    }
+
+    @Test
+    fun setScale_isReflectedInGetScale() {
+        val testScale = Vector3(2f, 3f, 4f)
+        underTest.setScale(testScale, Space.REAL_WORLD)
+        assertThat(underTest.getScale(Space.REAL_WORLD)).isEqualTo(testScale)
+    }
+
+    @Test
+    fun setAlpha_isReflectedInGetAlpha() {
+        val testAlpha = 0.5f
+        underTest.setAlpha(testAlpha)
+        assertThat(underTest.getAlpha(Space.REAL_WORLD)).isEqualTo(testAlpha)
+    }
+
+    @Test
+    fun setHidden_isReflectedInIsHidden() {
+        underTest.setHidden(true)
+        assertThat(underTest.isHidden(false)).isTrue()
+    }
+
+    @Test
+    fun addChild_isReflectedInChildrenList() {
+        val child = FakeEntity()
+        underTest.addChild(child)
+        assertThat(underTest.children).contains(child)
+    }
+
+    @Test
+    fun setParent_isReflectedInParent() {
+        val parentEntity = FakeEntity()
+        underTest.parent = parentEntity
+        assertThat(underTest.parent).isEqualTo(parentEntity)
+    }
+
+    @Test
+    fun addComponent_isReflectedInGetComponents() {
+        val component =
+            object : Component {
+                override fun onAttach(entity: Entity) = true
+
+                override fun onDetach(entity: Entity) {}
+            }
+        underTest.addComponent(component)
+        assertThat(underTest.getComponents()).contains(component)
+    }
+
+    @Test
+    fun addInputEventListener_isReflectedInListenerMap() {
+        val listener = InputEventListener {}
+        val executor = Executor { it.run() }
+        underTest.addInputEventListener(executor, listener)
+
+        assertThat(underTest.inputEventListenerMap).containsKey(listener)
+    }
+
+    @Test
+    fun setContentDescription_isReflected() {
+        underTest.contentDescription = "Test Description"
+        assertThat(underTest.contentDescription).isEqualTo("Test Description")
+    }
+
+    @Test
+    fun dispose_clearsChildrenAndComponents() {
+        underTest.addChild(FakeEntity())
+        underTest.addComponent(
+            object : Component {
+                override fun onAttach(entity: Entity) = true
+
+                override fun onDetach(entity: Entity) {}
+            }
+        )
+
+        underTest.dispose()
+
+        assertThat(underTest.children).isEmpty()
+        assertThat(underTest.getComponents()).isEmpty()
+    }
+
+    @Test
+    fun setActivitySpacePose_isReflected() {
+        val testPose = Pose(Vector3(1f, 1f, 1f), Quaternion(0f, 0f, 0f, 1f))
+        underTest.activitySpacePose = testPose
+        assertThat(underTest.activitySpacePose).isEqualTo(testPose)
+    }
+
+    @Test
+    fun setActivitySpaceScale_isReflected() {
+        val testScale = Vector3(2f, 2f, 2f)
+        underTest.activitySpaceScale = testScale
+        assertThat(underTest.activitySpaceScale).isEqualTo(testScale)
     }
 
     @Test
@@ -129,6 +235,15 @@ class FakeActivitySpaceTest {
                     max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
                 )
         )
+    }
+
+    @Test
+    fun onOriginChangedListener_setViaMethod_isReflectedInGetter() {
+        val myListener = Runnable {}
+
+        underTest.setOnOriginChangedListener(myListener, null)
+
+        assertThat(underTest.onOriginChangedListener).isSameInstanceAs(myListener)
     }
 
     private class TestOnBoundsChangedListener : ActivitySpace.OnBoundsChangedListener {
