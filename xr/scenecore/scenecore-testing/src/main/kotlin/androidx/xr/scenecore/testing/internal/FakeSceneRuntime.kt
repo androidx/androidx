@@ -207,9 +207,13 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
         pose: Pose,
         parentEntity: Entity?,
     ): FakeGltfEntity {
-        if (executor == null) throw NullPointerException("Set executor before test")
+        val nonNullExecutor = checkNotNull(executor) { "Set executor before test" }
 
-        val gltfEntity = FakeGltfEntity(feature, executor)
+        require(feature is FakeGltfFeature) {
+            "The feature passed to FakeSceneRuntime must be an instance of FakeGltfFeature."
+        }
+
+        val gltfEntity = FakeGltfEntity(feature, nonNullExecutor)
         gltfEntity.setPose(pose)
         gltfEntity.parent = parentEntity
 
