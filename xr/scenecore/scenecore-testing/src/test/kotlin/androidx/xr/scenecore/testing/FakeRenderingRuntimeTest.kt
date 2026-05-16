@@ -452,4 +452,27 @@ class FakeRenderingRuntimeTest {
 
         surfaceEntity.dispose()
     }
+
+    @Test
+    fun loadExrImageByAssetName_returnsExrImage() {
+        val assetName = "testAsset"
+
+        runBlocking {
+            val exrImage = renderingRuntime.loadExrImageByAssetName(assetName)
+
+            assertThat((exrImage as FakeExrImageResource).assetName).isEqualTo(assetName)
+        }
+    }
+
+    @Test
+    fun loadExrImageByByteArray_returnsExrImage() = runBlocking {
+        val assetData: ByteArray = byteArrayOf(100)
+        val assetKey = "testKey"
+
+        val exrImage =
+            renderingRuntime.loadExrImageByByteArray(assetData, assetKey) as FakeExrImageResource
+
+        assertThat(exrImage.assetData).isEqualTo(assetData)
+        assertThat(exrImage.assetKey).isEqualTo(assetKey)
+    }
 }

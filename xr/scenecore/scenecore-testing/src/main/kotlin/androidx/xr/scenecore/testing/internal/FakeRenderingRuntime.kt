@@ -90,15 +90,18 @@ internal class FakeRenderingRuntime(
     override fun destroyGltfModel(gltfModel: GltfModelResource) {}
 
     override suspend fun loadExrImageByAssetName(assetName: String): ExrImageResource {
-        val exrImageResource = FakeExrImageResource(0)
-        exrImageResource.assetName = assetName
-        return exrImageResource
+        return FakeExrImageResource().apply { this.assetName = assetName }
     }
 
     override suspend fun loadExrImageByByteArray(
         assetData: ByteArray,
         assetKey: String,
-    ): ExrImageResource = FakeExrImageResource(1)
+    ): ExrImageResource {
+        return FakeExrImageResource().apply {
+            this.assetData = assetData
+            this.assetKey = assetKey
+        }
+    }
 
     override fun destroyExrImage(exrImage: ExrImageResource) {}
 
