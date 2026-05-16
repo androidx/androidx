@@ -69,6 +69,7 @@ import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import androidx.xr.scenecore.testing.internal.FakeMeshEntity as InternalFakeMeshEntity
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
+import androidx.xr.scenecore.testing.internal.FakeSoundEffectPoolComponent as InternalFakeSoundEffectPoolComponent
 import androidx.xr.scenecore.testing.internal.FakeSurfaceEntity as InternalFakeSurfaceEntity
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -241,7 +242,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         gltfEntity.setPose(pose)
         gltfEntity.parent = parentEntity
 
-        internalRuntime?.createGltfEntity(feature.fakeInternal, pose, parentEntity)?.let {
+        internalRuntime.createGltfEntity(feature.fakeInternal, pose, parentEntity).let {
             gltfEntity.fakeInternal = it
         }
 
@@ -572,7 +573,13 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     override fun createSoundEffectPoolComponent(
         soundEffectPool: SoundEffectPool
     ): SoundEffectPoolComponent {
-        return FakeSoundEffectPoolComponent()
+        val fakeSoundEffectPoolComponent =
+            FakeSoundEffectPoolComponent(
+                internalRuntime.createSoundEffectPoolComponent(soundEffectPool)
+                    as InternalFakeSoundEffectPoolComponent
+            )
+
+        return fakeSoundEffectPoolComponent
     }
 
     /**
