@@ -41,6 +41,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironmentExt
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.TextureSampler
+import androidx.xr.scenecore.testing.internal.FakeExrImageResource as InternalFakeExrImageResource
 import androidx.xr.scenecore.testing.internal.FakeGltfFeature as InternalFakeGltfFeature
 import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime as InternalFakeRenderingRuntime
 import androidx.xr.scenecore.testing.internal.FakeSurfaceFeature as InternalFakeSurfaceFeature
@@ -91,15 +92,22 @@ public class FakeRenderingRuntime(
     override fun destroyGltfModel(gltfModel: GltfModelResource) {}
 
     override suspend fun loadExrImageByAssetName(assetName: String): ExrImageResource {
-        val exrImageResource = FakeExrImageResource(0)
-        exrImageResource.assetName = assetName
-        return exrImageResource
+        return FakeExrImageResource(
+            0,
+            internalRuntime.loadExrImageByAssetName(assetName) as InternalFakeExrImageResource,
+        )
     }
 
     override suspend fun loadExrImageByByteArray(
         assetData: ByteArray,
         assetKey: String,
-    ): ExrImageResource = FakeExrImageResource(1)
+    ): ExrImageResource {
+        return FakeExrImageResource(
+            1,
+            internalRuntime.loadExrImageByByteArray(assetData, assetKey)
+                as InternalFakeExrImageResource,
+        )
+    }
 
     override fun destroyExrImage(exrImage: ExrImageResource) {}
 
