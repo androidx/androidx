@@ -20,93 +20,73 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.GltfAnimationFeature
-import androidx.xr.scenecore.runtime.GltfEntity
+import androidx.xr.scenecore.testing.internal.FakeGltfAnimationFeature as InternalFakeGltfAnimationFeature
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfAnimationFeature] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeGltfAnimationFeature(
+public class FakeGltfAnimationFeature
+internal constructor(
     override val animationName: String? = "animation_name",
     override val animationIndex: Int = 0,
     override val animationDuration: Float = 1.0f,
+    internal val fakeInternal: InternalFakeGltfAnimationFeature,
 ) : GltfAnimationFeature {
 
-    private val _animationStateListeners = mutableMapOf<Consumer<Int>, Executor?>()
-
-    @GltfEntity.AnimationStateValue
-    private var _animationState: Int = GltfEntity.AnimationState.STOPPED
-        set(value) {
-            field = value
-            for ((listener, executor) in _animationStateListeners.entries) {
-                if (executor != null) {
-                    executor.execute { listener.accept(value) }
-                } else {
-                    listener.accept(value)
-                }
-            }
-        }
+    public constructor(
+        animationName: String? = "animation_name",
+        animationIndex: Int = 0,
+        animationDuration: Float = 1.0f,
+    ) : this(
+        animationName,
+        animationIndex,
+        animationDuration,
+        InternalFakeGltfAnimationFeature(animationName, animationIndex, animationDuration),
+    )
 
     override val animationState: Int
-        get() = _animationState
+        get() = fakeInternal.animationState
 
-    public var isLooping: Boolean = false
-        private set
+    public val isLooping: Boolean
+        get() = fakeInternal.isLooping
 
-    public var speed: Float = 1.0f
-        private set
+    public val speed: Float
+        get() = fakeInternal.speed
 
-    public var seekStartTimeSeconds: Float = 0.0f
-        private set
+    public val seekStartTimeSeconds: Float
+        get() = fakeInternal.seekStartTimeSeconds
 
     override fun startAnimation(loop: Boolean, speed: Float?, seekStartTimeSeconds: Float?) {
-        isLooping = loop
-        this.speed = speed ?: 1.0f
-        this.seekStartTimeSeconds = seekStartTimeSeconds ?: 0.0f
-        _animationState = GltfEntity.AnimationState.PLAYING
+        fakeInternal.startAnimation(loop, speed, seekStartTimeSeconds)
     }
 
     override fun stopAnimation() {
-        _animationState = GltfEntity.AnimationState.STOPPED
-        isLooping = false
+        fakeInternal.stopAnimation()
     }
 
     override fun pauseAnimation() {
-        if (_animationState == GltfEntity.AnimationState.PLAYING) {
-            _animationState = GltfEntity.AnimationState.PAUSED
-        }
+        fakeInternal.pauseAnimation()
     }
 
     override fun resumeAnimation() {
-        if (_animationState == GltfEntity.AnimationState.PAUSED) {
-            _animationState = GltfEntity.AnimationState.PLAYING
-        }
+        fakeInternal.resumeAnimation()
     }
 
     override fun seekAnimation(startTime: Float) {
-        if (
-            _animationState == GltfEntity.AnimationState.PLAYING ||
-                _animationState == GltfEntity.AnimationState.PAUSED
-        ) {
-            this.seekStartTimeSeconds = startTime
-        }
+        fakeInternal.seekAnimation(startTime)
     }
 
     override fun setAnimationSpeed(speed: Float) {
-        if (
-            _animationState == GltfEntity.AnimationState.PLAYING ||
-                _animationState == GltfEntity.AnimationState.PAUSED
-        ) {
-            this.speed = speed
-        }
+        fakeInternal.setAnimationSpeed(speed)
     }
 
     override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
-        _animationStateListeners[listener] = executor
+        fakeInternal.addAnimationStateListener(executor, listener)
     }
 
     override fun removeAnimationStateListener(listener: Consumer<Int>) {
-        _animationStateListeners.remove(listener)
+        fakeInternal.removeAnimationStateListener(listener)
     }
 }

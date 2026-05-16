@@ -55,7 +55,6 @@ import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
 import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.testing.FakeComponent
-import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeSurfaceFeature
 import androidx.xr.scenecore.testing.MemoryUtils
@@ -133,10 +132,10 @@ class SpatialSceneRuntimeTest {
     private fun createGltfEntity(): GltfEntityImpl {
         val nodeHolder: NodeHolder<*> =
             NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
-        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+        whenever(mockGltfFeature.getNodeHolder()).thenReturn(nodeHolder)
         return GltfEntityImpl(
             activity!!,
-            fakeGltfFeature,
+            mockGltfFeature,
             testRuntime.activitySpace,
             xrExtensions,
             sceneNodeRegistry,

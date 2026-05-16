@@ -16,7 +16,7 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
-import androidx.xr.runtime.math.BoundingBox.Companion.fromMinMax
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GltfFeature
@@ -24,7 +24,6 @@ import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
-import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.node.Node
@@ -54,12 +53,12 @@ class GltfEntityImplTest : AndroidXrEntityImplTest() {
     override lateinit var activity: Activity
 
     override fun createEntity(node: Node): AndroidXrEntity {
-        val nodeHolder = NodeHolder<Node>(node, Node::class.java)
-        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+        val nodeHolder = NodeHolder(node, Node::class.java)
+        whenever(mockGltfFeature.getNodeHolder()).thenReturn(nodeHolder)
 
         return GltfEntityImpl(
             activity,
-            fakeGltfFeature,
+            mockGltfFeature,
             null,
             xrExtensions,
             sceneNodeRegistry,
@@ -99,11 +98,14 @@ class GltfEntityImplTest : AndroidXrEntityImplTest() {
 
     private fun createGltfEntity(activity: Activity): GltfEntityImpl {
         val nodeHolder = NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
-        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+        val defaultBoundingBox = BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+
+        whenever(mockGltfFeature.getNodeHolder()).thenReturn(nodeHolder)
+        whenever(mockGltfFeature.getGltfModelBoundingBox()).thenReturn(defaultBoundingBox)
 
         return GltfEntityImpl(
             activity,
-            fakeGltfFeature,
+            mockGltfFeature,
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
@@ -113,7 +115,7 @@ class GltfEntityImplTest : AndroidXrEntityImplTest() {
 
     @Test
     fun getGltfModelBoundingBox_returnsBoundingBox() {
-        val expectedResult = fromMinMax(Vector3.Zero, Vector3.One)
+        val expectedResult = BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
         whenever(mockGltfFeature.getGltfModelBoundingBox()).thenReturn(expectedResult)
 
         val boundingBox = gltfEntityImpl.gltfModelBoundingBox

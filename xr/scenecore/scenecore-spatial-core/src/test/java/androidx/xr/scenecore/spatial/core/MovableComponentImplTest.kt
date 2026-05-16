@@ -23,6 +23,7 @@ import android.hardware.display.DisplayManager
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.rule.GrantPermissionRule
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Matrix4.Companion.fromPose
 import androidx.xr.runtime.math.Matrix4.Companion.fromScale
@@ -40,7 +41,6 @@ import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.SurfaceEntity
-import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeSurfaceFeature
 import com.android.extensions.xr.node.InputEvent
@@ -80,6 +80,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -103,7 +104,7 @@ class MovableComponentImplTest {
     private lateinit var sceneRuntime: SpatialSceneRuntime
     private lateinit var activitySpaceImpl: ActivitySpaceImpl
     private lateinit var activitySpaceNode: Node
-    private val mockGltfFeature: GltfFeature = mock<GltfFeature>()
+
     /** The default pixels per meter. */
     private val pixelsPerMeter = 2000f
 
@@ -204,13 +205,18 @@ class MovableComponentImplTest {
     }
 
     private fun createGltfEntity(activity: Activity): GltfEntityImpl {
+        val mockGltfFeature = mock<GltfFeature>()
+
+        val defaultBoundingBox = BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+        whenever(mockGltfFeature.getGltfModelBoundingBox()).thenReturn(defaultBoundingBox)
+
         val nodeHolder: NodeHolder<*> =
             NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
-        val fakeGltfFeature = createWithMockFeature(mockGltfFeature, nodeHolder)
+        whenever(mockGltfFeature.getNodeHolder()).thenReturn(nodeHolder)
 
         return GltfEntityImpl(
             activity,
-            fakeGltfFeature,
+            mockGltfFeature,
             activitySpaceImpl,
             xrExtensions,
             sceneNodeRegistry,
