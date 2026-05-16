@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
 import androidx.xr.scenecore.runtime.MaterialResource
+import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
-import androidx.xr.scenecore.testing.FakeMeshFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.node.Node
@@ -32,8 +30,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -46,17 +44,14 @@ class MeshEntityImplTest : AndroidXrEntityImplTest() {
     override val fakeExecutor = FakeScheduledExecutorService()
     private lateinit var activitySpace: ActivitySpaceImpl
     private lateinit var meshEntityImpl: MeshEntityImpl
-    private lateinit var fakeMeshFeature: FakeMeshFeature
+    private val mockMeshFeature: MeshFeature = mock<MeshFeature>()
 
     override lateinit var activity: Activity
 
     override fun createEntity(node: Node): AndroidXrEntity {
-        val nodeHolder = NodeHolder<Node>(node, Node::class.java)
-        fakeMeshFeature = spy(FakeMeshFeature(nodeHolder))
-
         return MeshEntityImpl(
             activity,
-            fakeMeshFeature,
+            mockMeshFeature,
             null,
             xrExtensions,
             sceneNodeRegistry,
@@ -98,11 +93,11 @@ class MeshEntityImplTest : AndroidXrEntityImplTest() {
 
     private fun createMeshEntity(activity: Activity): MeshEntityImpl {
         val nodeHolder = NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
-        fakeMeshFeature = spy(FakeMeshFeature(nodeHolder))
+        whenever(mockMeshFeature.getNodeHolder()).thenReturn(nodeHolder)
 
         return MeshEntityImpl(
             activity,
-            fakeMeshFeature,
+            mockMeshFeature,
             activitySpace,
             xrExtensions,
             sceneNodeRegistry,
@@ -114,7 +109,7 @@ class MeshEntityImplTest : AndroidXrEntityImplTest() {
     fun dispose_featureDisposed() {
         meshEntityImpl.dispose()
 
-        verify(fakeMeshFeature).dispose()
+        verify(mockMeshFeature).dispose()
     }
 
     @Test
@@ -124,7 +119,7 @@ class MeshEntityImplTest : AndroidXrEntityImplTest() {
 
         meshEntityImpl.setMaterial(material, subsetIndex)
 
-        verify(fakeMeshFeature).setMaterial(material, subsetIndex)
+        verify(mockMeshFeature).setMaterial(material, subsetIndex)
     }
 
     companion object {

@@ -146,6 +146,8 @@ public class FakeRenderingRuntime(
      */
     @Deprecated("Use SceneCoreTestRule instead.")
     public class FakeWaterMaterial(public val isAlphaMapVersion: Boolean) : MaterialResource {
+        internal var fakeInternal =
+            InternalFakeRenderingRuntime.FakeWaterMaterial(isAlphaMapVersion)
         public var reflectionMap: TextureResource? = null
         public var reflectionMapSampler: TextureSampler? = null
         public var normalMap: TextureResource? = null
@@ -186,6 +188,7 @@ public class FakeRenderingRuntime(
     @Deprecated("Use SceneCoreTestRule instead.")
     public class FakeKhronosPbrMaterial(public val spec: KhronosPbrMaterialSpec) :
         MaterialResource {
+        internal var fakeInternal = InternalFakeRenderingRuntime.FakeKhronosPbrMaterial(spec)
         public var baseColorTexture: TextureResource? = null
         public var baseColorTextureSampler: TextureSampler? = null
         public var baseColorUvTransform: Matrix3? = null
@@ -607,7 +610,14 @@ public class FakeRenderingRuntime(
         pose: Pose,
         parent: Entity?,
     ): MeshEntity {
-        return entityFactory.createMeshEntity(FakeMeshFeature(createNode()), pose, parent)
+        val nodeHolder = createNode()
+
+        val meshFeature =
+            FakeMeshFeature(nodeHolder = nodeHolder, initialMaterials = materials).apply {
+                this.boneCount = boneCount
+            }
+
+        return entityFactory.createMeshEntity(meshFeature, pose, parent)
     }
 
     /* Tracks the current state of the adapter according to where it is in its lifecycle. */

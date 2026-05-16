@@ -18,31 +18,51 @@ package androidx.xr.scenecore.testing.internal
 
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
-import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
-import androidx.xr.scenecore.runtime.MeshFeature
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MeshEntity] */
 internal open class FakeMeshEntity(
-    private val feature: MeshFeature? = null,
+    private val feature: FakeMeshFeature,
     private val executor: Executor? = null,
 ) : FakeEntity(), MeshEntity {
-    override val meshBoundingBox: BoundingBox =
-        feature?.meshBoundingBox ?: BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+
+    override val meshBoundingBox: BoundingBox = feature.meshBoundingBox
+
+    /**
+     * The list of materials applied to the mesh subsets. This can be inspected or modified in
+     * tests.
+     */
+    internal val materials: List<MaterialResource>
+        get() = feature.materials
 
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
-        feature?.setMaterial(material, subsetIndex)
+        feature.setMaterial(material, subsetIndex)
     }
 
+    /**
+     * The list of transforms applied to the bones in the skinned mesh. This can be inspected in
+     * tests.
+     */
+    internal val boneTransforms: List<Matrix4>
+        get() = feature.boneTransforms
+
     override fun setBoneTransforms(transforms: List<Matrix4>) {
-        feature?.setBoneTransforms(transforms)
+        feature.setBoneTransforms(transforms)
     }
+
+    /** Whether the reform affordance is enabled, captured from [setReformAffordanceEnabled]. */
+    internal val reformAffordanceEnabled: Boolean
+        get() = feature.reformAffordanceEnabled
+
+    /** Whether the entity is system movable, captured from [setReformAffordanceEnabled]. */
+    internal val systemMovable: Boolean
+        get() = feature.systemMovable
 
     override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
         if (executor != null) {
-            feature?.setReformAffordanceEnabled(this, enabled, executor, systemMovable)
+            feature.setReformAffordanceEnabled(this, enabled, executor, systemMovable)
         }
     }
 
