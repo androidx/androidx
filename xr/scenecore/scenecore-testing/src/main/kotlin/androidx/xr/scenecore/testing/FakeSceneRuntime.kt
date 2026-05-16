@@ -36,7 +36,6 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.InputEventListener
-import androidx.xr.scenecore.runtime.InteractableComponent
 import androidx.xr.scenecore.runtime.LoggingEntity
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
@@ -421,10 +420,10 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     override fun createInteractableComponent(
         executor: Executor,
         listener: InputEventListener,
-    ): InteractableComponent {
-        val interactableComponent = FakeInteractableComponent()
-        interactableComponent.inputEventListenersMap[listener] = executor
-        return interactableComponent
+    ): FakeInteractableComponent {
+        return FakeInteractableComponent(
+            internalRuntime.createInteractableComponent(executor, listener)
+        )
     }
 
     override fun createAnchorPlacementForPlanes(

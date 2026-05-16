@@ -33,7 +33,6 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.InputEventListener
-import androidx.xr.scenecore.runtime.InteractableComponent
 import androidx.xr.scenecore.runtime.LoggingEntity
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
@@ -395,7 +394,7 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
     override fun createInteractableComponent(
         executor: Executor,
         listener: InputEventListener,
-    ): InteractableComponent {
+    ): FakeInteractableComponent {
         val interactableComponent = FakeInteractableComponent()
         interactableComponent.inputEventListenersMap[listener] = executor
         return interactableComponent
