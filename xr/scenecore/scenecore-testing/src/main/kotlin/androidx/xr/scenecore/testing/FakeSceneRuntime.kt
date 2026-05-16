@@ -127,7 +127,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         FakeSoundPoolExtensionsWrapper()
 
     override val audioTrackExtensionsWrapper: FakeAudioTrackExtensionsWrapper =
-        FakeAudioTrackExtensionsWrapper()
+        FakeAudioTrackExtensionsWrapper(requireNotNull(internalRuntime).audioTrackExtensionsWrapper)
 
     override val mediaPlayerExtensionsWrapper: FakeMediaPlayerExtensionsWrapper =
         FakeMediaPlayerExtensionsWrapper()

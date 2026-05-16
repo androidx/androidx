@@ -68,17 +68,16 @@ class FakeAudioTrackExtensionsWrapperTest {
     }
 
     @Test
-    fun setPointSourceParams_doesNotSetIfSoundFieldType() {
+    fun setPointSourceParams_throwExceptionIfSoundFieldType() {
         val track = AudioTrack.Builder().build()
         check(fakeWrapper.getPointSourceParams(track) == null)
 
         fakeWrapper.spatialSourceTypeMap =
             mutableMapOf(track to SpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
-        val params = PointSourceParams()
-        // Uses spatial source type SOURCE_TYPE_SOUND_FIELD.
-        fakeWrapper.setPointSourceParams(track, params, null)
 
-        assertThat(fakeWrapper.getPointSourceParams(track)).isNull()
+        kotlin.test.assertFailsWith<IllegalStateException> {
+            fakeWrapper.setPointSourceParams(track, PointSourceParams(), null)
+        }
     }
 
     @Test

@@ -20,14 +20,15 @@ package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
 import android.media.AudioFormat
+import android.media.AudioTrack
 import androidx.media3.common.C.ENCODING_PCM_16BIT
 import androidx.media3.exoplayer.audio.AudioOutputProvider
 import androidx.media3.exoplayer.audio.AudioTrackAudioOutput
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.testing.XrDeviceTestRule
+import androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.PointSourceParams
-import androidx.xr.scenecore.testing.FakeAudioTrackExtensionsWrapper
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -35,7 +36,14 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
@@ -57,7 +65,7 @@ class PositionalAudioComponentImplTest {
     fun setUp() {
         xrDeviceTestRule.spatialApiVersion = 1
         fakeRuntime =
-            SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions!!, SceneNodeRegistry())
+            SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions, SceneNodeRegistry())
     }
 
     @After
@@ -70,11 +78,20 @@ class PositionalAudioComponentImplTest {
         return fakeRuntime.createEntity(Pose(), "test", fakeRuntime.activitySpace)
     }
 
+    private fun createMockAudioTrackExtensions(): AudioTrackExtensionsWrapper {
+        return mock {
+            on { setPointSourceParams(any<AudioTrack.Builder>(), any(), anyOrNull()) } doAnswer
+                {
+                    it.arguments[0] as AudioTrack.Builder
+                }
+        }
+    }
+
     @Test
     fun getAudioOutputProvider_returnsProvider() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
 
         val provider = component.getAudioOutputProvider()
 
@@ -83,9 +100,9 @@ class PositionalAudioComponentImplTest {
 
     @Test
     fun setPointSourceParams_setsParamsOnTrack_ifTrackExists() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val config = TEST_OUTPUT_CONFIG
 
         val outputProvider = component.getAudioOutputProvider()
@@ -95,15 +112,15 @@ class PositionalAudioComponentImplTest {
         val newParams = PointSourceParams()
         component.setPointSourceParams(newParams)
 
-        assertThat(fakeAudioTrackExtensions.pointSourceParamsMap[audioTrack]).isEqualTo(newParams)
-        assertThat(fakeAudioTrackExtensions.entityMap[audioTrack]).isEqualTo(null)
+        verify(mockAudioTrackExtensions)
+            .setPointSourceParams(eq(audioTrack), eq(newParams), isNull())
     }
 
     @Test
     fun onAttach_setsParamsOnTrack_ifTrackExists() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val entity = createTestEntity()
         val config = TEST_OUTPUT_CONFIG
 
@@ -112,15 +129,15 @@ class PositionalAudioComponentImplTest {
         val audioTrack = audioTrackOutput.audioTrack
 
         assertThat(component.onAttach(entity)).isTrue()
-        assertThat(fakeAudioTrackExtensions.pointSourceParamsMap[audioTrack]).isEqualTo(params)
-        assertThat(fakeAudioTrackExtensions.entityMap[audioTrack]).isEqualTo(entity)
+        verify(mockAudioTrackExtensions)
+            .setPointSourceParams(eq(audioTrack), eq(params), eq(entity))
     }
 
     @Test
     fun onAttach_setsParamsOnTrackBuilder() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val entity = createTestEntity()
         val config = TEST_OUTPUT_CONFIG
 
@@ -129,15 +146,15 @@ class PositionalAudioComponentImplTest {
         val outputProvider = component.getAudioOutputProvider()
         outputProvider.getAudioOutput(config)
 
-        assertThat(fakeAudioTrackExtensions.pointSourceParamsBuilderMap.values).contains(params)
-        assertThat(fakeAudioTrackExtensions.entityBuilderMap.values).contains(entity)
+        verify(mockAudioTrackExtensions)
+            .setPointSourceParams(any<AudioTrack.Builder>(), eq(params), eq(entity))
     }
 
     @Test
     fun onAttach_setsParamsOnTrack_andTrackBuilderOnNextTrackCreation() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val entity = createTestEntity()
         val config = TEST_OUTPUT_CONFIG
 
@@ -146,20 +163,20 @@ class PositionalAudioComponentImplTest {
         val audioTrack = audioTrackOutput.audioTrack
 
         assertThat(component.onAttach(entity)).isTrue()
-        assertThat(fakeAudioTrackExtensions.pointSourceParamsMap[audioTrack]).isEqualTo(params)
-        assertThat(fakeAudioTrackExtensions.entityMap[audioTrack]).isEqualTo(entity)
+        verify(mockAudioTrackExtensions)
+            .setPointSourceParams(eq(audioTrack), eq(params), eq(entity))
 
         outputProvider.getAudioOutput(config)
 
-        assertThat(fakeAudioTrackExtensions.pointSourceParamsBuilderMap.values).contains(params)
-        assertThat(fakeAudioTrackExtensions.entityBuilderMap.values).contains(entity)
+        verify(mockAudioTrackExtensions)
+            .setPointSourceParams(any<AudioTrack.Builder>(), eq(params), eq(entity))
     }
 
     @Test
     fun onAttach_returnsFalse_ifNotAndroidXrEntity() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val mockEntity = mock<Entity>()
 
         assertThat(component.onAttach(mockEntity)).isFalse()
@@ -167,9 +184,9 @@ class PositionalAudioComponentImplTest {
 
     @Test
     fun onDetach_clearsAttachedEntity() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val entity = createTestEntity()
 
         val config = TEST_OUTPUT_CONFIG
@@ -181,15 +198,14 @@ class PositionalAudioComponentImplTest {
         component.onAttach(entity)
         component.onDetach(entity)
 
-        assertThat(fakeAudioTrackExtensions.pointSourceParamsMap[audioTrack]).isEqualTo(params)
-        assertThat(fakeAudioTrackExtensions.entityMap[audioTrack]).isNull()
+        verify(mockAudioTrackExtensions).setPointSourceParams(eq(audioTrack), eq(params), isNull())
     }
 
     @Test
     fun onReattach_attachesToNewEntity() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val entity1 = createTestEntity()
         val entity2 = createTestEntity()
 
@@ -203,23 +219,25 @@ class PositionalAudioComponentImplTest {
         component.onDetach(entity1)
         component.onAttach(entity2)
 
-        assertThat(fakeAudioTrackExtensions.pointSourceParamsMap[audioTrack]).isEqualTo(params)
-        assertThat(fakeAudioTrackExtensions.entityMap[audioTrack]).isEqualTo(entity2)
+        verify(mockAudioTrackExtensions)
+            .setPointSourceParams(eq(audioTrack), eq(params), eq(entity2))
     }
 
     @Test
     fun setPointSourceParams_handlesReleasedTrack() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val config = TEST_OUTPUT_CONFIG
 
         val outputProvider = component.getAudioOutputProvider()
         val audioTrackOutput = outputProvider.getAudioOutput(config) as AudioTrackAudioOutput
         val audioTrack = audioTrackOutput.audioTrack
 
-        fakeAudioTrackExtensions.fakeExtensionException =
-            IllegalStateException("Simulated track released")
+        whenever(
+                mockAudioTrackExtensions.setPointSourceParams(eq(audioTrack), eq(params), isNull())
+            )
+            .thenThrow(IllegalStateException("Simulated track released"))
 
         val newParams = PointSourceParams()
         component.setPointSourceParams(newParams)
@@ -227,9 +245,9 @@ class PositionalAudioComponentImplTest {
 
     @Test
     fun onAttach_handlesReleasedTrack() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val entity = createTestEntity()
         val config = TEST_OUTPUT_CONFIG
 
@@ -237,17 +255,23 @@ class PositionalAudioComponentImplTest {
         val audioTrackOutput = outputProvider.getAudioOutput(config) as AudioTrackAudioOutput
         val audioTrack = audioTrackOutput.audioTrack
 
-        fakeAudioTrackExtensions.fakeExtensionException =
-            IllegalStateException("Simulated track released")
+        whenever(
+                mockAudioTrackExtensions.setPointSourceParams(
+                    eq(audioTrack),
+                    eq(params),
+                    eq(entity),
+                )
+            )
+            .thenThrow(IllegalStateException("Simulated track released"))
 
         assertThat(component.onAttach(entity)).isTrue()
     }
 
     @Test
     fun onDetach_handlesReleasedTrack() {
-        val fakeAudioTrackExtensions = FakeAudioTrackExtensionsWrapper()
+        val mockAudioTrackExtensions = createMockAudioTrackExtensions()
         val params = PointSourceParams()
-        val component = PositionalAudioComponentImpl(activity, fakeAudioTrackExtensions, params)
+        val component = PositionalAudioComponentImpl(activity, mockAudioTrackExtensions, params)
         val entity = createTestEntity()
         val config = TEST_OUTPUT_CONFIG
 
@@ -257,8 +281,10 @@ class PositionalAudioComponentImplTest {
 
         component.onAttach(entity)
 
-        fakeAudioTrackExtensions.fakeExtensionException =
-            IllegalStateException("Simulated track released")
+        whenever(
+                mockAudioTrackExtensions.setPointSourceParams(eq(audioTrack), eq(params), isNull())
+            )
+            .thenThrow(IllegalStateException("Simulated track released"))
 
         component.onDetach(entity)
     }
