@@ -52,8 +52,7 @@ internal class FakeRenderingRuntime(
     private val sceneRuntime: SceneRuntime,
     private val entityFactory: RenderingEntityFactory = sceneRuntime as RenderingEntityFactory,
 ) : RenderingRuntime {
-    private var spatialEnvironmentFeature: FakeSpatialEnvironmentFeature =
-        FakeSpatialEnvironmentFeature()
+    var spatialEnvironmentFeature: FakeSpatialEnvironmentFeature = FakeSpatialEnvironmentFeature()
 
     init {
         instance = this
