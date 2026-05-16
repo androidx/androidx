@@ -233,7 +233,7 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
         pose: Pose,
         parentEntity: Entity?,
     ): MeshEntity {
-        val meshEntity = FakeMeshEntity(feature)
+        val meshEntity = FakeMeshEntity(feature as FakeMeshFeature)
         meshEntity.setPose(pose)
         meshEntity.parent = parentEntity
         return meshEntity

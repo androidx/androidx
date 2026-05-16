@@ -66,6 +66,7 @@ import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAnchorEntity
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
+import androidx.xr.scenecore.testing.internal.FakeMeshEntity as InternalFakeMeshEntity
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
 import androidx.xr.scenecore.testing.internal.FakeSurfaceEntity as InternalFakeSurfaceEntity
@@ -261,9 +262,16 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         pose: Pose,
         parentEntity: Entity?,
     ): MeshEntity {
-        val meshEntity = FakeMeshEntity(feature)
+        val meshEntity = FakeMeshEntity(feature as FakeMeshFeature)
         meshEntity.setPose(pose)
         meshEntity.parent = parentEntity
+        meshEntity.fakeInternal =
+            internalRuntime.createMeshEntity(
+                feature.fakeInternal,
+                pose,
+                (parentEntity as? FakeEntity)?.fakeInternal as? InternalFakeEntity,
+            ) as InternalFakeMeshEntity
+
         return meshEntity
     }
 

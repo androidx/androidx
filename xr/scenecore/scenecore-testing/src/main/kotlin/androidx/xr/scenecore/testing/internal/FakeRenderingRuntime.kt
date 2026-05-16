@@ -600,7 +600,14 @@ internal class FakeRenderingRuntime(
         pose: Pose,
         parent: Entity?,
     ): MeshEntity {
-        return entityFactory.createMeshEntity(FakeMeshFeature(createNode()), pose, parent)
+        val nodeHolder = createNode()
+
+        val meshFeature =
+            FakeMeshFeature(nodeHolder = nodeHolder, materials = materials.toMutableList()).apply {
+                this.boneCount = boneCount
+            }
+
+        return entityFactory.createMeshEntity(meshFeature, pose, parent)
     }
 
     /* Tracks the current state of the adapter according to where it is in its lifecycle. */
