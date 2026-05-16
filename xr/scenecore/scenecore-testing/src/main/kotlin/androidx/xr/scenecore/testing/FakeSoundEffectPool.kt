@@ -29,47 +29,59 @@ import java.util.concurrent.Executor
 /** Test-only implementation of [SoundEffectPool]. */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeSoundEffectPool : SoundEffectPool {
+public class FakeSoundEffectPool
+internal constructor(internal var fakeInternal: InternalFakeSoundEffectPool) : SoundEffectPool {
 
-    internal var fakeInternal: InternalFakeSoundEffectPool = InternalFakeSoundEffectPool()
+    public constructor() : this(InternalFakeSoundEffectPool())
 
-    public var loadedResId: Int? = null
-    public var loadedAfd: AssetFileDescriptor? = null
-    public var unloadedSoundEffect: SoundEffect? = null
-    public var released: Boolean = false
-    public var loadCompleteListener: SoundEffectPool.LoadCompleteListener? = null
+    /** The set of all resource IDs currently loaded in the pool. */
+    public val loadedResourceIds: Set<Int>
+        get() = fakeInternal.loadedResourceIds
+
+    /** The set of all [AssetFileDescriptor]s currently loaded in the pool. */
+    public val loadedAssetDescriptors: Set<AssetFileDescriptor>
+        get() = fakeInternal.loadedAssetDescriptors
+
+    public var released: Boolean
+        get() = fakeInternal.released
+        set(value) {
+            fakeInternal.released = value
+        }
+
+    public var loadCompleteListener: SoundEffectPool.LoadCompleteListener?
+        get() = fakeInternal.loadCompleteListener
+        set(value) {
+            fakeInternal.loadCompleteListener = value
+        }
 
     override fun setOnLoadCompleteListener(
         executor: Executor,
         listener: SoundEffectPool.LoadCompleteListener,
     ) {
-        loadCompleteListener = listener
+        fakeInternal.setOnLoadCompleteListener(executor, listener)
     }
 
     override fun clearOnLoadCompleteListener() {
-        loadCompleteListener = null
+        fakeInternal.clearOnLoadCompleteListener()
     }
 
     override fun load(context: Context, resId: Int): SoundEffect {
-        loadedResId = resId
-        return SoundEffect(resId)
+        return fakeInternal.load(context, resId)
     }
 
     override fun load(assetFileDescriptor: AssetFileDescriptor): SoundEffect {
-        loadedAfd = assetFileDescriptor
-        return SoundEffect(0)
+        return fakeInternal.load(assetFileDescriptor)
     }
 
     override fun unload(soundEffect: SoundEffect): Boolean {
-        unloadedSoundEffect = soundEffect
-        return true
+        return fakeInternal.unload(soundEffect)
     }
 
     override fun release() {
-        released = true
+        fakeInternal.release()
     }
 
     public fun notifyLoadComplete(soundEffect: SoundEffect, success: Boolean) {
-        loadCompleteListener?.onLoadComplete(soundEffect, success)
+        fakeInternal.notifyLoadComplete(soundEffect, success)
     }
 }
