@@ -50,7 +50,7 @@ class FakeSurfaceEntityTest {
 
     @Test
     fun getDefaultValue_returnsDefaultValue() {
-        check(underTest.stereoMode == SurfaceEntity.StereoMode.SIDE_BY_SIDE)
+        check(underTest.stereoMode == SurfaceEntity.StereoMode.MONO)
     }
 
     @Test
@@ -82,16 +82,6 @@ class FakeSurfaceEntityTest {
         underTest.setAuxiliaryAlphaMaskTexture(fakeTextureResource)
 
         assertThat(underTest.auxiliaryAlphaMask).isEqualTo(fakeTextureResource)
-    }
-
-    @Test
-    fun getContentColorMetadataSet_setContentColorMetadataSet_returnCorrectly() {
-        // Default value
-        check(!underTest.contentColorMetadataSet)
-
-        underTest.mContentColorMetadataSet = true
-
-        assertThat(underTest.contentColorMetadataSet).isTrue()
     }
 
     @Test

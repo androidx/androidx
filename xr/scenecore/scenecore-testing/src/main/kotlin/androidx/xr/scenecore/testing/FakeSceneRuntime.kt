@@ -68,6 +68,7 @@ import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
+import androidx.xr.scenecore.testing.internal.FakeSurfaceEntity as InternalFakeSurfaceEntity
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.flow.Flow
@@ -242,7 +243,13 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         pose: Pose,
         parentEntity: Entity?,
     ): SurfaceEntity {
-        val surfaceEntity = FakeSurfaceEntity()
+        val fakeFeature = feature as FakeSurfaceFeature
+
+        val internalEntity =
+            internalRuntime.createSurfaceEntity(fakeFeature.fakeInternal, pose, parentEntity)
+                as InternalFakeSurfaceEntity
+
+        val surfaceEntity = FakeSurfaceEntity(fakeFeature, internalEntity)
         surfaceEntity.setPose(pose)
         surfaceEntity.parent = parentEntity
 

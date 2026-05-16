@@ -18,46 +18,61 @@
 
 package androidx.xr.scenecore.testing
 
-import android.graphics.ImageFormat
-import android.media.ImageReader
 import android.view.Surface
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TextureResource
+import androidx.xr.scenecore.testing.internal.FakeSurfaceFeature as InternalFakeSurfaceFeature
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SurfaceFeature] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
-    FakeBaseRenderingFeature(nodeHolder), SurfaceFeature {
+public class FakeSurfaceFeature
+internal constructor(
+    nodeHolder: NodeHolder<*>,
+    internal val fakeInternal: InternalFakeSurfaceFeature,
+) : FakeBaseRenderingFeature(nodeHolder), SurfaceFeature {
 
-    @SurfaceEntity.StereoMode override var stereoMode: Int = SurfaceEntity.StereoMode.MONO
+    public constructor(
+        nodeHolder: NodeHolder<*>
+    ) : this(nodeHolder, InternalFakeSurfaceFeature(nodeHolder))
+
+    @SurfaceEntity.StereoMode
+    override var stereoMode: Int
+        get() = fakeInternal.stereoMode
+        set(value) {
+            fakeInternal.stereoMode = value
+        }
 
     @SurfaceEntity.MediaBlendingMode
-    override var mediaBlendingMode: Int = SurfaceEntity.MediaBlendingMode.TRANSPARENT
+    override var mediaBlendingMode: Int
+        get() = fakeInternal.mediaBlendingMode
+        set(value) {
+            fakeInternal.mediaBlendingMode = value
+        }
 
-    override var shape: SurfaceEntity.Shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f))
+    override var shape: SurfaceEntity.Shape
+        get() = fakeInternal.shape
+        set(value) {
+            fakeInternal.shape = value
+        }
 
     override val dimensions: Dimensions
         get() = shape.dimensions
 
-    private var internalImageReader: ImageReader? =
-        ImageReader.newInstance(1, 1, ImageFormat.YUV_420_888, 1)
-
-    override var surface: Surface = internalImageReader!!.surface
-        private set
+    override val surface: Surface
+        get() = fakeInternal.surface
 
     /** For test purposes only. Caches the input of [setSurfacePixelDimensions]. */
-    public var surfacePixelDimensions: IntSize2d = IntSize2d(0, 0)
-        private set
+    public val surfacePixelDimensions: IntSize2d
+        get() = fakeInternal.surfacePixelDimensions
 
     override fun setSurfacePixelDimensions(width: Int, height: Int) {
-        surfacePixelDimensions = IntSize2d(width, height)
+        fakeInternal.setSurfacePixelDimensions(width, height)
     }
 
     /**
@@ -66,20 +81,19 @@ public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
      * This allows tests to verify whether the collider for the surface's geometry was enabled or
      * disabled.
      */
-    public var colliderEnabled: Boolean = false
-        private set
+    public val colliderEnabled: Boolean
+        get() = fakeInternal.colliderEnabled
 
     override fun setColliderEnabled(enableCollider: Boolean) {
-        colliderEnabled = enableCollider
+        fakeInternal.setColliderEnabled(enableCollider)
     }
 
     /** For test purposes only. Represents the result of [setPrimaryAlphaMaskTexture]. */
-    public var primaryAlphaMask: TextureResource? = null
-        private set
+    public val primaryAlphaMask: TextureResource?
+        get() = fakeInternal.primaryAlphaMask
 
     override fun setPrimaryAlphaMaskTexture(alphaMask: TextureResource?) {
-        // TODO: b/471066885 - Implements FakeTexture
-        primaryAlphaMask = alphaMask
+        fakeInternal.setPrimaryAlphaMaskTexture(alphaMask)
     }
 
     /**
@@ -87,28 +101,30 @@ public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
      *
      * This allows tests to inspect the `TextureResource` that was set as the auxiliary alpha mask.
      */
-    public var auxiliaryAlphaMask: TextureResource? = null
-        private set
+    public val auxiliaryAlphaMask: TextureResource?
+        get() = fakeInternal.auxiliaryAlphaMask
 
     override fun setAuxiliaryAlphaMaskTexture(alphaMask: TextureResource?) {
-        // TODO: b/471066885 - Implements FakeTexture
-        auxiliaryAlphaMask = alphaMask
+        fakeInternal.setAuxiliaryAlphaMaskTexture(alphaMask)
     }
 
-    override var contentColorMetadataSet: Boolean = false
-        private set
+    override var contentColorMetadataSet: Boolean
+        get() = fakeInternal.contentColorMetadataSet
+        set(value) {
+            fakeInternal.contentColorMetadataSet = value
+        }
 
-    override var colorSpace: Int = SurfaceEntity.ColorSpace.BT709
-        private set
+    override val colorSpace: Int
+        get() = fakeInternal.colorSpace
 
-    override var colorTransfer: Int = SurfaceEntity.ColorTransfer.LINEAR
-        private set
+    override val colorTransfer: Int
+        get() = fakeInternal.colorTransfer
 
-    override var colorRange: Int = SurfaceEntity.ColorRange.FULL
-        private set
+    override val colorRange: Int
+        get() = fakeInternal.colorRange
 
-    override var maxContentLightLevel: Int = 0
-        private set
+    override val maxContentLightLevel: Int
+        get() = fakeInternal.maxContentLightLevel
 
     override fun setContentColorMetadata(
         colorSpace: Int,
@@ -116,31 +132,22 @@ public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
         colorRange: Int,
         maxCLL: Int,
     ) {
-        this.colorSpace = colorSpace
-        this.colorTransfer = colorTransfer
-        this.colorRange = colorRange
-        maxContentLightLevel = maxCLL
-
-        contentColorMetadataSet = true
+        fakeInternal.setContentColorMetadata(colorSpace, colorTransfer, colorRange, maxCLL)
     }
 
     override fun resetContentColorMetadata() {
-        colorSpace = SurfaceEntity.ColorSpace.BT709
-        colorTransfer = SurfaceEntity.ColorTransfer.LINEAR
-        colorRange = SurfaceEntity.ColorRange.FULL
-        maxContentLightLevel = 0
-
-        contentColorMetadataSet = false
+        fakeInternal.resetContentColorMetadata()
     }
 
-    override var edgeFeather: SurfaceEntity.EdgeFeather = SurfaceEntity.EdgeFeather.NoFeathering()
+    override var edgeFeather: SurfaceEntity.EdgeFeather
+        get() = fakeInternal.edgeFeather
+        set(value) {
+            fakeInternal.edgeFeather = value
+        }
 
     override fun dispose() {
         super.dispose()
-
-        surface.release()
-        internalImageReader?.close()
-        internalImageReader = null
+        fakeInternal.dispose()
     }
 
     /**
@@ -152,8 +159,6 @@ public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
      * @param surface The new [Surface] to associate with this entity.
      */
     public fun setSurface(surface: Surface) {
-        internalImageReader?.close()
-        internalImageReader = null
-        this.surface = surface
+        fakeInternal.setSurface(surface)
     }
 }
