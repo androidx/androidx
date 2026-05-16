@@ -18,6 +18,7 @@
 package androidx.xr.scenecore
 
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.PlaneType
 import androidx.xr.runtime.math.FloatSize2d
@@ -91,7 +92,8 @@ internal fun RtDimensions.toFloatSize2d(): FloatSize2d {
  * Extension function that converts a [androidx.xr.runtime.math.IntSize2d] to
  * [androidx.xr.scenecore.runtime.PixelDimensions].
  */
-internal fun IntSize2d.toRtPixelDimensions(): RtPixelDimensions {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun IntSize2d.toRtPixelDimensions(): RtPixelDimensions {
     return RtPixelDimensions(width, height)
 }
 
@@ -99,7 +101,8 @@ internal fun IntSize2d.toRtPixelDimensions(): RtPixelDimensions {
  * Extension function that converts a [androidx.xr.scenecore.runtime.PixelDimensions] to
  * [IntSize2d].
  */
-internal fun RtPixelDimensions.toIntSize2d(): IntSize2d {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtPixelDimensions.toIntSize2d(): IntSize2d {
     return IntSize2d(width, height)
 }
 
@@ -197,7 +200,8 @@ private fun checkBitfield(value: Int, mask: Int): Boolean = ((value and mask) ==
  * Extension function that converts a [androidx.xr.scenecore.runtime.SpatialCapabilities] to a
  * [SpatialCapability].
  */
-internal fun RtSpatialCapabilities.toSpatialCapabilities(): Set<SpatialCapability> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtSpatialCapabilities.toSpatialCapabilities(): Set<SpatialCapability> {
     val caps = HashSet<SpatialCapability>()
     with(RtSpatialCapabilities) {
         if (checkBitfield(capabilities, SPATIAL_CAPABILITY_3D_CONTENT)) {
@@ -226,7 +230,8 @@ internal fun RtSpatialCapabilities.toSpatialCapabilities(): Set<SpatialCapabilit
  * Extension function that converts a [androidx.xr.scenecore.runtime.SpatialVisibility] to a
  * [SpatialVisibility] constant.
  */
-internal fun RtSpatialVisibility.toSpatialVisibility(): SpatialVisibility {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtSpatialVisibility.toSpatialVisibility(): SpatialVisibility {
     return visibility.toSpatialVisibilityValue()
 }
 
@@ -441,7 +446,8 @@ internal fun Int.toRtHitTestFilter(): Int {
 }
 
 /** Extension function that converts a [RtHitTestSurfaceType] to a [HitTestResult.SurfaceType]. */
-internal fun Int.toHitTestSurfaceType(): Int {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Int.toHitTestSurfaceType(): Int {
     return when (this) {
         RtHitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN -> SurfaceType.UNKNOWN
         RtHitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE -> SurfaceType.PLANE
@@ -454,16 +460,12 @@ internal fun Int.toHitTestSurfaceType(): Int {
  * Extension function that converts a [androidx.xr.scenecore.runtime.HitTestResult] to a
  * [HitTestResult].
  */
-internal fun RtHitTestResult.toHitTestResult(): HitTestResult? {
-    if (hitPosition == null) {
-        return null
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtHitTestResult.toHitTestResult(): HitTestResult? {
+    return if (hitPosition == null) {
+        null
     } else {
-        return HitTestResult(
-            hitPosition!!,
-            surfaceNormal,
-            surfaceType.toHitTestSurfaceType(),
-            distance,
-        )
+        HitTestResult(hitPosition!!, surfaceNormal, surfaceType.toHitTestSurfaceType(), distance)
     }
 }
 
@@ -523,7 +525,8 @@ internal fun AlphaMode.toRtKhronosPbrMaterialSpec(): RtKhronosPbrMaterialSpec {
  * Extension function that converts a [androidx.xr.scenecore.runtime.PerceivedResolutionResult] to
  * [PerceivedResolutionResult].
  */
-internal fun RtPerceivedResolutionResult.toPerceivedResolutionResult(): PerceivedResolutionResult {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtPerceivedResolutionResult.toPerceivedResolutionResult(): PerceivedResolutionResult {
     return when (this) {
         is RtPerceivedResolutionResult.Success ->
             PerceivedResolutionResult.Success(this.perceivedResolution.toIntSize2d())

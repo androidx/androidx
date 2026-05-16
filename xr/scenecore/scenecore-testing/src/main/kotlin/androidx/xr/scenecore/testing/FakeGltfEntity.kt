@@ -25,16 +25,25 @@ import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import androidx.xr.scenecore.testing.internal.FakeGltfEntity as InternalFakeGltfEntity
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfEntity] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class FakeGltfEntity(
+public open class FakeGltfEntity
+internal constructor(
     private val feature: GltfFeature? = null,
     private val executor: Executor? = null,
-) : FakeEntity(), GltfEntity {
+    fakeInternal: InternalFakeGltfEntity,
+) : FakeEntity(fakeInternal = fakeInternal), GltfEntity {
+
+    public constructor(
+        feature: GltfFeature? = null,
+        executor: Executor? = null,
+    ) : this(feature, executor, InternalFakeGltfEntity(feature, executor))
+
     override val nodes: List<GltfModelNodeFeature>
         get() = feature?.nodes ?: emptyList()
 

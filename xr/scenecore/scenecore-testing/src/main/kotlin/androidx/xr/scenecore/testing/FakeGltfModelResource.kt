@@ -20,11 +20,15 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.GltfModelResource
+import androidx.xr.scenecore.testing.internal.FakeGltfModelResource as InternalFakeGltfModelResource
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfModelResource] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeGltfModelResource(public val mToken: Long) : GltfModelResource {
+
+    internal var fakeInternal: InternalFakeGltfModelResource = InternalFakeGltfModelResource(mToken)
+
     /**
      * The asset name that was used to "load" this fake resource.
      *

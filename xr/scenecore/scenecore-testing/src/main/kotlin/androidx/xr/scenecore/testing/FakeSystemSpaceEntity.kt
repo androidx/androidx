@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.SystemSpaceEntity
+import androidx.xr.scenecore.testing.internal.FakeSystemSpaceEntity as InternalFakeSystemSpaceEntity
 import java.util.concurrent.Executor
 
 /**
@@ -30,7 +31,11 @@ import java.util.concurrent.Executor
  */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class FakeSystemSpaceEntity() : FakeEntity(), SystemSpaceEntity {
+public open class FakeSystemSpaceEntity
+internal constructor(fakeInternal: InternalFakeSystemSpaceEntity) :
+    FakeEntity(fakeInternal = fakeInternal), SystemSpaceEntity {
+
+    public constructor() : this(InternalFakeSystemSpaceEntity())
 
     private var openXrReferenceSpaceTransform: Matrix4? = null
 

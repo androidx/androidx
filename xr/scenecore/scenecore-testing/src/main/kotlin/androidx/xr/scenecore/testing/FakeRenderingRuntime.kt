@@ -41,6 +41,7 @@ import androidx.xr.scenecore.runtime.SpatialEnvironmentExt
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.TextureResource
 import androidx.xr.scenecore.runtime.TextureSampler
+import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime as InternalFakeRenderingRuntime
 import java.nio.ByteBuffer
 
 /**
@@ -56,6 +57,10 @@ public class FakeRenderingRuntime(
     private val sceneRuntime: SceneRuntime,
     private val entityFactory: RenderingEntityFactory = sceneRuntime as RenderingEntityFactory,
 ) : RenderingRuntime {
+
+    internal var internalRuntime: InternalFakeRenderingRuntime =
+        InternalFakeRenderingRuntime(sceneRuntime)
+
     private var spatialEnvironmentFeature: FakeSpatialEnvironmentFeature =
         FakeSpatialEnvironmentFeature()
 
@@ -626,5 +631,7 @@ public class FakeRenderingRuntime(
 
     override fun destroy() {
         _state = State.DESTROYED
+
+        internalRuntime.destroy()
     }
 }

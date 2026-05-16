@@ -23,6 +23,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundEffect as RtSoundEffect
+import androidx.xr.scenecore.runtime.SoundEffectPool as RtSoundEffectPool
 import java.util.concurrent.Executor
 
 /**
@@ -51,7 +52,8 @@ internal fun RtSoundEffect.toSoundEffect(): SoundEffect {
 public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, maxStreams: Int) :
     AutoCloseable {
 
-    internal val rtSoundEffectPool = sceneRuntime.createSoundEffectPool(maxStreams)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtSoundEffectPool: RtSoundEffectPool = sceneRuntime.createSoundEffectPool(maxStreams)
 
     private val loadCompleteListeners =
         ListenerMap<LoadCompleteListener, Pair<SoundEffect, Boolean>> { listener, event ->

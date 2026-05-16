@@ -64,6 +64,7 @@ private constructor(
 
     /** Represents the shape of the Canvas that backs a SurfaceEntity. */
     public interface Shape {
+
         /**
          * A Quadrilateral-shaped canvas. Width and height are expressed in the X and Y axis in the
          * local spatial coordinate system of the entity. (0,0) is the center of the Quad mesh; the

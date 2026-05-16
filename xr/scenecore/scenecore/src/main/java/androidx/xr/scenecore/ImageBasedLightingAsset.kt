@@ -33,7 +33,7 @@ import java.nio.file.Path
 public class ImageBasedLightingAsset
 internal constructor(
     internal val session: Session?,
-    internal val image: RtImageBasedLightingAsset,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val image: RtImageBasedLightingAsset,
 ) : AutoCloseable {
 
     /**

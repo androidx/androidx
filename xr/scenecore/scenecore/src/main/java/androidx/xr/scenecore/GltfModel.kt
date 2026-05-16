@@ -40,7 +40,7 @@ import java.nio.file.Path
 public class GltfModel
 internal constructor(
     internal val renderingRuntime: RenderingRuntime?,
-    internal val model: RtGltfModel,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val model: RtGltfModel,
 ) : AutoCloseable {
 
     /**

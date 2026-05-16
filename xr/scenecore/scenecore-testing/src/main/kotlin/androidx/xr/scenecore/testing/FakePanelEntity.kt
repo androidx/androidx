@@ -30,29 +30,29 @@ import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.ScenePose
+import androidx.xr.scenecore.testing.internal.FakePanelEntity as InternalFakePanelEntity
 import kotlin.math.roundToInt
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.PanelEntity] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class FakePanelEntity(public val view: View? = null, name: String = "") :
-    FakeEntity(name), PanelEntity {
+public open class FakePanelEntity
+internal constructor(
+    public val view: View? = null,
+    name: String = "",
+    fakeInternal: InternalFakePanelEntity,
+) : FakeEntity(name, fakeInternal), PanelEntity {
+
+    public constructor(
+        view: View? = null,
+        name: String = "",
+    ) : this(view, name, InternalFakePanelEntity(view, name))
 
     private val context = view?.context
     private val windowManager = context?.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
     internal var dpPerMeter: Float = FakeSceneRuntime.DEFAULT_DP_PER_METER
     private val density
         get() = context?.resources?.displayMetrics?.density ?: 1f
-
-    init {
-        windowManager?.addView(
-            view,
-            WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_APPLICATION_PANEL).apply {
-                width = WindowManager.LayoutParams.WRAP_CONTENT
-                height = WindowManager.LayoutParams.WRAP_CONTENT
-            },
-        )
-    }
 
     override fun dispose() {
         if (view?.parent != null) {

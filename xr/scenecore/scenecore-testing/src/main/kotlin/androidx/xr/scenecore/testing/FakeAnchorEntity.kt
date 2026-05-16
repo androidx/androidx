@@ -23,11 +23,16 @@ import androidx.xr.arcore.Anchor
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.AnchorEntity.OnStateChangedListener
+import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAnchorEntity
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.AnchorEntity] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
+public class FakeAnchorEntity internal constructor(fakeInternal: InternalFakeAnchorEntity) :
+    FakeSystemSpaceEntity(fakeInternal), AnchorEntity {
+
+    public constructor() : this(InternalFakeAnchorEntity())
+
     /**
      * The underlying [androidx.xr.arcore.runtime.Anchor] instance that this fake entity represents,
      * set when [setAnchor] is called.

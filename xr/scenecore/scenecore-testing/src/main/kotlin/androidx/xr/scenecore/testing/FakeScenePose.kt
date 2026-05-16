@@ -24,6 +24,7 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.impl.BaseScenePose
+import androidx.xr.scenecore.testing.internal.FakeScenePose as InternalFakeScenePose
 
 /**
  * A test double for [androidx.xr.scenecore.runtime.ScenePose], designed for use in unit or
@@ -38,9 +39,17 @@ import androidx.xr.scenecore.runtime.impl.BaseScenePose
  */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class FakeScenePose : BaseScenePose() {
+public open class FakeScenePose
+internal constructor(internal var fakeInternal: InternalFakeScenePose) : BaseScenePose() {
+
+    public constructor() : this(InternalFakeScenePose())
+
     /** Returns the pose for this entity, relative to the activity space root. */
-    override var activitySpacePose: Pose = Pose.Identity
+    override var activitySpacePose: Pose
+        get() = fakeInternal.activitySpacePose
+        set(value) {
+            fakeInternal.activitySpacePose = value
+        }
 
     /**
      * Returns the scale of this ScenePose. For base ScenePoses, the scale is (1,1,1). For entities
@@ -55,7 +64,11 @@ public open class FakeScenePose : BaseScenePose() {
      * Returns the scale in the activity space. This is used by [transformPoseTo] in its
      * calculation.
      */
-    override var activitySpaceScale: Vector3 = Vector3.One
+    override var activitySpaceScale: Vector3
+        get() = fakeInternal.activitySpaceScale
+        set(value) {
+            fakeInternal.activitySpaceScale = value
+        }
 
     /**
      * For test purposes only.
@@ -63,13 +76,11 @@ public open class FakeScenePose : BaseScenePose() {
      * The [androidx.xr.scenecore.runtime.HitTestResult] that will be returned by [hitTest]. This
      * can be modified in tests to simulate different hit test outcomes.
      */
-    public var hitTestResult: HitTestResult =
-        HitTestResult(
-            null,
-            null,
-            HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN,
-            0f,
-        )
+    public var hitTestResult: HitTestResult
+        get() = fakeInternal.hitTestResult
+        set(value) {
+            fakeInternal.hitTestResult = value
+        }
 
     override suspend fun hitTest(
         origin: Vector3,

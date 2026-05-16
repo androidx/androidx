@@ -18,6 +18,7 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.RestrictTo
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.AugmentedObject
 import androidx.xr.arcore.Eye
@@ -33,6 +34,7 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.MovableComponent.Companion.createAnchorable
 import androidx.xr.scenecore.MovableComponent.Companion.createSystemMovable
 import androidx.xr.scenecore.runtime.HandlerExecutor
+import androidx.xr.scenecore.runtime.MovableComponent as RtMovableComponent
 import androidx.xr.scenecore.runtime.MoveEventListener as RtMoveEventListener
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
@@ -76,7 +78,8 @@ private constructor(
     private val anchorable = !anchorPlacement.isEmpty()
     private var createdAnchorEntity: AnchorEntity? = null
 
-    internal val rtMovableComponent by lazy {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rtMovableComponent: RtMovableComponent by lazy {
         sceneRuntime.createMovableComponent(systemMovable, scaleInZ, anchorable)
     }
     internal val rtTrackableComponent by lazy {

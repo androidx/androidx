@@ -28,6 +28,7 @@ import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpaceValue
+import androidx.xr.scenecore.testing.internal.FakeActivitySpace as InternalFakeActivitySpace
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicReference
 
@@ -37,7 +38,11 @@ import java.util.concurrent.atomic.AtomicReference
  */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeActivitySpace() : FakeSystemSpaceEntity(), ActivitySpace {
+public class FakeActivitySpace internal constructor(fakeInternal: InternalFakeActivitySpace) :
+    FakeSystemSpaceEntity(fakeInternal), ActivitySpace {
+
+    public constructor() : this(InternalFakeActivitySpace())
+
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Deprecated(
         "unscaledGravityAlignedActivitySpace flag deprecated, scheduled for removal in future release."

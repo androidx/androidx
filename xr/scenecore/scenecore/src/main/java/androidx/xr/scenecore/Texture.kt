@@ -17,6 +17,7 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.MainThread
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.TextureResource as RtTextureResource
@@ -34,8 +35,10 @@ import java.nio.file.Path
  * done by calling the [close] method or letting it get garbage collected.
  */
 public open class Texture
-internal constructor(internal val texture: RtTextureResource, internal val session: Session) :
-    AutoCloseable {
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val texture: RtTextureResource,
+    internal val session: Session,
+) : AutoCloseable {
 
     /**
      * Closes the given [Texture].
