@@ -93,6 +93,7 @@ public class BaseStats {
             INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AEGIS_TO_AISEAL,
             INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AISEAL_TO_AEGIS,
             INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_VM_TO_HOST,
+            INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CallType {
@@ -160,6 +161,7 @@ public class BaseStats {
     public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AEGIS_TO_AISEAL = 49;
     public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_AISEAL_TO_AEGIS = 50;
     public static final int INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION_VM_TO_HOST = 51;
+    public static final int INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB = 52;
 
     // These strings are for the subset of call types that correspond to an AppSearchManager API
     public static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
@@ -212,6 +214,8 @@ public class BaseStats {
     public static final String INTERNAL_CALL_TYPE_STRING_MANUALLY_SCHEDULE_FLUSH =
             "manuallyScheduleFlush";
     public static final String INTERNAL_CALL_TYPE_STRING_APPS_INDEXER = "appsIndexer";
+    public static final String INTERNAL_CALL_TYPE_STRING_MAINTAIN_ANN_INDEX_JOB =
+            "maintainAnnIndexJob";
 
     // Enabled features bitmask with all features disabled.
     public static final long NO_FEATURES_ENABLED_BITMASK = 0;
