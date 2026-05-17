@@ -19,6 +19,26 @@ package androidx.xr.scenecore.testing {
     property public androidx.xr.scenecore.AnchorEntity.State? state;
   }
 
+  public final class ImageBasedLightingAssetTester {
+    method @InaccessibleFromKotlin public byte[] getAssetData();
+    method @InaccessibleFromKotlin public String getAssetKey();
+    method @InaccessibleFromKotlin public String getAssetPath();
+    property public byte[] assetData;
+    property public String assetKey;
+    property public String assetPath;
+  }
+
+  public final class MeshEntityTester {
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Matrix4> getBoneTransforms();
+    property public java.util.List<androidx.xr.runtime.math.Matrix4> boneTransforms;
+  }
+
+  public final class PerceptionSpaceTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.HitTestResult? getHitTestResult();
+    method @InaccessibleFromKotlin public void setHitTestResult(androidx.xr.scenecore.HitTestResult?);
+    property public androidx.xr.scenecore.HitTestResult? hitTestResult;
+  }
+
   public final class PositionalAudioComponentTester {
     method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams getPointSourceParams();
@@ -31,14 +51,17 @@ package androidx.xr.scenecore.testing {
     ctor public SceneCoreTestRule();
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Entity entity);
+    method public androidx.xr.scenecore.testing.ImageBasedLightingAssetTester createTester(androidx.xr.scenecore.ImageBasedLightingAsset asset);
     method public androidx.xr.scenecore.testing.SoundEffectPoolTester createTester(androidx.xr.scenecore.SoundEffectPool soundEffectPool);
     method public androidx.xr.scenecore.testing.TextureTester createTester(androidx.xr.scenecore.Texture texture);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.ActivitySpaceTester getActivitySpaceTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.PerceptionSpaceTester getPerceptionSpaceTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
     method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Component component);
     method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Entity entity);
     property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
+    property public androidx.xr.scenecore.testing.PerceptionSpaceTester perceptionSpaceTester;
     property public androidx.xr.scenecore.testing.SpatialSoundPoolTester spatialSoundPoolTester;
     property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
   }

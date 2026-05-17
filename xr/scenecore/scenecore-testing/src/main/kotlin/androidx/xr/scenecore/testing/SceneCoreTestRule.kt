@@ -20,10 +20,14 @@ import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.ImageBasedLightingAsset
+import androidx.xr.scenecore.MeshEntity
+import androidx.xr.scenecore.PerceptionSpace
 import androidx.xr.scenecore.PositionalAudioComponent
 import androidx.xr.scenecore.SoundEffectPool
 import androidx.xr.scenecore.SpatialWindow
 import androidx.xr.scenecore.Texture
+import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime
 import org.junit.rules.ExternalResource
@@ -75,6 +79,7 @@ public class SceneCoreTestRule : ExternalResource() {
         } else {
             when (entity) {
                 is AnchorEntity -> AnchorEntityTester.create(entity)
+                is MeshEntity -> MeshEntityTester.create(entity)
                 else -> null
             }
         }
@@ -152,6 +157,21 @@ public class SceneCoreTestRule : ExternalResource() {
     }
 
     /**
+     * Creates a test data accessor for the given [ImageBasedLightingAsset].
+     *
+     * In the test environment, each asset created via [ImageBasedLightingAsset.createFromZip] has
+     * corresponding underlying fake data. This function provides access to that fake data, allowing
+     * for verification or manipulation in tests.
+     *
+     * @param asset The [ImageBasedLightingAsset] instance for which to retrieve test data.
+     * @return A [ImageBasedLightingAssetTester] instance used to inspect and manipulate the test
+     *   data.
+     */
+    public fun createTester(asset: ImageBasedLightingAsset): ImageBasedLightingAssetTester {
+        return ImageBasedLightingAssetTester.create(asset)
+    }
+
+    /**
      * Retrieves a test data accessor for the given [SoundEffectPool].
      *
      * In the test environment, each [SoundEffectPool] created via [SoundEffectPool.create] has
@@ -200,6 +220,32 @@ public class SceneCoreTestRule : ExternalResource() {
             return _activitySpaceTester!!
         }
 
+    private var _perceptionSpaceTester: PerceptionSpaceTester? = null
+
+    /**
+     * Provides the instance of [PerceptionSpaceTester] which is a test data accessor of the
+     * [PerceptionSpace].
+     *
+     * The [PerceptionSpace] represents the origin of the space in which ARCore for Jetpack XR
+     * provides tracking info. The transformations provided by the PerceptionSpace are only valid
+     * for the call frame, as the transformation can be changed by the system at any time.
+     */
+    public val perceptionSpaceTester: PerceptionSpaceTester
+        get() {
+            if (_perceptionSpaceTester != null) {
+                return _perceptionSpaceTester!!
+            }
+
+            _perceptionSpaceTester = requireRuntimesReady {
+                PerceptionSpaceTester(
+                    requireNotNull(FakeSceneRuntime.instance).perceptionSpaceActivityPose
+                        as FakePerceptionSpaceScenePose
+                )
+            }
+
+            return _perceptionSpaceTester!!
+        }
+
     /** Provides the [SpatialWindowTester] test data accessor for the [SpatialWindow]. */
     public val spatialWindowTester: SpatialWindowTester
         get() = requireRuntimesReady { SpatialWindowTester.instance }
@@ -227,11 +273,13 @@ public class SceneCoreTestRule : ExternalResource() {
     @Throws(Throwable::class)
     override fun before() {
         _activitySpaceTester = null
+        _perceptionSpaceTester = null
         _spatialSoundPoolTester = null
     }
 
     override fun after() {
         _activitySpaceTester = null
+        _perceptionSpaceTester = null
         _spatialSoundPoolTester = null
     }
 }
