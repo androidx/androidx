@@ -19,29 +19,38 @@
 package androidx.xr.scenecore
 
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.media3.exoplayer.audio.AudioOutputProvider
+import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.scenecore.testing.FakePositionalAudioComponent
+import androidx.xr.scenecore.testing.PositionalAudioComponentTester
+import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class PositionalAudioComponentTest {
 
-    private val activity =
-        Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
+    @get:Rule val scenecoreTestRule = SceneCoreTestRule()
+
+    private lateinit var activity: ComponentActivity
     private lateinit var session: Session
 
     @Before
     fun setUp() {
+        activity = Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
         val testDispatcher = StandardTestDispatcher()
-        val result = Session.create(activity, testDispatcher)
+        val result =
+            Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
@@ -55,65 +64,60 @@ class PositionalAudioComponentTest {
         val component = PositionalAudioComponent.create(session, params)
 
         assertThat(entity.addComponent(component)).isTrue()
-        assertThat(entity.rtEntity?.getComponents()[0])
-            .isInstanceOf(FakePositionalAudioComponent::class.java)
     }
 
     @Test
-    fun addComponent_cannotBeAddedToTwoComponentsSimultaneously() {
+    fun addComponent_cannotBeAddedToTwoEntitiesSimultaneously() {
         val firstEntity = Entity.create(session, "test")
         val secondEntity = Entity.create(session, "test")
         val params = PointSourceParams()
         val component = PositionalAudioComponent.create(session, params)
 
         assertThat(firstEntity.addComponent(component)).isTrue()
-        assertThat(firstEntity.rtEntity?.getComponents()[0])
-            .isInstanceOf(FakePositionalAudioComponent::class.java)
 
         assertThat(secondEntity.addComponent(component)).isFalse()
     }
 
     @Test
-    fun addComponent_canBeAddedToSecondComponentAfterRemovingFirst() {
+    fun addComponent_canBeAddedToSecondEntityAfterRemovingFirst() {
         val firstEntity = Entity.create(session, "test")
         val secondEntity = Entity.create(session, "test")
         val params = PointSourceParams()
         val component = PositionalAudioComponent.create(session, params)
 
         assertThat(firstEntity.addComponent(component)).isTrue()
-        assertThat(firstEntity.rtEntity?.getComponents()[0])
-            .isInstanceOf(FakePositionalAudioComponent::class.java)
+        assertThat(firstEntity.getComponents()).containsExactly(component)
 
         firstEntity.removeComponent(component)
-        assertThat(firstEntity.rtEntity?.getComponents()).hasSize(0)
+        assertThat(firstEntity.getComponents()).doesNotContain(component)
 
         assertThat(secondEntity.addComponent(component)).isTrue()
-        assertThat(secondEntity.rtEntity?.getComponents()[0])
-            .isInstanceOf(FakePositionalAudioComponent::class.java)
     }
 
     @Test
     fun setPointSourceParams_setsOnRuntime() {
         val params = PointSourceParams()
         val component = PositionalAudioComponent.create(session, params)
+        val tester = scenecoreTestRule.createTester<PositionalAudioComponentTester>(component)
 
         val newParams = PointSourceParams()
 
         component.setPointSourceParams(newParams)
 
-        val fakeComponent = component.rtComponent as FakePositionalAudioComponent
-        assertThat(fakeComponent.params).isEqualTo(newParams.rtPointSourceParams)
+        assertThat(tester.pointSourceParams).isEqualTo(newParams)
     }
 
     @Test
     fun audioOutputProvider_returnsProvider() {
         val params = PointSourceParams()
         val component = PositionalAudioComponent.create(session, params)
+        val tester = scenecoreTestRule.createTester<PositionalAudioComponentTester>(component)
+        val audioOutputProvider: AudioOutputProvider =
+            AudioTrackAudioOutputProvider.Builder(session.context).build()
 
-        val provider = component.audioOutputProvider
+        tester.audioOutputProvider = audioOutputProvider
 
-        val fakeComponent = component.rtComponent as FakePositionalAudioComponent
-        assertThat(fakeComponent.getAudioOutputProviderCount).isEqualTo(1)
-        assertThat(provider).isNotNull()
+        assertThat(component.audioOutputProvider).isEqualTo(audioOutputProvider)
+        assertThat(tester.audioOutputProvider).isEqualTo(audioOutputProvider)
     }
 }

@@ -26,7 +26,7 @@ import androidx.xr.scenecore.runtime.SpatializerConstants
 /** Test-only implementation of [androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper] */
 internal class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
 
-    private var playAsPointSourceResult: Int = 0
+    internal var playAsPointSourceResult: Int = 0
 
     var lastPlayedSoundPool: SoundPool? = null
         private set
@@ -104,7 +104,7 @@ internal class FakeSoundPoolExtensionsWrapper : SoundPoolExtensionsWrapper {
         return playAsPointSourceResult
     }
 
-    private var playAsSoundFieldResult: Int = 0
+    internal var playAsSoundFieldResult: Int = 0
 
     /**
      * For test purposes only. Sets the value that will be returned by the [play] method for sound
