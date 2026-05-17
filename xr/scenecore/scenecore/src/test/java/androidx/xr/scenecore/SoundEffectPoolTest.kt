@@ -21,13 +21,14 @@ package androidx.xr.scenecore
 import android.content.res.AssetFileDescriptor
 import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.scenecore.runtime.SoundEffect as RtSoundEffect
-import androidx.xr.scenecore.testing.FakeSoundEffectPool
+import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
@@ -40,14 +41,17 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class SoundEffectPoolTest {
 
-    private val activity =
-        Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
+    @get:Rule val scenecoreTestRule = SceneCoreTestRule()
+
+    private lateinit var activity: ComponentActivity
     private lateinit var session: Session
 
     @Before
     fun setUp() {
+        activity = Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
         val testDispatcher = StandardTestDispatcher()
-        val result = Session.create(activity, testDispatcher)
+        val result =
+            Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
@@ -58,60 +62,75 @@ class SoundEffectPoolTest {
     fun create_createsRuntimeSoundEffectPool() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
 
-        assertThat(soundEffectPool.rtSoundEffectPool).isInstanceOf(FakeSoundEffectPool::class.java)
+        assertThat(soundEffectPool.rtSoundEffectPool).isNotNull()
     }
 
     @Test
     fun load_callsRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
+        val soundEffectPoolTester = scenecoreTestRule.createTester(soundEffectPool)
         val resId = 123
 
         val soundEffect = soundEffectPool.load(activity, resId)
 
-        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.loadedResourceIds).contains(resId)
+        assertThat(soundEffectPoolTester.isResourceLoaded(resId)).isTrue()
         assertThat(soundEffect.id).isEqualTo(resId)
     }
 
     @Test
     fun load_withAfd_callsRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
+        val soundEffectPoolTester = scenecoreTestRule.createTester(soundEffectPool)
         val afd = mock<AssetFileDescriptor>()
 
         val soundEffect = soundEffectPool.load(afd)
 
-        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.loadedAssetDescriptors).contains(afd)
+        assertThat(soundEffectPoolTester.isAssetLoaded(afd)).isTrue()
         assertThat(soundEffect).isNotNull()
     }
 
     @Test
     fun unload_callsRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
+        val soundEffectPoolTester = scenecoreTestRule.createTester(soundEffectPool)
         val resId = 123
         val soundEffect = soundEffectPool.load(activity, resId)
-        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.loadedResourceIds).contains(resId)
+        assertThat(soundEffectPoolTester.isResourceLoaded(resId)).isTrue()
 
         soundEffectPool.unload(soundEffect)
 
-        assertThat(fakePool.loadedResourceIds).doesNotContain(resId)
+        assertThat(soundEffectPoolTester.isResourceLoaded(resId)).isFalse()
     }
 
     @Test
-    fun release_callsRuntime() {
-        val soundEffectPool = SoundEffectPool.create(session, 1)
+    fun release_clearsAllResourcesFromTester() {
+        val soundEffectPool = SoundEffectPool.create(session, 2)
+        val soundEffectPoolTester = scenecoreTestRule.createTester(soundEffectPool)
+        val resId = 123
+        val afd = mock<AssetFileDescriptor>()
 
+        // 1. Load both types of resources.
+        soundEffectPool.load(activity, resId)
+        soundEffectPool.load(afd)
+
+        // 2. Verify both are currently loaded.
+        assertThat(soundEffectPoolTester.isResourceLoaded(resId)).isTrue()
+        assertThat(soundEffectPoolTester.isAssetLoaded(afd)).isTrue()
+
+        // 3. Perform release.
         soundEffectPool.release()
 
-        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-        assertThat(fakePool.released).isTrue()
+        // 4. Verify both are cleared from the tester's perspective.
+        // This indirectly confirms that the underlying fake has been released.
+        assertThat(soundEffectPoolTester.isResourceLoaded(resId)).isFalse()
+        assertThat(soundEffectPoolTester.isAssetLoaded(afd)).isFalse()
     }
 
     // TODO - b/502272748: Remove when we delete the deprecated setListener method
     @Test
     fun setOnLoadCompleteListener_receivesCallback() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
+        val tester = scenecoreTestRule.createTester(soundEffectPool)
         var callbackCalled = false
         var loadedSoundEffect: SoundEffect? = null
         var loadedSuccess = false
@@ -125,11 +144,9 @@ class SoundEffectPoolTest {
 
         soundEffectPool.setOnLoadCompleteListener(listener)
 
-        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-
-        // Trigger the listener via the fake
-        val rtSoundEffect = RtSoundEffect(123)
-        fakePool.notifyLoadComplete(rtSoundEffect, true)
+        // Trigger the listener via the tester
+        val soundEffect = SoundEffect(123)
+        tester.triggerLoadCompleteListener(soundEffect, true)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(callbackCalled).isTrue()
@@ -140,6 +157,7 @@ class SoundEffectPoolTest {
     @Test
     fun addLoadCompleteListener_receivesCallback() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
+        val tester = scenecoreTestRule.createTester(soundEffectPool)
         var callbackCalled = false
         var loadedSoundEffect: SoundEffect? = null
         var loadedSuccess = false
@@ -153,11 +171,9 @@ class SoundEffectPoolTest {
 
         soundEffectPool.addLoadCompleteListener(listener)
 
-        val fakePool = soundEffectPool.rtSoundEffectPool as FakeSoundEffectPool
-
-        // Trigger the listener via the fake
-        val rtSoundEffect = RtSoundEffect(123)
-        fakePool.notifyLoadComplete(rtSoundEffect, true)
+        // Trigger the listener via the tester
+        val soundEffect = SoundEffect(123)
+        tester.triggerLoadCompleteListener(soundEffect, true)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(callbackCalled).isTrue()

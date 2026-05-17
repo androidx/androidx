@@ -19,21 +19,56 @@ package androidx.xr.scenecore.testing {
     property public androidx.xr.scenecore.AnchorEntity.State? state;
   }
 
+  public final class PositionalAudioComponentTester {
+    method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams getPointSourceParams();
+    method @InaccessibleFromKotlin public void setAudioOutputProvider(androidx.media3.exoplayer.audio.AudioOutputProvider);
+    property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+    property public androidx.xr.scenecore.PointSourceParams pointSourceParams;
+  }
+
   public final class SceneCoreTestRule extends org.junit.rules.ExternalResource {
     ctor public SceneCoreTestRule();
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Entity entity);
+    method public androidx.xr.scenecore.testing.SoundEffectPoolTester createTester(androidx.xr.scenecore.SoundEffectPool soundEffectPool);
+    method public androidx.xr.scenecore.testing.TextureTester createTester(androidx.xr.scenecore.Texture texture);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.ActivitySpaceTester getActivitySpaceTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
     method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Component component);
     method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Entity entity);
     property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
+    property public androidx.xr.scenecore.testing.SpatialSoundPoolTester spatialSoundPoolTester;
     property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
+  }
+
+  public final class SoundEffectPoolTester {
+    method public boolean isAssetLoaded(android.content.res.AssetFileDescriptor assetFileDescriptor);
+    method public boolean isResourceLoaded(int resourceId);
+    method public void triggerLoadCompleteListener(androidx.xr.scenecore.SoundEffect soundEffect, boolean success);
+  }
+
+  public final class SpatialSoundPoolTester {
+    method @InaccessibleFromKotlin public int getPlayAsPointSourceResult();
+    method @InaccessibleFromKotlin public int getPlayAsSoundFieldResult();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatializerConstants.SourceType getSpatialSourceType();
+    method @InaccessibleFromKotlin public void setPlayAsPointSourceResult(int);
+    method @InaccessibleFromKotlin public void setPlayAsSoundFieldResult(int);
+    method @InaccessibleFromKotlin public void setSpatialSourceType(androidx.xr.scenecore.SpatializerConstants.SourceType);
+    property public int playAsPointSourceResult;
+    property public int playAsSoundFieldResult;
+    property public androidx.xr.scenecore.SpatializerConstants.SourceType spatialSourceType;
   }
 
   public final class SpatialWindowTester {
     method @InaccessibleFromKotlin public float getPreferredAspectRatio();
     property public float preferredAspectRatio;
+  }
+
+  public final class TextureTester {
+    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.O) public java.nio.file.Path getPath();
+    property @RequiresApi(android.os.Build.VERSION_CODES.O) public java.nio.file.Path path;
   }
 
 }

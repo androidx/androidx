@@ -277,7 +277,9 @@ internal fun Int.toPointerCaptureState(): PointerCaptureState {
 // region Spatial Audio
 /** Extension function that converts a [RtPointSourceParams] to a [PointSourceParams]. */
 internal fun RtPointSourceParams.toPointSourceParams(): PointSourceParams {
-    return PointSourceParams()
+    val pointSourceParams = PointSourceParams()
+    pointSourceParams.rtPointSourceParams = this
+    return pointSourceParams
 }
 
 /**

@@ -33,7 +33,8 @@ import java.util.concurrent.Executor
  * [SoundEffectPlayer] that was created with that [SoundEffectPool]. The SoundEffect can be released
  * with [SoundEffectPool.unload] when no longer needed.
  */
-public class SoundEffect internal constructor(internal val id: Int) {
+public class SoundEffect
+internal constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val id: Int) {
     internal fun toRtSoundEffect(): RtSoundEffect {
         return RtSoundEffect(id)
     }

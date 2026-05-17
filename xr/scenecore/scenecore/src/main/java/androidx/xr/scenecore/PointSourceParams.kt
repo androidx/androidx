@@ -28,11 +28,29 @@ import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
  */
 // TODO: b/430650745 - reevaluate the usefulness of this class prior to the beta release
 // TODO: b/426001209 - add additional parameters to PointSourceParams
-public class PointSourceParams() {
+public class PointSourceParams
+internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val rtPointSourceParams: RtPointSourceParams by lazy { RtPointSourceParams() }
+    public var rtPointSourceParams: RtPointSourceParams
+) {
+    public constructor() : this(RtPointSourceParams())
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PointSourceParams
+
+        return rtPointSourceParams == other.rtPointSourceParams
+    }
+
+    override fun hashCode(): Int {
+        return rtPointSourceParams.hashCode()
+    }
 }
 
-internal fun RtPointSourceParams.toPointSourceParams(session: Session): PointSourceParams? {
-    return PointSourceParams()
+/** Extension function that converts a [RtPointSourceParams] to a [PointSourceParams]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtPointSourceParams.toPointSourceParams(session: Session): PointSourceParams? {
+    return PointSourceParams(this)
 }
