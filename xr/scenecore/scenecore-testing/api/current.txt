@@ -1,6 +1,17 @@
 // Signature format: 4.0
 package androidx.xr.scenecore.testing {
 
+  public final class ActivitySpaceTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.HitTestResult? getHitTestResult();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getRecommendedContentBoxInFullSpace();
+    method @InaccessibleFromKotlin public void setHitTestResult(androidx.xr.scenecore.HitTestResult?);
+    method @InaccessibleFromKotlin public void setRecommendedContentBoxInFullSpace(androidx.xr.runtime.math.BoundingBox);
+    method public void triggerOnBoundsChanged(androidx.xr.runtime.math.FloatSize3d bounds);
+    method public void triggerOnOriginChanged();
+    property public androidx.xr.scenecore.HitTestResult? hitTestResult;
+    property public androidx.xr.runtime.math.BoundingBox recommendedContentBoxInFullSpace;
+  }
+
   public final class AnchorEntityTester {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorEntity.State? getState();
     method @InaccessibleFromKotlin public void setState(androidx.xr.scenecore.AnchorEntity.State?);
@@ -12,7 +23,9 @@ package androidx.xr.scenecore.testing {
     ctor public SceneCoreTestRule();
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Entity entity);
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.ActivitySpaceTester getActivitySpaceTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
+    property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
     property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
   }
 

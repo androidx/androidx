@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testing
 
+import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
@@ -146,6 +147,30 @@ public class SceneCoreTestRule : ExternalResource() {
             )
     }
 
+    private var _activitySpaceTester: ActivitySpaceTester? = null
+
+    /**
+     * Provides the instance of [ActivitySpaceTester] which is a test data accessor of the
+     * [ActivitySpace].
+     *
+     * The [ActivitySpace] is an [Entity] used to track the system-managed pose and boundary of the
+     * volume associated with a spatialized Activity. The Application cannot directly control this
+     * volume, but the system might update it in response to the User moving it or entering or
+     * exiting Full Space Mode.
+     */
+    public val activitySpaceTester: ActivitySpaceTester
+        get() {
+            if (_activitySpaceTester != null) {
+                return _activitySpaceTester!!
+            }
+
+            _activitySpaceTester = requireRuntimesReady {
+                ActivitySpaceTester(requireNotNull(FakeSceneRuntime.instance).activitySpace)
+            }
+
+            return _activitySpaceTester!!
+        }
+
     // region Spatial Properties
 
     /** Provides the [SpatialWindowTester] test data accessor for the [SpatialWindow]. */
@@ -153,4 +178,14 @@ public class SceneCoreTestRule : ExternalResource() {
         get() = requireRuntimesReady { SpatialWindowTester.instance }
 
     // endregion
+
+    @Suppress("GenericException")
+    @Throws(Throwable::class)
+    override fun before() {
+        _activitySpaceTester = null
+    }
+
+    override fun after() {
+        _activitySpaceTester = null
+    }
 }
