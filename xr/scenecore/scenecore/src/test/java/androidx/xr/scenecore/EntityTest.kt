@@ -31,6 +31,7 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
@@ -46,12 +47,13 @@ import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 import androidx.xr.scenecore.testing.FakeActivityPanelEntity
 import androidx.xr.scenecore.testing.FakeAnchorEntity
-import androidx.xr.scenecore.testing.FakeGltfAnimationFeature
-import androidx.xr.scenecore.testing.FakeGltfEntity
 import androidx.xr.scenecore.testing.FakeGltfModelResource
 import androidx.xr.scenecore.testing.FakePanelEntity
 import androidx.xr.scenecore.testing.FakeSurfaceEntity
+import androidx.xr.scenecore.testing.GltfModelEntityTester
 import androidx.xr.scenecore.testing.MemoryUtils
+import androidx.xr.scenecore.testing.SceneCoreTestRule
+import androidx.xr.scenecore.testing.TestGltfAnimation
 import com.android.extensions.xr.XrExtensions
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.WeakReference
@@ -63,6 +65,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
@@ -77,6 +80,8 @@ import org.robolectric.shadows.ShadowLooper
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class EntityTest {
+    @Rule @JvmField val testRule = SceneCoreTestRule()
+
     private val activity =
         Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
     private lateinit var extensions: XrExtensions
@@ -93,6 +98,8 @@ class EntityTest {
     private lateinit var activityPanelEntity: ActivityPanelEntity
     private lateinit var entity: Entity
     private lateinit var surfaceEntity: SurfaceEntity
+
+    private lateinit var gltfModelEntityTester: GltfModelEntityTester
 
     private class TestComponent(val canBeAttached: Boolean) : Component() {
         var onAttached: Int = 0
@@ -149,7 +156,7 @@ class EntityTest {
                 deviceTracking = DeviceTrackingMode.SPATIAL,
             )
         )
-        renderViewpoint = RenderViewpoint.left(session)!!
+        renderViewpoint = RenderViewpoint.left(session)
         entityRegistry = session.scene.entityRegistry
         activitySpace = session.scene.activitySpace
         gltfModel = GltfModel.create(session, Paths.get("test.glb"))
@@ -161,6 +168,7 @@ class EntityTest {
                 gltfModel,
                 parent = session.scene.activitySpace,
             )
+        gltfModelEntityTester = testRule.createTester<GltfModelEntityTester>(gltfModelEntity)
         panelEntity =
             PanelEntity.create(
                 session,
@@ -1158,9 +1166,10 @@ class EntityTest {
             @Suppress("NewApi") val gltfModel = GltfModel.create(session, Paths.get("intest.glb"))
             val gltfEntity =
                 GltfModelEntity.create(session, gltfModel, parent = session.scene.activitySpace)
+            val testData = testRule.createTester<GltfModelEntityTester>(gltfEntity)
 
-            assertThat((gltfModel.model as FakeGltfModelResource).assetName).isEqualTo("intest.glb")
-            assertThat(gltfEntity.rtEntity).isInstanceOf(FakeGltfEntity::class.java)
+            assertThat(testData.gltfModelBoundingBox)
+                .isEqualTo(BoundingBox.fromMinMax(Vector3.Zero, Vector3.One))
         }
     }
 
@@ -1329,11 +1338,10 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_getAnimations_returnsAnimations() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation1 = FakeGltfAnimationFeature(animationName = "anim1")
-        val animation2 = FakeGltfAnimationFeature(animationName = "anim2")
-        fakeGltfEntity.addAnimation(animation1)
-        fakeGltfEntity.addAnimation(animation2)
+        val animation1 = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        val animation2 = TestGltfAnimation.Builder().setAnimationName("anim2").build()
+        gltfModelEntityTester.addAnimation(animation1)
+        gltfModelEntityTester.addAnimation(animation2)
 
         val animations = gltfModelEntity.animations
 
@@ -1345,9 +1353,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_startAnimation_startsAnimation() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.animations
         val gltfAnimation = animations[0]
 
@@ -1359,9 +1366,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_startAnimation_withOptions_startsAnimationWithOptions() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.animations
         val gltfAnimation = animations[0]
 
@@ -1373,17 +1379,16 @@ class EntityTest {
             )
         )
 
-        assertThat(animation.isLooping).isTrue()
+        assertThat(animation.shouldLoop).isTrue()
         assertThat(animation.speed).isEqualTo(2.0f)
-        assertThat(animation.seekStartTimeSeconds).isEqualTo(0.5f)
+        assertThat(animation.seekStartTime).isEqualTo(0.5f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfAnimation_startAnimation_negativeSeekTime_throwsException() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val gltfAnimation = gltfModelEntity.animations[0]
 
         assertThrows(IllegalArgumentException::class.java) {
@@ -1396,9 +1401,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_stopAnimation_stopsAnimation() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.animations
         val gltfAnimation = animations[0]
 
@@ -1411,9 +1415,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_pauseAnimation_pausesAnimation() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.animations
         val gltfAnimation = animations[0]
 
@@ -1426,9 +1429,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_resumeAnimation_resumesAnimation() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.animations
         val gltfAnimation = animations[0]
 
@@ -1442,9 +1444,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_setSpeed_setsAnimationSpeed() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.animations
         val gltfAnimation = animations[0]
 
@@ -1457,24 +1458,22 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfModelEntity_seekTo_seeksAnimation() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val animations = gltfModelEntity.animations
         val gltfAnimation = animations[0]
 
         gltfAnimation.start()
         gltfAnimation.seekTo(0.5.seconds.toJavaDuration())
 
-        assertThat(animation.seekStartTimeSeconds).isEqualTo(0.5f)
+        assertThat(animation.seekStartTime).isEqualTo(0.5f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfAnimation_seekTo_negativeTime_throwsException() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val gltfAnimation = gltfModelEntity.animations[0]
 
         gltfAnimation.start()
@@ -1486,9 +1485,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfAnimation_animationStateListener_receivesUpdates() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val gltfAnimation = gltfModelEntity.animations[0]
 
         var state: GltfAnimation.AnimationState? = null
@@ -1510,9 +1508,8 @@ class EntityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gltfAnimation_removeAnimationStateListener_stopsUpdates() {
-        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
-        val animation = FakeGltfAnimationFeature(animationName = "anim1")
-        fakeGltfEntity.addAnimation(animation)
+        val animation = TestGltfAnimation.Builder().setAnimationName("anim1").build()
+        gltfModelEntityTester.addAnimation(animation)
         val gltfAnimation = gltfModelEntity.animations[0]
 
         var state: GltfAnimation.AnimationState? = null
