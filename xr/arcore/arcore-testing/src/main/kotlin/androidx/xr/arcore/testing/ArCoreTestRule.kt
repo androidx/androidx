@@ -46,6 +46,7 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
     private val _planes: MutableList<TestPlane> = mutableListOf()
     private val _objects: MutableList<TestAugmentedObject> = mutableListOf()
     private val _images: MutableList<TestAugmentedImage> = mutableListOf()
+    private val _qrCodes: MutableList<TestQrCode> = mutableListOf()
     private val _faceMeshes: MutableList<TestFace> = mutableListOf()
 
     internal lateinit var runtime: FakePerceptionRuntime
@@ -87,6 +88,14 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
      */
     public val augmentedImages: List<TestAugmentedImage>
         get() = _images.toList()
+
+    /**
+     * A list of all [TestQrCode] objects in the environment. Tracking must be configured via
+     * [androidx.xr.runtime.Session.configure] in order for an added object to be ingested by the
+     * runtime.
+     */
+    public val qrCodes: List<TestQrCode>
+        get() = _qrCodes.toList()
 
     /**
      * A list of all [TestFace] objects in the environment, excluding the user's. Tracking must be
@@ -237,6 +246,9 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
                 }
                 is TestAugmentedImage -> {
                     _images.add(it)
+                }
+                is TestQrCode -> {
+                    _qrCodes.add(it)
                 }
             }
             pendingTrackables.add(it)

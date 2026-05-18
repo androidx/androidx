@@ -32,6 +32,7 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
+import androidx.xr.runtime.QrCodeTrackingMode
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -51,8 +52,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 // TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.arcore.openxr.test"
-// supports a
-// lower SDK version.
+// supports a lower SDK version.
 @SdkSuppress(minSdkVersion = 29)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -86,8 +86,7 @@ class OpenXrPerceptionManagerTest {
         underTest.update(XR_TIME)
 
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         val pose = Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f))
         val anchor = underTest.createAnchor(pose)
 
@@ -122,14 +121,12 @@ class OpenXrPerceptionManagerTest {
     @Test
     fun updatePlanes_addsIdentityPlane() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
-        // and a
-        // fake perception library can be used mock trackables.
+        // and a fake perception library can be used mock trackables.
         underTest.updatePlanes(XR_TIME)
 
         assertThat(underTest.trackables).hasSize(1)
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat((underTest.trackables.first() as OpenXrPlane).centerPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 0f), Quaternion(0f, 0f, 0f, 1.0f)))
     }
@@ -137,8 +134,7 @@ class OpenXrPerceptionManagerTest {
     @Test
     fun updatePlanes_planeTrackingDisabled_doesNotAddPlane() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
-        // and
-        // a fake perception library can be used mock trackables.
+        // and a fake perception library can be used mock trackables.
         openXrRuntime.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
 
         underTest.updatePlanes(XR_TIME)
@@ -150,14 +146,12 @@ class OpenXrPerceptionManagerTest {
     @Ignore("This test requires internal clock to be mocked")
     fun updateAugmentedImages_addsIdentityAugmentedImage() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
-        // and a
-        // fake perception library can be used mock trackables.
+        // and a fake perception library can be used mock trackables.
         underTest.updateAugmentedImages(XR_TIME)
 
         assertThat(underTest.trackables).hasSize(1)
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat((underTest.trackables.first() as OpenXrAugmentedImage).centerPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 0f), Quaternion(0f, 0f, 0f, 1.0f)))
     }
@@ -166,9 +160,7 @@ class OpenXrPerceptionManagerTest {
     fun updateAugmentedImages_imageTrackingDisabled_doesNotAddAugmentedImage() =
         initOpenXrRuntimeAndRunTest {
             // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented
-            // properly
-            // and
-            // a fake perception library can be used mock trackables.
+            // properly and a fake perception library can be used mock trackables.
             openXrRuntime.configure(Config(augmentedImageDatabase = null))
 
             underTest.updateAugmentedImages(XR_TIME)
@@ -177,17 +169,39 @@ class OpenXrPerceptionManagerTest {
         }
 
     @Test
+    fun updateQrCodes_addsIdentityQrCode() = initOpenXrRuntimeAndRunTest {
+        // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
+        // and a fake perception library can be used mock trackables.
+        underTest.updateQrCode(XR_TIME)
+
+        assertThat(underTest.trackables).hasSize(1)
+        // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        assertThat((underTest.trackables.first() as OpenXrQrCode).centerPose)
+            .isEqualTo(Pose(Vector3(0f, 0f, 0f), Quaternion(0f, 0f, 0f, 1.0f)))
+    }
+
+    @Test
+    fun updateQrCodes_qrCodeTrackingDisabled_doesNotAddQrCode() = initOpenXrRuntimeAndRunTest {
+        // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
+        // and a fake perception library can be used mock trackables.
+        openXrRuntime.configure(Config(qrCodeTracking = QrCodeTrackingMode.DISABLED))
+
+        underTest.updateQrCode(XR_TIME)
+
+        assertThat(underTest.trackables).hasSize(0)
+    }
+
+    @Test
     fun update_updatesTrackables() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
-        // and a
-        // fake perception library can be used mock trackables.
+        // and a fake perception library can be used mock trackables.
         underTest.updatePlanes(XR_TIME)
         underTest.update(XR_TIME)
 
         assertThat(underTest.trackables).hasSize(1)
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat((underTest.trackables.first() as OpenXrPlane).centerPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
     }
@@ -196,16 +210,28 @@ class OpenXrPerceptionManagerTest {
     @Ignore("This test requires internal clock to be mocked")
     fun update_updatesAugmentedImagesTrackables() = initOpenXrRuntimeAndRunTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
-        // and a
-        // fake perception library can be used mock trackables.
+        // and a fake perception library can be used mock trackables.
         underTest.updateAugmentedImages(XR_TIME)
         underTest.update(XR_TIME)
 
         assertThat(underTest.trackables).hasSize(1)
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat((underTest.trackables.first() as OpenXrAugmentedImage).centerPose)
+            .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
+    }
+
+    @Test
+    fun update_updatesQrCodeTrackables() = initOpenXrRuntimeAndRunTest {
+        // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
+        // and a fake perception library can be used mock trackables.
+        underTest.updateQrCode(XR_TIME)
+        underTest.update(XR_TIME)
+
+        assertThat(underTest.trackables).hasSize(1)
+        // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        assertThat((underTest.trackables.first() as OpenXrQrCode).centerPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
     }
 
@@ -221,8 +247,7 @@ class OpenXrPerceptionManagerTest {
         underTest.update(XR_TIME)
 
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         val leftHandJoints = underTest.leftHand.handJoints
         assertThat(underTest.leftHand.trackingState).isEqualTo(TrackingState.TRACKING)
         assertThat(leftHandJoints).hasSize(HandJointType.values().size)
@@ -398,14 +423,12 @@ class OpenXrPerceptionManagerTest {
         val trackable = underTest.trackables.first() as OpenXrPlane
 
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
-        // and a
-        // fake perception library can be used to mock trackables.
+        // and a fake perception library can be used to mock trackables.
         val hitResults = underTest.hitTest(Ray(Vector3(4f, 3f, 2f), Vector3(2f, 1f, 0f)))
 
         assertThat(hitResults).hasSize(1)
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat(hitResults.first().hitPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
         assertThat(hitResults.first().trackable).isEqualTo(trackable)
@@ -426,8 +449,7 @@ class OpenXrPerceptionManagerTest {
     @Test
     fun getPersistedAnchorUuids_returnsStubUuid() = initOpenXrRuntimeAndRunTest {
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kUuid` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kUuid` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat(underTest.getPersistedAnchorUuids())
             .containsExactly(UUID.fromString("01020304-0506-0708-090a-0b0c0d0e0f10"))
     }
@@ -445,8 +467,7 @@ class OpenXrPerceptionManagerTest {
 
         assertThat(anchor.uuid).isEqualTo(uuid)
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
-        // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // they come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat(anchor.pose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
     }
@@ -473,6 +494,7 @@ class OpenXrPerceptionManagerTest {
     fun clear_clearXrResources() = initOpenXrRuntimeAndRunTest {
         underTest.updatePlanes(XR_TIME)
         underTest.updateAugmentedImages(XR_TIME)
+        underTest.updateQrCode(XR_TIME)
         underTest.update(XR_TIME)
         underTest.createAnchor(Pose())
         check(underTest.trackables.isNotEmpty())
@@ -505,6 +527,7 @@ class OpenXrPerceptionManagerTest {
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                     //                    handTracking = Config.HandTrackingMode.BOTH,
                     augmentedImageDatabase = augmentedImageDatabase,
+                    qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
                 )
             )
 

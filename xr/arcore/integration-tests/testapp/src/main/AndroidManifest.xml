@@ -70,6 +70,11 @@
         android:label="Hello AR Augmented Image"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
     <activity
+        android:name=".helloar.HelloArQrCodeActivity"
+        android:exported="true"
+        android:label="Hello AR Qr Code"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
         android:name=".persistentanchors.PersistentAnchorsActivity"
         android:exported="true"
         android:label="Persistent Anchors"

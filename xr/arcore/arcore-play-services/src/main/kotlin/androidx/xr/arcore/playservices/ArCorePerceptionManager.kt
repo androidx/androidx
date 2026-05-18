@@ -189,6 +189,10 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         get() =
             throw NotImplementedError("Physical size estimation check is not supported by ARCore.")
 
+    override val isQrCodeSizeEstimationSupported: Boolean
+        get() =
+            throw NotImplementedError("Qr code size estimation check is not supported by ARCore.")
+
     override val trackables: Collection<Trackable> = xrResources.trackables.values
 
     override val leftEye: Eye? = null

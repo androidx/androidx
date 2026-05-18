@@ -636,6 +636,30 @@ package androidx.xr.arcore {
     property public androidx.xr.arcore.PlaneType VERTICAL;
   }
 
+  public final class QrCode implements androidx.xr.arcore.Trackable<androidx.xr.arcore.QrCode.State> {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.QrCode.State> getState();
+    method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.QrCode>> subscribe(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.QrCode.State> state;
+    field public static final androidx.xr.arcore.QrCode.Companion Companion;
+  }
+
+  public static final class QrCode.Companion {
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.QrCode>> subscribe(androidx.xr.runtime.Session session);
+  }
+
+  public static final class QrCode.State implements androidx.xr.arcore.Trackable.State {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public String getData();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.QrCode getOwner();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.TrackingState getTrackingState();
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public String data;
+    property public androidx.xr.runtime.math.FloatSize2d extents;
+    property public androidx.xr.arcore.QrCode owner;
+    property public androidx.xr.arcore.TrackingState trackingState;
+  }
+
   public final class RenderViewpoint {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.RenderViewpoint.State> getState();
     method public static androidx.xr.arcore.RenderViewpoint left(androidx.xr.runtime.Session session);

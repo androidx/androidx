@@ -20,5 +20,6 @@
     <string name="geospatial">Geospatial test case</string>
     <string name="capabilities">Capabilities test case</string>
     <string name="augmented_image_tracking">Augmented Image Tracking test case</string>
+    <string name="qr_code_tracking">Qr Code Tracking test case</string>
     <string name="native_data">Native Data test case</string>
 </resources>

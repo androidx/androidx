@@ -71,6 +71,11 @@ class ArCoreTestRuleTest {
     }
 
     @Test
+    fun init_qrCodes_isEmpty() {
+        assertThat(underTest.qrCodes.isEmpty())
+    }
+
+    @Test
     fun persistAnchorPose_addsToMapWithUUID() {
         val pose = Pose()
 

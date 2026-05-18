@@ -105,6 +105,9 @@ public interface PerceptionManager {
     /** Returns if the device support physical size estimation. Used for image tracking. */
     public val isPhysicalSizeEstimationSupported: Boolean
 
+    /** Returns if the device supports QR code size estimation. Used for QR code tracking. */
+    public val isQrCodeSizeEstimationSupported: Boolean
+
     public val trackables: Collection<Trackable>
     public val leftEye: Eye?
     public val rightEye: Eye?

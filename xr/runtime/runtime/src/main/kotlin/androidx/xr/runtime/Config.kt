@@ -40,6 +40,13 @@ import androidx.annotation.RestrictTo
  *   environment. See [androidx.xr.runtime.AugmentedObjectCategory].
  * @property augmentedImageDatabase The current active [AugmentedImageDatabase]. If not empty, the
  *   image tracking feature will be enabled.
+ * @property qrCodeTracking Feature that allows tracking of and provides information about QR codes.
+ *   See [QrCodeTrackingMode].
+ * @property qrCodeSizeMeters The physical size in meters of the QR code. If zero, the physical size
+ *   will be estimated if the device supports it. If physical size estimation is not supported,
+ *   configuring the [Session] adding an entry with qrCodeSizeMeters being 0f or lower will throw an
+ *   [IllegalStateException]. It requires [qrCodeTracking] to be different from
+ *   [QrCodeTrackingMode.DISABLED].
  */
 public class Config
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -56,6 +63,8 @@ constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val cameraFacingDirection: CameraFacingDirection = CameraFacingDirection.WORLD,
     public val augmentedImageDatabase: AugmentedImageDatabase? = null,
+    public val qrCodeTracking: QrCodeTrackingMode = QrCodeTrackingMode.DISABLED,
+    public val qrCodeSizeMeters: Float = 0f,
 ) {
 
     @OptIn(PreviewSpatialApi::class)
@@ -86,6 +95,13 @@ constructor(
      * @param augmentedImageDatabase Feature that allows tracking of recognizable images in the
      *   environment. See [AugmentedImageDatabase].
      * @param eyeTracking Feature that allows tracking of user eye movements. See [EyeTrackingMode].
+     * @param qrCodeTracking Feature that allows tracking of recognizable qr codes in the
+     *   environment. See [QrCodeTrackingMode].
+     * @param qrCodeSizeMeters The physical size in meters of the qr code. If zero, the physical
+     *   size will be estimated if the device supports it. If physical size estimation is not
+     *   supported, configuring the [Session] adding an entry with qrCodeSizeMeters being 0f or
+     *   lower will throw an [IllegalStateException]. It requires [qrCodeTracking] to be different
+     *   from [QrCodeTrackingMode.DISABLED].
      */
     @JvmOverloads
     public constructor(
@@ -99,6 +115,8 @@ constructor(
         augmentedObjectCategories: Set<AugmentedObjectCategory> = setOf(),
         augmentedImageDatabase: AugmentedImageDatabase? = null,
         eyeTracking: EyeTrackingMode = EyeTrackingMode.DISABLED,
+        qrCodeTracking: QrCodeTrackingMode = QrCodeTrackingMode.DISABLED,
+        qrCodeSizeMeters: Float = 0f,
     ) : this(
         planeTracking,
         handTracking,
@@ -111,6 +129,8 @@ constructor(
         eyeTracking,
         CameraFacingDirection.WORLD,
         augmentedImageDatabase,
+        qrCodeTracking,
+        qrCodeSizeMeters,
     )
 
     /**
@@ -138,6 +158,8 @@ constructor(
         eyeTracking = config.eyeTracking,
         cameraFacingDirection = config.cameraFacingDirection,
         augmentedImageDatabase = config.augmentedImageDatabase,
+        qrCodeTracking = config.qrCodeTracking,
+        qrCodeSizeMeters = config.qrCodeSizeMeters,
     ) {
         this._sceneSignalTypes = sceneSignalTypes
     }
@@ -158,6 +180,8 @@ constructor(
         if (eyeTracking != other.eyeTracking) return false
         if (cameraFacingDirection != other.cameraFacingDirection) return false
         if (augmentedImageDatabase != other.augmentedImageDatabase) return false
+        if (qrCodeTracking != other.qrCodeTracking) return false
+        if (qrCodeSizeMeters != other.qrCodeSizeMeters) return false
         if (_sceneSignalTypes != other.getSceneSignalTypes()) return false
 
         return true
@@ -176,6 +200,8 @@ constructor(
         result = 31 * result + eyeTracking.hashCode()
         result = 31 * result + cameraFacingDirection.hashCode()
         result = 31 * result + augmentedImageDatabase.hashCode()
+        result = 31 * result + qrCodeTracking.hashCode()
+        result = 31 * result + qrCodeSizeMeters.hashCode()
         result = 31 * result + _sceneSignalTypes.hashCode()
         return result
     }
@@ -196,6 +222,8 @@ constructor(
         geospatial: GeospatialMode = this.geospatial,
         augmentedObjectCategories: Set<AugmentedObjectCategory> = this.augmentedObjectCategories,
         augmentedImageDatabase: AugmentedImageDatabase? = this.augmentedImageDatabase,
+        qrCodeTracking: QrCodeTrackingMode = this.qrCodeTracking,
+        qrCodeSizeMeters: Float = this.qrCodeSizeMeters,
     ): Config {
         val newConfig =
             Config(
@@ -210,6 +238,8 @@ constructor(
                 eyeTracking = this.eyeTracking,
                 cameraFacingDirection = this.cameraFacingDirection,
                 augmentedImageDatabase = augmentedImageDatabase,
+                qrCodeTracking = qrCodeTracking,
+                qrCodeSizeMeters = qrCodeSizeMeters,
             )
         newConfig._sceneSignalTypes = this._sceneSignalTypes
         return newConfig
@@ -230,6 +260,8 @@ constructor(
         eyeTracking: EyeTrackingMode = this.eyeTracking,
         cameraFacingDirection: CameraFacingDirection = this.cameraFacingDirection,
         augmentedImageDatabase: AugmentedImageDatabase? = this.augmentedImageDatabase,
+        qrCodeTracking: QrCodeTrackingMode = this.qrCodeTracking,
+        qrCodeSizeMeters: Float = this.qrCodeSizeMeters,
     ): Config {
         val newConfig =
             Config(
@@ -244,6 +276,8 @@ constructor(
                 eyeTracking = eyeTracking,
                 cameraFacingDirection = cameraFacingDirection,
                 augmentedImageDatabase = augmentedImageDatabase,
+                qrCodeTracking = qrCodeTracking,
+                qrCodeSizeMeters = qrCodeSizeMeters,
             )
         newConfig._sceneSignalTypes = this._sceneSignalTypes
         return newConfig

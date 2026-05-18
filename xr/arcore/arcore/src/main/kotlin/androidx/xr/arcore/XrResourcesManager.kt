@@ -27,6 +27,7 @@ import androidx.xr.arcore.runtime.Geospatial as RuntimeGeospatial
 import androidx.xr.arcore.runtime.Hand as RuntimeHand
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.runtime.Plane as RuntimePlane
+import androidx.xr.arcore.runtime.QrCode as RuntimeQrCode
 import androidx.xr.arcore.runtime.RenderViewpoint as RuntimeRenderViewpoint
 import androidx.xr.arcore.runtime.Trackable as RuntimeTrackable
 import java.util.Queue
@@ -202,6 +203,7 @@ internal class XrResourcesManager {
                 is RuntimePlane -> Plane(runtimeTrackable, this)
                 is RuntimeObject -> AugmentedObject(runtimeTrackable, this)
                 is RuntimeImage -> AugmentedImage(runtimeTrackable)
+                is RuntimeQrCode -> QrCode(runtimeTrackable)
                 is RuntimeFace -> Face(runtimeTrackable, this)
                 is RuntimeEye -> Eye(runtimeTrackable)
                 is RuntimeHand -> Hand(runtimeTrackable)
