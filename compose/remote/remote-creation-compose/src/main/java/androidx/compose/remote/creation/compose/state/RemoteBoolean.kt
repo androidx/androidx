@@ -22,7 +22,6 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.RemoteBoolean.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -338,7 +337,6 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
      */
     public infix fun xor(b: RemoteBoolean): RemoteBoolean = RemoteBoolean(intValue xor b.intValue)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
          * Creates a [RemoteBoolean] from a literal constant.
