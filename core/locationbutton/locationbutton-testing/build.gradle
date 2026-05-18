@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2026 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -23,29 +23,22 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.8.1")
-    implementation("androidx.appcompat:appcompat:1.7.1")
-
-    androidTestImplementation(project(":core:core-locationbutton-testing"))
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.junit)
+    // Pin to latest stable release of annotation.
+    implementation("androidx.annotation:annotation:1.9.1")
+    implementation(libs.testCore)
 }
 
 android {
-    namespace = "androidx.core.locationbutton"
+    namespace = "androidx.core.locationbutton.testing"
     compileSdk { version = release(37) }
     defaultConfig {
         minSdk { version = release(24) }
     }
-
 }
 
 androidx {
-    name = "core:core-locationbutton"
+    name = "locationbutton-testing"
     type = SoftwareType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CORE_LOCATIONBUTTON
     inceptionYear = "2026"
-    description = "LocationButton view library"
+    description = "Testing utilities for androidx.core.locationbutton.*"
 }
