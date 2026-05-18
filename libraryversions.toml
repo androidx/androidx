@@ -224,8 +224,9 @@ COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.COM
 CONCURRENT = { group = "androidx.concurrent", atomicGroupVersion = "versions.FUTURES" }
 CONSTRAINTLAYOUT = { group = "androidx.constraintlayout" }
 COORDINATORLAYOUT = { group = "androidx.coordinatorlayout", atomicGroupVersion = "versions.COORDINATORLAYOUT" }
-CORE = { group = "androidx.core", overrideInclude = [ ":core:core-viewtree", ":core:core-locationbutton-testing" ] }
+CORE = { group = "androidx.core", overrideInclude = [ ":core:core-viewtree" ] }
 CORE_HAPTICS = { group = "androidx.core.haptics", atomicGroupVersion = "versions.CORE_HAPTICS" }
+CORE_LOCATIONBUTTON = { group = "androidx.core.locationbutton", atomicGroupVersion = "versions.CORE_LOCATIONBUTTON" }
 CORE_UWB = { group = "androidx.core.uwb", atomicGroupVersion = "versions.CORE_UWB" }
 CREDENTIALS = { group = "androidx.credentials", atomicGroupVersion = "versions.CREDENTIALS" }
 CREDENTIALS_PROVIDEREVENTS = { group = "androidx.credentials.providerevents", atomicGroupVersion = "versions.CREDENTIALS_PROVIDEREVENTS" }
