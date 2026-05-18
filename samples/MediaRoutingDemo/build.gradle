@@ -27,9 +27,9 @@ dependencies {
 android {
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
     compileSdk {

@@ -29,10 +29,9 @@ android {
     defaultConfig.minSdk { version = release(29) }
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(getDefaultProguardFile('proguard-android-optimize.txt'),
-                    "proguard-benchmark.pro")
+            optimization {
+                enable = true
+            }
         }
     }
 }
