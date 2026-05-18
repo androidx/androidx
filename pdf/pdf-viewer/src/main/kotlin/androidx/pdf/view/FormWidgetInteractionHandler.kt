@@ -22,6 +22,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.pdf.PdfPoint
 import androidx.pdf.R
+import androidx.pdf.autofill.FormWidgetInteractionListener
+import androidx.pdf.autofill.getVirtualFormWidgetId
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -41,9 +43,12 @@ internal class FormWidgetInteractionHandler(
     private val placeTextInputInLayout: (FormFillingEditText?) -> Unit,
 ) {
     private val formFillingTextInputFactory = FormFillingTextInputFactory(context)
+    private var currentFormFillingEditText: FormFillingEditText? = null
 
     internal val formWidgetUpdates: SharedFlow<FormEditInfo>
         get() = _formWidgetUpdates
+
+    internal var interactionListener: FormWidgetInteractionListener? = null
 
     private val _formWidgetUpdates = MutableSharedFlow<FormEditInfo>()
 
@@ -100,6 +105,14 @@ internal class FormWidgetInteractionHandler(
     ) {
         val formFillingEditText = configureEditText(pageNum, formWidgetInfo, startingText)
         placeTextInputInLayout.invoke(formFillingEditText)
+        currentFormFillingEditText = formFillingEditText
+
+        postToTextWidget {
+            interactionListener?.onWidgetInteractionStarted(
+                getVirtualFormWidgetId(pageNum, formWidgetInfo.widgetIndex),
+                formWidgetInfo,
+            )
+        }
     }
 
     private fun configureEditText(
@@ -131,13 +144,38 @@ internal class FormWidgetInteractionHandler(
     }
 
     fun finishTextEditing(formFillingEditText: FormFillingEditText) {
+        interactionListener?.onWidgetInteractionFinished(
+            getVirtualFormWidgetId(
+                formFillingEditText.pageNum,
+                formFillingEditText.formWidget.widgetIndex,
+            )
+        )
+
         formFillingEditText.editText.clearFocus()
         hideKeyboard(formFillingEditText.editText)
         placeTextInputInLayout(null)
+        currentFormFillingEditText = null
     }
 
     fun createAndRelayEditTextInfo(pageNum: Int, widgetIndex: Int, text: String) {
-        FormEditInfo.createSetText(pageNum, widgetIndex, text).also { relayFormEditInfo(it) }
+        val formEditInfo = FormEditInfo.createSetText(pageNum, widgetIndex, text)
+        relayFormEditInfo(formEditInfo)
+
+        postToTextWidget {
+            interactionListener?.onWidgetValueChanged(
+                getVirtualFormWidgetId(pageNum, widgetIndex),
+                formEditInfo,
+            )
+        }
+    }
+
+    /**
+     * Posts [block] to the [EditText] message queue to ensure it executes after the view is
+     * attached and laid out. This is required for services like autofill to correctly manage focus
+     * and display suggestions over the widget.
+     */
+    private fun postToTextWidget(block: () -> Unit) {
+        currentFormFillingEditText?.editText?.post(block)
     }
 
     private fun handleInteractionWithComboBox(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
