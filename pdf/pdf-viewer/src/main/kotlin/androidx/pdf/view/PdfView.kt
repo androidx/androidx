@@ -41,7 +41,9 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewStructure
 import android.view.accessibility.AccessibilityManager
+import android.view.autofill.AutofillValue
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
@@ -62,10 +64,13 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.R
+import androidx.pdf.autofill.PdfAutofillHandler
+import androidx.pdf.autofill.getVirtualFormWidgetId
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.event.PdfTrackingEvent
 import androidx.pdf.event.RequestFailureEvent
 import androidx.pdf.exceptions.RequestFailedException
+import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.formfilling.FormFillingEditTextState
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
@@ -690,6 +695,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private var errorStateCollector: Job? = null
     private var formEditInfoCollector: Job? = null
     private var selectionMenuJob: Job? = null
+    private var hintTextCollector: Job? = null
 
     private var deferredScrollTarget: DeferredScrollTarget? = null
     private val onScrollDeferred: (DeferredScrollTarget) -> Unit = { deferredScrollTarget = it }
@@ -715,6 +721,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private val isAtRightEdge: Boolean
         get() = scrollX == computeHorizontalScrollRange()
+
+    private var pdfAutofillHandler: PdfAutofillHandler? = null
+        get() {
+            if (!PdfFeatureFlags.isAutofillEnabled) return null
+            return field ?: PdfAutofillHandler(this, ::pdfToViewPoint).also { field = it }
+        }
 
     /** Used to track is the first page is rendered. */
     private var isFirstPageRendered: Boolean = false
@@ -1509,6 +1521,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         mainDispatcher = HandlerCompat.createAsync(handler.looper).asCoroutineDispatcher()
 
         accessibilityManager.addAccessibilityStateChangeListener(accessibilityStateChangeHandler)
+        formWidgetInteractionHandler?.interactionListener = pdfAutofillHandler?.interactionListener
         // PageManager is being reset on onDetachToWindow we should make sure we set it back.
         maybeUpdatePageVisibility()
     }
@@ -1531,6 +1544,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         pdfDocument?.removeOnPdfContentInvalidatedListener(onPdfContentInvalidatedListener)
         accessibilityManager.removeAccessibilityStateChangeListener(accessibilityStateChangeHandler)
+        pdfAutofillHandler = null
+        formWidgetInteractionHandler?.interactionListener = null
         removeCallbacks(showSelectionActionModeRunnable)
     }
 
@@ -1600,6 +1615,25 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         val cappedX = x.coerceIn(0..computeHorizontalScrollRange())
         val cappedY = y.coerceIn(minVerticalScrollPosition..computeVerticalScrollRange())
         super.scrollTo(cappedX, cappedY)
+    }
+
+    override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
+        super.onProvideAutofillVirtualStructure(structure, flags)
+
+        if (structure != null && isFormFillingEnabled) {
+            val state = pageLayoutManager?.pdfFormFillingState ?: return
+            pdfAutofillHandler?.onProvideVirtualStructure(structure, state, visiblePages)
+        }
+    }
+
+    override fun autofill(values: SparseArray<AutofillValue>) {
+        if (isFormFillingEnabled) {
+            pdfAutofillHandler?.applyAutofillValues(
+                values,
+                formFillingEditText,
+                formWidgetInteractionHandler,
+            )
+        }
     }
 
     /**
@@ -1805,6 +1839,35 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     }
                 }
         }
+        if (PdfFeatureFlags.isAutofillEnabled) {
+            formWidgetMetadataLoader?.let { loader ->
+                val hintTextToJoin = hintTextCollector?.apply { cancel() }
+                hintTextCollector =
+                    mainScope.launch {
+                        hintTextToJoin?.join()
+                        // If a widget gains focus before its hint text is ready, re-trigger the
+                        // interaction event once available to ensure the virtual view hierarchy
+                        // is updated with correct metadata.
+                        loader.hintTextReadyFlow.collect { (pageNum, widgetIndex) ->
+                            val currentEdit = formFillingEditText
+                            if (
+                                currentEdit != null &&
+                                    currentEdit.pageNum == pageNum &&
+                                    currentEdit.formWidget.widgetIndex == widgetIndex
+                            ) {
+                                val virtualId =
+                                    getVirtualFormWidgetId(
+                                        pageNum,
+                                        currentEdit.formWidget.widgetIndex,
+                                    )
+                                formWidgetInteractionHandler
+                                    ?.interactionListener
+                                    ?.onWidgetInteractionStarted(virtualId, currentEdit.formWidget)
+                            }
+                        }
+                    }
+            }
+        }
         selectionStateManager?.let { manager ->
             val selectionToJoin = selectionStateCollector?.apply { cancel() }
             selectionStateCollector =
@@ -1860,6 +1923,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         selectionStateCollector?.cancel()
         formEditInfoCollector?.cancel()
         errorStateCollector?.cancel()
+        hintTextCollector?.cancel()
     }
 
     private fun onSelectionUiSignal(signal: SelectionUiSignal) {
@@ -1979,6 +2043,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             FormWidgetInteractionHandler(context, backgroundScope) { formFillingEditText ->
                 this.formFillingEditText = formFillingEditText
             }
+        formWidgetInteractionHandler?.interactionListener = pdfAutofillHandler?.interactionListener
 
         val mainExecutor = ContextCompat.getMainExecutor(context)
         localPdfDocument.addOnPdfContentInvalidatedListener(

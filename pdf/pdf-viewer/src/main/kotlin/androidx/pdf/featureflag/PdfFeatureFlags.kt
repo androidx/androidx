@@ -39,4 +39,7 @@ public object PdfFeatureFlags {
     public var isThumbnailPreviewEnabled: Boolean = false
 
     public var isFormFillingEnabled: Boolean = false
+
+    // Toggles autofill functionality for PDF forms.
+    public var isAutofillEnabled: Boolean = false
 }
