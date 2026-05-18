@@ -550,6 +550,9 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi @androidx.compose.foundation.layout.LayoutScopeMarker public interface GridConfigurationScope extends androidx.compose.ui.unit.Density {
+    method public void area(Object areaId, int row, int column, optional int rowSpan, optional int columnSpan);
+    method public default void area(Object areaId, kotlin.ranges.IntRange rows, kotlin.ranges.IntRange columns);
+    method @BytecodeOnly public static void area$default(androidx.compose.foundation.layout.GridConfigurationScope!, Object!, int, int, int, int, int, Object!);
     method @KotlinOnly public void column(androidx.compose.foundation.layout.Fr weight);
     method @KotlinOnly public void column(androidx.compose.foundation.layout.GridTrackSize size);
     method @KotlinOnly public void column(androidx.compose.ui.unit.Dp size);
@@ -617,8 +620,10 @@ package androidx.compose.foundation.layout {
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface GridScope {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, optional @IntRange(from=-1000L, to=androidx.compose.foundation.layout.GridScope.MaxGridIndex.toLong()) int row, optional @IntRange(from=-1000L, to=androidx.compose.foundation.layout.GridScope.MaxGridIndex.toLong()) int column, optional @IntRange(from=1L) int rowSpan, optional @IntRange(from=1L) int columnSpan, optional androidx.compose.ui.Alignment alignment);
+    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, Object areaId, optional androidx.compose.ui.Alignment alignment);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, kotlin.ranges.IntRange rows, kotlin.ranges.IntRange columns, optional androidx.compose.ui.Alignment alignment);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! gridItem$default(androidx.compose.foundation.layout.GridScope!, androidx.compose.ui.Modifier!, int, int, int, int, androidx.compose.ui.Alignment!, int, Object!);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! gridItem$default(androidx.compose.foundation.layout.GridScope!, androidx.compose.ui.Modifier!, Object!, androidx.compose.ui.Alignment!, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! gridItem$default(androidx.compose.foundation.layout.GridScope!, androidx.compose.ui.Modifier!, kotlin.ranges.IntRange!, kotlin.ranges.IntRange!, androidx.compose.ui.Alignment!, int, Object!);
     field public static final androidx.compose.foundation.layout.GridScope.Companion Companion;
     field @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi public static final int GridIndexUnspecified = 0; // 0x0
@@ -634,6 +639,7 @@ package androidx.compose.foundation.layout {
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi @kotlin.PublishedApi internal final class GridScopeInstance implements androidx.compose.foundation.layout.GridScope {
     method public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, optional int row, optional int column, optional int rowSpan, optional int columnSpan, optional androidx.compose.ui.Alignment alignment);
+    method public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, Object areaId, optional androidx.compose.ui.Alignment alignment);
     method public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, kotlin.ranges.IntRange rows, kotlin.ranges.IntRange columns, optional androidx.compose.ui.Alignment alignment);
   }
 
