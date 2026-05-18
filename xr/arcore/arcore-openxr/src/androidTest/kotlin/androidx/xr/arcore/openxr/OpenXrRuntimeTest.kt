@@ -33,6 +33,7 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
+import androidx.xr.runtime.QrCodeTrackingMode
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import com.google.common.truth.Truth
 import kotlin.test.assertFailsWith
@@ -354,6 +355,34 @@ class OpenXrRuntimeTest {
             check(underTest.config.augmentedImageDatabase != null)
             check(underTest.config.augmentedImageDatabase?.entries?.isNotEmpty() == true)
 
+            underTest.update()
+
+            Truth.assertThat(underTest.perceptionManager.trackables).isNotEmpty()
+        }
+    }
+
+    @Test
+    fun update_qrCodeDisabled_doesNotUpdateTrackables() = initOpenXrRuntimeAndRunTest {
+        runTest {
+            underTest.initialize()
+            underTest.resume()
+            check(underTest.perceptionManager.trackables.isEmpty())
+            underTest.configure(Config(qrCodeTracking = QrCodeTrackingMode.DISABLED))
+
+            underTest.update()
+
+            Truth.assertThat(underTest.perceptionManager.trackables).isEmpty()
+        }
+    }
+
+    @Test
+    fun update_qrCodeTracking_addsQrCodeToUpdatables() = initOpenXrRuntimeAndRunTest {
+        runTest {
+            underTest.initialize()
+            underTest.resume()
+            check(underTest.perceptionManager.xrResources.updatables.isEmpty())
+
+            underTest.configure(Config(qrCodeTracking = QrCodeTrackingMode.DYNAMIC))
             underTest.update()
 
             Truth.assertThat(underTest.perceptionManager.trackables).isNotEmpty()

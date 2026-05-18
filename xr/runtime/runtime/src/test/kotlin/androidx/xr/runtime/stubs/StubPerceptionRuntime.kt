@@ -60,6 +60,9 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
     @get:JvmName("shouldSupportImageTracking")
     internal var shouldSupportImageTracking: Boolean = true
 
+    @get:JvmName("shouldSupportQrCodeTracking")
+    internal var shouldSupportQrCodeTracking: Boolean = true
+
     override fun initialize() {
         check(state == State.NOT_INITIALIZED)
         if (!hasCreatePermission) throw SecurityException()
@@ -80,6 +83,7 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
             AnchorPersistenceMode.LOCAL,
             // Needs to contain at least one AugmentedObjectCategory to enable
             augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
+            qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
         )
         private set
 
@@ -102,6 +106,10 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
             !shouldSupportImageTracking &&
                 config.augmentedImageDatabase?.entries?.isNotEmpty() == true
         ) {
+            throw UnsupportedOperationException()
+        }
+
+        if (!shouldSupportQrCodeTracking && config.qrCodeTracking != QrCodeTrackingMode.DISABLED) {
             throw UnsupportedOperationException()
         }
 

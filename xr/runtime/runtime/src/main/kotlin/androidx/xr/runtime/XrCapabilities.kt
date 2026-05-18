@@ -421,6 +421,39 @@ public class CameraFacingDirection private constructor(public val mode: Int) {
     }
 }
 
+/** Feature that allows tracking of and provides information about QR codes. */
+public class QrCodeTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /** QR codes will not be tracked. */
+        @JvmField public val DISABLED: QrCodeTrackingMode = QrCodeTrackingMode(0)
+
+        /**
+         * Used for tracking moving QR codes. It has the highest accuracy, the lowest latency and
+         * the highest power consumption.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+         */
+        @JvmField public val DYNAMIC: QrCodeTrackingMode = QrCodeTrackingMode(1)
+
+        /**
+         * Used for tracking QR codes that are known to be static or semi-static. It has less power
+         * consumption in comparison to dynamic mode. If a static QR code is moving, it will be
+         * updated with a much higher latency.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+         */
+        @JvmField public val STATIC: QrCodeTrackingMode = QrCodeTrackingMode(2)
+    }
+}
+
 /** A device capability that determines what type of rendering is capable on an [XrDevice]. */
 public class RenderingMode private constructor(private val value: Int) {
 

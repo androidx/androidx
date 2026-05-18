@@ -30,6 +30,7 @@ import androidx.xr.runtime.DisplayBlendMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
+import androidx.xr.runtime.QrCodeTrackingMode
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.sync.Semaphore
@@ -96,6 +97,10 @@ public data class FakePerceptionRuntime(
 
     public var augmentedImageDatabase: AugmentedImageDatabase = AugmentedImageDatabase()
 
+    /** If false, [configure] will throw an Exception if the config enables QrCodeTracking. */
+    @get:JvmName("shouldSupportQrCodeTracking")
+    public var shouldSupportQrCodeTracking: Boolean = true
+
     public override var config: Config =
         Config(
             PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
@@ -105,6 +110,7 @@ public data class FakePerceptionRuntime(
             AnchorPersistenceMode.LOCAL,
             augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
             augmentedImageDatabase = augmentedImageDatabase,
+            qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
         )
 
     override fun initialize() {
@@ -135,6 +141,10 @@ public data class FakePerceptionRuntime(
             !shouldSupportImageTracking &&
                 config.augmentedImageDatabase?.entries?.isNotEmpty() == true
         ) {
+            throw UnsupportedOperationException()
+        }
+
+        if (!shouldSupportQrCodeTracking && config.qrCodeTracking != QrCodeTrackingMode.DISABLED) {
             throw UnsupportedOperationException()
         }
 

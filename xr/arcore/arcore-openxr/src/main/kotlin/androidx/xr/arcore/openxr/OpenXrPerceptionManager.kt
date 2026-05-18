@@ -194,6 +194,9 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
     override val isPhysicalSizeEstimationSupported: Boolean
         get() = nativeIsPhysicalSizeEstimationSupported()
 
+    override val isQrCodeSizeEstimationSupported: Boolean
+        get() = nativeIsQrCodeSizeEstimationSupported()
+
     internal fun updateAugmentedObjects(xrTime: Long) {
         val objects = nativeGetAugmentedObjects(xrTime)
         // Add new objects to the list of trackables.
@@ -250,6 +253,26 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
         // Remove images that are no longer tracked.
         for ((key, value) in xrResources.trackablesMap.toMap()) {
             if (value is OpenXrAugmentedImage && !augmentedImages.contains(key)) {
+                xrResources.removeUpdatable(value as Updatable)
+                xrResources.removeTrackable(key)
+            }
+        }
+    }
+
+    internal fun updateQrCode(xrTime: Long) {
+        val qrCodes = nativeGetQrCodes()
+        // Add new QR codes to the list of trackables.
+        for (qrCode in qrCodes) {
+            if (xrResources.trackablesMap.containsKey(qrCode)) continue
+
+            val trackable = OpenXrQrCode(qrCode)
+            xrResources.addTrackable(qrCode, trackable)
+            xrResources.addUpdatable(trackable as Updatable)
+        }
+
+        // Remove QR codes that are no longer tracked.
+        for ((key, value) in xrResources.trackablesMap.toMap()) {
+            if (value is OpenXrQrCode && !qrCodes.contains(key)) {
                 xrResources.removeUpdatable(value as Updatable)
                 xrResources.removeTrackable(key)
             }
@@ -327,4 +350,8 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
     private external fun nativeGetImageDatabaseMaxLoadedImageCount(): Int
 
     private external fun nativeIsPhysicalSizeEstimationSupported(): Boolean
+
+    private external fun nativeGetQrCodes(): LongArray
+
+    private external fun nativeIsQrCodeSizeEstimationSupported(): Boolean
 }

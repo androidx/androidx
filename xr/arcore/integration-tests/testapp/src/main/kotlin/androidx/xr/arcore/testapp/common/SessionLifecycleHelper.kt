@@ -31,6 +31,7 @@ import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
+import androidx.xr.runtime.QrCodeTrackingMode
 import androidx.xr.runtime.RequiredCalibrationType
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionConfigureCalibrationRequired
@@ -122,6 +123,9 @@ class SessionLifecycleHelper(
             permissions.add(ACCESS_FINE_LOCATION)
         }
         if (config.augmentedImageDatabase?.entries?.isNotEmpty() == true) {
+            permissions.add(SCENE_UNDERSTANDING_COARSE)
+        }
+        if (config.qrCodeTracking != QrCodeTrackingMode.DISABLED) {
             permissions.add(SCENE_UNDERSTANDING_COARSE)
         }
         return permissions

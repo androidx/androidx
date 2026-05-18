@@ -258,6 +258,7 @@ class SessionTest {
                     deviceTracking = DeviceTrackingMode.SPATIAL,
                     depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW,
                     anchorPersistence = AnchorPersistenceMode.LOCAL,
+                    qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
                 )
         )
         val newConfig =
@@ -268,6 +269,7 @@ class SessionTest {
                 deviceTracking = DeviceTrackingMode.DISABLED,
                 depthEstimation = DepthEstimationMode.DISABLED,
                 anchorPersistence = AnchorPersistenceMode.DISABLED,
+                qrCodeTracking = QrCodeTrackingMode.DISABLED,
             )
 
         val result = underTest.configure(newConfig)
@@ -340,6 +342,22 @@ class SessionTest {
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
         stubRuntime.shouldSupportImageTracking = true
+    }
+
+    @Test
+    fun configure_unsupportedQrCodeMode_returnsConfigurationNotSupportedResult() {
+        activityController.create().start().resume()
+        underTest = createSession()
+        val stubRuntime = getStubRuntime()
+
+        val currentConfig = underTest.config
+        stubRuntime.shouldSupportQrCodeTracking = false
+
+        assertFailsWith<UnsupportedOperationException> {
+            underTest.configure(currentConfig.copy(qrCodeTracking = QrCodeTrackingMode.DYNAMIC))
+        }
+        assertThat(underTest.config).isEqualTo(currentConfig)
+        stubRuntime.shouldSupportQrCodeTracking = true
     }
 
     @Test

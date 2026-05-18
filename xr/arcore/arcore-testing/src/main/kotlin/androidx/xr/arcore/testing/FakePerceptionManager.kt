@@ -96,6 +96,7 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
     private val hitResults = mutableListOf<HitResult>()
     private val anchorUuids = mutableListOf<UUID>()
     public var isSizeEstimationSupported: Boolean = true
+    public var isQrSizeEstimationSupported: Boolean = true
     public var isTrackingAvailable: Boolean = true
 
     override fun createAnchor(pose: Pose): Anchor {
@@ -135,6 +136,8 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
     override val imageDatabaseMaxLoadedImageCount: Int = 5
 
     override val isPhysicalSizeEstimationSupported: Boolean = isSizeEstimationSupported
+
+    override val isQrCodeSizeEstimationSupported: Boolean = isQrSizeEstimationSupported
 
     /**
      * Adds a [HitResult] to the list that is returned when calling [hitTest] with any pose.

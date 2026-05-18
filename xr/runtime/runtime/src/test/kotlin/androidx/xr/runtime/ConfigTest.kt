@@ -109,6 +109,14 @@ class ConfigTest {
     }
 
     @Test
+    fun equals_differentQrCodeTracking_returnsFalse() {
+        val config1 = Config(qrCodeTracking = QrCodeTrackingMode.DISABLED)
+        val config2 = Config(qrCodeTracking = QrCodeTrackingMode.DYNAMIC)
+
+        assertThat(config1).isNotEqualTo(config2)
+    }
+
+    @Test
     fun hashCode_sameConfig_returnsSameHashCode() {
         val config1 =
             Config(
