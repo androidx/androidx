@@ -106,8 +106,7 @@ private constructor(
          * @param pose The initial pose of the entity relative to its parent. Defaults to
          *   `Pose.Identity`.
          * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is
-         *   [Scene]'s [ActivitySpace].
+         *   scene graph and will not be visible until a parent is set. The default value is `null`.
          * @return A new [MeshEntity].
          * @throws IllegalArgumentException if `boneCount` is not between 0 and 255, if the number
          *   of materials does not match the number of mesh subsets, or if any material in the list
@@ -123,7 +122,7 @@ private constructor(
             materials: List<Material>,
             @IntRange(from = 0, to = 255) boneCount: Int = 0,
             pose: Pose = Pose.Identity,
-            parent: Entity? = session.scene.activitySpace,
+            parent: Entity? = null,
         ): MeshEntity {
             require(boneCount in 0..255) { "boneCount must be between 0 and 255, inclusive." }
             require(materials.size == mesh.subsets.size) {
