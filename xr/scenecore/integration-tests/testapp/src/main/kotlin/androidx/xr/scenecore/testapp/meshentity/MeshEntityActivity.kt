@@ -444,8 +444,9 @@ class MeshEntityActivity : AppCompatActivity() {
         materials: List<Material>,
         pose: Pose,
         boneCount: Int = 0,
+        parent: androidx.xr.scenecore.Entity? = session.scene.activitySpace,
     ): MeshEntity {
-        val entity = MeshEntity.create(session, mesh, materials, boneCount, pose)
+        val entity = MeshEntity.create(session, mesh, materials, boneCount, pose, parent)
         initialPoses[entity] = pose
         return entity
     }
@@ -563,7 +564,11 @@ class MeshEntityActivity : AppCompatActivity() {
                 cubeMesh,
                 listOf(material!!),
                 Pose(Vector3(-2f, 0f, -1.5f)),
+                parent = null,
             )
+        cubeEntity?.parent = currentSession.scene.activitySpace
+        cubeEntity?.setEnabled(true)
+
         createPanel(
             currentSession,
             "A cube with six different colored faces.\nBox: " +

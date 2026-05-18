@@ -91,10 +91,11 @@ private constructor(
          * @param session The session to use for creating the MeshBuffer.
          * @param vertexLayout The layout of the vertices in the vertex buffer(s).
          * @param vertexData The vertex data regions, one for each buffer index used in the layout.
-         *   The data is copied and the original data in the ByteBuffer can be released or modified
+         *   The data is copied and the original data in the [ByteBuffer] can be released or
+         *   modified without affecting the [MeshBuffer].
+         * @param indexData The index data region. The indices must be 32-bit unsigned values. The
+         *   data is copied and the original data in the [ByteBuffer] can be released or modified
          *   without affecting the [MeshBuffer].
-         * @param indexData The index data region. The data is copied and the original data in the
-         *   ByteBuffer can be released or modified without affecting the [MeshBuffer].
          * @return A new [MeshBuffer].
          * @throws IllegalArgumentException if `vertexData` does not contain a buffer for each
          *   buffer index used in the layout, or if any of the `ByteBufferRegion`s are empty.

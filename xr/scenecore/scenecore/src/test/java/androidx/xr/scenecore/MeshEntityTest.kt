@@ -110,6 +110,7 @@ class MeshEntityTest {
         assertThat(entity.mesh).isEqualTo(customMesh)
         assertThat(entity.materials).containsExactly(material)
         assertThat(entity.getPose()).isEqualTo(Pose.Identity)
+        assertThat(entity.parent).isNull()
     }
 
     @Test
