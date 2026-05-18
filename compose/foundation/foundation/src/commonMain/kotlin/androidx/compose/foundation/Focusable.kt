@@ -43,6 +43,7 @@ import androidx.compose.ui.relocation.bringIntoView
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -222,7 +223,7 @@ internal class FocusableNode(
         if (isFocused == wasFocused) return
         onFocusChange?.invoke(isFocused)
         if (isFocused) {
-            coroutineScope.launch { bringIntoView() }
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) { bringIntoView() }
             val pinnableContainer = retrievePinnableContainer()
             pinnedHandle = pinnableContainer?.pin()
             notifyObserverWhenAttached()
