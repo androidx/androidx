@@ -47,6 +47,7 @@ package androidx.navigationevent {
     ctor public NavigationEventDispatcher();
     ctor public NavigationEventDispatcher(androidx.navigationevent.NavigationEventDispatcher parent);
     ctor public NavigationEventDispatcher(androidx.navigationevent.OnBackCompletedFallback onBackCompletedFallback);
+    ctor public NavigationEventDispatcher(androidx.navigationevent.OnBackCompletedFallback onBackCompletedFallback, androidx.navigationevent.OnForwardCompletedFallback onForwardCompletedFallback);
     method @MainThread public void addHandler(androidx.navigationevent.NavigationEventHandler<? extends java.lang.Object?> handler);
     method @MainThread public void addHandler(androidx.navigationevent.NavigationEventHandler<? extends java.lang.Object?> handler, optional int priority);
     method @BytecodeOnly @MainThread public static void addHandler$default(androidx.navigationevent.NavigationEventDispatcher!, androidx.navigationevent.NavigationEventHandler!, int, int, Object!);
@@ -180,6 +181,10 @@ package androidx.navigationevent {
 
   @RequiresApi(33) public final class OnBackInvokedOverlayInput extends androidx.navigationevent.OnBackInvokedInput {
     ctor public OnBackInvokedOverlayInput(android.window.OnBackInvokedDispatcher onBackInvokedDispatcher);
+  }
+
+  public fun interface OnForwardCompletedFallback {
+    method public void onForwardCompletedFallback();
   }
 
   public final class ViewTreeNavigationEventDispatcherOwner {

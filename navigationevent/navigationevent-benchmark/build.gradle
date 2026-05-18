@@ -54,5 +54,4 @@ android {
 
 androidx {
     type = SoftwareType.BENCHMARK
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
