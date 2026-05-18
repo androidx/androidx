@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"චිප ආදර්ශනය"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"ප්‍රගති තීරු ආදර්ශනය"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"කොටස් ශීර්ෂ ආදර්ශනය"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Spotlight කොටස් ආදර්ශනය"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"කවුළු අච්චු ආදර්ශනය"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ස්ථාන ලැයිස්තු අච්චු ආදර්ශනය"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ස්ථාන බ්‍රවුස් කරන්න"</string>

@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Bản minh hoạ khối"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Bản minh hoạ thanh tiến trình"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Bản minh hoạ tiêu đề mục"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Bản minh hoạ cho phần Tiêu điểm"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bản demo ngăn mẫu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Bản demo mẫu danh sách địa điểm"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Duyệt xem các địa điểm"</string>

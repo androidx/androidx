@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"चिप डेमो"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"प्रोग्रेस बार डेमो"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"विभागाच्या हेडरचा डेमो"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"स्पॉटलाइट विभागाचा डेमो"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"पेनशी संबंधित टेंप्लेटचा डेमो"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ठिकाणाच्या सूचीशी संबंधित टेंप्लेटचा डेमो"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ठिकाणे ब्राउझ करा"</string>

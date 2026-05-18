@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"칩 데모"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"진행률 표시줄 데모"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"섹션 헤더 데모"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"스포트라이트 섹션 데모"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"창 템플릿 데모"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"장소 목록 템플릿 데모"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"장소 둘러보기"</string>

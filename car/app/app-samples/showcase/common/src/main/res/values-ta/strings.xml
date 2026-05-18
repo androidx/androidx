@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"சிப் டெமோ"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"செயல்நிலைப் பட்டி டெமோ"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"பிரிவுத் தலைப்பின் டெமோ"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"ஸ்பாட்லைட் பிரிவின் டெமோ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"பெட்டி டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"இருப்பிடப் பட்டியல் டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"இடங்களைக் கண்டறியுங்கள்"</string>

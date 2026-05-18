@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Демонстрација елемента"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Демо верзија траке напретка"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Демонстрација заглавља одељка"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Демонстрација одељка Истакнуто"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демонстрација шаблона окна"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демонстрација шаблона листе места"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Прегледајте места"</string>
