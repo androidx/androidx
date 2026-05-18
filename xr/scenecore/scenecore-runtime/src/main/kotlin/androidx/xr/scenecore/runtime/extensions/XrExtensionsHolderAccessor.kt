@@ -74,7 +74,7 @@ public object XrExtensionsHolderAccessor {
      * future. For platforms supporting [spatialApiVersion] 2 or higher, prefer using [holder].
      */
     @JvmStatic
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val holderLegacy: XrExtensionsHolder<*>?
         get() = providers.firstOrNull()?.holderLegacy
 }
