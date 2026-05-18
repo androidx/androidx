@@ -23,6 +23,7 @@ import androidx.xr.scenecore.SoundEffect
 import androidx.xr.scenecore.SoundEffectPoolComponent
 import androidx.xr.scenecore.Stream
 import androidx.xr.scenecore.testing.internal.FakeSoundEffectPoolComponent as InternalFakeSoundEffectPoolComponent
+import androidx.xr.scenecore.toPointSourceParams
 import androidx.xr.scenecore.toSoundEffect
 import androidx.xr.scenecore.toStream
 

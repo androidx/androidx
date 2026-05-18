@@ -62,7 +62,7 @@ class SpatialSoundPoolTest {
         val expectedStreamId = 1234
         val soundPool = SoundPool.Builder().build()
         val entity = Entity.create(session, "test", parent = session.scene.activitySpace)
-        val pointSourceAttributes = PointSourceParams()
+        val pointSourceParams = PointSourceParams.Builder().build()
 
         scenecoreTestRule.spatialSoundPoolTester.playAsPointSourceResult = expectedStreamId
 
@@ -71,7 +71,7 @@ class SpatialSoundPoolTest {
                 session,
                 soundPool,
                 TEST_SOUND_ID,
-                pointSourceAttributes,
+                pointSourceParams,
                 entity,
                 TEST_VOLUME,
                 TEST_PRIORITY,

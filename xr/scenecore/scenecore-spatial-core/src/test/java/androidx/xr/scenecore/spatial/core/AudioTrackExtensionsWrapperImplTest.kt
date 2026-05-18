@@ -17,6 +17,7 @@ package androidx.xr.scenecore.spatial.core
 
 import android.media.AudioTrack
 import androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper
+import androidx.xr.scenecore.runtime.DistanceAttenuation
 import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
 import androidx.xr.scenecore.runtime.SpatializerConstants
@@ -104,12 +105,26 @@ class AudioTrackExtensionsWrapperImplTest {
         val entity = mock<AndroidXrEntity>()
         whenever(entity.getNode()).thenReturn(fakeNode)
         sceneNodeRegistry.setEntityForNode(fakeNode, entity)
+        val expectedRtParams =
+            PointSourceParams(
+                distanceAttenuation =
+                    DistanceAttenuation(
+                        distanceRolloffModel = DistanceAttenuation.ROLLOFF_MODEL_CUSTOM,
+                        minDistance = 0.5f,
+                        maxDistance = 10.0f,
+                        gainAtMaxDistance = 0.5f,
+                        rolloffFactor = 2.0f,
+                    ),
+                directivityBalance = 0.5f,
+                directivitySharpness = 2.0f,
+                spread = 180.0f,
+            )
         val wrapper: AudioTrackExtensionsWrapper =
             AudioTrackExtensionsWrapperImpl(audioTrackExtensions)
+        wrapper.setPointSourceParams(track, expectedRtParams, entity)
         val actual = wrapper.getPointSourceParams(track)
 
-        // TODO: Compare point source params once additional parameters are added.
-        assertThat(actual).isNotNull()
+        assertThat(actual).isEqualTo(expectedRtParams)
     }
 
     @Test

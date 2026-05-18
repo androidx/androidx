@@ -68,7 +68,7 @@ class SpatialMediaPlayerTesterTest {
     fun pointSourceParams_returnsCorrectParams() {
         val mediaPlayer = MediaPlayer()
         val tester = testRule.createTester(mediaPlayer)
-        val params = PointSourceParams()
+        val params = PointSourceParams.Builder().build()
         val entity = Entity.create(session, "testEntity")
 
         assertThat(tester.pointSourceParams).isNull()
@@ -82,7 +82,7 @@ class SpatialMediaPlayerTesterTest {
     fun isCurrentPointSource_returnsCorrectValue() {
         val mediaPlayer = MediaPlayer()
         val tester = testRule.createTester(mediaPlayer)
-        val params = PointSourceParams()
+        val params = PointSourceParams.Builder().build()
         val entity1 = Entity.create(session, "entity1")
         val entity2 = Entity.create(session, "entity2")
 

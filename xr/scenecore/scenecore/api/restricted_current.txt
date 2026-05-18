@@ -183,6 +183,45 @@ package androidx.xr.scenecore {
   public static final class CustomMesh.Companion {
   }
 
+  @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public sealed nonexhaustive interface DistanceAttenuation {
+  }
+
+  @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static final class DistanceAttenuation.Auto implements androidx.xr.scenecore.DistanceAttenuation {
+    field public static final androidx.xr.scenecore.DistanceAttenuation.Auto INSTANCE;
+  }
+
+  @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static final class DistanceAttenuation.Custom implements androidx.xr.scenecore.DistanceAttenuation {
+    ctor public DistanceAttenuation.Custom(float minDistance, float maxDistance, float gainAtMaxDistance, float rolloffFactor);
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getGainAtMaxDistance();
+    method @InaccessibleFromKotlin @FloatRange(from=0.1) public float getMaxDistance();
+    method @InaccessibleFromKotlin @FloatRange(from=0.1) public float getMinDistance();
+    method @InaccessibleFromKotlin public float getRolloffFactor();
+    property @FloatRange(from=0.0, to=1.0) public float gainAtMaxDistance;
+    property @FloatRange(from=0.1) public float maxDistance;
+    property @FloatRange(from=0.1) public float minDistance;
+    property public float rolloffFactor;
+  }
+
+  @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static final class DistanceAttenuation.Linear implements androidx.xr.scenecore.DistanceAttenuation {
+    ctor public DistanceAttenuation.Linear(float minDistance, float maxDistance, float gainAtMaxDistance);
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getGainAtMaxDistance();
+    method @InaccessibleFromKotlin @FloatRange(from=0.1) public float getMaxDistance();
+    method @InaccessibleFromKotlin @FloatRange(from=0.1) public float getMinDistance();
+    property @FloatRange(from=0.0, to=1.0) public float gainAtMaxDistance;
+    property @FloatRange(from=0.1) public float maxDistance;
+    property @FloatRange(from=0.1) public float minDistance;
+  }
+
+  @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static final class DistanceAttenuation.Natural implements androidx.xr.scenecore.DistanceAttenuation {
+    ctor public DistanceAttenuation.Natural(float minDistance);
+    method @InaccessibleFromKotlin @FloatRange(from=0.1) public float getMinDistance();
+    property @FloatRange(from=0.1) public float minDistance;
+  }
+
+  @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static final class DistanceAttenuation.None implements androidx.xr.scenecore.DistanceAttenuation {
+    field public static final androidx.xr.scenecore.DistanceAttenuation.None INSTANCE;
+  }
+
   public class Entity extends androidx.xr.scenecore.BaseScenePose<androidx.xr.scenecore.runtime.ScenePose> {
     method public final void addChild(androidx.xr.scenecore.Entity child);
     method public final boolean addComponent(androidx.xr.scenecore.Component component);
@@ -770,6 +809,23 @@ package androidx.xr.scenecore {
 
   public final class PointSourceParams {
     ctor public PointSourceParams();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getDirectivityBalance();
+    method @InaccessibleFromKotlin @FloatRange(from=1.0) public float getDirectivitySharpness();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.DistanceAttenuation getDistanceAttenuation();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=360.0) public float getSpread();
+    property @FloatRange(from=0.0, to=1.0) @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public float directivityBalance;
+    property @FloatRange(from=1.0) @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public float directivitySharpness;
+    property @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public androidx.xr.scenecore.DistanceAttenuation distanceAttenuation;
+    property @FloatRange(from=0.0, to=360.0) @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public float spread;
+  }
+
+  @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public static final class PointSourceParams.Builder {
+    ctor public PointSourceParams.Builder();
+    ctor public PointSourceParams.Builder(androidx.xr.scenecore.PointSourceParams params);
+    method public androidx.xr.scenecore.PointSourceParams build();
+    method public androidx.xr.scenecore.PointSourceParams.Builder setDirectivity(@FloatRange(from=0.0, to=1.0) float balance, @FloatRange(from=1.0) float sharpness);
+    method public androidx.xr.scenecore.PointSourceParams.Builder setDistanceAttenuation(androidx.xr.scenecore.DistanceAttenuation distanceAttenuation);
+    method public androidx.xr.scenecore.PointSourceParams.Builder setSpread(@FloatRange(from=0.0, to=360.0) float spread);
   }
 
   public final class PointerCaptureComponent extends androidx.xr.scenecore.Component {
