@@ -44,7 +44,6 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
@@ -73,14 +72,13 @@ import androidx.xr.scenecore.VertexAttributeType
 import androidx.xr.scenecore.VertexLayout
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
+import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @SuppressLint("RestrictedApi", "RestrictedApiAndroidX")
 class MeshEntityActivity : AppCompatActivity() {
@@ -109,19 +107,16 @@ class MeshEntityActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
-            val sessionResult =
-                withContext(Dispatchers.IO) { Session.create(context = this@MeshEntityActivity) }
-            if (sessionResult !is SessionCreateSuccess) {
-                finish()
-                return@launch
-            }
-            session = sessionResult.session
-            session!!.scene.mainPanelEntity.size = FloatSize2d(0.4f, 0.3f)
-            val movableComponent = MovableComponent.createSystemMovable(session!!)
-            movableComponent.size = FloatSize3d(0.4f, 0.3f, 0.1f)
-            session!!.scene.mainPanelEntity.addComponent(movableComponent)
+        session = SessionManager(this).createSession()
+        if (session == null) {
+            finish()
+            return
         }
+
+        session!!.scene.mainPanelEntity.size = FloatSize2d(0.4f, 0.3f)
+        val movableComponent = MovableComponent.createSystemMovable(session!!)
+        movableComponent.size = FloatSize3d(0.4f, 0.3f, 0.1f)
+        session!!.scene.mainPanelEntity.addComponent(movableComponent)
 
         setContentView(R.layout.activity_mesh_entity)
 
