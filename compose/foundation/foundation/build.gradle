@@ -33,10 +33,6 @@ androidXMultiplatform {
     androidLibrary {
         compileSdk { version = release(37) }
         namespace = "androidx.compose.foundation"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
         androidResources.enable = true
     }
     jvmStubs()
