@@ -38,10 +38,6 @@ androidXMultiplatform {
         withJava()
         compileSdk { version = release(37) }
         androidResources.enable = true
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
         namespace = "androidx.compose.ui"
         // namespace has to be unique, but default androidx.compose.ui.test package is taken by
         // the androidx.compose.ui:ui-test library

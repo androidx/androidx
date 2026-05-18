@@ -182,10 +182,6 @@ androidXMultiplatform {
 
     androidLibrary {
         namespace = "androidx.sqlite.driver.bundled"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("src/androidMain/proguard-rules.pro"))
-        }
         androidResources.enable = true
         addNativeLibrariesToJniLibs(it, jvmArtJniImplementation)
     }

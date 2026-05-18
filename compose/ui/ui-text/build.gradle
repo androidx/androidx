@@ -35,10 +35,6 @@ androidXMultiplatform {
         compileSdk { version = release(37) }
         namespace = "androidx.compose.ui.text"
         androidResources.enable = true
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
     }
     jvmStubs()
     linuxX64Stubs()

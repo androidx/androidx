@@ -54,12 +54,6 @@ androidXMultiplatform {
     androidLibrary {
         withJava()
         namespace = "androidx.room3"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(
-                    new File(project.projectDir, "src/androidMain/proguard-rules.pro")
-            )
-        }
         stableAidl {
             version = 1
         }
