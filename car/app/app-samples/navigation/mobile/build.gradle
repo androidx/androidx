@@ -34,10 +34,9 @@ android {
 
     buildTypes {
         release {
-            // Enables code shrinking, obfuscation, and optimization.
-            minifyEnabled = true
-            proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt')
+            optimization {
+                enable = true
+            }
         }
     }
     namespace = "androidx.car.app.sample.navigation"

@@ -23,9 +23,9 @@ plugins {
 android {
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            optimization {
+                enable = true
+            }
         }
     }
     namespace = "androidx.benchmark.integration.baselineprofile.library.apptarget"

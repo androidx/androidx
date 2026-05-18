@@ -60,9 +60,9 @@ android {
     namespace = "androidx.xr.compose.material3.integration.testapp"
     buildTypes {
         release {
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            optimization {
+                enable = true
+            }
         }
     }
 }
