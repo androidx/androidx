@@ -211,7 +211,6 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
          *
          * @return an instance of [XrExtensions] if available, or `null` otherwise.
          */
-        @SuppressWarnings("RestrictedApiAndroidX")
         private fun getXrExtensions(): XrExtensions? =
             XrExtensionsHolderAccessor.holderLegacy?.let {
                 TypeHolder.safeCast(it, XrExtensions::class.java)?.value

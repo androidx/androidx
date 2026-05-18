@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
  * TypeHolder is used to decouple the dependency to rendering runtime. Pass the rendering runtime
  * object to rendering runtime through the SceneCore with TypeHolder.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public sealed class TypeHolder<T>(public val value: T, public val type: Class<*>) {
     public companion object {
         /** If cast is success, return the typed holder. Otherwise, return null. */
@@ -80,5 +80,5 @@ public class NodeHolder<T>(node: T, type: Class<*>) : TypeHolder<T>(node, type)
  * Decouple the dependency to XrExtensions. The XrExtensions can be retrieved from this holder when
  * necessary.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class XrExtensionsHolder<T>(extensions: T, type: Class<*>) : TypeHolder<T>(extensions, type)

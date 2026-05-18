@@ -1,7 +1,34 @@
 // Signature format: 4.0
+package androidx.xr.scenecore.runtime {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract sealed nonexhaustive class TypeHolder<T> {
+    method public static final <T> androidx.xr.scenecore.runtime.TypeHolder<T> assertCast(androidx.xr.scenecore.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
+    method public static final <T> T assertGetValue(androidx.xr.scenecore.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
+    method @InaccessibleFromKotlin public final Class<? extends java.lang.Object?> getType();
+    method @InaccessibleFromKotlin public final T getValue();
+    method public static final <T, U extends androidx.xr.scenecore.runtime.TypeHolder<T>> U? safeCast(androidx.xr.scenecore.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
+    property public final Class<? extends java.lang.Object?> type;
+    property public final T value;
+    field public static final androidx.xr.scenecore.runtime.TypeHolder.Companion Companion;
+  }
+
+  public static final class TypeHolder.Companion {
+    method public <T> androidx.xr.scenecore.runtime.TypeHolder<T> assertCast(androidx.xr.scenecore.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
+    method public <T> T assertGetValue(androidx.xr.scenecore.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
+    method public <T, U extends androidx.xr.scenecore.runtime.TypeHolder<T>> U? safeCast(androidx.xr.scenecore.runtime.TypeHolder<? extends java.lang.Object?> anyTypeHolder, Class<T> targetType);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class XrExtensionsHolder<T> extends androidx.xr.scenecore.runtime.TypeHolder<T> {
+    ctor public XrExtensionsHolder(T extensions, Class<? extends java.lang.Object?> type);
+  }
+
+}
+
 package androidx.xr.scenecore.runtime.extensions {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class XrExtensionsHolderAccessor {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.scenecore.runtime.XrExtensionsHolder<? extends java.lang.Object?>? getHolderLegacy();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static androidx.xr.scenecore.runtime.XrExtensionsHolder<? extends java.lang.Object?>? holderLegacy;
     field public static final androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor INSTANCE;
   }
 
