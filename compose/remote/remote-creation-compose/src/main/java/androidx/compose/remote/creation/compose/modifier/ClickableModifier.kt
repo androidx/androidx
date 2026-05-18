@@ -35,8 +35,7 @@ internal class ClickableModifier(
         return ClickActionModifier(
             @Suppress("ListIterator")
             actions.mapNotNull { action ->
-                if (action is RemoteAction) with(action) { toRemoteAction() }
-                else if (action is CombinedAction) with(action) { toRemoteAction() } else null
+                if (action is RemoteAction) with(action) { toRemoteAction() } else null
             },
             clickType,
         )

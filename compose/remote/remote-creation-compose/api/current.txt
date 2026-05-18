@@ -8,10 +8,15 @@ package androidx.compose.remote.creation.compose.action {
   public static final class Action.Companion {
   }
 
-  public final class CombinedAction implements androidx.compose.remote.creation.compose.action.Action {
-    ctor public CombinedAction(androidx.compose.remote.creation.compose.action.Action... actions);
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.action.Action[] getActions();
-    property public androidx.compose.remote.creation.compose.action.Action[] actions;
+  public final class CombinedActionKt {
+    method public static androidx.compose.remote.creation.compose.action.Action combinedAction(androidx.compose.remote.creation.compose.action.Action... actions);
+  }
+
+  public final class HostActionKt {
+    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name);
+    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteFloat value);
+    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteInt value);
+    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteString value);
   }
 
   public final class PendingIntentActionKt {

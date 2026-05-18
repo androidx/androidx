@@ -25,17 +25,14 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
  *
  * @param actions The actions to combine.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun combinedAction(vararg actions: Action): Action = CombinedAction(*actions)
 
-public class CombinedAction(public vararg val actions: Action) : Action {
+internal class CombinedAction(public vararg val actions: Action) : RemoteAction() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun RemoteStateScope.toRemoteAction(): CreationAction {
+    public override fun RemoteStateScope.toRemoteAction(): CreationAction {
         return CreationAction { writer ->
             for (action in actions) {
                 if (action is RemoteAction) {
-                    with(action) { toRemoteAction().write(writer) }
-                } else if (action is CombinedAction) {
                     with(action) { toRemoteAction().write(writer) }
                 }
             }

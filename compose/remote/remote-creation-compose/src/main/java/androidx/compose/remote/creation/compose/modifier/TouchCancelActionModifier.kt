@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
-import androidx.compose.remote.creation.compose.action.CombinedAction
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -32,8 +31,7 @@ internal class TouchCancelActionModifier(public val actions: List<Action>) :
             TouchActionModifier.CANCEL,
             @Suppress("ListIterator")
             actions.mapNotNull { action ->
-                if (action is RemoteAction) with(action) { toRemoteAction() }
-                else if (action is CombinedAction) with(action) { toRemoteAction() } else null
+                if (action is RemoteAction) with(action) { toRemoteAction() } else null
             },
         )
     }
