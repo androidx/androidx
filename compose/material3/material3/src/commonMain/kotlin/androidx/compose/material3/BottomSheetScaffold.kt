@@ -207,6 +207,9 @@ fun rememberBottomSheetScaffoldState(
  *   [Expanded] if [skipHiddenState] is true
  * @param confirmValueChange optional callback invoked to confirm or veto a pending state change
  * @param [skipHiddenState] whether Hidden state is skipped for [BottomSheetScaffold]
+ * @note This deprecated method preserves the legacy behavior where the partially expanded state is
+ *   automatically excluded if the sheet height is less than half the screen height. To move away
+ *   from this behavior, use [rememberBottomSheetState].
  */
 @Deprecated(
     message = "Use rememberBottomSheetState with PartiallyExpanded initial value",
@@ -226,12 +229,13 @@ fun rememberStandardBottomSheetState(
     confirmValueChange: (SheetValue) -> Boolean = { true },
     skipHiddenState: Boolean = true,
 ) =
-    rememberBottomSheetState(
+    rememberSheetState(
         initialValue = initialValue,
         enabledValues =
             if (skipHiddenState) setOf(PartiallyExpanded, Expanded)
             else setOf(Hidden, PartiallyExpanded, Expanded),
         confirmValueChange = confirmValueChange,
+        isBottomSheetPartiallyExpandedDeterministicEnabled = false,
     )
 
 @OptIn(ExperimentalMaterial3Api::class)

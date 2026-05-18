@@ -211,6 +211,9 @@ expect object ModalBottomSheetDefaults {
  *   should be skipped. If true, the sheet will always expand to the [Expanded] state and move to
  *   the [Hidden] state when hiding the sheet, either programmatically or by user interaction.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ * @note This deprecated method preserves the legacy behavior where the partially expanded state is
+ *   automatically excluded if the sheet height is less than half the screen height. To move away
+ *   from this behavior, use [rememberBottomSheetState].
  */
 @Deprecated(
     message = "Use rememberBottomSheetState with Hidden initial value",
@@ -229,12 +232,13 @@ fun rememberModalBottomSheetState(
     skipPartiallyExpanded: Boolean = false,
     confirmValueChange: (SheetValue) -> Boolean = { true },
 ) =
-    rememberBottomSheetState(
+    rememberSheetState(
         initialValue = Hidden,
         enabledValues =
             if (skipPartiallyExpanded) setOf(Hidden, Expanded)
             else setOf(Hidden, PartiallyExpanded, Expanded),
         confirmValueChange = confirmValueChange,
+        isBottomSheetPartiallyExpandedDeterministicEnabled = false,
     )
 
 @Stable
