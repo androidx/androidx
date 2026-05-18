@@ -803,7 +803,7 @@ internal class TextFieldDecoratorModifierNode(
         val receiveContentConfiguration = getReceiveContentConfiguration()
 
         inputSessionJob =
-            coroutineScope.launch {
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                 // This will automatically cancel the previous session, if any, so we don't need to
                 // cancel the inputSessionJob ourselves.
                 establishTextInputSession {
