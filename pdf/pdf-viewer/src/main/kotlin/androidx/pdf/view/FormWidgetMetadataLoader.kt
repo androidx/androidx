@@ -18,12 +18,15 @@ package androidx.pdf.view
 
 import android.os.RemoteException
 import androidx.pdf.PdfDocument
+import androidx.pdf.autofill.AutofillHintProvider
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import androidx.pdf.util.FORM_WIDGET_INFO_REQUEST_NAME
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * This class is responsible for loading form widget metadata from the [PdfDocument]. It fetches
@@ -35,6 +38,29 @@ internal class FormWidgetMetadataLoader(
     private val formFillingState: PdfFormFillingState,
     private val errorFlow: MutableSharedFlow<Throwable>,
 ) {
+    /**
+     * A [SharedFlow] that emits whenever a new hint text is detected for a widget. The emission is
+     * a pair of (pageNum, widgetIndex).
+     */
+    private val _hintTextReadyFlow = MutableSharedFlow<Pair<Int, Int>>(replay = 1)
+    val hintTextReadyFlow: SharedFlow<Pair<Int, Int>> = _hintTextReadyFlow.asSharedFlow()
+
+    private val autofillHintProvider =
+        AutofillHintProvider(pdfDocument, formFillingState) { result ->
+            _hintTextReadyFlow.tryEmit(result)
+        }
+
+    /**
+     * Triggers hint detection for form widgets on the specified page if they have already been
+     * loaded into the state.
+     */
+    suspend fun maybeLoadHintsForPage(pageNum: Int) {
+        val widgets = formFillingState.getPageFormWidgetInfos(pageNum)
+        if (formFillingState.hasHintsForPage(pageNum)) return
+
+        autofillHintProvider.loadHintsForPage(pageNum, widgets)
+    }
+
     suspend fun loadFormWidgetInfos(pageNum: Int): List<FormWidgetInfo>? {
         try {
             val formWidgetInfos = pdfDocument.getFormWidgetInfos(pageNum)
