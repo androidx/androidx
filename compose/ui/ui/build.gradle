@@ -195,7 +195,6 @@ androidXMultiplatform {
             implementation(project(":compose:test-utils"))
         }
 
-        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
         def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
         // TODO: Align naming: nonAndroidMain
         skikoMain {
@@ -206,7 +205,7 @@ androidXMultiplatform {
                 api(libs.skiko)
                 implementation(libs.atomicFu)
 
-                implementation("androidx.navigationevent:navigationevent-compose:$navigationEventVersion")
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0")
                 implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
                 implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
             }

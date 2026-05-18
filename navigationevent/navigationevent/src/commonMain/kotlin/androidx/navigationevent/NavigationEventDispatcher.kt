@@ -58,10 +58,14 @@ public class NavigationEventDispatcher
  *   root of its own event handling hierarchy.
  * @param onBackCompletedFallback An optional lambda to be invoked if a back event completes and no
  *   registered [NavigationEventHandler] handles it. This provides a default "back" action.
+ * @param onForwardCompletedFallback An optional lambda to be invoked if a forward event completes
+ *   and no registered [NavigationEventHandler] handles it. This provides a default "forward"
+ *   action.
  */
 private constructor(
     private var parent: NavigationEventDispatcher?,
     private val onBackCompletedFallback: OnBackCompletedFallback?,
+    private val onForwardCompletedFallback: OnForwardCompletedFallback?,
 ) {
 
     /**
@@ -73,7 +77,8 @@ private constructor(
      * If a navigation event completes without being handled by any registered
      * [NavigationEventHandler], nothing further will happen.
      */
-    public constructor() : this(parent = null, onBackCompletedFallback = null)
+    public constructor() :
+        this(parent = null, onBackCompletedFallback = null, onForwardCompletedFallback = null)
 
     /**
      * Creates a **root** `NavigationEventDispatcher` with a fallback action.
@@ -87,7 +92,35 @@ private constructor(
      */
     public constructor(
         onBackCompletedFallback: OnBackCompletedFallback
-    ) : this(parent = null, onBackCompletedFallback = onBackCompletedFallback)
+    ) : this(
+        parent = null,
+        onBackCompletedFallback = onBackCompletedFallback,
+        onForwardCompletedFallback = null,
+    )
+
+    /**
+     * Creates a **root** `NavigationEventDispatcher` with a back and forward fallback action.
+     *
+     * Establishes the top-level dispatcher for a new navigation hierarchy, typically within an
+     * `Activity` or a top-level composable. It creates its own internal [NavigationEventProcessor].
+     *
+     * @param onBackCompletedFallback A lambda to be invoked if a back navigation event
+     *   **completes** and no registered [NavigationEventHandler] handles it. This provides a
+     *   default "back" action for the entire hierarchy. **It will not be invoked if the event is
+     *   cancelled.**
+     * @param onForwardCompletedFallback A lambda to be invoked if a forward navigation event
+     *   **completes** and no registered [NavigationEventHandler] handles it. This provides a
+     *   default "forward" action for the entire hierarchy. **It will not be invoked if the event is
+     *   cancelled.**
+     */
+    public constructor(
+        onBackCompletedFallback: OnBackCompletedFallback,
+        onForwardCompletedFallback: OnForwardCompletedFallback,
+    ) : this(
+        parent = null,
+        onBackCompletedFallback = onBackCompletedFallback,
+        onForwardCompletedFallback = onForwardCompletedFallback,
+    )
 
     /**
      * Creates a **child** `NavigationEventDispatcher` linked to a parent.
@@ -101,7 +134,7 @@ private constructor(
      */
     public constructor(
         parent: NavigationEventDispatcher
-    ) : this(parent = parent, onBackCompletedFallback = null)
+    ) : this(parent = parent, onBackCompletedFallback = null, onForwardCompletedFallback = null)
 
     /**
      * Returns `true` if this dispatcher is in a terminal state and can no longer be used.
@@ -384,7 +417,12 @@ private constructor(
         checkInvariants()
 
         if (!isEnabled) return
-        sharedProcessor.dispatchOnCompleted(input, direction, onBackCompletedFallback)
+        sharedProcessor.dispatchOnCompleted(
+            input,
+            direction,
+            onBackCompletedFallback,
+            onForwardCompletedFallback,
+        )
     }
 
     /** @see [NavigationEventProcessor.dispatchOnCancelled] */

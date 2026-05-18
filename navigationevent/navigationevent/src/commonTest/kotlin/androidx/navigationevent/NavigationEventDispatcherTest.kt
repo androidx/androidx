@@ -434,6 +434,51 @@ class NavigationEventDispatcherTest {
     }
 
     @Test
+    fun dispatch_withNoEnabledHandlers_invokesForwardFallback() {
+        var fallbackCalled = false
+        val dispatcher =
+            NavigationEventDispatcher(
+                onBackCompletedFallback = {},
+                onForwardCompletedFallback = { fallbackCalled = true },
+            )
+        val handler = TestNavigationEventHandler()
+        dispatcher.addHandler(handler)
+
+        val input = TestNavigationEventInput()
+        dispatcher.addInput(input)
+        input.forwardCompleted()
+        assertThat(handler.onForwardCompletedInvocations).isEqualTo(1)
+        assertThat(fallbackCalled).isFalse()
+
+        // After disabling the only handler, the fallback should be triggered.
+        handler.isForwardEnabled = false
+        input.forwardCompleted()
+        assertThat(handler.onForwardCompletedInvocations).isEqualTo(1) // Unchanged
+        assertThat(fallbackCalled).isTrue()
+    }
+
+    @Test
+    fun dispatch_withNoEnabledHandlers_doesNotInvokeForwardFallbackForBack() {
+        var fallbackCalled = false
+        val dispatcher =
+            NavigationEventDispatcher(
+                onBackCompletedFallback = {},
+                onForwardCompletedFallback = { fallbackCalled = true },
+            )
+        val handler = TestNavigationEventHandler()
+        handler.isBackEnabled = false
+        dispatcher.addHandler(handler)
+
+        val input = TestNavigationEventInput()
+        dispatcher.addInput(input)
+
+        // A back navigation event should not trigger the forward fallback.
+        input.backCompleted()
+        assertThat(handler.onBackCompletedInvocations).isEqualTo(0)
+        assertThat(fallbackCalled).isFalse()
+    }
+
+    @Test
     fun dispatch_withOverlayHandler_prioritizesOverlay() {
         val dispatcher = NavigationEventDispatcher()
         val overlayHandler = TestNavigationEventHandler()

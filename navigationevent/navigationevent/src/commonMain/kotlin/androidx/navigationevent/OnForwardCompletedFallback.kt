@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.navigationevent.compose
+package androidx.navigationevent
 
-import androidx.compose.runtime.Composable
+/**
+ * A listener that provides a final fallback action for unhandled `forwardCompleted` callbacks.
+ *
+ * This is typically used to provide a default system behavior when no other part of the application
+ * consumes the forward navigation event.
+ */
+public fun interface OnForwardCompletedFallback {
 
-@Composable internal actual fun isInspectionMode(): Boolean = false
+    /**
+     * Called when a `forwardCompleted` callback is dispatched but not handled by any
+     * [NavigationEventHandler].
+     */
+    public fun onForwardCompletedFallback()
+}

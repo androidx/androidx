@@ -10,6 +10,10 @@ abstract fun interface androidx.navigationevent/OnBackCompletedFallback { // and
     abstract fun onBackCompletedFallback() // androidx.navigationevent/OnBackCompletedFallback.onBackCompletedFallback|onBackCompletedFallback(){}[0]
 }
 
+abstract fun interface androidx.navigationevent/OnForwardCompletedFallback { // androidx.navigationevent/OnForwardCompletedFallback|null[0]
+    abstract fun onForwardCompletedFallback() // androidx.navigationevent/OnForwardCompletedFallback.onForwardCompletedFallback|onForwardCompletedFallback(){}[0]
+}
+
 abstract interface androidx.navigationevent/NavigationEventDispatcherOwner { // androidx.navigationevent/NavigationEventDispatcherOwner|null[0]
     abstract val navigationEventDispatcher // androidx.navigationevent/NavigationEventDispatcherOwner.navigationEventDispatcher|{}navigationEventDispatcher[0]
         abstract fun <get-navigationEventDispatcher>(): androidx.navigationevent/NavigationEventDispatcher // androidx.navigationevent/NavigationEventDispatcherOwner.navigationEventDispatcher.<get-navigationEventDispatcher>|<get-navigationEventDispatcher>(){}[0]
@@ -118,6 +122,7 @@ final class androidx.navigationevent/NavigationEventDispatcher { // androidx.nav
     constructor <init>() // androidx.navigationevent/NavigationEventDispatcher.<init>|<init>(){}[0]
     constructor <init>(androidx.navigationevent/NavigationEventDispatcher) // androidx.navigationevent/NavigationEventDispatcher.<init>|<init>(androidx.navigationevent.NavigationEventDispatcher){}[0]
     constructor <init>(androidx.navigationevent/OnBackCompletedFallback) // androidx.navigationevent/NavigationEventDispatcher.<init>|<init>(androidx.navigationevent.OnBackCompletedFallback){}[0]
+    constructor <init>(androidx.navigationevent/OnBackCompletedFallback, androidx.navigationevent/OnForwardCompletedFallback) // androidx.navigationevent/NavigationEventDispatcher.<init>|<init>(androidx.navigationevent.OnBackCompletedFallback;androidx.navigationevent.OnForwardCompletedFallback){}[0]
 
     final val history // androidx.navigationevent/NavigationEventDispatcher.history|{}history[0]
         final fun <get-history>(): kotlinx.coroutines.flow/StateFlow<androidx.navigationevent/NavigationEventHistory> // androidx.navigationevent/NavigationEventDispatcher.history.<get-history>|<get-history>(){}[0]

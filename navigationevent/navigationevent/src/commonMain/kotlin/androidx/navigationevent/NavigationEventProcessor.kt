@@ -449,16 +449,18 @@ internal class NavigationEventProcessor {
      *
      * Fallbacks:
      * - For [TRANSITIONING_BACK], invoke [onBackCompletedFallback] if no handler is resolved.
-     * - For [TRANSITIONING_FORWARD], no fallback is invoked.
+     * - For [TRANSITIONING_FORWARD], invoke [onForwardCompletedFallback] if no handler is resolved.
      *
      * @param input The [NavigationEventInput] that sourced this event.
      * @param direction The direction of the navigation event.
      * @param onBackCompletedFallback Action to invoke if no back handler completes the event.
+     * @param onForwardCompletedFallback Action to invoke if no forward handler completes the event.
      */
     fun dispatchOnCompleted(
         input: NavigationEventInput,
         @Direction direction: Int,
         onBackCompletedFallback: OnBackCompletedFallback?,
+        onForwardCompletedFallback: OnForwardCompletedFallback?,
     ) {
         if (input != inProgressInput || direction != inProgressDirection) {
             return
@@ -476,13 +478,18 @@ internal class NavigationEventProcessor {
         when (direction) {
             TRANSITIONING_BACK -> {
                 if (handler == null) {
-                    // No handler: only back events have a fallback to invoke.
                     onBackCompletedFallback?.onBackCompletedFallback()
                 } else {
                     handler.doOnBackCompleted()
                 }
             }
-            TRANSITIONING_FORWARD -> handler?.doOnForwardCompleted()
+            TRANSITIONING_FORWARD -> {
+                if (handler == null) {
+                    onForwardCompletedFallback?.onForwardCompletedFallback()
+                } else {
+                    handler.doOnForwardCompleted()
+                }
+            }
             TRANSITIONING_UNKNOWN -> {}
         }
 
