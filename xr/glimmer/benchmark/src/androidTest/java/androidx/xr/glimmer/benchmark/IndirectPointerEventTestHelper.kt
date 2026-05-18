@@ -48,11 +48,11 @@ internal fun RootForTest.sendIndirectSwipeEvents(
     from: Offset,
     to: Offset,
     axis: IndirectPointerEventPrimaryDirectionalMotionAxis,
-    delayTimeMills: Long = 16L,
+    delayTimeMillis: Long = 16L,
 ) {
     var currentTime = SystemClock.uptimeMillis()
     val downEvent = sendIndirectPointerPressEvent(time = currentTime, value = from, axis = axis)
-    currentTime += delayTimeMills
+    currentTime += delayTimeMillis
     val move =
         sendIndirectPointerMoveEvents(
             time = currentTime,
@@ -60,7 +60,7 @@ internal fun RootForTest.sendIndirectSwipeEvents(
             axis = axis,
             previousEvent = downEvent,
         )
-    currentTime += delayTimeMills
+    currentTime += delayTimeMillis
     sendIndirectPointerReleaseEvent(
         time = currentTime,
         value = to,
