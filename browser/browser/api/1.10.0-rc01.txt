@@ -463,8 +463,8 @@ package androidx.browser.customtabs {
     method public boolean requestPostMessageChannel(android.net.Uri);
     method public boolean requestPostMessageChannel(android.net.Uri, android.net.Uri?, android.os.Bundle);
     method public boolean setActionButton(android.graphics.Bitmap, String);
-    method @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
-    method @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(java.util.concurrent.Executor, androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
+    method @RequiresFeature(name="ENGAGEMENT_SIGNALS", enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
+    method @RequiresFeature(name="ENGAGEMENT_SIGNALS", enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(java.util.concurrent.Executor, androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
     method public boolean setSecondaryToolbarSwipeUpGesture(android.app.PendingIntent?);
     method public boolean setSecondaryToolbarViews(android.widget.RemoteViews?, int[]?, android.app.PendingIntent?);
     method @Deprecated public boolean setToolbarItem(int, android.graphics.Bitmap, String);
