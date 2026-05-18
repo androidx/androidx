@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.alpha
@@ -29,6 +30,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.integration.demos.common.RemoteDemo
+import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,18 +39,24 @@ import androidx.compose.ui.unit.dp
 @Suppress("RestrictedApiAndroidX")
 @Composable
 fun AlphaDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-            RemoteText("Alpha: 1.0f")
-            RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(1.0f.rf).background(Color.Red))
+    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { AlphaDemoContent() }
+}
 
-            RemoteText("Alpha: 0.5f")
-            RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(0.5f.rf).background(Color.Red))
+@Suppress("RestrictedApiAndroidX")
+@RemoteComponentPreview
+@Composable
+@RemoteComposable
+private fun AlphaDemoContent() {
+    RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteText("Alpha: 1.0f")
+        RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(1.0f.rf).background(Color.Red))
 
-            RemoteText("Alpha: 0.1f")
-            RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(0.1f.rf).background(Color.Red))
-            RemoteText("Alpha: 0.0f")
-            RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(0f.rf).background(Color.Red))
-        }
+        RemoteText("Alpha: 0.5f")
+        RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(0.5f.rf).background(Color.Red))
+
+        RemoteText("Alpha: 0.1f")
+        RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(0.1f.rf).background(Color.Red))
+        RemoteText("Alpha: 0.0f")
+        RemoteBox(modifier = RemoteModifier.size(100.rdp).alpha(0f.rf).background(Color.Red))
     }
 }
