@@ -815,7 +815,7 @@ object FloatingToolbarDefaults {
      * @param snapAnimationSpec an [AnimationSpec] that defines how the floating toolbar snaps to
      *   either fully collapsed or fully extended state when a fling or a drag scrolled it into an
      *   intermediate position
-     * @param flingAnimationSpec an [DecayAnimationSpec] that defines how to fling the floating app
+     * @param flingAnimationSpec a [DecayAnimationSpec] that defines how to fling the floating tool
      *   bar when the user flings the toolbar itself, or the content below it
      */
     // TODO Load the motionScheme tokens from the component tokens file
@@ -1263,7 +1263,7 @@ object FloatingToolbarDefaults {
 }
 
 /**
- * Represents the container and content colors used in a the various floating toolbars.
+ * Represents the container and content colors used in the various floating toolbars.
  *
  * @param toolbarContainerColor the container color for the floating toolbar.
  * @param toolbarContentColor the content color for the floating toolbar
@@ -2431,16 +2431,16 @@ interface VerticalFloatingToolbarWithFabOverride {
  *   exploration service (e.g., TalkBack) is active.
  * @param shape the shape used for this floating toolbar content.
  * @param floatingActionButtonPosition the position of the floating toolbar's floating action
- *   button. By default, the FAB is placed at the end of the toolbar (i.e. aligned to the right in
- *   left-to-right layout, or to the left in right-to-left layout).
+ *   button. By default, the FAB is placed at the bottom of the toolbar (i.e. aligned to the
+ *   bottom).
  * @param animationSpec the animation spec to use for this floating toolbar expand and collapse
  *   animation.
  * @param expandedShadowElevation the elevation for the shadow below this floating toolbar when
  *   expanded.
  * @param collapsedShadowElevation the elevation for the shadow below this floating toolbar when
  *   collapsed.
- * @param content the main content of this floating toolbar. The default layout here is a [Row], so
- *   content inside will be placed horizontally.
+ * @param content the main content of this FloatingToolbar. The default layout here is a [Column],
+ *   so content inside will be placed vertically.
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
