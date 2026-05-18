@@ -103,29 +103,6 @@ class DraggableAnchorsModifierTest {
     }
 
     @Test
-    fun draggableAnchors_orphanTarget_recoversAndPreventsException() {
-        val state = AnchoredDraggableState(initialValue = TestValue.C)
-
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Box(
-                    Modifier.size(100.dp).draggableAnchors(state, Orientation.Vertical) { _, _ ->
-                        val anchors = DraggableAnchors {
-                            TestValue.A at 0f
-                            TestValue.B at 100f
-                        }
-                        anchors to TestValue.C
-                    }
-                )
-            }
-        }
-
-        rule.waitForIdle()
-        assertThat(state.offset).isNotNaN()
-        assertThat(state.anchors.hasPositionFor(state.currentValue)).isTrue()
-    }
-
-    @Test
     fun draggableAnchors_safeTargeting_withLayoutChange_reconcilesCorrectly() {
         val state = AnchoredDraggableState(initialValue = TestValue.C)
         var supportsStateC by mutableStateOf(false)

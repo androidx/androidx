@@ -294,20 +294,25 @@ internal fun BottomSheetImpl(
                     sheetSize,
                     constraints ->
                     val fullHeight = constraints.maxHeight.toFloat()
+                    val sheetHeight = sheetSize.height.toFloat()
+
                     val newAnchors = DraggableAnchors {
                         Hidden at fullHeight
-                        if (sheetSize.height > (fullHeight / 2) && !state.skipPartiallyExpanded) {
-                            PartiallyExpanded at fullHeight / 2f
+                        if (isPartiallyExpandedAnchorAvailable(state, fullHeight, sheetHeight)) {
+                            PartiallyExpanded at
+                                calculatePartiallyExpandedOffset(state, fullHeight, sheetHeight)
                         }
-                        if (sheetSize.height != 0) {
-                            Expanded at max(0f, fullHeight - sheetSize.height)
+                        if (sheetHeight != 0f) {
+                            Expanded at max(0f, fullHeight - sheetHeight)
                         }
                     }
+
                     val newTarget =
                         when (state.targetValue) {
                             Hidden -> Hidden
                             PartiallyExpanded -> {
                                 when {
+                                    shouldPromoteToExpanded(state, newAnchors) -> Expanded
                                     newAnchors.hasPositionFor(PartiallyExpanded) ->
                                         PartiallyExpanded
                                     newAnchors.hasPositionFor(Expanded) -> Expanded
@@ -398,6 +403,60 @@ internal fun BottomSheetImpl(
             content()
         }
     }
+}
+
+/**
+ * Determine if PartiallyExpanded should be an available anchor.
+ *
+ * When true (default), BottomSheet will always include [SheetValue.PartiallyExpanded] if provided
+ * in [SheetState.enabledValues], converging it with [SheetValue.Expanded] for small sheets.
+ *
+ * When false, the legacy auto-exclusion logic is enabled.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun isPartiallyExpandedAnchorAvailable(
+    state: SheetState,
+    fullHeight: Float,
+    sheetHeight: Float,
+): Boolean =
+    !state.skipPartiallyExpanded &&
+        (state.isBottomSheetPartiallyExpandedDeterministicEnabled || sheetHeight > fullHeight / 2f)
+
+/** Calculate the offset of the sheet in the PartiallyExpanded state. */
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun calculatePartiallyExpandedOffset(
+    state: SheetState,
+    fullHeight: Float,
+    sheetHeight: Float,
+): Float {
+    val visibleHeight =
+        if (state.isBottomSheetPartiallyExpandedDeterministicEnabled) {
+            // New default: If the sheet is smaller than half the screen, we cap the
+            // partial anchor at the sheet's own height. This prevents the sheet
+            // from "lifting" off the bottom.
+            min(fullHeight / 2f, sheetHeight)
+        } else {
+            // Legacy behavior: PartiallyExpanded is always at 50% screen.
+            fullHeight / 2f
+        }
+    return fullHeight - visibleHeight
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun shouldPromoteToExpanded(
+    state: SheetState,
+    newAnchors: DraggableAnchors<SheetValue>,
+): Boolean {
+    // Promotion logic is only relevant when deterministic behavior is enabled.
+    if (!state.isBottomSheetPartiallyExpandedDeterministicEnabled) return false
+
+    val wasConverged =
+        state.anchoredDraggableState.anchors.let {
+            it.hasPositionFor(PartiallyExpanded) &&
+                it.hasPositionFor(Expanded) &&
+                it.positionOf(PartiallyExpanded) == it.positionOf(Expanded)
+        }
+    return wasConverged && newAnchors.hasPositionFor(Expanded)
 }
 
 internal fun GraphicsLayerScope.calculateSheetPredictiveBackScaleX(progress: Float): Float {
