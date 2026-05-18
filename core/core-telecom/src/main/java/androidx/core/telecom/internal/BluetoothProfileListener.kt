@@ -107,7 +107,7 @@ internal class BluetoothProfileListener(
         Log.i(TAG, "onServiceConnected: profile=[$profile], proxy=[$proxy]")
         val endpoints: MutableList<CallEndpointCompat> = ArrayList()
         if (proxy != null) {
-            for (device in proxy.connectedDevices) {
+            for (device in proxy.connectedDevices.orEmpty()) {
                 endpoints.add(makeEndpoint(device))
             }
         }
