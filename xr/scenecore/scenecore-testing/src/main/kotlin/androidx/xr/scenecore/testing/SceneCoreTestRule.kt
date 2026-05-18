@@ -22,6 +22,7 @@ import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
+import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.PerceptionSpace
 import androidx.xr.scenecore.PositionalAudioComponent
@@ -91,6 +92,7 @@ public class SceneCoreTestRule : ExternalResource() {
     @PublishedApi
     internal fun resolveTesterInternal(component: Component): Any? {
         return when (component) {
+            is InteractableComponent -> InteractableComponentTester.create(component)
             is PositionalAudioComponent -> PositionalAudioComponentTester.create(component)
             else -> null
         }
