@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"គំរូបង្ហាញឈីប"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"គំរូបង្ហាញរបារ​ដំណើរការ"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"គំរូបង្ហាញក្បាលផ្នែក"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"គំរូបង្ហាញផ្នែករំលេច"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"គំរូបង្ហាញ​ទម្រង់គំរូផ្ទាំង"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"គំរូបង្ហាញទម្រង់​គំរូនៃបញ្ជីទីកន្លែង"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"រុករក​ទីកន្លែង"</string>

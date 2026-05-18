@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"方塊示範"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"進度列示範"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"標題示範"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"焦點推介部分示範"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"「窗格範本」示範"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"「地點清單範本」示範"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"瀏覽地點"</string>

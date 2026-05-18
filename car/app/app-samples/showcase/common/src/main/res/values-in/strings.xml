@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Demo Chip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo Status Progres"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo Header Bagian"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo Bagian Sorotan"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo Template Panel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo Template Daftar Tempat"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Jelajahi Tempat"</string>

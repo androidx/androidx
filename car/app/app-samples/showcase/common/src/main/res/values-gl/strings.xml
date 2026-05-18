@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Demostración de etiqueta"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demostración da barra de progreso"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demostración de cabeceira de sección"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demostración da sección de contido destacado"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demostración de modelo de panel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demostración de modelo de lista de lugares"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Explorar lugares"</string>

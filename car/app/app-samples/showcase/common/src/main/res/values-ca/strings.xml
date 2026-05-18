@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Demostració de xip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demostració de la barra de progrés"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demostració de la capçalera de secció"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demostració de la secció Destacat"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demostració d\'una plantilla de subfinestra"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demostració d\'una plantilla de llista de llocs"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Cerca llocs"</string>

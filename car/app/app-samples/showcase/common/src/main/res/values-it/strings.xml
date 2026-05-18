@@ -232,7 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Il messaggio va qui.\nTesto aggiuntivo sulla seconda riga."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo Modello messaggio breve"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo Modello di elementi a sezioni"</string>
-    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo elemento compresso"</string>
+    <string name="condensed_item_demo_title" msgid="225744083182855764">"Demo elemento compatto"</string>
     <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Demo AlphaJump attivato per elementi a sezioni"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sezione Pulsante di opzione"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Sezione Pulsante di attivazione/disattivazione"</string>
@@ -246,8 +246,7 @@
     <string name="chip_demo_title" msgid="814337127879515513">"Demo chip"</string>
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo barra di avanzamento"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo intestazione di sezione"</string>
-    <!-- no translation found for spotlight_section_demo_title (4149938914167169739) -->
-    <skip />
+    <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo sezione in evidenza"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo Modello riquadro"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo Modello elenco luoghi"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Sfoglia luoghi"</string>
