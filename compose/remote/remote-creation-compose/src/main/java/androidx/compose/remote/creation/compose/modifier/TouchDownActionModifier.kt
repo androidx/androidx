@@ -31,8 +31,7 @@ internal class TouchDownActionModifier(public val actions: List<Action>) : Remot
             TouchActionModifier.DOWN,
             @Suppress("ListIterator")
             actions.mapNotNull { action ->
-                if (action is RemoteAction) with(action) { toRemoteAction() }
-                else if (action is CombinedAction) with(action) { toRemoteAction() } else null
+                if (action is RemoteAction) with(action) { toRemoteAction() } else null
             },
         )
     }

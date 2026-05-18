@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.state.RemoteString
  *
  * @param name The name of the action.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun hostAction(name: RemoteString): Action = HostAction(name, HostAction.Type.NONE)
 
 /**
@@ -40,7 +39,6 @@ public fun hostAction(name: RemoteString): Action = HostAction(name, HostAction.
  * @param name The name of the action.
  * @param value The float value to pass with the action.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun hostAction(name: RemoteString, value: RemoteFloat): Action = HostAction(name, value)
 
 /**
@@ -49,7 +47,6 @@ public fun hostAction(name: RemoteString, value: RemoteFloat): Action = HostActi
  * @param name The name of the action.
  * @param value The int value to pass with the action.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun hostAction(name: RemoteString, value: RemoteInt): Action = HostAction(name, value)
 
 /**
@@ -58,7 +55,6 @@ public fun hostAction(name: RemoteString, value: RemoteInt): Action = HostAction
  * @param name The name of the action.
  * @param value The string value to pass with the action.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun hostAction(name: RemoteString, value: RemoteString): Action = HostAction(name, value)
 
 /** Run the named host action when invoked. */
