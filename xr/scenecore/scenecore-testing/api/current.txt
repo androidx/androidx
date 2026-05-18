@@ -36,6 +36,10 @@ package androidx.xr.scenecore.testing {
     property public String assetPath;
   }
 
+  public final class InteractableComponentTester {
+    method public void triggerOnInputEvent(androidx.xr.scenecore.InputEvent inputEvent);
+  }
+
   public final class MeshEntityTester {
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Matrix4> getBoneTransforms();
     property public java.util.List<androidx.xr.runtime.math.Matrix4> boneTransforms;
