@@ -36,6 +36,7 @@ import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.manifest.HAND_TRACKING
+import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.GeospatialPose
@@ -338,7 +339,7 @@ class XrResourcesManagerTest {
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     private class StubRuntimeRenderViewpoint : RuntimeRenderViewpoint {
         override val pose = Pose()
-        override val fieldOfView = androidx.xr.runtime.FieldOfView(0f, 0f, 0f, 0f)
+        override val fieldOfView = FieldOfView(0f, 0f, 0f, 0f)
     }
 
     private class StubRuntimeHand : RuntimeHand {
