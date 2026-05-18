@@ -139,11 +139,11 @@ package androidx.xr.arcore.testing {
   }
 
   public final class RenderViewpointTester {
-    method @InaccessibleFromKotlin public androidx.xr.runtime.FieldOfView getFieldOfView();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FieldOfView getFieldOfView();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
-    method @InaccessibleFromKotlin public void setFieldOfView(androidx.xr.runtime.FieldOfView);
+    method @InaccessibleFromKotlin public void setFieldOfView(androidx.xr.runtime.math.FieldOfView);
     method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
-    property public androidx.xr.runtime.FieldOfView fieldOfView;
+    property public androidx.xr.runtime.math.FieldOfView fieldOfView;
     property public androidx.xr.runtime.math.Pose pose;
   }
 

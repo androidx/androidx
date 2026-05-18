@@ -46,12 +46,7 @@ internal constructor(
         set(value) {
             field = value
             fakeRuntimeRenderViewpoint.fieldOfView =
-                androidx.xr.runtime.FieldOfView(
-                    value.angleLeft,
-                    value.angleRight,
-                    value.angleUp,
-                    value.angleDown,
-                )
+                FieldOfView(value.angleLeft, value.angleRight, value.angleUp, value.angleDown)
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 }

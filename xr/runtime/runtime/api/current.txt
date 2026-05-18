@@ -199,24 +199,6 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.FaceTrackingMode DISABLED;
   }
 
-  public final class FieldOfView {
-    ctor public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
-    method public androidx.xr.runtime.FieldOfView copy();
-    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft);
-    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight);
-    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
-    method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
-    method @BytecodeOnly public static androidx.xr.runtime.FieldOfView! copy$default(androidx.xr.runtime.FieldOfView!, float, float, float, float, int, Object!);
-    method @InaccessibleFromKotlin public float getAngleDown();
-    method @InaccessibleFromKotlin public float getAngleLeft();
-    method @InaccessibleFromKotlin public float getAngleRight();
-    method @InaccessibleFromKotlin public float getAngleUp();
-    property public float angleDown;
-    property public float angleLeft;
-    property public float angleRight;
-    property public float angleUp;
-  }
-
   public final class GeospatialMode {
     method @InaccessibleFromKotlin public int getMode();
     property public int mode;
@@ -455,6 +437,26 @@ package androidx.xr.runtime.math {
   public static final class BoundingBox.Companion {
     method public androidx.xr.runtime.math.BoundingBox fromCenterAndHalfExtents(androidx.xr.runtime.math.Vector3 center, androidx.xr.runtime.math.FloatSize3d halfExtents);
     method public androidx.xr.runtime.math.BoundingBox fromMinMax(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
+  }
+
+  public final class FieldOfView {
+    ctor public FieldOfView();
+    ctor public FieldOfView(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
+    ctor @BytecodeOnly public FieldOfView(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.runtime.math.FieldOfView copy();
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft);
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight);
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
+    method @BytecodeOnly public static androidx.xr.runtime.math.FieldOfView! copy$default(androidx.xr.runtime.math.FieldOfView!, float, float, float, float, int, Object!);
+    method @InaccessibleFromKotlin public float getAngleDown();
+    method @InaccessibleFromKotlin public float getAngleLeft();
+    method @InaccessibleFromKotlin public float getAngleRight();
+    method @InaccessibleFromKotlin public float getAngleUp();
+    property public float angleDown;
+    property public float angleLeft;
+    property public float angleRight;
+    property public float angleUp;
   }
 
   public final class FloatSize2d {
@@ -918,8 +920,6 @@ package androidx.xr.runtime.math {
     property public androidx.xr.runtime.math.Vector4 One;
     property public androidx.xr.runtime.math.Vector4 Zero;
   }
-
-  public typealias FieldOfView = androidx.xr.runtime.FieldOfView;
 
 }
 
