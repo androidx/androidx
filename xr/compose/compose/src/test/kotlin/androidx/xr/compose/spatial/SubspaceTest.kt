@@ -18,6 +18,7 @@
 
 package androidx.xr.compose.spatial
 
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -48,6 +53,7 @@ import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.PlaneType
 import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.arcore.testing.FakePerceptionRuntime
+import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SceneManager
@@ -110,7 +116,9 @@ import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.RenderingEntityFactory
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testing.FakeRenderingRuntime
 import androidx.xr.scenecore.testing.FakeSceneRuntime
+import androidx.xr.scenecore.testing.FakeSceneRuntimeFactory
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
@@ -2449,6 +2457,80 @@ class SubspaceTest {
             subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspace")
             assertThat(subspacePose.translation).isEqualTo(Pose.Identity.translation)
         }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenDisposed_removesOriginChangedListener() {
+        composeTestRule.session = configureSessionWithDeviceTracking()
+        val session = assertNotNull(composeTestRule.session)
+        val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
+        var showSubspace by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            if (showSubspace) {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(),
+                ) {}
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(fakeSceneRuntime.activitySpace.onOriginChangedListener).isNotNull()
+
+        showSubspace = false
+        composeTestRule.waitForIdle()
+
+        assertThat(fakeSceneRuntime.activitySpace.onOriginChangedListener).isNull()
+    }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenDisposedAfterSessionDestroyed_doesNotCrash() {
+        val originalSceneRuntime =
+            FakeSceneRuntimeFactory().create(composeTestRule.activity).apply {
+                deviceDpPerMeter = 2000f
+            }
+        val renderingRuntime = FakeRenderingRuntime(originalSceneRuntime)
+        val perceptionRuntime =
+            FakePerceptionRuntimeFactory().createRuntime(composeTestRule.activity).apply {
+                initialize()
+            }
+        val customOwner =
+            object : LifecycleOwner {
+                override val lifecycle =
+                    LifecycleRegistry(this).apply { currentState = Lifecycle.State.RESUMED }
+            }
+
+        val session =
+            Session(
+                context = composeTestRule.activity,
+                runtimes = listOf(originalSceneRuntime, renderingRuntime, perceptionRuntime),
+                lifecycleOwner = customOwner,
+            )
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+        composeTestRule.session = session
+
+        // Retrieve the internal observer and register it on customOwner.lifecycle.
+        val observerField =
+            Session::class.java.getDeclaredField("lifecycleObserver").apply { isAccessible = true }
+        val lifecycleObserver = observerField.get(session) as LifecycleEventObserver
+        customOwner.lifecycle.addObserver(lifecycleObserver)
+
+        composeTestRule.setContent {
+            FollowingSubspace(
+                target = FollowTarget.ArDevice(session),
+                behavior = FollowBehavior.Soft(),
+            ) {}
+        }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.runOnUiThread {
+            (customOwner.lifecycle).handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        }
+
+        assertThat(session.scene.activitySpace.isDisposed).isTrue()
+    }
 }
 
 @RunWith(AndroidJUnit4::class)
