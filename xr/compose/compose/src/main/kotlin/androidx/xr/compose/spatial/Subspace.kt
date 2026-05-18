@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.core.viewtree.getParentOrViewTreeDisjointParent
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.xr.compose.R
 import androidx.xr.compose.platform.LocalComposeXrOwners
@@ -581,7 +582,11 @@ private fun rememberRecenterSignal(
         }
         session.scene.activitySpace.addOriginChangedListener(listener)
 
-        onDispose { session.scene.activitySpace.removeOriginChangedListener(listener) }
+        onDispose {
+            if (session.lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                session.scene.activitySpace.removeOriginChangedListener(listener)
+            }
+        }
     }
 
     return recenterSignal
