@@ -20,6 +20,7 @@ import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.PerceptionSpace
@@ -79,6 +80,7 @@ public class SceneCoreTestRule : ExternalResource() {
         } else {
             when (entity) {
                 is AnchorEntity -> AnchorEntityTester.create(entity)
+                is GltfModelEntity -> GltfModelEntityTester.create(entity)
                 is MeshEntity -> MeshEntityTester.create(entity)
                 else -> null
             }
