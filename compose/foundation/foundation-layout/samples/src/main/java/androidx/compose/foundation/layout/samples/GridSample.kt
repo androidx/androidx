@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalGridApi
 import androidx.compose.foundation.layout.Grid
 import androidx.compose.foundation.layout.GridFlow
+import androidx.compose.foundation.layout.GridScope.Companion.GridIndexUnspecified
 import androidx.compose.foundation.layout.GridTrackSize
 import androidx.compose.foundation.layout.GridTrackSize.Companion.Fixed
 import androidx.compose.foundation.layout.columns
@@ -262,6 +263,147 @@ fun GridWithLazyList() {
                     Text("Scrollable Content #$index")
                 }
             }
+        }
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalGridApi::class)
+fun GridWithNamedAreas() {
+    Grid(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        config = {
+            // 1. Define Physical Tracks
+            column(100.dp) // Sidebar track
+            column(1.fr) // Main content track
+
+            row(60.dp) // Header track
+            row(1.fr) // Main content track
+            row(50.dp) // Footer track
+
+            gap(8.dp)
+
+            // 2. Map Semantic Strings to physical coordinates
+            area("header", row = 1, column = 1, columnSpan = 2)
+            area("sidebar", row = 2, column = 1)
+            area("content", row = 2, column = 2)
+            area("footer", rows = 3..3, columns = 1..2)
+        },
+    ) {
+        // 3. Place items purely by semantic intent!
+        Box(
+            modifier = Modifier.gridItem("header").background(Color.DarkGray).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Header", color = Color.White)
+        }
+
+        Box(
+            modifier = Modifier.gridItem("sidebar").background(Color.LightGray).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Sidebar")
+        }
+
+        Box(
+            modifier = Modifier.gridItem("content").background(Color.Cyan).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Main Content")
+        }
+
+        Box(
+            modifier = Modifier.gridItem("footer").background(Color.Gray).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Footer", color = Color.White)
+        }
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalGridApi::class)
+fun GridWithAreaRanges() {
+    Grid(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        config = {
+            repeat(4) { column(1.fr) }
+            repeat(4) { row(1.fr) }
+
+            // Easily define a 2x2 area right in the center using IntRanges
+            area("CenterBox", rows = 2..3, columns = 2..3)
+        },
+    ) {
+        Box(
+            modifier = Modifier.gridItem("CenterBox").background(Color.Blue).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("I span rows 2-3 and columns 2-3", color = Color.White)
+        }
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalGridApi::class)
+fun GridWithOneDimensionalAreas() {
+    Grid(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        config = {
+            // 1. Define physical tracks
+            column(100.dp) // Sidebar track
+            column(1.fr) // Main content track
+
+            row(60.dp) // Header track
+            row(1.fr) // Main content track
+
+            gap(8.dp)
+
+            // 2. Define 1-Dimensional Areas
+            // Explicitly set column to GridIndexUnspecified so items flow horizontally
+            area("header", row = 1, column = GridIndexUnspecified)
+
+            // Explicitly set row to GridIndexUnspecified so items flow vertically
+            area("sidebar", row = GridIndexUnspecified, column = 1)
+
+            // Fully specified 2D area
+            area("content", row = 2, column = 2)
+        },
+    ) {
+        // Because "header" is 1D, items automatically flow into available columns!
+        // Logo takes the first available slot (row 1, col 1)
+        Box(
+            modifier = Modifier.gridItem("header").background(Color.Red).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Logo", color = Color.White)
+        }
+
+        // Search automatically flows into the next available slot (row 1, col 2)
+        Box(
+            modifier = Modifier.gridItem("header").background(Color.Magenta).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Search Bar", color = Color.White)
+        }
+
+        // Because "sidebar" is 1D (col=1), it flows into the next available row.
+        // Since (row 1, col 1) is taken by Logo, this flows to (row 2, col 1).
+        Box(
+            modifier = Modifier.gridItem("sidebar").background(Color.Blue).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Sidebar Menu", color = Color.White)
+        }
+
+        // Exact 2D placement
+        Box(
+            modifier = Modifier.gridItem("content").background(Color.Green).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Main Content", color = Color.White)
         }
     }
 }

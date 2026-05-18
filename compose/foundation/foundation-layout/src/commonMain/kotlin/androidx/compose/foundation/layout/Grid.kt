@@ -24,7 +24,10 @@ import androidx.collection.LongList
 import androidx.collection.MutableIntList
 import androidx.collection.MutableIntSet
 import androidx.collection.MutableObjectList
+import androidx.collection.MutableObjectLongMap
+import androidx.collection.ObjectLongMap
 import androidx.collection.mutableLongListOf
+import androidx.collection.mutableObjectLongMapOf
 import androidx.compose.foundation.layout.GridScope.Companion.GridIndexUnspecified
 import androidx.compose.foundation.layout.GridScope.Companion.MaxGridIndex
 import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
@@ -192,6 +195,39 @@ interface GridScope {
         alignment: Alignment = Alignment.TopStart,
     ): Modifier
 
+    /**
+     * Configures the position and alignment of an element within a [Grid] layout by referencing a
+     * named area.
+     *
+     * Apply this modifier to direct children of a [Grid] composable. The [areaId] must correspond
+     * to an identifier defined using [GridConfigurationScope.area] within the `config` block of the
+     * [Grid].
+     *
+     * **Multiple Items & Overlapping:**
+     * - **2D Areas:** If multiple items are assigned to the same fully specified 2D area (both row
+     *   and column are fixed), they will stack on top of each other within those bounds. Z-ordering
+     *   is determined by composition order (items declared later draw on top, mirroring `Box`).
+     * - **1D Areas & Flow:** If the referenced area is one-dimensional (e.g., it defines a row but
+     *   leaves the column unspecified), placing multiple items into it triggers auto-flow. The
+     *   items will automatically flow into the next available cells within that specific track.
+     *
+     * **Fallback Behavior for Unknown Areas:** If the provided [areaId] identifier is not
+     * registered in the Grid configuration, this item will silently fall back to automatic
+     * placement to prevent runtime crashes.
+     *
+     * @sample androidx.compose.foundation.layout.samples.GridWithNamedAreas
+     * @sample androidx.compose.foundation.layout.samples.GridWithOneDimensionalAreas
+     * @param areaId The user-defined identifier corresponding to the area defined in the Grid
+     *   configuration. This identifier **must** have a stable `equals()` and `hashCode()`
+     *   implementation (e.g., an `enum`, `String`, `data class`, or singleton `object`) to
+     *   correctly match the area registered in the configuration.
+     * @param alignment Specifies how the content should be aligned within the grid cell(s).
+     *   Defaults to [Alignment.TopStart].
+     */
+    @Stable
+    @ExperimentalGridApi
+    fun Modifier.gridItem(areaId: Any, alignment: Alignment = Alignment.TopStart): Modifier
+
     companion object {
         /**
          * The maximum allowed index for a row or column (inclusive).
@@ -199,6 +235,9 @@ interface GridScope {
          * This hard limit prevents performance degradation, layout timeouts, or memory issues
          * potentially caused by accidental loop overflows or unreasonably large sparse grid
          * definitions.
+         *
+         * **Note:** This value MUST NOT exceed `Short.MAX_VALUE` (32767). Named Area bounds are
+         * bit-packed into 16-bit segments, and larger values will silently truncate.
          */
         @ExperimentalGridApi const val MaxGridIndex: Int = 1000
 
@@ -234,7 +273,7 @@ internal object GridScopeInstance : GridScope {
         }
         require(rowSpan > 0) { "rowSpan must be > 0" }
         require(columnSpan > 0) { "columnSpan must be > 0" }
-        return this.then(GridItemElement(row, column, rowSpan, columnSpan, alignment))
+        return this.then(GridItemElement(null, row, column, rowSpan, columnSpan, alignment))
     }
 
     override fun Modifier.gridItem(
@@ -250,6 +289,19 @@ internal object GridScopeInstance : GridScope {
         val column = columns.first
         val columnSpan = columns.last - columns.first + 1
         return this.gridItem(row, column, rowSpan, columnSpan, alignment)
+    }
+
+    override fun Modifier.gridItem(areaId: Any, alignment: Alignment): Modifier {
+        return this.then(
+            GridItemElement(
+                areaId,
+                row = GridIndexUnspecified,
+                column = GridIndexUnspecified,
+                rowSpan = 1,
+                columnSpan = 1,
+                alignment,
+            )
+        )
     }
 }
 
@@ -321,6 +373,64 @@ interface GridConfigurationScope : Density {
 
     /** Defines a new row track with the specified [size]. */
     fun row(size: GridTrackSize)
+
+    /**
+     * Defines a named area or a 1-dimensional track within the grid by mapping an identifier to
+     * physical starting coordinates and spans.
+     *
+     * Once defined, this identifier can be referenced by child composables using
+     * `Modifier.gridItem(areaId)` to place them into this specific area. This decouples a
+     * component's semantic intent from its exact physical layout coordinates.
+     *
+     * **1D Areas & Flow:** To create a 1-dimensional track, explicitly pass [GridIndexUnspecified]
+     * to the dimension you want to auto-flow. For example, `area("Header", row = 1, column =
+     * GridIndexUnspecified)` restricts the area to the first row, allowing multiple items placed
+     * into it to automatically flow side-by-side into available columns.
+     *
+     * @sample androidx.compose.foundation.layout.samples.GridWithNamedAreas
+     * @sample androidx.compose.foundation.layout.samples.GridWithOneDimensionalAreas
+     * @param areaId A user-defined identifier (e.g., an Enum, String, or object marker) that
+     *   represents this area. This identifier **must** have a stable `equals()` and `hashCode()`.
+     * @param row The 1-based starting row index of the area, or [GridIndexUnspecified] to create a
+     *   1D column-based area where items flow vertically.
+     * @param column The 1-based starting column index of the area, or [GridIndexUnspecified] to
+     *   create a 1D row-based area where items flow horizontally.
+     * @param rowSpan The number of rows this area should occupy. Must be greater than 0. Defaults
+     *   to 1.
+     * @param columnSpan The number of columns this area should occupy. Must be greater than 0.
+     *   Defaults to 1.
+     * @throws IllegalArgumentException if both [row] and [column] are [GridIndexUnspecified].
+     */
+    fun area(areaId: Any, row: Int, column: Int, rowSpan: Int = 1, columnSpan: Int = 1)
+
+    /**
+     * Defines a named area within the grid using explicit coordinate ranges.
+     *
+     * This is a convenience overload that computes the starting coordinate and span based on the
+     * provided [IntRange] boundaries.
+     *
+     * Example: `area(AppArea.Footer, rows = 2..3, columns = 1..2)` is functionally equivalent to
+     * `area(AppArea.Footer, row = 2, column = 1, rowSpan = 2, columnSpan = 2)`.
+     *
+     * @sample androidx.compose.foundation.layout.samples.GridWithAreaRanges
+     * @param areaId A user-defined identifier (e.g., an Enum, String, or object marker) that
+     *   represents this area.
+     * @param rows The range of rows to occupy (e.g., `1..2`). The start determines the 1-based row
+     *   index, and the size of the range determines the span.
+     * @param columns The range of columns to occupy (e.g., `1..3`). The start determines the
+     *   1-based column index, and the size of the range determines the span.
+     */
+    fun area(areaId: Any, rows: IntRange, columns: IntRange) {
+        require(!rows.isEmpty()) { "Row range ($rows) cannot be empty" }
+        require(!columns.isEmpty()) { "Column range ($columns) cannot be empty" }
+        area(
+            areaId = areaId,
+            row = rows.first,
+            column = columns.first,
+            rowSpan = rows.last - rows.first + 1,
+            columnSpan = columns.last - columns.first + 1,
+        )
+    }
 
     /**
      * Sets both the row and column gaps (gutters) to [all].
@@ -632,6 +742,8 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
 /**
  * The modifier element that creates and updates [GridItemNode].
  *
+ * @property areaId The user-defined identifier for named area placement, or null if explicit
+ *   coordinates are used.
  * @property row The 1-based row index, or [GridScope.GridIndexUnspecified] for auto-placement.
  * @property column The 1-based column index, or [GridScope.GridIndexUnspecified] for
  *   auto-placement.
@@ -641,15 +753,27 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
  * @see GridItemNode
  */
 private class GridItemElement(
+    val areaId: Any?,
     val row: Int,
     val column: Int,
     val rowSpan: Int,
     val columnSpan: Int,
     val alignment: Alignment,
 ) : ModifierNodeElement<GridItemNode>() {
-    override fun create(): GridItemNode = GridItemNode(row, column, rowSpan, columnSpan, alignment)
+
+    constructor(
+        row: Int,
+        column: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        alignment: Alignment,
+    ) : this(null, row, column, rowSpan, columnSpan, alignment)
+
+    override fun create(): GridItemNode =
+        GridItemNode(areaId, row, column, rowSpan, columnSpan, alignment)
 
     override fun update(node: GridItemNode) {
+        node.areaId = areaId
         node.row = row
         node.column = column
         node.rowSpan = rowSpan
@@ -659,10 +783,14 @@ private class GridItemElement(
 
     override fun InspectorInfo.inspectableProperties() {
         name = "gridItem"
-        properties["row"] = row
-        properties["column"] = column
-        properties["rowSpan"] = rowSpan
-        properties["columnSpan"] = columnSpan
+        if (areaId != null) {
+            properties["area"] = areaId
+        } else {
+            properties["row"] = row
+            properties["column"] = column
+            properties["rowSpan"] = rowSpan
+            properties["columnSpan"] = columnSpan
+        }
         properties["alignment"] = alignment
     }
 
@@ -674,6 +802,7 @@ private class GridItemElement(
         if (column != other.column) return false
         if (rowSpan != other.rowSpan) return false
         if (columnSpan != other.columnSpan) return false
+        if (areaId != other.areaId) return false
         if (alignment != other.alignment) return false
 
         return true
@@ -684,6 +813,7 @@ private class GridItemElement(
         result = 31 * result + column
         result = 31 * result + rowSpan
         result = 31 * result + columnSpan
+        result = 31 * result + (areaId?.hashCode() ?: 0)
         result = 31 * result + alignment.hashCode()
         return result
     }
@@ -696,6 +826,8 @@ private class GridItemElement(
  * configuration (row, column, spans) of this specific child during the measurement phase via the
  * [modifyParentData] method.
  *
+ * @property areaId The user-defined identifier for named area placement, or null if explicit
+ *   coordinates are used.
  * @property row The 1-based row index, or [GridScope.GridIndexUnspecified] for auto-placement.
  * @property column The 1-based column index, or [GridScope.GridIndexUnspecified] for
  *   auto-placement.
@@ -708,6 +840,7 @@ private class GridItemElement(
  * @see GridScope.gridItem for the public API and input validation.
  */
 private class GridItemNode(
+    var areaId: Any?,
     var row: Int,
     var column: Int,
     var rowSpan: Int,
@@ -739,6 +872,7 @@ internal class GridMeasurePolicy(
                 columnSpecs = gridConfig.columnSpecs,
                 rowSpecs = gridConfig.rowSpecs,
                 flow = gridConfig.flow,
+                namedAreas = gridConfig.namedAreas,
             )
 
         // 3. Resolve Track Sizes
@@ -790,6 +924,11 @@ private class GridConfigurationScopeImpl(density: Density, override val constrai
     GridConfigurationScope, Density by density {
     val columnSpecs = mutableLongListOf()
     val rowSpecs = mutableLongListOf()
+
+    private var _namedAreas: MutableObjectLongMap<Any>? = null
+    val namedAreas: ObjectLongMap<Any>?
+        get() = _namedAreas
+
     var columnGap: Dp = 0.dp
     var rowGap: Dp = 0.dp
 
@@ -825,6 +964,34 @@ private class GridConfigurationScopeImpl(density: Density, override val constrai
 
     override fun row(size: GridTrackSize) {
         rowSpecs.add(size.encodedValue)
+    }
+
+    override fun area(areaId: Any, row: Int, column: Int, rowSpan: Int, columnSpan: Int) {
+        require(row != GridIndexUnspecified || column != GridIndexUnspecified) {
+            "An area must specify at least a row or a column."
+        }
+        require(row in -MaxGridIndex..MaxGridIndex) {
+            "row must be between -$MaxGridIndex and $MaxGridIndex"
+        }
+        require(column in -MaxGridIndex..MaxGridIndex) {
+            "column must be between -$MaxGridIndex and $MaxGridIndex"
+        }
+        require(rowSpan in 1..MaxGridIndex) { "rowSpan must be between 1 and $MaxGridIndex" }
+        require(columnSpan in 1..MaxGridIndex) { "columnSpan must be between 1 and $MaxGridIndex" }
+
+        // Ensure future changes to MaxGridIndex don't break the 16-bit packing.
+        require(MaxGridIndex <= Short.MAX_VALUE) {
+            "MaxGridIndex ($MaxGridIndex) shouldn't exceed Short.MAX_VALUE for 16-bit bit-packing."
+        }
+
+        val packedRow = (row.toShort().toLong() and 0xFFFFL) shl 48
+        val packedCol = (column.toShort().toLong() and 0xFFFFL) shl 32
+        val packedRowSpan = (rowSpan.toShort().toLong() and 0xFFFFL) shl 16
+        val packedColSpan = (columnSpan.toShort().toLong() and 0xFFFFL)
+
+        val packedArea = packedRow or packedCol or packedRowSpan or packedColSpan
+        val map = _namedAreas ?: mutableObjectLongMapOf<Any>().also { _namedAreas = it }
+        map[areaId] = packedArea
     }
 
     override fun gap(all: Dp) {
@@ -920,11 +1087,13 @@ private class GridTrackSizes(
  * item has a specific (row, column) coordinate.
  *
  * **Algorithm Overview:**
- * 1. **Explicit Placement:** Items with both `row` and `column` manually specified are placed
+ * 1. **Named Areas Resolution:** If an item specifies an `area`, we look up its physical bounds
+ *    from the [namedAreas] map.
+ * 2. **Explicit Placement:** Items with both `row` and `column` manually specified are placed
  *    first. They anchor the grid and do not move.
- * 2. **Auto-Placement Cursor:** A "cursor" (current row/column pointer) tracks the next available
+ * 3. **Auto-Placement Cursor:** A "cursor" (current row/column pointer) tracks the next available
  *    position.
- * 3. **Filling Gaps:** The algorithm iterates through the remaining items. For each item:
+ * 4. **Filling Gaps:** The algorithm iterates through the remaining items. For each item:
  * - It advances the cursor to the first slot that can accommodate the item's span without
  *   overlapping existing items.
  * - It respects the [flow] direction (Row-major vs Column-major).
@@ -935,6 +1104,8 @@ private class GridTrackSizes(
  * @param columnSpecs The explicit column definitions (used to determine wrapping points).
  * @param rowSpecs The explicit row definitions (used to determine wrapping points).
  * @param flow The direction ([GridFlow.Row] or [GridFlow.Column]) to fill the grid.
+ * @param namedAreas The map of user-defined areas to their bit-packed coordinate and span
+ *   definitions.
  * @return A [ResolvedGridItemIndicesResult] containing the final positions and the *total* grid
  *   dimensions (Explicit + Implicit).
  */
@@ -943,6 +1114,7 @@ private fun resolveGridItemIndices(
     columnSpecs: LongList,
     rowSpecs: LongList,
     flow: GridFlow,
+    namedAreas: ObjectLongMap<Any>?,
 ): ResolvedGridItemIndicesResult {
     val gridItems = MutableObjectList<GridItem>(measurables.size)
 
@@ -991,28 +1163,65 @@ private fun resolveGridItemIndices(
     var autoPlacementCursorCol = 0
 
     measurables.fastForEach { measurable ->
-        val data = measurable.parentData as? GridItemNode
-        val rowSpan = data?.rowSpan ?: 1
-        val colSpan = data?.columnSpan ?: 1
+        val parentData = measurable.parentData as? GridItemNode
+        var rowSpan = 1
+        var colSpan = 1
+        var requestedRow = UnspecifiedResolvedIndex
+        var requestedCol = UnspecifiedResolvedIndex
+        var alignment = Alignment.TopStart
 
-        // Convert 1-based user indices to 0-based internal indices.
-        // Returns null if the user index was unspecified (Auto).
-        val requestedRow =
-            resolveToZeroBasedIndex(data?.row ?: GridIndexUnspecified, explicitRowCount)
-        val requestedCol =
-            resolveToZeroBasedIndex(data?.column ?: GridIndexUnspecified, explicitColCount)
+        if (parentData != null) {
+            alignment = parentData.alignment
+            // Determine the specified layout coordinates and spans for this item.
+            // These can originate from either a semantic Named Area or direct modifier coordinates.
+            var specifiedRow: Int
+            var specifiedCol: Int
+            val areaId = parentData.areaId
+            if (areaId != null) {
+                // Handle Named Area Placement
+                // Look up the bit-packed bounds that were registered in the Grid config block.
+                if (namedAreas != null && namedAreas.contains(areaId)) {
+                    val packedBounds = namedAreas[areaId]
+                    specifiedRow = (packedBounds ushr 48).toShort().toInt()
+                    specifiedCol = ((packedBounds ushr 32) and 0xFFFF).toShort().toInt()
+                    rowSpan = ((packedBounds ushr 16) and 0xFFFF).toShort().toInt()
+                    colSpan = (packedBounds and 0xFFFF).toShort().toInt()
+                } else {
+                    // Fallback for unknown area
+                    // If the user requested an area that was not defined in the config,
+                    // we gracefully fall back to Auto-Placement.
+                    specifiedRow = GridIndexUnspecified
+                    specifiedCol = GridIndexUnspecified
+                    rowSpan = 1
+                    colSpan = 1
+                }
+            } else {
+                // Explicit Coordinate Modifier
+                // No area was provided, meaning the user used the absolute coordinate modifier
+                // (e.g., Modifier.gridItem(row = 1, column = 2)). Use those exact values directly.
+                specifiedRow = parentData.row
+                specifiedCol = parentData.column
+                rowSpan = parentData.rowSpan
+                colSpan = parentData.columnSpan
+            }
 
-        var finalRow = -1
-        var finalCol = -1
+            // Convert 1-based user indices to 0-based internal indices.
+            // Returns null if the user index was unspecified (Auto).
+            requestedRow = resolveToZeroBasedIndex(specifiedRow, explicitRowCount)
+            requestedCol = resolveToZeroBasedIndex(specifiedCol, explicitColCount)
+        }
+
+        var finalRow = UnspecifiedResolvedIndex
+        var finalCol = UnspecifiedResolvedIndex
 
         // 1. Fully Explicit (Row & Column fixed)
         // We simply place it there. Overlaps are allowed for explicit placement.
-        if (requestedRow != -1 && requestedCol != -1) {
+        if (requestedRow != UnspecifiedResolvedIndex && requestedCol != UnspecifiedResolvedIndex) {
             finalRow = requestedRow
             finalCol = requestedCol
         }
         // 2. Fixed Row (Search for Column)
-        else if (requestedRow != -1) {
+        else if (requestedRow != UnspecifiedResolvedIndex) {
             // Search for the first available column in the specified row.
             finalRow = requestedRow
             var candidateCol = 0
@@ -1030,7 +1239,7 @@ private fun resolveGridItemIndices(
             }
         }
         // 3. Fixed Column (Search for Row)
-        else if (requestedCol != -1) {
+        else if (requestedCol != UnspecifiedResolvedIndex) {
             // Search for the first available row in the specified column.
             finalCol = requestedCol
             var candidateRow = 0
@@ -1116,7 +1325,7 @@ private fun resolveGridItemIndices(
                 column = placementCol,
                 rowSpan = rowSpan,
                 columnSpan = colSpan,
-                alignment = data?.alignment ?: Alignment.TopStart,
+                alignment = alignment,
             )
         )
 
@@ -1124,10 +1333,10 @@ private fun resolveGridItemIndices(
         maxRow = max(maxRow, placementRow + rowSpan)
         maxCol = max(maxCol, placementCol + colSpan)
 
-        // Update Cursor (Only for non-explicit placements)
+        // Update Cursor (Only for non-explicit / fully auto placements)
         // Only update cursor if the item was NOT fully explicit.
-        // Explicit items are "out of flow" and shouldn't drag the cursor with them.
-        if (requestedRow == -1 || requestedCol == -1) {
+        // 1D areas (fixed row or fixed col) and explicit items shouldn't drag the global cursor.
+        if (requestedRow == UnspecifiedResolvedIndex && requestedCol == UnspecifiedResolvedIndex) {
             if (flow == GridFlow.Row) {
                 autoPlacementCursorRow = placementRow
                 autoPlacementCursorCol = placementCol + colSpan
@@ -1176,6 +1385,8 @@ private fun <T> MutableObjectList<T>.sortWith(comparator: Comparator<T>) {
     }
 }
 
+private const val UnspecifiedResolvedIndex = -1
+
 /**
  * Resolves a 1-based user index (positive or negative) to a 0-based concrete index.
  *
@@ -1185,7 +1396,7 @@ private fun <T> MutableObjectList<T>.sortWith(comparator: Comparator<T>) {
  *   of bounds).
  */
 private fun resolveToZeroBasedIndex(index: Int, maxCount: Int): Int {
-    if (index == GridIndexUnspecified) return -1
+    if (index == GridIndexUnspecified) return UnspecifiedResolvedIndex
 
     // Positive Index (e.g., 5): Maps to 4.
     // Always valid (allows creating implicit tracks if > maxCount).
