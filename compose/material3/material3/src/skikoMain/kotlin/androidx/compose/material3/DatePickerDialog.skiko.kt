@@ -104,8 +104,8 @@ actual fun DatePickerDialog(
                             mainAxisSpacing = DialogButtonsMainAxisSpacing,
                             crossAxisSpacing = DialogButtonsCrossAxisSpacing
                         ) {
-                            dismissButton?.invoke()
                             confirmButton()
+                            dismissButton?.invoke()
                         }
                     }
                 }
