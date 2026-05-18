@@ -2251,6 +2251,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             ),
             formWidgetInfos,
         )
+
+        if (isFormFillingEnabled) {
+            backgroundScope.launch { formWidgetMetadataLoader?.maybeLoadHintsForPage(pageNum) }
+        }
+
         // Learning the dimensions of a page can change our understanding of the content that's in
         // the viewport
         onViewportChanged()
