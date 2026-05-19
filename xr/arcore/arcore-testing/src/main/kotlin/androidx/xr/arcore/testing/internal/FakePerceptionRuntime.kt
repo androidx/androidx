@@ -56,7 +56,7 @@ internal class FakePerceptionRuntime(override val perceptionManager: FakePercept
 
     val pendingTrackableProviders: MutableSet<PendingTrackablesProvider> = mutableSetOf()
 
-    override var config: Config = Config()
+    override var config: Config = Config.Builder().build()
 
     override fun initialize() {
         check(state == State.NOT_INITIALIZED)

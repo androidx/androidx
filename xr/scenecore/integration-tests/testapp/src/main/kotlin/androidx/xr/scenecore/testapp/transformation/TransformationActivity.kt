@@ -103,7 +103,9 @@ class TransformationActivity : AppCompatActivity() {
 
         // Create session
         session = SessionManager(this).createSession()
-        session!!.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session!!.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // toolbar

@@ -459,7 +459,9 @@ class AnchorEntityTest {
             )
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         session = (result as SessionCreateSuccess).session
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         val anchorPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion.Identity)
         anchor = (Anchor.create(session, anchorPose) as AnchorCreateSuccess).anchor
     }

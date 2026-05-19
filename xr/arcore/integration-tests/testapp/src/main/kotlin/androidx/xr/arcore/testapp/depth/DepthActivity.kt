@@ -85,15 +85,15 @@ class DepthActivity : ComponentActivity(), GLSurfaceView.Renderer {
     private var selectedDepthMode by mutableStateOf(DepthMode.RAW)
     private var selectedView by mutableStateOf(ViewSelection.LEFT)
     private val rawConfig =
-        Config(
-            depthEstimation = DepthEstimationMode.RAW_ONLY,
-            deviceTracking = DeviceTrackingMode.SPATIAL,
-        )
+        Config.Builder()
+            .setDepthEstimation(DepthEstimationMode.RAW_ONLY)
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+            .build()
     private val smoothConfig =
-        Config(
-            depthEstimation = DepthEstimationMode.SMOOTH_ONLY,
-            deviceTracking = DeviceTrackingMode.SPATIAL,
-        )
+        Config.Builder()
+            .setDepthEstimation(DepthEstimationMode.SMOOTH_ONLY)
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+            .build()
     private var configurationMutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {

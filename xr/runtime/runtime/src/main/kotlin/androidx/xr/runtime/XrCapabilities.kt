@@ -235,9 +235,6 @@ public class AnchorPersistenceMode private constructor(public val mode: Int) {
  *
  * Setting this feature to [FaceTrackingMode.BLEND_SHAPES] requires that the `FACE_TRACKING` Android
  * permission is granted by the calling application.
- *
- * Setting this feature to [FaceTrackingMode.MESHES] requires the `CAMERA` Android permission to be
- * granted and that [CameraFacingDirection] is set to [CameraFacingDirection.Companion.USER].
  */
 public class FaceTrackingMode private constructor(public val mode: Int) {
     public companion object {

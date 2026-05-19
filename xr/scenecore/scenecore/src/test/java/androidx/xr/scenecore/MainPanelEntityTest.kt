@@ -90,7 +90,7 @@ class MainPanelEntityTest {
     @Test
     fun addPerceivedResolutionChangedListener_withoutDeviceTracking_throwsIllegalStateException() {
         // Disable head tracking
-        session.configure(Config(deviceTracking = DeviceTrackingMode.DISABLED))
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.DISABLED).build())
 
         val listener = Consumer<IntSize2d> {}
         val exception =

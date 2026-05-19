@@ -47,7 +47,7 @@ class HandTrackingTest : AppCompatActivity() {
 
         session =
             SessionManager(this).createSession()?.also {
-                it.configure(Config(handTracking = HandTrackingMode.BOTH))
+                it.configure(Config.Builder().setHandTracking(HandTrackingMode.BOTH).build())
                 it.scene.keyEntity = it.scene.mainPanelEntity
             }
 

@@ -170,7 +170,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
         val file = File(defaultVideoUri)

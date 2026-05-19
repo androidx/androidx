@@ -71,14 +71,15 @@ class AugmentedObjectTest {
                     as SessionCreateSuccess)
                 .session
         session.configure(
-            Config(
-                augmentedObjectCategories =
+            Config.Builder()
+                .setAugmentedObjectCategories(
                     setOf(
                         AugmentedObjectCategory.KEYBOARD,
                         AugmentedObjectCategory.MOUSE,
                         AugmentedObjectCategory.LAPTOP,
                     )
-            )
+                )
+                .build()
         )
     }
 
@@ -122,7 +123,8 @@ class AugmentedObjectTest {
 
     @Test
     fun subscribe_augmentedObjectTrackingDisabled_throwsIllegalStateException() {
-        val configureResult = session.configure(Config(augmentedObjectCategories = emptySet()))
+        val configureResult =
+            session.configure(Config.Builder().setAugmentedObjectCategories(emptySet()).build())
         check(configureResult is SessionConfigureSuccess)
         assertFailsWith<IllegalStateException> { AugmentedObject.subscribe(session) }
     }
@@ -163,7 +165,7 @@ class AugmentedObjectTest {
 
             activityController.pause()
             advanceUntilIdle()
-            session.configure(Config(augmentedObjectCategories = emptySet()))
+            session.configure(Config.Builder().setAugmentedObjectCategories(emptySet()).build())
             activityController.resume()
             advanceUntilIdle()
 

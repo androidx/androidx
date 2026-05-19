@@ -80,7 +80,7 @@ class RenderViewpointTest {
             (Session.create(context = activity, coroutineContext = testDispatcher)
                     as SessionCreateSuccess)
                 .session
-        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
 
         arCoreTestRule.deviceTester.pose = Pose()
     }

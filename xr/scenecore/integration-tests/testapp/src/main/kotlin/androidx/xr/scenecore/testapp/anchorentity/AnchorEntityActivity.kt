@@ -115,7 +115,9 @@ class AnchorEntityActivity : AppCompatActivity() {
 
     private fun createAnchorEntity(context: Context) {
         lifecycleScope.launch {
-            session!!.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+            session!!.configure(
+                Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+            )
 
             xyzModel = GltfModel.create(session!!, XYZ_ARROWS_MODEL)
 

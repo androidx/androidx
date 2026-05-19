@@ -75,10 +75,10 @@ class HelloArPlaneActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                ),
+                Config.Builder()
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build(),
                 onSessionAvailable = { session ->
                     this.session = session
 

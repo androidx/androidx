@@ -101,15 +101,15 @@ class PerceptionStateExtenderTest {
 
         session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
         session.configure(
-            Config(
-                augmentedObjectCategories = setOf(AugmentedObjectCategory.LAPTOP),
-                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                deviceTracking = DeviceTrackingMode.SPATIAL,
-                handTracking = HandTrackingMode.BOTH,
-                faceTracking = FaceTrackingMode.BLEND_SHAPES,
-                depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW,
-                eyeTracking = EyeTrackingMode.FINE_TRACKING,
-            )
+            Config.Builder()
+                .setAugmentedObjectCategories(setOf(AugmentedObjectCategory.LAPTOP))
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                .setHandTracking(HandTrackingMode.BOTH)
+                .setFaceTracking(FaceTrackingMode.BLEND_SHAPES)
+                .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
+                .setEyeTracking(EyeTrackingMode.FINE_TRACKING)
+                .build()
         )
 
         perceptionStateMap.clear()

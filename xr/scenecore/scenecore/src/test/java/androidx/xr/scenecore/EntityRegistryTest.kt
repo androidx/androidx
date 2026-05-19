@@ -71,7 +71,9 @@ class EntityRegistryTest {
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
         session = (result as SessionCreateSuccess).session
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         sceneRuntime = session.sceneRuntime
         renderingRuntime = session.renderingRuntime
         entityRegistry = session.scene.entityRegistry

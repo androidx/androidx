@@ -64,7 +64,9 @@ class SceneTest {
 
         session = (result as SessionCreateSuccess).session
         sceneRuntime = session.sceneRuntime
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
     }
 
     @Test

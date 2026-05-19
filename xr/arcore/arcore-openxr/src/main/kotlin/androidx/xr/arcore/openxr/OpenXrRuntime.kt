@@ -22,7 +22,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.xr.arcore.runtime.PerceptionRuntime
-import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
@@ -83,21 +82,8 @@ internal class OpenXrRuntime(
         }
 
     /** The current state of the runtime configuration for the session. */
-    // TODO(b/392660855): Disable all features by default once this API is fully implemented.
-    override var config: Config =
-        Config(
-            PlaneTrackingMode.DISABLED,
-            HandTrackingMode.DISABLED,
-            DeviceTrackingMode.DISABLED,
-            DepthEstimationMode.DISABLED,
-            AnchorPersistenceMode.LOCAL,
-            augmentedObjectCategories = setOf(),
-            augmentedImageDatabase = null,
-            qrCodeTracking = QrCodeTrackingMode.DISABLED,
-        )
-        private set(value) {
-            field = value
-        }
+    override var config: Config = Config.Builder().build()
+        private set
 
     var instanceProcAddr: Long = 0L
         private set

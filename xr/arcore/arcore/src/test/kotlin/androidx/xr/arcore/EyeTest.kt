@@ -69,12 +69,12 @@ class EyeTest {
             (Session.create(context = activity, coroutineContext = testDispatcher)
                     as SessionCreateSuccess)
                 .session
-        session.configure(Config(eyeTracking = EyeTrackingMode.FINE_TRACKING))
+        session.configure(Config.Builder().setEyeTracking(EyeTrackingMode.FINE_TRACKING).build())
     }
 
     @Test
     fun left_eyeTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(eyeTracking = EyeTrackingMode.DISABLED))
+        session.configure(Config.Builder().setEyeTracking(EyeTrackingMode.DISABLED).build())
 
         assertFailsWith<IllegalStateException> { Eye.left(session) }
     }
@@ -125,7 +125,7 @@ class EyeTest {
 
     @Test
     fun right_eyeTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(eyeTracking = EyeTrackingMode.DISABLED))
+        session.configure(Config.Builder().setEyeTracking(EyeTrackingMode.DISABLED).build())
 
         assertFailsWith<IllegalStateException> { Eye.right(session) }
     }

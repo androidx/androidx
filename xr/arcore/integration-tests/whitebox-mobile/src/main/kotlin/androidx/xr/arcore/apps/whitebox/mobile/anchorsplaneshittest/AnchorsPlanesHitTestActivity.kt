@@ -134,7 +134,9 @@ class AnchorsPlanesHitTestActivity :
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL),
+                Config.Builder()
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .build(),
                 onSessionAvailable = { session ->
                     this.session = session
                     surfaceView = GLSurfaceView(this)

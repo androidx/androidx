@@ -109,10 +109,10 @@ class PersistentAnchorsActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    anchorPersistence = AnchorPersistenceMode.LOCAL,
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                ),
+                Config.Builder()
+                    .setAnchorPersistence(AnchorPersistenceMode.LOCAL)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build(),
                 onSessionAvailable = { session ->
                     this.session = session
                     this.arDevice = ArDevice.getInstance(session)

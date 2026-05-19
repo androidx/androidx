@@ -75,7 +75,7 @@ class HandTest {
             (Session.create(context = activity, coroutineContext = testDispatcher)
                     as SessionCreateSuccess)
                 .session
-        session.configure(Config(handTracking = HandTrackingMode.BOTH))
+        session.configure(Config.Builder().setHandTracking(HandTrackingMode.BOTH).build())
     }
 
     @After
@@ -105,7 +105,7 @@ class HandTest {
 
     @Test
     fun left_handTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(handTracking = HandTrackingMode.DISABLED))
+        session.configure(Config.Builder().setHandTracking(HandTrackingMode.DISABLED).build())
 
         assertFailsWith<IllegalStateException> { Hand.left(session) }
     }
@@ -140,7 +140,7 @@ class HandTest {
 
     @Test
     fun right_handTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(handTracking = HandTrackingMode.DISABLED))
+        session.configure(Config.Builder().setHandTracking(HandTrackingMode.DISABLED).build())
 
         assertFailsWith<IllegalStateException> { Hand.right(session) }
     }

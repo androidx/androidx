@@ -72,6 +72,7 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.components.TopBarWithBackArrow
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -89,7 +90,9 @@ class FollowingSubspaceActivity : ComponentActivity() {
     @Composable
     private fun MainContent() {
         val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-        session.configure(config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL))
+        session.configure(
+            Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+        )
 
         val todoItems = remember {
             mutableStateListOf(

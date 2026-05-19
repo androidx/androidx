@@ -88,7 +88,9 @@ class BoundsComponentTest {
                     ),
                 lifecycleOwner = activity,
             )
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
 
         gltfModel = GltfModel.create(session, Paths.get("test.glb"))
         gltfModelEntity =

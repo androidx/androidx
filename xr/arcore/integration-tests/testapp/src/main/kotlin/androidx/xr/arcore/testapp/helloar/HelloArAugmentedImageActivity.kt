@@ -87,10 +87,10 @@ class HelloArAugmentedImageActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    augmentedImageDatabase = augmentedImageDatabase,
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                ),
+                Config.Builder()
+                    .setAugmentedImageDatabase(augmentedImageDatabase)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build(),
                 onSessionAvailable = { session ->
                     this.session = session
 

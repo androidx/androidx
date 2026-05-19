@@ -98,8 +98,10 @@ class DepthActivity :
 
     private var selectedDepthMode by mutableStateOf(DepthMode.RAW)
 
-    private val rawConfig = Config(depthEstimation = DepthEstimationMode.RAW_ONLY)
-    private val smoothConfig = Config(depthEstimation = DepthEstimationMode.SMOOTH_ONLY)
+    private val rawConfig =
+        Config.Builder().setDepthEstimation(DepthEstimationMode.RAW_ONLY).build()
+    private val smoothConfig =
+        Config.Builder().setDepthEstimation(DepthEstimationMode.SMOOTH_ONLY).build()
     private var configurationMutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {

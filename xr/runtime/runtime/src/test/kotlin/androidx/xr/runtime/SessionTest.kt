@@ -239,7 +239,7 @@ class SessionTest {
         underTest = createSession()
         activityController.destroy()
 
-        assertFailsWith<IllegalStateException> { underTest.configure(Config()) }
+        assertFailsWith<IllegalStateException> { underTest.configure(Config.Builder().build()) }
     }
 
     @Test
@@ -250,27 +250,27 @@ class SessionTest {
         val stubRuntime = getStubRuntime()
         check(
             stubRuntime.config ==
-                Config(
-                    planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                Config.Builder()
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
                     // Needs to contain at least one AugmentedObjectCategory to enable
-                    augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
-                    handTracking = HandTrackingMode.BOTH,
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                    depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW,
-                    anchorPersistence = AnchorPersistenceMode.LOCAL,
-                    qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
-                )
+                    .setAugmentedObjectCategories(setOf(AugmentedObjectCategory.MOUSE))
+                    .setHandTracking(HandTrackingMode.BOTH)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
+                    .setAnchorPersistence(AnchorPersistenceMode.LOCAL)
+                    .setQrCodeTracking(QrCodeTrackingMode.DYNAMIC)
+                    .build()
         )
         val newConfig =
-            Config(
-                planeTracking = PlaneTrackingMode.DISABLED,
-                augmentedObjectCategories = setOf(),
-                handTracking = HandTrackingMode.DISABLED,
-                deviceTracking = DeviceTrackingMode.DISABLED,
-                depthEstimation = DepthEstimationMode.DISABLED,
-                anchorPersistence = AnchorPersistenceMode.DISABLED,
-                qrCodeTracking = QrCodeTrackingMode.DISABLED,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.DISABLED)
+                .setAugmentedObjectCategories(setOf())
+                .setHandTracking(HandTrackingMode.DISABLED)
+                .setDeviceTracking(DeviceTrackingMode.DISABLED)
+                .setDepthEstimation(DepthEstimationMode.DISABLED)
+                .setAnchorPersistence(AnchorPersistenceMode.DISABLED)
+                .setQrCodeTracking(QrCodeTrackingMode.DISABLED)
+                .build()
 
         val result = underTest.configure(newConfig)
 
@@ -290,10 +290,10 @@ class SessionTest {
 
         assertFailsWith<SecurityException> {
             underTest.configure(
-                underTest.config.copy(
-                    depthEstimation = DepthEstimationMode.DISABLED,
-                    faceTracking = FaceTrackingMode.DISABLED,
-                )
+                Config.Builder(currentConfig)
+                    .setDepthEstimation(DepthEstimationMode.DISABLED)
+                    .setFaceTracking(FaceTrackingMode.DISABLED)
+                    .build()
             )
         }
         assertThat(stubRuntime.config).isEqualTo(currentConfig)
@@ -311,7 +311,9 @@ class SessionTest {
 
         assertFailsWith<UnsupportedOperationException> {
             underTest.configure(
-                currentConfig.copy(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                Config.Builder(currentConfig)
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .build()
             )
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
@@ -329,15 +331,16 @@ class SessionTest {
 
         assertFailsWith<UnsupportedOperationException> {
             underTest.configure(
-                currentConfig.copy(
-                    augmentedImageDatabase =
+                Config.Builder(currentConfig)
+                    .setAugmentedImageDatabase(
                         AugmentedImageDatabase().apply {
                             addAugmentedImageDatabaseEntry(
                                 mode = AugmentedImageDatabaseEntryMode.DYNAMIC,
                                 bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
                             )
                         }
-                )
+                    )
+                    .build()
             )
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
@@ -354,7 +357,9 @@ class SessionTest {
         stubRuntime.shouldSupportQrCodeTracking = false
 
         assertFailsWith<UnsupportedOperationException> {
-            underTest.configure(currentConfig.copy(qrCodeTracking = QrCodeTrackingMode.DYNAMIC))
+            underTest.configure(
+                Config.Builder().setQrCodeTracking(QrCodeTrackingMode.DYNAMIC).build()
+            )
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
         stubRuntime.shouldSupportQrCodeTracking = true

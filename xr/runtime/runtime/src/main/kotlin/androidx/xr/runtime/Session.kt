@@ -343,7 +343,7 @@ public constructor(
 
     /** The current state of the runtime configuration. */
     @GuardedBy("lock")
-    public var config: Config = Config()
+    public var config: Config = Config.Builder().build()
         private set
 
     @get:VisibleForTesting
@@ -375,8 +375,9 @@ public constructor(
      * [androidx.xr.runtime.XrDevice] before configuring. Example:
      * [androidx.xr.runtime.XrDevice.isGeospatialModeSupported].
      *
-     * It is recommended to use and modify the [Config.copy] of the current [Session.config] to
-     * maintain the current configuration state aside from the desired changes.
+     * It is recommended to use and modify an instance of [Config.Builder] to maintain the current
+     * desired configuration state. A instance of [Config] to pass to this function can be created
+     * using [Config.Builder.build].
      *
      * Note that enabling most configurations will increase hardware resource consumption and should
      * only be enabled if needed.

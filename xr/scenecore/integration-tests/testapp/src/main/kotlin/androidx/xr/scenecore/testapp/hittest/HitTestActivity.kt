@@ -60,7 +60,7 @@ class HitTestActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+        session!!.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
         session?.scene?.keyEntity = null
         device = ArDevice.getInstance(session!!)
 

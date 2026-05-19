@@ -32,6 +32,7 @@ import org.junit.runners.JUnit4
 class FakePerceptionRuntimeTest {
 
     internal lateinit var underTest: FakePerceptionRuntime
+    val defaultConfig = Config.Builder().build()
 
     @Before
     fun setUp() {
@@ -79,7 +80,7 @@ class FakePerceptionRuntimeTest {
 
     @Test
     fun configure_beforeCreate_doesNotThrowsIllegalStateException() {
-        underTest.configure(Config())
+        underTest.configure(defaultConfig)
     }
 
     @Test
@@ -87,7 +88,7 @@ class FakePerceptionRuntimeTest {
         underTest.initialize()
         underTest.destroy()
 
-        assertFailsWith<IllegalStateException> { underTest.configure(Config()) }
+        assertFailsWith<IllegalStateException> { underTest.configure(defaultConfig) }
     }
 
     @Test

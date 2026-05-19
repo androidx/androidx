@@ -170,7 +170,7 @@ fun callSessionCreate(activity: ComponentActivity, userRequestedInstall: Boolean
     }
 }
 
-private fun generateConfig(): Config = Config()
+private fun generateConfig(): Config = Config.Builder().build()
 
 private fun handleConfiguredSession(session: Session) {}
 

@@ -106,7 +106,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config()
+        val config = Config.Builder().build()
         underTest.configure(config)
 
         assertThat(underTest.config).isEqualTo(config)
@@ -119,7 +119,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        underTest.configure(Config())
+        underTest.configure(Config.Builder().build())
 
         val argumentCaptor = argumentCaptor<TextureUpdateMode>()
         verify(mockArConfig).setTextureUpdateMode(argumentCaptor.capture())
@@ -133,7 +133,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        underTest.configure(Config())
+        underTest.configure(Config.Builder().build())
 
         val argumentCaptor = argumentCaptor<TextureUpdateMode>()
         verify(mockArConfig).setTextureUpdateMode(argumentCaptor.capture())
@@ -146,7 +146,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(faceTracking = FaceTrackingMode.DISABLED)
+        val config = Config.Builder().setFaceTracking(FaceTrackingMode.DISABLED).build()
         underTest.configure(config)
 
         val argumentCaptor = argumentCaptor<ArConfig.AugmentedFaceMode>()
@@ -161,7 +161,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(faceTracking = FaceTrackingMode.MESHES)
+        val config = Config.Builder().setFaceTracking(FaceTrackingMode.MESHES).build()
         underTest.configure(config)
 
         val argumentCaptor = argumentCaptor<ArConfig.AugmentedFaceMode>()
@@ -176,7 +176,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(faceTracking = FaceTrackingMode.BLEND_SHAPES)
+        val config = Config.Builder().setFaceTracking(FaceTrackingMode.BLEND_SHAPES).build()
 
         assertThrows<UnsupportedOperationException> { underTest.configure(config) }
     }
@@ -187,7 +187,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(planeTracking = PlaneTrackingMode.DISABLED)
+        val config = Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build()
         underTest.configure(config)
 
         val argumentCaptor = argumentCaptor<PlaneFindingMode>()
@@ -202,7 +202,8 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+        val config =
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
         underTest.configure(config)
 
         val argumentCaptor = argumentCaptor<PlaneFindingMode>()
@@ -218,7 +219,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(augmentedImageDatabase = null)
+        val config = Config.Builder().setAugmentedImageDatabase(null).build()
         underTest.configure(config)
 
         assertThat(mockArConfig.augmentedImageDatabase).isEqualTo(null)
@@ -231,7 +232,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(handTracking = HandTrackingMode.BOTH)
+        val config = Config.Builder().setHandTracking(HandTrackingMode.BOTH).build()
         assertFailsWith<UnsupportedOperationException> { underTest.configure(config) }
     }
 
@@ -241,7 +242,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW)
+        val config = Config.Builder().setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW).build()
         underTest.configure(config)
 
         assertThat(underTest.config.depthEstimation).isEqualTo(DepthEstimationMode.SMOOTH_AND_RAW)
@@ -253,7 +254,7 @@ class ArCoreRuntimeTest {
         underTest._session = mockSession
         whenever(mockSession.config).thenReturn(mockArConfig)
 
-        val config = Config(anchorPersistence = AnchorPersistenceMode.LOCAL)
+        val config = Config.Builder().setAnchorPersistence(AnchorPersistenceMode.LOCAL).build()
         assertFailsWith<UnsupportedOperationException> { underTest.configure(config) }
     }
 
@@ -265,7 +266,7 @@ class ArCoreRuntimeTest {
         whenever(mockSession.configure(any()))
             .doThrow(FineLocationPermissionNotGrantedException("Test Exception"))
 
-        val config = Config()
+        val config = Config.Builder().build()
         assertFailsWith<SecurityException> { underTest.configure(config) }
 
         verify(mockSession).configure(mockArConfig)
@@ -279,7 +280,7 @@ class ArCoreRuntimeTest {
         whenever(mockSession.configure(any()))
             .doThrow(ARCore1xGooglePlayServicesLocationLibraryNotLinkedException("Test Exception"))
 
-        val config = Config()
+        val config = Config.Builder().build()
         assertFailsWith<LibraryNotLinkedException> { underTest.configure(config) }
         verify(mockSession).configure(mockArConfig)
     }
@@ -292,7 +293,7 @@ class ArCoreRuntimeTest {
         whenever(mockSession.configure(any()))
             .doThrow(UnsupportedConfigurationException("Test Exception"))
 
-        val config = Config()
+        val config = Config.Builder().build()
         assertFailsWith<UnsupportedOperationException> { underTest.configure(config) }
         verify(mockSession).configure(mockArConfig)
     }

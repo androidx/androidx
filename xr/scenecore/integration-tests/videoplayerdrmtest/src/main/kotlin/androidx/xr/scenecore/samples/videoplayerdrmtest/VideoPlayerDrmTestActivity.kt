@@ -124,7 +124,9 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
                             as SessionCreateSuccess)
                         .session
                 }
-            session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+            session.configure(
+                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+            )
             session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
             if (movableComponentMp == null) {

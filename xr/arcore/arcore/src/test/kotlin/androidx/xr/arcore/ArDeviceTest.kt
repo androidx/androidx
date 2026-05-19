@@ -76,7 +76,7 @@ class ArDeviceTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun pose_SpatialLastKnown_tracksTranslationAndRotation() {
-        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
         runTest(testDispatcher) {
             val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
             arCoreTestRule.deviceTester.pose = expectedPose
@@ -94,7 +94,7 @@ class ArDeviceTest {
     @OptIn(ExperimentalCoroutinesApi::class, PreviewSpatialApi::class)
     @Test
     fun pose_InertialLastKnown_onlyTracksRotation() {
-        session.configure(Config(deviceTracking = DeviceTrackingMode.INERTIAL))
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.INERTIAL).build())
         runTest(testDispatcher) {
             val expectedPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f))
             arCoreTestRule.deviceTester.pose = expectedPose
@@ -112,7 +112,7 @@ class ArDeviceTest {
 
     @Test
     fun getInstance_deviceTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(deviceTracking = DeviceTrackingMode.DISABLED))
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.DISABLED).build())
         runTest(testDispatcher) {
             assertFailsWith<IllegalStateException> { ArDevice.getInstance(session) }
         }

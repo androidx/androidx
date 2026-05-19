@@ -92,7 +92,9 @@ class EnvironmentActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session!!.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // toolbar
