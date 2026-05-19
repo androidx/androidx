@@ -29,6 +29,7 @@ import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.PerceptionSpace
 import androidx.xr.scenecore.PositionalAudioComponent
+import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SoundEffectPool
 import androidx.xr.scenecore.SpatialEnvironment
@@ -102,6 +103,7 @@ public class SceneCoreTestRule : ExternalResource() {
             is BoundsComponent -> BoundsComponentTester.create(component)
             is InteractableComponent -> InteractableComponentTester.create(component)
             is PositionalAudioComponent -> PositionalAudioComponentTester.create(component)
+            is ResizableComponent -> ResizableComponentTester.create(component)
             else -> null
         }
     }

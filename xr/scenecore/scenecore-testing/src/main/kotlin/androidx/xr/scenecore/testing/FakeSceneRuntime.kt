@@ -494,8 +494,9 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         maximumSize: Dimensions,
     ): FakeResizableComponent {
         val resizableComponent =
-            FakeResizableComponent(minimumSize = minimumSize, maximumSize = maximumSize)
-
+            FakeResizableComponent(
+                fakeInternal = internalRuntime.createResizableComponent(minimumSize, maximumSize)
+            )
         return resizableComponent
     }
 
