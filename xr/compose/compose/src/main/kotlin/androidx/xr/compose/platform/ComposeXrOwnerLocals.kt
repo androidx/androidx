@@ -115,6 +115,15 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
             parent = session.scene.activitySpace,
         )
 
+    // If the main panel is implicitly hosted (not explicitly placed in a Subspace via
+    // SpatialMainPanel), we parent it to the SubspaceRootNode so it still receives
+    // recommended pose and scale updates from the system.
+    contentView.post {
+        if (session.scene.mainPanelEntity.parent == null) {
+            session.scene.mainPanelEntity.parent = subspaceRootNode
+        }
+    }
+
     return ComposeXrOwnerLocals(
             session = session,
             spatialConfiguration =
@@ -124,7 +133,7 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
             subspaceRootNode = subspaceRootNode,
             dialogManager = DefaultDialogManager(),
         )
-        .also { contentView.setTag(R.id.compose_xr_owner_locals, it) }
+        .also { locals -> contentView.setTag(R.id.compose_xr_owner_locals, locals) }
 }
 
 internal fun Activity.getOrCreateSession(): Session? {

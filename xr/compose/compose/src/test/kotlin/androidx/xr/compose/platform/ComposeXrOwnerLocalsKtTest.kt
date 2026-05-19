@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// TODO(b/502276582): Remove Suppression once the rest of aosp/4029203 are submitted
+@file:Suppress("DEPRECATION")
 
 package androidx.xr.compose.platform
 
@@ -28,6 +30,8 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Space
+import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -170,5 +174,38 @@ class ComposeXrOwnerLocalsKtTest {
 
         assertThat(rootNode.getScale(Space.ACTIVITY)).isEqualTo(expectedScale)
         assertThat(rootNode.getPose(Space.ACTIVITY)).isEqualTo(expectedPose)
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun composeXrOwnerLocals_outsideSubspace_mainPanelInheritsRecommendedScale() {
+        val session = composeTestRule.configureFakeSession()
+        val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
+        var locals: ComposeXrOwnerLocals? = null
+
+        composeTestRule.setContent { locals = LocalComposeXrOwners.current }
+        composeTestRule.waitForIdle()
+
+        val xrLocals = assertNotNull(actual = locals)
+
+        val expectedScale = 2.5f
+        composeTestRule.runOnIdle {
+            fakeSceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+                recommendedPose = Pose.Identity,
+                recommendedScale = Vector3(x = expectedScale, y = expectedScale, z = expectedScale),
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        // Verify the mainPanelEntity's parent is set to the subspaceRootNode by default
+        assertThat(session.scene.mainPanelEntity.parent).isEqualTo(xrLocals.subspaceRootNode)
+
+        // Because mainPanelEntity is parented to subspaceRootNode, it will passively inherit this
+        // scale.
+        val spatialConfiguration =
+            assertNotNull(actual = xrLocals.spatialConfiguration as? SessionSpatialConfiguration)
+        assertThat(spatialConfiguration.recommendedScale).isEqualTo(expectedScale)
+        assertThat(xrLocals.subspaceRootNode.getScale(relativeTo = Space.ACTIVITY))
+            .isEqualTo(expectedScale)
     }
 }
