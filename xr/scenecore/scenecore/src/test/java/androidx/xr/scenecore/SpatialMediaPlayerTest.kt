@@ -20,67 +20,76 @@ package androidx.xr.scenecore
 
 import android.media.MediaPlayer
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.testing.FakeSceneRuntime
+import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class SpatialMediaPlayerTest {
 
-    private lateinit var sceneRuntime: SceneRuntime
+    @get:Rule val scenecoreTestRule = SceneCoreTestRule()
 
-    private val activity =
-        Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
-
+    private val testDispatcher = StandardTestDispatcher()
+    private lateinit var activity: ComponentActivity
+    private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var session: Session
 
     @Before
     fun setUp() {
-        val testDispatcher = StandardTestDispatcher()
-        val result = Session.create(activity, testDispatcher)
+        activityController = Robolectric.buildActivity(ComponentActivity::class.java)
+        activity = activityController.create().start().get()
+        val result =
+            Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
         session = (result as SessionCreateSuccess).session
-        sceneRuntime = session.sceneRuntime
+    }
+
+    @After
+    fun tearDown() {
+        if (::activityController.isInitialized) {
+            activityController.destroy()
+        }
     }
 
     @Test
     fun setWithPointSource_callsRuntimeMediaPlayerSetPointSource() {
         val mediaPlayer = MediaPlayer()
+        val tester = scenecoreTestRule.createTester(mediaPlayer)
 
         val entity = Entity.create(session, "test")
         val pointSourceParams = PointSourceParams()
 
         SpatialMediaPlayer.setPointSourceParams(session, mediaPlayer, pointSourceParams, entity)
-        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
-        val fakeMediaPlayerExtensionsWrapper = fakeSceneRuntime.mediaPlayerExtensionsWrapper
 
-        assertThat(fakeMediaPlayerExtensionsWrapper.paramsWithEntity[mediaPlayer]?.second)
-            .isEqualTo(entity.rtEntity)
+        assertThat(tester.isPointSource(entity)).isTrue()
+        assertThat(tester.pointSourceParams).isEqualTo(pointSourceParams)
     }
 
     @Test
     fun setWithSoundField_callsRuntimeMediaPlayerSetSoundField() {
         val mediaPlayer = MediaPlayer()
+        val tester = scenecoreTestRule.createTester(mediaPlayer)
 
         val soundFieldAttributes =
             SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.THIRD_ORDER)
 
         SpatialMediaPlayer.setSoundFieldAttributes(session, mediaPlayer, soundFieldAttributes)
-        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
-        val fakeMediaPlayerExtensionsWrapper = fakeSceneRuntime.mediaPlayerExtensionsWrapper
 
-        assertThat(fakeMediaPlayerExtensionsWrapper.soundFieldAttributes[mediaPlayer])
-            .isEqualTo(soundFieldAttributes.rtSoundFieldAttributes)
+        assertThat(tester.soundFieldAttributes?.order).isEqualTo(soundFieldAttributes.order)
     }
 }

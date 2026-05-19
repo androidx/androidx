@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testing
 
+import android.media.MediaPlayer
 import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Component
@@ -177,6 +178,23 @@ public class SceneCoreTestRule : ExternalResource() {
      */
     public fun createTester(gltfModel: GltfModel): GltfModelTester {
         return GltfModelTester.create(gltfModel)
+    }
+
+    /**
+     * Creates the test data accessor for the given [MediaPlayer].
+     *
+     * This class provides a mechanism for tests to inspect and verify spatial audio attributes
+     * associated with a [MediaPlayer] that are otherwise encapsulated within the SceneCore runtime.
+     *
+     * @param mediaPlayer The [MediaPlayer] audio attributes are associated with.
+     * @return A [SpatialMediaPlayerTester] instance used to inspect and manipulate the test data.
+     */
+    public fun createTester(mediaPlayer: MediaPlayer): SpatialMediaPlayerTester {
+        val rtInstance = requireRuntimesReady {
+            requireNotNull(FakeSceneRuntime.instance).mediaPlayerExtensionsWrapper
+        }
+
+        return SpatialMediaPlayerTester(rtInstance, mediaPlayer)
     }
 
     /**
