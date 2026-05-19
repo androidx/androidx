@@ -22,8 +22,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
+import androidx.compose.ui.assertThat
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.node.OwnedLayer
@@ -570,6 +572,19 @@ class OwnerLayerTest {
         assertTrue(graphicsContext!!.layers.contains(layer.graphicsLayer))
         layer.destroy()
         assertFalse(graphicsContext!!.layers.contains(layer.graphicsLayer))
+    }
+
+    @Test
+    fun inverseMatrixCalculationOnChangeFromNonInvertibleToIdentityMatrix() {
+        val layer = TestRenderNodeLayer()
+        layer.updateProperties(scaleX = 0f)
+        assertFalse(layer.mapOffset(Offset.Zero, inverse = true).isFinite)
+        layer.updateProperties(scaleX = 1f)
+        layer.underlyingMatrix
+
+        // This is not an accidental duplicate line! the bug was on the 2nd call to getInverseMatrix
+        assertTrue(layer.mapOffset(Offset.Zero, inverse = true).isFinite)
+        assertTrue(layer.mapOffset(Offset.Zero, inverse = true).isFinite)
     }
 
     private var graphicsContext: TestGraphicsContext? = null

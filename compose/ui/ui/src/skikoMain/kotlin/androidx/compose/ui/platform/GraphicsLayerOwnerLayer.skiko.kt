@@ -362,18 +362,22 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     private fun getInverseMatrix(): Matrix? {
+        val matrix = getMatrix()
+        if (isIdentity) {
+            return matrix
+        }
+
         val inverseMatrix = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
         if (!isInverseMatrixDirty) {
-            if (inverseMatrix[0, 0].isNaN()) {
-                return null
+            return if (inverseMatrix[0, 0].isNaN()) {
+                null
+            } else {
+                inverseMatrix
             }
-            return inverseMatrix
         }
+
         isInverseMatrixDirty = false
-        val matrix = getMatrix()
-        return if (isIdentity) {
-            matrix
-        } else if (matrix.invertTo(inverseMatrix)) {
+        return if (matrix.invertTo(inverseMatrix)) {
             inverseMatrix
         } else {
             inverseMatrix[0, 0] = Float.NaN
