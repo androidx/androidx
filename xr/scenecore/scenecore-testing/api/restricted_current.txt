@@ -72,6 +72,10 @@ package androidx.xr.scenecore.testing {
     property public androidx.xr.scenecore.PointSourceParams pointSourceParams;
   }
 
+  public final class ResizableComponentTester {
+    method public void triggerOnResizeEvent(androidx.xr.scenecore.ResizeEvent resizeEvent);
+  }
+
   public final class SceneCoreTestRule extends org.junit.rules.ExternalResource {
     ctor public SceneCoreTestRule();
     method public androidx.xr.scenecore.testing.SpatialMediaPlayerTester createTester(android.media.MediaPlayer mediaPlayer);
