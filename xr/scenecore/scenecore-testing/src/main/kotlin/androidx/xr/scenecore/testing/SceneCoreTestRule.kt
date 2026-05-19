@@ -28,6 +28,7 @@ import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.PerceptionSpace
+import androidx.xr.scenecore.PointerCaptureComponent
 import androidx.xr.scenecore.PositionalAudioComponent
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.Scene
@@ -102,6 +103,7 @@ public class SceneCoreTestRule : ExternalResource() {
         return when (component) {
             is BoundsComponent -> BoundsComponentTester.create(component)
             is InteractableComponent -> InteractableComponentTester.create(component)
+            is PointerCaptureComponent -> PointerCaptureComponentTester.create(component)
             is PositionalAudioComponent -> PositionalAudioComponentTester.create(component)
             is ResizableComponent -> ResizableComponentTester.create(component)
             else -> null

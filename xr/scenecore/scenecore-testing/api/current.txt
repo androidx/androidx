@@ -64,6 +64,11 @@ package androidx.xr.scenecore.testing {
     property public androidx.xr.scenecore.HitTestResult? hitTestResult;
   }
 
+  public final class PointerCaptureComponentTester {
+    method public void triggerOnInputEvent(androidx.xr.scenecore.InputEvent event);
+    method public void triggerOnStateChanged(androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState newState);
+  }
+
   public final class PositionalAudioComponentTester {
     method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams getPointSourceParams();
