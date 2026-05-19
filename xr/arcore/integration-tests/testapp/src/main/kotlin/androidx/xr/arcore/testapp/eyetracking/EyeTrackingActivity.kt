@@ -67,10 +67,10 @@ class EyeTrackingActivity : ComponentActivity() {
     private lateinit var session: Session
     private lateinit var sessionHelper: SessionLifecycleHelper
     private var config: Config =
-        Config(
-            deviceTracking = DeviceTrackingMode.SPATIAL,
-            eyeTracking = EyeTrackingMode.COARSE_TRACKING,
-        )
+        Config.Builder()
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+            .setEyeTracking(EyeTrackingMode.COARSE_TRACKING)
+            .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,7 +128,11 @@ class EyeTrackingActivity : ComponentActivity() {
             }
 
         // reconfigure the session
-        config = Config(deviceTracking = DeviceTrackingMode.SPATIAL, eyeTracking = newMode)
+        config =
+            Config.Builder()
+                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                .setEyeTracking(newMode)
+                .build()
         sessionHelper.tryUpdateConfig(config)
     }
 

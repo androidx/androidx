@@ -70,7 +70,7 @@ class GeospatialTest {
             (Session.create(context = activity, coroutineContext = testDispatcher)
                     as SessionCreateSuccess)
                 .session
-        session.configure(Config(geospatial = GeospatialMode.SPATIAL))
+        session.configure(Config.Builder().setGeospatial(GeospatialMode.SPATIAL).build())
 
         arCoreTestRule.geospatialTester.state = GeospatialState.NOT_RUNNING
     }
@@ -259,7 +259,7 @@ class GeospatialTest {
     fun createPoseFromGeospatialPose_withVpsDisabled_throwsIllegalStateException() {
         val underTest = Geospatial.getInstance(session)
 
-        session.configure(Config(geospatial = GeospatialMode.DISABLED))
+        session.configure(Config.Builder().setGeospatial(GeospatialMode.DISABLED).build())
 
         assertFailsWith<IllegalStateException> {
             underTest.createPoseFromGeospatialPose(

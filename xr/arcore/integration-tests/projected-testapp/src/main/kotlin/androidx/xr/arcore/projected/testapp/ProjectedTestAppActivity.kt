@@ -72,35 +72,35 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private val configs =
         listOf(
             "Geospatial On, 6DoF On" to
-                Config(
-                    geospatial = GeospatialMode.SPATIAL,
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                ),
+                Config.Builder()
+                    .setGeospatial(GeospatialMode.SPATIAL)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build(),
             "Geospatial Off, 6DoF On" to
-                Config(
-                    geospatial = GeospatialMode.DISABLED,
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                ),
+                Config.Builder()
+                    .setGeospatial(GeospatialMode.DISABLED)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build(),
             "Geospatial Off, 3DoF On" to
-                Config(
-                    geospatial = GeospatialMode.DISABLED,
-                    deviceTracking = DeviceTrackingMode.INERTIAL,
-                ),
+                Config.Builder()
+                    .setGeospatial(GeospatialMode.DISABLED)
+                    .setDeviceTracking(DeviceTrackingMode.INERTIAL)
+                    .build(),
             "Geospatial Off, Device Tracking Off" to
-                Config(
-                    geospatial = GeospatialMode.DISABLED,
-                    deviceTracking = DeviceTrackingMode.DISABLED,
-                ),
+                Config.Builder()
+                    .setGeospatial(GeospatialMode.DISABLED)
+                    .setDeviceTracking(DeviceTrackingMode.DISABLED)
+                    .build(),
             "Geospatial On, Device Tracking Off" to
-                Config(
-                    geospatial = GeospatialMode.SPATIAL,
-                    deviceTracking = DeviceTrackingMode.DISABLED,
-                ),
+                Config.Builder()
+                    .setGeospatial(GeospatialMode.SPATIAL)
+                    .setDeviceTracking(DeviceTrackingMode.DISABLED)
+                    .build(),
             "Geospatial Low Power" to
-                Config(
-                    geospatial = GeospatialMode.INERTIAL,
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                ),
+                Config.Builder()
+                    .setGeospatial(GeospatialMode.INERTIAL)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build(),
         )
     private var currentConfigIndex = 0
     private val currentConfig: Config

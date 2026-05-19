@@ -51,6 +51,12 @@ import org.robolectric.android.controller.ActivityController
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlaneTest {
+    companion object {
+        val DISABLED_CONFIG = Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build()
+        val HORIZONTAL_AND_VERTICAL_CONFIG =
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+    }
+
     @Rule @JvmField val arCoreTestRule = ArCoreTestRule()
 
     private lateinit var activityController: ActivityController<ComponentActivity>
@@ -74,7 +80,7 @@ class PlaneTest {
             (Session.create(context = activity, coroutineContext = testDispatcher)
                     as SessionCreateSuccess)
                 .session
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(HORIZONTAL_AND_VERTICAL_CONFIG)
     }
 
     @Test
@@ -144,7 +150,7 @@ class PlaneTest {
 
     @Test
     fun subscribe_planeTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+        session.configure(DISABLED_CONFIG)
 
         assertFailsWith<IllegalStateException> { Plane.subscribe(session) }
     }
@@ -207,7 +213,7 @@ class PlaneTest {
 
             activityController.pause()
             advanceUntilIdle()
-            session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+            session.configure(DISABLED_CONFIG)
             activityController.resume()
 
             assertFailsWith<IllegalStateException> { underTest.single().createAnchor(Pose()) }
@@ -251,7 +257,7 @@ class PlaneTest {
 
             activityController.pause()
             advanceUntilIdle()
-            session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+            session.configure(DISABLED_CONFIG)
             activityController.resume()
             advanceUntilIdle()
 

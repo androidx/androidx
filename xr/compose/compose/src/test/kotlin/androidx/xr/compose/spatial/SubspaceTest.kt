@@ -207,7 +207,9 @@ class SubspaceTest {
     private fun configureSessionWithDeviceTracking(): Session {
         val result = Session.create(composeTestRule.activity, testDispatcher)
         val session = assertIs<SessionCreateSuccess>(result).session
-        session.configure(config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL))
+        session.configure(
+            Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+        )
 
         return session
     }
@@ -2200,7 +2202,9 @@ class SubspaceTest {
     fun followingSubspace_whenCreated_isParentedToAnchor() {
         composeTestRule.session = composeTestRule.configureFakeSession()
         val session = assertNotNull(composeTestRule.session)
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         val anchorEntity =
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
@@ -2221,7 +2225,9 @@ class SubspaceTest {
     fun followingSubspace_withContent_positionsAtOrigin() {
         composeTestRule.session = composeTestRule.configureFakeSession()
         val session = assertNotNull(composeTestRule.session)
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         val anchorEntity =
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
@@ -2245,7 +2251,9 @@ class SubspaceTest {
     fun followingSubspace_whenNested_positionsRelativeToAnchor() {
         composeTestRule.session = composeTestRule.configureFakeSession()
         val session = assertNotNull(composeTestRule.session)
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         val anchorEntity =
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
@@ -2580,7 +2588,9 @@ class SubspaceTestWithArCoreTestRule {
             val session =
                 (Session.create(composeTestRule.activity, testDispatcher) as SessionCreateSuccess)
                     .session
-            session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+            session.configure(
+                Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+            )
             composeTestRule.session = session
             val initialPose =
                 Pose(Vector3(10f, 20f, 30f), Quaternion.fromEulerAngles(10f, 20f, 30f))
@@ -2634,7 +2644,9 @@ class SubspaceTestWithArCoreTestRule {
             val session =
                 (Session.create(composeTestRule.activity, testDispatcher) as SessionCreateSuccess)
                     .session
-            session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+            session.configure(
+                Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+            )
             composeTestRule.session = session
             val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
             val testPlane = TestPlane(PlaneType.HORIZONTAL_UPWARD_FACING, PlaneLabel.FLOOR)
@@ -2678,7 +2690,9 @@ class SubspaceTestWithArCoreTestRule {
             val session =
                 (Session.create(composeTestRule.activity, testDispatcher) as SessionCreateSuccess)
                     .session
-            session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+            session.configure(
+                Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+            )
             composeTestRule.session = session
             val initialPose =
                 Pose(Vector3(10f, 20f, 30f), Quaternion.fromEulerAngles(10f, 20f, 30f))

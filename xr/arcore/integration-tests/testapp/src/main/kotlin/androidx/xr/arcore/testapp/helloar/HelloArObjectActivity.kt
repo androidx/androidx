@@ -85,15 +85,16 @@ class HelloArObjectActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                    augmentedObjectCategories =
+                Config.Builder()
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .setAugmentedObjectCategories(
                         setOf(
                             AugmentedObjectCategory.KEYBOARD,
                             AugmentedObjectCategory.MOUSE,
                             AugmentedObjectCategory.LAPTOP,
-                        ),
-                ),
+                        )
+                    )
+                    .build(),
                 onSessionAvailable = { session ->
                     this.session = session
 

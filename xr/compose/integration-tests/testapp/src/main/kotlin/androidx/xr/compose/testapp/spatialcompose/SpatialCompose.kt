@@ -338,7 +338,9 @@ class SpatialCompose : ComponentActivity() {
     fun AnchorPanel(modifier: SubspaceModifier = SubspaceModifier, text: String = "") {
         val session = LocalSession.current ?: return
         // This is required to use the AnchorPolicy.
-        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
 
         // TODO(b/424834805): It's possible to have multiple movable overloads in place which are
         // not compatible with each other.

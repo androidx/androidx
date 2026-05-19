@@ -127,10 +127,10 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
             scene = session.scene
             scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
             session.configure(
-                Config(
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                    handTracking = HandTrackingMode.BOTH,
-                )
+                Config.Builder()
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .setHandTracking(HandTrackingMode.BOTH)
+                    .build()
             )
             session.scene.keyEntity = session.scene.mainPanelEntity
             device = ArDevice.getInstance(session)

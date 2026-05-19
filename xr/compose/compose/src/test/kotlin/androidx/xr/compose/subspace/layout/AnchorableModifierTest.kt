@@ -41,6 +41,7 @@ import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
@@ -107,7 +108,9 @@ class AnchorableModifierTest {
         assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
         session = (sessionCreateResult as SessionCreateSuccess).session
         session.configure(
-            config = session.config.copy(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+            Config.Builder(session.config)
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .build()
         )
         session.runtimes
             .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()

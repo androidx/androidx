@@ -100,11 +100,11 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
             SessionLifecycleHelper(
                 this,
                 config =
-                    Config(
-                        planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                        deviceTracking = DeviceTrackingMode.SPATIAL,
-                        geospatial = GeospatialMode.SPATIAL,
-                    ),
+                    Config.Builder(session.config)
+                        .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                        .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                        .setGeospatial(GeospatialMode.SPATIAL)
+                        .build(),
                 onSessionAvailable = { session ->
                     this.session = session
                     surfaceView = GLSurfaceView(this)

@@ -68,10 +68,10 @@ class HelloArQrCodeActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                    qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
-                ),
+                Config.Builder()
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .setQrCodeTracking(QrCodeTrackingMode.DYNAMIC)
+                    .build(),
                 onSessionAvailable = { session ->
                     this.session = session
 

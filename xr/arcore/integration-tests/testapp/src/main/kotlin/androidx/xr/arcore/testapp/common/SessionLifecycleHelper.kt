@@ -58,7 +58,7 @@ import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE
  */
 class SessionLifecycleHelper(
     val activity: ComponentActivity,
-    val config: Config = Config(),
+    val config: Config = Config.Builder().build(),
     val onSessionAvailable: (Session) -> Unit = {},
     val onSessionCreateActionRequired: (SessionCreateResult) -> Unit = {},
     val onSessionCalibrationRequired: (RequiredCalibrationType) -> Unit = {},

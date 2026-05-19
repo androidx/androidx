@@ -59,7 +59,7 @@ public annotation class ExperimentalRotateToLookAtUserApi
  * A user of this API should configure the activity's Session object with
  * [DeviceTrackingMode.SPATIAL] which requires `android.permission.HEAD_TRACKING` Android permission
  * be granted by the calling application. `session.configure( config =
- * session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL) )`
+ * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )`
  *
  * This modifier might not work as expected when used on content within a
  * [androidx.xr.compose.spatial.FollowingSubspace].

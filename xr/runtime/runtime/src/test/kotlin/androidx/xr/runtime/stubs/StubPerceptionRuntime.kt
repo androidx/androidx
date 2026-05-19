@@ -75,16 +75,16 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
     }
 
     internal var config: Config =
-        Config(
-            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-            HandTrackingMode.BOTH,
-            DeviceTrackingMode.SPATIAL,
-            DepthEstimationMode.SMOOTH_AND_RAW,
-            AnchorPersistenceMode.LOCAL,
+        Config.Builder()
+            .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+            .setHandTracking(HandTrackingMode.BOTH)
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+            .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
+            .setAnchorPersistence(AnchorPersistenceMode.LOCAL)
             // Needs to contain at least one AugmentedObjectCategory to enable
-            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
-            qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
-        )
+            .setAugmentedObjectCategories(setOf(AugmentedObjectCategory.MOUSE))
+            .setQrCodeTracking(QrCodeTrackingMode.DYNAMIC)
+            .build()
         private set
 
     override fun configure(config: Config) {

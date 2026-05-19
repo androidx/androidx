@@ -88,10 +88,10 @@ class HeadLockedUiActivity : AppCompatActivity() {
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
         session!!.configure(
-            Config(
-                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                deviceTracking = DeviceTrackingMode.SPATIAL,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                .build()
         )
         session?.scene?.keyEntity = null
         device = ArDevice.getInstance(session!!)

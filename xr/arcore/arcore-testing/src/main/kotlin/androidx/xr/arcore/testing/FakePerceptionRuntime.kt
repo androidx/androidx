@@ -102,16 +102,18 @@ public data class FakePerceptionRuntime(
     public var shouldSupportQrCodeTracking: Boolean = true
 
     public override var config: Config =
-        Config(
-            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-            HandTrackingMode.BOTH,
-            DeviceTrackingMode.SPATIAL,
-            DepthEstimationMode.SMOOTH_AND_RAW,
-            AnchorPersistenceMode.LOCAL,
-            augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE),
-            augmentedImageDatabase = augmentedImageDatabase,
-            qrCodeTracking = QrCodeTrackingMode.DYNAMIC,
-        )
+        Config.Builder()
+            .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+            .setHandTracking(HandTrackingMode.BOTH)
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+            .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
+            .setAnchorPersistence(AnchorPersistenceMode.LOCAL)
+            .setAugmentedObjectCategories(
+                augmentedObjectCategories = setOf(AugmentedObjectCategory.MOUSE)
+            )
+            .setAugmentedImageDatabase(augmentedImageDatabase = augmentedImageDatabase)
+            .setQrCodeTracking(QrCodeTrackingMode.DYNAMIC)
+            .build()
 
     override fun initialize() {
         check(state == State.NOT_INITIALIZED)

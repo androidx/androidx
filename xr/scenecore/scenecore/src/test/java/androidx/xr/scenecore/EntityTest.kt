@@ -151,10 +151,10 @@ class EntityTest {
         sceneRuntime = session.sceneRuntime
         renderingRuntime = session.renderingRuntime
         session.configure(
-            Config(
-                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                deviceTracking = DeviceTrackingMode.SPATIAL,
-            )
+            Config.Builder()
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                .build()
         )
         renderViewpoint = RenderViewpoint.left(session)
         entityRegistry = session.scene.entityRegistry
@@ -367,7 +367,7 @@ class EntityTest {
 
     @Test
     fun anchorEntity_planeTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+        session.configure(Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build())
 
         assertFailsWith<IllegalStateException> {
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)

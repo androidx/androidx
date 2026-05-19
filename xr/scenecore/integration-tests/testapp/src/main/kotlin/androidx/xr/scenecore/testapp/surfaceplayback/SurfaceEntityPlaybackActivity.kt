@@ -213,7 +213,9 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                 return@launch
             }
             val session = sessionResult.session
-            session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+            session.configure(
+                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+            )
             session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
             session.scene.keyEntity = session.scene.mainPanelEntity
 

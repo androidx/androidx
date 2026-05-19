@@ -83,7 +83,7 @@ class AugmentedImageTest {
                 )
             }
 
-        session.configure(Config(augmentedImageDatabase = imageDatabase))
+        session.configure(Config.Builder().setAugmentedImageDatabase(imageDatabase).build())
     }
 
     @Test
@@ -104,7 +104,7 @@ class AugmentedImageTest {
 
     @Test
     fun subscribe_imageTrackingDisabled_throwsIllegalStateException() {
-        session.configure(Config(augmentedImageDatabase = null))
+        session.configure(Config.Builder().setAugmentedImageDatabase(null).build())
 
         assertFailsWith<IllegalStateException> { AugmentedImage.subscribe(session) }
     }
@@ -147,7 +147,7 @@ class AugmentedImageTest {
 
             activityController.pause()
             advanceUntilIdle()
-            session.configure(Config(augmentedImageDatabase = null))
+            session.configure(Config.Builder().setAugmentedImageDatabase(null).build())
             activityController.resume()
             advanceUntilIdle()
 

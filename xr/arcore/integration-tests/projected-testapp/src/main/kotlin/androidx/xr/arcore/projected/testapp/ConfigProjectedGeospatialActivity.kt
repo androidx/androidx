@@ -135,10 +135,10 @@ class ConfigProjectedGeospatialActivity : ComponentActivity() {
 
                         // TEST 1 (Config Plumbing)
                         val config =
-                            Config(
-                                geospatial = targetMode,
-                                deviceTracking = DeviceTrackingMode.SPATIAL,
-                            )
+                            Config.Builder()
+                                .setGeospatial(targetMode)
+                                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                                .build()
                         try {
                             session.configure(config)
                             test1Result.value = "Success"

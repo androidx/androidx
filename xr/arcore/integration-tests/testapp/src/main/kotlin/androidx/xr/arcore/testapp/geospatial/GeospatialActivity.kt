@@ -118,6 +118,7 @@ class GeospatialActivity : ComponentActivity() {
     private lateinit var mainPanelEntity: PanelEntity
     private val mainPanelOffset = Pose(Vector3(0f, 0f, -0.7f))
     private var selectedAnchorType = AnchorType.STANDARD
+    private val configBuilder = Config.Builder()
 
     companion object {
         private const val SAVED_ANCHORS_KEY = "geospatial_anchors"
@@ -127,13 +128,14 @@ class GeospatialActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         sharedPreferences = getPreferences(MODE_PRIVATE)
 
+        configBuilder
+            .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    deviceTracking = DeviceTrackingMode.SPATIAL,
-                    planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                ),
+                configBuilder.build(),
                 onSessionAvailable = { session ->
                     this.session = session
                     if (session.config.geospatial == GeospatialMode.DISABLED) {
@@ -141,7 +143,8 @@ class GeospatialActivity : ComponentActivity() {
                             XrDevice.getCurrentDevice(this)
                                 .isGeospatialModeSupported(GeospatialMode.SPATIAL)
                         ) {
-                            val newConfig = session.config.copy(geospatial = GeospatialMode.SPATIAL)
+                            val newConfig =
+                                configBuilder.setGeospatial(GeospatialMode.SPATIAL).build()
                             sessionHelper.tryUpdateConfig(newConfig)
                             return@SessionLifecycleHelper
                         } else {

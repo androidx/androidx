@@ -104,10 +104,10 @@ class FaceMeshActivity : ComponentActivity(), SampleRender.Companion.Renderer {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(
-                    faceTracking = FaceTrackingMode.MESHES,
-                    cameraFacingDirection = CameraFacingDirection.USER,
-                ),
+                Config.Builder()
+                    .setFaceTracking(FaceTrackingMode.MESHES)
+                    .setCameraFacingDirection(CameraFacingDirection.USER)
+                    .build(),
                 onSessionAvailable = { newSession ->
                     session = newSession
                     setContent { MainPanel() }

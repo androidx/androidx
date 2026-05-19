@@ -109,7 +109,9 @@ class MovableActivity : AppCompatActivity() {
             finish()
             return false
         }
-        session!!.configure(Config(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session!!.configure(
+            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+        )
         session!!.scene.keyEntity = null
 
         // Enable passthrough by default to allow interaction with the real world,
