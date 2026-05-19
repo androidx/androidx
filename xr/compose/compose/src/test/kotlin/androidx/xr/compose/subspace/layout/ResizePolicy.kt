@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.compose.subspace.layout
 
 import androidx.compose.material3.Button
@@ -55,9 +57,7 @@ class ResizePolicy {
     // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
     // available starting with v1.11.0.
     // See API docs for details.
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     @Test
     fun resizePolicy_noComponentByDefault() {

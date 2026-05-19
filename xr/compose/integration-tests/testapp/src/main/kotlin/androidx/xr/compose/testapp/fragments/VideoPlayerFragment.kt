@@ -46,7 +46,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialExternalSurface
 import androidx.xr.compose.subspace.SpatialExternalSurfaceProtection
@@ -59,6 +58,7 @@ import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.transformingMovable
+import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.common.isDrmSupported
 
@@ -98,6 +98,7 @@ class VideoPlayerFragment : Fragment() {
         var videoWidth by remember { mutableStateOf(600.dp) }
         var videoHeight by remember { mutableStateOf(600.dp) }
         val isDrmSupported = remember { isDrmSupported() }
+
         SpatialExternalSurface(
             modifier =
                 SubspaceModifier.width(
@@ -106,8 +107,8 @@ class VideoPlayerFragment : Fragment() {
                     .height(
                         if (stereoMode == StereoMode.TopBottom) videoHeight / 2 else videoHeight
                     )
-                    .transformingMovable(),
-            resizePolicy = ResizePolicy(),
+                    .transformingMovable()
+                    .transformingResizable(),
             interactionPolicy =
                 InteractionPolicy.clickable {
                     exoPlayer?.let {

@@ -79,6 +79,7 @@
             android:exported="true"
             android:label="SpatialCompose"
             android:enableOnBackInvokedCallback="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
             android:name=".spatialcompose.SpatialComposeVideoPlayer"
@@ -138,6 +139,7 @@
         <activity
             android:name=".resizablepanel.ResizablePanel"
             android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:label="ResizablePanel"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity

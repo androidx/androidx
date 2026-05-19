@@ -259,6 +259,8 @@ public class MovePolicy(
  *   the size change, and the API should proceed with changing the size of the object itself. If the
  *   callback is `null` (the default), the API will change the size of the object.
  */
+@Deprecated("Use SubspaceModifier.transformingResizable() or SubspaceModifier.resizable() instead.")
+@Suppress("DEPRECATION")
 public class ResizePolicy(
     public val isEnabled: Boolean = true,
     public val minimumSize: DpVolumeSize = DpVolumeSize.Zero,
@@ -345,6 +347,7 @@ public class ResizePolicy(
  */
 @Composable
 @SubspaceComposable
+@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun <T : View> SpatialAndroidViewPanel(
     factory: (Context) -> T,
     modifier: SubspaceModifier = SubspaceModifier,
@@ -463,6 +466,7 @@ private fun <T : View> AndroidViewPanel(
  */
 @Composable
 @SubspaceComposable
+@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialPanel(
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
@@ -589,6 +593,7 @@ public fun SpatialPanel(
  */
 @Composable
 @SubspaceComposable
+@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialMainPanel(
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
@@ -725,6 +730,7 @@ internal class MainPanelOwnerQueue(private val queue: ArrayDeque<() -> Unit> = A
  */
 @Composable
 @SubspaceComposable
+@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialActivityPanel(
     intent: Intent,
     modifier: SubspaceModifier = SubspaceModifier,
@@ -892,6 +898,7 @@ internal fun buildSpatialPanelModifier(
         }
 
     if (resizePolicy != null) {
+        @Suppress("DEPRECATION")
         finalModifier =
             finalModifier.resizable(
                 enabled = resizePolicy.isEnabled,
