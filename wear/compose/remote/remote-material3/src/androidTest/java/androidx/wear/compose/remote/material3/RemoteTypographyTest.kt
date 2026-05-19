@@ -31,10 +31,13 @@ import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.compose.material3.Typography
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
@@ -175,6 +178,27 @@ class RemoteTypographyTest {
                             )
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun typography_from_compose_typography_inherits_correctly() {
+        val myComposeTypography =
+            Typography(bodyLarge = TextStyle(fontSize = 40.sp, color = Color.Red))
+        val myTypography = RemoteTypography(myComposeTypography)
+
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+        ) {
+            RemoteMaterialTheme(typography = myTypography) {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+                    RemoteText(
+                        "red bodyLarge 40sp".rs,
+                        style = RemoteMaterialTheme.typography.bodyLarge,
+                    )
                 }
             }
         }

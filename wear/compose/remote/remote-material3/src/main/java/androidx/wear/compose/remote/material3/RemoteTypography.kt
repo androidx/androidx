@@ -156,28 +156,28 @@ public class RemoteTypography(
     )
 
     /** Creates a copy of Wear Remote Compose [RemoteTypography] from Wear Compose [Typography]. */
-    public constructor(typography: Typography) : this() {
-        RemoteTypography(
-            displayLarge = RemoteTextStyle.fromTextStyle(typography.displayLarge),
-            displayMedium = RemoteTextStyle.fromTextStyle(typography.displayMedium),
-            displaySmall = RemoteTextStyle.fromTextStyle(typography.displaySmall),
-            titleLarge = RemoteTextStyle.fromTextStyle(typography.titleLarge),
-            titleMedium = RemoteTextStyle.fromTextStyle(typography.titleMedium),
-            titleSmall = RemoteTextStyle.fromTextStyle(typography.titleSmall),
-            labelLarge = RemoteTextStyle.fromTextStyle(typography.labelLarge),
-            labelMedium = RemoteTextStyle.fromTextStyle(typography.labelMedium),
-            labelSmall = RemoteTextStyle.fromTextStyle(typography.labelSmall),
-            bodyLarge = RemoteTextStyle.fromTextStyle(typography.bodyLarge),
-            bodyMedium = RemoteTextStyle.fromTextStyle(typography.bodyMedium),
-            bodySmall = RemoteTextStyle.fromTextStyle(typography.bodySmall),
-            bodyExtraSmall = RemoteTextStyle.fromTextStyle(typography.bodyExtraSmall),
-            numeralExtraLarge = RemoteTextStyle.fromTextStyle(typography.numeralExtraLarge),
-            numeralLarge = RemoteTextStyle.fromTextStyle(typography.numeralLarge),
-            numeralMedium = RemoteTextStyle.fromTextStyle(typography.numeralMedium),
-            numeralSmall = RemoteTextStyle.fromTextStyle(typography.numeralSmall),
-            numeralExtraSmall = RemoteTextStyle.fromTextStyle(typography.numeralExtraSmall),
-        )
-    }
+    public constructor(
+        typography: Typography
+    ) : this(
+        displayLarge = RemoteTextStyle.fromTextStyle(typography.displayLarge),
+        displayMedium = RemoteTextStyle.fromTextStyle(typography.displayMedium),
+        displaySmall = RemoteTextStyle.fromTextStyle(typography.displaySmall),
+        titleLarge = RemoteTextStyle.fromTextStyle(typography.titleLarge),
+        titleMedium = RemoteTextStyle.fromTextStyle(typography.titleMedium),
+        titleSmall = RemoteTextStyle.fromTextStyle(typography.titleSmall),
+        labelLarge = RemoteTextStyle.fromTextStyle(typography.labelLarge),
+        labelMedium = RemoteTextStyle.fromTextStyle(typography.labelMedium),
+        labelSmall = RemoteTextStyle.fromTextStyle(typography.labelSmall),
+        bodyLarge = RemoteTextStyle.fromTextStyle(typography.bodyLarge),
+        bodyMedium = RemoteTextStyle.fromTextStyle(typography.bodyMedium),
+        bodySmall = RemoteTextStyle.fromTextStyle(typography.bodySmall),
+        bodyExtraSmall = RemoteTextStyle.fromTextStyle(typography.bodyExtraSmall),
+        numeralExtraLarge = RemoteTextStyle.fromTextStyle(typography.numeralExtraLarge),
+        numeralLarge = RemoteTextStyle.fromTextStyle(typography.numeralLarge),
+        numeralMedium = RemoteTextStyle.fromTextStyle(typography.numeralMedium),
+        numeralSmall = RemoteTextStyle.fromTextStyle(typography.numeralSmall),
+        numeralExtraSmall = RemoteTextStyle.fromTextStyle(typography.numeralExtraSmall),
+    )
 
     /** Returns a copy of this RemoteTypography, optionally overriding some of the values. */
     public fun copy(
