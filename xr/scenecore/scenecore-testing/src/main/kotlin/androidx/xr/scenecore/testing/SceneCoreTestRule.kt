@@ -28,6 +28,7 @@ import androidx.xr.scenecore.PerceptionSpace
 import androidx.xr.scenecore.PositionalAudioComponent
 import androidx.xr.scenecore.SoundEffectPool
 import androidx.xr.scenecore.SpatialWindow
+import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime
@@ -83,6 +84,7 @@ public class SceneCoreTestRule : ExternalResource() {
                 is AnchorEntity -> AnchorEntityTester.create(entity)
                 is GltfModelEntity -> GltfModelEntityTester.create(entity)
                 is MeshEntity -> MeshEntityTester.create(entity)
+                is SurfaceEntity -> SurfaceEntityTester.create(entity)
                 else -> null
             }
         }

@@ -101,6 +101,15 @@ package androidx.xr.scenecore.testing {
     property public float preferredAspectRatio;
   }
 
+  public final class SurfaceEntityTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PerceivedResolutionResult getPerceivedResolutionResult();
+    method @InaccessibleFromKotlin public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin public void setPerceivedResolutionResult(androidx.xr.scenecore.PerceivedResolutionResult);
+    method @InaccessibleFromKotlin public void setSurface(android.view.Surface);
+    property public androidx.xr.scenecore.PerceivedResolutionResult perceivedResolutionResult;
+    property public android.view.Surface surface;
+  }
+
   public final class TestGltfAnimation {
     method @InaccessibleFromKotlin public float getAnimationDuration();
     method @InaccessibleFromKotlin public int getAnimationIndex();
