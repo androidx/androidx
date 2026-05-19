@@ -73,13 +73,24 @@ private fun HealthDataWidgetContent() {
             PackageManager.PERMISSION_GRANTED
     }
 
-    val isHeartRateValid =
+    val isHeartRateAvailable =
         DataTypes.heartRateAccuracy
             .eq(DataTypes.HEART_RATE_ACCURACY_LOW)
             .or(DataTypes.heartRateAccuracy.eq(DataTypes.HEART_RATE_ACCURACY_MEDIUM))
             .or(DataTypes.heartRateAccuracy.eq(DataTypes.HEART_RATE_ACCURACY_HIGH))
 
-    val heartRateStr = isHeartRateValid.select(DataTypes.heartRateBpm.toRemoteString(), "--".rs)
+    val heartRateStr = isHeartRateAvailable.select(DataTypes.heartRateBpm.toRemoteString(), "--".rs)
+    val dailyStepsStr =
+        DataTypes.isDailyStepsAvailable.select(DataTypes.dailySteps.toRemoteString(), "--".rs)
+    val dailyCaloriesStr =
+        DataTypes.isDailyCaloriesAvailable.select(DataTypes.dailyCalories.toRemoteString(), "--".rs)
+    val dailyDistanceMetersStr =
+        DataTypes.isDailyDistanceMetersAvailable.select(
+            DataTypes.dailyDistanceMeters.toRemoteString(),
+            "--".rs,
+        )
+    val dailyFloorsStr =
+        DataTypes.isDailyFloorsAvailable.select(DataTypes.dailyFloors.toRemoteString(), "--".rs)
 
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize(),
@@ -97,7 +108,7 @@ private fun HealthDataWidgetContent() {
         RemoteText(
             text =
                 if (hasActivityRecognitionPermission) {
-                    "Steps: ".rs + DataTypes.dailySteps.toRemoteString()
+                    "Steps: ".rs + dailyStepsStr
                 } else {
                     NO_ACTIVITY_RECOGNITION_PERMISSION_STR
                 }
@@ -105,7 +116,7 @@ private fun HealthDataWidgetContent() {
         RemoteText(
             text =
                 if (hasActivityRecognitionPermission) {
-                    "Calories: ".rs + DataTypes.dailyCalories.toRemoteString()
+                    "Calories: ".rs + dailyCaloriesStr
                 } else {
                     NO_ACTIVITY_RECOGNITION_PERMISSION_STR
                 }
@@ -113,7 +124,7 @@ private fun HealthDataWidgetContent() {
         RemoteText(
             text =
                 if (hasActivityRecognitionPermission) {
-                    "Distance: ".rs + DataTypes.dailyDistanceMeters.toRemoteString()
+                    "Distance: ".rs + dailyDistanceMetersStr
                 } else {
                     NO_ACTIVITY_RECOGNITION_PERMISSION_STR
                 }
@@ -121,7 +132,7 @@ private fun HealthDataWidgetContent() {
         RemoteText(
             text =
                 if (hasActivityRecognitionPermission) {
-                    "Floors: ".rs + DataTypes.dailyFloors.toRemoteString()
+                    "Floors: ".rs + dailyFloorsStr
                 } else {
                     NO_ACTIVITY_RECOGNITION_PERMISSION_STR
                 }
