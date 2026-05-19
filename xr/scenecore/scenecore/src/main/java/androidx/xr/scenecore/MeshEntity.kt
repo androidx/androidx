@@ -105,8 +105,12 @@ private constructor(
          *   [setBoneTransforms].
          * @param pose The initial pose of the entity relative to its parent. Defaults to
          *   `Pose.Identity`.
-         * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is `null`.
+         * @param parent Parent entity. Defaults to `null`. If `null`, the entity is created but not
+         *   attached to the scene graph and will be invisible. When a parent entity (e.g.,
+         *   [ActivitySpace] or any other [Entity] already present in the scene) is assigned later,
+         *   the entity will remain invisible until you explicitly enable it by calling
+         *   [Entity.setEnabled] (enabled=true). This allows for [Entity] pre-configuration before
+         *   making it visible.
          * @return A new [MeshEntity].
          * @throws IllegalArgumentException if `boneCount` is not between 0 and 255, if the number
          *   of materials does not match the number of mesh subsets, or if any material in the list

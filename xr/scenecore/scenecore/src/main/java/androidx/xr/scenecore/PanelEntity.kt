@@ -229,8 +229,12 @@ internal constructor(
          *   in meters.
          * @param name Name of this PanelEntity.
          * @param pose [Pose] of this entity relative to its parent, default value is Identity.
-         * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is `null`.
+         * @param parent Parent entity. Defaults to `null`. If `null`, the entity is created but not
+         *   attached to the scene graph and will be invisible. When a parent entity (e.g.,
+         *   [ActivitySpace] or any other [Entity] already present in the scene) is assigned later,
+         *   the entity will remain invisible until you explicitly enable it by calling
+         *   [Entity.setEnabled] (enabled=true). This allows for [Entity] pre-configuration before
+         *   making it visible.
          * @return a PanelEntity instance.
          */
         @JvmOverloads
@@ -264,8 +268,12 @@ internal constructor(
          *   pixels.
          * @param name Name of the panel.
          * @param pose [Pose] of this PanelEntity relative to its parent, default value is Identity.
-         * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is `null`.
+         * @param parent Parent entity. Defaults to `null`. If `null`, the entity is created but not
+         *   attached to the scene graph and will be invisible. When a parent entity (e.g.,
+         *   [ActivitySpace] or any other [Entity] already present in the scene) is assigned later,
+         *   the entity will remain invisible until you explicitly enable it by calling
+         *   [Entity.setEnabled] (enabled=true). This allows for [Entity] pre-configuration before
+         *   making it visible.
          * @return a PanelEntity instance.
          */
         @JvmOverloads

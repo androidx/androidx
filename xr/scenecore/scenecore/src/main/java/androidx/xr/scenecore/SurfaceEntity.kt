@@ -654,8 +654,12 @@ private constructor(
          *   surface should support Widevine DRM.
          * @param superSampling The [SuperSampling] which describes whether super sampling is
          *   enabled for the surface.
-         * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is `null`.
+         * @param parent Parent entity. Defaults to `null`. If `null`, the entity is created but not
+         *   attached to the scene graph and will be invisible. When a parent entity (e.g.,
+         *   [ActivitySpace] or any other [Entity] already present in the scene) is assigned later,
+         *   the entity will remain invisible until you explicitly enable it by calling
+         *   [Entity.setEnabled] (enabled=true). This allows for [Entity] pre-configuration before
+         *   making it visible.
          * @return a SurfaceEntity instance
          */
         @MainThread
@@ -698,8 +702,12 @@ private constructor(
          *   enabled for the surface. The default value is [SuperSampling.PENTAGON].
          * @param surfaceProtection The [SurfaceProtection] which describes whether the hosted
          *   surface should support Widevine DRM. The default value is [SurfaceProtection.NONE].
-         * @param parent Parent entity. If `null`, the entity is created but not attached to the
-         *   scene graph and will not be visible until a parent is set. The default value is `null`.
+         * @param parent Parent entity. Defaults to `null`. If `null`, the entity is created but not
+         *   attached to the scene graph and will be invisible. When a parent entity (e.g.,
+         *   [ActivitySpace] or any other [Entity] already present in the scene) is assigned later,
+         *   the entity will remain invisible until you explicitly enable it by calling
+         *   [Entity.setEnabled] (enabled=true). This allows for [Entity] pre-configuration before
+         *   making it visible.
          * @return a SurfaceEntity instance
          */
         @MainThread
