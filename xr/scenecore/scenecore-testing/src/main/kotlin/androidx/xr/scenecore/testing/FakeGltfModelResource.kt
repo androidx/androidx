@@ -25,9 +25,13 @@ import androidx.xr.scenecore.testing.internal.FakeGltfModelResource as InternalF
 /** Test-only implementation of [androidx.xr.scenecore.runtime.GltfModelResource] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeGltfModelResource(public val mToken: Long) : GltfModelResource {
+public class FakeGltfModelResource
+internal constructor(
+    public val mToken: Long,
+    internal val fakeInternal: InternalFakeGltfModelResource,
+) : GltfModelResource {
 
-    internal var fakeInternal: InternalFakeGltfModelResource = InternalFakeGltfModelResource(mToken)
+    public constructor(mToken: Long) : this(mToken, InternalFakeGltfModelResource(mToken))
 
     /**
      * The asset name that was used to "load" this fake resource.
@@ -36,8 +40,11 @@ public class FakeGltfModelResource(public val mToken: Long) : GltfModelResource 
      * [FakeRenderingRuntime.loadGltfByByteArray] method and can be inspected by tests to verify
      * that the correct asset path was used during the model loading process.
      */
-    public var assetName: String = ""
-        internal set
+    public var assetName: String
+        get() = fakeInternal.assetName
+        set(value) {
+            fakeInternal.assetName = value
+        }
 
     /**
      * The asset data that was used to "load" this fake resource.
@@ -46,8 +53,11 @@ public class FakeGltfModelResource(public val mToken: Long) : GltfModelResource 
      * [FakeRenderingRuntime.loadGltfByByteArray] method and can be inspected by tests to verify
      * that the correct asset data was used during the model loading process.
      */
-    public var assetData: ByteArray = ByteArray(0)
-        internal set
+    public var assetData: ByteArray
+        get() = fakeInternal.assetData
+        set(value) {
+            fakeInternal.assetData = value
+        }
 
     /**
      * The asset key that was used to "load" this fake resource.
@@ -56,6 +66,9 @@ public class FakeGltfModelResource(public val mToken: Long) : GltfModelResource 
      * [FakeRenderingRuntime.loadGltfByByteArray] method and can be inspected by tests to verify
      * that the correct asset key was used during the model loading process.
      */
-    public var assetKey: String = ""
-        internal set
+    public var assetKey: String
+        get() = fakeInternal.assetKey
+        set(value) {
+            fakeInternal.assetKey = value
+        }
 }

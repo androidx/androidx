@@ -27,6 +27,15 @@ package androidx.xr.scenecore.testing {
     property public androidx.xr.runtime.math.BoundingBox gltfModelBoundingBox;
   }
 
+  public final class GltfModelTester {
+    method @InaccessibleFromKotlin public byte[] getAssetData();
+    method @InaccessibleFromKotlin public String getAssetKey();
+    method @InaccessibleFromKotlin public String getAssetPath();
+    property public byte[] assetData;
+    property public String assetKey;
+    property public String assetPath;
+  }
+
   public final class ImageBasedLightingAssetTester {
     method @InaccessibleFromKotlin public byte[] getAssetData();
     method @InaccessibleFromKotlin public String getAssetKey();
@@ -63,6 +72,7 @@ package androidx.xr.scenecore.testing {
     ctor public SceneCoreTestRule();
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);
     method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Entity entity);
+    method public androidx.xr.scenecore.testing.GltfModelTester createTester(androidx.xr.scenecore.GltfModel gltfModel);
     method public androidx.xr.scenecore.testing.ImageBasedLightingAssetTester createTester(androidx.xr.scenecore.ImageBasedLightingAsset asset);
     method public androidx.xr.scenecore.testing.SoundEffectPoolTester createTester(androidx.xr.scenecore.SoundEffectPool soundEffectPool);
     method public androidx.xr.scenecore.testing.TextureTester createTester(androidx.xr.scenecore.Texture texture);
