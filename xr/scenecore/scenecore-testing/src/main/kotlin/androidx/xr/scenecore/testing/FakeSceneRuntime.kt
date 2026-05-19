@@ -506,9 +506,14 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         stateListener: PointerCaptureComponent.StateListener,
         inputListener: InputEventListener,
     ): FakePointerCaptureComponent {
-        val pointerCaptureComponent = FakePointerCaptureComponent(executor, stateListener)
-        pointerCaptureComponent.inputListener = inputListener
-        return pointerCaptureComponent
+        return FakePointerCaptureComponent(
+            fakeInternal =
+                internalRuntime.createPointerCaptureComponent(
+                    executor,
+                    stateListener,
+                    inputListener,
+                )
+        )
     }
 
     override fun createSpatialPointerComponent(): SpatialPointerComponent =

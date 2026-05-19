@@ -30,7 +30,15 @@ import java.util.concurrent.Executor
 /** Test-only implementation of [FakePointerCaptureComponent] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakePointerCaptureComponent(
+public class FakePointerCaptureComponent
+internal constructor(internal val fakeInternal: InternalFakePointerCaptureComponent) :
+    FakeComponent(), PointerCaptureComponent {
+
+    public constructor(
+        executor: Executor? = null,
+        stateListener: StateListener? = null,
+    ) : this(InternalFakePointerCaptureComponent(executor, stateListener))
+
     /**
      * The executor on which to invoke the
      * [androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener] callbacks.
@@ -39,7 +47,9 @@ public class FakePointerCaptureComponent(
      * callbacks will be invoked synchronously on the thread that calls [onStateChanged]. This can
      * be set in tests to simulate different threading behaviors.
      */
-    internal val executor: Executor? = null,
+    internal val executor: Executor?
+        get() = fakeInternal.executor
+
     /**
      * The [androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener] that receives
      * callbacks upon a simulated pointer capture state change.
@@ -48,19 +58,19 @@ public class FakePointerCaptureComponent(
      * [onStateChanged] function, are dispatched correctly. If this is null, calls to
      * [onStateChanged] will be ignored.
      */
-    internal val stateListener: StateListener? = null,
-) : FakeComponent(), PointerCaptureComponent {
-
-    internal var fakeInternal: InternalFakePointerCaptureComponent =
-        InternalFakePointerCaptureComponent(executor, stateListener)
+    internal val stateListener: StateListener?
+        get() = fakeInternal.stateListener
 
     /**
      * This property reflects the `inputListener` parameter that was passed to the runtime's factory
      * method [FakeSceneRuntime.createPointerCaptureComponent]. Tests can inspect this value to
      * verify that the component was created with the correct configuration.
      */
-    public var inputListener: InputEventListener? = null
-        internal set
+    public var inputListener: InputEventListener?
+        get() = fakeInternal.inputListener
+        internal set(value) {
+            fakeInternal.inputListener = value
+        }
 
     /**
      * Simulates a pointer capture state change event, invoking the registered [stateListener].
@@ -74,11 +84,7 @@ public class FakePointerCaptureComponent(
      *   the listener.
      */
     public fun onStateChanged(@PointerCaptureState newState: Int) {
-        if (stateListener != null) {
-            executor?.let { currentExecutor ->
-                currentExecutor.execute { stateListener.onStateChanged(newState) }
-            } ?: run { stateListener!!.onStateChanged(newState) }
-        }
+        fakeInternal.onStateChanged(newState)
     }
 
     /**
@@ -91,10 +97,6 @@ public class FakePointerCaptureComponent(
      * @param event The new [InputEvent] to be sent in the simulated event.
      */
     public fun onInputEvent(event: InputEvent) {
-        inputListener?.let {
-            executor?.let { currentExecutor ->
-                currentExecutor.execute { inputListener!!.onInputEvent(event) }
-            } ?: run { inputListener!!.onInputEvent(event) }
-        }
+        fakeInternal.onInputEvent(event)
     }
 }
