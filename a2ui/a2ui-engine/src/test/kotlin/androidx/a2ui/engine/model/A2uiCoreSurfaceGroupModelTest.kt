@@ -17,11 +17,16 @@
 package androidx.a2ui.engine.model
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.protocol.A2uiClientError
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiUserAction
+import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -41,8 +46,8 @@ class A2uiCoreSurfaceGroupModelTest {
         const val SURFACE_PREFIX = "surf"
         const val NON_EXISTENT_ID = "non-existent"
 
-        val emptyActionHandler: (androidx.a2ui.model.protocol.A2uiUserAction) -> Unit = {}
-        val emptyErrorHandler: (androidx.a2ui.model.protocol.A2uiClientError) -> Unit = {}
+        val emptyActionHandler: (A2uiUserAction) -> Unit = {}
+        val emptyErrorHandler: (A2uiClientError) -> Unit = {}
     }
 
     @Test
@@ -258,6 +263,15 @@ class A2uiCoreSurfaceGroupModelTest {
     }
 
     private class TestCatalog : A2uiCoreCatalog {
+        override val id: String = "test_catalog"
+        override val components: List<A2uiCoreComponentDefinition> = emptyList()
+        override val functions: List<A2uiFunction> = emptyList()
+        override val themeSchema: A2uiSchema? = null
+
+        override fun getComponent(name: String): A2uiCoreComponentDefinition? = null
+
+        override fun getFunction(name: String): A2uiFunction? = null
+
         override fun equals(other: Any?): Boolean = other is TestCatalog
 
         override fun hashCode(): Int = TestCatalog::class.hashCode()
