@@ -18,6 +18,8 @@
 
 package androidx.xr.compose.subspace.layout
 
+import android.annotation.TargetApi
+import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -33,7 +35,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.SpatialGltfModel
+import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
@@ -49,6 +54,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.annotations.CanIgnoreReturnValue
+import java.nio.file.Paths
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -149,7 +155,7 @@ class TransformingMovableTest {
             }
         }
         assertSingleMovableComponentExist()
-        val rtMovableComponent = sceneRuntime.lastMovableComponent!!
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
         val expectedPose =
             Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
 
@@ -230,7 +236,7 @@ class TransformingMovableTest {
             }
         }
 
-        val rtMovableComponent = sceneRuntime.lastMovableComponent!!
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
@@ -249,7 +255,7 @@ class TransformingMovableTest {
 
         composeTestRule.waitForIdle()
         assertThat(moveEvent).isNotNull()
-        assertThat(moveEvent!!.type).isEqualTo(SpatialMoveEventType.Start)
+        assertThat(assertNotNull(moveEvent).type).isEqualTo(SpatialMoveEventType.Start)
     }
 
     @CanIgnoreReturnValue
@@ -267,6 +273,160 @@ class TransformingMovableTest {
             composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode().components
         assertNotNull(components)
         assertEquals(0, components.size)
+    }
+
+    //    -------------------------------------------------------
+    //               SpatialGltfModel tests
+    //    -------------------------------------------------------
+    @Test
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    fun transformingMovable_onSpatialGltfModelIsMoved_reportsCorrectPoses() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+
+        composeTestRule.setContent {
+            Subspace {
+                val state =
+                    rememberSpatialGltfModelState(
+                        source = SpatialGltfModelSource.fromPath(Paths.get("models", "test.gltf"))
+                    )
+                SpatialGltfModel(
+                    state = state,
+                    modifier = SubspaceModifier.testTag("model").transformingMovable(enabled = true),
+                )
+            }
+        }
+
+        assertSingleMovableComponentExist(testTag = "model")
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+
+        // Simulate a move event that reports a new dragged pose
+        val draggedPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                MoveEvent.MOVE_STATE_START,
+                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                Pose.Identity,
+                draggedPose,
+                Vector3(1f, 1f, 1f),
+                Vector3(1f, 1f, 1f),
+                activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                MoveEvent.MOVE_STATE_ONGOING,
+                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                Pose.Identity,
+                draggedPose,
+                Vector3(1f, 1f, 1f),
+                Vector3(1f, 1f, 1f),
+                activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                MoveEvent.MOVE_STATE_END,
+                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                Pose.Identity,
+                draggedPose,
+                Vector3(1f, 1f, 1f),
+                Vector3(1f, 1f, 1f),
+                activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+
+        val entity =
+            composeTestRule
+                .onSubspaceNodeWithTag(testTag = "model")
+                .fetchSemanticsNode()
+                .semanticsEntity
+        assertNotNull(entity)
+        assertThat(entity.getPose()).isEqualTo(draggedPose)
+    }
+
+    @Test
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    fun transformingMovable_onSpatialGltfModel_optionalCallbackIsInvoked() {
+        var moveEvent: SpatialMoveEvent? = null
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+
+        composeTestRule.setContent {
+            Subspace {
+                val state =
+                    rememberSpatialGltfModelState(
+                        source = SpatialGltfModelSource.fromPath(Paths.get("models", "test.gltf"))
+                    )
+                SpatialGltfModel(
+                    state = state,
+                    modifier =
+                        SubspaceModifier.testTag(tag = "model").transformingMovable(
+                            enabled = true
+                        ) { event ->
+                            moveEvent = event
+                        },
+                )
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                MoveEvent.MOVE_STATE_START,
+                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                Pose.Identity,
+                Pose.Identity,
+                Vector3(1f, 1f, 1f),
+                Vector3(1f, 1f, 1f),
+                activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+
+        composeTestRule.waitForIdle()
+        assertThat(moveEvent).isNotNull()
+        assertThat(assertNotNull(moveEvent).type).isEqualTo(SpatialMoveEventType.Start)
+    }
+
+    @Test
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    fun transformingMovable_onSpatialGltfModel_attachesAndDetachesComponentCorrectly() {
+        var isEnabled by mutableStateOf(true)
+        composeTestRule.setContent {
+            Subspace {
+                val state =
+                    rememberSpatialGltfModelState(
+                        source = SpatialGltfModelSource.fromPath(Paths.get("models", "test.gltf"))
+                    )
+                SpatialGltfModel(
+                    state = state,
+                    modifier =
+                        SubspaceModifier.testTag(tag = "model").transformingMovable(isEnabled),
+                )
+            }
+        }
+        assertSingleMovableComponentExist(testTag = "model")
+        isEnabled = false
+        assertMovableComponentDoesNotExist(testTag = "model")
     }
 
     private fun AndroidComposeTestRule<*, *>.configureFakeSessionWithWatch(
