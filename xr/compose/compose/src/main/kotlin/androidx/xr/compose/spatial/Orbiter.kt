@@ -825,8 +825,8 @@ private fun PanelScrim() {
     }
 }
 
-private fun getWindowBoundsInPixels(session: Session): IntSize2d =
-    (session.context as Activity).window.decorView.run { IntSize2d(width, height) }
+private fun getWindowBoundsInPixels(context: Context): IntSize2d =
+    (context as Activity).window.decorView.run { IntSize2d(width, height) }
 
 /**
  * Provides the dimensions of the Android main window.
@@ -839,21 +839,22 @@ private fun getWindowBoundsInPixels(session: Session): IntSize2d =
  */
 @Composable
 private fun getMainWindowSize(session: Session): IntVolumeSize {
+    val context = LocalContext.current
     var panelSize by
         remember(session) {
-            val initialPixelDimensions = getWindowBoundsInPixels(session)
+            val initialPixelDimensions = getWindowBoundsInPixels(context)
             mutableStateOf(
                 IntVolumeSize(initialPixelDimensions.width, initialPixelDimensions.height, 0)
             )
         }
 
-    val mainView = (session.context as Activity).window.decorView
+    val mainView = (context as Activity).window.decorView
 
     DisposableEffect(Unit) {
         val listener =
             View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
                 val newSize =
-                    getWindowBoundsInPixels(session).run { IntVolumeSize(width, height, 0) }
+                    getWindowBoundsInPixels(context).run { IntVolumeSize(width, height, 0) }
                 if (panelSize != newSize) {
                     panelSize = newSize
                 }

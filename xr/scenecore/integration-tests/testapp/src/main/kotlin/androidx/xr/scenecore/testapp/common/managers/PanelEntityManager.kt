@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testapp.common.managers
 
+import android.content.Context
 import android.graphics.Color
 import android.view.Gravity
 import android.widget.Button
@@ -56,7 +57,7 @@ class PanelEntityManager(
         updateButtonEnabledState()
 
         createPanelEntityButton.setOnClickListener {
-            createPanelEntity()
+            createPanelEntity(activity)
             updateButtonEnabledState()
         }
 
@@ -66,17 +67,17 @@ class PanelEntityManager(
         }
     }
 
-    private fun createPanelEntity() {
+    private fun createPanelEntity(context: Context) {
         for (i in 1..entitiesPerClick) {
-            createOnePanelEntity()
+            createOnePanelEntity(context)
         }
     }
 
-    private fun createOnePanelEntity() {
+    private fun createOnePanelEntity(context: Context) {
         if (panelEntities.size < maxEntities) {
             val panelNumber = panelEntities.size + 1
             val mTextView =
-                TextView(session.context).apply {
+                TextView(context).apply {
                     text = "Hello, XR World! Panel $panelNumber"
                     textSize = 24f
                     setTextColor(Color.BLACK)

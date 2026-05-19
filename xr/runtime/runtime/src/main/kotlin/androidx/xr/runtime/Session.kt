@@ -356,10 +356,7 @@ public constructor(
         }
     }
 
-    @Deprecated(
-        "Session.activity is an unsafe reference and may not resolve in the future. Please keep a reference to the activity outside of the Session."
-    )
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val activity: Activity
         get() {
             check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED)
