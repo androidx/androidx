@@ -314,7 +314,6 @@ package androidx.xr.runtime {
     method @WorkerThread public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context);
     method @WorkerThread public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method @WorkerThread public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Activity getActivity();
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.Context getContext();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public kotlinx.coroutines.CoroutineScope getCoroutineScope();
@@ -323,7 +322,6 @@ package androidx.xr.runtime {
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.SessionConnector> getSessionConnectors();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> getState();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.StateExtender> getStateExtenders();
-    property @Deprecated @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public android.app.Activity activity;
     property public androidx.xr.runtime.Config config;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public android.content.Context context;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public kotlinx.coroutines.CoroutineScope coroutineScope;
