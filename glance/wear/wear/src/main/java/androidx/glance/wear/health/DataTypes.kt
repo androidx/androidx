@@ -19,6 +19,7 @@ package androidx.glance.wear.health
 import android.Manifest
 import android.health.connect.HealthPermissions
 import androidx.annotation.RequiresPermission
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.ri
@@ -41,6 +42,10 @@ public object DataTypes {
     private const val DAILY_CALORIES_METRIC_KEY = "metrics.day.calories"
     private const val DAILY_DISTANCE_METERS_METRIC_KEY = "metrics.day.distance"
     private const val DAILY_FLOORS_METRIC_KEY = "metrics.day.flights_of_stairs"
+    private const val DAILY_STEPS_AVAILABLE_METRIC_KEY = "metrics.day.steps_available"
+    private const val DAILY_CALORIES_AVAILABLE_METRIC_KEY = "metrics.day.calories_available"
+    private const val DAILY_DISTANCE_METERS_AVAILABLE_METRIC_KEY = "metrics.day.distance_available"
+    private const val DAILY_FLOORS_AVAILABLE_METRIC_KEY = "metrics.day.flights_of_stairs_available"
 
     private const val UNSET_INT = -1
     private const val UNSET_FLOAT = -1f
@@ -102,6 +107,8 @@ public object DataTypes {
      * It resets when 00:00 is reached in the device's current timezone. This can result in the
      * daily period being greater or less than 24 hours if the timezone is changed.
      *
+     * Check [isDailyStepsAvailable] to determine if this metric is available on the host.
+     *
      * Required permission: [Manifest.permission.ACTIVITY_RECOGNITION]
      */
     @get:RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
@@ -109,11 +116,27 @@ public object DataTypes {
         RemoteInt.createNamedRemoteInt(name = DAILY_STEPS_METRIC_KEY, defaultValue = UNSET_INT)
 
     /**
+     * Returns `true` if [dailySteps] is available on the host, `false` otherwise.
+     *
+     * A health data type may be unavailable if the permission wasn't granted or if the host cannot
+     * retrieve it.
+     *
+     * If `false`, [dailySteps] will return its default value.
+     */
+    public val isDailyStepsAvailable: RemoteBoolean =
+        RemoteBoolean.createNamedRemoteBoolean(
+            name = DAILY_STEPS_AVAILABLE_METRIC_KEY,
+            defaultValue = false,
+        )
+
+    /**
      * The total number of calories burned over a day (including both BMR and active calories),
      * expressed in kilocalories (kcal).
      *
      * It resets when 00:00 is reached in the device's current timezone. This can result in the
      * daily period being greater or less than 24 hours if the timezone is changed.
+     *
+     * Check [isDailyCaloriesAvailable] to determine if this metric is available on the host.
      *
      * Required permission: [Manifest.permission.ACTIVITY_RECOGNITION]
      */
@@ -125,10 +148,26 @@ public object DataTypes {
         )
 
     /**
+     * Returns `true` if [dailyCalories] is available on the host, `false` otherwise.
+     *
+     * A health data type may be unavailable if the permission wasn't granted or if the host cannot
+     * retrieve it.
+     *
+     * If `false`, [dailyCalories] will return its default value.
+     */
+    public val isDailyCaloriesAvailable: RemoteBoolean =
+        RemoteBoolean.createNamedRemoteBoolean(
+            name = DAILY_CALORIES_AVAILABLE_METRIC_KEY,
+            defaultValue = false,
+        )
+
+    /**
      * The total distance traveled over a day, expressed in meters.
      *
      * It resets when 00:00 is reached in the device's current timezone. This can result in the
      * daily period being greater or less than 24 hours if the timezone is changed.
+     *
+     * Check [isDailyDistanceMetersAvailable] to determine if this metric is available on the host.
      *
      * Required permission: [Manifest.permission.ACTIVITY_RECOGNITION]
      */
@@ -140,10 +179,26 @@ public object DataTypes {
         )
 
     /**
+     * Returns `true` if [dailyDistanceMeters] is available on the host, `false` otherwise.
+     *
+     * A health data type may be unavailable if the permission wasn't granted or if the host cannot
+     * retrieve it.
+     *
+     * If `false`, [dailyDistanceMeters] will return its default value.
+     */
+    public val isDailyDistanceMetersAvailable: RemoteBoolean =
+        RemoteBoolean.createNamedRemoteBoolean(
+            name = DAILY_DISTANCE_METERS_AVAILABLE_METRIC_KEY,
+            defaultValue = false,
+        )
+
+    /**
      * The total number of floors climbed over a day.
      *
      * It resets when 00:00 is reached in the device's current timezone. This can result in the
      * daily period being greater or less than 24 hours if the timezone is changed.
+     *
+     * Check [isDailyFloorsAvailable] to determine if this metric is available on the host.
      *
      * Required permission: [Manifest.permission.ACTIVITY_RECOGNITION]
      */
@@ -152,5 +207,19 @@ public object DataTypes {
         RemoteFloat.createNamedRemoteFloat(
             name = DAILY_FLOORS_METRIC_KEY,
             defaultValue = UNSET_FLOAT,
+        )
+
+    /**
+     * Returns `true` if [dailyFloors] is available on the host, `false` otherwise.
+     *
+     * A health data type may be unavailable if the permission wasn't granted or if the host cannot
+     * retrieve it.
+     *
+     * If `false`, [dailyFloors] will return its default value.
+     */
+    public val isDailyFloorsAvailable: RemoteBoolean =
+        RemoteBoolean.createNamedRemoteBoolean(
+            name = DAILY_FLOORS_AVAILABLE_METRIC_KEY,
+            defaultValue = false,
         )
 }

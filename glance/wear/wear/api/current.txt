@@ -65,6 +65,10 @@ package @SuppressCompatibility androidx.glance.wear.health {
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteInt getDailySteps();
     method @InaccessibleFromKotlin @RequiresPermission(anyOf={android.Manifest.permission.BODY_SENSORS, android.health.connect.HealthPermissions.READ_HEART_RATE}) public androidx.compose.remote.creation.compose.state.RemoteInt getHeartRateAccuracy();
     method @InaccessibleFromKotlin @RequiresPermission(anyOf={android.Manifest.permission.BODY_SENSORS, android.health.connect.HealthPermissions.READ_HEART_RATE}) public androidx.compose.remote.creation.compose.state.RemoteFloat getHeartRateBpm();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyCaloriesAvailable();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyDistanceMetersAvailable();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyFloorsAvailable();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyStepsAvailable();
     property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_HIGH;
     property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_LOW;
     property public androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_MEDIUM;
@@ -77,6 +81,10 @@ package @SuppressCompatibility androidx.glance.wear.health {
     property @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteInt dailySteps;
     property @RequiresPermission(anyOf={"android.permission.BODY_SENSORS", "android.permission.health.READ_HEART_RATE"}) public androidx.compose.remote.creation.compose.state.RemoteInt heartRateAccuracy;
     property @RequiresPermission(anyOf={"android.permission.BODY_SENSORS", "android.permission.health.READ_HEART_RATE"}) public androidx.compose.remote.creation.compose.state.RemoteFloat heartRateBpm;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyCaloriesAvailable;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyDistanceMetersAvailable;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyFloorsAvailable;
+    property public androidx.compose.remote.creation.compose.state.RemoteBoolean isDailyStepsAvailable;
     field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_HIGH;
     field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_LOW;
     field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_MEDIUM;
