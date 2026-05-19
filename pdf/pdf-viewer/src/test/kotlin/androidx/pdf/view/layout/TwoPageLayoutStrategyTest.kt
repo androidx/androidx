@@ -18,6 +18,7 @@ package androidx.pdf.view.layout
 import android.graphics.RectF
 import android.os.Parcel
 import android.util.Range
+import androidx.pdf.Dimension
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Before

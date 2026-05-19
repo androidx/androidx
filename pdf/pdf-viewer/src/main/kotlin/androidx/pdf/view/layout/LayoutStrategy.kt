@@ -16,15 +16,9 @@
 
 package androidx.pdf.view.layout
 
-import android.graphics.Point
 import android.graphics.RectF
 import android.os.Parcelable
-
-/**
- * An alias for [android.graphics.Point] used to semantically represent the width and height of a
- * PDF page.
- */
-internal typealias Dimension = Point
+import androidx.pdf.Dimension
 
 /**
  * Defines a strategy for calculating page positions and determining visible areas within a PDF

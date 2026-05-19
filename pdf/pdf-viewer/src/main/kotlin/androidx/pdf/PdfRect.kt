@@ -16,7 +16,6 @@
 
 package androidx.pdf
 
-import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 
@@ -93,7 +92,7 @@ internal val PdfRect.rightBottom: PdfPoint
  * @param bitmapSize The size of the bitmap in pixels from which this [Rect] was taken.
  * @return A [PdfRect] representing the same area as this [Rect], but in PDF coordinates.
  */
-internal fun Rect.toPdfRect(pageNum: Int, imageRect: RectF, bitmapSize: Point): PdfRect {
+internal fun Rect.toPdfRect(pageNum: Int, imageRect: RectF, bitmapSize: Dimension): PdfRect {
     val imageWidth = imageRect.right - imageRect.left
     val imageHeight = imageRect.bottom - imageRect.top
     require(bitmapSize.x > 0 && bitmapSize.y > 0) {

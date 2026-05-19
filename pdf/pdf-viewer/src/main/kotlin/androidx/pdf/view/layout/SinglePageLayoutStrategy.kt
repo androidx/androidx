@@ -20,6 +20,7 @@ import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Range
+import androidx.pdf.Dimension
 import kotlin.math.abs
 import kotlin.math.max
 

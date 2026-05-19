@@ -16,11 +16,11 @@
 
 package androidx.pdf.view.layout
 
-import android.graphics.Point
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Range
 import androidx.annotation.MainThread
+import androidx.pdf.Dimension
 import kotlin.math.max
 
 /**
@@ -42,12 +42,12 @@ internal class PaginationModel(val numPages: Int) : Parcelable {
     val reach: Int
         get() = _reach
 
-    /** The dimensions of all pages known to this model, as [Point] */
+    /** The dimensions of all pages known to this model */
     private val pages = Array(numPages) { UNKNOWN_SIZE }
 
     constructor(parcel: Parcel) : this(parcel.readInt()) {
         _reach = parcel.readInt()
-        parcel.readTypedArray(pages, Point.CREATOR)
+        parcel.readTypedArray(pages, Dimension.CREATOR)
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -57,7 +57,7 @@ internal class PaginationModel(val numPages: Int) : Parcelable {
     }
 
     /** Adds [pageNum] to this model at [pageSize] */
-    fun addPage(pageNum: Int, pageSize: Point) {
+    fun addPage(pageNum: Int, pageSize: Dimension) {
         require(pageNum in 0 until numPages) { "Page out of range" }
         require(pageSize.y >= 0 && pageSize.x >= 0) { "Negative size page" }
         // Edge case: missing pages.
@@ -72,7 +72,7 @@ internal class PaginationModel(val numPages: Int) : Parcelable {
     }
 
     /** Returns the size of [pageNum] in content coordinates */
-    fun getPageSize(pageNum: Int): Point {
+    fun getPageSize(pageNum: Int): Dimension {
         require(pageNum in 0 until numPages) { "Page out of range" }
         return pages[pageNum]
     }

@@ -57,7 +57,7 @@ public class PdfPoint(public val pageNum: Int, public val x: Float, public val y
 }
 
 /** Maps a [PdfPoint] to a [Point] within the local coordinate space of an image. */
-internal fun PdfPoint.toImagePoint(imageRect: RectF, bitmapSize: Point): Point {
+internal fun PdfPoint.toImagePoint(imageRect: RectF, bitmapSize: Dimension): Point {
     val imageWidth = imageRect.right - imageRect.left
     val imageHeight = imageRect.bottom - imageRect.top
     require(imageWidth > 0 && imageHeight > 0) {
