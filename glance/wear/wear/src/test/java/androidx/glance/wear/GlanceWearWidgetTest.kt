@@ -32,6 +32,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -158,6 +159,92 @@ class GlanceWearWidgetTest {
         }
     }
 
+    @Test
+    @Config(maxSdk = 36)
+    fun triggerUpdateAll_onOlderSdk_pullsUpdateForAll() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val handle1 =
+            ActiveWearWidgetHandle(
+                provider = TEST_COMPONENT,
+                instanceId = TEST_INSTANCE_ID,
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+            )
+        val handle2 =
+            ActiveWearWidgetHandle(
+                provider = TEST_COMPONENT,
+                instanceId = WidgetInstanceId("ns", 456),
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+            )
+        val widget = TestWidget(mockUpdateClient, activeWidgets = listOf(handle1, handle2))
+        val context = getApplicationContext<Context>()
+
+        widget.triggerUpdateAll(context)
+
+        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT), eq(TEST_INSTANCE_ID))
+        verify(mockUpdateClient)
+            .requestUpdate(any(), eq(TEST_COMPONENT), eq(WidgetInstanceId("ns", 456)))
+        verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+    }
+
+    @Test
+    fun triggerUpdateAll_onNewerSdk_pushesUpdateForAll() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val mockWidgetCache = mock<WearWidgetCache>()
+            val handle1 =
+                ActiveWearWidgetHandle(
+                    provider = TEST_COMPONENT,
+                    instanceId = TEST_INSTANCE_ID,
+                    containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                )
+            val handle2 =
+                ActiveWearWidgetHandle(
+                    provider = TEST_COMPONENT,
+                    instanceId = WidgetInstanceId("ns", 456),
+                    containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                )
+            val widget =
+                TestWidget(
+                    mockUpdateClient,
+                    mockWidgetCache,
+                    activeWidgets = listOf(handle1, handle2),
+                )
+            val context = getApplicationContext<Context>()
+
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(TEST_INSTANCE_ID)))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(TEST_INSTANCE_ID),
+                    )
+                )
+                .thenReturn(testWidgetParams(TEST_INSTANCE_ID))
+
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(WidgetInstanceId("ns", 456))))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(WidgetInstanceId("ns", 456)),
+                    )
+                )
+                .thenReturn(testWidgetParams(WidgetInstanceId("ns", 456)))
+
+            widget.triggerUpdateAll(context)
+
+            verify(mockUpdateClient)
+                .pushUpdate(eq(context), argThat { instanceId == TEST_INSTANCE_ID }, any())
+            verify(mockUpdateClient)
+                .pushUpdate(
+                    eq(context),
+                    argThat { instanceId == WidgetInstanceId("ns", 456) },
+                    any(),
+                )
+            verify(mockUpdateClient, never()).requestUpdate(any(), any(), any())
+        }
+    }
+
     private class TestWidget(
         updateClient: WidgetUpdateClient,
         widgetCache: WearWidgetCache? = null,
@@ -169,6 +256,8 @@ class GlanceWearWidgetTest {
 
         override suspend fun findActiveWidgetById(context: Context, instanceId: WidgetInstanceId) =
             activeWidgets.find { it.instanceId == instanceId }
+
+        override suspend fun fetchActiveWidgets(context: Context) = activeWidgets
     }
 
     private companion object {

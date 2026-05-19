@@ -11,6 +11,7 @@ package androidx.glance.wear {
     method @MainThread public suspend Object? onRemoved(android.content.Context context, androidx.glance.wear.core.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @MainThread public abstract suspend Object? provideWidgetData(android.content.Context context, androidx.glance.wear.core.WearWidgetParams params, kotlin.coroutines.Continuation<? super androidx.glance.wear.WearWidgetData>);
     method public final suspend Object? triggerUpdate(android.content.Context context, androidx.glance.wear.core.WidgetInstanceId instanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? triggerUpdateAll(android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class GlanceWearWidgetManager {

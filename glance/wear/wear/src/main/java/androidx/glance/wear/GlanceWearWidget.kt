@@ -34,6 +34,8 @@ import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.glance.wear.parcel.WidgetUpdateClientImpl
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -125,6 +127,46 @@ internal constructor(
      *   by the calling application.
      */
     public suspend fun triggerUpdate(context: Context, instanceId: WidgetInstanceId) {
+        triggerUpdateInternal(context, instanceId, cachedHandle = null)
+    }
+
+    /**
+     * Triggers a content update for all active widget instances associated with this class,
+     * resulting in calls to [provideWidgetData], after which the results are pushed to the Host.
+     *
+     * Each individual update coroutine will be canceled if it doesn't complete within 10 seconds of
+     * being called.
+     *
+     * @param context the context from which this method is called.
+     */
+    @SuppressLint("ListIterator") // Not running inside Compose code.
+    public suspend fun triggerUpdateAll(context: Context) {
+        val activeWidgets = fetchActiveWidgets(context)
+        if (activeWidgets.isEmpty()) {
+            Log.i(TAG, "No active instances found to update.")
+            return
+        }
+        coroutineScope {
+            for (handle in activeWidgets) {
+                launch {
+                    try {
+                        triggerUpdateInternal(context, handle.instanceId, cachedHandle = handle)
+                    } catch (ex: IllegalArgumentException) {
+                        Log.i(
+                            TAG,
+                            "WidgetInstanceId is no longer valid. It may have been removed after the update was triggered: ${handle.instanceId}",
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun triggerUpdateInternal(
+        context: Context,
+        instanceId: WidgetInstanceId,
+        cachedHandle: ActiveWearWidgetHandle? = null,
+    ) {
         if (context.isDebuggable()) {
             updateClient.sendUpdateBroadcast(context, instanceId = instanceId)
         }
@@ -139,7 +181,8 @@ internal constructor(
         }
 
         val widgetHandle =
-            findActiveWidgetById(context, instanceId)
+            cachedHandle
+                ?: findActiveWidgetById(context, instanceId)
                 ?: throw IllegalArgumentException("Invalid WidgetInstanceId=$instanceId")
         triggerPullUpdate(context, widgetHandle.provider, instanceId)
     }
@@ -191,8 +234,11 @@ internal constructor(
     internal open suspend fun findActiveWidgetById(
         context: Context,
         instanceId: WidgetInstanceId,
-    ): ActiveWearWidgetHandle? =
-        GlanceWearWidgetManager(context).fetchActiveWidgets().find { it.instanceId == instanceId }
+    ): ActiveWearWidgetHandle? = fetchActiveWidgets(context).find { it.instanceId == instanceId }
+
+    @VisibleForTesting
+    internal open suspend fun fetchActiveWidgets(context: Context): List<ActiveWearWidgetHandle> =
+        GlanceWearWidgetManager(context).fetchActiveWidgets(this::class)
 
     internal companion object {
         private const val TAG = "GlanceWearWidget"
