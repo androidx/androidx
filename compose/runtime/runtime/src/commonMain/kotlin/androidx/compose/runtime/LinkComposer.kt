@@ -1232,7 +1232,10 @@ internal class LinkComposer(
         val address = anchor.asLinkAnchor().address
         if (address < 0 || !isComposing) return false
 
-        if (isGroupAfterCurrentReaderPosition(address.toGroupHandle())) {
+        if (
+            address == reader.currentGroup ||
+                isGroupAfterCurrentReaderPosition(address.toGroupHandle())
+        ) {
             // if we are invalidating a scope that is going to be traversed during this
             // composition.
             reader.addFlag(address, IsRecompositionRequiredFlag)
