@@ -17,7 +17,7 @@
 package androidx.xr.scenecore.testing
 
 import android.view.Surface
-import androidx.xr.runtime.FieldOfView
+import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.scenecore.PerceivedResolutionResult
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.testing.internal.FakeScenePose as InternalFakeScenePose
