@@ -31,34 +31,44 @@ import java.util.function.Consumer
 /** Test-only implementation of [BoundsComponent] */
 @Deprecated("Use SceneCoreTestRule instead.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FakeBoundsComponent : FakeComponent(), BoundsComponent {
+public class FakeBoundsComponent
+internal constructor(internal var fakeInternal: InternalFakeBoundsComponent) :
+    FakeComponent(), BoundsComponent {
 
-    internal var fakeInternal: InternalFakeBoundsComponent = InternalFakeBoundsComponent()
+    public constructor() : this(InternalFakeBoundsComponent())
 
     public var entity: GltfEntity? = null
         private set
 
-    public var listeners: ConcurrentHashMap<Consumer<BoundingBox>, Executor> =
-        ConcurrentHashMap<Consumer<BoundingBox>, Executor>()
-        private set
+    public val listeners: ConcurrentHashMap<Consumer<BoundingBox>, Executor>
+        get() = fakeInternal.listeners
 
     override fun onAttach(entity: Entity): Boolean {
-        if (entity is GltfEntity) {
-            this.entity = entity
+        val fakeEntity = entity as? FakeEntity ?: return false
+        val internalEntity = fakeEntity.fakeInternal as Entity
+
+        val attached = fakeInternal.onAttach(internalEntity)
+
+        if (attached) {
+            this.entity = entity as GltfEntity
         }
-        return (this.entity != null)
+        return attached
     }
 
     override fun onDetach(entity: Entity) {
+        val fakeEntity = entity as? FakeEntity ?: return
+        val internalEntity = fakeEntity.fakeInternal as Entity
+        fakeInternal.onDetach(internalEntity)
+
         this.entity = null
     }
 
     override fun addOnBoundsUpdateListener(executor: Executor, listener: Consumer<BoundingBox>) {
-        listeners[listener] = executor
+        fakeInternal.addOnBoundsUpdateListener(executor, listener)
     }
 
     override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
-        listeners.remove(listener)
+        fakeInternal.removeOnBoundsUpdateListener(listener)
     }
 
     /**
@@ -71,10 +81,6 @@ public class FakeBoundsComponent : FakeComponent(), BoundsComponent {
      * @param boundingBox The new [BoundingBox] to be sent in the simulated event.
      */
     public fun onBoundsUpdate(boundingBox: BoundingBox) {
-        for (entry in listeners.entries) {
-            val executor = entry.value
-            val listener = entry.key
-            executor.execute { listener.accept(boundingBox) }
-        }
+        fakeInternal.onBoundsUpdate(boundingBox)
     }
 }
