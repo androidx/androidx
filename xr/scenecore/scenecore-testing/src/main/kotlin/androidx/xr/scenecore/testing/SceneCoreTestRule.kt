@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.testing
 
 import android.media.MediaPlayer
+import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.BoundsComponent
@@ -88,6 +89,7 @@ public class SceneCoreTestRule : ExternalResource() {
             EntityTester.create(entity)
         } else {
             when (entity) {
+                is ActivityPanelEntity -> ActivityPanelEntityTester.create(entity)
                 is AnchorEntity -> AnchorEntityTester.create(entity)
                 is GltfModelEntity -> GltfModelEntityTester.create(entity)
                 is MeshEntity -> MeshEntityTester.create(entity)

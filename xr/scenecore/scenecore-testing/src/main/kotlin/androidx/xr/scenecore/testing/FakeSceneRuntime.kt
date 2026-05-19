@@ -64,6 +64,7 @@ import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
+import androidx.xr.scenecore.testing.internal.FakeActivityPanelEntity as InternalFakeActivityPanelEntity
 import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAnchorEntity
 import androidx.xr.scenecore.testing.internal.FakeBoundsComponent as InternalFakeBoundsComponent
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
@@ -221,12 +222,22 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         hostActivity: Activity,
         parent: Entity?,
     ): ActivityPanelEntity =
-        FakeActivityPanelEntity(name).apply {
-            dpPerMeter = deviceDpPerMeter
-            sizeInPixels = windowBoundsPx
-            this.parent = parent
-            setPose(pose)
-        }
+        FakeActivityPanelEntity(
+                name,
+                internalRuntime.createActivityPanelEntity(
+                    pose,
+                    windowBoundsPx,
+                    name,
+                    hostActivity,
+                    parent,
+                ) as InternalFakeActivityPanelEntity,
+            )
+            .apply {
+                dpPerMeter = deviceDpPerMeter
+                sizeInPixels = windowBoundsPx
+                this.parent = parent
+                setPose(pose)
+            }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun createAnchorEntity(): AnchorEntity {

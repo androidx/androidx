@@ -34,13 +34,16 @@ internal constructor(name: String = "", fakeInternal: InternalFakeActivityPanelE
 
     public constructor(name: String = "") : this(name, InternalFakeActivityPanelEntity(name))
 
+    private val internalActivityPanelEntity: InternalFakeActivityPanelEntity
+        get() = fakeInternal as InternalFakeActivityPanelEntity
+
     /** The intent that was last used to launch an activity. */
-    public var launchIntent: Intent = Intent()
-        private set
+    public val launchIntent: Intent?
+        get() = internalActivityPanelEntity.launchIntent
 
     /** The bundle that was last used to launch an activity. */
-    public var launchBundle: Bundle? = null
-        private set
+    public val launchBundle: Bundle?
+        get() = internalActivityPanelEntity.launchBundle
 
     /**
      * Launches the given activity into the panel.
@@ -49,13 +52,12 @@ internal constructor(name: String = "", fakeInternal: InternalFakeActivityPanelE
      * @param bundle Bundle to pass to the activity, can be null.
      */
     override fun launchActivity(intent: Intent, bundle: Bundle?) {
-        launchIntent = intent
-        launchBundle = bundle
+        internalActivityPanelEntity.launchActivity(intent, bundle)
     }
 
     /** The activity that was last moved into the panel. */
-    public var movedActivity: Activity = Activity()
-        private set
+    public val movedActivity: Activity?
+        get() = internalActivityPanelEntity.movedActivity
 
     /**
      * Moves the given activity into the panel.
@@ -63,6 +65,6 @@ internal constructor(name: String = "", fakeInternal: InternalFakeActivityPanelE
      * @param activity Activity to move into the ActivityPanel.
      */
     override fun moveActivity(activity: Activity) {
-        movedActivity = activity
+        internalActivityPanelEntity.moveActivity(activity)
     }
 }

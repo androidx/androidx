@@ -26,7 +26,7 @@ internal class FakeActivityPanelEntity(name: String = "") :
     FakePanelEntity(name = name), ActivityPanelEntity {
 
     /** The intent that was last used to launch an activity. */
-    var launchIntent: Intent = Intent()
+    var launchIntent: Intent? = null
         private set
 
     /** The bundle that was last used to launch an activity. */
@@ -45,7 +45,7 @@ internal class FakeActivityPanelEntity(name: String = "") :
     }
 
     /** The activity that was last moved into the panel. */
-    var movedActivity: Activity = Activity()
+    var movedActivity: Activity? = null
         private set
 
     /**
