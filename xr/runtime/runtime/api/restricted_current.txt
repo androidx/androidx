@@ -230,20 +230,14 @@ package androidx.xr.runtime {
   }
 
   @SuppressCompatibility public final class NativeDataExt {
-    method @SuppressCompatibility @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.NativeInstanceData getNativeInstanceData(androidx.xr.runtime.XrDevice, android.content.Context context);
-    method @SuppressCompatibility @androidx.xr.runtime.UnstableNativeResourceApi public static androidx.xr.runtime.NativeSessionData getNativeSessionData(androidx.xr.runtime.Session);
+    method @SuppressCompatibility @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.NativeInstanceData getNativeInstanceData(androidx.xr.runtime.XrDevice, android.content.Context context);
   }
 
-  public final class NativeInstanceData {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class NativeInstanceData {
     method @InaccessibleFromKotlin public long getFunctionTablePointer();
     method @InaccessibleFromKotlin public long getInstancePointer();
     property public long functionTablePointer;
     property public long instancePointer;
-  }
-
-  public final class NativeSessionData {
-    method @InaccessibleFromKotlin public long getSessionPointer();
-    property public long sessionPointer;
   }
 
   public final class PlaneTrackingMode {
@@ -428,9 +422,6 @@ package androidx.xr.runtime {
     method public void close();
     method public suspend Object? extend(androidx.xr.runtime.CoreState coreState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="Access to native pointers is discouraged and the data returned by this API may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface UnstableNativeResourceApi {
   }
 
   public final class XrDevice {
