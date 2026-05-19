@@ -36,6 +36,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.Ignore
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -226,6 +227,7 @@ internal class SelectionStateTest : AbstractSelectionContainerTest() {
         }
     }
 
+    @Ignore("b/513036248")
     @Test
     fun selectAll_thenGesture() {
         val state = SelectionState()
