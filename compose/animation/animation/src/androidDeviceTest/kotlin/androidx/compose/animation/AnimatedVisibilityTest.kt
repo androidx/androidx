@@ -36,6 +36,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -958,5 +959,37 @@ class AnimatedVisibilityTest {
         // composable was indeed disposed.
         assertThat(exitColor.alpha).isGreaterThan(0f)
         assertTrue(disposed)
+    }
+
+    @Test
+    fun testAnimationSettleExactTime() {
+        var startAnimation by mutableStateOf(false)
+        var isContentPresent = false
+
+        rule.setContent {
+            val transitionState = remember { MutableTransitionState(true) }
+            transitionState.targetState = !startAnimation
+
+            AnimatedVisibility(
+                visibleState = transitionState,
+                enter = EnterTransition.None,
+                exit = ExitTransition.None,
+            ) {
+                DisposableEffect(Unit) {
+                    isContentPresent = true
+                    onDispose { isContentPresent = false }
+                }
+            }
+        }
+
+        assertTrue("Content should be added to the composition", isContentPresent)
+        startAnimation = true
+
+        // The animation ends exactly after one frame (non-inclusive). Advance by a frame and then
+        // an additional millisecond. The content should be removed.
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(1L)
+
+        assertFalse("Content should be removed from the composition", isContentPresent)
     }
 }

@@ -5073,6 +5073,29 @@ class CompositionTests {
             Text("Static")
         }
     }
+
+    @Test
+    fun testImminentInvalidationForCurrentGroup() = compositionTest {
+        var newShowChild by mutableStateOf(true)
+        var compositions = 0
+
+        compose {
+            val showChild = remember { mutableStateOf(newShowChild) }
+            showChild.value = newShowChild
+            SkippableHidingText("Child", showChild)
+            Text("compositions = ${++compositions}")
+        }
+
+        validate {
+            Text("Child")
+            Text("compositions = 1")
+        }
+
+        newShowChild = false
+        assertEquals(1, advanceCount(), "Content should settle in one composition")
+
+        validate { Text("compositions = 2") }
+    }
 }
 
 class SomeUnstableClass(val a: Any = "abc")
@@ -5317,6 +5340,13 @@ private inline fun InlineSubcomposition(crossinline content: @Composable () -> U
 @Composable
 private operator fun <T> CompositionLocal<T>.getValue(thisRef: Any?, property: KProperty<*>) =
     current
+
+@Composable
+private fun SkippableHidingText(label: String, visible: State<Boolean>) {
+    if (visible.value) {
+        Text(label)
+    }
+}
 
 // for 274185312
 
