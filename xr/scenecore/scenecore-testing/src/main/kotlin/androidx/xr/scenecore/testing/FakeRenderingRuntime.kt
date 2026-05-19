@@ -74,20 +74,15 @@ public class FakeRenderingRuntime(
         )
     }
 
-    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource {
-        val gltfModelResource = FakeGltfModelResource(0)
-        gltfModelResource.assetName = assetName
-        return gltfModelResource
+    override suspend fun loadGltfByAssetName(assetName: String): FakeGltfModelResource {
+        return FakeGltfModelResource(0, internalRuntime.loadGltfByAssetName(assetName))
     }
 
     override suspend fun loadGltfByByteArray(
         assetData: ByteArray,
         assetKey: String,
-    ): GltfModelResource {
-        val gltfModelResource = FakeGltfModelResource(0)
-        gltfModelResource.assetData = assetData
-        gltfModelResource.assetKey = assetKey
-        return gltfModelResource
+    ): FakeGltfModelResource {
+        return FakeGltfModelResource(0, internalRuntime.loadGltfByByteArray(assetData, assetKey))
     }
 
     override fun destroyGltfModel(gltfModel: GltfModelResource) {}

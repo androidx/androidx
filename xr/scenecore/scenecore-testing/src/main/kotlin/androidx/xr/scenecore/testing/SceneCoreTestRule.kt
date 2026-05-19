@@ -20,6 +20,7 @@ import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.InteractableComponent
@@ -161,6 +162,20 @@ public class SceneCoreTestRule : ExternalResource() {
             ?: throw IllegalArgumentException(
                 "Expected tester of type ${T::class.simpleName}, but actual component created a ${tester::class.simpleName}"
             )
+    }
+
+    /**
+     * Retrieves a test data accessor for the given [GltfModel].
+     *
+     * In the test environment, each model created via [GltfModel.create] has corresponding
+     * underlying fake data. This function provides access to that fake data, allowing for
+     * verification or manipulation in tests.
+     *
+     * @param gltfModel The [GltfModel] instance for which to retrieve test data.
+     * @return A [GltfModelTester] instance used to inspect and manipulate the test data.
+     */
+    public fun createTester(gltfModel: GltfModel): GltfModelTester {
+        return GltfModelTester.create(gltfModel)
     }
 
     /**
