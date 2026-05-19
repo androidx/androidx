@@ -19,6 +19,7 @@ package androidx.xr.scenecore.testing
 import android.media.MediaPlayer
 import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.BoundsComponent
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfModel
@@ -98,6 +99,7 @@ public class SceneCoreTestRule : ExternalResource() {
     @PublishedApi
     internal fun resolveTesterInternal(component: Component): Any? {
         return when (component) {
+            is BoundsComponent -> BoundsComponentTester.create(component)
             is InteractableComponent -> InteractableComponentTester.create(component)
             is PositionalAudioComponent -> PositionalAudioComponentTester.create(component)
             else -> null

@@ -19,6 +19,10 @@ package androidx.xr.scenecore.testing {
     property public androidx.xr.scenecore.AnchorEntity.State? state;
   }
 
+  public final class BoundsComponentTester {
+    method public void triggerOnBoundsUpdate(androidx.xr.runtime.math.BoundingBox boundingBox);
+  }
+
   public final class GltfModelEntityTester {
     method public void addAnimation(androidx.xr.scenecore.testing.TestGltfAnimation animation);
     method public void addNode(androidx.xr.scenecore.testing.TestGltfModelNode node);

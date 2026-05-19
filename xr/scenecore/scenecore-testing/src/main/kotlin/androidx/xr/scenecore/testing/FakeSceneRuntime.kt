@@ -65,6 +65,7 @@ import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAnchorEntity
+import androidx.xr.scenecore.testing.internal.FakeBoundsComponent as InternalFakeBoundsComponent
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import androidx.xr.scenecore.testing.internal.FakeMeshEntity as InternalFakeMeshEntity
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
@@ -512,7 +513,11 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     override fun createSpatialPointerComponent(): SpatialPointerComponent =
         FakeSpatialPointerComponent()
 
-    override fun createBoundsComponent(): BoundsComponent = FakeBoundsComponent()
+    override fun createBoundsComponent(): BoundsComponent {
+        return FakeBoundsComponent(
+            internalRuntime.createBoundsComponent() as InternalFakeBoundsComponent
+        )
+    }
 
     // Assuming the subspaceNodeHolder contains a valid FakeSubspaceNode and a valid FakeNode.
     public fun createSubspaceNodeEntity(node: FakeNode, size: Dimensions): SubspaceNodeEntity =
