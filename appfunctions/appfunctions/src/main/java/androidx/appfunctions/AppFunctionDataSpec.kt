@@ -109,10 +109,41 @@ internal abstract class AppFunctionDataSpec {
      * @throws IllegalArgumentException If the [data] does not match the specification.
      */
     fun validateDataSpecMatches(data: AppFunctionData) {
-        // TODO(b/447064745): Fix child object validation when spec is from schema inventory
-        val unused = data.spec ?: return
-        //        require(this == otherSpec) { "$data does not match the metadata specification of
-        // $this" }
+        val otherSpec = data.spec ?: return
+        requireSemanticallyEquivalentTo(otherSpec)
+    }
+
+    private fun requireSemanticallyEquivalentTo(other: AppFunctionDataSpec) {
+        val thisKeys = this.getAllPropertyKeys()
+        val otherKeys = other.getAllPropertyKeys()
+        require(thisKeys == otherKeys) {
+            "Property keys mismatch. Expected keys: $thisKeys, actual keys: $otherKeys"
+        }
+
+        for (key in thisKeys) {
+            require(this.isRequired(key) == other.isRequired(key)) {
+                "Requirement mismatch for key \"$key\". Expected required: " +
+                    "${this.isRequired(key)}, actual required: ${other.isRequired(key)}"
+            }
+            val thisType = this.getDataType(key)
+            val otherType = other.getDataType(key)
+            if (thisType == null && otherType == null) continue
+            requireNotNull(thisType) {
+                "Missing data type metadata for key \"$key\" in expected spec."
+            }
+            requireNotNull(otherType) {
+                "Missing data type metadata for key \"$key\" in actual spec."
+            }
+            try {
+                thisType.requireSemanticallyEquivalentTo(
+                    otherType,
+                    this.componentMetadata,
+                    other.componentMetadata,
+                )
+            } catch (e: IllegalArgumentException) {
+                throw IllegalArgumentException("Type mismatch for key \"$key\": ${e.message}", e)
+            }
+        }
     }
 
     /**
@@ -377,6 +408,8 @@ internal abstract class AppFunctionDataSpec {
     }
 
     companion object {
+        private const val TAG = "AppFunctionDataSpec"
+
         fun create(
             objectType: AppFunctionObjectTypeMetadata,
             componentMetadata: AppFunctionComponentsMetadata,

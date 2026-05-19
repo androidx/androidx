@@ -142,7 +142,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
     }
 
@@ -170,7 +171,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
     }
 
@@ -414,7 +416,8 @@ class IntegrationTest {
 
         // If the enclosing class was created by the provided factory, the secondary constructor
         // should be called and so the return value would be `true`.
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(successResponse.returnValue.getBoolean(PROPERTY_RETURN_VALUE)).isEqualTo(true)
     }
 
@@ -439,7 +442,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE)).isEqualTo("logcat")
     }
 
@@ -520,7 +524,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val expectedNote =
             Note(
                 title = "Test Title",
@@ -569,7 +574,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val expectedNote =
             Note(
                 title = "Test Title",
@@ -618,7 +624,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val expectedNote =
             Note(
                 title = "Test Title",
@@ -673,7 +680,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val result =
             successResponse.returnValue
                 .getAppFunctionData(PROPERTY_RETURN_VALUE)
@@ -723,7 +731,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val expectedNote =
             Note(
                 title = "NewTitle1_NewTitle2",
@@ -771,7 +780,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val expectedNote =
             Note(
                 title = "NewTitle1_DefaultTitle",
@@ -813,7 +823,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val expectedNote =
             Note(
                 title = "DefaultTitle_DefaultTitle",
@@ -875,7 +886,8 @@ class IntegrationTest {
 
         val response = appFunctionCaller.executeAppFunction(request)
 
-        assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val resultNote =
             response.returnValue
                 .getAppFunctionData(PROPERTY_RETURN_VALUE)
@@ -928,7 +940,8 @@ class IntegrationTest {
 
         val response = appFunctionCaller.executeAppFunction(request)
 
-        assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val resultNote =
             response.returnValue
                 .getAppFunctionData(PROPERTY_RETURN_VALUE)
@@ -983,7 +996,8 @@ class IntegrationTest {
 
         val response = appFunctionCaller.executeAppFunction(request)
 
-        assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val resultNote =
             response.returnValue
                 .getAppFunctionData(PROPERTY_RETURN_VALUE)
@@ -1119,7 +1133,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(
                 checkNotNull(successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE))
                     .deserialize(ClassWithOptionalValues::class.java)
@@ -1150,7 +1165,8 @@ class IntegrationTest {
                         )
                 )
 
-            val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+            val successResponse = response as ExecuteAppFunctionResponse.Success
             assertThat(
                     checkNotNull(
                             successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE)
@@ -1285,7 +1301,8 @@ class IntegrationTest {
                     )
             )
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(
                 checkNotNull(successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE))
                     .deserialize(ClassWithOptionalValues::class.java)
@@ -1345,7 +1362,8 @@ class IntegrationTest {
                         )
                 )
 
-            val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+            val successResponse = response as ExecuteAppFunctionResponse.Success
             assertThat(
                     checkNotNull(
                             successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE)
@@ -1402,7 +1420,8 @@ class IntegrationTest {
 
         val response = appFunctionCaller.executeAppFunction(request)
 
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val filesData =
             successResponse.returnValue
                 .getAppFunctionData(PROPERTY_RETURN_VALUE)
@@ -1428,7 +1447,8 @@ class IntegrationTest {
             )
 
         val response = appFunctionCaller.executeAppFunction(request)
-        val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         val filesData =
             checkNotNull(
                 successResponse.returnValue
@@ -1480,8 +1500,9 @@ class IntegrationTest {
         responseADeferred.cancel()
 
         // Assert responseB is completed successfully
-        val successResponse =
-            assertIs<ExecuteAppFunctionResponse.Success>(responseBDeferred.await())
+        val responseB = responseBDeferred.await()
+        assertThat(responseB).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = responseB as ExecuteAppFunctionResponse.Success
         assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE))
             .isEqualTo("Completed")
     }
@@ -1525,7 +1546,8 @@ class IntegrationTest {
 
         val response = appFunctionCaller.executeAppFunction(request)
 
-        assertIs<ExecuteAppFunctionResponse.Success>(response)
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(
                 response.returnValue.getAppFunctionDataList(PROPERTY_RETURN_VALUE)?.map {
                     it.deserialize(OneOfSealedNestedSerializable::class.java)
@@ -1595,7 +1617,8 @@ class IntegrationTest {
 
             val response = appFunctionCaller.executeAppFunction(request)
 
-            val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+            val successResponse = response as ExecuteAppFunctionResponse.Success
             assertThat(
                     successResponse.returnValue
                         .getAppFunctionData(PROPERTY_RETURN_VALUE)

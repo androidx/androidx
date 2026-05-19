@@ -20,6 +20,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
@@ -171,9 +172,22 @@ class ExecuteAppFunctionResponseTest {
                                     properties =
                                         mapOf(
                                             "uri" to
-                                                AppFunctionStringTypeMetadata(isNullable = false)
+                                                AppFunctionObjectTypeMetadata(
+                                                    properties =
+                                                        mapOf(
+                                                            "uri" to
+                                                                AppFunctionStringTypeMetadata(
+                                                                    isNullable = false
+                                                                )
+                                                        ),
+                                                    required = listOf("uri"),
+                                                    isNullable = false,
+                                                    qualifiedName = "android.net.Uri",
+                                                ),
+                                            "modeFlags" to
+                                                AppFunctionIntTypeMetadata(isNullable = false),
                                         ),
-                                    required = listOf("uri"),
+                                    required = listOf("uri", "modeFlags"),
                                     qualifiedName = "androidx.appfunctions.AppFunctionUriGrant",
                                     isNullable = true,
                                 ),
