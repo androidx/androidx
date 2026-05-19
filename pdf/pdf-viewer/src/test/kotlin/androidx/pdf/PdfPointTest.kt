@@ -16,7 +16,6 @@
 
 package androidx.pdf
 
-import android.graphics.Point
 import android.graphics.RectF
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -32,7 +31,7 @@ class PdfPointTest {
         // PDF image at (10, 10) with size 100x100
         val imageRect = RectF(10f, 10f, 110f, 110f)
         // Image bitmap is 1000x1000 pixels
-        val bitmapSize = Point(1000, 1000)
+        val bitmapSize = Dimension(1000, 1000)
 
         // Point at (20, 30) in PDF space
         // Relative to image: X = ((20-10)/100)*1000 = 100, Y = ((30-10)/100)*1000 = 200
@@ -47,7 +46,7 @@ class PdfPointTest {
     @Test(expected = IllegalArgumentException::class)
     fun toImagePoint_withZeroWidth_throwsException() {
         val imageRect = RectF(10f, 10f, 10f, 110f)
-        val bitmapSize = Point(1000, 1000)
+        val bitmapSize = Dimension(1000, 1000)
         val pdfPoint = PdfPoint(pageNum = 0, x = 20f, y = 30f)
 
         pdfPoint.toImagePoint(imageRect, bitmapSize)

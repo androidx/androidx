@@ -16,12 +16,12 @@
 package androidx.pdf.annotation.models
 
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import androidx.core.os.ParcelCompat
+import androidx.pdf.Dimension
 import androidx.pdf.PdfRect
 import androidx.pdf.selection.model.ImageSelection
 
@@ -85,5 +85,5 @@ internal fun ImagePdfObject.toImageSelection(pageNum: Int) =
     )
 
 /** The intrinsic dimensions of this object's bitmap in pixels. */
-internal val ImagePdfObject.bitmapSize: Point
-    get() = Point(bitmap.width, bitmap.height)
+internal val ImagePdfObject.bitmapSize: Dimension
+    get() = Dimension(bitmap.width, bitmap.height)

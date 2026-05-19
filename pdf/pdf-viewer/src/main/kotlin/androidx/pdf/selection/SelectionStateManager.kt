@@ -25,6 +25,7 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import androidx.annotation.IntDef
 import androidx.annotation.VisibleForTesting
+import androidx.pdf.Dimension
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
@@ -793,7 +794,7 @@ private data class OcrContext(
     val ocrResult: OcrResult,
     val pageNum: Int,
     val imageRect: RectF,
-    val bitmapSize: Point,
+    val bitmapSize: Dimension,
 )
 
 /** Defines integer constants to represent relative position of selection handles */

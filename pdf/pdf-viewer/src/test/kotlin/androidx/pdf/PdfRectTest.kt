@@ -16,7 +16,6 @@
 
 package androidx.pdf
 
-import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 import com.google.common.truth.Truth.assertThat
@@ -62,7 +61,7 @@ class PdfRectTest {
     fun toPdfRect_returnsCorrectPdfRect() {
         val rect = Rect(50, 100, 150, 200)
         val imageRect = RectF(100f, 200f, 300f, 400f)
-        val bitmapSize = Point(500, 1000)
+        val bitmapSize = Dimension(500, 1000)
 
         val pdfRect = rect.toPdfRect(pageNum = 0, imageRect = imageRect, bitmapSize = bitmapSize)
 
@@ -77,7 +76,7 @@ class PdfRectTest {
     fun toPdfRect_withZeroBitmapWidth_throwsException() {
         val rect = Rect(50, 100, 150, 200)
         val imageRect = RectF(100f, 200f, 300f, 400f)
-        val bitmapSize = Point(0, 1000)
+        val bitmapSize = Dimension(0, 1000)
 
         rect.toPdfRect(pageNum = 0, imageRect = imageRect, bitmapSize = bitmapSize)
     }
