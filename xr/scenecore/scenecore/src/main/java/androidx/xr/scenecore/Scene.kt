@@ -123,6 +123,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * 1. The previous value of [keyEntity] was `null`.
      * 2. There are cached pose and scale values, provided by the system earlier.
      */
+    // TODO - b/514128879: Adds getter for Scene.keyEntity
     public var keyEntity: Entity? = null
         set(value) {
             when (value) {

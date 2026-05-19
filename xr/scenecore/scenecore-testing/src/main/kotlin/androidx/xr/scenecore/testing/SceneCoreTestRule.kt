@@ -26,6 +26,7 @@ import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.PerceptionSpace
 import androidx.xr.scenecore.PositionalAudioComponent
+import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SoundEffectPool
 import androidx.xr.scenecore.SpatialWindow
 import androidx.xr.scenecore.SurfaceEntity
@@ -202,6 +203,27 @@ public class SceneCoreTestRule : ExternalResource() {
      */
     public fun createTester(texture: Texture): TextureTester = TextureTester.create(texture)
 
+    private var _sceneTester: SceneTester? = null
+
+    /**
+     * Provides access to a controller for simulating runtime spatial states of the [Scene].
+     *
+     * Use this to test how your application responds to changes in various spatial-related runtime
+     * states, such as visibility, capability and so on.
+     */
+    public val sceneTester: SceneTester
+        get() {
+            if (_sceneTester != null) {
+                return _sceneTester!!
+            }
+
+            _sceneTester = requireRuntimesReady {
+                SceneTester(requireNotNull(FakeSceneRuntime.instance))
+            }
+
+            return _sceneTester!!
+        }
+
     private var _activitySpaceTester: ActivitySpaceTester? = null
 
     /**
@@ -278,12 +300,14 @@ public class SceneCoreTestRule : ExternalResource() {
     @Suppress("GenericException")
     @Throws(Throwable::class)
     override fun before() {
+        _sceneTester = null
         _activitySpaceTester = null
         _perceptionSpaceTester = null
         _spatialSoundPoolTester = null
     }
 
     override fun after() {
+        _sceneTester = null
         _activitySpaceTester = null
         _perceptionSpaceTester = null
         _spatialSoundPoolTester = null
