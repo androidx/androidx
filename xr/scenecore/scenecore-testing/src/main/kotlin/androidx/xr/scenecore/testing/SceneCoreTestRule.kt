@@ -29,6 +29,7 @@ import androidx.xr.scenecore.PerceptionSpace
 import androidx.xr.scenecore.PositionalAudioComponent
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SoundEffectPool
+import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialWindow
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
@@ -288,6 +289,10 @@ public class SceneCoreTestRule : ExternalResource() {
 
             return _perceptionSpaceTester!!
         }
+
+    /** The test data accessor for the [SpatialEnvironment]. */
+    public val spatialEnvironmentTester: SpatialEnvironmentTester
+        get() = requireRuntimesReady { SpatialEnvironmentTester.instance }
 
     /** Provides the [SpatialWindowTester] test data accessor for the [SpatialWindow]. */
     public val spatialWindowTester: SpatialWindowTester

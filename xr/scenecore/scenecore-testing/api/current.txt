@@ -79,11 +79,13 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.ActivitySpaceTester getActivitySpaceTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.PerceptionSpaceTester getPerceptionSpaceTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SceneTester getSceneTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialEnvironmentTester getSpatialEnvironmentTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
     property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
     property public androidx.xr.scenecore.testing.PerceptionSpaceTester perceptionSpaceTester;
     property public androidx.xr.scenecore.testing.SceneTester sceneTester;
+    property public androidx.xr.scenecore.testing.SpatialEnvironmentTester spatialEnvironmentTester;
     property public androidx.xr.scenecore.testing.SpatialSoundPoolTester spatialSoundPoolTester;
     property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
   }
@@ -102,6 +104,11 @@ package androidx.xr.scenecore.testing {
     method public boolean isAssetLoaded(android.content.res.AssetFileDescriptor assetFileDescriptor);
     method public boolean isResourceLoaded(int resourceId);
     method public void triggerLoadCompleteListener(androidx.xr.scenecore.SoundEffect soundEffect, boolean success);
+  }
+
+  public final class SpatialEnvironmentTester {
+    method public void triggerPassthroughOpacityChanged(@FloatRange(from=0.0, to=1.0) float opacity);
+    method public void triggerSpatialEnvironmentChanged(boolean active);
   }
 
   public final class SpatialSoundPoolTester {
