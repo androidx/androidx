@@ -68,12 +68,24 @@ package androidx.xr.scenecore.testing {
     method public androidx.xr.scenecore.testing.TextureTester createTester(androidx.xr.scenecore.Texture texture);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.ActivitySpaceTester getActivitySpaceTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.PerceptionSpaceTester getPerceptionSpaceTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SceneTester getSceneTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
     property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
     property public androidx.xr.scenecore.testing.PerceptionSpaceTester perceptionSpaceTester;
+    property public androidx.xr.scenecore.testing.SceneTester sceneTester;
     property public androidx.xr.scenecore.testing.SpatialSoundPoolTester spatialSoundPoolTester;
     property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
+  }
+
+  public final class SceneTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PanelClippingConfig getPanelClippingConfig();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.SpatialCapability> getSpatialCapabilities();
+    method @InaccessibleFromKotlin public void setSpatialCapabilities(java.util.Set<androidx.xr.scenecore.SpatialCapability>);
+    method public void triggerSpatialModeChanged(androidx.xr.scenecore.SpatialModeChangeEvent spatialModeChangeEvent);
+    method public void triggerSpatialVisibilityChanged(androidx.xr.scenecore.SpatialVisibility spatialVisibility);
+    property public androidx.xr.scenecore.PanelClippingConfig panelClippingConfig;
+    property public java.util.Set<androidx.xr.scenecore.SpatialCapability> spatialCapabilities;
   }
 
   public final class SoundEffectPoolTester {
