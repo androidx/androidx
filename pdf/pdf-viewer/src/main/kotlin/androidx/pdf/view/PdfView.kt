@@ -74,6 +74,7 @@ import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.formfilling.FormFillingEditTextState
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.selection.Selection
 import androidx.pdf.selection.SelectionActionModeCallback
@@ -298,6 +299,23 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             field = value
             selectionStateManager?.isImageSelectionEnabled = value
         }
+
+    private var ocrProvider: OcrProvider? = null
+
+    /**
+     * Sets the [OcrProvider] used for recognizing text in image-based PDF content.
+     *
+     * When set, it enables text selection within images by delegating OCR processing to the
+     * provided engine.
+     *
+     * @param ocrProvider the [OcrProvider] to use for text recognition
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun setOcrProvider(ocrProvider: OcrProvider?) {
+        if (this@PdfView.ocrProvider == ocrProvider) return
+        this@PdfView.ocrProvider = ocrProvider
+        selectionStateManager?.ocrProvider = ocrProvider
+    }
 
     /**
      * The maximum scaling factor that can be applied to this View using the [zoom] property. This
@@ -1743,6 +1761,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 pageManager = pageManager,
                 initialSelection = localStateToRestore.selectionModel,
                 isImageSelectionEnabled = localStateToRestore.isImageSelectionEnabled,
+                ocrProvider = ocrProvider,
             )
 
         val positionToRestore =
@@ -2086,6 +2105,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     pageLayoutManager = pageLayoutManager,
                     pageManager = pageManager,
                     isImageSelectionEnabled = isImageSelectionAvailable,
+                    ocrProvider = ocrProvider,
                 )
             setAccessibility()
         }
