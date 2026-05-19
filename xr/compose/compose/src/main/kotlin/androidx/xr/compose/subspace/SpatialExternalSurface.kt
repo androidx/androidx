@@ -220,6 +220,7 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  */
 @Composable
 @SubspaceComposable
+@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialExternalSurface(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,

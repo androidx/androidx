@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.PlanarEmbeddedSubspace
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
@@ -80,6 +79,7 @@ import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.transformingMovable
+import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -98,8 +98,10 @@ class PanelEmbeddedSubspace : ComponentActivity() {
             Subspace {
                 SpatialRow {
                     SpatialPanel(
-                        SubspaceModifier.height(400.dp).width(800.dp).transformingMovable(),
-                        resizePolicy = ResizePolicy(),
+                        SubspaceModifier.height(400.dp)
+                            .width(800.dp)
+                            .transformingMovable()
+                            .transformingResizable()
                     ) {
                         Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                             Box(

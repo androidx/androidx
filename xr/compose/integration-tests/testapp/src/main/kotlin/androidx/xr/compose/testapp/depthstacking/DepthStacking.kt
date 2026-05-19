@@ -47,7 +47,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.draw.scale
@@ -56,6 +55,7 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.onGloballyPositioned
 import androidx.xr.compose.subspace.layout.transformingMovable
+import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -155,8 +155,8 @@ class DepthStacking : ComponentActivity() {
                     }
                     .offset(y = (-100).dp)
                     .testTag("Back Panel")
-                    .transformingMovable(),
-            resizePolicy = ResizePolicy(),
+                    .transformingMovable()
+                    .transformingResizable()
         ) {
             PanelContent(Color.Red, "Back Panel")
         }
@@ -168,8 +168,8 @@ class DepthStacking : ComponentActivity() {
                     }
                     .scale(0.9f)
                     .testTag("Middle Panel")
-                    .transformingMovable(),
-            resizePolicy = ResizePolicy(),
+                    .transformingMovable()
+                    .transformingResizable()
         ) {
             PanelContent(Color.White, "Middle Panel")
         }
@@ -183,8 +183,8 @@ class DepthStacking : ComponentActivity() {
                     }
                     .offset(y = 100.dp)
                     .testTag("Front Panel")
-                    .transformingMovable(),
-            resizePolicy = ResizePolicy(),
+                    .transformingMovable()
+                    .transformingResizable()
         ) {
             PanelContent(Color.Blue, "Front Panel")
         }
