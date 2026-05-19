@@ -44,15 +44,14 @@ import androidx.xr.scenecore.runtime.PerceivedResolutionResult as RtPerceivedRes
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 import androidx.xr.scenecore.testing.FakeActivityPanelEntity
 import androidx.xr.scenecore.testing.FakeAnchorEntity
 import androidx.xr.scenecore.testing.FakeGltfModelResource
 import androidx.xr.scenecore.testing.FakePanelEntity
-import androidx.xr.scenecore.testing.FakeSurfaceEntity
 import androidx.xr.scenecore.testing.GltfModelEntityTester
 import androidx.xr.scenecore.testing.MemoryUtils
 import androidx.xr.scenecore.testing.SceneCoreTestRule
+import androidx.xr.scenecore.testing.SurfaceEntityTester
 import androidx.xr.scenecore.testing.TestGltfAnimation
 import com.android.extensions.xr.XrExtensions
 import com.google.common.truth.Truth.assertThat
@@ -98,6 +97,7 @@ class EntityTest {
     private lateinit var activityPanelEntity: ActivityPanelEntity
     private lateinit var entity: Entity
     private lateinit var surfaceEntity: SurfaceEntity
+    private lateinit var surfaceEntityTester: SurfaceEntityTester
 
     private lateinit var gltfModelEntityTester: GltfModelEntityTester
 
@@ -201,6 +201,7 @@ class EntityTest {
                 SurfaceEntity.StereoMode.SIDE_BY_SIDE,
                 parent = session.scene.activitySpace,
             )
+        surfaceEntityTester = testRule.createTester<SurfaceEntityTester>(surfaceEntity)
     }
 
     @Test
@@ -1022,26 +1023,24 @@ class EntityTest {
     }
 
     @Test
-    fun surfaceEntity_redirectsCallsToRtEntity() {
+    fun surfaceEntity_setShapeWithSphereRadius() {
         surfaceEntity.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM
 
-        assertThat((surfaceEntity.rtEntity as FakeSurfaceEntity).stereoMode).isEqualTo(1)
+        assertThat(surfaceEntity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.TOP_BOTTOM)
 
         surfaceEntity.shape = SurfaceEntity.Shape.Sphere(1.0f)
 
-        val rtSurfaceEntity = surfaceEntity.rtEntity as FakeSurfaceEntity
-        assertThat(rtSurfaceEntity.shape).isInstanceOf(RtSurfaceEntity.Shape.Sphere::class.java)
+        assertThat(surfaceEntity.shape).isInstanceOf(SurfaceEntity.Shape.Sphere::class.java)
 
-        val shape = rtSurfaceEntity.shape as RtSurfaceEntity.Shape.Sphere
+        val shape = surfaceEntity.shape as SurfaceEntity.Shape.Sphere
         assertThat(shape.radius).isEqualTo(1.0f)
     }
 
     @Test
     fun surfaceEntity_getPerceivedResolution_callsRuntimeAndConverts() {
         // Arrange
-        val runtimePixelDimensions = RtPixelDimensions(100, 200)
-        val runtimeResult = RtPerceivedResolutionResult.Success(runtimePixelDimensions)
-        (surfaceEntity.rtEntity as FakeSurfaceEntity).setPerceivedResolution(runtimeResult)
+        surfaceEntityTester.perceivedResolutionResult =
+            PerceivedResolutionResult.Success(IntSize2d(100, 200))
 
         val scenecoreResult = surfaceEntity.getPerceivedResolution(renderViewpoint)
         assertThat(scenecoreResult).isInstanceOf(PerceivedResolutionResult.Success::class.java)
@@ -1055,11 +1054,10 @@ class EntityTest {
         val quad = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), 0.5f)
         surfaceEntity.shape = quad
 
-        val rtSurfaceEntity = surfaceEntity.rtEntity as FakeSurfaceEntity
-        assertThat(rtSurfaceEntity.shape).isInstanceOf(RtSurfaceEntity.Shape.Quad::class.java)
+        assertThat(surfaceEntity.shape).isInstanceOf(SurfaceEntity.Shape.Quad::class.java)
 
-        val rtShape = rtSurfaceEntity.shape as RtSurfaceEntity.Shape.Quad
-        assertThat(rtShape.cornerRadius).isEqualTo(0.5f)
+        val shape = surfaceEntity.shape as SurfaceEntity.Shape.Quad
+        assertThat(shape.cornerRadius).isEqualTo(0.5f)
     }
 
     @Test
