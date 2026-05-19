@@ -55,7 +55,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
@@ -1072,91 +1071,35 @@ class AppFunctionDataTest {
     }
 
     @Test
-    @Ignore("b/447064745: Re-enable when the child object validation is fixed")
-    fun testWrite_nestedAppFunctionData_notConformSpec() {
-        val innerObjectType =
+    fun testReadWrite_recursiveStructure_conformSpec() {
+        val recursiveNodeMetadata =
             AppFunctionObjectTypeMetadata(
                 properties =
-                    mapOf("innerDouble" to AppFunctionDoubleTypeMetadata(isNullable = false)),
-                required = emptyList(),
-                qualifiedName = "innerData",
-                isNullable = false,
-                description = "Inner data description",
+                    mapOf(
+                        "value" to AppFunctionLongTypeMetadata(isNullable = false),
+                        "next" to AppFunctionReferenceTypeMetadata("Node", isNullable = true),
+                    ),
+                required = listOf("value"),
+                qualifiedName = "com.example.Node",
+                isNullable = true,
             )
-        val incorrectInnerObjectType =
-            AppFunctionObjectTypeMetadata(
-                properties =
-                    mapOf("innerDouble" to AppFunctionLongTypeMetadata(isNullable = false)),
-                required = emptyList(),
-                qualifiedName = "innerData",
-                isNullable = false,
-                description = "Incorrect inner data description",
-            )
-        val outerObjectType =
-            AppFunctionObjectTypeMetadata(
-                properties = mapOf("nestedData" to innerObjectType),
-                required = emptyList(),
-                qualifiedName = "outerData",
-                isNullable = false,
-                description = "Outer data description",
-            )
-        val incorrectInnerDataBuilder =
-            AppFunctionData.Builder(incorrectInnerObjectType, AppFunctionComponentsMetadata())
-        val outerDataBuilder =
-            AppFunctionData.Builder(outerObjectType, AppFunctionComponentsMetadata())
 
-        incorrectInnerDataBuilder.setLong("innerDouble", 500)
-        assertFailsWith(IllegalArgumentException::class) {
-            outerDataBuilder.setAppFunctionData("nestedData", incorrectInnerDataBuilder.build())
-        }
-    }
+        val componentMetadata =
+            AppFunctionComponentsMetadata(dataTypes = mapOf("Node" to recursiveNodeMetadata))
 
-    @Test
-    @Ignore("b/447064745: Re-enable when the child object validation is fixed")
-    fun testWrite_nestedListAppFunctionData_notConformSpec() {
-        val innerObjectType =
-            AppFunctionObjectTypeMetadata(
-                properties =
-                    mapOf("innerDouble" to AppFunctionDoubleTypeMetadata(isNullable = false)),
-                required = emptyList(),
-                qualifiedName = "innerData",
-                isNullable = false,
-                description = "Inner data description",
-            )
-        val incorrectInnerObjectType =
-            AppFunctionObjectTypeMetadata(
-                properties =
-                    mapOf("innerDouble" to AppFunctionLongTypeMetadata(isNullable = false)),
-                required = emptyList(),
-                qualifiedName = "innerData",
-                isNullable = false,
-                description = "Incorrect inner data description",
-            )
-        val outerObjectType =
-            AppFunctionObjectTypeMetadata(
-                properties =
-                    mapOf("nestedDataList" to AppFunctionArrayTypeMetadata(innerObjectType, false)),
-                required = emptyList(),
-                qualifiedName = "outerData",
-                isNullable = false,
-                description = "Outer data description",
-            )
-        val correctInnerDataBuilder =
-            AppFunctionData.Builder(innerObjectType, AppFunctionComponentsMetadata())
-        val incorrectInnerDataBuilder =
-            AppFunctionData.Builder(incorrectInnerObjectType, AppFunctionComponentsMetadata())
-        val outerDataBuilder =
-            AppFunctionData.Builder(outerObjectType, AppFunctionComponentsMetadata())
+        val node2 =
+            AppFunctionData.Builder(recursiveNodeMetadata, componentMetadata)
+                .setLong("value", 200L)
+                .build()
 
-        correctInnerDataBuilder.setDouble("innerDouble", 500.0)
-        incorrectInnerDataBuilder.setLong("innerDouble", 500)
+        val node1 =
+            AppFunctionData.Builder(recursiveNodeMetadata, componentMetadata)
+                .setLong("value", 100L)
+                .setAppFunctionData("next", node2)
+                .build()
 
-        assertFailsWith(IllegalArgumentException::class) {
-            outerDataBuilder.setAppFunctionDataList(
-                "nestedDataList",
-                listOf(correctInnerDataBuilder.build(), incorrectInnerDataBuilder.build()),
-            )
-        }
+        assertThat(node1.getLong("value")).isEqualTo(100L)
+        assertThat(node1.getAppFunctionData("next")?.getLong("value")).isEqualTo(200L)
     }
 
     @Test
@@ -1715,6 +1658,528 @@ class AppFunctionDataTest {
         assertThat(oneOfList[1].getString("str")).isEqualTo("hello")
         assertThat(oneOfList[1].getAppFunctionDataList("resources")?.single()?.getString("content"))
             .isEqualTo("hello again!")
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_structuralMatch_succeeds() {
+        val spec1 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "str" to
+                            AppFunctionStringTypeMetadata(
+                                isNullable = false,
+                                description = "desc1",
+                            ),
+                        "int" to AppFunctionIntTypeMetadata(isNullable = false),
+                    ),
+                required = listOf("str", "int"),
+                qualifiedName = "TestName",
+                isNullable = false,
+                description = "desc1",
+            )
+        val spec2 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "int" to AppFunctionIntTypeMetadata(isNullable = false),
+                        "str" to
+                            AppFunctionStringTypeMetadata(isNullable = false, description = "desc2"),
+                    ),
+                required = listOf("int", "str"),
+                qualifiedName = "TestName",
+                isNullable = false,
+                description = "desc2",
+            )
+
+        val data =
+            AppFunctionData.Builder(spec1, AppFunctionComponentsMetadata())
+                .setString("str", "hello")
+                .setInt("int", 123)
+                .build()
+
+        // Validate using a spec created from spec2, which has different description and order
+        val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
+        targetSpec.validateDataSpecMatches(data)
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_allOfStructuralMatch_succeeds() {
+        val spec1 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "allOfProp" to
+                            AppFunctionAllOfTypeMetadata(
+                                matchAll =
+                                    listOf(
+                                        AppFunctionObjectTypeMetadata(
+                                            properties =
+                                                mapOf(
+                                                    "str" to
+                                                        AppFunctionStringTypeMetadata(
+                                                            isNullable = false,
+                                                            description = "desc1",
+                                                        )
+                                                ),
+                                            required = listOf("str"),
+                                            qualifiedName = "Obj1",
+                                            isNullable = false,
+                                        ),
+                                        AppFunctionObjectTypeMetadata(
+                                            properties =
+                                                mapOf(
+                                                    "int" to
+                                                        AppFunctionIntTypeMetadata(
+                                                            isNullable = false
+                                                        )
+                                                ),
+                                            required = listOf("int"),
+                                            qualifiedName = "Obj2",
+                                            isNullable = false,
+                                        ),
+                                    ),
+                                qualifiedName = "TestAllOf",
+                                isNullable = false,
+                            )
+                    ),
+                required = listOf("allOfProp"),
+                qualifiedName = "Wrapper",
+                isNullable = false,
+            )
+
+        val spec2 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "allOfProp" to
+                            AppFunctionAllOfTypeMetadata(
+                                matchAll =
+                                    listOf(
+                                        AppFunctionObjectTypeMetadata(
+                                            properties =
+                                                mapOf(
+                                                    "int" to
+                                                        AppFunctionIntTypeMetadata(
+                                                            isNullable = false
+                                                        ),
+                                                    "str" to
+                                                        AppFunctionStringTypeMetadata(
+                                                            isNullable = false,
+                                                            description = "desc2",
+                                                        ),
+                                                ),
+                                            required = listOf("int", "str"),
+                                            qualifiedName = "ObjCombined",
+                                            isNullable = false,
+                                        )
+                                    ),
+                                qualifiedName = "TestAllOf",
+                                isNullable = false,
+                            )
+                    ),
+                required = listOf("allOfProp"),
+                qualifiedName = "Wrapper",
+                isNullable = false,
+            )
+
+        val innerData =
+            AppFunctionData.Builder(
+                    AppFunctionObjectTypeMetadata(
+                        properties =
+                            mapOf(
+                                "str" to AppFunctionStringTypeMetadata(isNullable = false),
+                                "int" to AppFunctionIntTypeMetadata(isNullable = false),
+                            ),
+                        required = listOf("str", "int"),
+                        qualifiedName = "TestAllOf",
+                        isNullable = false,
+                    ),
+                    AppFunctionComponentsMetadata(),
+                )
+                .setString("str", "hello")
+                .setInt("int", 123)
+                .build()
+
+        val data =
+            AppFunctionData.Builder(spec1, AppFunctionComponentsMetadata())
+                .setAppFunctionData("allOfProp", innerData)
+                .build()
+
+        val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
+        targetSpec.validateDataSpecMatches(data)
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_oneOfStructuralMatch_succeeds() {
+        val spec1 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "oneOfProp" to
+                            AppFunctionOneOfTypeMetadata(
+                                matchOneOf =
+                                    listOf(
+                                        AppFunctionObjectTypeMetadata(
+                                            properties =
+                                                mapOf(
+                                                    "str" to
+                                                        AppFunctionStringTypeMetadata(
+                                                            isNullable = false,
+                                                            description = "desc1",
+                                                        )
+                                                ),
+                                            required = listOf("str"),
+                                            qualifiedName = "Obj1",
+                                            isNullable = false,
+                                        ),
+                                        AppFunctionObjectTypeMetadata(
+                                            properties =
+                                                mapOf(
+                                                    "int" to
+                                                        AppFunctionIntTypeMetadata(
+                                                            isNullable = false
+                                                        )
+                                                ),
+                                            required = listOf("int"),
+                                            qualifiedName = "Obj2",
+                                            isNullable = false,
+                                        ),
+                                    ),
+                                qualifiedName = "TestOneOf",
+                                isNullable = false,
+                            )
+                    ),
+                required = listOf("oneOfProp"),
+                qualifiedName = "Wrapper",
+                isNullable = false,
+            )
+
+        val spec2 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "oneOfProp" to
+                            AppFunctionOneOfTypeMetadata(
+                                matchOneOf =
+                                    listOf(
+                                        AppFunctionObjectTypeMetadata(
+                                            properties =
+                                                mapOf(
+                                                    "int" to
+                                                        AppFunctionIntTypeMetadata(
+                                                            isNullable = false
+                                                        )
+                                                ),
+                                            required = listOf("int"),
+                                            qualifiedName = "Obj2",
+                                            isNullable = false,
+                                        ),
+                                        AppFunctionObjectTypeMetadata(
+                                            properties =
+                                                mapOf(
+                                                    "str" to
+                                                        AppFunctionStringTypeMetadata(
+                                                            isNullable = false,
+                                                            description = "desc2",
+                                                        )
+                                                ),
+                                            required = listOf("str"),
+                                            qualifiedName = "Obj1",
+                                            isNullable = false,
+                                        ),
+                                    ),
+                                qualifiedName = "TestOneOf",
+                                isNullable = false,
+                            )
+                    ),
+                required = listOf("oneOfProp"),
+                qualifiedName = "Wrapper",
+                isNullable = false,
+            )
+
+        val innerData =
+            AppFunctionData.Builder(
+                    AppFunctionObjectTypeMetadata(
+                        properties =
+                            mapOf("str" to AppFunctionStringTypeMetadata(isNullable = false)),
+                        required = listOf("str"),
+                        qualifiedName = "Obj1",
+                        isNullable = false,
+                    ),
+                    AppFunctionComponentsMetadata(),
+                )
+                .setString("str", "hello")
+                .build()
+
+        val data =
+            AppFunctionData.Builder(spec1, AppFunctionComponentsMetadata())
+                .setAppFunctionData("oneOfProp", innerData)
+                .build()
+
+        val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
+        targetSpec.validateDataSpecMatches(data)
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_missingRequiredFieldInChild_throwsException() {
+        val childSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("req" to AppFunctionStringTypeMetadata(isNullable = false)),
+                required = listOf("req"),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val parentSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("child" to childSpec),
+                required = listOf("child"),
+                qualifiedName = "Parent",
+                isNullable = false,
+            )
+
+        // Build the child using a spec that doesn't require "req"
+        val emptyChildSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = emptyMap(),
+                required = emptyList(),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val invalidChild =
+            AppFunctionData.Builder(emptyChildSpec, AppFunctionComponentsMetadata()).build()
+
+        val builder = AppFunctionData.Builder(parentSpec, AppFunctionComponentsMetadata())
+
+        assertFailsWith<IllegalArgumentException> {
+            builder.setAppFunctionData("child", invalidChild)
+        }
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_typeMismatchInChild_throwsException() {
+        val childSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("field" to AppFunctionStringTypeMetadata(isNullable = false)),
+                required = listOf("field"),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val parentSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("child" to childSpec),
+                required = listOf("child"),
+                qualifiedName = "Parent",
+                isNullable = false,
+            )
+
+        // Build the child using a spec that defines "field" as Int
+        val wrongTypeChildSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("field" to AppFunctionIntTypeMetadata(isNullable = false)),
+                required = listOf("field"),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val invalidChild =
+            AppFunctionData.Builder(wrongTypeChildSpec, AppFunctionComponentsMetadata())
+                .setInt("field", 123)
+                .build()
+
+        val builder = AppFunctionData.Builder(parentSpec, AppFunctionComponentsMetadata())
+
+        assertFailsWith<IllegalArgumentException> {
+            builder.setAppFunctionData("child", invalidChild)
+        }
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_recursiveValidation_throwsException() {
+        val grandChildSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("req" to AppFunctionStringTypeMetadata(isNullable = false)),
+                required = listOf("req"),
+                qualifiedName = "GrandChild",
+                isNullable = false,
+            )
+        val childSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("gc" to grandChildSpec),
+                required = listOf("gc"),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val parentSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("c" to childSpec),
+                required = listOf("c"),
+                qualifiedName = "Parent",
+                isNullable = false,
+            )
+
+        val emptyGrandChildSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = emptyMap(),
+                required = emptyList(),
+                qualifiedName = "GrandChild",
+                isNullable = false,
+            )
+        val invalidGrandChild =
+            AppFunctionData.Builder(emptyGrandChildSpec, AppFunctionComponentsMetadata()).build()
+        val laxChildSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("gc" to emptyGrandChildSpec),
+                required = listOf("gc"),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val child =
+            AppFunctionData.Builder(laxChildSpec, AppFunctionComponentsMetadata())
+                .setAppFunctionData("gc", invalidGrandChild)
+                .build()
+
+        val builder = AppFunctionData.Builder(parentSpec, AppFunctionComponentsMetadata())
+
+        assertFailsWith<IllegalArgumentException> { builder.setAppFunctionData("c", child) }
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_enumConstraintMismatch_throwsException() {
+        val spec1 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "enumField" to
+                            AppFunctionIntTypeMetadata(isNullable = false, enumValues = setOf(1, 2))
+                    ),
+                required = listOf("enumField"),
+                qualifiedName = "EnumTest",
+                isNullable = false,
+            )
+        val spec2 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "enumField" to
+                            AppFunctionIntTypeMetadata(isNullable = false, enumValues = setOf(1, 3))
+                    ),
+                required = listOf("enumField"),
+                qualifiedName = "EnumTest",
+                isNullable = false,
+            )
+        val data =
+            AppFunctionData.Builder(spec1, AppFunctionComponentsMetadata())
+                .setInt("enumField", 1)
+                .build()
+
+        val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
+        assertFailsWith<IllegalArgumentException> { targetSpec.validateDataSpecMatches(data) }
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_arrayItemTypeMismatch_throwsException() {
+        val spec1 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "listField" to
+                            AppFunctionArrayTypeMetadata(
+                                isNullable = false,
+                                itemType = AppFunctionIntTypeMetadata(isNullable = false),
+                            )
+                    ),
+                required = listOf("listField"),
+                qualifiedName = "ArrayTest",
+                isNullable = false,
+            )
+        val spec2 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "listField" to
+                            AppFunctionArrayTypeMetadata(
+                                isNullable = false,
+                                itemType = AppFunctionStringTypeMetadata(isNullable = false),
+                            )
+                    ),
+                required = listOf("listField"),
+                qualifiedName = "ArrayTest",
+                isNullable = false,
+            )
+        val data =
+            AppFunctionData.Builder(spec1, AppFunctionComponentsMetadata())
+                .setIntArray("listField", intArrayOf(1, 2))
+                .build()
+
+        val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
+        assertFailsWith<IllegalArgumentException> { targetSpec.validateDataSpecMatches(data) }
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_oneOfOptionMismatch_throwsException() {
+        val typeA =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("a" to AppFunctionIntTypeMetadata(isNullable = false)),
+                required = listOf("a"),
+                qualifiedName = "ObjA",
+                isNullable = false,
+            )
+        val typeB =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("b" to AppFunctionStringTypeMetadata(isNullable = false)),
+                required = listOf("b"),
+                qualifiedName = "ObjB",
+                isNullable = false,
+            )
+        val typeC =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("c" to AppFunctionBooleanTypeMetadata(isNullable = false)),
+                required = listOf("c"),
+                qualifiedName = "ObjC",
+                isNullable = false,
+            )
+
+        val spec1 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "oneOfField" to
+                            AppFunctionOneOfTypeMetadata(
+                                matchOneOf = listOf(typeA, typeB),
+                                qualifiedName = "OneOfTest",
+                                isNullable = false,
+                            )
+                    ),
+                required = listOf("oneOfField"),
+                qualifiedName = "Wrapper",
+                isNullable = false,
+            )
+        val spec2 =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "oneOfField" to
+                            AppFunctionOneOfTypeMetadata(
+                                matchOneOf = listOf(typeA, typeC),
+                                qualifiedName = "OneOfTest",
+                                isNullable = false,
+                            )
+                    ),
+                required = listOf("oneOfField"),
+                qualifiedName = "Wrapper",
+                isNullable = false,
+            )
+
+        val innerData =
+            AppFunctionData.Builder(typeA, AppFunctionComponentsMetadata()).setInt("a", 1).build()
+
+        val data =
+            AppFunctionData.Builder(spec1, AppFunctionComponentsMetadata())
+                .setAppFunctionData("oneOfField", innerData)
+                .build()
+
+        val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
+        assertFailsWith<IllegalArgumentException> { targetSpec.validateDataSpecMatches(data) }
     }
 
     companion object {
