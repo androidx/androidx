@@ -155,57 +155,75 @@ internal class MovableComponentImpl(
     }
 
     private fun getMoveEventFromInputEvent(inputEvent: InputEvent): MoveEvent? {
+        val targetEntity: Entity = entity ?: return null
+        val parent: Entity = targetEntity.parent ?: activitySpaceImpl
+        val inputOriginInParentSpace: Vector3 =
+            activitySpaceImpl.transformPositionTo(inputEvent.origin, parent)
+        val inputDirectionInParentSpace: Vector3 =
+            activitySpaceImpl.transformDirectionTo(inputEvent.direction, parent)
+        val currentRayInParentSpace: Ray =
+            Ray(inputOriginInParentSpace, inputDirectionInParentSpace)
+        val currentEntityPoseInParentSpace: Pose = targetEntity.getPose()
+        val currentEntityScaleInParentSpace: Vector3 = targetEntity.getScale()
         var moveState = -1
 
-        val parent = entity?.parent ?: activitySpaceImpl
         when (inputEvent.action) {
             InputEvent.Action.DOWN -> {
+
+                val hitPosition = inputEvent.hitInfoList.firstOrNull()?.hitPosition ?: return null
+
                 moveState = MoveEvent.MOVE_STATE_START
-                initialRay = Ray(inputEvent.origin, inputEvent.direction)
+                initialRay = currentRayInParentSpace
                 initialParent = parent
                 isMoving = true
-                if (!inputEvent.hitInfoList.isEmpty()) {
-                    val hitPosition = inputEvent.hitInfoList[0].hitPosition
-                    hitPointToOriginDistance = hitPosition!!.minus(inputEvent.origin).length
-                    grabPointToCenterOffset =
-                        entity!!.getPose(Space.ACTIVITY).translation.minus(hitPosition)
-                }
+                val hitPositionInParentSpace =
+                    activitySpaceImpl.transformPositionTo(hitPosition, parent)
+                hitPointToOriginDistance =
+                    hitPositionInParentSpace.minus(currentRayInParentSpace.origin).length
+                grabPointToCenterOffset =
+                    currentEntityPoseInParentSpace.translation.minus(hitPositionInParentSpace)
             }
-            InputEvent.Action.MOVE -> moveState = MoveEvent.MOVE_STATE_ONGOING
+            InputEvent.Action.MOVE -> {
+                if (!isMoving) return null
+                moveState = MoveEvent.MOVE_STATE_ONGOING
+            }
             InputEvent.Action.UP -> {
+                if (!isMoving) return null
                 moveState = MoveEvent.MOVE_STATE_END
                 isMoving = false
-                if (entity is GltfEntity || entity is MeshEntity) entityShadowRenderer?.hideShadow()
+                if (targetEntity is GltfEntity || targetEntity is MeshEntity)
+                    entityShadowRenderer?.hideShadow()
             }
             else -> return null
         }
 
-        val originInParentSpace = activitySpaceImpl.transformPositionTo(inputEvent.origin, parent)
-        val directionInParentSpace =
-            activitySpaceImpl.transformDirectionTo(inputEvent.direction, parent)
-        val currentRay = Ray(originInParentSpace, directionInParentSpace)
-        val grabPoint =
-            originInParentSpace.plus(
-                directionInParentSpace.toNormalized().times(hitPointToOriginDistance)
+        val grabPoint: Vector3 =
+            inputOriginInParentSpace.plus(
+                inputDirectionInParentSpace.toNormalized().times(hitPointToOriginDistance)
             )
-        var proposedTranslation = grabPoint.plus(grabPointToCenterOffset)
-        val proposedPose = Pose(proposedTranslation, entity!!.getPose().rotation)
+
+        val proposedTranslationInParentSpace: Vector3 = grabPoint.plus(grabPointToCenterOffset)
+        val proposedPoseInParentSpace: Pose =
+            Pose(proposedTranslationInParentSpace, currentEntityPoseInParentSpace.rotation)
 
         val moveEvent =
             MoveEvent(
                 moveState,
-                initialRay!!,
-                currentRay,
-                lastPose,
-                proposedPose,
-                lastScale,
-                entity!!.getScale(),
-                initialParent!!,
+                initialRay ?: currentRayInParentSpace,
+                currentRayInParentSpace,
+                if (moveState == MoveEvent.MOVE_STATE_START) proposedPoseInParentSpace
+                else lastPose,
+                proposedPoseInParentSpace,
+                if (moveState == MoveEvent.MOVE_STATE_START) currentEntityScaleInParentSpace
+                else lastScale,
+                currentEntityScaleInParentSpace,
+                initialParent ?: parent,
                 null,
                 null,
             )
-        lastPose = proposedPose
-        lastScale = entity!!.getScale()
+
+        lastPose = proposedPoseInParentSpace
+        lastScale = currentEntityScaleInParentSpace
         return moveEvent
     }
 

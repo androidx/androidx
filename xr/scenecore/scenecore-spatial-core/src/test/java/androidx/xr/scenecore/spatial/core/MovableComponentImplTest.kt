@@ -1088,9 +1088,14 @@ class MovableComponentImplTest {
                 runtimeExecutor = fakeExecutor,
             )
         assertTrue(gltfEntity.addComponent(movableComponent))
+        val entity = gltfEntity as AndroidXrEntity
 
         val moveEventListener: MoveEventListener = TestMoveEventListener(movableComponent)
         movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), moveEventListener)
+
+        val hitPosition = Vec3(0f, 0f, 0f)
+        val hitInfo =
+            InputEvent.HitInfo(1, checkNotNull(entity).node, Mat4f(FloatArray(16)), hitPosition)
 
         val moveStartInputEvent =
             ShadowInputEvent.create(
@@ -1099,10 +1104,11 @@ class MovableComponentImplTest {
                 0,
                 Vec3(0f, 0f, 0f),
                 Vec3(1f, 1f, 1f),
+                hitInfo,
+                null,
                 InputEvent.DISPATCH_FLAG_NONE,
                 InputEvent.ACTION_DOWN,
             )
-        val entity = gltfEntity as AndroidXrEntity
         val shadowNode = ShadowNode.extract(entity.node)
 
         assertNotNull(shadowNode.inputListener)
@@ -1115,6 +1121,8 @@ class MovableComponentImplTest {
                 0,
                 Vec3(1f, 1f, 1f),
                 Vec3(1f, 1f, 1f),
+                hitInfo,
+                null,
                 InputEvent.DISPATCH_FLAG_NONE,
                 InputEvent.ACTION_MOVE,
             )
@@ -1217,7 +1225,9 @@ class MovableComponentImplTest {
 
         val moveEventListener: MoveEventListener = TestMoveEventListener(movableComponent)
         movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), moveEventListener)
-
+        val entity = gltfEntity as AndroidXrEntity
+        val shadowNode = ShadowNode.extract(entity.node)
+        val hitInfo = InputEvent.HitInfo(1, entity.node, Mat4f(FloatArray(16)), Vec3(0f, 0f, 0f))
         val moveStartInputEvent =
             ShadowInputEvent.create(
                 InputEvent.SOURCE_UNKNOWN,
@@ -1225,6 +1235,8 @@ class MovableComponentImplTest {
                 0,
                 Vec3(0f, 0f, 0f),
                 Vec3(1f, 1f, 1f),
+                hitInfo,
+                null,
                 InputEvent.DISPATCH_FLAG_NONE,
                 InputEvent.ACTION_DOWN,
             )
@@ -1236,16 +1248,243 @@ class MovableComponentImplTest {
                 0,
                 Vec3(0f, 0f, 0f),
                 Vec3(1f, 1f, 1f),
+                hitInfo,
+                null,
                 InputEvent.DISPATCH_FLAG_NONE,
                 InputEvent.ACTION_UP,
             )
 
-        val entity = gltfEntity as AndroidXrEntity
-        val shadowNode = ShadowNode.extract(entity.node)
         sendInputEvent(shadowNode, moveStartInputEvent)
         sendInputEvent(shadowNode, moveEndInputEvent)
 
         verify(mockPanelShadowRenderer, times(2)).hideShadow()
+    }
+
+    @Test
+    fun getMoveEventFromInputEvent_startState_setsInitialRayAndInitialParent() {
+        val parent = createTestEntity()
+        val entity = createGltfEntity(activity)
+
+        val movableComponent =
+            MovableComponentImpl(
+                systemMovable = true,
+                scaleInZ = false,
+                userAnchorable = true,
+                activitySpaceImpl = activitySpaceImpl,
+                entityShadowRenderer = mockPanelShadowRenderer,
+                runtimeExecutor = fakeExecutor,
+            )
+        entity.addComponent(movableComponent)
+
+        val gestureListener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), gestureListener)
+
+        val shadowNode = ShadowNode.extract(entity.node)
+
+        val hitInfo = InputEvent.HitInfo(0, entity.node, Mat4f(FloatArray(16)), Vec3(1f, 0f, 0f))
+
+        val downInputEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                0,
+                Vec3(0f, 0f, 0f),
+                Vec3(0f, 0f, 0f),
+                hitInfo,
+                null,
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_DOWN,
+            )
+        val moveInputEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                0,
+                Vec3(1f, 1f, 1f),
+                Vec3(0f, 0f, 0f),
+                hitInfo,
+                null,
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_MOVE,
+            )
+
+        sendInputEvent(shadowNode, downInputEvent)
+        // Update the parent
+        entity.parent = parent
+        sendInputEvent(shadowNode, moveInputEvent)
+
+        val eventCaptor = argumentCaptor<MoveEvent>()
+        verify(gestureListener, times(2)).onMoveEvent(eventCaptor.capture())
+        val moveEvents = eventCaptor.allValues
+
+        Truth.assertThat(moveEvents[0].moveState).isEqualTo(MoveEvent.MOVE_STATE_START)
+        Truth.assertThat(moveEvents[0].initialInputRay).isEqualTo(moveEvents[0].currentInputRay)
+        Truth.assertThat(moveEvents[0].initialParent).isNotEqualTo(parent)
+
+        Truth.assertThat(moveEvents[1].moveState).isEqualTo(MoveEvent.MOVE_STATE_ONGOING)
+        Truth.assertThat(moveEvents[1].initialParent).isNotEqualTo(parent)
+        Truth.assertThat(moveEvents[1].initialInputRay).isNotEqualTo(moveEvents[1].currentInputRay)
+    }
+
+    @Test
+    fun getMoveEventFromInputEvent_startState_setsPreviousPoseToProposedPose() {
+        val parent = createTestEntity()
+        val entity = createGltfEntity(activity)
+        entity.parent = parent
+
+        parent.setPose(Pose(Vector3(10f, 0f, 0f), Quaternion.Identity))
+        entity.setPose(Pose(Vector3(1f, 2f, 3f), Quaternion.Identity))
+
+        val movableComponent =
+            MovableComponentImpl(
+                systemMovable = true,
+                scaleInZ = false,
+                userAnchorable = true,
+                activitySpaceImpl = activitySpaceImpl,
+                entityShadowRenderer = mockPanelShadowRenderer,
+                runtimeExecutor = fakeExecutor,
+            )
+        entity.addComponent(movableComponent)
+
+        val gestureListener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), gestureListener)
+
+        val hitInfo = InputEvent.HitInfo(0, entity.node, Mat4f(FloatArray(16)), Vec3(1f, 0f, 0f))
+        val downInputEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                0,
+                Vec3(11f, 0f, 5f),
+                Vec3(0f, 0f, -1f),
+                hitInfo,
+                null,
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_DOWN,
+            )
+
+        val shadowNode = ShadowNode.extract(entity.node)
+
+        sendInputEvent(shadowNode, downInputEvent)
+        entity.setScale(Vector3(2f))
+
+        val moveInputEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                0,
+                Vec3(11f, 0f, 5f),
+                Vec3(1f, 0f, -1f),
+                hitInfo,
+                null,
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_MOVE,
+            )
+
+        sendInputEvent(shadowNode, moveInputEvent)
+
+        val eventCaptor = argumentCaptor<MoveEvent>()
+        verify(gestureListener, times(2)).onMoveEvent(eventCaptor.capture())
+        val moveEvents = eventCaptor.allValues
+
+        Truth.assertThat(moveEvents[0].moveState).isEqualTo(MoveEvent.MOVE_STATE_START)
+        // assert initial is equal to current proposedPose
+        Truth.assertThat(moveEvents[0].previousPose).isEqualTo(moveEvents[0].currentPose)
+        Truth.assertThat(moveEvents[0].previousScale).isEqualTo(moveEvents[0].currentScale)
+
+        Truth.assertThat(moveEvents[1].moveState).isEqualTo(MoveEvent.MOVE_STATE_ONGOING)
+        // assert previous pose changed - previous pose is NOT equal to current proposedPose
+        Truth.assertThat(moveEvents[1].previousPose).isNotEqualTo(moveEvents[1].currentPose)
+        Truth.assertThat(moveEvents[1].previousScale).isNotEqualTo(moveEvents[1].currentScale)
+    }
+
+    @Test
+    fun movableComponentGltf_getMoveEventFromInputEvent_transformsHitPositionAndRayToParentSpace() {
+        val parent = createTestEntity()
+        val entity = createGltfEntity(activity)
+        entity.parent = parent
+
+        // Shift parent to X = 10. The GltfEntity resides at local space (0, 0, 0).
+        parent.setPose(Pose(Vector3(10f, 0f, 0f), Quaternion.Identity))
+        entity.setPose(Pose.Identity)
+
+        val movableComponent =
+            MovableComponentImpl(
+                systemMovable = true,
+                scaleInZ = false,
+                userAnchorable = false,
+                activitySpaceImpl = activitySpaceImpl,
+                entityShadowRenderer = mockPanelShadowRenderer,
+                runtimeExecutor = fakeExecutor,
+            )
+        entity.addComponent(movableComponent)
+
+        var capturedEvent: MoveEvent? = null
+        movableComponent.addMoveEventListener { event -> capturedEvent = event }
+
+        val hitInfo =
+            InputEvent.HitInfo(
+                0,
+                entity.node,
+                Mat4f(FloatArray(16)),
+                Vec3(10f, 0f, 0f), // Activity Space hit position
+            )
+        val downInputEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                0,
+                Vec3(10f, 0f, 5f), // Activity Space origin
+                Vec3(0f, 0f, -1f),
+                hitInfo,
+                null,
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_DOWN,
+            )
+
+        val shadowNode = ShadowNode.extract(entity.node)
+        sendInputEvent(shadowNode, downInputEvent)
+
+        val moveEvent = checkNotNull(capturedEvent)
+
+        // Assert transformed values in Parent Space coordinate system:
+        // Ray origin converts from Activity space (10f, 0f, 5f) to Parent local space (0f, 0f, 5f)
+        Truth.assertThat(moveEvent.currentInputRay.origin).isEqualTo(Vector3(0f, 0f, 5f))
+        Truth.assertThat(moveEvent.initialInputRay.origin).isEqualTo(Vector3(0f, 0f, 5f))
+    }
+
+    @Test
+    fun movableComponentGltf_emptyHitInfo_returnsNullSafely() {
+        val entity = createGltfEntity(activity)
+        val movableComponent =
+            MovableComponentImpl(
+                systemMovable = true,
+                scaleInZ = false,
+                userAnchorable = true,
+                activitySpaceImpl = activitySpaceImpl,
+                entityShadowRenderer = mockPanelShadowRenderer,
+                runtimeExecutor = fakeExecutor,
+            )
+        entity.addComponent(movableComponent)
+
+        val moveEventListener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), moveEventListener)
+
+        // Create DOWN event omitting hit info parameters entirely
+        val invalidDownEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                0,
+                Vec3(0f, 0f, 0f),
+                Vec3(0f, 0f, -1f),
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_DOWN,
+            )
+
+        sendInputEvent(ShadowNode.extract(entity.node), invalidDownEvent)
+
+        verify(moveEventListener, never()).onMoveEvent(any())
     }
 
     internal inner class TestMoveEventListener(var movableComponent: MovableComponent) :

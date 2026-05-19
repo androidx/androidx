@@ -335,14 +335,10 @@ private class TransformingMovableNode(
         val corePose = nextPose.convertMetersToPixels(density)
         // Find the delta from the start of the move event.
         val coreDeltaPose =
-            if (coreEntity !is CoreModelEntity) {
-                Pose(
-                    corePose.translation - initialCorePose.translation,
-                    initialCorePose.rotation.inverse * corePose.rotation,
-                )
-            } else {
-                Pose.Identity
-            }
+            Pose(
+                corePose.translation - initialCorePose.translation,
+                initialCorePose.rotation.inverse * corePose.rotation,
+            )
         userPose =
             Pose(
                 userPose.translation + coreDeltaPose.translation,
