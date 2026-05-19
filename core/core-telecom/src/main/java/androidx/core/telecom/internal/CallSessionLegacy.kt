@@ -82,6 +82,7 @@ internal class CallSessionLegacy(
     private var mCurrentCallEndpoint: CallEndpointCompat? = null
     private var mAvailableCallEndpoints: MutableList<CallEndpointCompat> = mutableListOf()
     private var mLastClientRequestedEndpoint: CallEndpointCompat? = null
+    private var mIsMuted: Boolean? = null
     private val mCallSessionLegacyId: Int = CallEndpointUuidTracker.startSession()
     private var mGlobalMuteStateReceiver: MuteStateReceiver? = null
     private val mDialingOrRingingStateReached = CompletableDeferred<Unit>()
@@ -176,6 +177,10 @@ internal class CallSessionLegacy(
      * =========================================================================================
      */
     fun onGlobalMuteStateChanged(isMuted: Boolean) {
+        if (mIsMuted == isMuted) {
+            return
+        }
+        mIsMuted = isMuted
         callChannels.isMutedChannel.trySend(isMuted).getOrThrow()
         CoroutineScope(coroutineContext).launch {
             if (isMuted) {
@@ -200,9 +205,13 @@ internal class CallSessionLegacy(
     }
 
     private fun setCurrentCallEndpoint(state: CallAudioState) {
-        mPreviousCallEndpoint = mCurrentCallEndpoint
-        mCurrentCallEndpoint =
+        val newEndpoint =
             toRemappedCallEndpointCompat(toCallEndpointCompat(state, mCallSessionLegacyId))
+        if (newEndpoint == mCurrentCallEndpoint) {
+            return
+        }
+        mPreviousCallEndpoint = mCurrentCallEndpoint
+        mCurrentCallEndpoint = newEndpoint
         callChannels.currentEndpointChannel.trySend(mCurrentCallEndpoint!!).getOrThrow()
     }
 
@@ -212,9 +221,15 @@ internal class CallSessionLegacy(
             toCallEndpointsCompat(state, mCallSessionLegacyId)
                 .map { toRemappedCallEndpointCompat(it) }
                 .sorted()
-        mAvailableCallEndpoints = availableEndpoints.toMutableList()
-        maybeRemoveEarpieceIfWiredEndpointPresent(mAvailableCallEndpoints)
-        callChannels.availableEndpointChannel.trySend(availableEndpoints).getOrThrow()
+        val finalAvailableEndpoints = availableEndpoints.toMutableList()
+        maybeRemoveEarpieceIfWiredEndpointPresent(finalAvailableEndpoints)
+
+        if (finalAvailableEndpoints == mAvailableCallEndpoints) {
+            return
+        }
+
+        mAvailableCallEndpoints = finalAvailableEndpoints
+        callChannels.availableEndpointChannel.trySend(mAvailableCallEndpoints).getOrThrow()
     }
 
     @Suppress("OVERRIDE_DEPRECATION") // b/407498327
