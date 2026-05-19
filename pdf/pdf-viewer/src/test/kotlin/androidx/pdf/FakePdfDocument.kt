@@ -407,7 +407,7 @@ internal open class FakePdfDocument(
             )
 
         fun getSampleImagePdfObject(): ImagePdfObject {
-            val bounds = RectF(0f, 100f, 0f, 100f)
+            val bounds = RectF(0f, 0f, 100f, 100f)
             val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
             return ImagePdfObject(bitmap, bounds)
         }

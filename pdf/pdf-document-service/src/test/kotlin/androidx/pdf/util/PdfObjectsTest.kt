@@ -37,8 +37,8 @@ class PdfObjectsTest {
     @Test
     fun toPdfObject_withImageObject_returnsImagePdfObject() {
 
-        // mocking bitmap so we don't have to create one
-        val expectedBitmap = mock<Bitmap>()
+        // create a valid 1x1 bitmap
+        val expectedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
 
         // Identity matrix translated by (10, 20)
         val matrixValues = floatArrayOf(1f, 0f, 10f, 0f, 1f, 20f, 0f, 0f, 1f)
@@ -66,7 +66,7 @@ class PdfObjectsTest {
     fun toImagePdfObject_transformsBoundsCorrectly() {
         // Scaling matrix: 100x200
         val matrixValues = floatArrayOf(100f, 0f, 0f, 0f, 200f, 0f, 0f, 0f, 1f)
-        val expectedBitmap = mock<Bitmap>()
+        val expectedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
         val expectedImageObject = mock<PdfPageImageObject>()
         whenever(expectedImageObject.matrix).thenReturn(matrixValues)
         whenever(expectedImageObject.bitmap).thenReturn(expectedBitmap)

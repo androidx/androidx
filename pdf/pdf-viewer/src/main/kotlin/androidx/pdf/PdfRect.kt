@@ -16,6 +16,8 @@
 
 package androidx.pdf
 
+import android.graphics.Point
+import android.graphics.Rect
 import android.graphics.RectF
 
 /**
@@ -73,3 +75,35 @@ internal val PdfRect.centerPoint: PdfPoint
         val y = (top + bottom) / 2
         return PdfPoint(pageNum, x, y)
     }
+
+/** The bottom-left corner point of this rectangle. */
+internal val PdfRect.leftBottom: PdfPoint
+    get() = PdfPoint(pageNum, left, bottom)
+
+/** The bottom-right corner point of this rectangle. */
+internal val PdfRect.rightBottom: PdfPoint
+    get() = PdfPoint(pageNum, right, bottom)
+
+/**
+ * Maps a [Rect] from bitmap coordinates to a [PdfRect] in PDF coordinates.
+ *
+ * @param pageNum The page number in the PDF.
+ * @param imageRect The bounding box of the image within the PDF page, in PDF coordinates. This
+ *   represents the area of the PDF page that the bitmap covers.
+ * @param bitmapSize The size of the bitmap in pixels from which this [Rect] was taken.
+ * @return A [PdfRect] representing the same area as this [Rect], but in PDF coordinates.
+ */
+internal fun Rect.toPdfRect(pageNum: Int, imageRect: RectF, bitmapSize: Point): PdfRect {
+    val imageWidth = imageRect.right - imageRect.left
+    val imageHeight = imageRect.bottom - imageRect.top
+    require(bitmapSize.x > 0 && bitmapSize.y > 0) {
+        "Invalid bitmap size: ${bitmapSize.x} x ${bitmapSize.y}"
+    }
+    return PdfRect(
+        pageNum,
+        imageRect.left + (left.toFloat() / bitmapSize.x) * imageWidth,
+        imageRect.top + (top.toFloat() / bitmapSize.y) * imageHeight,
+        imageRect.left + (right.toFloat() / bitmapSize.x) * imageWidth,
+        imageRect.top + (bottom.toFloat() / bitmapSize.y) * imageHeight,
+    )
+}

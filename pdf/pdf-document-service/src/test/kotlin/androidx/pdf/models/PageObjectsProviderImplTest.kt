@@ -16,6 +16,7 @@
 
 package androidx.pdf.models
 
+import android.graphics.Bitmap
 import android.graphics.Path
 import android.graphics.pdf.component.PdfPageImageObject
 import android.graphics.pdf.component.PdfPageObject
@@ -49,7 +50,7 @@ class PageObjectsProviderImplTest {
         val pathObject = mock<PdfPagePathObject>()
 
         // Mock bitmap and matrix for imageObject as it's used in conversion
-        whenever(imageObject.bitmap).thenReturn(mock())
+        whenever(imageObject.bitmap).thenReturn(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
         whenever(imageObject.matrix).thenReturn(floatArrayOf(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
 
         // Mock toPath() for path object as it's used in conversion

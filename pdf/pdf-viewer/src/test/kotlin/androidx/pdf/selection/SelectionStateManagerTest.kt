@@ -19,6 +19,7 @@ package androidx.pdf.selection
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PointF
+import android.graphics.Rect
 import android.graphics.RectF
 import android.os.DeadObjectException
 import android.os.RemoteException
@@ -35,6 +36,9 @@ import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.exceptions.RequestFailedException
+import androidx.pdf.ocr.FakeOcrProvider
+import androidx.pdf.ocr.FakeOcrResult
+import androidx.pdf.ocr.OcrText
 import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
@@ -219,8 +223,8 @@ class SelectionStateManagerTest {
         }
 
         // recheck if image is selected, when image present and text both present on selectionPoint
-        val expectedBounds = RectF(0f, 100f, 0f, 100f)
-        val expectedBitmap = mock<Bitmap>()
+        val expectedBounds = RectF(0f, 0f, 100f, 100f)
+        val expectedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
         val expectedImagePdfObject = ImagePdfObject(expectedBitmap, expectedBounds)
 
         // mock image present at this point
@@ -998,7 +1002,7 @@ class SelectionStateManagerTest {
             )
         localManager.isImageSelectionEnabled = true
 
-        localManager.maybeSelectImageAtPoint(0, PdfPoint(0, 0f, 0f))
+        localManager.selectImageOrImageTextAtPoint(0, PdfPoint(0, 0f, 0f))
         testDispatcher.scheduler.runCurrent()
 
         val error = errorFlowReplay.first() as RequestFailedException
@@ -1028,7 +1032,7 @@ class SelectionStateManagerTest {
             )
         localManager.isImageSelectionEnabled = true
 
-        localManager.maybeSelectImageAtPoint(0, PdfPoint(0, 0f, 0f))
+        localManager.selectImageOrImageTextAtPoint(0, PdfPoint(0, 0f, 0f))
         testDispatcher.scheduler.runCurrent()
 
         val error = errorFlowReplay.first() as RequestFailedException
@@ -1056,7 +1060,7 @@ class SelectionStateManagerTest {
             )
         localManager.isImageSelectionEnabled = true
 
-        localManager.maybeSelectImageAtPoint(0, PdfPoint(0, 0f, 0f))
+        localManager.selectImageOrImageTextAtPoint(0, PdfPoint(0, 0f, 0f))
     }
 
     private fun getInitialSelectionForDragging(pageNumber: Int = 0): SelectionModel {
@@ -1112,6 +1116,147 @@ class SelectionStateManagerTest {
                 )
             ),
         )
+    }
+
+    @Test
+    fun maybeSelectContentAtPoint_onImageWord_selectsOcrText() = runTest {
+        if (!isImageSelectionAvailableInSdk()) return@runTest
+
+        val ocrWord = OcrText("Hello", listOf(Rect(100, 100, 200, 150)))
+        val fakeResult = FakeOcrResult(words = listOf(ocrWord))
+        selectionStateManager.ocrProvider = FakeOcrProvider(fakeResult)
+
+        val imageBounds = RectF(10f, 10f, 110f, 110f)
+        // Bitmap size is 1000x1000 to match OcrText coordinates in tests
+        val imageObject =
+            ImagePdfObject(Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888), imageBounds)
+        whenever(pdfDocument.getTopPageObjectAtPosition(any(), any())).thenReturn(imageObject)
+
+        // Point in PDF space that maps to (150, 125) in image space
+        // Image at (10, 10), size 100x100. Bitmap 1000x1000.
+        // Relative X = (25-10)/100 = 0.15. Pixel X = 0.15 * 1000 = 150.
+        // Relative Y = (22.5-10)/100 = 0.125. Pixel Y = 0.125 * 1000 = 125.
+        // Word is at (100, 100, 200, 150), so (150, 125) is inside.
+        val pressPoint = PdfPoint(0, 25f, 22.5f)
+
+        selectionStateManager.maybeSelectContentAtPoint(pressPoint)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        testDispatcher.scheduler.runCurrent()
+
+        val actualSelection =
+            selectionStateManager.selectionModel.value?.documentSelection?.selection
+        assertThat(actualSelection).isInstanceOf(TextSelection::class.java)
+        assertThat((actualSelection as TextSelection).text).isEqualTo("Hello")
+    }
+
+    @Test
+    fun maybeSelectContentAtPoint_noOcrWord_fallsBackToImageSelection() = runTest {
+        if (!isImageSelectionAvailableInSdk()) return@runTest
+
+        selectionStateManager.ocrProvider = FakeOcrProvider(FakeOcrResult(words = emptyList()))
+        selectionStateManager.isImageSelectionEnabled = true
+
+        val imageBounds = RectF(10f, 10f, 110f, 110f)
+        val imageObject =
+            ImagePdfObject(Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888), imageBounds)
+        whenever(pdfDocument.getTopPageObjectAtPosition(any(), any())).thenReturn(imageObject)
+
+        val pressPoint = PdfPoint(0, 25f, 22.5f)
+        selectionStateManager.maybeSelectContentAtPoint(pressPoint)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        testDispatcher.scheduler.runCurrent()
+
+        val actualSelection =
+            selectionStateManager.selectionModel.value?.documentSelection?.selection
+        assertThat(actualSelection).isInstanceOf(ImageSelection::class.java)
+    }
+
+    @Test
+    fun selectAllText_withOcrContext_selectsAllImageText() = runTest {
+        if (!isImageSelectionAvailableInSdk()) return@runTest
+
+        val allOcrText = OcrText("All Text", listOf(Rect(0, 0, 100, 100)))
+        val fakeResult = FakeOcrResult(words = listOf(allOcrText))
+        selectionStateManager.ocrProvider = FakeOcrProvider(fakeResult)
+
+        val imageBounds = RectF(0f, 0f, 100f, 100f)
+        val imageObject =
+            ImagePdfObject(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), imageBounds)
+        whenever(pdfDocument.getTopPageObjectAtPosition(any(), any())).thenReturn(imageObject)
+
+        val selectionPoint = PointF(5f, 5f)
+        val selectionPdfPoint = PdfPoint(0, selectionPoint)
+
+        selectionStateManager.maybeSelectContentAtPoint(selectionPdfPoint)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        testDispatcher.scheduler.runCurrent()
+
+        selectionStateManager.selectAllText()
+        testDispatcher.scheduler.runCurrent()
+
+        val actualSelection =
+            selectionStateManager.selectionModel.value?.documentSelection?.selection
+        assertThat(actualSelection).isInstanceOf(TextSelection::class.java)
+        assertThat((actualSelection as TextSelection).text).isEqualTo("All Text")
+    }
+
+    @Test
+    fun maybeDragSelection_withOcrContext_updatesOcrSelection() = runTest {
+        if (!isImageSelectionAvailableInSdk()) return@runTest
+
+        // Define individual characters for realistic selection
+        val chars =
+            listOf(
+                OcrText("H", listOf(Rect(0, 0, 10, 20))),
+                OcrText("e", listOf(Rect(10, 0, 20, 20))),
+                OcrText("l", listOf(Rect(20, 0, 30, 20))),
+                OcrText("l", listOf(Rect(30, 0, 40, 20))),
+                OcrText("o", listOf(Rect(40, 0, 50, 20))),
+            )
+        val ocrWord = OcrText("Hello", listOf(Rect(0, 0, 50, 20)))
+        val fakeResult = FakeOcrResult(characters = chars, words = listOf(ocrWord))
+        selectionStateManager.ocrProvider = FakeOcrProvider(fakeResult)
+
+        val imageBounds = RectF(0f, 0f, 100f, 100f)
+        val imageObject =
+            ImagePdfObject(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), imageBounds)
+        whenever(pdfDocument.getTopPageObjectAtPosition(any(), any())).thenReturn(imageObject)
+
+        // Select the word first (click at 5, 5 which is in 'H')
+        val selectionPoint = PointF(5f, 5f)
+        val selectionPdfPoint = PdfPoint(0, selectionPoint)
+
+        selectionStateManager.maybeSelectContentAtPoint(selectionPdfPoint)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        testDispatcher.scheduler.runCurrent()
+
+        val zoom = 1.0f
+        val handleBounds = selectionStateManager.getSelectionHandleBounds(zoom)
+        assertThat(handleBounds).isNotNull()
+        val endHandleTarget = handleBounds!!.second
+        val endHandleLocation = PdfPoint(0, endHandleTarget.centerX(), endHandleTarget.centerY())
+
+        selectionStateManager.maybeDragSelection(
+            MotionEvent.ACTION_DOWN,
+            endHandleLocation,
+            currentZoom = zoom,
+            isSourceMouse = false,
+        )
+
+        // Drag to middle of 'e' (15,10). Pixel mapping is 1:1 given 100x100 rect and 100x100 bitmap
+        val dragTo = PdfPoint(0, 15f, 10f)
+        selectionStateManager.maybeDragSelection(
+            MotionEvent.ACTION_MOVE,
+            dragTo,
+            currentZoom = zoom,
+            isSourceMouse = false,
+        )
+        testDispatcher.scheduler.runCurrent()
+
+        val actualSelection =
+            selectionStateManager.selectionModel.value?.documentSelection?.selection
+        assertThat(actualSelection).isInstanceOf(TextSelection::class.java)
+        assertThat((actualSelection as TextSelection).text).isEqualTo("He")
     }
 }
 

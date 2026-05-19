@@ -22,12 +22,18 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 internal object TestUtils {
 
     fun assertNotNullObjectByText(viewText: String) {
         val selectedObject = selectUiObjectByText(viewText)
         assertNotNull(selectedObject)
+    }
+
+    fun assertNullObjectByText(viewText: String) {
+        val selectedObject = selectUiObjectByText(viewText)
+        assertNull(selectedObject)
     }
 
     fun selectUiObjectByText(viewText: String): UiObject2? {

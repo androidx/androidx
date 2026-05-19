@@ -25,7 +25,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -34,7 +33,14 @@ class PdfDocumentPageObjectsTest {
 
     @Test
     fun getPageObjects_returnsAllObjects() = runTest {
-        val imageObject = KeyedPdfObject("image1", ImagePdfObject(mock<Bitmap>(), RectF()))
+        val imageObject =
+            KeyedPdfObject(
+                "image1",
+                ImagePdfObject(
+                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+                    RectF(0f, 0f, 1f, 1f),
+                ),
+            )
         val pathObject = KeyedPdfObject("path1", PathPdfObject(0, 0f, listOf()))
 
         val fakeDoc =
@@ -48,7 +54,14 @@ class PdfDocumentPageObjectsTest {
 
     @Test
     fun getPageObjects_filtersByImage() = runTest {
-        val imageObject = KeyedPdfObject("image1", ImagePdfObject(mock<Bitmap>(), RectF()))
+        val imageObject =
+            KeyedPdfObject(
+                "image1",
+                ImagePdfObject(
+                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+                    RectF(0f, 0f, 1f, 1f),
+                ),
+            )
         val pathObject = KeyedPdfObject("path1", PathPdfObject(0, 0f, listOf()))
 
         val fakeDoc =
@@ -63,7 +76,14 @@ class PdfDocumentPageObjectsTest {
 
     @Test
     fun getPageObjects_filtersByPath() = runTest {
-        val imageObject = KeyedPdfObject("image1", ImagePdfObject(mock<Bitmap>(), RectF()))
+        val imageObject =
+            KeyedPdfObject(
+                "image1",
+                ImagePdfObject(
+                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+                    RectF(0f, 0f, 1f, 1f),
+                ),
+            )
         val pathObject = KeyedPdfObject("path1", PathPdfObject(0, 0f, listOf()))
 
         val fakeDoc =
