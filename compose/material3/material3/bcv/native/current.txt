@@ -2039,10 +2039,6 @@ final object androidx.compose.material3.pulltorefresh/PullToRefreshDefaults { //
         final fun <get-indicatorContainerColor>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.graphics/Color // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.indicatorContainerColor.<get-indicatorContainerColor>|<get-indicatorContainerColor>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     final val indicatorShape // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.indicatorShape|{}indicatorShape[0]
         final fun <get-indicatorShape>(): androidx.compose.ui.graphics/Shape // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.indicatorShape.<get-indicatorShape>|<get-indicatorShape>(){}[0]
-    final val loadingIndicatorColor // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.loadingIndicatorColor|{}loadingIndicatorColor[0]
-        final fun <get-loadingIndicatorColor>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.graphics/Color // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.loadingIndicatorColor.<get-loadingIndicatorColor>|<get-loadingIndicatorColor>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
-    final val loadingIndicatorContainerColor // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.loadingIndicatorContainerColor|{}loadingIndicatorContainerColor[0]
-        final fun <get-loadingIndicatorContainerColor>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.graphics/Color // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.loadingIndicatorContainerColor.<get-loadingIndicatorContainerColor>|<get-loadingIndicatorContainerColor>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     final val shape // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.shape|{}shape[0]
         final fun <get-shape>(): androidx.compose.ui.graphics/Shape // androidx.compose.material3.pulltorefresh/PullToRefreshDefaults.shape.<get-shape>|<get-shape>(){}[0]
 
