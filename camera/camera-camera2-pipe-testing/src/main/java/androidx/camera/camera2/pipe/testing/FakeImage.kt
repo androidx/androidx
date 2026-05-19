@@ -23,7 +23,6 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.camera.camera2.pipe.media.ImagePlane
 import androidx.camera.camera2.pipe.media.ImageWrapper
-import java.lang.Class
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlinx.atomicfu.atomic
@@ -81,7 +80,7 @@ public class FakeImage(
     override fun close() {
         numberOfTimesClosed++
         if (closed.compareAndSet(expect = false, update = true)) {
-            if (Build.VERSION.SDK_INT > VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (Build.VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 hardwareBuffer?.close()
             }
         }
