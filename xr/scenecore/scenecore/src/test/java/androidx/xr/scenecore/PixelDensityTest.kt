@@ -34,12 +34,12 @@ class PixelDensityTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun constructor_withZero_throwsException() {
+    fun constructor_withZero_throwsIllegalArgumentException() {
         PixelDensity(0f)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun constructor_withNegative_throwsException() {
+    fun constructor_withNegative_throwsIllegalArgumentException() {
         PixelDensity(-100f)
     }
 

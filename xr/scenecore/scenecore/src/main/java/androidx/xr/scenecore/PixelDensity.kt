@@ -16,6 +16,8 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.FloatRange
+
 /**
  * Represents a pixel density, analogous to the pixel density of a physical display like a computer
  * monitor or TV. It defines the mapping between pixels and physical distance in meters.
@@ -25,8 +27,11 @@ package androidx.xr.scenecore
  */
 public class PixelDensity
 internal constructor(
-    /** The number of pixels that correspond to one physical meter. */
-    public val pixelsPerMeter: Float
+    /**
+     * The number of pixels that correspond to one physical meter. Must be a positive and finite
+     * value.
+     */
+    @FloatRange(from = 0.0, fromInclusive = false) public val pixelsPerMeter: Float
 ) {
     init {
         require(pixelsPerMeter > 0f && pixelsPerMeter.isFinite()) {
