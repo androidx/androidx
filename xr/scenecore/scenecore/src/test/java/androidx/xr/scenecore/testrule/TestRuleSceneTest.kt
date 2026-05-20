@@ -179,7 +179,7 @@ class TestRuleSceneTest {
 
         // Test that it calls into the runtime and capture the runtime listener.
         val executor = directExecutor()
-        session.scene.setSpatialVisibilityChangedListener(executor, listener)
+        session.scene.addSpatialVisibilityChangedListener(executor, listener)
         val testScene = testRule.sceneTester
 
         var expectedResult = SpatialVisibility.WITHIN_FIELD_OF_VIEW

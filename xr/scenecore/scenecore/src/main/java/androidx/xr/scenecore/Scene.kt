@@ -182,12 +182,6 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
     private var spaceChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
 
     private val spatialVisibilityChangedListeners = ConsumerListenerMap<SpatialVisibility>()
-
-    // TODO - b/502272748: This Listener and Executor can be removed once their deprecated
-    // setter methods are removed.
-    private var spatialVisibilityChangedListener: Consumer<SpatialVisibility>? = null
-    private var spatialVisibilityExecutor: Executor = HandlerExecutor.mainThreadExecutor
-
     private val spatialCapabilitiesListeners = ConsumerListenerMap<Set<SpatialCapability>>()
 
     private val rtSpatialCapabilitiesListener =
@@ -227,13 +221,6 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
             rtVisibility: RtSpatialVisibility ->
             val visibility = rtVisibility.toSpatialVisibility()
             spatialVisibilityChangedListeners.fire(visibility)
-            synchronized(this) {
-                if (spatialVisibilityChangedListener != null) {
-                    spatialVisibilityExecutor.execute {
-                        spatialVisibilityChangedListener?.accept(visibility)
-                    }
-                }
-            }
         }
     }
 
@@ -360,83 +347,6 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
 
     internal fun getEntityForRtEntity(entity: RtEntity): Entity? {
         return entityRegistry.getEntityForRtEntity(entity)
-    }
-
-    /**
-     * Sets the listener to be invoked when the spatial visibility of the rendered content of the
-     * entire scene (all entities, including children of [AnchorEntity]s and [ActivitySpace])
-     * changes within the user's field of view. In Home Space Mode, the listener continues to
-     * monitor the spatial visibility of the application's main panel.
-     *
-     * This API only checks if the bounding box of all rendered content (even if partially
-     * transparent) is within the user's field of view. Content not rendered due to full
-     * transparency (alpha=0) or being hidden is not considered. If the entities in the scene or any
-     * of their ancestors are hidden using [Entity.setEnabled] (enabled=false) or if the entities
-     * are turned fully transparent using [Entity.setAlpha] (alpha=0.0), then the SpatialVisibility
-     * checks will return [SpatialVisibility.OUTSIDE_FIELD_OF_VIEW].
-     *
-     * The listener is invoked on the provided [Executor].
-     *
-     * There can only be one listener set at a time. If a new listener is set, the previous listener
-     * will be released.
-     *
-     * @param callbackExecutor The [Executor] to run the listener on.
-     * @param listener The [Consumer] to be invoked asynchronously on the given callbackExecutor
-     *   whenever the [SpatialVisibility] of the renderable content changes.
-     */
-    // TODO - b/502272748: Cleanup deprecated listener methods
-    @Deprecated("Use addSpatialVisibilityChangedListener")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setSpatialVisibilityChangedListener(
-        callbackExecutor: Executor,
-        listener: Consumer<SpatialVisibility>,
-    ) {
-        synchronized(this) {
-            spatialVisibilityChangedListener = listener
-            spatialVisibilityExecutor = callbackExecutor
-        }
-    }
-
-    /**
-     * Sets the listener to be invoked on the main thread executor when the spatial visibility of
-     * the rendered content of the entire scene (all entities, including children of [AnchorEntity]s
-     * and [ActivitySpace]) changes within the user's field of view. In Home Space Mode, the
-     * listener continues to monitor the spatial visibility of the application's main panel.
-     *
-     * This API only checks if the bounding box of all rendered content (even if partially
-     * transparent) is within the user's field of view. Content not rendered due to full
-     * transparency (alpha=0) or being hidden is not considered. If the entities in the scene or any
-     * of their ancestors are hidden using [Entity.setEnabled] (enabled=false) or if the entities
-     * are turned fully transparent using [Entity.setAlpha] (alpha=0.0), then the SpatialVisibility
-     * checks will return [SpatialVisibility.OUTSIDE_FIELD_OF_VIEW].
-     *
-     * There can only be one listener set at a time. If a new listener is set, the previous listener
-     * will be released.
-     *
-     * @param listener The [Consumer] to be invoked asynchronously on the main thread whenever the
-     *   [SpatialVisibility] of the renderable content changes.
-     */
-    // TODO - b/502272748: Cleanup deprecated listener methods
-    @Deprecated("Use addSpatialVisibilityChangedListener")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setSpatialVisibilityChangedListener(listener: Consumer<SpatialVisibility>): Unit =
-        @Suppress("DEPRECATION")
-        setSpatialVisibilityChangedListener(HandlerExecutor.mainThreadExecutor, listener)
-
-    /**
-     * Releases the listener previously added by [setSpatialVisibilityChangedListener].
-     *
-     * The listener is automatically released at the end of the Scene's lifecycle even if this
-     * method is not explicitly called.
-     */
-    // TODO - b/502272748: Cleanup deprecated listener methods
-    @Deprecated("Use removeSpatialVisibilityChangedListener")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun clearSpatialVisibilityChangedListener() {
-        synchronized(this) {
-            spatialVisibilityChangedListener = null
-            spatialVisibilityExecutor = HandlerExecutor.mainThreadExecutor
-        }
     }
 
     /**

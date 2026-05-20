@@ -126,34 +126,6 @@ class SoundEffectPoolTest {
         assertThat(soundEffectPoolTester.isAssetLoaded(afd)).isFalse()
     }
 
-    // TODO - b/502272748: Remove when we delete the deprecated setListener method
-    @Test
-    fun setOnLoadCompleteListener_receivesCallback() {
-        val soundEffectPool = SoundEffectPool.create(session, 1)
-        val tester = scenecoreTestRule.createTester(soundEffectPool)
-        var callbackCalled = false
-        var loadedSoundEffect: SoundEffect? = null
-        var loadedSuccess = false
-
-        val listener =
-            SoundEffectPool.LoadCompleteListener { soundEffect, success ->
-                callbackCalled = true
-                loadedSoundEffect = soundEffect
-                loadedSuccess = success
-            }
-
-        soundEffectPool.setOnLoadCompleteListener(listener)
-
-        // Trigger the listener via the tester
-        val soundEffect = SoundEffect(123)
-        tester.triggerLoadCompleteListener(soundEffect, true)
-        shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(callbackCalled).isTrue()
-        assertThat(loadedSoundEffect?.id).isEqualTo(123)
-        assertThat(loadedSuccess).isTrue()
-    }
-
     @Test
     fun addLoadCompleteListener_receivesCallback() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
