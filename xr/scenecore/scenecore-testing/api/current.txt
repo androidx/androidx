@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.xr.scenecore.testing {
 
+  public final class ActivityPanelEntityTester {
+    method @InaccessibleFromKotlin public android.content.Intent? getStartActivityIntent();
+    method @InaccessibleFromKotlin public android.app.Activity? getTransferredActivity();
+    property public android.content.Intent? startActivityIntent;
+    property public android.app.Activity? transferredActivity;
+  }
+
   public final class ActivitySpaceTester {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.HitTestResult? getHitTestResult();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getRecommendedContentBoxInFullSpace();
