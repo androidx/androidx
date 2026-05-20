@@ -99,18 +99,21 @@ private fun createSchedulers(
     workDatabase: WorkDatabase,
     trackers: Trackers,
     processor: Processor,
-): List<Scheduler> =
-    listOf(
-        Schedulers.createBestAvailableBackgroundScheduler(context, workDatabase, configuration),
-        GreedyScheduler(
-            context,
-            configuration,
-            trackers,
-            processor,
-            WorkLauncherImpl(processor, workTaskExecutor),
-            workTaskExecutor,
-        ),
-    )
+): List<Scheduler> = buildList {
+    add(Schedulers.createBestAvailableBackgroundScheduler(context, workDatabase, configuration))
+    if (configuration.isGreedySchedulerEnabled()) {
+        add(
+            GreedyScheduler(
+                context,
+                configuration,
+                trackers,
+                processor,
+                WorkLauncherImpl(processor, workTaskExecutor),
+                workTaskExecutor,
+            )
+        )
+    }
+}
 
 public fun WorkManagerImpl.close() {
     runBlocking { workManagerScope.coroutineContext[Job]!!.cancelAndJoin() }
