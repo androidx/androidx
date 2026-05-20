@@ -87,10 +87,12 @@ internal constructor(
     }
 
     override fun resume() {
+        perceptionManager.arDevice.resume()
         _session.resume()
     }
 
     override fun pause() {
+        perceptionManager.arDevice.pause()
         _session.pause()
     }
 
@@ -113,6 +115,8 @@ internal constructor(
     @SuppressWarnings("RestrictedApiAndroidX")
     override fun configure(config: Config) {
         val arConfig = _session.config
+
+        perceptionManager.arDevice.configureTracking(config.deviceTracking, context)
 
         if (config.cameraFacingDirection != this.config.cameraFacingDirection) {
             try {
