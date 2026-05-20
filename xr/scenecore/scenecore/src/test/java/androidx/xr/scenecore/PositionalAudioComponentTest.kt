@@ -95,14 +95,17 @@ class PositionalAudioComponentTest {
     }
 
     @Test
-    fun setPointSourceParams_setsOnRuntime() {
+    fun pointSourceParams_updatesParamsForFuturePlays() {
         val params = PointSourceParams()
         val component = PositionalAudioComponent.create(session, params)
         val tester = scenecoreTestRule.createTester<PositionalAudioComponentTester>(component)
 
-        val newParams = PointSourceParams()
+        assertThat(component.pointSourceParams).isEqualTo(params)
 
-        component.setPointSourceParams(newParams)
+        val newParams = PointSourceParams()
+        component.pointSourceParams = newParams
+
+        assertThat(component.pointSourceParams).isEqualTo(newParams)
 
         assertThat(tester.pointSourceParams).isEqualTo(newParams)
     }

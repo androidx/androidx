@@ -168,4 +168,27 @@ class SoundEffectPoolComponentTest {
         assertThat(fakeComponent.lastSetLoopingStream?.streamId).isEqualTo(stream.streamId)
         assertThat(fakeComponent.lastSetLoopingIsLooping).isTrue()
     }
+
+    @Test
+    fun pointSourceParams_updatesParamsForFuturePlays() {
+        val soundEffectPool = SoundEffectPool.create(session, 1)
+        val params = PointSourceParams()
+        val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
+        val newParams = PointSourceParams()
+
+        assertThat(component.pointSourceParams).isEqualTo(params)
+
+        component.pointSourceParams = newParams
+
+        assertThat(component.pointSourceParams).isEqualTo(newParams)
+
+        val soundEffect = soundEffectPool.load(activity, 123)
+        val entity = Entity.create(session, "test")
+        entity.addComponent(component)
+
+        component.play(soundEffect, 0.5f, 1, true)
+
+        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
+        assertThat(fakeComponent.lastPlayedParams).isEqualTo(newParams.rtPointSourceParams)
+    }
 }

@@ -64,11 +64,15 @@ internal constructor(context: Context, sceneRuntime: SceneRuntime, params: Point
     /**
      * Updates the [PointSourceParams] used by the spatial audio source.
      *
-     * These params will apply to currently playing audio and future playback requests.
+     * These pointSourceParams will apply to currently playing audio and future playback requests.
      */
-    public fun setPointSourceParams(params: PointSourceParams) {
-        rtComponent.setPointSourceParams(params.rtPointSourceParams)
-    }
+    // TODO: b/514816237 - Do not cache the params in the scenecore layer
+    public var pointSourceParams: PointSourceParams = params
+        get() = field
+        set(value) {
+            field = value
+            rtComponent.setPointSourceParams(value.rtPointSourceParams)
+        }
 
     /**
      * An [AudioOutputProvider] that can be used to configure an
