@@ -46,6 +46,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-test-junit4:1.7.5")
     implementation("com.google.ar:impress:1.0.0-beta01")
 
+    // Forcing this upgrade due to CVE-2026-0636. For more information, see b/505221306
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+
     compileOnly("com.google.errorprone:error_prone_annotations:2.30.0")
     compileOnly(libs.androidExtensionsXr)
     compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
