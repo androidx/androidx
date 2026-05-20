@@ -129,8 +129,13 @@ actual sealed interface Paragraph {
     "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
     replaceWith =
         ReplaceWith(
-            "ActualParagraph(text, style, spanStyles, placeholders, " +
-                "maxLines, ellipsis, width, density, createFontFamilyResolver(resourceLoader))"
+            "Paragraph(text, style, Constraints(maxWidth = ceil(width).toInt()), density, " +
+                "createFontFamilyResolver(resourceLoader), spanStyles, placeholders, maxLines, " +
+                "if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip)",
+            "kotlin.math.ceil",
+            "androidx.compose.ui.unit.Constraints",
+            "androidx.compose.ui.text.style.TextOverflow",
+            "androidx.compose.ui.text.font.createFontFamilyResolver",
         ),
 )
 actual fun Paragraph(
@@ -163,9 +168,11 @@ actual fun Paragraph(
     "Paragraph that takes maximum allowed width is deprecated, pass constraints instead.",
     ReplaceWith(
         "Paragraph(text, style, Constraints(maxWidth = ceil(width).toInt()), density, " +
-            "fontFamilyResolver, spanStyles, placeholders, maxLines, ellipsis)",
+            "fontFamilyResolver, spanStyles, placeholders, maxLines, " +
+            "if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip)",
         "kotlin.math.ceil",
         "androidx.compose.ui.unit.Constraints",
+        "androidx.compose.ui.text.style.TextOverflow",
     ),
 )
 actual fun Paragraph(
@@ -254,9 +261,10 @@ actual fun Paragraph(
     "Paragraph that takes maximum allowed width is deprecated, pass constraints instead.",
     ReplaceWith(
         "Paragraph(paragraphIntrinsics, Constraints(maxWidth = ceil(width).toInt()), maxLines, " +
-            "ellipsis)",
+            "if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip)",
         "kotlin.math.ceil",
         "androidx.compose.ui.unit.Constraints",
+        "androidx.compose.ui.text.style.TextOverflow",
     ),
 )
 actual fun Paragraph(
