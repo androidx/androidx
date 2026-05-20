@@ -18,7 +18,6 @@ package androidx.xr.scenecore.testing.internal
 
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.Dimensions
-import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.MovableComponent
 import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
@@ -52,11 +51,6 @@ internal class FakeMovableComponent : FakeComponent(), MovableComponent {
     var userAnchorable: Boolean = false
         internal set
 
-    /**
-     * Sets the scale with distance mode.
-     *
-     * @param scaleWithDistanceMode The scale with distance mode to set
-     */
     override var scaleWithDistanceMode: Int = MovableComponent.ScaleWithDistanceMode.DEFAULT
 
     /** Sets the size of the interaction highlight extent. */
@@ -70,7 +64,7 @@ internal class FakeMovableComponent : FakeComponent(), MovableComponent {
      *
      * A map of move event listeners to their executors.
      */
-    internal val moveEventListenersMap: MutableMap<MoveEventListener, Executor> = mutableMapOf()
+    val moveEventListenersMap: MutableMap<MoveEventListener, Executor> = mutableMapOf()
 
     /** The number of times setPlanePoseForMoveUpdatePose is called */
     var setPlanePoseForMoveUpdatePoseCallCount: Long = 0
@@ -128,12 +122,17 @@ internal class FakeMovableComponent : FakeComponent(), MovableComponent {
      * mechanism. It iterates through all currently registered listeners and invokes their
      * `onMoveEvent` method.
      *
-     * @param event The new [InputEvent] to be sent in the simulated event.
+     * @param event The new [MoveEvent] to be sent in the simulated event.
      */
     fun onMoveEvent(event: MoveEvent) {
-        // Note that MovableComponent uses HandlerExecutor.mainThreadExecutor as the default
-        // executor, which doesn't work in the fake runtime. So we trigger the listener callback
-        // function directly instead of executor.execute { listener.onMoveEvent(event) }.
-        moveEventListenersMap.forEach { entry -> entry.key.onMoveEvent(event) }
+        moveEventListenersMap.forEach { (listener, executor) ->
+            executor.execute { listener.onMoveEvent(event) }
+            // If the executor is our fake service, we manually trigger all tasks to ensure
+            // the listener callback is executed immediately and deterministically within the
+            // calling thread of the test.
+            if (executor is FakeScheduledExecutorService) {
+                executor.runAll()
+            }
+        }
     }
 }

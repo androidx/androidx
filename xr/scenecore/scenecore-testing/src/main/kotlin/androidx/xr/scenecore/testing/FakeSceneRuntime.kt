@@ -105,6 +105,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     private var _state: Enum<State> = State.CREATED
 
     /** The last [FakeMovableComponent] created or injected via [createMovableComponent]. */
+    // TODO: b/514807603 - Remove this property once xr:compose tests migrate to SceneCoreTestRule.
     public var lastMovableComponent: FakeMovableComponent? = null
         private set
 
@@ -501,10 +502,10 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         scaleInZ: Boolean,
         userAnchorable: Boolean,
     ): FakeMovableComponent {
-        val movableComponent = FakeMovableComponent()
-        movableComponent.systemMovable = systemMovable
-        movableComponent.scaleInZ = scaleInZ
-        movableComponent.userAnchorable = userAnchorable
+        val movableComponent =
+            FakeMovableComponent(
+                internalRuntime.createMovableComponent(systemMovable, scaleInZ, userAnchorable)
+            )
         lastMovableComponent = movableComponent
         return movableComponent
     }

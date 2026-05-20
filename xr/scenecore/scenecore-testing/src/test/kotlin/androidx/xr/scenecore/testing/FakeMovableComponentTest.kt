@@ -137,12 +137,7 @@ class FakeMovableComponentTest {
     @Test
     fun move_withDefaultExecutor_notifiesListener() {
         val listenerCalled = AtomicBoolean(false)
-        val mockListener =
-            object : MoveEventListener {
-                override fun onMoveEvent(event: MoveEvent) {
-                    listenerCalled.set(true)
-                }
-            }
+        val mockListener = MoveEventListener { listenerCalled.set(true) }
 
         underTest.addMoveEventListener(mockListener)
 
