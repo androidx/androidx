@@ -149,19 +149,22 @@ public class RemoteBitmapDecoderTest {
         }
 
         byte[] pathData = file.getAbsolutePath().getBytes(StandardCharsets.UTF_8);
-        Bitmap bitmap =
-                RemoteBitmapDecoder.decodeBitmap(
-                        1,
-                        BitmapData.ENCODING_FILE,
-                        BitmapData.TYPE_PNG_8888,
-                        10,
-                        10,
-                        pathData,
-                        mEmptyLoader);
-        assertThat(bitmap).isNotNull();
-        assertThat(bitmap.getWidth()).isEqualTo(10);
-        assertThat(bitmap.getHeight()).isEqualTo(10);
-        file.delete();
+        try {
+            Bitmap bitmap =
+                    RemoteBitmapDecoder.decodeBitmap(
+                            1,
+                            BitmapData.ENCODING_FILE,
+                            BitmapData.TYPE_PNG_8888,
+                            10,
+                            10,
+                            pathData,
+                            mEmptyLoader);
+            assertThat(bitmap).isNotNull();
+            assertThat(bitmap.getWidth()).isEqualTo(10);
+            assertThat(bitmap.getHeight()).isEqualTo(10);
+        } finally {
+            file.delete();
+        }
     }
 
     @Test
@@ -179,21 +182,24 @@ public class RemoteBitmapDecoderTest {
         }
 
         byte[] pathData = file.getAbsolutePath().getBytes(StandardCharsets.UTF_8);
-        RuntimeException e =
-                assertThrows(
-                        RuntimeException.class,
-                        () -> {
-                            RemoteBitmapDecoder.decodeBitmap(
-                                    1,
-                                    BitmapData.ENCODING_FILE,
-                                    BitmapData.TYPE_PNG_8888,
-                                    10,
-                                    10,
-                                    pathData,
-                                    mEmptyLoader);
-                        });
-        assertThat(e.getMessage()).contains("dimensions don't match");
-        file.delete();
+        try {
+            RuntimeException e =
+                    assertThrows(
+                            RuntimeException.class,
+                            () -> {
+                                RemoteBitmapDecoder.decodeBitmap(
+                                        1,
+                                        BitmapData.ENCODING_FILE,
+                                        BitmapData.TYPE_PNG_8888,
+                                        10,
+                                        10,
+                                        pathData,
+                                        mEmptyLoader);
+                            });
+            assertThat(e.getMessage()).contains("dimensions don't match");
+        } finally {
+            file.delete();
+        }
     }
 
     @Test
@@ -236,6 +242,56 @@ public class RemoteBitmapDecoderTest {
                                     urlLoader);
                         });
         assertThat(e.getMessage()).contains("dimensions don't match");
+    }
+
+    @Test
+    public void testDecodeInline_raw8888() {
+        int width = 2;
+        int height = 2;
+        byte[] rawData = new byte[width * height * 4];
+        // 2x2 Red pixels (ARGB: 0xFFFF0000)
+        for (int i = 0; i < width * height; i++) {
+            rawData[i * 4] = (byte) 0xFF; // A
+            rawData[i * 4 + 1] = (byte) 0xFF; // R
+            rawData[i * 4 + 2] = 0x00; // G
+            rawData[i * 4 + 3] = 0x00; // B
+        }
+
+        Bitmap bitmap =
+                RemoteBitmapDecoder.decodeBitmap(
+                        1,
+                        BitmapData.ENCODING_INLINE,
+                        BitmapData.TYPE_RAW8888,
+                        width,
+                        height,
+                        rawData,
+                        mEmptyLoader);
+        assertThat(bitmap).isNotNull();
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(Color.RED);
+    }
+
+    @Test
+    public void testDecodeInline_raw8() {
+        int width = 2;
+        int height = 2;
+        byte[] rawData = new byte[width * height];
+        // 2x2 Mid-gray pixels (0x80)
+        for (int i = 0; i < width * height; i++) {
+            rawData[i] = (byte) 0x80;
+        }
+
+        Bitmap bitmap =
+                RemoteBitmapDecoder.decodeBitmap(
+                        1,
+                        BitmapData.ENCODING_INLINE,
+                        BitmapData.TYPE_RAW8,
+                        width,
+                        height,
+                        rawData,
+                        mEmptyLoader);
+        assertThat(bitmap).isNotNull();
+        // Verify it is opaque mid-gray (0xFF808080)
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(0xFF808080);
     }
 
     private byte[] createPng(int width, int height) {
