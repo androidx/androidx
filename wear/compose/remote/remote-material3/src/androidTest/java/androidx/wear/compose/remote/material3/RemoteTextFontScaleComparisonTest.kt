@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.remote.core.CoreDocument
@@ -46,6 +47,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.GoldenScreenshotNameTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -53,9 +55,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onChild
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,6 +69,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
@@ -86,7 +93,9 @@ class RemoteTextFontScaleComparisonTest {
     @get:Rule
     val composeTestRule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
 
-    private val screenshotTestRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+    @get:Rule val screenshotTestRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+
+    @get:Rule val goldenNameRule = GoldenScreenshotNameTestRule()
 
     private val size1 = 12
     private val size2 = 16
@@ -108,8 +117,11 @@ class RemoteTextFontScaleComparisonTest {
 
     private fun runFontScaleTest(fontScale: Float) {
         composeTestRule.setContent {
+            val density = LocalDensity.current
+            val sizeInDp = with(density) { size.width.toDp() }
+
             OuterContent(
-                modifier = Modifier.fillMaxSize().background(Color.Black),
+                modifier = Modifier.requiredSize(sizeInDp).background(Color.Black),
                 fontScale = fontScale,
             ) {
                 ComposeText()
@@ -133,6 +145,11 @@ class RemoteTextFontScaleComparisonTest {
                 }
             }
         }
+        val bitmap = composeTestRule.onRoot().onChild().captureToImage().asAndroidBitmap()
+        bitmap.assertAgainstGolden(
+            screenshotTestRule,
+            goldenNameRule.getGoldenScreenshotName().getName(),
+        )
     }
 
     @Composable
@@ -141,24 +158,26 @@ class RemoteTextFontScaleComparisonTest {
         fontScale: Float,
         content: @Composable RowScope.() -> Unit,
     ) {
-        Column(
-            modifier = modifier.padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(text = "Font Scale: $fontScale", color = Color.White)
-            Row(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                horizontalArrangement = Arrangement.SpaceAround,
+        Box(modifier = modifier) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
-                Text(text = "Compose", color = Color.White)
-                Text(text = "RC", color = Color.White)
-            }
-            CompositionLocalProvider(
-                LocalDensity provides
-                    Density(density = LocalDensity.current.density, fontScale = fontScale)
-            ) {
-                Row(modifier = Modifier.fillMaxWidth().weight(1f)) { content() }
+                Text(text = "Font Scale: $fontScale", color = Color.White)
+                Row(
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ) {
+                    Text(text = "Compose", color = Color.White)
+                    Text(text = "RC", color = Color.White)
+                }
+                CompositionLocalProvider(
+                    LocalDensity provides
+                        Density(density = LocalDensity.current.density, fontScale = fontScale)
+                ) {
+                    Row(modifier = Modifier.fillMaxWidth().weight(1f)) { content() }
+                }
             }
         }
     }
