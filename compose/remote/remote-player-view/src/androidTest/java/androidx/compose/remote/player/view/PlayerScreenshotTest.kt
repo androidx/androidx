@@ -21,6 +21,7 @@ import android.view.Gravity
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.CoreText
@@ -71,8 +72,16 @@ class PlayerScreenshotTest {
             }
         }
 
+    private var originalEnableImageUrls: Boolean = false
+    private var originalEnableImageFiles: Boolean = false
+
     @Before
     fun setUp() {
+        originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS
+        originalEnableImageFiles = Limits.ENABLE_IMAGE_FILES
+        Limits.ENABLE_IMAGE_URLS = true
+        Limits.ENABLE_IMAGE_FILES = true
+
         activityScenarioRule.scenario.onActivity {
             val frameLayout = FrameLayout(it)
             frameLayout.layoutParams =
@@ -93,6 +102,8 @@ class PlayerScreenshotTest {
     @After
     fun tearDown() {
         RemoteComposeTestContentProvider.bitmapBytes = null
+        Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls
+        Limits.ENABLE_IMAGE_FILES = originalEnableImageFiles
     }
 
     @Test

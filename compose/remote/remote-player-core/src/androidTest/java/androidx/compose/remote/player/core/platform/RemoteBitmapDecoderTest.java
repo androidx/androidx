@@ -23,11 +23,14 @@ import static org.junit.Assert.assertThrows;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,6 +46,23 @@ import java.nio.charset.StandardCharsets;
 public class RemoteBitmapDecoderTest {
 
     private final BitmapLoader mEmptyLoader = (url) -> null;
+
+    private boolean mOriginalEnableImageUrls;
+    private boolean mOriginalEnableImageFiles;
+
+    @Before
+    public void setUp() {
+        mOriginalEnableImageUrls = Limits.ENABLE_IMAGE_URLS;
+        mOriginalEnableImageFiles = Limits.ENABLE_IMAGE_FILES;
+        Limits.ENABLE_IMAGE_URLS = true;
+        Limits.ENABLE_IMAGE_FILES = true;
+    }
+
+    @After
+    public void tearDown() {
+        Limits.ENABLE_IMAGE_URLS = mOriginalEnableImageUrls;
+        Limits.ENABLE_IMAGE_FILES = mOriginalEnableImageFiles;
+    }
 
     @Test
     public void testDecodeEmpty() {

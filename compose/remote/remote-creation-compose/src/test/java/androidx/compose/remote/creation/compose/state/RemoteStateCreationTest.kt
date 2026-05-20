@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.state
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
@@ -55,15 +56,23 @@ class RemoteStateCreationTest {
     @get:Rule val remoteCaptureRule = RemoteCaptureTestRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private var originalEnableImageUrls: Boolean = false
+    private var originalEnableImageFiles: Boolean = false
 
     @Before
     fun setup() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+        originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS
+        originalEnableImageFiles = Limits.ENABLE_IMAGE_FILES
+        Limits.ENABLE_IMAGE_URLS = true
+        Limits.ENABLE_IMAGE_FILES = true
     }
 
     @After
     fun cleanup() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
+        Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls
+        Limits.ENABLE_IMAGE_FILES = originalEnableImageFiles
     }
 
     @Test

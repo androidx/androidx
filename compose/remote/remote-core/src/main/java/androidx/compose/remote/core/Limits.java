@@ -69,7 +69,10 @@ public class Limits {
     public static final boolean ENABLE_HAPTIC_FEEDBACK = true;
 
     /** Enable the player to support Image URLs */
-    public static final boolean ENABLE_IMAGE_URLS = true;
+    public static boolean ENABLE_IMAGE_URLS = false;
+
+    /** Enable the player to support Image Files */
+    public static boolean ENABLE_IMAGE_FILES = false;
 
     private Limits() {}
 }

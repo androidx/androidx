@@ -109,6 +109,9 @@ public class RemoteBitmapDecoder {
                 }
                 break;
             case BitmapData.ENCODING_FILE: {
+                if (!Limits.ENABLE_IMAGE_FILES) {
+                    throw new RuntimeException("File image not supported [" + imageId + "]");
+                }
                 String path = new String(data, java.nio.charset.StandardCharsets.UTF_8);
                 try (java.io.FileInputStream fis = new java.io.FileInputStream(path)) {
                     BufferedInputStream bis = new BufferedInputStream(fis);

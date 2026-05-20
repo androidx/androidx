@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,6 +38,8 @@ class RemoteComposeBufferTest {
     private lateinit var rcPlatform: RcPlatformServices
 
     private lateinit var androidXProfile: Profile
+    private var originalEnableImageUrls: Boolean = false
+    private var originalEnableImageFiles: Boolean = false
 
     @Before
     fun setUp() {
@@ -52,6 +55,16 @@ class RemoteComposeBufferTest {
             /* factory= */ { creationDisplayInfo, profile, _ ->
                 RemoteComposeWriter(creationDisplayInfo, null, profile)
             }
+        originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS
+        originalEnableImageFiles = Limits.ENABLE_IMAGE_FILES
+        Limits.ENABLE_IMAGE_URLS = true
+        Limits.ENABLE_IMAGE_FILES = true
+    }
+
+    @After
+    fun tearDown() {
+        Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls
+        Limits.ENABLE_IMAGE_FILES = originalEnableImageFiles
     }
 
     @Test
