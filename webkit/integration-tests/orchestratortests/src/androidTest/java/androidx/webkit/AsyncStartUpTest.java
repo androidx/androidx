@@ -51,10 +51,7 @@ import java.util.concurrent.TimeUnit;
  * Tests for behaviours related to
  * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
  *
- * NOTE: Unfortunately, the test infra does not allow spinning up a new process for each test.
- * Therefore, WebView started up in one test causes assumption failures in others
- * (See b/376656739).
- * For the time being, please run each test thoroughly locally till the above bug is fixed.
+ * <p>Each of these tests run in a separate test process.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 @MediumTest
@@ -68,7 +65,6 @@ public class AsyncStartUpTest {
     @Test
     @MediumTest
     public void testAsyncStartUp_onSuccessLoadsWebView() throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
         final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
@@ -100,7 +96,6 @@ public class AsyncStartUpTest {
     @Test
     @MediumTest
     public void testAsyncStartUp_onSuccessReturnsTimingInfo() throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
@@ -134,7 +129,6 @@ public class AsyncStartUpTest {
     @MediumTest
     public void testAsyncStartUp_onSuccessReturnsNoStartupLocationWithStartUpApi()
             throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
@@ -176,7 +170,6 @@ public class AsyncStartUpTest {
     @MediumTest
     public void testAsyncStartUp_returnsAppropriateStartupLocationWithProviderInitOnMainLooper()
             throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
@@ -224,7 +217,6 @@ public class AsyncStartUpTest {
     @MediumTest
     public void testAsyncStartUp_returnsAppropriateStartupLocationWithChromiumInitOnUiThread()
             throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
@@ -280,7 +272,6 @@ public class AsyncStartUpTest {
     @MediumTest
     public void testAsyncStartUp_returnsAppropriateStartupLocationWithWebViewInitOnUiThread()
             throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
@@ -336,7 +327,6 @@ public class AsyncStartUpTest {
     @Test
     @MediumTest
     public void testAsyncStartUp_returnsSameInfoForMultipleCalls() throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
@@ -432,7 +422,6 @@ public class AsyncStartUpTest {
     @MediumTest
     public void testAsyncStartUp_withoutRunningUiThreadStartUpLoadsWebViewWithoutStartingChromium()
             throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor())
@@ -472,7 +461,6 @@ public class AsyncStartUpTest {
     @Test
     @MediumTest
     public void testAsyncStartUp_withCreatingCustomProfile_createsRequestedProfiles() {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebkitUtils.checkStartupFeature(ApplicationProvider.getApplicationContext(),
                 StartupFeatures.STARTUP_FEATURE_SET_PROFILES_TO_LOAD);
@@ -520,7 +508,6 @@ public class AsyncStartUpTest {
     public void
             testAsyncStartUp_withoutRunningUiThreadStartUpReturnsBlockingLocationWithProviderInit()
             throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor())
@@ -568,7 +555,6 @@ public class AsyncStartUpTest {
     @MediumTest
     public void testAsyncStartUp_returnsAsyncLocationsWhenInitializedAsync()
             throws Throwable {
-        Assume.assumeFalse(webViewCurrentlyLoaded());
 
         CountDownLatch latch = new CountDownLatch(1);
         Executors.newSingleThreadExecutor().execute(() -> {
