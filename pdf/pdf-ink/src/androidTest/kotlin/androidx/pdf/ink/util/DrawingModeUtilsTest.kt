@@ -61,20 +61,4 @@ class DrawingModeUtilsTest {
         assertThat(brush.colorIntArgb).isEqualTo(Color.RED)
         assertThat(brush.size).isEqualTo(20f)
     }
-
-    @Test
-    fun toHighlighterConfig_withHighlighterMode_returnsCorrectConfig() {
-        val fakeDocument = FakeEditablePdfDocument()
-        val highlighterMode =
-            AnnotationDrawingMode.HighlighterMode(
-                color = Color.BLUE,
-                size = 15f,
-                document = fakeDocument,
-            )
-
-        val config = highlighterMode.toHighlighterConfig()
-
-        assertThat(config.color).isEqualTo(Color.BLUE)
-        assertThat(config.pdfDocument).isEqualTo(fakeDocument)
-    }
 }

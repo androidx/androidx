@@ -19,16 +19,11 @@ package androidx.pdf.annotation.highlights.utils
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
-import android.os.RemoteException
-import androidx.pdf.PdfDocument
-import androidx.pdf.PdfFeature
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
-import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
-import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
+import androidx.pdf.util.TEXT_BOUNDS_REQUEST_NAME
 
 /** Applies a [Matrix] transformation to this point, returning a new [PointF]. */
 internal fun PointF.applyTransform(transform: Matrix): PointF {
@@ -66,42 +61,14 @@ internal fun List<RectF>.toPathPdfObjects(color: Int): List<PathPdfObject> {
     }
 }
 
-/**
- * Calculates the rectangular bounds of text selection on a page.
- *
- * @param pageNum The 0-based index of the page.
- * @param startPdfPoint The starting point of the selection in PDF coordinates.
- * @param currentPdfPoint The current (end) point of the selection in PDF coordinates.
- * @return A list of [RectF] for the selected text, or an empty list if no text is selected.
- */
-internal suspend fun PdfDocument.calculateHighlightRects(
-    pageNum: Int,
-    startPdfPoint: PointF,
-    currentPdfPoint: PointF,
-): List<RectF> {
-    // selection boundary api is not available below sdk-ext 13
-    if (!this.isFeatureSupported(PdfFeature.TEXT_SELECTION)) return listOf()
-    try {
-        val selection =
-            getSelectionBounds(pageNum, startPdfPoint, currentPdfPoint) ?: return emptyList()
-        return selection.selectedContents.filterIsInstance<PdfPageTextContent>().flatMap {
-            it.bounds
-        }
-    } catch (e: RemoteException) {
-        if (!e.isHandledRemoteException) throw e
-
-        throw createSelectionFailedException(pageNum, e)
-    }
-}
-
-internal fun createSelectionFailedException(
+internal fun createTextBoundsRequestFailedException(
     pageNum: Int,
     throwable: Throwable,
 ): RequestFailedException {
     return RequestFailedException(
         requestMetadata =
             RequestMetadata(
-                requestName = CONTENT_SELECTION_REQUEST_NAME,
+                requestName = TEXT_BOUNDS_REQUEST_NAME,
                 pageRange = IntRange(pageNum, pageNum),
             ),
         throwable = throwable,

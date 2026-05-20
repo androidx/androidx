@@ -17,7 +17,6 @@
 package androidx.pdf.ink
 
 import android.graphics.Color
-import android.graphics.PointF
 import android.os.SystemClock
 import android.view.MotionEvent
 import androidx.pdf.FakeEditablePdfDocument
@@ -88,7 +87,7 @@ class AnnotationsTouchEventDispatcherTest {
     }
 
     @Test
-    fun dispatchTouchEvent_inHighlighterMode_sendsDownAndUpToBothDispatchers() {
+    fun dispatchTouchEvent_inHighlighterMode_broadcastsEventsToBothDispatchers() {
         annotationsTouchEventDispatcher.drawingMode = highlighterMode
 
         // Dispatch DOWN event
@@ -102,94 +101,30 @@ class AnnotationsTouchEventDispatcherTest {
         assertThat(annotationsViewDispatcher.lastReceivedAction())
             .isEqualTo(MotionEvent.ACTION_DOWN)
 
+        // Dispatch MOVE event
+        val moveEvent = createMotionEvent(MotionEvent.ACTION_MOVE, 20f, 20f)
+        annotationsTouchEventDispatcher.dispatchTouchEvent(moveEvent)
+
+        // Verify both dispatchers received the MOVE event
+        assertThat(inkViewDispatcher.callCount()).isEqualTo(2)
+        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(2)
+        assertThat(inkViewDispatcher.lastReceivedAction()).isEqualTo(MotionEvent.ACTION_MOVE)
+        assertThat(annotationsViewDispatcher.lastReceivedAction())
+            .isEqualTo(MotionEvent.ACTION_MOVE)
+
         // Dispatch UP event
         val upEvent = createMotionEvent(MotionEvent.ACTION_UP, 20f, 20f)
         annotationsTouchEventDispatcher.dispatchTouchEvent(upEvent)
 
         // Verify both dispatchers received the UP event
-        assertThat(inkViewDispatcher.callCount()).isEqualTo(2)
-        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(2)
+        assertThat(inkViewDispatcher.callCount()).isEqualTo(3)
+        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(3)
         assertThat(inkViewDispatcher.lastReceivedAction()).isEqualTo(MotionEvent.ACTION_UP)
         assertThat(annotationsViewDispatcher.lastReceivedAction()).isEqualTo(MotionEvent.ACTION_UP)
     }
 
     @Test
-    fun dispatchTouchEvent_inHighlighterMode_sendsMoveToInkDispatcherOnlyInitially() {
-        annotationsTouchEventDispatcher.drawingMode = highlighterMode
-
-        // Dispatch MOVE event
-        val moveEvent = createMotionEvent(MotionEvent.ACTION_MOVE, 20f, 20f)
-        annotationsTouchEventDispatcher.dispatchTouchEvent(moveEvent)
-
-        // Verify only ink dispatcher received the MOVE event
-        assertThat(inkViewDispatcher.callCount()).isEqualTo(1)
-        assertThat(inkViewDispatcher.lastReceivedAction()).isEqualTo(MotionEvent.ACTION_MOVE)
-        assertThat(annotationsViewDispatcher.wasCalled()).isFalse()
-    }
-
-    fun dispatchTouchEvent_inHighlighterMode_switchesToAnnotationDispatcherMidGesture() {
-        annotationsTouchEventDispatcher.drawingMode = highlighterMode
-
-        // ACTION_DOWN is sent to both dispatchers.
-        val downEvent = createMotionEvent(MotionEvent.ACTION_DOWN, 10f, 10f)
-        annotationsTouchEventDispatcher.dispatchTouchEvent(downEvent)
-        assertThat(inkViewDispatcher.callCount()).isEqualTo(1)
-        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(1)
-
-        // The initial ACTION_MOVE is sent only to the ink dispatcher for the "wet" stroke.
-        val moveEvent1 = createMotionEvent(MotionEvent.ACTION_MOVE, 15f, 15f)
-        annotationsTouchEventDispatcher.dispatchTouchEvent(moveEvent1)
-        assertThat(inkViewDispatcher.callCount()).isEqualTo(2)
-        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(1)
-
-        // A "confirm" call happens mid-gesture, switching the active dispatcher to annotations.
-        annotationsTouchEventDispatcher.switchActiveDispatcher(
-            annotationsViewDispatcher,
-            PointF(15f, 15f),
-        )
-
-        // Verify inkView received a CANCEL event to stop the wet stroke.
-        assertThat(inkViewDispatcher.lastReceivedAction()).isEqualTo(MotionEvent.ACTION_CANCEL)
-        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(1)
-
-        // Subsequent MOVE events go only to the now-active annotation dispatcher.
-        val moveEvent2 = createMotionEvent(MotionEvent.ACTION_MOVE, 20f, 20f)
-        annotationsTouchEventDispatcher.dispatchTouchEvent(moveEvent2)
-        assertThat(inkViewDispatcher.callCount()).isEqualTo(3)
-        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(2)
-        assertThat(annotationsViewDispatcher.lastReceivedAction())
-            .isEqualTo(MotionEvent.ACTION_MOVE)
-    }
-
-    @Test
-    fun dispatchTouchEvent_inEraserMode_sendsEventsToAnnotationDispatcherOnly() {
-        annotationsTouchEventDispatcher.drawingMode = eraserMode
-
-        // Dispatch DOWN, MOVE, UP events
-        val downEvent = createMotionEvent(MotionEvent.ACTION_DOWN, 10f, 10f)
-        annotationsTouchEventDispatcher.dispatchTouchEvent(downEvent)
-
-        val moveEvent = createMotionEvent(MotionEvent.ACTION_MOVE, 20f, 20f)
-        annotationsTouchEventDispatcher.dispatchTouchEvent(moveEvent)
-
-        val upEvent = createMotionEvent(MotionEvent.ACTION_UP, 20f, 20f)
-        annotationsTouchEventDispatcher.dispatchTouchEvent(upEvent)
-
-        // Verify annotation dispatcher received all events
-        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(3)
-        assertThat(annotationsViewDispatcher.receivedEvents[0].actionMasked)
-            .isEqualTo(MotionEvent.ACTION_DOWN)
-        assertThat(annotationsViewDispatcher.receivedEvents[1].actionMasked)
-            .isEqualTo(MotionEvent.ACTION_MOVE)
-        assertThat(annotationsViewDispatcher.receivedEvents[2].actionMasked)
-            .isEqualTo(MotionEvent.ACTION_UP)
-
-        // Verify ink dispatcher received no events
-        assertThat(inkViewDispatcher.wasCalled()).isFalse()
-    }
-
-    @Test
-    fun switchToActiveDispatcher_sendsCancelAndForwardsEvents() {
+    fun claimForAnnotations_switchesDispatcherAndCancelsInk() {
         annotationsTouchEventDispatcher.drawingMode = highlighterMode
 
         // Start with a DOWN event - both should receive it
@@ -200,18 +135,15 @@ class AnnotationsTouchEventDispatcherTest {
         inkViewDispatcher.reset()
         annotationsViewDispatcher.reset()
 
-        // Switch the active dispatcher to the annotationsViewDispatcher
-        annotationsTouchEventDispatcher.switchActiveDispatcher(
-            annotationsViewDispatcher,
-            PointF(15f, 15f),
-        )
+        // Claim for annotations mid-gesture
+        annotationsTouchEventDispatcher.claimForAnnotations()
 
         // Verify that the inkViewDispatcher received a CANCEL event
         assertThat(inkViewDispatcher.callCount()).isEqualTo(1)
         assertThat(inkViewDispatcher.lastReceivedAction()).isEqualTo(MotionEvent.ACTION_CANCEL)
         assertThat(annotationsViewDispatcher.wasCalled()).isFalse()
 
-        // Now, dispatch a MOVE event. It should only go to the new active dispatcher.
+        // Now, dispatch a MOVE event. It should only go to the new active dispatcher (annotations).
         inkViewDispatcher.reset()
         val moveEvent = createMotionEvent(MotionEvent.ACTION_MOVE, 20f, 20f)
         annotationsTouchEventDispatcher.dispatchTouchEvent(moveEvent)
@@ -223,18 +155,69 @@ class AnnotationsTouchEventDispatcherTest {
     }
 
     @Test
-    fun switchToActiveDispatcher_doesNothingIfAlreadyActive() {
+    fun claimForInk_switchesDispatcherAndCancelsAnnotations() {
+        annotationsTouchEventDispatcher.drawingMode = highlighterMode
+
+        // Start with a DOWN event - both should receive it
+        val downEvent = createMotionEvent(MotionEvent.ACTION_DOWN, 10f, 10f)
+        annotationsTouchEventDispatcher.dispatchTouchEvent(downEvent)
+        assertThat(inkViewDispatcher.callCount()).isEqualTo(1)
+        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(1)
+        inkViewDispatcher.reset()
+        annotationsViewDispatcher.reset()
+
+        // Claim for ink mid-gesture
+        annotationsTouchEventDispatcher.claimForInk()
+
+        // Verify that the annotationsViewDispatcher received a CANCEL event
+        assertThat(inkViewDispatcher.wasCalled()).isFalse()
+        assertThat(annotationsViewDispatcher.callCount()).isEqualTo(1)
+        assertThat(annotationsViewDispatcher.lastReceivedAction())
+            .isEqualTo(MotionEvent.ACTION_CANCEL)
+
+        // Now, dispatch a MOVE event. It should only go to the new active dispatcher (ink).
+        annotationsViewDispatcher.reset()
+        val moveEvent = createMotionEvent(MotionEvent.ACTION_MOVE, 20f, 20f)
+        annotationsTouchEventDispatcher.dispatchTouchEvent(moveEvent)
+
+        assertThat(inkViewDispatcher.callCount()).isEqualTo(1)
+        assertThat(inkViewDispatcher.lastReceivedAction()).isEqualTo(MotionEvent.ACTION_MOVE)
+        assertThat(annotationsViewDispatcher.wasCalled()).isFalse()
+    }
+
+    @Test
+    fun claimForAnnotations_doesNothingIfAlreadyClaimed() {
+        annotationsTouchEventDispatcher.drawingMode =
+            eraserMode // annotationsViewDispatcher is active
+
+        // Dispatch down to set active dispatcher
+        val downEvent = createMotionEvent(MotionEvent.ACTION_DOWN, 10f, 10f)
+        annotationsTouchEventDispatcher.dispatchTouchEvent(downEvent)
+        inkViewDispatcher.reset()
+        annotationsViewDispatcher.reset()
+
+        // Attempt to claim for annotations
+        annotationsTouchEventDispatcher.claimForAnnotations()
+
+        // Verify nothing happened
+        assertThat(inkViewDispatcher.wasCalled()).isFalse()
+        assertThat(annotationsViewDispatcher.wasCalled()).isFalse()
+    }
+
+    @Test
+    fun claimForInk_doesNothingIfAlreadyClaimed() {
         annotationsTouchEventDispatcher.drawingMode = penMode // inkViewDispatcher is active
 
         // Dispatch down to set active dispatcher
         val downEvent = createMotionEvent(MotionEvent.ACTION_DOWN, 10f, 10f)
         annotationsTouchEventDispatcher.dispatchTouchEvent(downEvent)
-        inkViewDispatcher.reset() // Clear the down event for clean verification
+        inkViewDispatcher.reset()
+        annotationsViewDispatcher.reset()
 
-        // Attempt to switch to the already active dispatcher
-        annotationsTouchEventDispatcher.switchActiveDispatcher(inkViewDispatcher, PointF(15f, 15f))
+        // Attempt to claim for ink
+        annotationsTouchEventDispatcher.claimForInk()
 
-        // No events should have been dispatched
+        // Verify nothing happened
         assertThat(inkViewDispatcher.wasCalled()).isFalse()
         assertThat(annotationsViewDispatcher.wasCalled()).isFalse()
     }

@@ -28,14 +28,14 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.pdf.PdfDocument
+import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Highlight
+import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Select
 import androidx.pdf.annotation.drawer.DefaultPdfObjectDrawerFactoryImpl
 import androidx.pdf.annotation.drawer.PdfAnnotationDrawerFactory
 import androidx.pdf.annotation.drawer.PdfAnnotationDrawerFactoryImpl
 import androidx.pdf.annotation.drawer.PdfDocumentAnnotationsDrawerImpl
 import androidx.pdf.annotation.drawer.PdfObjectDrawerFactory
 import androidx.pdf.annotation.highlights.InProgressHighlightsView
-import androidx.pdf.annotation.highlights.InProgressTextHighlightsListener
 import androidx.pdf.annotation.models.PdfAnnotation
 
 /**
@@ -46,7 +46,7 @@ import androidx.pdf.annotation.models.PdfAnnotation
  * This inherits [ViewGroup] but does not support adding arbitrary children via [addView] or in a
  * layout.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnnotationsView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -58,6 +58,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     private val inProgressHighlightsView: InProgressHighlightsView
 
     private var annotationsLocator: AnnotationsLocator? = null
+
+    private var textBoundsProvider: TextBoundsProvider? = null
 
     init {
         setWillNotDraw(false)
@@ -137,8 +139,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         set(value) {
             checkMainThread()
             field = value
-            if (value is AnnotationMode.Highlight) {
-                setHighlighter(value.highlighterConfig)
+            if (value is Highlight) {
+                setHighlighter(value)
             } else {
                 setHighlighter(null)
             }
@@ -155,9 +157,35 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             }
         }
 
-    /** Adds a listener for highlight gesture events. */
-    public fun addInProgressTextHighlightsListener(listener: InProgressTextHighlightsListener) {
-        inProgressHighlightsView.addInProgressTextHighlightsListener(listener)
+    /**
+     * Sets the [TextBoundsProvider] used to retrieve text boundary information during highlighting.
+     *
+     * @param textBoundsProvider The provider implementation to be used for text boundary lookups.
+     */
+    public fun setTextBoundsProvider(textBoundsProvider: TextBoundsProvider) {
+        this.textBoundsProvider = textBoundsProvider
+        inProgressHighlightsView.textBoundsProvider = textBoundsProvider
+    }
+
+    /**
+     * Sets a listener to be notified when this view claims or abandons the current gesture stream.
+     *
+     * @param listener The listener to receive gesture coordination signals, or null to clear.
+     */
+    public fun setOnGestureClaimListener(listener: OnGestureClaimListener?) {
+        inProgressHighlightsView.setOnGestureClaimListener(listener)
+    }
+
+    /**
+     * Adds a listener for events related to the finalized creation or failure of annotations.
+     *
+     * Registered listeners will be notified when an in-progress interaction successfully produces a
+     * new [PdfAnnotation], or if an error occurs during the process.
+     *
+     * @param listener The listener to be added to the registry.
+     */
+    public fun addOnAnnotationEditListener(listener: OnAnnotationEditListener) {
+        inProgressHighlightsView.addOnAnnotationEditListener(listener)
     }
 
     /** Adds a listener for annotation hit events. */
@@ -167,9 +195,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
     }
 
-    /** Removes a listener that was previously added via [addInProgressTextHighlightsListener]. */
-    public fun removeInProgressTextHighlightsListener(listener: InProgressTextHighlightsListener) {
-        inProgressHighlightsView.removeInProgressTextHighlightsListener(listener)
+    /** Removes a listener that was previously added via [addOnAnnotationEditListener]. */
+    public fun removeOnAnnotationEditListener(listener: OnAnnotationEditListener) {
+        inProgressHighlightsView.removeOnAnnotationEditListener(listener)
     }
 
     /** Removes a listener that was previously added via [addOnAnnotationLocatedListener]. */
@@ -185,16 +213,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     /**
      * Configures the highlighter.
      *
-     * @param config The configuration for the highlighter. Pass null to disable.
+     * @param highlightMode The configuration for the highlighter. Pass null to disable.
      */
-    private fun setHighlighter(config: HighlighterConfig?) {
+    private fun setHighlighter(highlightMode: Highlight?) {
         inProgressHighlightsView.apply {
-            if (config != null) {
-                pdfDocument = config.pdfDocument
-                highlightColor = config.color
+            if (highlightMode != null) {
+                highlightColor = highlightMode.color
                 visibility = VISIBLE
             } else {
-                pdfDocument = null
                 visibility = GONE
             }
         }
@@ -207,7 +233,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (interactionMode) {
-            is AnnotationMode.Select -> {
+            is Select -> {
                 val localAnnotationsLocator = annotationsLocator
                 if (localAnnotationsLocator != null) {
                     val foundAnnotations =
@@ -223,7 +249,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                 }
                 false
             }
-            is AnnotationMode.Highlight -> {
+            is Highlight -> {
                 if (inProgressHighlightsView.visibility == VISIBLE) {
                     return inProgressHighlightsView.onTouchEvent(event)
                 }
@@ -244,24 +270,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         val transform: Matrix,
     )
 
-    /**
-     * Configuration for the highlighter.
-     *
-     * @param color The color of the highlighter.
-     * @param pdfDocument The [PdfDocument], required for text selection.
-     */
-    public class HighlighterConfig(
-        @ColorInt public val color: Int,
-        public val pdfDocument: PdfDocument,
-    )
-
     /** Defines the current interaction mode of the [AnnotationsView]. */
     public abstract class AnnotationMode {
         /** Mode for selecting existing annotations (e.g. erase, drag, scale). */
         public class Select : AnnotationMode()
 
         /** Mode for creating new highlight annotations. */
-        public class Highlight(public val highlighterConfig: HighlighterConfig) : AnnotationMode()
+        public class Highlight(@get:ColorInt @param:ColorInt public val color: Int) :
+            AnnotationMode()
     }
 
     public companion object {

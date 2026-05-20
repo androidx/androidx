@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,52 +16,40 @@
 
 package androidx.pdf.annotation
 
-import android.graphics.PointF
-import androidx.pdf.annotation.highlights.InProgressTextHighlightsListener
-import androidx.pdf.annotation.highlights.models.InProgressHighlightId
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.exceptions.RequestFailedException
 import androidx.test.espresso.idling.CountingIdlingResource
 
-internal class FakeInProgressTextHighlightsListener(
-    private val highlightIdlingResource: CountingIdlingResource
-) : InProgressTextHighlightsListener {
+internal class FakeHighlightListeners(private val highlightIdlingResource: CountingIdlingResource) :
+    OnGestureClaimListener, OnAnnotationEditListener {
     var isStarted: Boolean = false
         private set
 
     var isFailed: Boolean = false
         private set
 
-    var startedId: InProgressHighlightId? = null
-        private set
+    val finishedAnnotations = mutableListOf<PdfAnnotation>()
 
-    val finishedAnnotations = mutableMapOf<InProgressHighlightId, PdfAnnotation>()
+    var errorThrown: Throwable? = null
 
-    var exceptionThrown: RequestFailedException? = null
-
-    override fun onTextHighlightStarted(
-        viewPoint: PointF,
-        inProgressHighlightId: InProgressHighlightId,
-    ) {
-        startedId = inProgressHighlightId
+    override fun onGestureClaimed() {
         isStarted = true
         if (!highlightIdlingResource.isIdleNow) highlightIdlingResource.decrement()
     }
 
-    override fun onTextHighlightRejected(viewPoint: PointF) {
+    override fun onGestureAbandoned() {
         isFailed = true
         if (!highlightIdlingResource.isIdleNow) highlightIdlingResource.decrement()
     }
 
-    override fun onTextHighlightFinished(annotations: Map<InProgressHighlightId, PdfAnnotation>) {
-        finishedAnnotations.putAll(annotations)
+    override fun onAnnotationCreated(annotation: PdfAnnotation) {
+        finishedAnnotations.add(annotation)
         if (!highlightIdlingResource.isIdleNow) {
             highlightIdlingResource.decrement()
         }
     }
 
-    override fun onTextHighlightError(exception: RequestFailedException) {
-        exceptionThrown = exception
+    override fun onAnnotationError(throwable: Throwable) {
+        errorThrown = throwable
         if (!highlightIdlingResource.isIdleNow) {
             highlightIdlingResource.decrement()
         }

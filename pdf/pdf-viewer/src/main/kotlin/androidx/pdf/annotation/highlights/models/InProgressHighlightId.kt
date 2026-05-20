@@ -16,19 +16,11 @@
 
 package androidx.pdf.annotation.highlights.models
 
-import androidx.annotation.RestrictTo
-
 /**
- * Identifier for a highlight gesture that is currently in progress.
- *
- * Returned by
- * [androidx.pdf.annotation.highlights.InProgressTextHighlightsListener.onTextHighlightStarted] upon
- * the successful start of a text highlight gesture. This identifier is unique within the app
- * process lifetime and serves as a stable key for tracking the highlight state.
+ * Identifier for a highlight gesture that is currently in progress. This identifier is unique
+ * within the app process lifetime and serves as a stable key for tracking the highlight state.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class InProgressHighlightId private constructor() {
-
+internal class InProgressHighlightId private constructor() {
     internal companion object {
         internal fun create(): InProgressHighlightId = InProgressHighlightId()
     }

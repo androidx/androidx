@@ -98,7 +98,7 @@ public open class PdfDocumentViewModel(
      * Exposes the UI state as a StateFlow to enable reactive consumption and ensure that consumers
      * always receive the latest state.
      */
-    internal val fragmentUiScreenState: StateFlow<PdfFragmentUiState>
+    public val fragmentUiScreenState: StateFlow<PdfFragmentUiState>
         get() = _fragmentUiScreenState.asStateFlow()
 
     private val _searchViewUiState = MutableStateFlow<SearchViewUiState>(SearchViewUiState.Closed)
