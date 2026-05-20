@@ -216,7 +216,7 @@ private fun RcScope.StockGraph() {
         val minValue = (arrayMin(stockValues) - 100f).flush()
         val xEnd = (w - margin).flush()
 
-        loop(margin, 1f, xEnd) { x ->
+        loop(margin, 1f.rf, xEnd) { x ->
             val pos = ((x - margin) / (w - margin * 2f)).flush()
             val v = ((arraySpline(stockValues, pos) - minValue) / (maxValue - minValue)).flush()
             val y = (lineBottom - v * (lineBottom - margin)).flush()

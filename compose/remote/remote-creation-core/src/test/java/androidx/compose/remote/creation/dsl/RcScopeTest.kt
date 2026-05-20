@@ -216,7 +216,7 @@ class RcScopeTest {
         val writer = RemoteComposeWriter(testProfile)
         val scope = RcScopeImpl(writer)
 
-        scope.apply { Canvas { loop(0.rf, 10f, 100.rf) { i -> drawCircle(i, 50.rf, 5.rf) } } }
+        scope.apply { Canvas { loop(0.rf, 10.rf, 100.rf) { i -> drawCircle(i, 50.rf, 5.rf) } } }
     }
 
     @Test
