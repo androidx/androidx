@@ -181,8 +181,6 @@ internal class Camera2CaptureSequence(
         invokeOnRequest(request) { it.onTotalCaptureResult(request, frameNumber, frameInfo) }
         Debug.traceStop() // onTotalCaptureResult
 
-        // TODO: Implement a proper mechanism to delay the firing of onComplete(). See
-        // androidx.camera.camera2.pipe.Request.Listener for context.
         Debug.traceStart { "onComplete" }
         invokeOnRequest(request) { it.onComplete(request, frameNumber, frameInfo) }
         Debug.traceStop() // onComplete

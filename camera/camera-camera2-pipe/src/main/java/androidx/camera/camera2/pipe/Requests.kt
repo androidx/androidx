@@ -145,11 +145,8 @@ public class Request(
         ) {}
 
         /**
-         * This is an artificial event that will be invoked after onTotalCaptureResult. This may be
-         * invoked several frames after onTotalCaptureResult due to incorrect HAL implementations
-         * that return metadata that get shifted several frames in the future. See b/154568653 for
-         * real examples of this. The actual amount of shifting and required transformations may
-         * vary per device.
+         * This is an artificial event that will be invoked after [onTotalCaptureResult]. Note that
+         * this may be fired before images have been produced for the frame.
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the android frame number for this exposure
