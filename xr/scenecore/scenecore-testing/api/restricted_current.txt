@@ -65,6 +65,20 @@ package androidx.xr.scenecore.testing {
     property public java.util.List<androidx.xr.runtime.math.Matrix4> boneTransforms;
   }
 
+  public final class MovableComponentTester {
+    method @InaccessibleFromKotlin public boolean isAnchorable();
+    method @InaccessibleFromKotlin public boolean isScaleInZ();
+    method @InaccessibleFromKotlin public boolean isSystemMovable();
+    method public void triggerOnMoveEnd(androidx.xr.runtime.math.Ray finalInputRay, androidx.xr.runtime.math.Pose finalPose, androidx.xr.runtime.math.Vector3 finalScale);
+    method public void triggerOnMoveEnd(androidx.xr.runtime.math.Ray finalInputRay, androidx.xr.runtime.math.Pose finalPose, androidx.xr.runtime.math.Vector3 finalScale, optional androidx.xr.scenecore.Entity? updatedParent);
+    method @BytecodeOnly public static void triggerOnMoveEnd$default(androidx.xr.scenecore.testing.MovableComponentTester!, androidx.xr.runtime.math.Ray!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.Vector3!, androidx.xr.scenecore.Entity!, int, Object!);
+    method public void triggerOnMoveStart(androidx.xr.runtime.math.Ray initialInputRay, androidx.xr.runtime.math.Pose initialPose, androidx.xr.runtime.math.Vector3 initialScale, androidx.xr.scenecore.Entity initialParent);
+    method public void triggerOnMoveUpdate(androidx.xr.runtime.math.Ray currentInputRay, androidx.xr.runtime.math.Pose currentPose, androidx.xr.runtime.math.Vector3 currentScale);
+    property public boolean isAnchorable;
+    property public boolean isScaleInZ;
+    property public boolean isSystemMovable;
+  }
+
   public final class PerceptionSpaceTester {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.HitTestResult? getHitTestResult();
     method @InaccessibleFromKotlin public void setHitTestResult(androidx.xr.scenecore.HitTestResult?);

@@ -17,6 +17,7 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
 
@@ -31,7 +32,8 @@ import androidx.xr.runtime.math.Ray
  * @param previousScale Scale before this event.
  * @param currentScale Scale when this event is applied.
  */
-internal class MoveEvent(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class MoveEvent(
     @MoveState public val moveState: Int,
     public val initialInputRay: Ray,
     public val currentInputRay: Ray,
