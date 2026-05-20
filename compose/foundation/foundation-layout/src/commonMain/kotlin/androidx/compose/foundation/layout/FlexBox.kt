@@ -329,11 +329,7 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
                 containerMainAxisSize = if (isHorizontal) layoutWidth else layoutHeight,
                 line = line,
                 mainAxisGap = mainAxisGap,
-                isMainAxisReverse =
-                    isMainAxisReversedForLayout(
-                        flexBoxConfig = flexBoxConfig,
-                        layoutDirection = layoutDirection,
-                    ),
+                isMainAxisReverse = isMainAxisReversedForLayout(flexBoxConfig = flexBoxConfig),
             )
 
             items.fastForEachUntil(line.startIndex, line.endIndex) { item ->
@@ -829,6 +825,8 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
                 FlexJustifyContent.Center -> (remainingSpace) / 2
                 FlexJustifyContent.SpaceAround -> (spaceBetweenItems) / 2
                 FlexJustifyContent.SpaceEvenly -> spaceBetweenItems
+                FlexJustifyContent.SpaceBetween ->
+                    if (itemCount == 1 && isMainAxisReverse) remainingSpace else 0
                 else -> if (isMainAxisReverse) remainingSpace else 0
             }
 
@@ -898,19 +896,9 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         }
     }
 
-    private fun isMainAxisReversedForLayout(
-        flexBoxConfig: ResolvedFlexBoxConfig,
-        layoutDirection: LayoutDirection,
-    ): Boolean {
-        val isMainAxisReverse =
-            flexBoxConfig.direction == FlexDirection.RowReverse ||
-                flexBoxConfig.direction == FlexDirection.ColumnReverse
-
-        return when {
-            !flexBoxConfig.isHorizontal -> isMainAxisReverse
-            layoutDirection == LayoutDirection.Rtl -> !isMainAxisReverse // RTL flips row behavior
-            else -> isMainAxisReverse
-        }
+    private fun isMainAxisReversedForLayout(flexBoxConfig: ResolvedFlexBoxConfig): Boolean {
+        return flexBoxConfig.direction == FlexDirection.RowReverse ||
+            flexBoxConfig.direction == FlexDirection.ColumnReverse
     }
 
     // calculate cross axis size for line
