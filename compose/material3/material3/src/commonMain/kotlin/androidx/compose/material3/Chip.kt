@@ -681,7 +681,8 @@ fun FilterChip(
  * [shapes] isn't a [CornerBasedShape], then the chip will change between the [ChipShapes] according
  * to user interaction.
  *
- * // TODO: Add image
+ * ![Filter chip
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/filter-chip-with-corner-morphing.png)
  *
  * This filter chip is applied with a flat style. If you want an elevated style, use the
  * [ElevatedFilterChip].
@@ -954,7 +955,8 @@ fun ElevatedFilterChip(
  * [shapes] isn't a [CornerBasedShape], then the chip will change between the [ChipShapes] according
  * to user interaction.
  *
- * // TODO: Add image
+ * ![Filter chip
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/elevated-filter-chip-with-corner-morphing.png)
  *
  * This filter chip is applied with an elevated style. If you want a flat style, use the
  * [FilterChip].
@@ -1249,7 +1251,8 @@ fun InputChip(
  * are [CornerBasedShape]s. If a shape in [shapes] isn't a [CornerBasedShape], then the chip will
  * change between the [ChipShapes] according to user interaction.
  *
- * // TODO: Add image
+ * ![Input chip
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/input-chip-with-corner-morphing.png)
  *
  * An Input Chip can have a leading icon or an avatar at its start. In case both are provided, the
  * avatar will take precedence and will be displayed.
