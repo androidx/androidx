@@ -151,10 +151,10 @@ internal class VirtualCameraState(
         check(_stateFlow.tryEmit(_lastState))
     }
 
-    internal suspend fun connect(state: Flow<CameraState>, wakelockToken: Token?) {
+    internal suspend fun connect(state: Flow<CameraState>, wakelockToken: Token) {
         synchronized(lock) {
             if (closed) {
-                wakelockToken?.release()
+                wakelockToken.release()
                 return
             }
 
