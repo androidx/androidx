@@ -16,7 +16,6 @@
 
 package androidx.pdf.ink
 
-import android.graphics.PointF
 import android.os.SystemClock
 import android.view.MotionEvent
 import androidx.pdf.ink.state.AnnotationDrawingMode
@@ -30,11 +29,15 @@ internal class AnnotationsTouchEventDispatcher(
 
     private var activeDispatcher: TouchEventDispatcher? = null
     private var lastDownTime: Long = 0
+    private var lastX: Float = 0f
+    private var lastY: Float = 0f
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
             lastDownTime = event.downTime
         }
+        lastX = event.x
+        lastY = event.y
 
         // If a dispatcher is already active, forward the event only to it.
         val dispatcher = activeDispatcher
@@ -47,16 +50,12 @@ internal class AnnotationsTouchEventDispatcher(
                     inkViewDispatcher.dispatchTouchEvent(event)
                 }
                 is AnnotationDrawingMode.HighlighterMode -> {
-                    // In Highlighter mode, ACTION_MOVE is sent only to the ink view until text
-                    // highlighting is confirmed. Other events are broadcast to both.
-                    if (event.actionMasked == MotionEvent.ACTION_MOVE) {
-                        inkViewDispatcher.dispatchTouchEvent(event)
-                    } else {
-                        inkViewDispatcher.dispatchTouchEvent(event)
-                        annotationsViewDispatcher.dispatchTouchEvent(event)
-                    }
+                    // In Highlighter mode, we broadcast to both until one claims the gesture.
+                    inkViewDispatcher.dispatchTouchEvent(event)
+                    annotationsViewDispatcher.dispatchTouchEvent(event)
                 }
                 is AnnotationDrawingMode.EraserMode -> {
+                    activeDispatcher = annotationsViewDispatcher
                     annotationsViewDispatcher.dispatchTouchEvent(event)
                 }
                 else -> {
@@ -71,6 +70,7 @@ internal class AnnotationsTouchEventDispatcher(
                 event.actionMasked == MotionEvent.ACTION_CANCEL
         ) {
             activeDispatcher = null
+            lastDownTime = 0
         }
 
         // Always consume the event to ensure this router maintains control of the gesture.
@@ -78,31 +78,52 @@ internal class AnnotationsTouchEventDispatcher(
     }
 
     /**
-     * Sets the active dispatcher and sends a `CANCEL` event to the other dispatcher to ensure it
-     * stops processing the current gesture.
+     * Claims the current gesture for annotations, cancelling any ongoing "shadow" interaction in
+     * the ink view.
      */
-    fun switchActiveDispatcher(newActiveDispatcher: TouchEventDispatcher, viewPoint: PointF) {
-        if (activeDispatcher == newActiveDispatcher) return
+    fun claimForAnnotations() {
+        if (activeDispatcher === annotationsViewDispatcher) return
 
-        val dispatcherToCancel =
-            if (newActiveDispatcher === annotationsViewDispatcher) inkViewDispatcher
-            else annotationsViewDispatcher
+        activeDispatcher = annotationsViewDispatcher
 
-        // Create and dispatch a CANCEL event to the non-active dispatcher.
+        // Create and dispatch a CANCEL event to the ink view dispatcher.
         val eventTime = SystemClock.uptimeMillis()
         val cancelEvent =
             MotionEvent.obtain(
                 lastDownTime,
                 eventTime,
                 MotionEvent.ACTION_CANCEL,
-                viewPoint.x,
-                viewPoint.y,
+                lastX,
+                lastY,
                 /** metaState= */
                 0,
             )
-        dispatcherToCancel.dispatchTouchEvent(cancelEvent)
+        inkViewDispatcher.dispatchTouchEvent(cancelEvent)
         cancelEvent.recycle()
+    }
 
-        activeDispatcher = newActiveDispatcher
+    /**
+     * Claims the current gesture for ink, silencing any further interaction in the annotations
+     * view.
+     */
+    fun claimForInk() {
+        if (activeDispatcher === inkViewDispatcher) return
+
+        activeDispatcher = inkViewDispatcher
+
+        // Create and dispatch a CANCEL event to the annotations view dispatcher.
+        val eventTime = SystemClock.uptimeMillis()
+        val cancelEvent =
+            MotionEvent.obtain(
+                lastDownTime,
+                eventTime,
+                MotionEvent.ACTION_CANCEL,
+                lastX,
+                lastY,
+                /** metaState= */
+                0,
+            )
+        annotationsViewDispatcher.dispatchTouchEvent(cancelEvent)
+        cancelEvent.recycle()
     }
 }

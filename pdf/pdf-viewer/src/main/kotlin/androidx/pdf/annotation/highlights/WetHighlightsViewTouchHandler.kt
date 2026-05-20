@@ -67,7 +67,6 @@ internal class WetHighlightsViewTouchHandler(private val pageInfoProvider: PageI
             id = newAnnotationId,
             pageNum = pageInfo.pageNum,
             startPdfPoint = startPdfPoint,
-            startViewPoint = viewPoint,
             pageToViewTransform = pageInfo.pageToViewTransform,
         )
         return true
@@ -107,7 +106,7 @@ internal class WetHighlightsViewTouchHandler(private val pageInfoProvider: PageI
                     if (pageInfo != null) {
                         viewPoint.applyTransform(pageInfo.viewToPageTransform)
                     } else {
-                        // When the gesture ends outside of the page bounds, use the last valid
+                        // When the gesture ends outside the page bounds, use the last valid
                         // point to end the gesture.
                         lastValidPdfPoint ?: return true
                     }

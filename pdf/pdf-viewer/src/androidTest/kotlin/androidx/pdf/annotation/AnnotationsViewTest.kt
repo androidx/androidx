@@ -28,6 +28,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
+import androidx.pdf.annotation.InProgressHighlightViewTest.FakeTextBoundsProvider
 import androidx.pdf.annotation.highlights.InProgressHighlightsView
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
@@ -55,7 +56,7 @@ class AnnotationsViewTest {
 
     private lateinit var annotationsView: AnnotationsView
     private lateinit var fakePdfDocument: FakePdfDocument
-    private lateinit var testHighlightListener: FakeInProgressTextHighlightsListener
+    private lateinit var testHighlightListener: FakeHighlightListeners
     private lateinit var testOnAnnotationSelectedListener: FakeOnAnnotationLocatedListener
 
     private val highlightIdlingResource = CountingIdlingResource(HIGHLIGHT_RESOURCE_NAME)
@@ -69,7 +70,7 @@ class AnnotationsViewTest {
         fakePdfDocument =
             FakePdfDocument(pages = listOf(Point(100, 100)), textContents = listOf(pageText))
 
-        testHighlightListener = FakeInProgressTextHighlightsListener(highlightIdlingResource)
+        testHighlightListener = FakeHighlightListeners(highlightIdlingResource)
         testOnAnnotationSelectedListener = FakeOnAnnotationLocatedListener()
 
         setupActivity()
@@ -82,20 +83,15 @@ class AnnotationsViewTest {
     }
 
     @Test
-    fun highlighterConfig_controlsInternalViewVisibility() {
+    fun highlightMode_controlsInternalViewVisibility() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
             scenario.onActivity {
                 // 1. Initially GONE
                 val internalView = getHighlightView(annotationsView)
                 assertThat(internalView.visibility).isEqualTo(View.GONE)
 
-                // 2. Set Config -> VISIBLE
-                val config =
-                    AnnotationsView.HighlighterConfig(
-                        color = Color.YELLOW,
-                        pdfDocument = fakePdfDocument,
-                    )
-                annotationsView.interactionMode = AnnotationMode.Highlight(config)
+                // 2. Set Highlight Mode -> VISIBLE
+                annotationsView.interactionMode = AnnotationMode.Highlight(Color.YELLOW)
                 assertThat(internalView.visibility).isEqualTo(View.VISIBLE)
 
                 // 3. Set Null -> GONE
@@ -111,13 +107,9 @@ class AnnotationsViewTest {
             highlightIdlingResource.increment()
 
             scenario.onActivity {
-                val config =
-                    AnnotationsView.HighlighterConfig(
-                        color = Color.YELLOW,
-                        pdfDocument = fakePdfDocument,
-                    )
-                annotationsView.interactionMode = AnnotationMode.Highlight(config)
-                annotationsView.addInProgressTextHighlightsListener(testHighlightListener)
+                annotationsView.interactionMode = AnnotationMode.Highlight(Color.YELLOW)
+                annotationsView.setOnGestureClaimListener(testHighlightListener)
+                annotationsView.addOnAnnotationEditListener(testHighlightListener)
 
                 // Touch down on valid text
                 val event = obtainMotionEvent(10f, 10f, MotionEvent.ACTION_DOWN)
@@ -138,7 +130,8 @@ class AnnotationsViewTest {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
             scenario.onActivity {
                 annotationsView.interactionMode = null
-                annotationsView.addInProgressTextHighlightsListener(testHighlightListener)
+                annotationsView.setOnGestureClaimListener(testHighlightListener)
+                annotationsView.addOnAnnotationEditListener(testHighlightListener)
 
                 val event = obtainMotionEvent(10f, 10f, MotionEvent.ACTION_DOWN)
                 val consumed = annotationsView.onTouchEvent(event)
@@ -155,28 +148,41 @@ class AnnotationsViewTest {
 
     @Test
     fun addInProgressTextHighlightsListener_multipleListeners_allReceiveEvents() {
-        val listenerA = FakeInProgressTextHighlightsListener(highlightIdlingResource)
-        val listenerB = FakeInProgressTextHighlightsListener(highlightIdlingResource)
+        val listenerA = FakeHighlightListeners(highlightIdlingResource)
+        val listenerB = FakeHighlightListeners(highlightIdlingResource)
 
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            repeat(2) { highlightIdlingResource.increment() }
+            highlightIdlingResource.increment()
 
             scenario.onActivity {
-                val config = AnnotationsView.HighlighterConfig(Color.YELLOW, fakePdfDocument)
-                annotationsView.interactionMode = AnnotationMode.Highlight(config)
+                annotationsView.interactionMode = AnnotationMode.Highlight(Color.YELLOW)
 
-                annotationsView.addInProgressTextHighlightsListener(listenerA)
-                annotationsView.addInProgressTextHighlightsListener(listenerB)
+                annotationsView.setOnGestureClaimListener(listenerA)
+                annotationsView.addOnAnnotationEditListener(listenerA)
+                annotationsView.addOnAnnotationEditListener(listenerB)
 
-                val event = obtainMotionEvent(10f, 10f, MotionEvent.ACTION_DOWN)
-                annotationsView.onTouchEvent(event)
-                event.recycle()
+                val downEvent = obtainMotionEvent(10f, 10f, MotionEvent.ACTION_DOWN)
+                annotationsView.onTouchEvent(downEvent)
+                downEvent.recycle()
             }
 
             Espresso.onIdle()
 
             assertThat(listenerA.isStarted).isTrue()
-            assertThat(listenerB.isStarted).isTrue()
+
+            repeat(2) { highlightIdlingResource.increment() }
+
+            scenario.onActivity {
+                val upEvent = obtainMotionEvent(20f, 20f, MotionEvent.ACTION_UP)
+                annotationsView.onTouchEvent(upEvent)
+                upEvent.recycle()
+            }
+
+            Espresso.onIdle()
+
+            // Assert both listeners received finished annotation
+            assertThat(listenerA.finishedAnnotations).isNotEmpty()
+            assertThat(listenerB.finishedAnnotations).isNotEmpty()
         }
     }
 
@@ -226,6 +232,7 @@ class AnnotationsViewTest {
                             ViewGroup.LayoutParams.MATCH_PARENT,
                         )
                     pageInfoProvider = FakePageInfoProvider()
+                    setTextBoundsProvider(FakeTextBoundsProvider(fakePdfDocument))
                     annotations = setFakeAnnotations()
                 }
             activity.container.addView(annotationsView)

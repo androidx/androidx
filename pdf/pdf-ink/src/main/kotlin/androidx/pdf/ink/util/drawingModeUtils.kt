@@ -18,7 +18,6 @@ package androidx.pdf.ink.util
 
 import androidx.ink.brush.Brush
 import androidx.ink.brush.StockBrushes
-import androidx.pdf.annotation.AnnotationsView
 import androidx.pdf.ink.state.AnnotationDrawingMode
 
 /** Converts this [AnnotationDrawingMode.PenMode] to a pen [Brush]. */
@@ -39,12 +38,4 @@ internal fun AnnotationDrawingMode.HighlighterMode.toInkBrush(): Brush {
         size = this.size,
         epsilon = InkDefaults.EPSILON_VALUE,
     )
-}
-
-/**
- * Converts this [AnnotationDrawingMode.HighlighterMode] to an [AnnotationsView.HighlighterConfig].
- */
-internal fun AnnotationDrawingMode.HighlighterMode.toHighlighterConfig():
-    AnnotationsView.HighlighterConfig {
-    return AnnotationsView.HighlighterConfig(color = this.color, pdfDocument = this.document)
 }

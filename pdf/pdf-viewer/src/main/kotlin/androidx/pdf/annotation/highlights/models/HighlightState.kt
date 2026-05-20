@@ -28,6 +28,8 @@ import android.graphics.RectF
  * @property pageToViewTransform Matrix to convert page content coordinates to view coordinates.
  * @property startPdfPoint The starting point of the drag in page content coordinates.
  * @property selectionRects The calculated bounds of the selected text in view coordinates.
+ * @property isClaimed Whether the highlight gesture has been claimed by finding text at the start
+ *   point.
  */
 internal data class HighlightState(
     val pageNum: Int,
@@ -35,4 +37,5 @@ internal data class HighlightState(
     val pageToViewTransform: Matrix,
     val startPdfPoint: PointF,
     val selectionRects: List<RectF> = emptyList(),
+    val isClaimed: Boolean = false,
 )

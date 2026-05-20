@@ -28,7 +28,7 @@ import androidx.pdf.annotation.models.PdfAnnotation
  * @param key The unique string identifier for the annotation.
  * @param annotation The [PdfAnnotation] object.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")
 public class KeyedPdfAnnotation(public val key: String, public val annotation: PdfAnnotation) :
     Parcelable {

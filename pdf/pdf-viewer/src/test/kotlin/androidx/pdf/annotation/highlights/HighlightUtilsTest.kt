@@ -18,18 +18,13 @@ package androidx.pdf.annotation.highlights
 
 import android.graphics.Color
 import android.graphics.Matrix
-import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.RectF
-import androidx.pdf.FakePdfDocument
 import androidx.pdf.annotation.highlights.utils.applyTransform
-import androidx.pdf.annotation.highlights.utils.calculateHighlightRects
 import androidx.pdf.annotation.highlights.utils.computeBoundingBox
 import androidx.pdf.annotation.highlights.utils.toPathPdfObjects
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.pdf.content.PdfPageTextContent
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -146,32 +141,5 @@ class HighlightUtilsTest {
                 )
             assertThat(pathObject.inputs).isEqualTo(expectedInputs)
         }
-    }
-
-    @Test
-    fun calculateHighlightRects_withText_returnsCorrectRects() = runTest {
-        val pageText =
-            PdfPageTextContent(bounds = listOf(RectF(10f, 10f, 100f, 100f)), text = "Sample Text")
-        val fakePdfDocument =
-            FakePdfDocument(pages = listOf(Point(500, 500)), textContents = listOf(pageText))
-        val startPoint = PointF(20f, 20f)
-        val endPoint = PointF(80f, 80f)
-
-        val rects = fakePdfDocument.calculateHighlightRects(0, startPoint, endPoint)
-
-        assertThat(rects).hasSize(1)
-        assertThat(rects[0]).isEqualTo(RectF(20f, 20f, 80f, 80f))
-    }
-
-    @Test
-    fun calculateHighlightRects_noText_returnsEmptyList() = runTest {
-        val fakePdfDocument =
-            FakePdfDocument(pages = listOf(Point(500, 500)), textContents = emptyList())
-        val startPoint = PointF(20f, 20f)
-        val endPoint = PointF(80f, 80f)
-
-        val rects = fakePdfDocument.calculateHighlightRects(0, startPoint, endPoint)
-
-        assertThat(rects).isEmpty()
     }
 }
