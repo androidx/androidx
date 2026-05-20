@@ -60,13 +60,17 @@ import kotlinx.coroutines.sync.withLock
  *
  * This class owns a significant amount of native heap memory. The [Session]'s lifecycle will be
  * scoped to the [Activity] that owns it.
+ *
+ * @property context the [Context] the `Session` belongs to
+ * @property coroutineScope the [CoroutineScope] for coroutines within the `Session`
+ * @property lifecycleOwner the owner of the Android [Lifecycle] the `Session` belongs to
  */
 @Suppress("NotCloseable")
 public class Session
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @JvmOverloads
 public constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val context: Context,
+    public val context: Context,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val stateExtenders: List<StateExtender> =
         loadProviders(StateExtender::class.java, STATE_EXTENDER_PROVIDERS),
@@ -75,9 +79,8 @@ public constructor(
         loadProviders(SessionConnector::class.java, SESSION_CONNECTOR_PROVIDERS),
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val runtimes: List<JxrRuntime> = emptyList(),
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val coroutineScope: CoroutineScope = CoroutineScope(context = EmptyCoroutineContext),
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val lifecycleOwner: LifecycleOwner,
+    public val lifecycleOwner: LifecycleOwner,
 ) {
 
     @Deprecated(
