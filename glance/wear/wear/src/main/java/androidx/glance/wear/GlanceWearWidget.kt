@@ -24,11 +24,14 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.cache.WearWidgetCache.WidgetCacheMissException
 import androidx.glance.wear.core.ActiveWearWidgetHandle
+import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetEvent
 import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.glance.wear.core.WearWidgetUpdateRequest
 import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.WidgetUpdateClient
@@ -68,6 +71,28 @@ internal constructor(
         context: Context,
         params: WearWidgetParams,
     ): WearWidgetData
+
+    /**
+     * Internal method to provide widget data as raw content, based on [provideWidgetData] and
+     * [WearWidgetData.captureRawContent].
+     *
+     * @param context the context from which this method is called.
+     * @param params the parameters that describe the widget for which the data is being provided.
+     * @return the widget data as raw content.
+     */
+    @SuppressLint("RestrictedApiAndroidX")
+    @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+    internal suspend fun provideWidgetDataAsRawContentInternal(
+        context: Context,
+        params: WearWidgetParams,
+    ): WearWidgetRawContent {
+        // We need this flag to be false (meaning empty axis won't be send and default normal weight
+        // would be used, for the 1.6 renderer and the player that has a bug in it.
+        RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis =
+            RendererVersion.fromPlHostPackage(context) > RendererVersion(1, 6, 0)
+        val widgetContent = provideWidgetData(context, params)
+        return widgetContent.captureRawContent(context, params)
+    }
 
     /**
      * Called when a widget provider linked to this widget class is added to the host.
@@ -222,8 +247,7 @@ internal constructor(
 
         val rawContent =
             withContext(Dispatchers.Main.immediate) {
-                val widgetContent = provideWidgetData(context, params)
-                widgetContent.captureRawContent(context, params)
+                provideWidgetDataAsRawContentInternal(context, params)
             }
 
         updateClient.pushUpdate(context, WearWidgetUpdateRequest(instanceId), rawContent)
