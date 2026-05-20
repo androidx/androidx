@@ -100,10 +100,9 @@ public class RemoteBitmapDecoder {
                         // RAW types are already bounded by the Bitmap.createBitmap call using
                         // width/height metadata which was pre-vetted during document parsing.
                         image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                        int[] bdata = new int[data.length / 4];
+                        int[] bdata = new int[data.length];
                         for (int i = 0; i < bdata.length; i++) {
-
-                            bdata[i] = 0x1010101 * data[i];
+                            bdata[i] = 0xFF000000 | (0x00010101 * (data[i] & 0xFF));
                         }
                         image.setPixels(bdata, 0, width, 0, 0, width, height);
                         break;
