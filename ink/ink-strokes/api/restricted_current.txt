@@ -142,7 +142,6 @@ package androidx.ink.strokes {
   }
 
   public abstract class StrokeInputBatch {
-    method protected final void finalize();
     method public final operator androidx.ink.strokes.StrokeInput get(int index);
     method public final long getDurationMillis();
     method public final int getNoiseSeed();

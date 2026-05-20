@@ -214,9 +214,9 @@ private constructor(
             return Stroke(
                 unownedNativePointer,
                 brush,
-                ImmutableStrokeInputBatch.wrapNative(
+                ImmutableStrokeInputBatch.wrapNative {
                     StrokeNative.newShallowCopyOfInputs(unownedNativePointer)
-                ),
+                },
                 shape,
             )
         }

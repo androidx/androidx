@@ -17,17 +17,13 @@
 package androidx.ink.strokes
 
 import androidx.ink.brush.InputToolType
-import com.google.common.truth.Truth.assertThat
-import java.lang.IllegalArgumentException
-import kotlin.collections.listOf
+import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
+import androidx.kruth.assertThat
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 /** Tests [ImmutableStrokeInputBatch] and [MutableStrokeInputBatch]. */
-@RunWith(JUnit4::class)
-internal class StrokeInputBatchTest {
+class StrokeInputBatchTest {
 
     private val builder = MutableStrokeInputBatch()
 
@@ -44,6 +40,14 @@ internal class StrokeInputBatchTest {
         )
 
     @Test
+    fun strokeInputBatchNativePointers_cleanedUpWhenOutOfScope() {
+        awaitNativePointerCleanupAfter {
+            val unused =
+                MutableStrokeInputBatch().add(InputToolType.STYLUS, 1f, 2f, 3L).toImmutable()
+        }
+    }
+
+    @Test
     fun build_returnsObjectWithNativePointer() {
         val batch = MutableStrokeInputBatch().toImmutable()
         assertThat(batch).isNotNull()
@@ -53,7 +57,7 @@ internal class StrokeInputBatchTest {
     @Test
     fun add_input() {
         val firstInput = createStylusInputWithOptionals(1)
-        assertThat(builder.add(firstInput)).isEqualTo(builder)
+        assertThat(builder.add(firstInput)).isSameInstanceAs(builder)
         assertThat(builder.nativePointer).isNotEqualTo(0)
         assertThat(builder.size).isEqualTo(1)
 
@@ -90,8 +94,7 @@ internal class StrokeInputBatchTest {
             )
         val strokeUnitLengthError =
             assertFailsWith<IllegalArgumentException> { builder.add(badStrokeUnitLength) }
-        assertThat(strokeUnitLengthError)
-            .hasMessageThat()
+        assertThat(strokeUnitLengthError.message)
             .contains(
                 "If present, `StrokeInput::stroke_unit_length` must be finite and strictly positive. Got: infcm"
             )
@@ -101,8 +104,7 @@ internal class StrokeInputBatchTest {
         // Bad pressure.
         val badPressure = StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, pressure = 10000f)
         val pressureError = assertFailsWith<IllegalArgumentException> { builder.add(badPressure) }
-        assertThat(pressureError)
-            .hasMessageThat()
+        assertThat(pressureError.message)
             .contains("`StrokeInput::pressure` must be -1 or in the range [0, 1]. Got: 10000")
         assertThat(builder.size).isEqualTo(0)
         assertThat(builder.toImmutable().size).isEqualTo(0)
@@ -110,8 +112,7 @@ internal class StrokeInputBatchTest {
         // Bad tilt.
         val badTilt = StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, tiltRadians = 1000f)
         val tiltError = assertFailsWith<IllegalArgumentException> { builder.add(badTilt) }
-        assertThat(tiltError)
-            .hasMessageThat()
+        assertThat(tiltError.message)
             .contains("`StrokeInput::tilt` must be -1 or in the range [0, pi / 2]. Got: 318.31π")
         assertThat(builder.size).isEqualTo(0)
         assertThat(builder.toImmutable().size).isEqualTo(0)
@@ -121,8 +122,7 @@ internal class StrokeInputBatchTest {
             StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, orientationRadians = 10000f)
         val orientationError =
             assertFailsWith<IllegalArgumentException> { builder.add(badOrientation) }
-        assertThat(orientationError)
-            .hasMessageThat()
+        assertThat(orientationError.message)
             .contains(
                 "`StrokeInput::orientation` must be -1 or in the range [0, 2 * pi). Got: 3183.1π"
             )
@@ -133,7 +133,7 @@ internal class StrokeInputBatchTest {
     @Test
     fun add_explodedInput() {
         val firstInput = createStylusInputWithOptionals(1)
-        assertThat(builder.add(firstInput)).isEqualTo(builder)
+        assertThat(builder.add(firstInput)).isSameInstanceAs(builder)
         assertThat(builder.nativePointer).isNotEqualTo(0)
         assertThat(builder.size).isEqualTo(1)
 
@@ -180,7 +180,7 @@ internal class StrokeInputBatchTest {
     fun add_collectionOfStrokeInputs() {
         val firstInput = createStylusInputWithOptionals(1)
         val secondInput = createStylusInputWithOptionals(2)
-        assertThat(builder.add(listOf(firstInput, secondInput))).isEqualTo(builder)
+        assertThat(builder.add(listOf(firstInput, secondInput))).isSameInstanceAs(builder)
 
         // Check builder.
         assertThat(builder.size).isEqualTo(2)
@@ -209,7 +209,7 @@ internal class StrokeInputBatchTest {
         val secondInput = createStylusInputWithOptionals(2)
         val thirdInput = createStylusInputWithOptionals(3)
         val fourthInput = createStylusInputWithOptionals(4)
-        assertThat(builder.add(listOf(firstInput, secondInput))).isEqualTo(builder)
+        assertThat(builder.add(listOf(firstInput, secondInput))).isSameInstanceAs(builder)
 
         val extraBatch =
             MutableStrokeInputBatch().add(listOf(thirdInput, fourthInput)).toImmutable()
@@ -231,7 +231,7 @@ internal class StrokeInputBatchTest {
         val secondInput = StrokeInput.create(2f, 4f, 6L, InputToolType.TOUCH, 0.5f, 0.5f, 0.5f)
         val thirdInput = StrokeInput.create(3f, 6f, 9L, InputToolType.STYLUS, 0.5f, 0.5f, 0.5f)
         val fourthInput = StrokeInput.create(4f, 8f, 12L, InputToolType.STYLUS, 0.5f, 0.5f, 0.5f)
-        assertThat(builder.add(listOf(firstInput, secondInput))).isEqualTo(builder)
+        assertThat(builder.add(listOf(firstInput, secondInput))).isSameInstanceAs(builder)
 
         val stylusBatch =
             MutableStrokeInputBatch().add(listOf(thirdInput, fourthInput)).toImmutable()
@@ -309,7 +309,6 @@ internal class StrokeInputBatchTest {
 
     @Test
     fun get_withBadIndex_throwsIllegalArgumentException() {
-
         // Check batch.
         val batch = builder.toImmutable()
         // Index greater than size.
@@ -442,7 +441,7 @@ internal class StrokeInputBatchTest {
     @Test
     fun hasPressure_withPressure_returnsTrue() {
         val pressureInput = StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, pressure = 0.5f)
-        assertThat(builder.add(pressureInput)).isEqualTo(builder)
+        assertThat(builder.add(pressureInput)).isSameInstanceAs(builder)
 
         // Check batch.
         val batch = builder.toImmutable()
@@ -460,7 +459,7 @@ internal class StrokeInputBatchTest {
                 tiltRadians = 0.5f,
                 orientationRadians = 0.5f,
             )
-        assertThat(builder.add(noPressureInput)).isEqualTo(builder)
+        assertThat(builder.add(noPressureInput)).isSameInstanceAs(builder)
 
         // Check batch.
         val batch = builder.toImmutable()
@@ -470,7 +469,7 @@ internal class StrokeInputBatchTest {
     @Test
     fun hasTilt_withTilt_returnsTrue() {
         val tiltInput = StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, tiltRadians = 0.5f)
-        assertThat(builder.add(tiltInput)).isEqualTo(builder)
+        assertThat(builder.add(tiltInput)).isSameInstanceAs(builder)
 
         // Check batch.
         val batch = builder.toImmutable()
@@ -488,7 +487,7 @@ internal class StrokeInputBatchTest {
                 pressure = 0.5f,
                 orientationRadians = 0.5f,
             )
-        assertThat(builder.add(noTiltInput)).isEqualTo(builder)
+        assertThat(builder.add(noTiltInput)).isSameInstanceAs(builder)
 
         // Check batch.
         val batch = builder.toImmutable()
@@ -499,7 +498,7 @@ internal class StrokeInputBatchTest {
     fun hasOrientation_withOrientation_returnsTrue() {
         val orientationInput =
             StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, orientationRadians = 0.5f)
-        assertThat(builder.add(orientationInput)).isEqualTo(builder)
+        assertThat(builder.add(orientationInput)).isSameInstanceAs(builder)
 
         // Check batch.
         val batch = builder.toImmutable()
@@ -517,7 +516,7 @@ internal class StrokeInputBatchTest {
                 pressure = 0.5f,
                 tiltRadians = 0.5f,
             )
-        assertThat(builder.add(noOrientationInput)).isEqualTo(builder)
+        assertThat(builder.add(noOrientationInput)).isSameInstanceAs(builder)
 
         // Check batch.
         val batch = builder.toImmutable()

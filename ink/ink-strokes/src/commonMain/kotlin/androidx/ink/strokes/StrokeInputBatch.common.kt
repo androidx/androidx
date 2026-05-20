@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package androidx.ink.strokes
 
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.InputToolType
-import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.nativeloader.UsedByNative
+import androidx.ink.nativeloader.NativePointer
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 /**
  * A read-only view of an object that stores multiple [StrokeInput] values together in a more
@@ -30,10 +31,10 @@ import androidx.ink.nativeloader.UsedByNative
  * for data that cannot change, or a [MutableStrokeInputBatch] for data that is meant to be modified
  * or incrementally built.
  */
-@Suppress("NotCloseable") // Finalize is only used to free the native peer.
-public abstract class StrokeInputBatch internal constructor(nativePointer: Long) {
+public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> Long) {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long = nativePointer
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val nativePointer: Long by NativePointer(nativeAlloc, StrokeInputBatchNative::free)
 
     /** Number of [StrokeInput] objects in the batch. */
     public val size: Int
@@ -117,17 +118,6 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public abstract fun toImmutable(): ImmutableStrokeInputBatch
 
-    // NOMUTANTS -- Not tested post garbage collection.
-    protected fun finalize() {
-        // Note that the instance becomes finalizable at the conclusion of the Object constructor,
-        // which
-        // in Kotlin is always before any non-default field initialization has been done by a
-        // derived
-        // class constructor.
-        if (nativePointer == 0L) return
-        StrokeInputBatchNative.free(nativePointer)
-    }
-
     // Declared as a target for extension functions.
     public companion object
 }
@@ -136,8 +126,8 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
  * An immutable implementation of [StrokeInputBatch]. For a mutable alternative, see
  * [MutableStrokeInputBatch].
  */
-public class ImmutableStrokeInputBatch private constructor(nativePointer: Long) :
-    StrokeInputBatch(nativePointer) {
+public class ImmutableStrokeInputBatch private constructor(nativeAlloc: () -> Long) :
+    StrokeInputBatch(nativeAlloc) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public override fun toImmutable(): ImmutableStrokeInputBatch = this
@@ -147,14 +137,14 @@ public class ImmutableStrokeInputBatch private constructor(nativePointer: Long) 
     public companion object {
         /** Wrap a native `ink::StrokeInputBatch` with an [ImmutableStrokeInputBatch]. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun wrapNative(nativePointer: Long): ImmutableStrokeInputBatch {
-            return ImmutableStrokeInputBatch(nativePointer)
+        public fun wrapNative(nativeAlloc: () -> Long): ImmutableStrokeInputBatch {
+            return ImmutableStrokeInputBatch(nativeAlloc)
         }
 
         /** An empty [ImmutableStrokeInputBatch]. */
         @JvmField
         public val EMPTY: ImmutableStrokeInputBatch =
-            ImmutableStrokeInputBatch(StrokeInputBatchNative.create())
+            ImmutableStrokeInputBatch(StrokeInputBatchNative::create)
     }
 }
 
@@ -182,7 +172,7 @@ public class ImmutableStrokeInputBatch private constructor(nativePointer: Long) 
  * 7) The [StrokeInput.toolType] and [StrokeInput.strokeUnitLengthCm] values must be the same across
  *    all inputs.
  */
-public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative.create()) {
+public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::create) {
 
     public fun clear(): Unit = MutableStrokeInputBatchNative.clear(nativePointer)
 
@@ -223,8 +213,9 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative.c
      * @param type The [InputToolType] to use for the input.
      * @param x The x-coordinate of the input position in stroke space.
      * @param y The y-coordinate of the input position in stroke space.
-     * @param elapsedTimeMillis Marks the number of milliseconds since the stroke started. It is a
-     *   non-negative timestamp in the [android.os.SystemClock.elapsedRealtime] time base.
+     * @param elapsedTimeMillis Marks the number of milliseconds since the stroke started. On
+     *   Android, this should be a non-negative timestamp in the
+     *   `android.os.SystemClock.elapsedRealtime` time base.
      * @param strokeUnitLengthCm The physical distance in centimeters that the pointer must travel
      *   in order to produce an input motion of one stroke unit. For stylus/touch, this is the
      *   real-world distance that the stylus/fingertip must move in physical space; for mouse, this
@@ -338,57 +329,45 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative.c
         if (isEmpty() && getNoiseSeed() == 0) {
             ImmutableStrokeInputBatch.EMPTY
         } else {
-            ImmutableStrokeInputBatch.wrapNative(
-                MutableStrokeInputBatchNative.newCopy(nativePointer)
-            )
+            val currentPointer = nativePointer
+            ImmutableStrokeInputBatch.wrapNative {
+                MutableStrokeInputBatchNative.newCopy(currentPointer)
+            }
         }
 
     public override fun toString(): String = "MutableStrokeInputBatch(size=$size)"
 }
 
-@UsedByNative
-private object StrokeInputBatchNative {
+expect internal object StrokeInputBatchNative {
+    fun create(): Long
 
-    init {
-        NativeLoader.load()
-    }
+    fun free(nativePointer: Long)
 
-    @UsedByNative external fun create(): Long
+    fun getSize(nativePointer: Long): Int
 
-    @UsedByNative external fun free(nativePointer: Long)
+    fun getToolType(nativePointer: Long): Int
 
-    @UsedByNative external fun getSize(nativePointer: Long): Int
+    fun getDurationMillis(nativePointer: Long): Long
 
-    @UsedByNative external fun getToolType(nativePointer: Long): Int
+    fun getStrokeUnitLengthCm(nativePointer: Long): Float
 
-    @UsedByNative external fun getDurationMillis(nativePointer: Long): Long
+    fun hasStrokeUnitLength(nativePointer: Long): Boolean
 
-    @UsedByNative external fun getStrokeUnitLengthCm(nativePointer: Long): Float
+    fun hasPressure(nativePointer: Long): Boolean
 
-    @UsedByNative external fun hasStrokeUnitLength(nativePointer: Long): Boolean
+    fun hasTilt(nativePointer: Long): Boolean
 
-    @UsedByNative external fun hasPressure(nativePointer: Long): Boolean
+    fun hasOrientation(nativePointer: Long): Boolean
 
-    @UsedByNative external fun hasTilt(nativePointer: Long): Boolean
+    fun getNoiseSeed(nativePointer: Long): Int
 
-    @UsedByNative external fun hasOrientation(nativePointer: Long): Boolean
-
-    @UsedByNative external fun getNoiseSeed(nativePointer: Long): Int
-
-    @UsedByNative external fun populate(nativePointer: Long, index: Int, input: StrokeInput)
+    fun populate(nativePointer: Long, index: Int, input: StrokeInput)
 }
 
-@UsedByNative
-private object MutableStrokeInputBatchNative {
-    init {
-        NativeLoader.load()
-    }
+expect internal object MutableStrokeInputBatchNative {
+    fun clear(nativePointer: Long)
 
-    @UsedByNative external fun clear(nativePointer: Long)
-
-    /** Returns whether the input was successfully added. */
-    @UsedByNative
-    external fun appendSingle(
+    fun appendSingle(
         nativePointer: Long,
         type: Int,
         x: Float,
@@ -400,10 +379,9 @@ private object MutableStrokeInputBatchNative {
         orientation: Float,
     ): Boolean
 
-    /** Returns whether the inputs were successfully added. */
-    @UsedByNative external fun appendBatch(nativePointer: Long, addedNativePointer: Long): Boolean
+    fun appendBatch(nativePointer: Long, addedNativePointer: Long): Boolean
 
-    @UsedByNative external fun newCopy(nativePointer: Long): Long
+    fun newCopy(nativePointer: Long): Long
 
-    @UsedByNative external fun setNoiseSeed(nativePointer: Long, seed: Int)
+    fun setNoiseSeed(nativePointer: Long, seed: Int)
 }

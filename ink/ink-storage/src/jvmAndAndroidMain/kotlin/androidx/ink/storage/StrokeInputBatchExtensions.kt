@@ -48,18 +48,17 @@ public fun StrokeInputBatch.encode(output: OutputStream) {
  *   `ink.proto.CodedStrokeInputBatch` proto message, or the corresponding [StrokeInputBatch] is
  *   invalid.
  */
-public fun StrokeInputBatch.Companion.decode(input: InputStream): ImmutableStrokeInputBatch {
-    val decompressed = DecompressedBytes(input)
-    val nativePointer =
+public fun StrokeInputBatch.Companion.decode(input: InputStream): ImmutableStrokeInputBatch =
+    ImmutableStrokeInputBatch.wrapNative {
+        val decompressed = DecompressedBytes(input)
         StrokeInputBatchSerializationNative.newFromProto(
-            directByteBuffer = null,
-            byteArray = decompressed.bytes,
-            offset = 0,
-            length = decompressed.size,
-        )
-    check(nativePointer != 0L) { "Should have thrown exception if decoding failed." }
-    return ImmutableStrokeInputBatch.wrapNative(nativePointer)
-}
+                directByteBuffer = null,
+                byteArray = decompressed.bytes,
+                offset = 0,
+                length = decompressed.size,
+            )
+            .also { check(it != 0L) { "Should have thrown exception if decoding failed." } }
+    }
 
 // Using an explicit singleton object instead of @file:JvmName to put the static interface intended
 // for use from Java in a class because otherwise there are multiple top-level functions with the

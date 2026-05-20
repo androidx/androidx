@@ -42,9 +42,13 @@ androidXMultiplatform {
             implementation(project(":ink:ink-brush"))
         }
 
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+        }
+
         jvmAndAndroidTest.dependencies {
             implementation(libs.junit)
-            implementation(libs.kotlinTest)
             implementation(libs.truth)
         }
 

@@ -20,12 +20,17 @@ import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.UsedByNative
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
+// TODO: b/512506942 - Restore the link to `InProgressStroke` in the doc comment once that is
+// KMP-compatible.
 /**
  * A single input specifying position, time since the start of the stream, and optionally
  * [pressure], [tiltRadians], and [orientationRadians].
  *
- * This data type is used as an input to [StrokeInputBatch] and [InProgressStroke]. If these are to
+ * This data type is used as an input to [StrokeInputBatch] and `InProgressStroke`. If these are to
  * be created as part of real-time input, it is recommended to use some sort of object pool so that
  * new usages can make use of existing objects that have been recycled, rather than allocating new
  * ones which could introduce unpredictable garbage collection related delays to the time-sensitive
@@ -117,8 +122,9 @@ public class StrokeInput {
      *
      * @param x The `x` position coordinate of the input in the stroke's coordinate space.
      * @param y The `y` position coordinate of the input in the stroke's coordinate space.
-     * @param elapsedTimeMillis Marks the number of milliseconds since the stroke started. It is a
-     *   non-negative timestamp in the [android.os.SystemClock.elapsedRealtime] time base.
+     * @param elapsedTimeMillis Marks the number of milliseconds since the stroke started. On
+     *   Android, this should be a non-negative timestamp in the
+     *   `android.os.SystemClock.elapsedRealtime` time base.
      * @param toolType The type of tool used to create this input data.
      * @param strokeUnitLengthCm The physical distance in centimeters that the pointer must travel
      *   in order to produce an input motion of one stroke unit. For stylus/touch, this is the
