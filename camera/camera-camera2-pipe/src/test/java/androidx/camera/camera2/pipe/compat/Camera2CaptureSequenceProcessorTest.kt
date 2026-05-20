@@ -52,11 +52,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.P, maxSdk = 29)
+@Config(minSdk = Build.VERSION_CODES.M, maxSdk = 29)
 internal class Camera2CaptureSequenceProcessorTest {
-    // TODO: This fails with "Failed to allocate native CameraMetadata" on robolectric prior
-    //  to Android P. Update the test class to include support for older versions when a new
-    //  version of robolectric is dropped into AndroidX.
 
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
     private val cameraId =
