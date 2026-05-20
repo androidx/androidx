@@ -48,7 +48,6 @@ internal class Camera2CameraMetadata(
     @GuardedBy("extensionCache")
     private val extensionCache = ArrayMap<Int, CameraExtensionMetadata>()
 
-    // TODO: b/299356087 - this here may need a switch statement on the key
     @Suppress("UNCHECKED_CAST") override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
     @Suppress("UNCHECKED_CAST")

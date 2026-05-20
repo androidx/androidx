@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.camera.camera2.pipe.compat
+
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Range
 import android.util.Size
