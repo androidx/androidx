@@ -59,7 +59,7 @@ public class InputEvent(
         if (origin != other.origin) return false
         if (direction != other.direction) return false
         if (action != other.action) return false
-        if (hitInfoList == other.hitInfoList) return false
+        if (hitInfoList != other.hitInfoList) return false
         return true
     }
 
