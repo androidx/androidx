@@ -231,30 +231,32 @@ internal class SelectionStateTest : AbstractSelectionContainerTest() {
     @Test
     fun selectAll_thenGesture() {
         val state = SelectionState()
-        with(rule.density) {
-            createSelectionContainerWithState(state) { TestText(textContent) }
 
-            val characterSize = fontSize.toPx()
+        createSelectionContainerWithState(state) { TestText(textContent) }
 
-            rule.runOnIdle { state.selectAll() }
+        rule.runOnIdle { state.selectAll() }
 
-            rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
 
-            // Drag the start handle (at offset 0) to offset 5 (start of "Demo")
-            rule
-                .onNode(isSelectionHandle(Handle.SelectionStart), useUnmergedTree = true)
-                .performTouchInput {
-                    down(center)
-                    val deltaX = 5 * characterSize
-                    moveBy(Offset(deltaX, 0f))
-                    up()
-                }
+        // Drag the start handle (at offset 0) to offset 5 (start of "Demo")
+        val textNode = rule.onNode(hasText(textContent))
+        val textLayoutResult = textNode.fetchTextLayoutResult()
+        val startX = textLayoutResult.getBoundingBox(0).left
+        val targetX = textLayoutResult.getBoundingBox(5).left
+        val deltaX = targetX - startX
 
-            rule.runOnIdle {
-                // Selection should now be from 5 to end (14)
-                assertAnchorInfo(state.selection?.start, offset = 5, selectableId = 1)
-                assertAnchorInfo(state.selection?.end, offset = 14, selectableId = 1)
+        rule
+            .onNode(isSelectionHandle(Handle.SelectionStart), useUnmergedTree = true)
+            .performTouchInput {
+                down(center)
+                moveBy(Offset(deltaX, 0f))
+                up()
             }
+
+        rule.runOnIdle {
+            // Selection should now be from 5 to end (14)
+            assertAnchorInfo(state.selection?.start, offset = 5, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = 14, selectableId = 1)
         }
     }
 
@@ -388,42 +390,47 @@ internal class SelectionStateTest : AbstractSelectionContainerTest() {
     fun extendSelectionByWord_afterGesture_handlesCrossed_Ltr() {
         val state = SelectionState()
 
-        with(rule.density) {
-            createSelectionContainerWithState(state) { TestText(textContent) }
-            val characterSize = fontSize.toPx()
+        createSelectionContainerWithState(state) { TestText(textContent) }
 
-            // Long Press "m" to select "Demo".
-            rule.onSelectionContainer().performTouchInput {
-                longClick(Offset(textContent.indexOf('m') * characterSize, 0.5f * characterSize))
-            }
+        val textNode = rule.onNode(hasText(textContent))
+        val textLayoutResult = textNode.fetchTextLayoutResult()
 
-            rule.runOnIdle {
-                assertAnchorInfo(state.selection?.start, offset = 5, selectableId = 1)
-                assertAnchorInfo(state.selection?.end, offset = 9, selectableId = 1)
-            }
+        // Select the second "Text" (indices 10 to 14) by long clicking on the 'e'.
+        val clickTarget = textLayoutResult.getBoundingBox(11).center
+        rule.onSelectionContainer().performTouchInput { longClick(clickTarget) }
 
-            // Drag the end handle (at offset 9) to the left of the start handle (at offset 5).
-            // We move it to offset 4 (the space before "Demo").
-            rule.onNode(isSelectionHandle(Handle.SelectionEnd)).performTouchInput {
-                down(center)
-                val deltaX = (4 - 9) * characterSize
-                moveBy(Offset(deltaX, 0f))
-                up()
-            }
+        rule.runOnIdle {
+            assertAnchorInfo(state.selection?.start, offset = 10, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = 14, selectableId = 1)
+        }
 
-            rule.runOnIdle { state.extendSelectionByWord() }
+        // Drag the end handle (at offset 14) to the left of the start handle (at offset 10).
+        // We move it to offset 5 (the 'D' in "Demo").
+        val startX = textLayoutResult.getBoundingBox(13).right
+        val targetX = textLayoutResult.getBoundingBox(5).right
+        val deltaX = targetX - startX
 
-            rule.runOnIdle {
-                // Since handles were crossed and the active handle was dragged to the left (to
-                // offset 4),
-                // extending by word should extend to the left, capturing "Text" (offsets 0 to 4).
-                assertAnchorInfo(state.selection?.start, offset = 5, selectableId = 1)
-                assertAnchorInfo(state.selection?.end, offset = 0, selectableId = 1)
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).performTouchInput {
+            down(center)
+            moveBy(Offset(deltaX, 0f))
+            up()
+        }
 
-                assert(state.selectedTexts.isNotEmpty())
-                // The selected text should be "Text " (substring from 0 to 5).
-                assertThat(state.selectedTexts.first().text).isEqualTo(textContent.substring(0, 5))
-            }
+        rule.runOnIdle {
+            assertAnchorInfo(state.selection?.start, offset = 10, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = 5, selectableId = 1)
+        }
+
+        rule.runOnIdle { state.extendSelectionByWord() }
+
+        rule.runOnIdle {
+            // Because the active handle (End) is at 5 and handles are crossed,
+            // extending left captures the previous word "Text" (offset 0).
+            assertAnchorInfo(state.selection?.start, offset = 10, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = 0, selectableId = 1)
+
+            assert(state.selectedTexts.isNotEmpty())
+            assertThat(state.selectedTexts.first().text).isEqualTo(textContent.substring(0, 10))
         }
     }
 
@@ -731,31 +738,32 @@ internal class SelectionStateTest : AbstractSelectionContainerTest() {
     @Test
     fun extendSelectionByWord_thenGesture() {
         val state = SelectionState()
-        with(rule.density) {
-            createSelectionContainerWithState(state) { TestText(textContent) }
 
-            val characterSize = fontSize.toPx()
+        createSelectionContainerWithState(state) { TestText(textContent) }
 
-            rule.runOnIdle {
-                state.extendSelectionByWord() // Selects first word "Text" (0-4)
+        rule.runOnIdle {
+            state.extendSelectionByWord() // Selects first word "Text" (0-4)
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        // Drag the end handle (at offset 4) to offset 9 (end of "Demo")
+        val textNode = rule.onNode(hasText(textContent))
+        val textLayoutResult = textNode.fetchTextLayoutResult()
+        val startX = textLayoutResult.getBoundingBox(4).left
+        val targetX = textLayoutResult.getBoundingBox(9).left
+        val deltaX = targetX - startX
+        rule
+            .onNode(isSelectionHandle(Handle.SelectionEnd), useUnmergedTree = true)
+            .performTouchInput {
+                down(center)
+                moveBy(Offset(deltaX, 0f))
+                up()
             }
 
-            rule.mainClock.advanceTimeByFrame()
-
-            // Drag the end handle (at offset 4) to offset 9 (end of "Demo")
-            rule
-                .onNode(isSelectionHandle(Handle.SelectionEnd), useUnmergedTree = true)
-                .performTouchInput {
-                    down(center)
-                    val deltaX = (9 - 4) * characterSize
-                    moveBy(Offset(deltaX, 0f))
-                    up()
-                }
-
-            rule.runOnIdle {
-                assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
-                assertAnchorInfo(state.selection?.end, offset = 9, selectableId = 1)
-            }
+        rule.runOnIdle {
+            assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = 9, selectableId = 1)
         }
     }
 
@@ -845,34 +853,35 @@ internal class SelectionStateTest : AbstractSelectionContainerTest() {
     fun select_thenGesture_Ltr() {
         val state = SelectionState()
 
-        with(rule.density) {
-            createSelectionContainerWithState(state) { TestText(textContent) }
-            val characterSize = fontSize.toPx()
+        createSelectionContainerWithState(state) { TestText(textContent) }
 
-            rule.onNode(hasText(textContent)).performClick()
+        rule.onNode(hasText(textContent)).performClick()
 
-            rule.runOnIdle {
-                // Select "Text" (offsets 0 to 4)
-                state.select(TextRange(0, 4))
+        rule.runOnIdle {
+            // Select "Text" (offsets 0 to 4)
+            state.select(TextRange(0, 4))
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        // Drag the end handle (at offset 4) to offset 9 (end of "Demo")
+        val textNode = rule.onNode(hasText(textContent))
+        val textLayoutResult = textNode.fetchTextLayoutResult()
+        val startX = textLayoutResult.getBoundingBox(4).left
+        val targetX = textLayoutResult.getBoundingBox(9).left
+        val deltaX = targetX - startX
+        rule
+            .onNode(isSelectionHandle(Handle.SelectionEnd), useUnmergedTree = true)
+            .performTouchInput {
+                down(center)
+                moveBy(Offset(deltaX, 0f))
+                up()
             }
 
-            rule.mainClock.advanceTimeByFrame()
-
-            // Drag the end handle (at offset 4) to offset 9 (end of "Demo")
-            rule
-                .onNode(isSelectionHandle(Handle.SelectionEnd), useUnmergedTree = true)
-                .performTouchInput {
-                    down(center)
-                    val deltaX = (9 - 4) * characterSize
-                    moveBy(Offset(deltaX, 0f))
-                    up()
-                }
-
-            rule.runOnIdle {
-                assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
-                assertAnchorInfo(state.selection?.end, offset = 9, selectableId = 1)
-                assertThat(state.selectedTexts.first().text).isEqualTo(textContent.substring(0, 9))
-            }
+        rule.runOnIdle {
+            assertAnchorInfo(state.selection?.start, offset = 0, selectableId = 1)
+            assertAnchorInfo(state.selection?.end, offset = 9, selectableId = 1)
+            assertThat(state.selectedTexts.first().text).isEqualTo(textContent.substring(0, 9))
         }
     }
 
