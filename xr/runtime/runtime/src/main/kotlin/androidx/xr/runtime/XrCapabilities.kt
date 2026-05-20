@@ -154,10 +154,11 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
          * Supported runtimes:
          * - Projected
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @ExperimentalInertialTrackingApi
         @JvmField
         public val INERTIAL: DeviceTrackingMode = DeviceTrackingMode(2)
 
+        @OptIn(ExperimentalInertialTrackingApi::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated("Use INERTIAL instead.", ReplaceWith("INERTIAL"))
         @JvmField
