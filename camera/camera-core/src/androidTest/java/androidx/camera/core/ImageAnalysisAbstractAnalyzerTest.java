@@ -459,6 +459,34 @@ public class ImageAnalysisAbstractAnalyzerTest {
                 .isEqualTo(1);
     }
 
+    @Test
+    public void matrixUpdatedWhenTransitionToZeroRotation()
+            throws ExecutionException, InterruptedException {
+        // Arrange.
+        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_YUV_420_888);
+        mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(mRotatedYUVImageReaderProxy);
+        mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(true);
+        mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(mSensorToBufferMatrix);
+
+        // 1. Transition to 90 degrees
+        mImageAnalysisAbstractAnalyzer.setRelativeRotation(90);
+        mImageAnalysisAbstractAnalyzer.analyzeImage(mImageProxy).get();
+        reset(mAnalyzer);
+
+        // 2. Transition back to 0 degrees
+        mImageAnalysisAbstractAnalyzer.setRelativeRotation(0);
+        mImageAnalysisAbstractAnalyzer.analyzeImage(mSecondImageProxy).get();
+
+        // Assert.
+        ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
+                ArgumentCaptor.forClass(ImageProxy.class);
+        verify(mAnalyzer).analyze(imageProxyArgumentCaptor.capture());
+
+        // The matrix should match mSensorToBufferMatrix because 0 degree rotation is a no-op
+        assertThat(imageProxyArgumentCaptor.getValue().getImageInfo()
+                .getSensorToBufferTransformMatrix()).isEqualTo(mSensorToBufferMatrix);
+    }
+
     /**
      * Faked image analysis analyzer to verify YUV to RGB convert is working as expected or not.
      *

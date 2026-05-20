@@ -363,6 +363,30 @@ public class ImageProcessingUtilTest {
     }
 
     @Test
+    public void rotateYUV_imageRotated_0_returnsNull() {
+        // Arrange.
+        int width = 64;
+        int height = 32;
+        closeTestResources();
+        createTestResources(width, height, 0);
+
+        // Act.
+        ImageProxy yuvImageProxy = rotateYUV(
+                mYUVImageProxy,
+                mRotatedYUVImageReaderProxy,
+                ImageWriter.newInstance(
+                        mRotatedYUVImageReaderProxy.getSurface(),
+                        mRotatedYUVImageReaderProxy.getMaxImages()),
+                mYRotatedBuffer,
+                mURotatedBuffer,
+                mVRotatedBuffer,
+                /*rotation=*/0);
+
+        // Assert.
+        assertThat(yuvImageProxy).isNull();
+    }
+
+    @Test
     public void rotateYUV_imageRotated_90() {
         rotateYUV_imageRotated(OUTPUT_IMAGE_FORMAT_YUV_420_888, 90, false);
     }
