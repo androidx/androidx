@@ -103,7 +103,7 @@ internal open class FakePanelEntity(val view: View? = null, name: String = "") :
             }
         }
 
-    private var perceivedResolutionResult: PerceivedResolutionResult =
+    internal var perceivedResolutionResult: PerceivedResolutionResult =
         PerceivedResolutionResult.InvalidRenderViewpoint()
 
     /**
