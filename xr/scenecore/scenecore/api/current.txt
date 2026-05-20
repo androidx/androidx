@@ -783,10 +783,12 @@ package androidx.xr.scenecore {
   public final class PositionalAudioComponent extends androidx.xr.scenecore.Component {
     method public static androidx.xr.scenecore.PositionalAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
     method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams getPointSourceParams();
     method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
     method protected void onDetach(androidx.xr.scenecore.Entity entity);
-    method public void setPointSourceParams(androidx.xr.scenecore.PointSourceParams params);
+    method @InaccessibleFromKotlin public void setPointSourceParams(androidx.xr.scenecore.PointSourceParams);
     property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+    property public androidx.xr.scenecore.PointSourceParams pointSourceParams;
     field public static final androidx.xr.scenecore.PositionalAudioComponent.Companion Companion;
   }
 
@@ -953,14 +955,17 @@ package androidx.xr.scenecore {
 
   public final class SoundEffectPoolComponent extends androidx.xr.scenecore.Component implements androidx.xr.scenecore.SoundEffectPlayer {
     method public static androidx.xr.scenecore.SoundEffectPoolComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundEffectPool soundEffectPool, androidx.xr.scenecore.PointSourceParams params);
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams getPointSourceParams();
     method protected boolean onAttach(androidx.xr.scenecore.Entity entity);
     method protected void onDetach(androidx.xr.scenecore.Entity entity);
     method public void pause(androidx.xr.scenecore.Stream stream);
     method public androidx.xr.scenecore.Stream play(androidx.xr.scenecore.SoundEffect soundEffect, @FloatRange(from=0.0, to=1.0) float volume, @IntRange(from=0L) int priority, boolean isLooping);
     method public void resume(androidx.xr.scenecore.Stream stream);
     method public void setLooping(androidx.xr.scenecore.Stream stream, boolean isLooping);
+    method @InaccessibleFromKotlin public void setPointSourceParams(androidx.xr.scenecore.PointSourceParams);
     method public void setVolume(androidx.xr.scenecore.Stream stream, @FloatRange(from=0.0, to=1.0) float volume);
     method public void stop(androidx.xr.scenecore.Stream stream);
+    property public androidx.xr.scenecore.PointSourceParams pointSourceParams;
     field public static final androidx.xr.scenecore.SoundEffectPoolComponent.Companion Companion;
   }
 

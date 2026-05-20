@@ -73,7 +73,7 @@ class PositionalAudioComponentTesterTest {
         assertThat(tester.pointSourceParams).isEqualTo(params1)
         assertThat(tester.pointSourceParams).isNotEqualTo(params2)
 
-        component.setPointSourceParams(params2)
+        component.pointSourceParams = params2
         assertThat(tester.pointSourceParams).isEqualTo(params2)
     }
 

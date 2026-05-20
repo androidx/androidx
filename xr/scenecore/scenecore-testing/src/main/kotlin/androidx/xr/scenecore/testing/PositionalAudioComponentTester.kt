@@ -57,7 +57,7 @@ internal constructor(
      * The [PointSourceParams] that are currently set for this spatial audio source.
      *
      * This is useful for verifying if the component has been updated with the intended parameters
-     * via [PositionalAudioComponent.setPointSourceParams].
+     * via [PositionalAudioComponent.pointSourceParams].
      */
     public val pointSourceParams: PointSourceParams
         get() = rtPositionalAudioComponent.params.toPointSourceParams()

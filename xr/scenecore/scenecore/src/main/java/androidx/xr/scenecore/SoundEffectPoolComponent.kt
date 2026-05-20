@@ -37,7 +37,12 @@ public class SoundEffectPoolComponent
 private constructor(
     sceneRuntime: SceneRuntime,
     soundEffectPool: SoundEffectPool,
-    private val params: PointSourceParams,
+    /**
+     * Updates the [PointSourceParams] used by the spatial audio source.
+     *
+     * These pointSourceParams will apply to future playback requests.
+     */
+    public var pointSourceParams: PointSourceParams,
 ) : Component(), SoundEffectPlayer {
 
     private var attachedEntity: Entity? = null
@@ -75,7 +80,7 @@ private constructor(
         return rtComponent
             .play(
                 soundEffect.toRtSoundEffect(),
-                params.rtPointSourceParams,
+                pointSourceParams.rtPointSourceParams,
                 rtEntity,
                 volume,
                 priority,
