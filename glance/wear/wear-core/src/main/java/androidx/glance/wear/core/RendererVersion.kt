@@ -98,9 +98,9 @@ public data class RendererVersion(
 
                 return RendererVersion(major, minor, revision)
             } catch (e: PackageManager.NameNotFoundException) {
-                Log.e(TAG, "ProtoLayout renderer package not installed", e)
+                Log.w(TAG, "ProtoLayout renderer package not installed", e)
             } catch (e: Exception) {
-                Log.e(TAG, "Unexpected parsing error", e)
+                Log.w(TAG, "Unexpected parsing error", e)
             }
             return PL_RENDERER_INITIAL_VERSION
         }
