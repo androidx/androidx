@@ -65,7 +65,7 @@ class SpatialConfigurationTest {
     }
 
     @Test
-    fun requestFullSpaceMode_nonXr_throwsException() {
+    fun requestFullSpace_nonXr_throwsException() {
         composeTestRule.activity.disableXr()
 
         composeTestRule.setContent {
@@ -76,7 +76,7 @@ class SpatialConfigurationTest {
     }
 
     @Test
-    fun requestHomeSpaceMode_nonXr_throwsException() {
+    fun requestHomeSpace_nonXr_throwsException() {
         composeTestRule.activity.disableXr()
 
         composeTestRule.setContent {
@@ -107,7 +107,7 @@ class SpatialConfigurationTest {
     }
 
     @Test
-    fun hasXrSpatialFeature_fullSpaceMode_returnsTrue() {
+    fun hasXrSpatialFeature_fullSpace_returnsTrue() {
         composeTestRule.setContent {
             if (LocalSpatialConfiguration.current.hasXrSpatialFeature) {
                 Text(hasXrSpatialFeatureText)
@@ -118,8 +118,8 @@ class SpatialConfigurationTest {
     }
 
     @Test
-    fun hasXrSpatialFeature_homeSpaceMode_returnsTrue() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun hasXrSpatialFeature_homeSpace_returnsTrue() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             if (LocalSpatialConfiguration.current.hasXrSpatialFeature) {
@@ -131,8 +131,8 @@ class SpatialConfigurationTest {
     }
 
     @Test
-    fun bounds_homeSpaceMode_isPositiveAndNotMax() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun bounds_homeSpace_isPositiveAndNotMax() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         var bounds: DpVolumeSize? = null
         composeTestRule.setContent { bounds = LocalSpatialConfiguration.current.bounds }
@@ -148,7 +148,7 @@ class SpatialConfigurationTest {
     }
 
     @Test
-    fun bounds_fullSpaceMode_isMax() {
+    fun bounds_fullSpace_isMax() {
         var bounds: DpVolumeSize? = null
         composeTestRule.setContent { bounds = LocalSpatialConfiguration.current.bounds }
         composeTestRule.waitForIdle()

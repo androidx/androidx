@@ -25,8 +25,8 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelClippingConfig
+import androidx.xr.scenecore.SpaceChangeEvent
 import androidx.xr.scenecore.SpatialCapability
-import androidx.xr.scenecore.SpatialModeChangeEvent
 import androidx.xr.scenecore.SpatialVisibility
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testing.internal.FakeRenderingRuntime
@@ -169,7 +169,7 @@ class SceneTesterTest {
     }
 
     @Test
-    fun triggerSpatialModeChanged_changesRuntimeValue() {
+    fun triggerSpaceChanged_changesRuntimeValue() {
         val entity = Entity.create(session = session, parent = session.scene.activitySpace)
         session.scene.keyEntity = entity
 
@@ -178,7 +178,7 @@ class SceneTesterTest {
 
         val expectedPose = Pose(Vector3(1f, 1f, 1f))
         val expectedScale = 0.5f
-        underTest.triggerSpatialModeChanged(SpatialModeChangeEvent(expectedPose, expectedScale))
+        underTest.triggerSpaceChanged(SpaceChangeEvent(expectedPose, expectedScale))
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(session.scene.keyEntity?.getPose()).isEqualTo(expectedPose)

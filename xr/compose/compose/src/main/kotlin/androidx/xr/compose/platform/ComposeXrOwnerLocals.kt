@@ -100,7 +100,7 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
         lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onDestroy(owner: LifecycleOwner) {
-                    session.scene.clearSpatialModeChangedListener()
+                    session.scene.clearSpaceChangedListener()
                     contentView.setTag(R.id.compose_xr_owner_locals, null)
                     owner.lifecycle.removeObserver(this)
                 }

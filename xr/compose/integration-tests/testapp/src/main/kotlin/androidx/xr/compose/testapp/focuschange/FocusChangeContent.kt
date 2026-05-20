@@ -70,7 +70,7 @@ fun FocusChangeContent(
 
     LaunchedEffect(Unit) {
         if (isFullSpaceMode) {
-            session?.scene?.requestFullSpaceMode()
+            session?.scene?.requestFullSpace()
             delay(2000)
         }
 

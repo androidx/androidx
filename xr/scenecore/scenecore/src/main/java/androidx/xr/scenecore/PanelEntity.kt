@@ -82,10 +82,9 @@ internal constructor(
     /**
      * Gets the perceived resolution of this Entity in the provided [RenderViewpoint].
      *
-     * This API is only intended for use in Full Space Mode and will return
-     * [PerceivedResolutionResult.InvalidRenderViewpoint] in Home Space Mode. For applications
-     * requiring perceived resolution in Home Space Mode, see
-     * [MainPanelEntity.getPerceivedResolution].
+     * This API is only intended for use in Full Space and will return
+     * [PerceivedResolutionResult.InvalidRenderViewpoint] in Home Space. For applications requiring
+     * perceived resolution in Home Space, see [MainPanelEntity.getPerceivedResolution].
      *
      * This value represents the dimensions of the Entity on the camera view if its largest surface
      * was facing the camera without changing the distance of the Entity to the camera. This can be

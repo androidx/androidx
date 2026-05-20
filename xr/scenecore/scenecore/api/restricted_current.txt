@@ -543,8 +543,8 @@ package androidx.xr.scenecore {
   }
 
   public final class LaunchUtils {
-    method public static android.os.Bundle createBundleForFullSpaceModeLaunch(androidx.xr.runtime.Session session, android.os.Bundle bundle);
-    method public static android.os.Bundle createBundleForFullSpaceModeLaunchWithEnvironmentInherited(androidx.xr.runtime.Session session, android.os.Bundle bundle);
+    method public static android.os.Bundle createBundleForFullSpaceLaunch(androidx.xr.runtime.Session session, android.os.Bundle bundle);
+    method public static android.os.Bundle createBundleForFullSpaceLaunchWithEnvironmentInherited(androidx.xr.runtime.Session session, android.os.Bundle bundle);
   }
 
   public final class MainPanelEntity extends androidx.xr.scenecore.PanelEntity {
@@ -874,7 +874,7 @@ package androidx.xr.scenecore {
     method public void addSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void addSpatialVisibilityChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     method public void addSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
-    method public void clearSpatialModeChangedListener();
+    method public void clearSpaceChangedListener();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void close();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.ActivitySpace getActivitySpace();
     method public <T extends androidx.xr.scenecore.Entity> java.util.List<T> getEntitiesOfType(Class<? extends T> type);
@@ -888,12 +888,12 @@ package androidx.xr.scenecore {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
     method public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void removeSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
-    method public void requestFullSpaceMode();
-    method public void requestHomeSpaceMode();
+    method public void requestFullSpace();
+    method public void requestHomeSpace();
     method @InaccessibleFromKotlin public void setKeyEntity(androidx.xr.scenecore.Entity?);
     method @InaccessibleFromKotlin public void setPanelClippingConfig(androidx.xr.scenecore.PanelClippingConfig);
-    method public void setSpatialModeChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialModeChangeEvent> listener);
-    method public void setSpatialModeChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialModeChangeEvent> listener);
+    method public void setSpaceChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpaceChangeEvent> listener);
+    method public void setSpaceChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpaceChangeEvent> listener);
     property public androidx.xr.scenecore.ActivitySpace activitySpace;
     property public androidx.xr.scenecore.Entity? keyEntity;
     property public androidx.xr.scenecore.MainPanelEntity mainPanelEntity;
@@ -1011,6 +1011,14 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.Space PARENT;
   }
 
+  public final class SpaceChangeEvent {
+    ctor public SpaceChangeEvent(androidx.xr.runtime.math.Pose recommendedPose, float recommendedScale);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getRecommendedPose();
+    method @InaccessibleFromKotlin public float getRecommendedScale();
+    property public androidx.xr.runtime.math.Pose recommendedPose;
+    property public float recommendedScale;
+  }
+
   public final class SpatialAudioTrack {
     method public static androidx.xr.scenecore.PointSourceParams? getPointSourceParams(androidx.xr.runtime.Session session, android.media.AudioTrack track);
     method public static androidx.xr.scenecore.SoundFieldAttributes? getSoundFieldAttributes(androidx.xr.runtime.Session session, android.media.AudioTrack track);
@@ -1081,14 +1089,6 @@ package androidx.xr.scenecore {
     method public static void setPointSourceParams(androidx.xr.runtime.Session session, android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity);
     method public static void setSoundFieldAttributes(androidx.xr.runtime.Session session, android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.SoundFieldAttributes attributes);
     field public static final androidx.xr.scenecore.SpatialMediaPlayer INSTANCE;
-  }
-
-  public final class SpatialModeChangeEvent {
-    ctor public SpatialModeChangeEvent(androidx.xr.runtime.math.Pose recommendedPose, float recommendedScale);
-    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getRecommendedPose();
-    method @InaccessibleFromKotlin public float getRecommendedScale();
-    property public androidx.xr.runtime.math.Pose recommendedPose;
-    property public float recommendedScale;
   }
 
   public final class SpatialPointerComponent extends androidx.xr.scenecore.Component {

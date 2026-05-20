@@ -20,8 +20,8 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.PanelClippingConfig
 import androidx.xr.scenecore.Scene
+import androidx.xr.scenecore.SpaceChangeEvent
 import androidx.xr.scenecore.SpatialCapability
-import androidx.xr.scenecore.SpatialModeChangeEvent
 import androidx.xr.scenecore.SpatialVisibility
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
 import androidx.xr.scenecore.toSpatialCapabilities
@@ -56,28 +56,28 @@ public class SceneTester internal constructor(private val runtime: InternalFakeS
         }
 
     /**
-     * Simulates a runtime spatial mode change by dispatching the provided [spatialModeChangeEvent]
-     * to the [Scene].
+     * Simulates a runtime spatial mode change by dispatching the provided [SpaceChangeEvent] to the
+     * [Scene].
      *
-     * This will trigger the custom listener registered via [Scene.setSpatialModeChangedListener].
-     * If no custom listener is registered, or if it has been cleared via
-     * [Scene.clearSpatialModeChangedListener], this invokes the default internal listener which
+     * This will trigger the custom listener registered via [Scene.setSpaceChangedListener]. If no
+     * custom listener is registered, or if it has been cleared via
+     * [Scene.clearSpaceChangedListener], this invokes the default internal listener which
      * automatically applies the recommended pose and scale from the event to the [Scene.keyEntity].
      *
      * Note: The listener is executed asynchronously on the [java.util.concurrent.Executor]
      * configured for the listener (defaults to the main thread).
      *
-     * @param spatialModeChangeEvent The simulated [SpatialModeChangeEvent] containing the
-     *   recommended pose and scale to dispatch.
+     * @param spaceChangeEvent The simulated [SpaceChangeEvent] containing the recommended pose and
+     *   scale to dispatch.
      */
-    public fun triggerSpatialModeChanged(spatialModeChangeEvent: SpatialModeChangeEvent) {
+    public fun triggerSpaceChanged(spaceChangeEvent: SpaceChangeEvent) {
         runtime.spatialModeChangeListener?.let {
-            val recommendedPose = spatialModeChangeEvent.recommendedPose
+            val recommendedPose = spaceChangeEvent.recommendedPose
             val recommendedScale =
                 Vector3(
-                    spatialModeChangeEvent.recommendedScale,
-                    spatialModeChangeEvent.recommendedScale,
-                    spatialModeChangeEvent.recommendedScale,
+                    spaceChangeEvent.recommendedScale,
+                    spaceChangeEvent.recommendedScale,
+                    spaceChangeEvent.recommendedScale,
                 )
             it.onSpatialModeChanged(recommendedPose, recommendedScale)
         }

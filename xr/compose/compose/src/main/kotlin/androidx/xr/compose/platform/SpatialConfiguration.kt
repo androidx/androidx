@@ -171,7 +171,7 @@ internal class SessionSpatialConfiguration(
         )
 
     init {
-        session.scene.setSpatialModeChangedListener { event ->
+        session.scene.setSpaceChangedListener { event ->
             recommendedPoseState.value = event.recommendedPose
             recommendedScaleState.floatValue = event.recommendedScale
             subspaceRootNode.setPose(pose = recommendedPoseState.value, relativeTo = Space.ACTIVITY)
@@ -209,11 +209,11 @@ internal class SessionSpatialConfiguration(
 
     @Deprecated("Use Activity.requestHomeSpace.")
     override fun requestHomeSpaceMode() {
-        session.scene.requestHomeSpaceMode()
+        session.scene.requestHomeSpace()
     }
 
     @Deprecated("Use Activity.requestFullSpace.")
     override fun requestFullSpaceMode() {
-        session.scene.requestFullSpaceMode()
+        session.scene.requestFullSpace()
     }
 }

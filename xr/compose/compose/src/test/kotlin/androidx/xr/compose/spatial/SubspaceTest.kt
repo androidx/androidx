@@ -349,12 +349,12 @@ class SubspaceTest {
         composeTestRule.onSubspaceNodeWithTag("panel").assertExists()
         assertThat(SceneManager.getSceneCount(composeTestRule.activity)).isEqualTo(1)
 
-        composeTestRule.session?.scene?.requestHomeSpaceMode()
+        composeTestRule.session?.scene?.requestHomeSpace()
 
         composeTestRule.onSubspaceNodeWithTag("panel").assertExists()
         assertThat(SceneManager.getSceneCount(composeTestRule.activity)).isEqualTo(1)
 
-        composeTestRule.session?.scene?.requestFullSpaceMode()
+        composeTestRule.session?.scene?.requestFullSpace()
 
         composeTestRule.onSubspaceNodeWithTag("panel").assertExists()
         assertThat(SceneManager.getSceneCount(composeTestRule.activity)).isEqualTo(1)
@@ -756,11 +756,11 @@ class SubspaceTest {
 
         composeTestRule.onNodeWithTag("state").assertTextContains("3")
 
-        session.scene.requestHomeSpaceMode()
+        session.scene.requestHomeSpace()
 
         composeTestRule.onNodeWithTag("state").assertTextContains("3")
 
-        session.scene.requestFullSpaceMode()
+        session.scene.requestFullSpace()
         composeTestRule.onNodeWithText("Increment").performClick().performClick()
 
         composeTestRule.onNodeWithTag("state").assertTextContains("5")
@@ -853,7 +853,7 @@ class SubspaceTest {
 
     @Test
     fun subspace_whenSwitchingModesFromHomeSpace_retainsState() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             CompositionLocalProvider {
@@ -888,7 +888,7 @@ class SubspaceTest {
         assertStateIs(0)
 
         // Switch to full space mode and verify state is preserved.
-        composeTestRule.session!!.scene.requestFullSpaceMode()
+        composeTestRule.session!!.scene.requestFullSpace()
         assertStateIs(0)
 
         // Increment the counter and verify the new state.
@@ -896,16 +896,16 @@ class SubspaceTest {
         assertStateIs(3)
 
         // Switch to home space mode and verify state is preserved.
-        composeTestRule.session!!.scene.requestHomeSpaceMode()
+        composeTestRule.session!!.scene.requestHomeSpace()
         assertStateIs(3)
 
         // Switch back to full space, increment again, and verify.
-        composeTestRule.session!!.scene.requestFullSpaceMode()
+        composeTestRule.session!!.scene.requestFullSpace()
         clickIncrement(2)
         assertStateIs(5)
 
         // Switch to home space one last time and.
-        composeTestRule.session!!.scene.requestHomeSpaceMode()
+        composeTestRule.session!!.scene.requestHomeSpace()
         assertStateIs(5)
     }
 

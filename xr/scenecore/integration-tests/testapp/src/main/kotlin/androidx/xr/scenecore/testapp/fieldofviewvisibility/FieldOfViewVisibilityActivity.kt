@@ -81,7 +81,7 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         if (session == null) this.finish()
         session!!.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
         // Disable default scale overrides on key entity from Spatial Mode events
-        session?.scene?.setSpatialModeChangedListener { event ->
+        session?.scene?.setSpaceChangedListener { event ->
             session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
         }
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
@@ -156,12 +156,12 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
 
         // Request FSM
         findViewById<Button>(R.id.button_request_fsm).also {
-            it.setOnClickListener { session!!.scene.requestFullSpaceMode() }
+            it.setOnClickListener { session!!.scene.requestFullSpace() }
         }
 
         // Request HSM
         findViewById<Button>(R.id.button_request_hsm).also {
-            it.setOnClickListener { session!!.scene.requestHomeSpaceMode() }
+            it.setOnClickListener { session!!.scene.requestHomeSpace() }
         }
 
         // Make the main panel movable.

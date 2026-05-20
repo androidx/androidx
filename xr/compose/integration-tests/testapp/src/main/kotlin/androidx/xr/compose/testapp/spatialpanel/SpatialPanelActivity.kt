@@ -61,7 +61,7 @@ import androidx.xr.scenecore.scene
 import kotlinx.coroutines.delay
 
 /*
- * This test checks how an activity in Full Space Mode reacts to a reconfiguration event.
+ * This test checks how an activity in Full Space reacts to a reconfiguration event.
  * This can be caused by a settings change, app resize or other factors.
  * In particular we want to test whether items lose their position in a recreation event
  * - Move panel and verify the delta in its X coordinate.
@@ -117,9 +117,9 @@ class SpatialPanelActivity : ComponentActivity() {
             } else {
                 // A recreation event has occurred if we're in this code block.
                 delay(1000)
-                // TODO: b/430264066 requestFullSpaceMode() is failing after activity.recreate()
+                // TODO: b/430264066 requestFullSpace() is failing after activity.recreate()
                 try {
-                    session.scene.requestFullSpaceMode()
+                    session.scene.requestFullSpace()
                     delay(1000)
                     testResult =
                         session.scene.spatialCapabilities.contains(SpatialCapability.SPATIAL_UI)

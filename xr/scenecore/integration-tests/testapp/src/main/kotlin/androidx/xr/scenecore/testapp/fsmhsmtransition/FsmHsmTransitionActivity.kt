@@ -41,8 +41,8 @@ import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialWindow
-import androidx.xr.scenecore.createBundleForFullSpaceModeLaunch
-import androidx.xr.scenecore.createBundleForFullSpaceModeLaunchWithEnvironmentInherited
+import androidx.xr.scenecore.createBundleForFullSpaceLaunch
+import androidx.xr.scenecore.createBundleForFullSpaceLaunchWithEnvironmentInherited
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.format
@@ -131,7 +131,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
         // Request FSM
         findViewById<Button>(R.id.button_request_fsm).also {
             it.setOnClickListener {
-                session!!.scene.requestFullSpaceMode()
+                session!!.scene.requestFullSpace()
                 inFsm = true
                 componentVisibility()
             }
@@ -140,7 +140,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
         // Request HSM
         findViewById<Button>(R.id.button_request_hsm).also {
             it.setOnClickListener {
-                session!!.scene.requestHomeSpaceMode()
+                session!!.scene.requestHomeSpace()
                 inFsm = false
                 componentVisibility()
             }
@@ -264,7 +264,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
         findViewById<Button>(R.id.button_launch_settings_app).also {
             it.setOnClickListener {
                 var (intent, bundle) = createIntent()
-                bundle = createBundleForFullSpaceModeLaunch(session!!, bundle)
+                bundle = createBundleForFullSpaceLaunch(session!!, bundle)
                 startActivity(intent, bundle)
             }
         }
@@ -273,8 +273,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
         findViewById<Button>(R.id.button_launch_settings_app_with_env_inherited).also {
             it.setOnClickListener {
                 var (intent, bundle) = createIntent()
-                bundle =
-                    createBundleForFullSpaceModeLaunchWithEnvironmentInherited(session!!, bundle)
+                bundle = createBundleForFullSpaceLaunchWithEnvironmentInherited(session!!, bundle)
                 startActivity(intent, bundle)
             }
         }

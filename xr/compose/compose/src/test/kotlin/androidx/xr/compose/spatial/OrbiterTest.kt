@@ -85,7 +85,7 @@ class OrbiterTest {
     private val parentTestTag = "parent"
 
     @Test
-    fun orbiter_inFullSpaceMode_isElevated() {
+    fun orbiter_inFullSpace_isElevated() {
         composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) {
                 Orbiter(ContentEdge.Top) { Text("Main Content") }
@@ -110,8 +110,8 @@ class OrbiterTest {
     }
 
     @Test
-    fun orbiter_inHomeSpaceMode_isInline() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun orbiter_inHomeSpace_isInline() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) {
@@ -123,8 +123,8 @@ class OrbiterTest {
     }
 
     @Test
-    fun orbiter_inHomeSpaceMode_whenShouldRenderInNonSpatialFalse_doesNotRenderContent() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun orbiter_inHomeSpace_whenShouldRenderInNonSpatialFalse_doesNotRenderContent() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Box {
@@ -136,7 +136,7 @@ class OrbiterTest {
     }
 
     @Test
-    fun orbiter_multipleInstances_inFullSpaceMode_areElevated() {
+    fun orbiter_multipleInstances_inFullSpace_areElevated() {
         composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) {
                 Orbiter(position = ContentEdge.Top) { Text("Top") }
@@ -151,20 +151,20 @@ class OrbiterTest {
 
     @Test
     fun orbiter_afterSwitchToFullSpace_isSpatialized() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) {
                 Orbiter(position = ContentEdge.Bottom) { Text("Bottom") }
             }
-            checkNotNull(LocalSession.current).scene.requestFullSpaceMode()
+            checkNotNull(LocalSession.current).scene.requestFullSpace()
         }
 
         composeTestRule.onNodeWithTag(parentTestTag).onChild().assertDoesNotExist()
     }
 
     @Test
-    fun orbiter_inFullSpaceMode_whenShouldRenderInNonSpatialFalse_isElevated() {
+    fun orbiter_inFullSpace_whenShouldRenderInNonSpatialFalse_isElevated() {
         composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) {
                 Orbiter(ContentEdge.Top, shouldRenderInNonSpatial = false) { Text("Main Content") }
@@ -193,8 +193,8 @@ class OrbiterTest {
     }
 
     @Test
-    fun orbiter_inHomeSpaceMode_rendersContent() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun orbiter_inHomeSpace_rendersContent() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Box {
@@ -210,7 +210,7 @@ class OrbiterTest {
     @Test
     fun orbiter_whenRemovedFromComposition_removesContent() {
         var showOrbiter by mutableStateOf(true)
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Box(modifier = Modifier.size(100.dp)) {
@@ -245,15 +245,11 @@ class OrbiterTest {
         }
 
         composeTestRule.onNodeWithTag(parentTestTag).onChild().assertTextContains("Main Content")
-        composeTestRule.runOnIdle {
-            checkNotNull(composeTestRule.session).scene.requestHomeSpaceMode()
-        }
+        composeTestRule.runOnIdle { checkNotNull(composeTestRule.session).scene.requestHomeSpace() }
 
         // All orbiters become children of the Parent node
         composeTestRule.onNodeWithTag(parentTestTag).onChildren().assertCountEquals(5)
-        composeTestRule.runOnIdle {
-            checkNotNull(composeTestRule.session).scene.requestFullSpaceMode()
-        }
+        composeTestRule.runOnIdle { checkNotNull(composeTestRule.session).scene.requestFullSpace() }
 
         // Orbiters exist outside the compose hierarchy
         composeTestRule.onNodeWithTag(parentTestTag).onChildren().assertCountEquals(1)

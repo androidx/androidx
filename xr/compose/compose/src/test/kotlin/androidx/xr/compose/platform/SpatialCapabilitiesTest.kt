@@ -109,7 +109,7 @@ class SpatialCapabilitiesTest {
     }
 
     @Test
-    fun isSpatialUiEnabled_fullSpaceMode_returnsTrue() {
+    fun isSpatialUiEnabled_fullSpace_returnsTrue() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
                 Text(spatialUiEnabledText)
@@ -120,7 +120,7 @@ class SpatialCapabilitiesTest {
     }
 
     @Test
-    fun isContent3dEnabled_fullSpaceMode_returnsTrue() {
+    fun isContent3dEnabled_fullSpace_returnsTrue() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isContent3dEnabled) {
                 Text(content3dEnabledText)
@@ -131,7 +131,7 @@ class SpatialCapabilitiesTest {
     }
 
     @Test
-    fun isAppEnvironmentEnabled_fullSpaceMode_returnsTrue() {
+    fun isAppEnvironmentEnabled_fullSpace_returnsTrue() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isAppEnvironmentEnabled) {
                 Text(appEnvironmentEnabledText)
@@ -142,7 +142,7 @@ class SpatialCapabilitiesTest {
     }
 
     @Test
-    fun isPassthroughControlEnabled_fullSpaceMode_returnsTrue() {
+    fun isPassthroughControlEnabled_fullSpace_returnsTrue() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isPassthroughControlEnabled) {
                 Text(passthroughControlEnabledText)
@@ -153,7 +153,7 @@ class SpatialCapabilitiesTest {
     }
 
     @Test
-    fun isSpatialAudioEnabled_fullSpaceMode_returnsTrue() {
+    fun isSpatialAudioEnabled_fullSpace_returnsTrue() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialAudioEnabled) {
                 Text(spatialAudioEnabledText)
@@ -164,8 +164,8 @@ class SpatialCapabilitiesTest {
     }
 
     @Test
-    fun isSpatialUiEnabled_homeSpaceMode_returnsFalse() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun isSpatialUiEnabled_homeSpace_returnsFalse() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
@@ -177,178 +177,178 @@ class SpatialCapabilitiesTest {
     }
 
     @Test
-    fun isSpatialUiEnabled_homeSpaceMode_requestFullSpaceMode_returnsTrue() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun isSpatialUiEnabled_homeSpace_requestFullSpace_returnsTrue() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
                 Text(spatialUiEnabledText)
             }
-            LocalSession.current?.scene?.requestFullSpaceMode()
+            LocalSession.current?.scene?.requestFullSpace()
         }
 
         composeTestRule.onNodeWithText(spatialUiEnabledText).assertExists()
     }
 
     @Test
-    fun isSpatialUiEnabled_fullSpaceMode_requestHomeSpaceMode_returnsFalse() {
+    fun isSpatialUiEnabled_fullSpace_requestHomeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
                 Text(spatialUiEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(spatialUiEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isContent3dEnabled_homeSpaceMode_returnsFalse() {
+    fun isContent3dEnabled_homeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isContent3dEnabled) {
                 Text(content3dEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(content3dEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isContent3dEnabled_homeSpaceMode_requestFullSpaceMode_returnsTrue() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun isContent3dEnabled_homeSpace_requestFullSpace_returnsTrue() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isContent3dEnabled) {
                 Text(content3dEnabledText)
             }
-            LocalSession.current?.scene?.requestFullSpaceMode()
+            LocalSession.current?.scene?.requestFullSpace()
         }
 
         composeTestRule.onNodeWithText(content3dEnabledText).assertExists()
     }
 
     @Test
-    fun isContent3dEnabled_fullSpaceMode_requestHomeSpaceMode_returnsFalse() {
+    fun isContent3dEnabled_fullSpace_requestHomeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isContent3dEnabled) {
                 Text(content3dEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(content3dEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isAppEnvironmentEnabled_homeSpaceMode_returnsFalse() {
+    fun isAppEnvironmentEnabled_homeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isAppEnvironmentEnabled) {
                 Text(appEnvironmentEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(appEnvironmentEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isAppEnvironmentEnabled_homeSpaceMode_requestFullSpaceMode_returnsTrue() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun isAppEnvironmentEnabled_homeSpace_requestFullSpace_returnsTrue() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isAppEnvironmentEnabled) {
                 Text(appEnvironmentEnabledText)
             }
-            LocalSession.current?.scene?.requestFullSpaceMode()
+            LocalSession.current?.scene?.requestFullSpace()
         }
 
         composeTestRule.onNodeWithText(appEnvironmentEnabledText).assertExists()
     }
 
     @Test
-    fun isAppEnvironmentEnabled_fullSpaceMode_requestHomeSpaceMode_returnsFalse() {
+    fun isAppEnvironmentEnabled_fullSpace_requestHomeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isAppEnvironmentEnabled) {
                 Text(appEnvironmentEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(appEnvironmentEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isPassthroughControlEnabled_homeSpaceMode_returnsFalse() {
+    fun isPassthroughControlEnabled_homeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isPassthroughControlEnabled) {
                 Text(passthroughControlEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(passthroughControlEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isPassthroughControlEnabled_homeSpaceMode_requestFullSpaceMode_returnsTrue() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun isPassthroughControlEnabled_homeSpace_requestFullSpace_returnsTrue() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isPassthroughControlEnabled) {
                 Text(passthroughControlEnabledText)
             }
-            LocalSession.current?.scene?.requestFullSpaceMode()
+            LocalSession.current?.scene?.requestFullSpace()
         }
 
         composeTestRule.onNodeWithText(passthroughControlEnabledText).assertExists()
     }
 
     @Test
-    fun isPassthroughControlEnabled_fullSpaceMode_requestHomeSpaceMode_returnsFalse() {
+    fun isPassthroughControlEnabled_fullSpace_requestHomeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isPassthroughControlEnabled) {
                 Text(passthroughControlEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(passthroughControlEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isSpatialAudioEnabled_homeSpaceMode_returnsFalse() {
+    fun isSpatialAudioEnabled_homeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialAudioEnabled) {
                 Text(spatialAudioEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(spatialAudioEnabledText).assertDoesNotExist()
     }
 
     @Test
-    fun isSpatialAudioEnabled_homeSpaceMode_requestFullSpaceMode_returnsTrue() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun isSpatialAudioEnabled_homeSpace_requestFullSpace_returnsTrue() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialAudioEnabled) {
                 Text(spatialAudioEnabledText)
             }
-            LocalSession.current?.scene?.requestFullSpaceMode()
+            LocalSession.current?.scene?.requestFullSpace()
         }
 
         composeTestRule.onNodeWithText(spatialAudioEnabledText).assertExists()
     }
 
     @Test
-    fun isSpatialAudioEnabled_fullSpaceMode_requestHomeSpaceMode_returnsFalse() {
+    fun isSpatialAudioEnabled_fullSpace_requestHomeSpace_returnsFalse() {
         composeTestRule.setContent {
             if (LocalSpatialCapabilities.current.isSpatialAudioEnabled) {
                 Text(spatialAudioEnabledText)
             }
-            LocalSession.current?.scene?.requestHomeSpaceMode()
+            LocalSession.current?.scene?.requestHomeSpace()
         }
 
         composeTestRule.onNodeWithText(spatialAudioEnabledText).assertDoesNotExist()

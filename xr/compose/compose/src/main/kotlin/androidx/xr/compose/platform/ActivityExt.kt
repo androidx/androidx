@@ -111,8 +111,8 @@ private suspend fun Session.requestAndAwaitSpaceChange(space: Space) {
 }
 
 private enum class Space(val sendRequest: (Session) -> Unit) {
-    Home({ session -> session.scene.requestHomeSpaceMode() }),
-    Full({ session -> session.scene.requestFullSpaceMode() });
+    Home({ session -> session.scene.requestHomeSpace() }),
+    Full({ session -> session.scene.requestFullSpace() });
 
     companion object {
         fun fromBounds(bounds: FloatSize3d): Space =

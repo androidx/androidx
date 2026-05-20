@@ -49,21 +49,20 @@ class LaunchUtilsTest {
     }
 
     @Test
-    fun configureBundleForFullSpaceMode_Launch_callsThrough() {
+    fun configureBundleForFullSpaceLaunch_callsThrough() {
         // Test that Session calls into the runtime.
         val bundle = Bundle().apply { putString("testkey", "testval") }
-        @Suppress("UNUSED_VARIABLE")
-        val result = createBundleForFullSpaceModeLaunch(session, bundle)
+        @Suppress("UNUSED_VARIABLE") val result = createBundleForFullSpaceLaunch(session, bundle)
 
         assertThat(result).isEqualTo(bundle)
     }
 
     @Test
-    fun configureBundleForFullSpaceModeLaunchWithEnvironmentInherited_callsThrough() {
+    fun configureBundleForFullSpaceLaunchWithEnvironmentInherited_callsThrough() {
         // Test that Session calls into the runtime.
         val bundle = Bundle().apply { putString("testkey", "testval") }
         @Suppress("UNUSED_VARIABLE")
-        val result = createBundleForFullSpaceModeLaunchWithEnvironmentInherited(session, bundle)
+        val result = createBundleForFullSpaceLaunchWithEnvironmentInherited(session, bundle)
 
         assertThat(result).isEqualTo(bundle)
     }

@@ -583,11 +583,11 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
                 Button(onClick = { togglePassthrough(session) }) {
                     Text(text = "Toggle Passthrough", fontSize = 30.sp)
                 }
-                Button(onClick = { session.scene.requestFullSpaceMode() }) {
-                    Text(text = "Request FSM", fontSize = 30.sp)
+                Button(onClick = { session.scene.requestFullSpace() }) {
+                    Text(text = "Request Full Space", fontSize = 30.sp)
                 }
-                Button(onClick = { session.scene.requestHomeSpaceMode() }) {
-                    Text(text = "Request HSM", fontSize = 30.sp)
+                Button(onClick = { session.scene.requestHomeSpace() }) {
+                    Text(text = "Request Home Space", fontSize = 30.sp)
                 }
                 Button(onClick = { ActivityCompat.recreate(activity) }) {
                     Text(text = "Recreate Activity", fontSize = 30.sp)
