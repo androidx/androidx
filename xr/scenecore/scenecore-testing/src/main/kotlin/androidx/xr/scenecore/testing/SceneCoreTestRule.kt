@@ -27,8 +27,10 @@ import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.InteractableComponent
+import androidx.xr.scenecore.MainPanelEntity
 import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.MovableComponent
+import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.PerceptionSpace
 import androidx.xr.scenecore.PointerCaptureComponent
 import androidx.xr.scenecore.PositionalAudioComponent
@@ -94,6 +96,7 @@ public class SceneCoreTestRule : ExternalResource() {
                 is AnchorEntity -> AnchorEntityTester.create(entity)
                 is GltfModelEntity -> GltfModelEntityTester.create(entity)
                 is MeshEntity -> MeshEntityTester.create(entity)
+                is PanelEntity -> PanelEntityTester.create(entity)
                 is SurfaceEntity -> SurfaceEntityTester.create(entity)
                 else -> null
             }
@@ -318,6 +321,25 @@ public class SceneCoreTestRule : ExternalResource() {
             return _perceptionSpaceTester!!
         }
 
+    private var _mainPanelEntityTester: MainPanelEntityTester? = null
+
+    /**
+     * Provides the test-only accessor for [MainPanelEntity] that enables direct manipulation and
+     * inspection of its internal state.
+     */
+    public val mainPanelEntityTester: MainPanelEntityTester
+        get() {
+            if (_mainPanelEntityTester != null) {
+                return _mainPanelEntityTester!!
+            }
+
+            _mainPanelEntityTester = requireRuntimesReady {
+                MainPanelEntityTester.create(requireNotNull(FakeSceneRuntime.instance))
+            }
+
+            return _mainPanelEntityTester!!
+        }
+
     /** The test data accessor for the [SpatialEnvironment]. */
     public val spatialEnvironmentTester: SpatialEnvironmentTester
         get() = requireRuntimesReady { SpatialEnvironmentTester.instance }
@@ -352,6 +374,7 @@ public class SceneCoreTestRule : ExternalResource() {
         _activitySpaceTester = null
         _perceptionSpaceTester = null
         _spatialSoundPoolTester = null
+        _mainPanelEntityTester = null
     }
 
     override fun after() {
@@ -359,5 +382,6 @@ public class SceneCoreTestRule : ExternalResource() {
         _activitySpaceTester = null
         _perceptionSpaceTester = null
         _spatialSoundPoolTester = null
+        _mainPanelEntityTester = null
     }
 }

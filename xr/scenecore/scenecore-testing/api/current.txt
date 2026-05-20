@@ -60,6 +60,10 @@ package androidx.xr.scenecore.testing {
     method public void triggerOnInputEvent(androidx.xr.scenecore.InputEvent inputEvent);
   }
 
+  public final class MainPanelEntityTester extends androidx.xr.scenecore.testing.PanelEntityTester {
+    method public void triggerOnPerceivedResolutionChanged(androidx.xr.runtime.math.IntSize2d dimensions);
+  }
+
   public final class MeshEntityTester {
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Matrix4> getBoneTransforms();
     property public java.util.List<androidx.xr.runtime.math.Matrix4> boneTransforms;
@@ -77,6 +81,12 @@ package androidx.xr.scenecore.testing {
     property public boolean isAnchorable;
     property public boolean isScaleInZ;
     property public boolean isSystemMovable;
+  }
+
+  public class PanelEntityTester {
+    method @InaccessibleFromKotlin public final androidx.xr.scenecore.PerceivedResolutionResult getPerceivedResolutionResult();
+    method @InaccessibleFromKotlin public final void setPerceivedResolutionResult(androidx.xr.scenecore.PerceivedResolutionResult);
+    property public final androidx.xr.scenecore.PerceivedResolutionResult perceivedResolutionResult;
   }
 
   public final class PerceptionSpaceTester {
@@ -112,12 +122,14 @@ package androidx.xr.scenecore.testing {
     method public androidx.xr.scenecore.testing.SoundEffectPoolTester createTester(androidx.xr.scenecore.SoundEffectPool soundEffectPool);
     method public androidx.xr.scenecore.testing.TextureTester createTester(androidx.xr.scenecore.Texture texture);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.ActivitySpaceTester getActivitySpaceTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.MainPanelEntityTester getMainPanelEntityTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.PerceptionSpaceTester getPerceptionSpaceTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SceneTester getSceneTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialEnvironmentTester getSpatialEnvironmentTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
     property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
+    property public androidx.xr.scenecore.testing.MainPanelEntityTester mainPanelEntityTester;
     property public androidx.xr.scenecore.testing.PerceptionSpaceTester perceptionSpaceTester;
     property public androidx.xr.scenecore.testing.SceneTester sceneTester;
     property public androidx.xr.scenecore.testing.SpatialEnvironmentTester spatialEnvironmentTester;
