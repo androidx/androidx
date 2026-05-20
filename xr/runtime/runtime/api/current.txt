@@ -281,8 +281,14 @@ package androidx.xr.runtime {
     method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
+    method @InaccessibleFromKotlin public android.content.Context getContext();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineScope getCoroutineScope();
+    method @InaccessibleFromKotlin public androidx.lifecycle.LifecycleOwner getLifecycleOwner();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> getState();
     property public androidx.xr.runtime.Config config;
+    property public android.content.Context context;
+    property public kotlinx.coroutines.CoroutineScope coroutineScope;
+    property public androidx.lifecycle.LifecycleOwner lifecycleOwner;
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> state;
     field public static final androidx.xr.runtime.Session.Companion Companion;
   }
