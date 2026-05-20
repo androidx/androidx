@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import Camera2StreamConfigurationMap
 import android.graphics.ImageFormat
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader

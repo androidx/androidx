@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe
 
-import Camera2StreamConfigurationMap
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
@@ -33,6 +32,7 @@ import androidx.camera.camera2.pipe.compat.Api34Compat
 import androidx.camera.camera2.pipe.compat.Api35Compat
 import androidx.camera.camera2.pipe.compat.Camera2ColorSpaceProfiles
 import androidx.camera.camera2.pipe.compat.Camera2MultiResolutionStreamConfigurationMap
+import androidx.camera.camera2.pipe.compat.Camera2StreamConfigurationMap
 
 /**
  * [CameraMetadata] is a compatibility wrapper around [CameraCharacteristics].
