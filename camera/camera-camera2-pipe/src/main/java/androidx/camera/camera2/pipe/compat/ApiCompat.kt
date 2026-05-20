@@ -574,4 +574,21 @@ internal object Api35Compat {
     ): List<CameraCharacteristics.Key<*>>? {
         return cameraCharacteristics.availableSessionCharacteristicsKeys
     }
+
+    @JvmStatic
+    fun getExtensionKeys(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+    ): Set<CameraCharacteristics.Key<*>> {
+        return extensionCharacteristics.getKeys(extension)
+    }
+
+    @JvmStatic
+    fun <T> getExtensionCharacteristic(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        key: CameraCharacteristics.Key<T>,
+    ): T? {
+        return extensionCharacteristics.get(extension, key)
+    }
 }
