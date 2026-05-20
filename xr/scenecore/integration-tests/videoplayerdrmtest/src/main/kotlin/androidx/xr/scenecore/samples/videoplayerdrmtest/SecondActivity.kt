@@ -55,10 +55,10 @@ class SecondActivity : ComponentActivity() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Button(onClick = { session.scene.requestFullSpaceMode() }) {
+            Button(onClick = { session.scene.requestFullSpace() }) {
                 Text(text = "Request FSM", fontSize = 30.sp)
             }
-            Button(onClick = { session.scene.requestHomeSpaceMode() }) {
+            Button(onClick = { session.scene.requestHomeSpace() }) {
                 Text(text = "Request HSM", fontSize = 30.sp)
             }
         }

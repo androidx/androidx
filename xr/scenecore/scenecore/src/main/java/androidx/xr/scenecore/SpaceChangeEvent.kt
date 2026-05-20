@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,45 @@
 
 package androidx.xr.scenecore
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.xr.runtime.math.Pose
+
+/**
+ * An event that is dispatched when the space for the scene has changed, such as from Home Space to
+ * Full Space
+ *
+ * @property recommendedPose The recommended pose for the key entity. The pose is relative to
+ *   [ActivitySpace] origin, not relative to the key entity's parent.
+ * @property recommendedScale The recommended scale for the key entity. The scale value is the
+ *   accumulated scale for this entity i.e. accumulated scale in [ActivitySpace], not relative to
+ *   the key entity's parent.
+ */
+public class SpaceChangeEvent(
+    public val recommendedPose: Pose,
+    public val recommendedScale: Float,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SpaceChangeEvent) return false
+        if (recommendedPose != other.recommendedPose) return false
+        if (recommendedScale != other.recommendedScale) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = recommendedPose.hashCode()
+        result = 31 * result + recommendedScale.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "SpaceChangeEvent(" +
+            "recommendedPose=$recommendedPose, " +
+            "recommendedScale=$recommendedScale" +
+            ")"
+    }
+}
 
 /**
  * An event that is dispatched when the spatial mode for the scene has changed.
@@ -27,22 +65,23 @@ import androidx.xr.runtime.math.Pose
  *   accumulated scale for this entity i.e. accumulated scale in [ActivitySpace], not relative to
  *   the key entity's parent.
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
+@Deprecated("Use SpaceChangeEvent", replaceWith = ReplaceWith("SpaceChangeEvent"))
 public class SpatialModeChangeEvent(
     public val recommendedPose: Pose,
     public val recommendedScale: Float,
 ) {
+    private val spaceChangeEvent: SpaceChangeEvent =
+        SpaceChangeEvent(recommendedPose, recommendedScale)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is SpatialModeChangeEvent) return false
-        if (recommendedPose != other.recommendedPose) return false
-        if (recommendedScale != other.recommendedScale) return false
-        return true
+        @Suppress("Deprecation") if (other !is SpatialModeChangeEvent) return false
+        return spaceChangeEvent == other.spaceChangeEvent
     }
 
     override fun hashCode(): Int {
-        var result = recommendedPose.hashCode()
-        result = 31 * result + recommendedScale.hashCode()
-        return result
+        return spaceChangeEvent.hashCode()
     }
 
     override fun toString(): String {

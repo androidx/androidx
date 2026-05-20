@@ -44,7 +44,7 @@ import androidx.xr.scenecore.scene
 import kotlinx.coroutines.delay
 
 /*
- * Ensure switching between HomeSpaceMode and FullSpaceMode triggers appropriate callbacks
+ * Ensure switching between HomeSpace and FullSpace triggers appropriate callbacks
  */
 
 class SpaceModeActivity : ComponentActivity() {
@@ -81,7 +81,7 @@ class SpaceModeActivity : ComponentActivity() {
 
         LaunchedEffect(Unit) {
             delay(1000)
-            session.scene.requestFullSpaceMode()
+            session.scene.requestFullSpace()
             delay(3000)
             addTestResult(
                 testResults,
@@ -91,7 +91,7 @@ class SpaceModeActivity : ComponentActivity() {
             )
 
             delay(1000)
-            session.scene.requestHomeSpaceMode()
+            session.scene.requestHomeSpace()
             delay(3000)
             addTestResult(
                 testResults,
@@ -101,7 +101,7 @@ class SpaceModeActivity : ComponentActivity() {
             )
 
             delay(1000)
-            session.scene.requestFullSpaceMode()
+            session.scene.requestFullSpace()
             delay(3000)
             testStatus = "Finished"
             if (runAutomated) {

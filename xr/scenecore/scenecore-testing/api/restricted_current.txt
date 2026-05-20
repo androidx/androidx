@@ -143,7 +143,7 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.PanelClippingConfig getPanelClippingConfig();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.SpatialCapability> getSpatialCapabilities();
     method @InaccessibleFromKotlin public void setSpatialCapabilities(java.util.Set<androidx.xr.scenecore.SpatialCapability>);
-    method public void triggerSpatialModeChanged(androidx.xr.scenecore.SpatialModeChangeEvent spatialModeChangeEvent);
+    method public void triggerSpaceChanged(androidx.xr.scenecore.SpaceChangeEvent spaceChangeEvent);
     method public void triggerSpatialVisibilityChanged(androidx.xr.scenecore.SpatialVisibility spatialVisibility);
     property public androidx.xr.scenecore.PanelClippingConfig panelClippingConfig;
     property public java.util.Set<androidx.xr.scenecore.SpatialCapability> spatialCapabilities;

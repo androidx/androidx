@@ -35,8 +35,8 @@ import java.util.function.Consumer
 /**
  * Represents the main spatialized panel in a [Scene].
  *
- * This entity serves as the primary 2D surface for the application, especially in Home Space Mode,
- * where it functions as the activity's main window.
+ * This entity serves as the primary 2D surface for the application, especially in Home Space, where
+ * it functions as the activity's main window.
  */
 public class MainPanelEntity
 internal constructor(
@@ -56,10 +56,10 @@ internal constructor(
         ConcurrentMap<Consumer<IntSize2d>, Consumer<RtPixelDimensions>> =
         ConcurrentHashMap()
 
-    // TODO: b/429429326 - Make this callback work in Full Space Mode
+    // TODO: b/429429326 - Make this callback work in Full Space
     /**
      * Sets the listener to be invoked when the perceived resolution of the main window changes in
-     * Home Space Mode.
+     * Home Space.
      *
      * The main panel's own rotation and the display's viewing direction are disregarded; this value
      * represents the pixel dimensions of the panel on the camera view without changing its distance
@@ -67,9 +67,9 @@ internal constructor(
      *
      * The listener is invoked on the provided executor.
      *
-     * Non-zero values are only guaranteed in Home Space Mode. In Full Space Mode, the callback will
-     * always return a (0,0) size. Use the [getPerceivedResolution] method to retrieve non-zero
-     * values in Full Space Mode.
+     * Non-zero values are only guaranteed in Home Space. In Full Space, the callback will always
+     * return a (0,0) size. Use the [getPerceivedResolution] method to retrieve non-zero values in
+     * Full Space.
      *
      * @param callbackExecutor The [Executor] to run the listener on.
      * @param listener The [Consumer] to be invoked asynchronously on the given callbackExecutor
@@ -100,10 +100,10 @@ internal constructor(
         )
     }
 
-    // TODO: b/429429326 - Make this callback work in Full Space Mode
+    // TODO: b/429429326 - Make this callback work in Full Space
     /**
      * Sets the listener to be invoked on the Main Thread Executor when the perceived resolution of
-     * the main window changes in Home Space Mode.
+     * the main window changes in Home Space.
      *
      * The main panel's own rotation and the display's viewing direction are disregarded; this value
      * represents the pixel dimensions of the panel on the camera view without changing its distance
@@ -112,10 +112,10 @@ internal constructor(
      * There can only be one listener set at a time. If a new listener is set, the previous listener
      * will be released.
      *
-     * Non-zero values are only guaranteed in Home Space Mode. In Full Space Mode, the callback will
-     * always return a (0,0) size. Use the [PanelEntity.getPerceivedResolution] or
+     * Non-zero values are only guaranteed in Home Space. In Full Space, the callback will always
+     * return a (0,0) size. Use the [PanelEntity.getPerceivedResolution] or
      * [SurfaceEntity.getPerceivedResolution] methods directly on the relevant entities to retrieve
-     * non-zero values in Full Space Mode.
+     * non-zero values in Full Space.
      *
      * @param listener The [Consumer] to be invoked asynchronously on the given callbackExecutor
      *   whenever the maximum perceived resolution of the main panel changes. The parameter passed

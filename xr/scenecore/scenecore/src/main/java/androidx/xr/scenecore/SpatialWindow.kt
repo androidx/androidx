@@ -30,11 +30,11 @@ public object SpatialWindow {
     public const val NO_PREFERRED_ASPECT_RATIO: Float = -1.0f
 
     /**
-     * Sets a preferred main panel aspect ratio for Home Space Mode.
+     * Sets a preferred main panel aspect ratio for Home Space.
      *
      * The ratio is only applied to the [Activity]. If the activity launches another activity in the
      * same task, the ratio is not applied to the new activity. Also, while the activity is in Full
-     * Space Mode, the preference is ignored.
+     * Space, the preference is ignored.
      *
      * If the activity's current aspect ratio differs from the `preferredRatio`, the panel is
      * automatically resized. This resizing preserves the panel's area. To avoid runtime resizing,

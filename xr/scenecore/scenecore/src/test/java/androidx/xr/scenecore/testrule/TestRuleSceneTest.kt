@@ -38,8 +38,8 @@ import androidx.xr.scenecore.PlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.Space
+import androidx.xr.scenecore.SpaceChangeEvent
 import androidx.xr.scenecore.SpatialCapability
-import androidx.xr.scenecore.SpatialModeChangeEvent
 import androidx.xr.scenecore.SpatialVisibility
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.sceneRuntime
@@ -282,16 +282,16 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun setSpatialModeChangedListener_withExecutor_receivesEvent() {
-        var receivedEvent: SpatialModeChangeEvent? = null
-        val listener = Consumer<SpatialModeChangeEvent> { event -> receivedEvent = event }
+    fun setSpaceChangedListener_withExecutor_receivesEvent() {
+        var receivedEvent: SpaceChangeEvent? = null
+        val listener = Consumer<SpaceChangeEvent> { event -> receivedEvent = event }
         val executor = directExecutor()
-        session.scene.setSpatialModeChangedListener(executor, listener)
+        session.scene.setSpaceChangedListener(executor, listener)
 
         val expectedPose = Pose.Identity
         val expectedScale = 2f
-        val expectedResult = SpatialModeChangeEvent(expectedPose, expectedScale)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        val expectedResult = SpaceChangeEvent(expectedPose, expectedScale)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
 
         assertThat(receivedEvent).isNotNull()
         assertThat(receivedEvent?.recommendedPose).isEqualTo(expectedPose)
@@ -299,16 +299,16 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun setSpatialModeChangedListener_withNoExecutor_receivesEvent() {
-        var receivedEvent: SpatialModeChangeEvent? = null
-        val listener = Consumer<SpatialModeChangeEvent> { event -> receivedEvent = event }
+    fun setSpaceChangedListener_withNoExecutor_receivesEvent() {
+        var receivedEvent: SpaceChangeEvent? = null
+        val listener = Consumer<SpaceChangeEvent> { event -> receivedEvent = event }
 
-        session.scene.setSpatialModeChangedListener(listener)
+        session.scene.setSpaceChangedListener(listener)
 
         val expectedPose = Pose.Identity
         val expectedScale = 2f
-        val expectedResult = SpatialModeChangeEvent(expectedPose, expectedScale)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        val expectedResult = SpaceChangeEvent(expectedPose, expectedScale)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(receivedEvent).isNotNull()
@@ -317,33 +317,33 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun clearSpatialModeChangedListener_removesListener() {
+    fun clearSpaceChangedListener_removesListener() {
         var listenerCalled = false
-        val listener = Consumer<SpatialModeChangeEvent> { _ -> listenerCalled = true }
+        val listener = Consumer<SpaceChangeEvent> { _ -> listenerCalled = true }
 
-        session.scene.setSpatialModeChangedListener(listener)
+        session.scene.setSpaceChangedListener(listener)
         // Set keyEntity to null to avoid the IllegalStateException in FakeEntity
         session.scene.keyEntity = null
-        session.scene.clearSpatialModeChangedListener()
+        session.scene.clearSpaceChangedListener()
 
         val expectedPose = Pose.Identity
         val expectedScale = 1f
-        val expectedResult = SpatialModeChangeEvent(expectedPose, expectedScale)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        val expectedResult = SpaceChangeEvent(expectedPose, expectedScale)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(listenerCalled).isFalse()
     }
 
     @Test
-    fun clearSpatialModeChangedListener_restoresDefaultKeyEntityBehavior() {
+    fun clearSpaceChangedListener_restoresDefaultKeyEntityBehavior() {
         val keyEntity = Entity.create(session, "Test Entity")
         // Parent the entity to activitySpace so setPose(..., Space.ACTIVITY) doesn't throw.
         keyEntity.parent = session.scene.activitySpace
         session.scene.keyEntity = keyEntity
 
         // Set a custom listener that does nothing
-        session.scene.setSpatialModeChangedListener {}
+        session.scene.setSpaceChangedListener {}
 
         val initialPose = keyEntity.getPose()
         val initialScale = keyEntity.getScale()
@@ -351,8 +351,8 @@ class TestRuleSceneTest {
         // Trigger change, keyEntity should not be updated
         val pose1 = Pose(Vector3(1f, 1f, 1f))
         val scale1 = 0.5f
-        val expectedResult1 = SpatialModeChangeEvent(pose1, scale1)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult1)
+        val expectedResult1 = SpaceChangeEvent(pose1, scale1)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult1)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(keyEntity.getPose()).isEqualTo(initialPose)
@@ -361,13 +361,13 @@ class TestRuleSceneTest {
         assertThat(keyEntity.getScale()).isNotEqualTo(scale1) // Ensure scale1 was different
 
         // Clear the listener
-        session.scene.clearSpatialModeChangedListener()
+        session.scene.clearSpaceChangedListener()
 
         // Trigger change again, keyEntity should now be updated
         val pose2 = Pose(Vector3(2f, 2f, 2f))
         val scale2 = 3f
-        val expectedResult2 = SpatialModeChangeEvent(pose2, scale2)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult2)
+        val expectedResult2 = SpaceChangeEvent(pose2, scale2)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult2)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(keyEntity.getPose(Space.ACTIVITY)).isEqualTo(pose2)
@@ -375,18 +375,18 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun setSpatialModeChangedListener_overridesDefaultBehavior() {
+    fun setSpaceChangedListener_overridesDefaultBehavior() {
         val keyEntity = Entity.create(session, "Test Entity")
         session.scene.keyEntity = keyEntity
 
         var listenerCalled = false
-        val listener = Consumer<SpatialModeChangeEvent> { _ -> listenerCalled = true }
-        session.scene.setSpatialModeChangedListener(listener)
+        val listener = Consumer<SpaceChangeEvent> { _ -> listenerCalled = true }
+        session.scene.setSpaceChangedListener(listener)
 
         val pose1 = Pose(Vector3(1f, 1f, 1f))
         val scale1 = 0.5f
-        val expectedResult = SpatialModeChangeEvent(pose1, scale1)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        val expectedResult = SpaceChangeEvent(pose1, scale1)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(listenerCalled).isTrue()
@@ -395,7 +395,7 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun requestFullSpaceMode_callsThrough() {
+    fun requestFullSpace_callsThrough() {
         val allCapabilities: Set<SpatialCapability> =
             setOf(
                 SpatialCapability.SPATIAL_3D_CONTENT,
@@ -408,27 +408,27 @@ class TestRuleSceneTest {
         var result: Set<SpatialCapability> = emptySet()
         val listener = Consumer<Set<SpatialCapability>> { capability -> result = capability }
         session.scene.addSpatialCapabilitiesChangedListener(listener)
-        session.scene.requestFullSpaceMode()
+        session.scene.requestFullSpace()
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(result).isEqualTo(allCapabilities)
     }
 
     @Test
-    fun requestHomeSpaceMode_callsThrough() {
+    fun requestHomeSpace_callsThrough() {
         val emptyCapabilities: Set<SpatialCapability> = emptySet()
         var result: Set<SpatialCapability> =
             setOf(SpatialCapability.SPATIAL_3D_CONTENT, SpatialCapability.APP_ENVIRONMENT)
         val listener = Consumer<Set<SpatialCapability>> { capability -> result = capability }
         session.scene.addSpatialCapabilitiesChangedListener(listener)
-        session.scene.requestHomeSpaceMode()
+        session.scene.requestHomeSpace()
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(result).isEqualTo(emptyCapabilities)
     }
 
     @Test
-    fun requestHomeSpaceMode_requestFullSpaceMode_callsThrough() {
+    fun requestHomeSpace_requestFullSpace_callsThrough() {
         val allCapabilities: Set<SpatialCapability> =
             setOf(
                 SpatialCapability.SPATIAL_3D_CONTENT,
@@ -444,11 +444,11 @@ class TestRuleSceneTest {
         assertThat(testRule.sceneTester.spatialCapabilities).isEqualTo(allCapabilities)
 
         // Request HSM
-        session.scene.requestHomeSpaceMode()
+        session.scene.requestHomeSpace()
         assertThat(testRule.sceneTester.spatialCapabilities).isEqualTo(emptyCapabilities)
 
         // Request FSM
-        session.scene.requestFullSpaceMode()
+        session.scene.requestFullSpace()
         assertThat(testRule.sceneTester.spatialCapabilities).isEqualTo(allCapabilities)
     }
 
@@ -528,7 +528,7 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun defaultSpatialModeChangedListener_withKeyEntity_updatesPoseAndScale() {
+    fun defaultSpaceChangedListener_withKeyEntity_updatesPoseAndScale() {
         val keyEntity = Entity.create(session, "Test Entity")
         // Parent the entity to activitySpace so setPose(..., Space.ACTIVITY) doesn't throw.
         keyEntity.parent = session.scene.activitySpace
@@ -536,8 +536,8 @@ class TestRuleSceneTest {
 
         val recommendedPose = Pose(Vector3(1f, 2f, 3f))
         val recommendedScale = 2f
-        val expectedResult = SpatialModeChangeEvent(recommendedPose, recommendedScale)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        val expectedResult = SpaceChangeEvent(recommendedPose, recommendedScale)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(keyEntity.getPose(Space.ACTIVITY)).isEqualTo(recommendedPose)
@@ -545,17 +545,17 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun defaultSpatialModeChangedListener_withNullKeyEntity_isNoOp() {
+    fun defaultSpaceChangedListener_withNullKeyEntity_isNoOp() {
         // Ensure keyEntity is null.
         session.scene.keyEntity = null
         assertThat(session.scene.keyEntity).isNull()
 
         val recommendedPose = Pose.Identity
         val recommendedScale = 1.0f
-        val expectedResult = SpatialModeChangeEvent(recommendedPose, recommendedScale)
+        val expectedResult = SpaceChangeEvent(recommendedPose, recommendedScale)
 
         // This should not throw any exception
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
         shadowOf(Looper.getMainLooper()).idle()
     }
 
@@ -574,7 +574,7 @@ class TestRuleSceneTest {
         assertThat(resultCount).isEqualTo(1)
 
         session.scene.close()
-        session.scene.requestFullSpaceMode()
+        session.scene.requestFullSpace()
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(resultCount).isEqualTo(1)
@@ -600,21 +600,20 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun sceneClose_clearsSpatialModeChangeListener() {
-        var modeChangeListenerCalled = false
-        val modeChangeListener =
-            Consumer<SpatialModeChangeEvent> { modeChangeListenerCalled = true }
-        session.scene.setSpatialModeChangedListener(modeChangeListener)
+    fun sceneClose_clearsSpaceChangeListener() {
+        var spaceChangeListenerCalled = false
+        val spaceChangeListener = Consumer<SpaceChangeEvent> { spaceChangeListenerCalled = true }
+        session.scene.setSpaceChangedListener(spaceChangeListener)
 
         session.scene.close()
 
         val recommendedPose = Pose.Identity
         val recommendedScale = 1.0f
-        val expectedResult = SpatialModeChangeEvent(recommendedPose, recommendedScale)
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        val expectedResult = SpaceChangeEvent(recommendedPose, recommendedScale)
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
         shadowOf(Looper.getMainLooper()).idle()
 
-        assertThat(modeChangeListenerCalled).isFalse()
+        assertThat(spaceChangeListenerCalled).isFalse()
     }
 
     @Test
@@ -627,13 +626,13 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun keyEntity_setNonNullAfterNull_invokesSpatialModeChangeListenersWithLastRecommendedValues() {
+    fun keyEntity_setNonNullAfterNull_invokesSpaceChangeListenersWithLastRecommendedValues() {
         val recommendedPose = Pose(Vector3(1f, 2f, 3f))
         val recommendedScale = 5f
-        val expectedResult = SpatialModeChangeEvent(recommendedPose, recommendedScale)
+        val expectedResult = SpaceChangeEvent(recommendedPose, recommendedScale)
 
-        // Trigger a mode change to set lastRecommended values
-        testRule.sceneTester.triggerSpatialModeChanged(expectedResult)
+        // Trigger a space change to set lastRecommended values
+        testRule.sceneTester.triggerSpaceChanged(expectedResult)
 
         // Reset keyEntity to null so that setting it next triggers immediate invocation
         session.scene.keyEntity = null
@@ -650,15 +649,15 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun keyEntity_setNonNullAfterNull_invokesCustomSpatialModeChangeListenersWithLastRecommendedValues() {
+    fun keyEntity_setNonNullAfterNull_invokesCustomSpaceChangeListenersWithLastRecommendedValues() {
         val recommendedPose = Pose(Vector3(1f, 2f, 3f))
         val recommendedScale = 5f
-        var testSpatialModeChangeCount = 0
-        session.scene.setSpatialModeChangedListener { _ -> testSpatialModeChangeCount++ }
+        var testSpaceChangeCount = 0
+        session.scene.setSpaceChangedListener { _ -> testSpaceChangeCount++ }
 
-        // Trigger a mode change to set lastRecommended values
-        testRule.sceneTester.triggerSpatialModeChanged(
-            SpatialModeChangeEvent(recommendedPose, recommendedScale)
+        // Trigger a space change to set lastRecommended values
+        testRule.sceneTester.triggerSpaceChanged(
+            SpaceChangeEvent(recommendedPose, recommendedScale)
         )
 
         // Reset keyEntity to null so that setting it next triggers immediate invocation
@@ -669,8 +668,8 @@ class TestRuleSceneTest {
 
         shadowOf(Looper.getMainLooper()).idle()
 
-        // Check that spatial mode change listener was invoked twice, once on spatial mode change
+        // Check that space change listener was invoked twice, once on the space change
         // and later when keyEntity was set.
-        assertThat(testSpatialModeChangeCount).isEqualTo(2)
+        assertThat(testSpaceChangeCount).isEqualTo(2)
     }
 }

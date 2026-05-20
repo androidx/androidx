@@ -18,6 +18,7 @@ package androidx.xr.scenecore
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.SessionConnector
 import androidx.xr.runtime.internal.JxrRuntime
@@ -117,7 +118,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * cleared by setting this value to `null`. When `null`, the default listener takes no action
      * during spatial mode changes.
      *
-     * When a new non-null [Entity] is assigned as [keyEntity], the [spatialModeChangedListener] is
+     * When a new non-null [Entity] is assigned as [keyEntity], the [spaceChangedListener] is
      * immediately invoked with the last known recommended pose and scale values if the following
      * conditions are met:
      * 1. The previous value of [keyEntity] was `null`.
@@ -144,10 +145,8 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
                     if (wasNull && value != null) {
                         lastRecommendedPose?.let { pose ->
                             lastRecommendedScale?.let { scale ->
-                                val event = SpatialModeChangeEvent(pose, scale.x)
-                                spatialModeChangedExecutor.execute {
-                                    spatialModeChangedListener.accept(event)
-                                }
+                                val event = SpaceChangeEvent(pose, scale.x)
+                                spaceChangedExecutor.execute { spaceChangedListener.accept(event) }
                             }
                         }
                     }
@@ -174,13 +173,13 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
     private var lastRecommendedPose: Pose? = null
     private var lastRecommendedScale: Vector3? = null
 
-    private val defaultSpatialModeChangedListener =
-        Consumer<SpatialModeChangeEvent> { event ->
+    private val defaultSpaceChangedListener =
+        Consumer<SpaceChangeEvent> { event ->
             keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
             keyEntity?.setScale(event.recommendedScale, Space.ACTIVITY)
         }
-    private var spatialModeChangedListener = defaultSpatialModeChangedListener
-    private var spatialModeChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
+    private var spaceChangedListener = defaultSpaceChangedListener
+    private var spaceChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
 
     private val spatialVisibilityChangedListeners = ConsumerListenerMap<SpatialVisibility>()
 
@@ -214,8 +213,8 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
             RtSpatialModeChangeListener { recommendedPose, recommendedScale ->
                 lastRecommendedPose = recommendedPose
                 lastRecommendedScale = recommendedScale
-                val event = SpatialModeChangeEvent(recommendedPose, recommendedScale.x)
-                spatialModeChangedExecutor.execute { spatialModeChangedListener.accept(event) }
+                val event = SpaceChangeEvent(recommendedPose, recommendedScale.x)
+                spaceChangedExecutor.execute { spaceChangedListener.accept(event) }
             }
 
         spatialCapabilities = sceneRuntime.spatialCapabilities.toSpatialCapabilities()
@@ -247,7 +246,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
         spatialCapabilitiesListeners.clear()
         spatialVisibilityChangedListeners.clear()
         keyEntity = null
-        clearSpatialModeChangedListener()
+        clearSpaceChangedListener()
         removeSceneFromCache(this)
     }
 
@@ -496,6 +495,55 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
     }
 
     /**
+     * Sets the listener to be invoked when the space has changed, such as from Home Space to Full
+     * Space.
+     *
+     * The listener is invoked on the provided [Executor].
+     *
+     * Because the listener will typically update the [keyEntity]'s pose and/or scale, there can
+     * only be one listener set at a time. If a new listener is set, the previous listener will be
+     * released.
+     *
+     * @param callbackExecutor The [Executor] on which to run the listener.
+     * @param listener The [Consumer] to be invoked asynchronously on the given callbackExecutor
+     *   whenever the space has changed.
+     */
+    public fun setSpaceChangedListener(
+        callbackExecutor: Executor,
+        listener: Consumer<SpaceChangeEvent>,
+    ) {
+        spaceChangedListener = listener
+        spaceChangedExecutor = callbackExecutor
+    }
+
+    /**
+     * Sets the listener to be invoked on the main thread executor when the space for the Scene has
+     * changed, such as from Home Space to Full Space.
+     *
+     * Because the listener will typically update the [keyEntity]'s pose and/or scale, there can
+     * only be one listener set at a time. If a new listener is set, the previous listener will be
+     * released.
+     *
+     * @param listener The [Consumer] to be invoked asynchronously on the main thread whenever the
+     *   spatial mode has changed.
+     */
+    public fun setSpaceChangedListener(listener: Consumer<SpaceChangeEvent>): Unit =
+        setSpaceChangedListener(HandlerExecutor.mainThreadExecutor, listener)
+
+    /**
+     * Releases the listener previously set by [setSpaceChangedListener] and reinstates the default
+     * behavior of automatically updating the [keyEntity]'s pose and scale on the main thread
+     * executor.
+     *
+     * The listener is automatically released at the end of the Scene's lifecycle even if this
+     * method is not explicitly called.
+     */
+    public fun clearSpaceChangedListener() {
+        spaceChangedListener = defaultSpaceChangedListener
+        spaceChangedExecutor = HandlerExecutor.mainThreadExecutor
+    }
+
+    /**
      * Sets the listener to be invoked when the spatial mode for the scene has changed.
      *
      * The listener is invoked on the provided [Executor].
@@ -507,13 +555,21 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * @param listener The [Consumer] to be invoked asynchronously on the given callbackExecutor
      *   whenever the spatial mode has changed.
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Deprecated("Use setSpaceChangedListener", replaceWith = ReplaceWith("setSpaceChangedListener"))
+    @Suppress("Deprecation")
     public fun setSpatialModeChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<SpatialModeChangeEvent>,
-    ) {
-        spatialModeChangedListener = listener
-        spatialModeChangedExecutor = callbackExecutor
-    }
+    ): Unit =
+        setSpaceChangedListener(callbackExecutor) { spaceChangeEvent ->
+            listener.accept(
+                SpatialModeChangeEvent(
+                    spaceChangeEvent.recommendedPose,
+                    spaceChangeEvent.recommendedScale,
+                )
+            )
+        }
 
     /**
      * Sets the listener to be invoked on the main thread executor when the spatial mode for the
@@ -526,6 +582,9 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * @param listener The [Consumer] to be invoked asynchronously on the main thread whenever the
      *   spatial mode has changed.
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Deprecated("Use setSpaceChangedListener", replaceWith = ReplaceWith("setSpaceChangedListener"))
+    @Suppress("Deprecation")
     public fun setSpatialModeChangedListener(listener: Consumer<SpatialModeChangeEvent>): Unit =
         setSpatialModeChangedListener(HandlerExecutor.mainThreadExecutor, listener)
 
@@ -537,22 +596,40 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * The listener is automatically released at the end of the Scene's lifecycle even if this
      * method is not explicitly called.
      */
-    public fun clearSpatialModeChangedListener() {
-        spatialModeChangedListener = defaultSpatialModeChangedListener
-        spatialModeChangedExecutor = HandlerExecutor.mainThreadExecutor
-    }
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Deprecated(
+        "Use clearSpaceChangedListener",
+        replaceWith = ReplaceWith("clearSpaceChangedListener"),
+    )
+    public fun clearSpatialModeChangedListener(): Unit = clearSpaceChangedListener()
+
+    /**
+     * If the [Activity] has focus, causes the Activity to be placed in Full Space. Otherwise, this
+     * call does nothing.
+     */
+    public fun requestFullSpace(): Unit = sceneRuntime.requestFullSpaceMode()
+
+    /**
+     * If the [Activity] has focus, causes the Activity to be placed in Home Space. Otherwise, this
+     * call does nothing.
+     */
+    public fun requestHomeSpace(): Unit = sceneRuntime.requestHomeSpaceMode()
 
     /**
      * If the [Activity] has focus, causes the Activity to be placed in Full Space Mode. Otherwise,
      * this call does nothing.
      */
-    public fun requestFullSpaceMode(): Unit = sceneRuntime.requestFullSpaceMode()
+    @Deprecated("Use requestFullSpace", replaceWith = ReplaceWith("requestFullSpace()"))
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun requestFullSpaceMode(): Unit = requestFullSpace()
 
     /**
      * If the [Activity] has focus, causes the Activity to be placed in Home Space Mode. Otherwise,
      * this call does nothing.
      */
-    public fun requestHomeSpaceMode(): Unit = sceneRuntime.requestHomeSpaceMode()
+    @Deprecated("Use requestHomeSpace", replaceWith = ReplaceWith("requestHomeSpace()"))
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun requestHomeSpaceMode(): Unit = requestHomeSpace()
 
     /**
      * Provides access to the [PixelDensity] standards for this scene.

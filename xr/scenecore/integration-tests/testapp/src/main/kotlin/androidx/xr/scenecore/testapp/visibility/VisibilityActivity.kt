@@ -86,7 +86,7 @@ class VisibilityActivity : AppCompatActivity() {
             ?.mainPanelEntity
             ?.addComponent(MovableComponent.createSystemMovable(session!!))
         // Disable default scale overrides on key entity from Spatial Mode events
-        session?.scene?.setSpatialModeChangedListener { event ->
+        session?.scene?.setSpaceChangedListener { event ->
             session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
         }
         session!!.scene.activitySpace.addBoundsChangedListener { dimensions ->
@@ -204,12 +204,12 @@ class VisibilityActivity : AppCompatActivity() {
     private fun toggleMode() {
         when (spatialMode) {
             SpatialMode.FSM -> {
-                session!!.scene.requestHomeSpaceMode()
+                session!!.scene.requestHomeSpace()
                 spatialMode = SpatialMode.HSM
             }
 
             SpatialMode.HSM -> {
-                session!!.scene.requestFullSpaceMode()
+                session!!.scene.requestFullSpace()
                 spatialMode = SpatialMode.FSM
             }
         }

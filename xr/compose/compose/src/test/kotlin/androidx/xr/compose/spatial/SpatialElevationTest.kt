@@ -109,8 +109,8 @@ class SpatialElevationTest {
     }
 
     @Test
-    fun spatialElevation_homeSpaceMode_doesNotElevate() {
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+    fun spatialElevation_homeSpace_doesNotElevate() {
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) { SpatialElevation { Text("Main Content") } }
@@ -120,7 +120,7 @@ class SpatialElevationTest {
     }
 
     @Test
-    fun spatialElevation_fullSpaceMode_doesElevate() {
+    fun spatialElevation_fullSpace_doesElevate() {
         composeTestRule.setContent {
             Box(Modifier.testTag(parentTestTag)) { SpatialElevation { Text("Main Content") } }
         }

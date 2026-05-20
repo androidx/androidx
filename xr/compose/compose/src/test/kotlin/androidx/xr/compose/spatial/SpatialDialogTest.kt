@@ -161,7 +161,7 @@ class SpatialDialogTest {
     // TODO(b/431317832): Fix the bug in the implementation of dismissOnClickOutside.
     @Ignore("Fix the underlying implementation")
     @Test
-    fun spatialDialog_fullSpaceMode_dismissOnClickOutside_setToTrue_dismissDialog() {
+    fun spatialDialog_fullSpace_dismissOnClickOutside_setToTrue_dismissDialog() {
         var showDialog by mutableStateOf(true)
         var outsideClicked by mutableStateOf(false)
 
@@ -199,7 +199,7 @@ class SpatialDialogTest {
     // TODO(b/431317832): Fix the bug in the implementation of dismissOnClickOutside.
     @Ignore("Fix the underlying implementation")
     @Test
-    fun spatialDialog_fullSpaceMode_dismissOnClickOutside_setToFalse_doesNotDismissDialog() {
+    fun spatialDialog_fullSpace_dismissOnClickOutside_setToFalse_doesNotDismissDialog() {
         var showDialog by mutableStateOf(true)
         var outsideClicked by mutableStateOf(false)
 
@@ -237,10 +237,10 @@ class SpatialDialogTest {
     // TODO(b/431317832): Fix the bug in the implementation of dismissOnClickOutside.
     @Ignore("Fix the underlying implementation")
     @Test
-    fun spatialDialog_homeSpaceMode_dismissOnClickOutside_setToTrue_dismissDialog() {
+    fun spatialDialog_homeSpace_dismissOnClickOutside_setToTrue_dismissDialog() {
         val showDialog = mutableStateOf(true)
         var outsideClicked = false
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Subspace {
@@ -276,10 +276,10 @@ class SpatialDialogTest {
 
     // TODO(b/431317832): Fix the bug in the implementation of dismissOnClickOutside.
     @Test
-    fun spatialDialog_homeSpaceMode_dismissOnClickOutside_setToFalse_doesNotDismissDialog() {
+    fun spatialDialog_homeSpace_dismissOnClickOutside_setToFalse_doesNotDismissDialog() {
         val showDialog = mutableStateOf(true)
         var outsideClicked = false
-        composeTestRule.configureFakeSession().scene.requestHomeSpaceMode()
+        composeTestRule.configureFakeSession().scene.requestHomeSpace()
 
         composeTestRule.setContent {
             Subspace {

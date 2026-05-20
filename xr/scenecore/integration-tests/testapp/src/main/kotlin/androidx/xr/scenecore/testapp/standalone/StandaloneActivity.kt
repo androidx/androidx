@@ -60,7 +60,7 @@ class StandaloneActivity : AppCompatActivity() {
         if (session == null) this.finish()
 
         // Disable default scale overrides on key entity from Spatial Mode events
-        session?.scene?.setSpatialModeChangedListener { event ->
+        session?.scene?.setSpaceChangedListener { event ->
             session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
         }
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity

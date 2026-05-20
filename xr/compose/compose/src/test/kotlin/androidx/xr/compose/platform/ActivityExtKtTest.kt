@@ -124,7 +124,7 @@ class ActivityExtKtTest {
         val listeners = testRuntime.activitySpace.onBoundsChangedListeners
         assertThat(listeners).isEmpty()
 
-        composeTestRule.session?.scene?.requestHomeSpaceMode()
+        composeTestRule.session?.scene?.requestHomeSpace()
 
         val job = launch { composeTestRule.activity.requestFullSpace() }
         advanceUntilIdle() // wait for the coroutine to start and register the listeners
@@ -151,7 +151,7 @@ class ActivityExtKtTest {
                     }
                 )
 
-            session.scene.requestFullSpaceMode() // start in full space
+            session.scene.requestFullSpace() // start in full space
             assertThat(session.scene.activitySpace.bounds).isEqualTo(INFINITE_BOUNDS)
 
             job = launch { activity.requestHomeSpace() }
@@ -184,7 +184,7 @@ class ActivityExtKtTest {
                     }
                 )
 
-            session.scene.requestHomeSpaceMode() // start in home space
+            session.scene.requestHomeSpace() // start in home space
             assertThat(session.scene.activitySpace.bounds).isNotEqualTo(INFINITE_BOUNDS)
 
             job = launch { activity.requestFullSpace() }

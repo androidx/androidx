@@ -210,7 +210,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
     }
 
     /**
-     * A recommended box for content to be placed in when in Full Space Mode.
+     * A recommended box for content to be placed in when in Full Space.
      *
      * The recommended content box is a static 3D volume that uses the device's field of view (FOV)
      * angles, the system's default launch distance from the user, and the default scale of the
