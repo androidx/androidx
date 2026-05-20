@@ -69,6 +69,7 @@ import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAn
 import androidx.xr.scenecore.testing.internal.FakeBoundsComponent as InternalFakeBoundsComponent
 import androidx.xr.scenecore.testing.internal.FakeEntity as InternalFakeEntity
 import androidx.xr.scenecore.testing.internal.FakeMeshEntity as InternalFakeMeshEntity
+import androidx.xr.scenecore.testing.internal.FakePanelEntity as InternalFakePanelEntity
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 import androidx.xr.scenecore.testing.internal.FakePositionalAudioComponent as InternalFakePositionalAudioComponent
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime as InternalFakeSceneRuntime
@@ -140,7 +141,8 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     override val mediaPlayerExtensionsWrapper: FakeMediaPlayerExtensionsWrapper =
         FakeMediaPlayerExtensionsWrapper(internalRuntime.mediaPlayerExtensionsWrapper)
 
-    override val mainPanelEntity: PanelEntity = FakePanelEntity()
+    override val mainPanelEntity: PanelEntity =
+        FakePanelEntity(null, "", internalRuntime.mainPanelEntity as InternalFakePanelEntity)
 
     private var _keyEntity: Entity? = null
 
@@ -192,13 +194,19 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         dimensions: Dimensions,
         name: String,
         parent: Entity?,
-    ): PanelEntity =
-        FakePanelEntity(view, name).apply {
-            dpPerMeter = deviceDpPerMeter
-            size = dimensions
+    ): PanelEntity {
+        val fakePanelEntity =
+            FakePanelEntity(
+                view,
+                name,
+                internalRuntime.createPanelEntity(context, pose, view, dimensions, name, parent)
+                    as InternalFakePanelEntity,
+            )
+        return fakePanelEntity.apply {
             this.parent = parent
             setPose(pose)
         }
+    }
 
     override fun createPanelEntity(
         context: Context,
@@ -207,13 +215,27 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         pixelDimensions: PixelDimensions,
         name: String,
         parent: Entity?,
-    ): PanelEntity =
-        FakePanelEntity(view, name).apply {
+    ): PanelEntity {
+        val fakePanelEntity =
+            FakePanelEntity(
+                view,
+                name,
+                internalRuntime.createPanelEntity(
+                    context,
+                    pose,
+                    view,
+                    pixelDimensions,
+                    name,
+                    parent,
+                ) as InternalFakePanelEntity,
+            )
+        return fakePanelEntity.apply {
             dpPerMeter = deviceDpPerMeter
             sizeInPixels = pixelDimensions
             this.parent = parent
             setPose(pose)
         }
+    }
 
     override fun createActivityPanelEntity(
         pose: Pose,

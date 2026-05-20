@@ -18,9 +18,7 @@
 
 package androidx.xr.scenecore.testing
 
-import android.content.Context
 import android.view.View
-import android.view.WindowManager
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Vector2
@@ -31,7 +29,6 @@ import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.testing.internal.FakePanelEntity as InternalFakePanelEntity
-import kotlin.math.roundToInt
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.PanelEntity] */
 @Deprecated("Use SceneCoreTestRule instead.")
@@ -48,17 +45,15 @@ internal constructor(
         name: String = "",
     ) : this(view, name, InternalFakePanelEntity(view, name))
 
-    private val context = view?.context
-    private val windowManager = context?.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-    internal var dpPerMeter: Float = FakeSceneRuntime.DEFAULT_DP_PER_METER
-    private val density
-        get() = context?.resources?.displayMetrics?.density ?: 1f
+    private val internalPanelEntity: InternalFakePanelEntity = fakeInternal
+    internal var dpPerMeter: Float
+        get() = internalPanelEntity.dpPerMeter
+        set(value) {
+            internalPanelEntity.dpPerMeter = value
+        }
 
     override fun dispose() {
-        if (view?.parent != null) {
-            windowManager?.removeView(view)
-        }
-        super.dispose()
+        internalPanelEntity.dispose()
     }
 
     /**
@@ -66,19 +61,10 @@ internal constructor(
      * might cause the layout of the Panel contents to change. Updating this will not cause the
      * scale or pixel density to change.
      */
-    override var sizeInPixels: PixelDimensions = Dimensions(1.0f, 1.0f, 0f).toPixelDimensions()
+    override var sizeInPixels: PixelDimensions
+        get() = internalPanelEntity.sizeInPixels
         set(value) {
-            if (field != value && value.width >= 0 && value.height >= 0) {
-                field = value
-                windowManager?.updateViewLayout(
-                    view,
-                    WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
-                        .apply {
-                            width = value.width
-                            height = value.height
-                        },
-                )
-            }
+            internalPanelEntity.sizeInPixels = value
         }
 
     /**
@@ -86,11 +72,10 @@ internal constructor(
      *
      * Only non-negative values are allowed.
      */
-    override var cornerRadius: Float = 32.0f
+    override var cornerRadius: Float
+        get() = internalPanelEntity.cornerRadius
         set(value) {
-            if (value >= 0f) {
-                field = value
-            }
+            internalPanelEntity.cornerRadius = value
         }
 
     /**
@@ -101,15 +86,10 @@ internal constructor(
      *   be 0)
      */
     override var size: Dimensions
-        get() = sizeInPixels.toMeterDimensions()
+        get() = internalPanelEntity.size
         set(value) {
-            if (value.width >= 0 && value.height >= 0 && value.depth >= 0) {
-                sizeInPixels = value.toPixelDimensions()
-            }
+            internalPanelEntity.size = value
         }
-
-    private var perceivedResolutionResult: PerceivedResolutionResult =
-        PerceivedResolutionResult.InvalidRenderViewpoint()
 
     /**
      * For test purposes only.
@@ -118,7 +98,7 @@ internal constructor(
      * [getPerceivedResolution].
      */
     public fun setPerceivedResolution(perceivedResolution: PerceivedResolutionResult) {
-        this.perceivedResolutionResult = perceivedResolution
+        internalPanelEntity.setPerceivedResolution(perceivedResolution)
     }
 
     /**
@@ -148,31 +128,14 @@ internal constructor(
         renderViewScenePose: ScenePose,
         renderViewFov: FieldOfView,
     ): PerceivedResolutionResult {
-        return perceivedResolutionResult
-    }
-
-    private fun Dimensions.toPixelDimensions(): PixelDimensions {
-        val pixelsPerMeter = dpPerMeter * density
-        return PixelDimensions(
-            (this.width * pixelsPerMeter).roundToInt(),
-            (this.height * pixelsPerMeter).roundToInt(),
-        )
-    }
-
-    private fun PixelDimensions.toMeterDimensions(): Dimensions {
-        val pixelsPerMeter = dpPerMeter * density
-        return Dimensions(this.width / pixelsPerMeter, this.height / pixelsPerMeter, 0f)
+        return internalPanelEntity.getPerceivedResolution(renderViewScenePose, renderViewFov)
     }
 
     override fun transformPixelCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
-        val u = coordinates.x / sizeInPixels.width
-        val v = coordinates.y / sizeInPixels.height
-        return transformNormalizedCoordinatesToLocalPosition(Vector2(u * 2 - 1, (1 - v) * 2 - 1))
+        return internalPanelEntity.transformPixelCoordinatesToLocalPosition(coordinates)
     }
 
     override fun transformNormalizedCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
-        val xInLocal3DSpace = coordinates.x * size.width / 2f
-        val yInLocal3DSpace = coordinates.y * size.height / 2f
-        return Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f)
+        return internalPanelEntity.transformNormalizedCoordinatesToLocalPosition(coordinates)
     }
 }
