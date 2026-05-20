@@ -485,7 +485,8 @@ private constructor(
             )
         })
 
-        public val clientTextureId: String = TextureLayerNative.getClientTextureId(nativePointer)
+        /** The client texture ID for this texture layer. */
+        public val clientTextureId: String = TilingTextureNative.getClientTextureId(nativePointer)
 
         // Caching the native accessors here even for primitive fields because these are accessed
         // mostly
@@ -753,7 +754,7 @@ private constructor(
 
             /**
              * Constructs a [TilingTexture], taking a callback that heap-allocates a C++
-             * `BrushPaint::TextureLayer` with `BrushPaint::TextureMapping::kStamping`.
+             * `BrushPaint::TextureLayer` that holds a `BrushPaint::TilingTexture`.
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun wrapNative(nativeAlloc: () -> Long): TilingTexture =
@@ -876,11 +877,12 @@ private constructor(
             )
         })
 
+        /** The client texture ID for this texture layer. */
+        public val clientTextureId: String = StampingTextureNative.getClientTextureId(nativePointer)
+
         // Caching the native accessors here even for primitive fields because these are accessed
         // mostly
         // in Kotlin.
-
-        public val clientTextureId: String = TextureLayerNative.getClientTextureId(nativePointer)
 
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @IntRange(from = 1, to = 1 shl 24)
@@ -1093,7 +1095,7 @@ private constructor(
 
             /**
              * Constructs a [StampingTexture], taking a callback that heap-allocates a C++
-             * `BrushPaint::TextureLayer` with `BrushPaint::TextureMapping::kStamping`.
+             * `BrushPaint::TextureLayer` that holds a `BrushPaint::StampingTexture`.
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun wrapNative(nativeAlloc: () -> Long): StampingTexture =
@@ -1282,8 +1284,6 @@ expect internal object BrushPaintNative {
 }
 
 expect internal object TextureLayerNative {
-    fun getClientTextureId(nativePointer: Long): String
-
     fun getMappingInt(nativePointer: Long): Int
 
     fun getBlendModeInt(nativePointer: Long): Int
@@ -1305,6 +1305,8 @@ expect internal object TilingTextureNative {
         wrapY: Int,
         blendMode: Int,
     ): Long
+
+    fun getClientTextureId(nativePointer: Long): String
 
     fun getSizeX(nativePointer: Long): Float
 
@@ -1334,6 +1336,8 @@ expect internal object StampingTextureNative {
         animationDurationMillis: Long,
         blendMode: Int,
     ): Long
+
+    fun getClientTextureId(nativePointer: Long): String
 
     fun getAnimationFrames(nativePointer: Long): Int
 

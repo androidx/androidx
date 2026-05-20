@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.kruth.assertThat
+import java.util.WeakHashMap
 import kotlin.test.Test
 import kotlin.test.assertFails
 
@@ -25,7 +26,7 @@ class JvmMeshTest {
     @Test
     fun rawVertexData_emptyIsReadOnly() {
         val mesh = Mesh()
-        val rawVertexData = mesh.getMeshOwnedRawVertexBuffer()
+        val rawVertexData = mesh.getRawVertexBuffer()
         assertThat(rawVertexData.isReadOnly).isTrue()
         // Fails with different exception type on different API levels.
         assertFails { rawVertexData.put(5.toByte()) }
@@ -37,7 +38,7 @@ class JvmMeshTest {
     fun rawTriangleIndexData_usesNativeByteOrder() {
         val mesh = Mesh()
 
-        assertThat(mesh.getMeshOwnedRawTriangleIndexBuffer().order())
+        assertThat(mesh.getRawTriangleIndexBuffer().order())
             .isEqualTo(java.nio.ByteOrder.nativeOrder())
     }
 
@@ -45,11 +46,47 @@ class JvmMeshTest {
     fun rawIndexData_emptyIsReadOnly() {
         val mesh = Mesh()
 
-        val rawTriangleIndexData = mesh.getMeshOwnedRawTriangleIndexBuffer()
+        val rawTriangleIndexData = mesh.getRawTriangleIndexBuffer()
         assertThat(rawTriangleIndexData.isReadOnly).isTrue()
         // Fails with different exception type on different API levels.
         assertFails { rawTriangleIndexData.put(5) }
         assertThat(rawTriangleIndexData.limit()).isEqualTo(0)
         assertThat(rawTriangleIndexData.capacity()).isEqualTo(0)
+    }
+
+    @Test
+    fun rawVertexData_retainsWeakReferenceToMeshFromOriginalDirectBuffer() {
+        val mesh = Mesh()
+        val unused = mesh.getRawVertexBuffer()
+        assertThat(meshesReferencedByBuffers).isInstanceOf<WeakHashMap<*, *>>()
+        // Unfortunately, we need to map from the _original_ direct buffer to the mesh, not the
+        // wrapped
+        // buffer that's ultimately returned by this getter. The internals of DirectByteBuffer
+        // ensure
+        // that methods which slice or duplicate the buffer retain a reference to the original
+        // buffer,
+        // but not any intermediate copies. So retaining a weak reference to the original ensures
+        // that
+        // any further copies/slices also do the right thing. But this reference back to the
+        // original
+        // buffer isn't in the public API, so we can't assert about it.
+        assertThat(meshesReferencedByBuffers.values).contains(mesh)
+        val reversedMap = meshesReferencedByBuffers.entries.associate { (k, v) -> v to k }
+        val originalDirectBuffer = reversedMap[mesh]!!
+        assertThat(originalDirectBuffer.isDirect()).isTrue()
+    }
+
+    @Test
+    fun rawIndexData_retainsWeakReferenceToMeshFromOriginalDirectBuffer() {
+        val mesh = Mesh()
+        val unused = mesh.getRawTriangleIndexBuffer()
+        assertThat(meshesReferencedByBuffers).isInstanceOf<WeakHashMap<*, *>>()
+        // See comment above about why this entry maps to the original direct buffer, not the
+        // wrapped
+        // one.
+        assertThat(meshesReferencedByBuffers.values).contains(mesh)
+        val reversedMap = meshesReferencedByBuffers.entries.associate { (k, v) -> v to k }
+        val originalDirectBuffer = reversedMap[mesh]!!
+        assertThat(originalDirectBuffer.isDirect()).isTrue()
     }
 }

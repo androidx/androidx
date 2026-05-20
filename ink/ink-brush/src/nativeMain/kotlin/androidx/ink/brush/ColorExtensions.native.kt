@@ -19,8 +19,10 @@ package androidx.ink.brush
 import kotlinx.cinterop.CFunction
 import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.staticCFunction
 
+@OptIn(ExperimentalForeignApi::class)
 internal val composeColorLongFromComponentsCallback:
     CPointer<CFunction<(COpaquePointer?, Int, Float, Float, Float, Float) -> Long>> =
     staticCFunction({

@@ -34,9 +34,11 @@ import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CFunction
 import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.toKString
 
+@OptIn(ExperimentalForeignApi::class)
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val throwForNonOkStatusCallback:
     CPointer<CFunction<(COpaquePointer?, Int, CPointer<ByteVar>?) -> Unit>> =
@@ -44,6 +46,7 @@ public val throwForNonOkStatusCallback:
         NativeExceptionHandling.throwForNonOkStatus(statusCode, statusString?.toKString() ?: "")
     })
 
+@OptIn(ExperimentalForeignApi::class)
 actual internal object StatusNative {
     actual fun statusCodeOk(): Int = StatusNative_statusCodeOk()
 

@@ -66,8 +66,6 @@ actual internal object TextureLayerNative {
 
     @UsedByNative actual external fun free(nativePointer: Long)
 
-    @UsedByNative actual external fun getClientTextureId(nativePointer: Long): String
-
     @UsedByNative actual external fun getMappingInt(nativePointer: Long): Int
 
     @UsedByNative actual external fun getBlendModeInt(nativePointer: Long): Int
@@ -93,6 +91,8 @@ actual internal object TilingTextureNative {
         wrapY: Int,
         blendMode: Int,
     ): Long
+
+    @UsedByNative actual external fun getClientTextureId(nativePointer: Long): String
 
     @UsedByNative actual external fun getSizeX(nativePointer: Long): Float
 
@@ -128,6 +128,8 @@ actual internal object StampingTextureNative {
         animationDurationMillis: Long,
         blendMode: Int,
     ): Long
+
+    @UsedByNative actual external fun getClientTextureId(nativePointer: Long): String
 
     @UsedByNative actual external fun getAnimationFrames(nativePointer: Long): Int
 

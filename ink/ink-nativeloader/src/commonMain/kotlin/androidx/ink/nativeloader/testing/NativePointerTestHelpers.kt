@@ -47,7 +47,10 @@ import kotlinx.coroutines.withTimeout
  *   cleanup logic is set up before allocation is attempted. (That cannot be observed with the
  *   `pointerFree` callback passed as a parameter to the `NativePointer` constructor, since that is
  *   not called if allocation fails.)
- * @param block The block to run.
+ * @param block The block to run. Expects that all NativePointer instances created within this block
+ *   are cleaned up when the block goes out of scope. Any lazy or cached initialization (including
+ *   loading of classes with static data members that are used inside the scope of the block) must
+ *   be done before the block is run.
  * @throws IllegalStateException if the block completed successfully but no pointers were allocated,
  *   or if the same pointer was allocated twice. Also if the same pointer was cleaned up twice or if
  *   a pointer was cleaned up without being allocated, though `NativePointer` should ensure these

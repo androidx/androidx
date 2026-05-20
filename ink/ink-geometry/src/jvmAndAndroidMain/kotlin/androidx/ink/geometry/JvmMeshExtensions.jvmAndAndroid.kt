@@ -16,11 +16,22 @@
 
 package androidx.ink.geometry
 
+import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.ink.nativeloader.UsedByNative
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ShortBuffer
+import java.util.WeakHashMap
+
+/**
+ * Hold onto [Mesh] instances referenced by the returned buffers so those are not GCed while a live
+ * buffer points at the underlying native memory.
+ */
+@VisibleForTesting
+@GuardedBy("meshesReferencedByBuffers")
+internal val meshesReferencedByBuffers = WeakHashMap<ByteBuffer, Mesh>()
 
 /**
  * Read-only access to the raw data of the vertices of the [Mesh]. Every [Mesh.vertexStride] bytes
@@ -29,14 +40,20 @@ import java.nio.ShortBuffer
  * exposed this way (direct buffer, packed) primarily for efficient rendering - most non-rendering
  * data access should go through other methods on [Mesh], which more cleanly hide details of the
  * packed format.
- *
- * DO NOT hold a reference to this object independently of this [Mesh] object - if the [Mesh]
- * becomes unused and garbage collected, then this points to native memory with arbitrary contents.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Mesh.getMeshOwnedRawVertexBuffer(): ByteBuffer =
+public fun Mesh.getRawVertexBuffer(): ByteBuffer =
     (JvmMeshNative.createUnsafelyMutableMeshOwnedRawVertexBuffer(nativePointer)
-            ?: ByteBuffer.allocate(0))
+            ?: ByteBuffer.allocateDirect(0))
+        // Preserve a weak reference to the original buffer returned by NewDirectByteBuffer.
+        // DirectByteBuffer methods that copy or slice the buffer preserve a reference to the
+        // originally
+        // allocated buffer for this purpose. But each duplicate points back to the original, not to
+        // intermediate entries in the chain.
+        .also {
+            check(it.isDirect()) { "This must return a direct buffer." }
+            synchronized(meshesReferencedByBuffers) { meshesReferencedByBuffers.put(it, this) }
+        }
         .asReadOnlyBuffer()
 
 /**
@@ -48,14 +65,20 @@ public fun Mesh.getMeshOwnedRawVertexBuffer(): ByteBuffer =
  * class.
  *
  * The data type of each triangle index is **unsigned** 16-bit [UShort].
- *
- * DO NOT hold a reference to this object independently of this [Mesh] object - if the [Mesh]
- * becomes unused and garbage collected, then this points to native memory with arbitrary contents.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Mesh.getMeshOwnedRawTriangleIndexBuffer(): ShortBuffer =
+public fun Mesh.getRawTriangleIndexBuffer(): ShortBuffer =
     (JvmMeshNative.createUnsafelyMutableMeshOwnedRawTriangleIndexBuffer(nativePointer)
-            ?: ByteBuffer.allocate(0))
+            ?: ByteBuffer.allocateDirect(0))
+        // Preserve a weak reference to the original buffer returned by NewDirectByteBuffer.
+        // DirectByteBuffer methods that copy or slice the buffer preserve a reference to the
+        // originally
+        // allocated buffer for this purpose. But each duplicate points back to the original, not to
+        // intermediate entries in the chain.
+        .also {
+            check(it.isDirect()) { "This must return a direct buffer." }
+            synchronized(meshesReferencedByBuffers) { meshesReferencedByBuffers.put(it, this) }
+        }
         // Note that the order of operations seems to be important: asShortBuffer() must be called
         // immediately after order(ByteOrder.nativeOrder()).
         .order(ByteOrder.nativeOrder())

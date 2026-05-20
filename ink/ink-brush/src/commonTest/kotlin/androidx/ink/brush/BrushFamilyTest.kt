@@ -40,6 +40,9 @@ import kotlin.test.Test
 class BrushFamilyTest {
     @Test
     fun brushFamilyNativePointers_cleanedUpWhenOutOfScope() {
+        // Ensure the default input model is initialized here so it doesn't get initialized lazily
+        // below (since everything in the block is expected to be cleaned up).
+        val unused = BrushFamily.InputModel.DEFAULT_INPUT_MODEL
         awaitNativePointerCleanupAfter {
             val unused = BrushFamily(tip = BrushTip(), paint = BrushPaint())
         }

@@ -492,7 +492,7 @@ message BrushPaint {
   // (self overlap is discarded). More complex examples may involve color or
   // opacity variations (e.g. with
   // `BrushBehavior::Target::HUE_OFFSET_IN_RADIANS`), or complex textures (e.g.
-  // with `TextureMapping::kStamping`).
+  // with `BrushPaint::StampingTexture`).
   enum SelfOverlap {
     SELF_OVERLAP_UNSPECIFIED = 0 [(ink.proto.enum_value_min_version) = 0];
     SELF_OVERLAP_ANY = 1 [(ink.proto.enum_value_min_version) = 0];

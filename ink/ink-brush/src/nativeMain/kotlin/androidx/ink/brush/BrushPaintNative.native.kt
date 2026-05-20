@@ -36,11 +36,12 @@ import androidx.ink.nativeloader.cinterop.StampingTextureNative_getAnimationColu
 import androidx.ink.nativeloader.cinterop.StampingTextureNative_getAnimationDurationMillis
 import androidx.ink.nativeloader.cinterop.StampingTextureNative_getAnimationFrames
 import androidx.ink.nativeloader.cinterop.StampingTextureNative_getAnimationRows
+import androidx.ink.nativeloader.cinterop.StampingTextureNative_getClientTextureId
 import androidx.ink.nativeloader.cinterop.TextureLayerNative_free
 import androidx.ink.nativeloader.cinterop.TextureLayerNative_getBlendModeInt
-import androidx.ink.nativeloader.cinterop.TextureLayerNative_getClientTextureId
 import androidx.ink.nativeloader.cinterop.TextureLayerNative_getMappingInt
 import androidx.ink.nativeloader.cinterop.TilingTextureNative_create
+import androidx.ink.nativeloader.cinterop.TilingTextureNative_getClientTextureId
 import androidx.ink.nativeloader.cinterop.TilingTextureNative_getOffsetX
 import androidx.ink.nativeloader.cinterop.TilingTextureNative_getOffsetY
 import androidx.ink.nativeloader.cinterop.TilingTextureNative_getOriginInt
@@ -112,9 +113,6 @@ actual internal object BrushPaintNative {
 actual internal object TextureLayerNative {
     actual fun free(nativePointer: Long) = TextureLayerNative_free(nativePointer)
 
-    actual fun getClientTextureId(nativePointer: Long): String =
-        TextureLayerNative_getClientTextureId(nativePointer)!!.toKString()
-
     actual fun getMappingInt(nativePointer: Long): Int =
         TextureLayerNative_getMappingInt(nativePointer)
 
@@ -152,6 +150,9 @@ actual internal object TilingTextureNative {
             blendMode,
             throwForNonOkStatusCallback,
         )
+
+    actual fun getClientTextureId(nativePointer: Long): String =
+        TilingTextureNative_getClientTextureId(nativePointer)!!.toKString()
 
     actual fun getSizeX(nativePointer: Long): Float = TilingTextureNative_getSizeX(nativePointer)
 
@@ -199,6 +200,9 @@ actual internal object StampingTextureNative {
             blendMode,
             throwForNonOkStatusCallback,
         )
+
+    actual fun getClientTextureId(nativePointer: Long): String =
+        StampingTextureNative_getClientTextureId(nativePointer)!!.toKString()
 
     actual fun getAnimationFrames(nativePointer: Long): Int =
         StampingTextureNative_getAnimationFrames(nativePointer)
