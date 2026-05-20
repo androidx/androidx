@@ -40,6 +40,9 @@ dependencies {
     // Internal dependencies
     implementation("androidx.annotation:annotation:1.9.0")
 
+    // Forcing this upgrade due to CVE-2026-0636. For more information, see b/505222436
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+
     testImplementation("junit:junit:4.13.2")
     testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesTest)
