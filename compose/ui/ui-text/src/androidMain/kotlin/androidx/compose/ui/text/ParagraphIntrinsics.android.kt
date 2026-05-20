@@ -177,8 +177,9 @@ internal fun resolveTextDirectionHeuristics(
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
-            "fontFamilyResolver)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, " +
+            "createFontFamilyResolver(resourceLoader), placeholders, true)",
+        "androidx.compose.ui.text.font.createFontFamilyResolver",
     ),
 )
 actual fun ParagraphIntrinsics(
@@ -202,7 +203,7 @@ actual fun ParagraphIntrinsics(
 @Deprecated(
     "Use an overload that takes `annotations` instead",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true)"
     ),
 )
 actual fun ParagraphIntrinsics(
@@ -226,7 +227,7 @@ actual fun ParagraphIntrinsics(
 @Deprecated(
     "Use an override with `softWrap`",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, true, listOf())"
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, listOf(), true)"
     ),
 )
 actual fun ParagraphIntrinsics(
