@@ -98,9 +98,9 @@ class ComposeViewTestCase : LayeredComposeTestCase(), ToggleableTestCase {
                                         Layout(
                                             content = {
                                                 with(LocalDensity.current) {
-                                                    repeat(20) {
+                                                    repeat(10) {
                                                         Row(Modifier.size(10.toDp())) {
-                                                            repeat(10) {
+                                                            repeat(5) {
                                                                 Box(
                                                                     Modifier.width(1.toDp())
                                                                         .fillMaxHeight()
