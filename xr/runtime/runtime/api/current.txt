@@ -141,11 +141,13 @@ package androidx.xr.runtime {
     property public int mode;
     field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.DeviceTrackingMode DISABLED;
+    field @SuppressCompatibility @androidx.xr.runtime.ExperimentalInertialTrackingApi public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL;
     field public static final androidx.xr.runtime.DeviceTrackingMode SPATIAL;
   }
 
   public static final class DeviceTrackingMode.Companion {
     property public androidx.xr.runtime.DeviceTrackingMode DISABLED;
+    property @SuppressCompatibility @androidx.xr.runtime.ExperimentalInertialTrackingApi public androidx.xr.runtime.DeviceTrackingMode INERTIAL;
     property public androidx.xr.runtime.DeviceTrackingMode SPATIAL;
   }
 
@@ -160,6 +162,9 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.DisplayBlendMode ADDITIVE;
     property public androidx.xr.runtime.DisplayBlendMode ALPHA_BLEND;
     property public androidx.xr.runtime.DisplayBlendMode NO_DISPLAY;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD}) public @interface ExperimentalInertialTrackingApi {
   }
 
   public final class EyeTrackingMode {

@@ -19,6 +19,7 @@ package androidx.xr.arcore.testing
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakeRuntimeArDevice
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.math.Pose
 
@@ -38,7 +39,7 @@ public class ArDeviceTester internal constructor(private val arCoreTestRule: ArC
     private val isConfigured6Dof: Boolean
         get() = arCoreTestRule.runtime.config.deviceTracking == DeviceTrackingMode.SPATIAL
 
-    @OptIn(PreviewSpatialApi::class)
+    @OptIn(PreviewSpatialApi::class, ExperimentalInertialTrackingApi::class)
     private val isConfigured3Dof: Boolean
         get() = arCoreTestRule.runtime.config.deviceTracking == DeviceTrackingMode.INERTIAL
 
