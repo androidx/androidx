@@ -178,15 +178,13 @@ constructor(
         internal fun shouldCloseCaptureSessionOnDisconnect() =
             when {
                 Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1 ->
-                    // TODO: b/277675483 - Older devices (Android version <= 8.1.0) seem to have a
-                    //  higher chance of encountering an issue where not closing the capture session
-                    //  would lead to CameraDevice.close() stalling indefinitely. This version check
-                    //  might need to be further fine-turned down the line.
+                    // Older devices (Android version <= 8.1.0) seem to have a higher chance of
+                    // encountering an issue where not closing the capture session would lead to
+                    // CameraDevice.close() stalling indefinitely. (b/277675483)
                     true
                 Build.HARDWARE == "samsungexynos7870" ->
-                    // TODO: b/282871038 - On some platforms, not closing the capture session before
-                    //  switching to a new capture session may trigger camera HAL crashes. Add more
-                    //  hardware platforms here when they're identified.
+                    // On some platforms, not closing the capture session before switching to a new
+                    // capture session may trigger camera HAL crashes. (b/282871038)
                     true
                 (Build.HARDWARE.equals("qcom", ignoreCase = true) &&
                     Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) ||
