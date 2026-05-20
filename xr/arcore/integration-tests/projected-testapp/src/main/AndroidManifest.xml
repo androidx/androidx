@@ -28,6 +28,13 @@
             android:requiredDisplayCategory="xr_projected">
         </activity>
         <activity
+            android:name=".InertialTrackingActivity"
+            android:configChanges="uiMode"
+            android:label="Inertial Tracking testcase"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
             android:name=".ConfigProjectedGeospatialActivity"
             android:configChanges="uiMode"
             android:exported="true"
