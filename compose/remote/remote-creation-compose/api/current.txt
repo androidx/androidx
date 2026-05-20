@@ -439,8 +439,7 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class TouchCancelActionModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchCancel(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action... actions);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchCancel(androidx.compose.remote.creation.compose.modifier.RemoteModifier, java.util.List<? extends androidx.compose.remote.creation.compose.action.Action> actions);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchCancel(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action action);
   }
 
   public final class TouchDownActionModifierKt {

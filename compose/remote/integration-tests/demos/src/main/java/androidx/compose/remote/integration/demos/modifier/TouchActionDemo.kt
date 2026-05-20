@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.modifier.padding
@@ -49,9 +50,11 @@ fun TouchActionDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         val downCounter = rememberMutableRemoteInt(0)
         val upCounter = rememberMutableRemoteInt(0)
+        val cancelCounter = rememberMutableRemoteInt(0)
 
         val onDownAction = ValueChange(downCounter, downCounter + 1)
         val onUpAction = ValueChange(upCounter, upCounter + 1)
+        val onCancelAction = ValueChange(cancelCounter, cancelCounter + 1)
 
         RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
             RemoteRow {
@@ -60,16 +63,27 @@ fun TouchActionDemo() {
             RemoteRow {
                 RemoteText("Ups: ".rs + upCounter.toRemoteString(), color = Color.Black.rc)
             }
+            RemoteRow {
+                RemoteText("Cancels: ".rs + cancelCounter.toRemoteString(), color = Color.Black.rc)
+            }
             RemoteBox(
                 modifier =
                     RemoteModifier.size(width = 200.rdp, height = 100.rdp)
                         .background(RemoteColor(Color.LightGray))
                         .onTouchDown(onDownAction)
                         .onTouchUp(onUpAction)
+                        .onTouchCancel(onCancelAction)
                         .padding(RemoteDp(16.dp)),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText("Touch me!")
+            }
+            RemoteRow(modifier = RemoteModifier.padding(top = 24.rdp)) {
+                RemoteText(
+                    "To test touch cancellation: hold down on the 'Touch me!' box and press the device's physical power button to lock and unlock the screen. The Cancels count should increment."
+                        .rs,
+                    color = Color.DarkGray.rc,
+                )
             }
         }
     }
