@@ -55,31 +55,42 @@ import kotlinx.coroutines.launch
  * A camera graph will receive start / stop signals from the application. When started, it will do
  * everything possible to bring up and maintain an active camera instance with the given
  * configuration.
- *
- * TODO: Reorganize these constructor parameters.
  */
 @Camera2ControllerScope
 internal class Camera2CameraController
 @Inject
 constructor(
+    // Config & Identifiers
+    override val cameraGraphId: CameraGraphId,
+    private val graphConfig: CameraGraph.Config,
+
+    // Execution Context
     private val scope: CoroutineScope,
     private val threads: Threads,
+
+    // Core Infrastructure
     private val strictMode: StrictMode,
-    private val graphConfig: CameraGraph.Config,
-    private val graphListener: GraphListener,
-    private val surfaceTracker: SurfaceTracker,
+    private val timeSource: TimeSource,
+    private val camera2Quirks: Camera2Quirks,
+
+    // Camera & Device Management
+    private val camera2DeviceManager: Camera2DeviceManager,
+    private val camera2SystemState: Camera2SystemState,
     private val cameraStatusMonitor: CameraStatusMonitor,
+    concurrentSessionSequencers: ConcurrentSessionSequencers,
+
+    // Stream & Surface Management
+    private val streamGraph: StreamGraphImpl,
+    private val cameraSurfaceManager: CameraSurfaceManager,
+    private val surfaceTracker: SurfaceTracker,
+
+    // Capture Session Factories
     private val captureSessionFactory: CaptureSessionFactory,
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
-    private val camera2DeviceManager: Camera2DeviceManager,
-    private val cameraSurfaceManager: CameraSurfaceManager,
-    private val camera2SystemState: Camera2SystemState,
-    private val camera2Quirks: Camera2Quirks,
-    private val timeSource: TimeSource,
-    override val cameraGraphId: CameraGraphId,
+
+    // Listeners
+    private val graphListener: GraphListener,
     private val shutdownListener: ShutdownListener,
-    private val streamGraph: StreamGraphImpl,
-    concurrentSessionSequencers: ConcurrentSessionSequencers,
 ) : CameraController {
     private val lock = Any()
 
