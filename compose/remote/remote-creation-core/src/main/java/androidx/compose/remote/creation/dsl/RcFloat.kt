@@ -39,7 +39,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 open public class RcFloat {
     public var array: FloatArray = floatArrayOf()
-    public var id: Float = Float.NaN
+    public var id: Float = 0f // if 0 it has not been sent
     public var animation: FloatArray? = null
     public var isEvaluated: Boolean = false
     internal var writer: RemoteComposeWriter? = null

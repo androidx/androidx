@@ -55,6 +55,14 @@ public value class RcImage internal constructor(internal val id: Int)
 @JvmInline
 public value class RcColorValue(public val id: Int)
 
+/** convert to RcColorValue */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Long.rcColor(): RcColorValue = RcColorValue(this.toInt())
+
+/** convert to RcColorValue */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Int.rcColor(): RcColorValue = RcColorValue(this)
+
 /**
  * Type-safe reference for remote color variables or expressions.
  *

@@ -17,11 +17,18 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import androidx.compose.remote.creation.RcPaint
+import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.dsl.RcCanvasScope
+import androidx.compose.remote.creation.dsl.RcColorValue
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcScope
+import androidx.compose.remote.creation.dsl.rcColor
+import androidx.compose.remote.integration.view.demos.examples.Plot
+import androidx.compose.remote.integration.view.demos.examples.XYGraphProperties
+import androidx.compose.remote.integration.view.demos.examples.rcPlotXY
 
 @Suppress("RestrictedApiAndroidX")
 fun RcPaint.setStyle(style: RcPaintStyle): RcPaint {
@@ -68,18 +75,18 @@ class PlotParams(
 
 @Suppress("RestrictedApiAndroidX")
 class XYGraphProperties {
-    var minorVAxisColor: Int = 0xFF444444.toInt()
-    var minorHAxisColor: Int = 0xFF444444.toInt()
-    var majorVAxisColor: Int = 0xFF888888.toInt()
-    var majorHAxisColor: Int = 0xFF888888.toInt()
+    var minorVAxisColor: RcColorValue = 0xFF444444.rcColor()
+    var minorHAxisColor: RcColorValue = 0xFF444444.rcColor()
+    var majorVAxisColor: RcColorValue = 0xFF888888.rcColor()
+    var majorHAxisColor: RcColorValue = 0xFF888888.rcColor()
     var minorVTickSize: Float = 2f
     var minorHTickSize: Float = 2f
     var majorVTickSize: Float = 4f
     var majorHTickSize: Float = 4f
-    var vAxisColor: Int = 0xFFFFFF00.toInt()
-    var hAxisColor: Int = 0xFFFFFF00.toInt()
+    var vAxisColor: RcColorValue = 0xFFFF0000.rcColor()
+    var hAxisColor: RcColorValue = 0xFFFFFF00.rcColor()
     var axisSize: Float = 4f
-    var plotColor: Int = 0xFFFF0000.toInt()
+    var plotColor: RcColorValue = 0xFF000000.rcColor()
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -149,7 +156,7 @@ class DataPlot(val data: RcFloat) : PlotBase {
             val startX = params.left + params.offsetX + params.scaleX * params.dataXMin
             val path = remotePath(startX.toFloat(), startY.toFloat())
 
-            loop(scope.remoteFloat(0f), 1f, width) { x ->
+            loop(scope.remoteFloat(0f), 1f.rf, width) { x ->
                 val pos = x / width
                 val py = params.top + params.offsetY + params.scaleY * arraySpline(data, pos)
                 val px =
@@ -167,6 +174,19 @@ class DataPlot(val data: RcFloat) : PlotBase {
             drawPath(path.getPath())
         }
     }
+}
+
+/** Simple xy Plotter */
+@Suppress("RestrictedApiAndroidX")
+fun RcCanvasScope.rcPlotXY(
+    left: RcFloat,
+    top: RcFloat,
+    right: RcFloat,
+    bottom: RcFloat,
+    prop: XYGraphProperties = XYGraphProperties(),
+    plot: RcFloat,
+) {
+    rcPlotXY(left, top, right, bottom, Plot(plot), prop)
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -205,4 +225,65 @@ private fun RcCanvasScope.drawAxis(params: PlotParams) {
     }
     drawLine(params.left + params.offsetX, params.top, params.left + params.offsetX, params.top + h)
     drawLine(params.left, params.top + params.offsetY, params.left + w, params.top + params.offsetY)
+}
+
+@Suppress("RestrictedApiAndroidX")
+class Plot(val data: RcFloat) : PlotBase {
+
+    override fun plot(scope: RcCanvasScope, params: PlotParams) {
+        with(scope) { plotData(data, params) }
+    }
+
+    override fun calcRange(scope: RcScope): Range {
+        with(scope) {
+            val minX = 0f.rf
+            val maxX = arrayLength(data)
+            val maxY = arrayMax(data).flush()
+            val minY = arrayMin(data).flush()
+            return Range(minX, maxX, minY, maxY)
+        }
+    }
+
+    private fun RcCanvasScope.plotData(values: RcFloat, params: PlotParams) {
+        //
+        //        val width = params.right - params.left
+        //        val height = params.bottom - params.top
+        //        val rValues = values
+        //
+        //        val y = params.offsetY + params.scaleY * arraySpline(rValues, 0f.rf)
+        //        val x = params.offsetX + params.scaleX * (params.dataXMin)
+        //        val path: Int = pathCreate(x.toFloat(), y.toFloat())
+        //        //        val path: Int = pathCreate(0f, height.toFloat())
+        //
+        //        loop(0, 1f, width) { x ->
+        //            val pos = x / width
+        //            val y = params.offsetY + params.scaleY * arraySpline(rValues, pos)
+        //            val x1 = params.offsetX + params.scaleX * (pos * params.xRange +
+        // params.dataXMin)
+        //            pathAppendLineTo(path, x1.toFloat(), y.toFloat())
+        //        }
+        //        plotPath(path, params)
+        //        val endX = params.offsetX + params.scaleX * params.dataXMax
+        //        val startX = params.offsetX + params.scaleX * params.dataXMin
+        //        pathAppendLineTo(path, endX.toFloat(), params.offsetY.toFloat())
+        //        pathAppendLineTo(path, startX.toFloat(), params.offsetY.toFloat())
+        //        pathAppendClose(path)
+        //        plotFill(path, params)
+    }
+
+    private fun RemoteComposeContextAndroid.plotPath(path: Int, params: PlotParams) {
+        params.prop.setPlotPaint(painter).commit()
+        drawPath(path)
+    }
+
+    private fun RemoteComposeContextAndroid.plotFill(path: Int, params: PlotParams) {
+
+        val rLeft = params.insertLeft
+        val rTop = params.insertTop
+        val rRight = params.right - params.insertRight
+        val rBottom = params.bottom - params.insertBottom
+        //        configPlotFill(painter, params).commit()
+        drawPath(path)
+        painter.setShader(0).commit()
+    }
 }

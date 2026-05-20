@@ -25,11 +25,29 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizActivityRingsKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizBatteryRadialGaugeKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizCalendarHeatmapKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizHeartRateKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizHydrationWaveKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizMoonPhaseDialKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizSleepQualityRingsKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizStepProgressArcKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizStockSparklineKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDataVizWeatherForecastKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDemoAnchorTextKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDemoAttributedStringKt;
-import androidx.compose.remote.integration.view.demos.dsl.DslDemoGraphsKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslExampleTimerKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslPressureGaugeKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslRcSimpleSwitchKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslServerSideKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSmallAnimatedKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslSpreadSheetKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslSysVarKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslTextDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslClockKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
@@ -159,6 +177,89 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity) {
         Bitmap bitmap = simpleBitmap(100);
+        boolean dsl = true;
+        if (dsl) {
+            return new ArrayList<>(Arrays.asList(
+
+                    get("0/02/DataVizActivityRings",
+                            DslDataVizActivityRingsKt::dslDemoActivityRings),
+                    get("0/03/DataVizBatteryRadialGauge",
+                            DslDataVizBatteryRadialGaugeKt::dslDemoBatteryRadialGauge),
+                    getp("0/03/DataVizBatteryRadialGauge_og",
+                            DataVizDemosKt::demoBatteryRadialGauge),
+
+                    get("0/04/DataVizCalendarHeatmap",
+                            DslDataVizCalendarHeatmapKt::dslDemoCalendarHeatmap),
+                    getp("0/04/DataVizCalendarHeatmap_og", DataVizDemosKt::demoCalendarHeatmapGrid),
+
+                    get("0/05/DataVizHeartRate", DslDataVizHeartRateKt::dslDemoHeartRateTimeline),
+                    get("0/06/DataVizHydrationWave",
+                            DslDataVizHydrationWaveKt::dslDemoHydrationWave),
+                    get("0/07/DataVizMoonPhaseDial",
+                            DslDataVizMoonPhaseDialKt::dslDemoMoonPhaseDial),
+                    get("0/08/DataVizSleepQualityRings",
+                            DslDataVizSleepQualityRingsKt::dslDemoSleepQualityRings),
+                    get("0/09/DataVizStepProgressArc",
+                            DslDataVizStepProgressArcKt::dslDemoStepProgressArc),
+                    get("0/10/DataVizStockSparkline",
+                            DslDataVizStockSparklineKt::dslDemoStockSparkline),
+                    get("0/11/DataVizWeatherForecast",
+                            DslDataVizWeatherForecastKt::dslDemoWeatherForecast),
+                    get("0/12/DemoAnchorText", DslDemoAnchorTextKt::demoAnchorText),
+                    get("0/13/DemoAttributedString",
+                            DslDemoAttributedStringKt::demoAttributedString),
+                    getp("0/15/DemoGraphs_og", DemoGraphsKt::demoGraphs),
+                    getp("0/16/DemoGraphs2_og", DemoGraphsKt::demoGraphs2),
+//                    get("0/17/SimpleJavaAnim", DslDemoTouchKt::dslSimpleJavaAnim),
+                    getp("0/17/simpleJavaAnim_og", DemoTouchKt::simpleJavaAnim),
+//
+//                    get("0/18/DemoTouch1", DslDemoTouchKt::dslDemoTouch1),
+//                    get("0/19/DemoTouch2", DslDemoTouchKt::dslDemoTouch2),
+//                    get("0/20/TouchStopGently", DslDemoTouchKt::dslTouchStopGently),
+//                    get("0/21/TouchStopEnds", DslDemoTouchKt::dslTouchStopEnds),
+//                    get("0/22/TouchStopInstantly", DslDemoTouchKt::dslTouchStopInstantly),
+//                    get("0/23/TouchStopNotchesEven", DslDemoTouchKt::dslTouchStopNotchesEven),
+//                    get("0/24/TouchStopNotchesPercents",
+//                    DslDemoTouchKt::dslTouchStopNotchesPercents),
+//                    get("0/25/TouchStopNotchesAbsolute",
+//                    DslDemoTouchKt::dslTouchStopNotchesAbsolute),
+//                    get("0/26/TouchStopAbsolutePos", DslDemoTouchKt::dslTouchStopAbsolutePos),
+                    get("0/27/BasicTimer", DslExampleTimerKt::dslBasicTimer),
+                    getpc("0/28/LinearRegression3", LinearRegressionKt::demoLinearRegression),
+
+                    get("0/29/PieChart", DslPieChartKt::dslPieChart),
+                    getpc("0/29/PieChart_og", PieChartKt::demoPieChart),
+
+                    get("0/30/Plot3", DslPlotDemosKt::dslPlot3),
+                    get("0/31/Plot4", DslPlotDemosKt::dslPlot4),
+                    get("0/32/PressureGauge", DslPressureGaugeKt::dslDemoPressureGauge),
+
+//                    get("0/0/RcScrollview", DslRcScrollviewKt::dslRcScrollview),
+                    get("0/37/RcSimpleSwitch", DslRcSimpleSwitchKt::dslRcSimpleSwitchDemo),
+                    get("0/38/ServerClock", DslServerSideKt::dslServerClock),
+//                    getpc("0/0/SimpleShader2", () -> DslSimpleShader2Kt.dslSimpleShader2(bitmap)),
+//                    get("0/0/SlantedButton", DslSlantedButtonKt::dslSlantedButtonDemo),
+                    get("0/40/SmallAnimated", DslSmallAnimatedKt::smallAnimated),
+                    get("0/41/SpreadSheet", DslSpreadSheetKt::dslSpreadSheet),
+                    getp("0/41/SpreadSheet_og", ExampleNumbersKt::spreadSheet),
+
+                    get("0/42/SysVar", DslSysVarKt::dslSysVar),
+                    getp("0/42/SysVar_og", DemotSystemVarKt::sysVar),
+
+                    get("0/43/RcTextDemo", DslTextDemoKt::dslRcTextDemo),
+                    getpc("0/43/RcTextDemo_og", TextKt::RcTextDemo),
+
+                    get("0/44/Clock", RcDslClockKt::dslClock),
+                    get("0/45/Countdown", RcDslCountdownKt::dslCountdown),
+                    get("0/46/Demo", RcDslDemoKt::dslDemo),
+                    get("0/47/Theme1", RcDslDemoKt::dslTheme1),
+                    get("0/48/Theme2", RcDslDemoKt::dslTheme2),
+                    get("0/49/SimpleDemo", RcDslDemoKt::dslSimpleDemo),
+                    get("0/50/SimpleClock", RcDslDemoKt::dslSimpleClock),
+                    get("0/51/EnumsDemo", RcDslEnumsDemoKt::enumsDemo),
+                    get("0/53/Ticker", RcDslTickerKt::dslTicker)
+            ));
+        }
 
         return new ArrayList<>(Arrays.asList(
                 get("0/00/dslAttributeString", DslDemoAttributedStringKt::demoAttributedString),
@@ -167,8 +268,7 @@ public abstract class DemosCreation {
                 get("0/03/demoImageColor", DslHostileActorKt::demoImageColor),
                 get("0/04/demoImage", DslHostileActorKt::demoImage),
                 get("0/05/smallAnimated", DslSmallAnimatedKt::smallAnimated),
-                get("0/06/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),
-                get("0/07/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
+
                 get("0/08/00dslCountdown1", RcDslCountdownKt::dslCountdown),
                 getpc("0/09/00dslCountdown2", CountdownKt::countDown),
                 get("0/10/00dslTheme1", RcDslDemoKt::dslTheme1),
@@ -178,8 +278,8 @@ public abstract class DemosCreation {
 
                 //get("0/0/00dslCalenda", RcDslCalendarDemoKt::dslCalendarDayAgenda),
                 //get("0/0/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),
-               // get("0/0/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
-              // get("0/0/00dslLinearRegression", DslLinearRegressionKt::dslLinearRegression),
+                // get("0/0/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
+                // get("0/0/00dslLinearRegression", DslLinearRegressionKt::dslLinearRegression),
                 get("1/1/00enumsDemo", RcDslEnumsDemoKt::enumsDemo),
                 get("1/1/01dslClock", RcDslClockKt::dslClock),
                 get("1/1/02dslDemo", RcDslDemoKt::dslDemo),
