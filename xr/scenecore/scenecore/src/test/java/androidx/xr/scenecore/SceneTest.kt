@@ -160,31 +160,14 @@ class SceneTest {
     }
 
     @Test
-    fun setSpatialVisibilityChangedListener_receivesRuntimeSpatialVisibilityChangedEvent() {
-        testSpatialVisibilityChangedListener(TEST_METHOD_SET)
-    }
-
-    @Test
     fun addSpatialVisibilityChangedListener_receivesRuntimeSpatialVisibilityChangedEvent() {
-        testSpatialVisibilityChangedListener(TEST_METHOD_ADD)
-    }
-
-    // TODO - b/502272748: Once the deprecated set method is removed, this method body can
-    // be rolled into
-    // addSpatialVisibilityChangedListener_receivesRuntimeSpatialVisibilityChangedEvent
-    fun testSpatialVisibilityChangedListener(addOrSet: Int) {
         var listenerCalledWithValue = SpatialVisibility.UNKNOWN
         val listener =
             Consumer<SpatialVisibility> { visibility -> listenerCalledWithValue = visibility }
 
         // Test that it calls into the runtime and capture the runtime listener.
         val executor = directExecutor()
-        if (addOrSet == TEST_METHOD_ADD) {
-            session.scene.addSpatialVisibilityChangedListener(executor, listener)
-        } else {
-            assertThat(addOrSet).isEqualTo(TEST_METHOD_SET)
-            session.scene.setSpatialVisibilityChangedListener(executor, listener)
-        }
+        session.scene.addSpatialVisibilityChangedListener(executor, listener)
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
         // Simulate the runtime listener being called with any value.
@@ -219,18 +202,6 @@ class SceneTest {
         }
         shadowOf(Looper.getMainLooper()).idle()
         assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.UNKNOWN)
-    }
-
-    @Test
-    fun setSpatialVisibilityChangedListener_withNoExecutor_callsRuntimeSetSpatialVisibilityChangedListenerWithMainThreadExecutor() {
-        val listener = Consumer<SpatialVisibility> { _ -> }
-        session.scene.setSpatialVisibilityChangedListener(listener)
-        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
-
-        assertThat(fakeSceneRuntime.spatialVisibilityChangedMap).hasSize(1)
-
-        val storedExecutor = fakeSceneRuntime.spatialVisibilityChangedMap.values.first()
-        assertThat(storedExecutor).isEqualTo(HandlerExecutor.mainThreadExecutor)
     }
 
     @Test
@@ -525,7 +496,7 @@ class SceneTest {
     @Test
     fun sceneClose_clearsSpatialVisibilityListener() {
         val visibilityListener = Consumer<SpatialVisibility> {}
-        session.scene.setSpatialVisibilityChangedListener(visibilityListener)
+        session.scene.addSpatialVisibilityChangedListener(visibilityListener)
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
         assertThat(fakeSceneRuntime.spatialVisibilityChangedMap).hasSize(1)

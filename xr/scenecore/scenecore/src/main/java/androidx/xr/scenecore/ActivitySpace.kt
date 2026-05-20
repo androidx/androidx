@@ -173,29 +173,6 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
         addOriginChangedListener(DirectExecutor, listener)
 
     /**
-     * Adds a listener to be called when the ActivitySpace's origin has moved or changed, typically
-     * due to an internal system event.
-     *
-     * When this event occurs, any [ScenePose] that is not a child of ActivitySpace, such as
-     * [AnchorEntity], will have a different position relative to the [ActivitySpace]. Therefore,
-     * this listener can be used to indicate when to invalidate any cached information about the
-     * relative difference in Pose between ActivitySpace's children and children of
-     * non-ActivitySpace ScenePoses.
-     *
-     * The callback will be made on the SceneCore executor.
-     *
-     * @param listener The listener to register.
-     */
-    // TODO - b/502272748: Cleanup deprecated listener methods
-    @Deprecated(
-        "Use addOriginChangedListener",
-        replaceWith = ReplaceWith("addOriginChangedListener()"),
-    )
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public fun addOnOriginChangedListener(listener: Runnable): Unit =
-        addOriginChangedListener(listener)
-
-    /**
      * Removes the previously-added listener.
      *
      * All listeners are automatically removed when the ActivitySpace is disposed even if this

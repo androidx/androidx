@@ -461,29 +461,6 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
     }
 
     /**
-     * Adds a listener to be called when the [Anchor]'s origin moves relative to its underlying
-     * space.
-     *
-     * The callback is triggered on the main thread by any anchor movements, for example when the
-     * perception system moves the anchor's origin to maintain the anchor's position relative to the
-     * real world. Any cached data relative to the activity space or any other "space" should be
-     * updated when this callback is triggered. It will be automatically unregistered when the
-     * entity is disposed.
-     *
-     * @param listener The listener to register. Events will fire on the main thread.
-     */
-    // TODO - b/502272748: Cleanup deprecated listener methods
-    @Deprecated(
-        "Use addOriginChangedListener",
-        replaceWith = ReplaceWith("addOriginChangedListener()"),
-    )
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public fun addOnOriginChangedListener(listener: Runnable) {
-        checkNotDisposed()
-        onOriginChangedListeners.add(HandlerExecutor.mainThreadExecutor, listener)
-    }
-
-    /**
      * Removes the listener to be called when the [Anchor]'s origin moves relative to its underlying
      * space.
      *
