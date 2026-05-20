@@ -23,13 +23,17 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.draganddrop.UIKitDragAndDropManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.hapticfeedback.CupertinoHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -63,19 +67,18 @@ import androidx.compose.ui.uikit.LocalUIView
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.uikit.toNanoSeconds
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.toDpOffset
-import androidx.compose.ui.unit.toDpRect
-import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.roundToIntSize
+import androidx.compose.ui.unit.toDpOffset
+import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.LocalInteropContainer
@@ -89,7 +92,6 @@ import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.MetalRedrawer
 import androidx.compose.ui.window.OverlayInputView
 import androidx.compose.ui.window.TouchesEventKind
-import kotlin.Float
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.cinterop.CValue
@@ -711,6 +713,10 @@ internal class ComposeSceneMediator(
         override val architectureComponentsOwner get() = this@ComposeSceneMediator.architectureComponentsOwner
         override val screenReader: PlatformScreenReader get() = platformScreenReader
 
+        override val hapticFeedback: HapticFeedback by lazy(LazyThreadSafetyMode.NONE) {
+            CupertinoHapticFeedback()
+        }
+
         override fun convertLocalToWindowPosition(localPosition: Offset): Offset =
             windowContext.convertLocalToWindowPosition(_overlayView, localPosition)
 
@@ -724,7 +730,11 @@ internal class ComposeSceneMediator(
             windowContext.convertScreenToLocalPosition(_overlayView, positionOnScreen)
 
         override val viewConfiguration get() = this@ComposeSceneMediator.viewConfiguration
-        override val inputModeManager = DefaultInputModeManager(InputMode.Touch)
+
+        override val inputModeManager by lazy(LazyThreadSafetyMode.NONE) {
+            DefaultInputModeManager(InputMode.Touch)
+        }
+
         override val textInputService get() = this@ComposeSceneMediator.textInputServiceAdapter
         override val textToolbar get() = this@ComposeSceneMediator.textInputService.textToolbar
         override val semanticsOwnerListener get() = this@ComposeSceneMediator.semanticsOwnerListener

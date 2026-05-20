@@ -24,10 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
 import androidx.compose.ui.graphics.asComposeCanvas
-import androidx.compose.ui.hapticfeedback.CupertinoHapticFeedback
 import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.MotionDurationScaleImpl
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -79,7 +77,6 @@ internal class ComposeContainer(
     private val coroutineContext: CoroutineContext,
     private val lifecycleDelegate: ComposeContainerLifecycleDelegate
 ) {
-    private val hapticFeedback = CupertinoHapticFeedback()
 
     val view = ComposeContainerView(
         transparentForTouches = false,
@@ -374,7 +371,6 @@ internal class ComposeContainer(
     @Composable
     private fun ProvideContainerCompositionLocals(content: @Composable () -> Unit) =
         CompositionLocalProvider(
-            LocalHapticFeedback provides hapticFeedback,
             LocalUIViewController provides containingViewController,
             LocalSystemTheme provides systemThemeState.value,
             content = content

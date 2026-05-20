@@ -40,7 +40,7 @@ internal class WebHapticFeedback : HapticFeedback {
         private val LongPressVibrationPattern = vibrationPatternOf(0, 30)
         private val VirtualKeyVibrationPattern = vibrationPatternOf(0, 20)
 
-        fun webHapticFeedbackOrDefault(): HapticFeedback =  if (isVibrationSupported()) WebHapticFeedback() else DefaultHapticFeedback()
+        fun webHapticFeedbackOrDefault(): HapticFeedback =  if (isVibrationSupported()) WebHapticFeedback() else DefaultHapticFeedback
     }
 
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
