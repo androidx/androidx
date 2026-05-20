@@ -23,7 +23,6 @@ import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -126,19 +125,22 @@ public constructor(
         /**
          * Creates a new [Session].
          *
-         * This method must be called from a worker thread (e.g.,
-         * [Dispatchers.IO][kotlinx.coroutines.Dispatchers.IO]).
+         * The thread on which this method should be called depends on the features being used:
+         * - If you are using SceneCore rendering APIs, this method must be called on the **Main
+         *   Thread**.
+         * - If you are using ARCore APIs on a Projected device, this method must be called on a
+         *   **Worker Thread** (e.g., [Dispatchers.IO][kotlinx.coroutines.Dispatchers.IO]).
          * > **Thread Safety Warning:** This method performs significant disk I/O, including loading
          * > native libraries. If StrictMode is enabled, calling this on the **Main Thread** (UI
          * > Thread) will trigger a [android.os.StrictMode] `DiskReadViolation`.
          *
-         * **Example with Coroutines:**
+         * **Example for calling on a WorkerThread for Projected devices:**
          *
          * ```kotlin
          * lifecycleScope.launch {
-         *   val result = withContext(Dispatchers.IO) {
-         *     Session.create(context)
-         *   }
+         *     val result = withContext(Dispatchers.IO) {
+         *         Session.create(context)
+         *     }
          * }
          * ```
          *
@@ -155,7 +157,6 @@ public constructor(
          */
         @JvmOverloads
         @JvmStatic
-        @WorkerThread
         public fun create(
             context: Context,
             coroutineContext: CoroutineContext = EmptyCoroutineContext,
