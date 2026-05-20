@@ -297,6 +297,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR =
             FLAG_PREFIX + "enable_embedding_approximate_nearest_neighbor";
 
+    /** Enables embedding pre-quantized data. */
+    public static final String FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA =
+            FLAG_PREFIX + "enable_embedding_pre_quantized_data";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -645,6 +649,11 @@ public final class Flags {
 
     /** Whether embedding approximate nearest neighbor should be enabled. */
     public static boolean enableEmbeddingApproximateNearestNeighbor() {
+        return true;
+    }
+
+    /** Whether embedding pre-quantized data should be enabled. */
+    public static boolean enableEmbeddingPreQuantizedData() {
         return true;
     }
 }

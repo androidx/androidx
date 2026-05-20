@@ -216,6 +216,11 @@ public class StubCreators {
             AbstractCreator<EmbeddingVector> {
     }
 
+    /** Stub creator for {@link EmbeddingVector.QuantizedData}. */
+    public static class QuantizedDataCreator extends
+            AbstractCreator<EmbeddingVector.QuantizedData> {
+    }
+
     /** Stub creator for {@link androidx.appsearch.app.AppSearchBlobHandle}. */
     public static class AppSearchBlobHandleCreator extends
             AbstractCreator<AppSearchBlobHandle> {

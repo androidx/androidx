@@ -12657,6 +12657,116 @@ public abstract class AppSearchSessionCtsTestBase {
                 .isWithin(0.0001)
                 .of(256);
     }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA)
+    public void testEmbeddingPreQuantized() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .setQuantizationType(
+                                AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_8_BIT)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // 1. Construct a pre-quantized embedding vector using the direct constructor.
+        // Supposing minValue = 0, scale = 1.0f, quantized byte = 10, it represents float value
+        // 10.0f.
+        byte[] quantizedValues = new byte[]{10, 20, 30};
+        EmbeddingVector preQuantizedVector1 =
+                new EmbeddingVector(
+                        new EmbeddingVector.QuantizedData(0.0f, 1.0f, quantizedValues),
+                        "my_model");
+
+        // 2. Construct a pre-quantized embedding vector using the static factory method.
+        // Passing {0.0f, 127.5f, 255.0f} calculates min = 0, max = 255, scale = 1.0f,
+        // quantizing to bytes {0, (byte) 128, (byte) 255}.
+        EmbeddingVector preQuantizedVector2 =
+                new EmbeddingVector(
+                        EmbeddingVector.QuantizedData.fromUnquantizedValues(
+                                new float[]{0.0f, 127.5f, 255.0f}),
+                        "my_model");
+
+        // Index documents
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding", preQuantizedVector1)
+                        .build();
+        GenericDocument doc2 =
+                new GenericDocument.Builder<>("namespace", "id2", "Email")
+                        .setCreationTimestampMillis(1001)
+                        .setPropertyEmbedding("embedding", preQuantizedVector2)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2).build()));
+
+        // Search using a query vector {1, 1, 1}.
+        // - doc1 dot product with {10, 20, 30} is 10 + 20 + 30 = 60.
+        // - doc2 dot product with {0, 128, 255} is 0 + 128 + 255 = 383.
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addEmbeddingParameters(new EmbeddingVector(new float[]{1, 1, 1}, "my_model"))
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                .setListFilterQueryLanguageEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getEmbeddingParameter(0), -1000, 1000)", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+
+        // Results are sorted by ranking signal descending, so doc2 (383) comes before doc1 (60).
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc2);
+        assertThat(results.get(0).getRankingSignal())
+                .isWithin(0.0001)
+                .of(383);
+
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal())
+                .isWithin(0.0001)
+                .of(60);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA)
+    public void testEmbeddingPreQuantized_notSupported() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeFalse(
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA));
+
+        byte[] quantizedValues = new byte[]{10, 20, 30};
+        EmbeddingVector preQuantizedVector =
+                new EmbeddingVector(
+                        new EmbeddingVector.QuantizedData(0.0f, 1.0f, quantizedValues),
+                        "my_model");
+
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "Email")
+                .setPropertyEmbedding("embedding", preQuantizedVector)
+                .build();
+
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.putAsync(
+                        new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()).get());
+
+        assertThat(exception).hasMessageThat().contains(Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA
+                + " is not available on this AppSearch implementation.");
+    }
+
     @Test
     public void testEmbeddingQuantization_changeSchema() throws Exception {
         assumeTrue(

@@ -62,6 +62,8 @@ public class FeaturesImpl implements Features {
                 // fall through
             case Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR:
                 // fall through
+            case Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA:
+                // fall through
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
                 // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:

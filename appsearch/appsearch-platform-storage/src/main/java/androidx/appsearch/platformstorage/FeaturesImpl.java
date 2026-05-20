@@ -196,6 +196,10 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR:
                 // TODO(b/448886757) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA:
+                // TODO(b/390450012) : Update when feature is ready in service-appsearch.
+                // fall through
                 return false;
 
             default:

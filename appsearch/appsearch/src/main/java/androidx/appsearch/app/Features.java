@@ -168,6 +168,13 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * passing pre-quantized embedding data directly in {@link GenericDocument}.
+     */
+    @ExperimentalAppSearchApi
+    String SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA = "SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link SearchSpec#GROUPING_TYPE_PER_SCHEMA}
      */
     String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";
