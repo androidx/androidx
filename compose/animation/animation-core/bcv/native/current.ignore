@@ -1,2 +1,3 @@
 // Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.animation.core/ExperimentalAnimatableApi from androidx.compose.animation:animation-core
 [linuxX64]: modality changed from FINAL to OPEN for androidx.compose.animation.core/Transition.toString

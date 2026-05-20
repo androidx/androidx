@@ -344,7 +344,6 @@ private val nonPublicMarkers =
         "androidx.compose.animation.ExperimentalAnimationApi",
         "androidx.compose.animation.ExperimentalLookaheadAnimationVisualDebugApi",
         "androidx.compose.animation.ExperimentalSharedTransitionApi",
-        "androidx.compose.animation.core.ExperimentalAnimatableApi",
         "androidx.compose.animation.core.ExperimentalAnimationSpecApi",
         "androidx.compose.animation.core.ExperimentalTransitionApi",
         "androidx.compose.animation.core.InternalAnimationApi",
