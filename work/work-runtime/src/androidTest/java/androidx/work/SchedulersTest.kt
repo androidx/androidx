@@ -545,6 +545,23 @@ class SchedulersTest {
         }
     }
 
+    @Test
+    fun greedyScheduler_createdByDefault() {
+        val config = Configuration.Builder().build()
+        val wm = WorkManagerImpl(context, config, env.taskExecutor, env.db)
+        val schedulers = wm.schedulers
+        assertThat(schedulers.any { it is GreedyScheduler }).isTrue()
+    }
+
+    @Test
+    fun greedyScheduler_omittedIfGreedySchedulerDisabled() {
+        val config = Configuration.Builder().setGreedySchedulerEnabled(false).build()
+        val testEnv = TestEnv(config)
+        val wm = WorkManagerImpl(context, config, testEnv.taskExecutor, testEnv.db)
+        val schedulers = wm.schedulers
+        assertThat(schedulers.any { it is GreedyScheduler }).isFalse()
+    }
+
     private fun createWorkSpec(
         env: TestEnv,
         id: String,
