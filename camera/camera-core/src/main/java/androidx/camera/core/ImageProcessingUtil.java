@@ -350,11 +350,16 @@ public final class ImageProcessingUtil {
             return null;
         }
 
+        // Returns null for 0 degree rotation to indicate no processing is required.
+        if (rotationDegrees == 0) {
+            return null;
+        }
+
         Result result = ERROR_CONVERSION;
 
         // YUV rotation is checking non-zero rotation degrees in java layer to avoid unnecessary
         // overhead, while RGB rotation is checking in c++ layer.
-        if (Build.VERSION.SDK_INT >= 23 && rotationDegrees > 0) {
+        if (Build.VERSION.SDK_INT >= 23) {
             result = rotateYUVInternal(
                     imageProxy,
                     rotatedImageWriter,
