@@ -152,34 +152,34 @@ class LocalContextResourcesConfigurationReadDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/test/test.kt:11: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:11: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                     LocalContext.current.resources.configuration
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:12: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:12: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                     LocalContext.current.getResources().getConfiguration()
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:13: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:13: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     LocalContext.current.getText(-1)
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:14: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:14: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     LocalContext.current.getString(-1)
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:15: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:15: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     LocalContext.current.getString(-1, Any())
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:16: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:16: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     LocalContext.current.getColor(-1)
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:17: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:17: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     LocalContext.current.getDrawable(-1)
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:18: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:18: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     LocalContext.current.getColorStateList(-1)
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:9: Warning: Reading Resources using LocalContext.current.resources [LocalContextResourcesRead]
+src/test/test.kt:9: Warning: Reading Resources using LocalContext.current.resources is not configuration-aware and may return stale values if the Configuration changes [LocalContextResourcesRead]
                     LocalContext.current.resources
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:10: Warning: Reading Resources using LocalContext.current.resources [LocalContextResourcesRead]
+src/test/test.kt:10: Warning: Reading Resources using LocalContext.current.resources is not configuration-aware and may return stale values if the Configuration changes [LocalContextResourcesRead]
                     LocalContext.current.getResources()
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 8 errors, 2 warnings
@@ -301,34 +301,34 @@ Autofix for src/test/test.kt line 9: Replace with LocalResources.current:
             .run()
             .expect(
                 """
-src/test/test.kt:10: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:10: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                     resources.configuration
                     ~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:16: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:16: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                     context.resources.configuration
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:23: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:23: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                     res.configuration
                     ~~~~~~~~~~~~~~~~~
-src/test/test.kt:35: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:35: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     context.getText(-1)
                     ~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:36: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:36: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     context.getString(-1)
                     ~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:37: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:37: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     context.getString(-1, Any())
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:38: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:38: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     context.getColor(-1)
                     ~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:39: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:39: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     context.getDrawable(-1)
                     ~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:40: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:40: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                     context.getColorStateList(-1)
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:29: Warning: Reading Resources using LocalContext.current.resources [LocalContextResourcesRead]
+src/test/test.kt:29: Warning: Reading Resources using LocalContext.current.resources is not configuration-aware and may return stale values if the Configuration changes [LocalContextResourcesRead]
                     val res = context.resources
                               ~~~~~~~~~~~~~~~~~
 9 errors, 1 warning
@@ -448,34 +448,34 @@ Autofix for src/test/test.kt line 39: Replace with ImageVector.vectorResource:
             .run()
             .expect(
                 """
-src/test/test.kt:13: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:13: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                         resources.configuration
                         ~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:21: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:21: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                         context.resources.configuration
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:30: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+src/test/test.kt:30: Error: Reading Configuration using LocalContext.current.resources.configuration is not configuration-aware and may return stale values if the Configuration changes [LocalContextConfigurationRead]
                         res.configuration
                         ~~~~~~~~~~~~~~~~~
-src/test/test.kt:46: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:46: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                         context.getText(-1)
                         ~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:47: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:47: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                         context.getString(-1)
                         ~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:48: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:48: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                         context.getString(-1, Any())
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:49: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:49: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                         context.getColor(-1)
                         ~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:50: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:50: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                         context.getDrawable(-1)
                         ~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:51: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+src/test/test.kt:51: Error: Querying resource values using LocalContext.current is not configuration-aware and may return stale values if the Configuration changes [LocalContextGetResourceValueCall]
                         context.getColorStateList(-1)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/test/test.kt:38: Warning: Reading Resources using LocalContext.current.resources [LocalContextResourcesRead]
+src/test/test.kt:38: Warning: Reading Resources using LocalContext.current.resources is not configuration-aware and may return stale values if the Configuration changes [LocalContextResourcesRead]
                         val res = context.resources
                                   ~~~~~~~~~~~~~~~~~
 9 errors, 1 warning
