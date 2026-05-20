@@ -41,6 +41,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +61,23 @@ import java.util.Random;
 public class ImageErrorTest {
 
     private final RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
+
+    private boolean mOriginalEnableImageUrls;
+    private boolean mOriginalEnableImageFiles;
+
+    @Before
+    public void setUp() {
+        mOriginalEnableImageUrls = Limits.ENABLE_IMAGE_URLS;
+        mOriginalEnableImageFiles = Limits.ENABLE_IMAGE_FILES;
+        Limits.ENABLE_IMAGE_URLS = true;
+        Limits.ENABLE_IMAGE_FILES = true;
+    }
+
+    @After
+    public void tearDown() {
+        Limits.ENABLE_IMAGE_URLS = mOriginalEnableImageUrls;
+        Limits.ENABLE_IMAGE_FILES = mOriginalEnableImageFiles;
+    }
 
     // ########################### TEST UTILS ######################################
     private RemoteDocument createDocument(

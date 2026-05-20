@@ -281,6 +281,11 @@ public class BitmapData extends Operation
                 throw new RuntimeException("URL image not supported [" + imageId + "]");
             }
         }
+        if (!Limits.ENABLE_IMAGE_FILES) {
+            if (ENCODING_FILE == encoding) {
+                throw new RuntimeException("File image not supported [" + imageId + "]");
+            }
+        }
         if (width < 1
                 || height < 1
                 || height > Limits.MAX_IMAGE_DIMENSION

@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import androidx.compose.remote.core.Limits
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -39,6 +40,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,6 +64,22 @@ class RemoteImageTest {
         )
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private var originalEnableImageUrls: Boolean = false
+    private var originalEnableImageFiles: Boolean = false
+
+    @Before
+    fun setUp() {
+        originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS
+        originalEnableImageFiles = Limits.ENABLE_IMAGE_FILES
+        Limits.ENABLE_IMAGE_URLS = true
+        Limits.ENABLE_IMAGE_FILES = true
+    }
+
+    @After
+    fun tearDown() {
+        Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls
+        Limits.ENABLE_IMAGE_FILES = originalEnableImageFiles
+    }
 
     @Test
     fun remoteImage() {
