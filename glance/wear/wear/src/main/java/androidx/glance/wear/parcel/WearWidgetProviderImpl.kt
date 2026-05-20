@@ -78,8 +78,7 @@ internal class WearWidgetProviderImpl(
                 }
             }
 
-            val widgetContent = widget.provideWidgetData(context, params)
-            val rawContent = widgetContent.captureRawContent(context, params)
+            val rawContent = widget.provideWidgetDataAsRawContentInternal(context, params)
             callback.updateWidgetContent(rawContent.toParcel())
         }
     }
