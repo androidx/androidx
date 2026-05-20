@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import kotlin.math.max
 
 /**
  * Platform-independent Android ImageFormats and their associated values.
@@ -45,6 +46,7 @@ public value class StreamFormat(public val value: Int) {
         public val RAW10: StreamFormat = StreamFormat(0x25)
         public val RAW12: StreamFormat = StreamFormat(0x26)
         public val RAW_DEPTH: StreamFormat = StreamFormat(0x1002)
+        public val RAW_DEPTH10: StreamFormat = StreamFormat(0x1003)
         public val RAW_PRIVATE: StreamFormat = StreamFormat(0x24)
         public val RAW_SENSOR: StreamFormat = StreamFormat(0x20)
         public val RGB_565: StreamFormat = StreamFormat(4)
@@ -57,6 +59,104 @@ public value class StreamFormat(public val value: Int) {
         public val YUV_444_888: StreamFormat = StreamFormat(0x28)
         public val YUY2: StreamFormat = StreamFormat(0x14)
         public val YV12: StreamFormat = StreamFormat(0x32315659)
+        /**
+         * BLOB is a specialized format defined in graphics.h for variable sized images, usually
+         * JPEG.
+         */
+        public val BLOB: StreamFormat = StreamFormat(0x21)
+
+        /** Checks to see if the format is likely a compressed rgb format. */
+        @JvmStatic
+        public fun isCompressedRgb(format: StreamFormat): Boolean {
+            return when (format) {
+                JPEG_R,
+                DEPTH_JPEG,
+                HEIC,
+                JPEG,
+                BLOB -> true
+                else -> false
+            }
+        }
+
+        /**
+         * Returns if image format is one of the raw type, RAW10, RAW12, RAW_PRIVATE, RAW_SENSOR,
+         * RAW_DEPTH, or RAW_DEPTH10.
+         */
+        @JvmStatic
+        public fun isRaw(format: StreamFormat): Boolean {
+            return when (format) {
+                RAW10,
+                RAW12,
+                RAW_PRIVATE,
+                RAW_SENSOR,
+                RAW_DEPTH,
+                RAW_DEPTH10 -> true
+                else -> false
+            }
+        }
+
+        /**
+         * Estimate the number of bytes consumed per image based on the format and dimensions.
+         *
+         * @param format the StreamFormat.
+         * @param width the width of the image.
+         * @param height the height of the image.
+         * @return estimated number of bytes consumed per image.
+         */
+        @JvmStatic
+        public fun bytesPerImage(format: StreamFormat, width: Int, height: Int): Long {
+            var bpp = format.bitsPerPixel
+
+            if (bpp <= 0 && format == DEPTH_POINT_CLOUD) {
+                // TODO: This is a temporary fix for certain devices returning depth data in a
+                // different
+                //  format.
+                bpp = 16
+            }
+
+            // Assume that unknown formats are compressed formats, and estimate the size.
+            if (bpp <= 0 && isCompressedRgb(format)) {
+                return estimateCompressedRgbBytesPerImage(width, height)
+            }
+
+            if (bpp <= 0 && format == PRIVATE) {
+                bpp = estimatePrivateBitsPerPixel()
+            }
+
+            bpp = max(bpp, 0)
+            val bitsPerRow = width * bpp
+            return (bitsPerRow.toLong() * height) / 8L
+        }
+
+        /**
+         * This makes the assumption that compressible formats are *likely* 8 bit rgb based, and
+         * that the compression is equivalent or better than jpeg compression at 100 quality.
+         */
+        private fun estimateCompressedRgbBytesPerImage(width: Int, height: Int): Long {
+            val rgbBitsPerPixel = 24
+
+            // A few different places estimated that jpeg compression at 100 is
+            // worst-case: ~3.5
+            // best-case:  ~12
+            // median:     ~5
+
+            // This value is set to be near the worst-case since it's usually better to
+            // over-estimate
+            // the memory usage than to under-estimate it.
+            val estimatedCompressionFactor = 4
+
+            val rgbBitsPerRow = width * rgbBitsPerPixel
+            val rgbBytes = (rgbBitsPerRow.toLong() * height) / 8L
+            return rgbBytes / estimatedCompressionFactor
+        }
+
+        /**
+         * This makes the assumption that PRIVATE formats is same as [YUV_420_888] in some specific
+         * platforms.
+         */
+        private fun estimatePrivateBitsPerPixel(): Int {
+            return YUV_420_888.bitsPerPixel
+        }
     }
 
     override fun toString(): String {
@@ -97,9 +197,9 @@ public value class StreamFormat(public val value: Int) {
         }
 
     /**
-     * This function returns a human readable string for the associated format.
+     * This function returns a human-readable string for the associated format.
      *
-     * @return a human readable string representation of the StreamFormat.
+     * @return a human-readable string representation of the StreamFormat.
      */
     public val name: String
         get() {
@@ -119,6 +219,7 @@ public value class StreamFormat(public val value: Int) {
                 RAW10 -> return "RAW10"
                 RAW12 -> return "RAW12"
                 RAW_DEPTH -> return "RAW_DEPTH"
+                RAW_DEPTH10 -> return "RAW_DEPTH10"
                 RAW_PRIVATE -> return "RAW_PRIVATE"
                 RAW_SENSOR -> return "RAW_SENSOR"
                 RGB_565 -> return "RGB_565"
@@ -131,6 +232,7 @@ public value class StreamFormat(public val value: Int) {
                 YUV_444_888 -> return "YUV_444_888"
                 YUY2 -> return "YUY2"
                 YV12 -> return "YV12"
+                BLOB -> return "BLOB"
             }
             return "UNKNOWN(${this.value.toString(16)})"
         }
