@@ -37,6 +37,8 @@ import com.google.android.icing.protobuf.ByteString;
 
 import org.jspecify.annotations.NonNull;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -254,29 +256,57 @@ public final class GenericDocumentToProtoConverter {
     /**
      * Converts a {@link PropertyProto.VectorProto} into an {@link EmbeddingVector}.
      */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static @NonNull EmbeddingVector vectorProtoToEmbeddingVector(
             PropertyProto.@NonNull VectorProto vectorProto) {
         Preconditions.checkNotNull(vectorProto);
 
-        float[] values = new float[vectorProto.getValuesCount()];
-        for (int i = 0; i < vectorProto.getValuesCount(); i++) {
-            values[i] = vectorProto.getValues(i);
+        if (vectorProto.getValuesCount() > 0) {
+            float[] values = new float[vectorProto.getValuesCount()];
+            for (int i = 0; i < vectorProto.getValuesCount(); i++) {
+                values[i] = vectorProto.getValues(i);
+            }
+            return new EmbeddingVector(values, vectorProto.getModelSignature());
+        } else {
+            // Directly get the packed byte array
+            byte[] packedBytes = vectorProto.getQuantizedValues().toByteArray();
+
+            // Unpack to create QuantizedData
+            ByteBuffer buffer = ByteBuffer.wrap(packedBytes)
+                    .order(ByteOrder.LITTLE_ENDIAN);
+            float minValue = buffer.getFloat();
+            float scale = buffer.getFloat();
+            byte[] quantizedValues = new byte[packedBytes.length - 8];
+            buffer.get(quantizedValues);
+
+            // Construct the vector directly with the QuantizedData object.
+            return new EmbeddingVector(
+                    /*values=*/ null,
+                    vectorProto.getModelSignature(),
+                    new EmbeddingVector.QuantizedData(minValue, scale, quantizedValues));
         }
-        return new EmbeddingVector(values, vectorProto.getModelSignature());
     }
 
     /**
      * Converts an {@link EmbeddingVector} into a {@link PropertyProto.VectorProto}.
      */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static PropertyProto.@NonNull VectorProto embeddingVectorToVectorProto(
             @NonNull EmbeddingVector embedding) {
         Preconditions.checkNotNull(embedding);
 
         PropertyProto.VectorProto.Builder builder = PropertyProto.VectorProto.newBuilder();
-        for (int i = 0; i < embedding.getValues().length; i++) {
-            builder.addValues(embedding.getValues()[i]);
+        builder.setModelSignature(embedding.getModelSignature());
+
+        if (embedding.getQuantizedData() != null) {
+            builder.setQuantizedValues(
+                    ByteString.copyFrom(embedding.getQuantizedData().getPackedBytes()));
+        } else {
+            for (int i = 0; i < embedding.getValues().length; i++) {
+                builder.addValues(embedding.getValues()[i]);
+            }
         }
-        return builder.setModelSignature(embedding.getModelSignature()).build();
+        return builder.build();
     }
 
     private static void setEmptyProperty(@NonNull String propertyName,

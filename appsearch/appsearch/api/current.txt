@@ -342,9 +342,19 @@ package androidx.appsearch.app {
   }
 
   @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG) public final class EmbeddingVector {
+    ctor @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA) @androidx.appsearch.app.ExperimentalAppSearchApi public EmbeddingVector(androidx.appsearch.app.EmbeddingVector.QuantizedData, String);
     ctor public EmbeddingVector(float[], String);
     method public String getModelSignature();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.EmbeddingVector.QuantizedData? getQuantizedData();
     method public float[] getValues();
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final class EmbeddingVector.QuantizedData {
+    ctor public EmbeddingVector.QuantizedData(float, float, byte[]);
+    method public static androidx.appsearch.app.EmbeddingVector.QuantizedData fromUnquantizedValues(float[]);
+    method public float getMinValue();
+    method public byte[] getQuantizedValues();
+    method public float getScale();
   }
 
   @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ENTERPRISE_GLOBAL_SEARCH_SESSION) public interface EnterpriseGlobalSearchSession extends androidx.appsearch.app.ReadOnlyGlobalSearchSession {
@@ -371,6 +381,7 @@ package androidx.appsearch.app {
     field public static final String SCHEMA_ADD_PARENT_TYPE = "SCHEMA_ADD_PARENT_TYPE";
     field public static final String SCHEMA_BLOB_HANDLE = "SCHEMA_BLOB_HANDLE";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR = "SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR";
+    field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA = "SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA";
     field public static final String SCHEMA_EMBEDDING_PROPERTY_CONFIG = "SCHEMA_EMBEDDING_PROPERTY_CONFIG";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_EMBEDDING_QUANTIZATION = "SCHEMA_EMBEDDING_QUANTIZATION";
     field public static final String SCHEMA_GET_INDEXABLE_NESTED_PROPERTIES = "SCHEMA_GET_INDEXABLE_NESTED_PROPERTIES";

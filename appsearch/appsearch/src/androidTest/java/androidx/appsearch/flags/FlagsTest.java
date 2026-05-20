@@ -263,4 +263,10 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".enable_embedding_approximate_nearest_neighbor");
     }
+
+    @Test
+    public void testFlagValue_enableEmbeddingPreQuantizedData() {
+        assertThat(Flags.FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA)
+                .isEqualTo("com.android.appsearch.flags.enable_embedding_pre_quantized_data");
+    }
 }

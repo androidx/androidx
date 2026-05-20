@@ -28,7 +28,6 @@ import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -199,6 +198,7 @@ public final class GenericDocumentToPlatformConverter {
 
         @SuppressLint("NewApi") // EmbeddingVector is incorrectly flagged as needing 34-ext16
         @DoNotInline
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         static void setPlatformPropertyEmbedding(
                 android.app.appsearch.GenericDocument.@NonNull Builder<
                         android.app.appsearch.GenericDocument.Builder<?>> platformBuilder,
@@ -207,6 +207,13 @@ public final class GenericDocumentToPlatformConverter {
             android.app.appsearch.EmbeddingVector[] platformEmbeddingVectors =
                     new android.app.appsearch.EmbeddingVector[jetpackEmbeddingVectors.length];
             for (int i = 0; i < jetpackEmbeddingVectors.length; i++) {
+                // TODO(b/390450012): Update this once pre-quantized embedding vectors are
+                //  supported.
+                if (jetpackEmbeddingVectors[i].getQuantizedData() != null) {
+                    throw new UnsupportedOperationException(
+                            Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA
+                            + " is not available on this AppSearch implementation.");
+                }
                 platformEmbeddingVectors[i] = new android.app.appsearch.EmbeddingVector(
                         jetpackEmbeddingVectors[i].getValues(),
                         jetpackEmbeddingVectors[i].getModelSignature());

@@ -645,4 +645,120 @@ public class GenericDocumentToProtoConverterTest {
         assertThat(convertedDocumentProto).isEqualTo(documentProto);
         assertThat(convertedGenericDocument).isEqualTo(document);
     }
+
+    @Test
+    public void testDocumentProtoConvert_QuantizedEmbeddingProperty() throws Exception {
+        // 1. Create a pre-quantized embedding vector in Java
+        byte[] data = new byte[]{(byte) 9};
+        EmbeddingVector quantizedEmbedding = new EmbeddingVector(
+                new EmbeddingVector.QuantizedData(/*minValue=*/ 0.0f, /*scale=*/ 1.0f, data),
+                "my_model_v1");
+
+
+        GenericDocument document =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        SCHEMA_TYPE_1)
+                        .setCreationTimestampMillis(5L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setPropertyEmbedding("embeddingKey1", quantizedEmbedding)
+                        .build();
+
+        // 2. Manually build the expected DocumentProto that Icing would receive
+        DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()
+                .setUri("id1")
+                .setSchema(SCHEMA_TYPE_1)
+                .setCreationTimestampMs(5L)
+                .setScore(1)
+                .setTtlMs(1L)
+                .setNamespace("namespace");
+
+        documentProtoBuilder.addProperties(
+                PropertyProto.newBuilder()
+                        .setName("embeddingKey1")
+                        .addVectorValues(PropertyProto.VectorProto.newBuilder()
+                                .setModelSignature("my_model_v1")
+                                .setQuantizedValues(ByteString.copyFrom(
+                                        quantizedEmbedding.getQuantizedData().getPackedBytes()))
+
+                        ));
+
+        DocumentProto expectedProto = documentProtoBuilder.build();
+
+        // 3. Perform bidirectional conversion and verify
+        GenericDocument convertedGenericDocument =
+                GenericDocumentToProtoConverter.toGenericDocument(expectedProto, PREFIX,
+                        new SchemaCache(SCHEMA_MAP),
+                        new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                                new LocalStorageIcingOptionsConfig()));
+
+        DocumentProto convertedDocumentProto =
+                GenericDocumentToProtoConverter.toDocumentProto(document);
+
+        // Assert that Java -> Proto matches Icing expectations
+        assertThat(convertedDocumentProto).isEqualTo(expectedProto);
+        // Assert that Proto -> Java matches original AppSearch object
+        assertThat(convertedGenericDocument).isEqualTo(document);
+    }
+
+    @Test
+    public void testDocumentProtoConvert_MultipleQuantizedEmbeddingProperty() throws Exception {
+        byte[] data1 = new byte[]{(byte) 5, (byte) 12, (byte) 120, (byte) 0, (byte) 80, (byte) 37,
+                (byte) 1, (byte) 44};
+        byte[] data2 = new byte[]{(byte) 55, (byte) 102, (byte) 1, (byte) 12, (byte) 88, (byte) 115,
+                (byte) 0, (byte) 4, (byte) 120, (byte) 90, (byte) 22, (byte) 7};
+        EmbeddingVector qEmbedding1 = new EmbeddingVector(
+                new EmbeddingVector.QuantizedData(0.0f, 1.0f, data1), "model_sig1");
+        EmbeddingVector qEmbedding2 = new EmbeddingVector(
+                new EmbeddingVector.QuantizedData(0.5f, 0.5f, data2), "model_sig2");
+
+        GenericDocument document =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        SCHEMA_TYPE_1)
+                        .setCreationTimestampMillis(5L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setPropertyEmbedding("embeddingKey1", qEmbedding1, qEmbedding2)
+                        .build();
+
+        DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()
+                .setUri("id1")
+                .setSchema(SCHEMA_TYPE_1)
+                .setCreationTimestampMs(5L)
+                .setScore(1)
+                .setTtlMs(1L)
+                .setNamespace("namespace");
+
+        documentProtoBuilder.addProperties(
+                PropertyProto.newBuilder()
+                        .setName("embeddingKey1")
+                        .addVectorValues(PropertyProto.VectorProto.newBuilder()
+                                .setModelSignature("model_sig1")
+                                .setQuantizedValues(
+                                        ByteString.copyFrom(
+                                                qEmbedding1.getQuantizedData().getPackedBytes()))
+
+                        )
+                        .addVectorValues(PropertyProto.VectorProto.newBuilder()
+                                .setModelSignature("model_sig2")
+                                .setQuantizedValues(
+                                        ByteString.copyFrom(
+                                                qEmbedding2.getQuantizedData().getPackedBytes()))
+
+                        ));
+
+        DocumentProto expectedProto = documentProtoBuilder.build();
+
+        GenericDocument convertedGenericDocument =
+                GenericDocumentToProtoConverter.toGenericDocument(expectedProto, PREFIX,
+                        new SchemaCache(SCHEMA_MAP),
+                        new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                                new LocalStorageIcingOptionsConfig()));
+
+        DocumentProto convertedDocumentProto =
+                GenericDocumentToProtoConverter.toDocumentProto(document);
+
+        assertThat(convertedDocumentProto).isEqualTo(expectedProto);
+        assertThat(convertedGenericDocument).isEqualTo(document);
+    }
 }
