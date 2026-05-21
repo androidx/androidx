@@ -28,6 +28,7 @@ import android.graphics.Insets;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IInsetsListener;
@@ -62,7 +63,8 @@ public class CarAppViewModel extends AndroidViewModel implements
 
     private @Nullable IRendererCallback mIRendererCallback;
     private @Nullable IInsetsListener mIInsetsListener;
-    private @Nullable Insets mInsets = Insets.NONE;
+    private @NonNull Insets mWindowInsets = Insets.NONE;
+    private @NonNull Insets mImeInsets = Insets.NONE;
     private @Nullable DisplayCutoutCompat mDisplayCutout;
 
     private static WeakReference<Activity> sActivity = new WeakReference<>(null);
@@ -245,47 +247,86 @@ public class CarAppViewModel extends AndroidViewModel implements
     /**
      * Updates the insets for this {@link CarAppActivity}
      *
-     * @param insets latest received {@link Insets}
+     * @param windowInsets latest received {@link Insets}
      * @param displayCutout latest received {@link DisplayCutoutCompat}
      */
-    public void updateWindowInsets(@NonNull Insets insets,
+    public void updateWindowInsets(@NonNull Insets windowInsets,
             @Nullable DisplayCutoutCompat displayCutout) {
-        if (Objects.equals(mInsets, insets) && Objects.equals(mDisplayCutout, displayCutout)) {
+        if (Objects.equals(mWindowInsets, windowInsets)
+                && Objects.equals(mDisplayCutout, displayCutout)) {
             return;
         }
-        mInsets = insets;
+        mWindowInsets = windowInsets;
         mDisplayCutout = displayCutout;
-        // If listener is not set yet, the inset will be dispatched once the listener is set.
-        if (mIInsetsListener != null) {
-            dispatchInsetsUpdates();
-        }
+
+        dispatchWindowInsetsUpdates();
     }
 
     /**
      * Dispatches the insets updates for this {@link CarAppActivity}
      */
-    @SuppressWarnings({"NullAway", "deprecation"})
-    private void dispatchInsetsUpdates() {
-        if (mServiceConnectionManager.getHandshakeInfo().getHostCarAppApiLevel()
-                >= CarAppApiLevels.LEVEL_5) {
-            getServiceDispatcher().dispatch("onWindowInsetsChanged",
-                    () -> requireNonNull(mIInsetsListener).onWindowInsetsChanged(mInsets,
-                            getSafeInsets(mDisplayCutout))
-            );
+    @SuppressWarnings({"deprecation"})
+    private void dispatchWindowInsetsUpdates() {
+        if (mIInsetsListener == null) {
             return;
         }
-        getServiceDispatcher().dispatch("onInsetsChanged",
-                () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets));
+        HandshakeInfo handshakeInfo = mServiceConnectionManager.getHandshakeInfo();
+        if (handshakeInfo == null) {
+            return;
+        }
+        int hostLevel = handshakeInfo.getHostCarAppApiLevel();
+
+        if (hostLevel >= CarAppApiLevels.LEVEL_5) {
+            getServiceDispatcher().dispatch("onWindowInsetsChanged",
+                    () -> requireNonNull(mIInsetsListener).onWindowInsetsChanged(
+                            mWindowInsets, getSafeInsets(mDisplayCutout))
+            );
+        } else {
+            getServiceDispatcher().dispatch("onInsetsChanged",
+                    () -> requireNonNull(mIInsetsListener).onInsetsChanged(mWindowInsets));
+        }
+    }
+
+    /**
+     * Updates the IME insets for this {@link CarAppActivity}
+     *
+     * @param imeInsets latest received IME {@link Insets}
+     */
+    public void updateImeInsets(@NonNull Insets imeInsets) {
+        if (Objects.equals(mImeInsets, imeInsets)) {
+            return;
+        }
+        mImeInsets = imeInsets;
+        dispatchImeInsetsUpdates();
+    }
+
+    /**
+     * Dispatches the IME insets updates for this {@link CarAppActivity}
+     */
+    private void dispatchImeInsetsUpdates() {
+        if (mIInsetsListener == null) {
+            return;
+        }
+        HandshakeInfo handshakeInfo = mServiceConnectionManager.getHandshakeInfo();
+        if (handshakeInfo == null
+                || handshakeInfo.getHostCarAppApiLevel() < CarAppApiLevels.LEVEL_9) {
+            return;
+        }
+
+        getServiceDispatcher().dispatch("onImeInsetsChanged",
+                () -> requireNonNull(mIInsetsListener).onImeInsetsChanged(mImeInsets)
+        );
     }
 
     /**
      * Updates the listener that will handle insets changes. If a non-null listener is set, it will
-     * be assumed that inset changes are handled by the host, and
-     * {@link #updateWindowInsets(Insets, DisplayCutoutCompat)} will return <code>false</code>
+     * be assumed that inset changes are handled by the host, and subsequent inset updates will
+     * be dispatched to it.
      */
     public void setInsetsListener(@Nullable IInsetsListener listener) {
         mIInsetsListener = listener;
-        dispatchInsetsUpdates();
+        dispatchWindowInsetsUpdates();
+        dispatchImeInsetsUpdates();
     }
 
     /**
