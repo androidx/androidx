@@ -42,6 +42,7 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
+import androidx.wear.compose.material3.CompactButtonDefaults
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.OutlinedButton
@@ -265,7 +266,7 @@ fun CompactButtonSample(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
             )
         },
         modifier = modifier,
@@ -304,7 +305,7 @@ fun FilledTonalCompactButtonSample(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
             )
         },
         colors = ButtonDefaults.filledTonalButtonColors(),
@@ -341,13 +342,13 @@ fun OutlinedCompactButtonSample(modifier: Modifier = Modifier) {
                 Icon(
                     Icons.Filled.KeyboardArrowUp,
                     contentDescription = "Collapse",
-                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                    modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
                 )
             } else {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
                     contentDescription = "Expand",
-                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
+                    modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
                 )
             }
         }

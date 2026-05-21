@@ -1222,8 +1222,9 @@ public fun ChildButton(
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
- *   horizontally and vertically aligned icon of size [ButtonDefaults.ExtraSmallIconSize] when used
- *   with a label or [ButtonDefaults.SmallIconSize] when used as the only content in the button.
+ *   horizontally and vertically aligned icon of size [CompactButtonDefaults.ExtraSmallIconSize]
+ *   when used with a label or [CompactButtonDefaults.SmallIconSize] when used as the only content
+ *   in the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -1788,9 +1789,17 @@ public object ButtonDefaults {
         @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** The recommended icon size when used in [CompactButton]s containing both icon and text. */
+    @Deprecated(
+        "Use CompactButtonDefaults.ExtraSmallIconSize instead",
+        replaceWith = ReplaceWith("CompactButtonDefaults.ExtraSmallIconSize"),
+    )
     public val ExtraSmallIconSize: Dp = CompactButtonTokens.IconSize
 
     /** The recommended icon size when used in [CompactButton]s containing icon-only content. */
+    @Deprecated(
+        "Use CompactButtonDefaults.SmallIconSize instead",
+        replaceWith = ReplaceWith("CompactButtonDefaults.SmallIconSize"),
+    )
     public val SmallIconSize: Dp = CompactButtonTokens.IconOnlyIconSize
 
     /** The recommended default size for icons when used inside a [Button]. */
@@ -2136,6 +2145,12 @@ public object CompactButtonDefaults {
      * you can override it by applying Modifier.width directly on [CompactButton].
      */
     internal val IconOnlyWidth = CompactButtonTokens.IconOnlyWidth
+
+    /** The recommended icon size when used in [CompactButton]s containing both icon and text. */
+    public val ExtraSmallIconSize: Dp = CompactButtonTokens.IconSize
+
+    /** The recommended icon size when used in [CompactButton]s containing icon-only content. */
+    public val SmallIconSize: Dp = CompactButtonTokens.IconOnlyIconSize
 }
 
 /**
