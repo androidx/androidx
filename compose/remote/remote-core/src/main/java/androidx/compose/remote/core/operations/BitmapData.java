@@ -64,7 +64,9 @@ public class BitmapData extends Operation
     /** The data is encoded as PNG_8888 (default) */
     public static final short TYPE_PNG_8888 = 0;
 
-    /** The data is encoded as PNG */
+    /** The data is encoded as Generic PNG
+     *  Not to be used with ENCODING_INLINE, which requires a specific type
+    */
     public static final short TYPE_PNG = 1;
 
     /** The data is encoded as RAW 8 bit */
