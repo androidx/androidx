@@ -44,7 +44,7 @@ per-file *libraryversions.toml = tonymak@google.com, shikhamalhotra@google.com, 
 # XR *
 per-file *libraryversions.toml = rafiahmad@google.com, leoferrer@google.com, mrw@google.com
 # MediaRouter *
-per-file *libraryversions.toml = aquilescanta@google.com, asapperstein@google.com, shenqiuz@google.com
+per-file *libraryversions.toml = aquilescanta@google.com, asargent@google.com, asapperstein@google.com, halliwell@google.com, taesuny@google.com, tanaykhemani@google.com, tkourim@google.com
 # PDF *
 per-file *libraryversions.toml = anuragadarsh@google.com, bhavyajain@google.com, rahulkanojia@google.com
 # Camera *
