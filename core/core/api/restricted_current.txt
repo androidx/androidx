@@ -5495,10 +5495,12 @@ package androidx.core.view.accessibility {
   }
 
   public static final class AccessibilityNodeInfoCompat.SelectionCompat {
+    ctor public AccessibilityNodeInfoCompat.SelectionCompat(android.os.Bundle);
     ctor public AccessibilityNodeInfoCompat.SelectionCompat(android.view.accessibility.AccessibilityNodeInfo.Selection?);
     ctor public AccessibilityNodeInfoCompat.SelectionCompat(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat? getEnd();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat? getStart();
+    method public android.os.Bundle toActionArguments();
     method public android.view.accessibility.AccessibilityNodeInfo.Selection? unwrap();
   }
 
@@ -5509,8 +5511,22 @@ package androidx.core.view.accessibility {
     ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat(androidx.core.view.accessibility.AccessibilityNodeInfoCompat, int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getNode();
     method public int getOffset();
+    method @SuppressCompatibility @androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OffsetType @androidx.core.view.accessibility.PreviewAccessibilityApi public int getOffsetType();
     method public android.view.View? getView();
     method public int getVirtualDescendantId();
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final int OFFSET_TYPE_CHILD = 1; // 0x1
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final int OFFSET_TYPE_TEXT = 0; // 0x0
+  }
+
+  @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final class AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder {
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(android.view.View, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(android.view.View, int, int);
+    ctor public AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder(androidx.core.view.accessibility.AccessibilityNodeInfoCompat, int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat build();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.Builder setOffsetType(@androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OffsetType int);
+  }
+
+  @SuppressCompatibility @IntDef({androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OFFSET_TYPE_TEXT, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat.OFFSET_TYPE_CHILD}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.core.view.accessibility.PreviewAccessibilityApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AccessibilityNodeInfoCompat.SelectionPositionCompat.OffsetType {
   }
 
   public abstract static class AccessibilityNodeInfoCompat.StructuredDataInfoCompat {

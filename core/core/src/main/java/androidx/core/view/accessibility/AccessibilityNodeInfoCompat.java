@@ -52,6 +52,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
 import androidx.core.os.BuildCompat;
@@ -753,11 +754,8 @@ public class AccessibilityNodeInfoCompat {
          * selection.
          *
          * <strong>Example:</strong> <code><pre><p>
-         *  Bundle arguments = new Bundle();
-         *  SelectionCompat selection = new SelectionCompat(null, null);
-         *  arguments.setParcelable(
-         *          AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_PARCELABLE,
-         *          selection.unwrap());
+         *  SelectionCompat selection = new SelectionCompat(start, end);
+         *  Bundle arguments = selection.toActionArguments();
          *  info.performAction(
          *          AccessibilityActionCompat.ACTION_SET_EXTENDED_SELECTION.getId(), arguments);
          * </pre></code>
@@ -2086,7 +2084,31 @@ public class AccessibilityNodeInfoCompat {
      * </ul>
      */
     public static final class SelectionPositionCompat {
+        /**
+         * The offset represents an index into the text returned by
+         * {@link AccessibilityNodeInfoCompat#getText()}.
+         */
+        @PreviewAccessibilityApi
+        public static final int OFFSET_TYPE_TEXT = 0;
+
+        /**
+         * The offset represents a position between the children of this position's node, used with
+         * {@link AccessibilityNodeInfoCompat#getChild(int)}. The offset bounds are from 0 to
+         * {@link AccessibilityNodeInfoCompat#getChildCount()}, inclusive. An offset of 0 represents
+         * the position conceptually before the first child, and an offset equal to the child
+         * count represents the position after the last child.
+         */
+        @PreviewAccessibilityApi
+        public static final int OFFSET_TYPE_CHILD = 1;
+
+        @PreviewAccessibilityApi
+        @IntDef({OFFSET_TYPE_TEXT, OFFSET_TYPE_CHILD})
+        @Retention(RetentionPolicy.SOURCE)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public @interface OffsetType {}
+
         final SelectionPosition mPosition;
+        final @OffsetType int mOffsetType;
 
         /**
          * Instantiates a new SelectionPositionCompat.
@@ -2096,12 +2118,10 @@ public class AccessibilityNodeInfoCompat {
          * @param offset The offset for a {@link SelectionPositionCompat} within {@code view}'s text
          *     content, which should be a value between 0 and the length of {@code view}'s text.
          */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         public SelectionPositionCompat(@NonNull AccessibilityNodeInfoCompat node, int offset) {
-            if (BuildCompat.isAtLeastB_1()) {
-                mPosition = new SelectionPosition(node.unwrap(), offset);
-            } else {
-                mPosition = null;
-            }
+            this(BuildCompat.isAtLeastB_1() ? new SelectionPosition(node.unwrap(), offset) : null,
+                    OFFSET_TYPE_TEXT);
         }
 
         /**
@@ -2112,12 +2132,10 @@ public class AccessibilityNodeInfoCompat {
          * @param offset The offset for a selection position within {@code view}'s text content,
          *     which should be a value between 0 and the length of {@code view}'s text.
          */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         public SelectionPositionCompat(@NonNull View view, int offset) {
-            if (BuildCompat.isAtLeastB_1()) {
-                mPosition = new SelectionPosition(view, offset);
-            } else {
-                mPosition = null;
-            }
+            this(BuildCompat.isAtLeastB_1() ? new SelectionPosition(view, offset) : null,
+                    OFFSET_TYPE_TEXT);
         }
 
         /**
@@ -2129,12 +2147,11 @@ public class AccessibilityNodeInfoCompat {
          * @param offset The offset for a selection position within the virtual descendant's text
          *     content, which should be a value between 0 and the length of the descendant's text.
          */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         public SelectionPositionCompat(@NonNull View view, int virtualDescendantId, int offset) {
-            if (BuildCompat.isAtLeastB_1()) {
-                mPosition = new SelectionPosition(view, virtualDescendantId, offset);
-            } else {
-                mPosition = null;
-            }
+            this(BuildCompat.isAtLeastB_1()
+                    ? new SelectionPosition(view, virtualDescendantId, offset) : null,
+                    OFFSET_TYPE_TEXT);
         }
 
         /**
@@ -2142,12 +2159,16 @@ public class AccessibilityNodeInfoCompat {
          *
          * @param position The underlying SelectionPosition to wrap.
          */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         public SelectionPositionCompat(@NonNull SelectionPosition position) {
-            if (BuildCompat.isAtLeastB_1()) {
-                mPosition = position;
-            } else {
-                mPosition = null;
-            }
+            // TODO(b/509618749): Read offset type natively from platform position
+            // if SDK >= 37.1.
+            this(position, OFFSET_TYPE_TEXT);
+        }
+
+        SelectionPositionCompat(@Nullable SelectionPosition position, @OffsetType int offsetType) {
+            mPosition = BuildCompat.isAtLeastB_1() ? position : null;
+            mOffsetType = offsetType;
         }
 
         /**
@@ -2164,7 +2185,6 @@ public class AccessibilityNodeInfoCompat {
             } else {
                 return null;
             }
-
         }
 
         /**
@@ -2182,6 +2202,17 @@ public class AccessibilityNodeInfoCompat {
             } else {
                 return -1;
             }
+        }
+
+        /**
+         * Returns the offset type.
+         *
+         * If this instance was created without specifying an offset type, this will default to
+         * {@link #OFFSET_TYPE_TEXT}.
+         */
+        @PreviewAccessibilityApi
+        public @OffsetType int getOffsetType() {
+            return mOffsetType;
         }
 
         /**
@@ -2227,7 +2258,9 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public int hashCode() {
             if (BuildCompat.isAtLeastB_1()) {
-                return mPosition != null ? mPosition.hashCode() : 0;
+                int result = mPosition != null ? mPosition.hashCode() : 0;
+                result = 31 * result + mOffsetType;
+                return result;
             } else {
                 return 0;
             }
@@ -2246,14 +2279,99 @@ public class AccessibilityNodeInfoCompat {
                 if (!(other instanceof SelectionPositionCompat)) {
                     return false;
                 }
-                return mPosition != null
-                        ? mPosition.equals(((SelectionPositionCompat) other).mPosition)
-                        : false;
+                SelectionPositionCompat otherCompat = (SelectionPositionCompat) other;
+                return (mPosition != null ? mPosition.equals(otherCompat.mPosition) : false)
+                        && mOffsetType == otherCompat.mOffsetType;
             } else {
                 return this == other;
             }
         }
+
+        /**
+         * Builder for creating {@link SelectionPositionCompat} objects.
+         */
+        @PreviewAccessibilityApi
+        public static final class Builder {
+            private AccessibilityNodeInfoCompat mNode;
+            private View mView;
+            private int mVirtualDescendantId = NO_ID;
+            private final int mOffset;
+            private @OffsetType int mOffsetType = OFFSET_TYPE_TEXT;
+
+            /**
+             * Creates a new Builder.
+             *
+             * @param node The {@link AccessibilityNodeInfoCompat} for the node of this position.
+             * @param offset The offset for the position.
+             */
+            public Builder(@NonNull AccessibilityNodeInfoCompat node, int offset) {
+                mNode = node;
+                mOffset = offset;
+            }
+
+            /**
+             * Creates a new Builder.
+             *
+             * @param view The {@link View} containing the text associated with this selection.
+             * @param offset The offset for the position.
+             */
+            public Builder(@NonNull View view, int offset) {
+                mView = view;
+                mOffset = offset;
+            }
+
+            /**
+             * Creates a new Builder.
+             *
+             * @param view The view whose virtual descendant is associated with the
+             *     selection position.
+             * @param virtualDescendantId The virtual descendant id.
+             * @param offset The offset for the position.
+             */
+            public Builder(@NonNull View view, int virtualDescendantId, int offset) {
+                mView = view;
+                mVirtualDescendantId = virtualDescendantId;
+                mOffset = offset;
+            }
+
+            /**
+             * Sets the offset type for the position.
+             *
+             * @param offsetType The scheme dictating how the offset should be interpreted.
+             * @return This builder.
+             * @throws IllegalArgumentException If the {@code offsetType} is unknown.
+             */
+            @NonNull
+            public Builder setOffsetType(@OffsetType int offsetType) {
+                if (offsetType != OFFSET_TYPE_TEXT && offsetType != OFFSET_TYPE_CHILD) {
+                    throw new IllegalArgumentException("Unknown offsetType: " + offsetType);
+                }
+                mOffsetType = offsetType;
+                return this;
+            }
+
+            /**
+             * Creates a new {@link SelectionPositionCompat} instance.
+             */
+            @NonNull
+            public SelectionPositionCompat build() {
+                SelectionPosition platformObj = null;
+                if (BuildCompat.isAtLeastB_1()) {
+                    // TODO(b/509618749): Use platform Builder to set offset type natively
+                    // if SDK >= 37.1.
+                    if (mNode != null) {
+                        platformObj = new SelectionPosition(mNode.unwrap(), mOffset);
+                    } else if (mVirtualDescendantId != NO_ID) {
+                        platformObj = new SelectionPosition(mView, mVirtualDescendantId, mOffset);
+                    } else {
+                        platformObj = new SelectionPosition(mView, mOffset);
+                    }
+                }
+                return new SelectionPositionCompat(platformObj, mOffsetType);
+            }
+        }
     }
+
 
     /**
      * Compat class for AccessibilityNodeInfo.Selection, which is a class that
@@ -2268,7 +2386,9 @@ public class AccessibilityNodeInfoCompat {
      * </ul>
      */
     public static final class SelectionCompat {
-        final Selection mSelection;
+        private final Selection mSelection;
+        private final SelectionPositionCompat mStart;
+        private final SelectionPositionCompat mEnd;
 
         /**
          * Instantiates a new SelectionCompat.
@@ -2276,12 +2396,17 @@ public class AccessibilityNodeInfoCompat {
          * @param start The start of the extended selection.
          * @param end The end of the extended selection.
          */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         public SelectionCompat(@NonNull SelectionPositionCompat start,
                 @NonNull SelectionPositionCompat end) {
             if (BuildCompat.isAtLeastB_1()) {
                 mSelection = new Selection(start.mPosition, end.mPosition);
+                mStart = start;
+                mEnd = end;
             } else {
                 mSelection = null;
+                mStart = null;
+                mEnd = null;
             }
         }
 
@@ -2290,11 +2415,21 @@ public class AccessibilityNodeInfoCompat {
          *
          * @param selection The underlying Selection to wrap.
          */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         public SelectionCompat(@Nullable Selection selection) {
-            if (BuildCompat.isAtLeastB_1()) {
+            this(selection, SelectionPositionCompat.OFFSET_TYPE_TEXT,
+                    SelectionPositionCompat.OFFSET_TYPE_TEXT);
+        }
+
+        SelectionCompat(@Nullable Selection selection, int startOffsetType, int endOffsetType) {
+            if (BuildCompat.isAtLeastB_1() && selection != null) {
                 mSelection = selection;
+                mStart = new SelectionPositionCompat(selection.getStart(), startOffsetType);
+                mEnd = new SelectionPositionCompat(selection.getEnd(), endOffsetType);
             } else {
                 mSelection = null;
+                mStart = null;
+                mEnd = null;
             }
         }
 
@@ -2307,11 +2442,7 @@ public class AccessibilityNodeInfoCompat {
          * </ul>
          */
         public @Nullable SelectionPositionCompat getStart() {
-            if (BuildCompat.isAtLeastB_1()) {
-                return new SelectionPositionCompat(mSelection.getStart());
-            } else {
-                return null;
-            }
+            return mStart;
         }
 
         /**
@@ -2323,11 +2454,7 @@ public class AccessibilityNodeInfoCompat {
          * </ul>
          */
         public @Nullable SelectionPositionCompat getEnd() {
-            if (BuildCompat.isAtLeastB_1()) {
-                return new SelectionPositionCompat(mSelection.getEnd());
-            } else {
-                return null;
-            }
+            return mEnd;
         }
 
         /**
@@ -2349,7 +2476,9 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public int hashCode() {
             if (BuildCompat.isAtLeastB_1()) {
-                return mSelection != null ? mSelection.hashCode() : 0;
+                int result = mStart != null ? mStart.hashCode() : 0;
+                result = 31 * result + (mEnd != null ? mEnd.hashCode() : 0);
+                return result;
             } else {
                 return 0;
             }
@@ -2368,11 +2497,87 @@ public class AccessibilityNodeInfoCompat {
                 if (!(obj instanceof SelectionCompat)) {
                     return false;
                 }
-                return mSelection != null
-                        ? mSelection.equals(((SelectionCompat) obj).mSelection)
-                        : false;
+                SelectionCompat other = (SelectionCompat) obj;
+                return (mStart != null ? mStart.equals(other.mStart) : other.mStart == null)
+                        && (mEnd != null ? mEnd.equals(other.mEnd) : other.mEnd == null);
             } else {
                 return this == obj;
+            }
+        }
+
+        /**
+         * Writes and returns a new {@link Bundle} that represents this {@link SelectionCompat}
+         * as action arguments.
+         * <p>
+         * The returned {@link Bundle} is intended to be used directly by an accessibility service
+         * as the action arguments when performing the
+         * {@link AccessibilityActionCompat#ACTION_SET_EXTENDED_SELECTION} action.
+         *
+         * @return A new {@link Bundle} representing this selection.
+         */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
+        @NonNull
+        public Bundle toActionArguments() {
+            Bundle bundle = new Bundle();
+            if (BuildCompat.isAtLeastB_1()) {
+                if (mSelection != null) {
+                    bundle.putParcelable(ACTION_ARGUMENT_SELECTION_PARCELABLE, mSelection);
+                }
+                if (mStart != null) {
+                    bundle.putInt(EXTRA_SELECTION_START_OFFSET_TYPE, mStart.getOffsetType());
+                }
+                if (mEnd != null) {
+                    bundle.putInt(EXTRA_SELECTION_END_OFFSET_TYPE, mEnd.getOffsetType());
+                }
+            }
+            return bundle;
+        }
+
+        /**
+         * Instantiates a new {@link SelectionCompat} from a {@link Bundle} of action arguments.
+         * <p>
+         * Applications or providers implementing
+         * {@link AccessibilityNodeProviderCompat#performAction(int, int, Bundle)} are expected
+         * to use this constructor to reconstruct the {@link SelectionCompat} from the arguments
+         * Bundle of an {@link AccessibilityActionCompat#ACTION_SET_EXTENDED_SELECTION} request.
+         *
+         * @param actionArguments The bundle containing the selection and offset types.
+         * @throws IllegalArgumentException If the bundle does not contain the required
+         *     {@link #ACTION_ARGUMENT_SELECTION_PARCELABLE} key or contains an invalid offset type.
+         */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
+        public SelectionCompat(@NonNull Bundle actionArguments) {
+            if (BuildCompat.isAtLeastB_1()) {
+                if (!actionArguments.containsKey(ACTION_ARGUMENT_SELECTION_PARCELABLE)) {
+                    throw new IllegalArgumentException("Bundle must contain "
+                            + ACTION_ARGUMENT_SELECTION_PARCELABLE);
+                }
+                mSelection = actionArguments.getParcelable(ACTION_ARGUMENT_SELECTION_PARCELABLE);
+                int startOffsetType = actionArguments.getInt(EXTRA_SELECTION_START_OFFSET_TYPE,
+                        SelectionPositionCompat.OFFSET_TYPE_TEXT);
+                int endOffsetType = actionArguments.getInt(EXTRA_SELECTION_END_OFFSET_TYPE,
+                        SelectionPositionCompat.OFFSET_TYPE_TEXT);
+                if (startOffsetType != SelectionPositionCompat.OFFSET_TYPE_TEXT
+                        && startOffsetType != SelectionPositionCompat.OFFSET_TYPE_CHILD) {
+                    throw new IllegalArgumentException("Unknown start offset type: "
+                            + startOffsetType);
+                }
+                if (endOffsetType != SelectionPositionCompat.OFFSET_TYPE_TEXT
+                        && endOffsetType != SelectionPositionCompat.OFFSET_TYPE_CHILD) {
+                    throw new IllegalArgumentException("Unknown end offset type: "
+                            + endOffsetType);
+                }
+                if (mSelection != null) {
+                    mStart = new SelectionPositionCompat(mSelection.getStart(), startOffsetType);
+                    mEnd = new SelectionPositionCompat(mSelection.getEnd(), endOffsetType);
+                } else {
+                    mStart = null;
+                    mEnd = null;
+                }
+            } else {
+                mSelection = null;
+                mStart = null;
+                mEnd = null;
             }
         }
     }
@@ -2433,6 +2638,14 @@ public class AccessibilityNodeInfoCompat {
 
     private static final String CHECKED_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.CHECKED_KEY";
+
+    @VisibleForTesting
+    static final String EXTRA_SELECTION_START_OFFSET_TYPE =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.SELECTION_START_OFFSET_TYPE";
+
+    @VisibleForTesting
+    static final String EXTRA_SELECTION_END_OFFSET_TYPE =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.SELECTION_END_OFFSET_TYPE";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -5074,12 +5287,23 @@ public class AccessibilityNodeInfoCompat {
      *     <li>API &lt: 36.1: Always returns {@code null}</li>
      * </ul>
      */
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
     @Nullable
     public SelectionCompat getSelection() {
         if (BuildCompat.isAtLeastB_1()) {
             Selection selection = mInfo.getSelection();
             if (selection != null) {
-                return new SelectionCompat(selection);
+                int startOffsetType = SelectionPositionCompat.OFFSET_TYPE_TEXT;
+                int endOffsetType = SelectionPositionCompat.OFFSET_TYPE_TEXT;
+                // TODO(b/509618749): Read natively from platform selection if
+                // SDK >= 37.1.
+                if (mInfo.getExtras() != null) {
+                    startOffsetType = mInfo.getExtras().getInt(EXTRA_SELECTION_START_OFFSET_TYPE,
+                            SelectionPositionCompat.OFFSET_TYPE_TEXT);
+                    endOffsetType = mInfo.getExtras().getInt(EXTRA_SELECTION_END_OFFSET_TYPE,
+                            SelectionPositionCompat.OFFSET_TYPE_TEXT);
+                }
+                return new SelectionCompat(selection, startOffsetType, endOffsetType);
             }
         }
 
@@ -5930,12 +6154,27 @@ public class AccessibilityNodeInfoCompat {
      *
      * @throws IllegalStateException If called from an AccessibilityService.
      */
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
     public void setSelection(@Nullable SelectionCompat selection) {
         if (BuildCompat.isAtLeastB_1()) {
-            if (selection == null) {
+            if (selection == null || selection.unwrap() == null) {
                 mInfo.setSelection(null);
+                if (mInfo.getExtras() != null) {
+                    mInfo.getExtras().remove(EXTRA_SELECTION_START_OFFSET_TYPE);
+                    mInfo.getExtras().remove(EXTRA_SELECTION_END_OFFSET_TYPE);
+                }
             } else {
-                mInfo.setSelection(selection.mSelection);
+                mInfo.setSelection(selection.unwrap());
+                // TODO(b/509618749): Skip writing to extras once platform API is ready
+                // (SDK >= 37.1) and we can set it natively via platform Builder.
+                SelectionPositionCompat start = selection.getStart();
+                SelectionPositionCompat end = selection.getEnd();
+                if (start != null && end != null) {
+                    mInfo.getExtras().putInt(EXTRA_SELECTION_START_OFFSET_TYPE,
+                            start.getOffsetType());
+                    mInfo.getExtras().putInt(EXTRA_SELECTION_END_OFFSET_TYPE,
+                            end.getOffsetType());
+                }
             }
         }
     }
