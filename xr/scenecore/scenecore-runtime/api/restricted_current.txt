@@ -24,13 +24,3 @@ package androidx.xr.scenecore.runtime {
 
 }
 
-package androidx.xr.scenecore.runtime.extensions {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class XrExtensionsHolderAccessor {
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.scenecore.runtime.XrExtensionsHolder<? extends java.lang.Object?>? getHolderLegacy();
-    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static androidx.xr.scenecore.runtime.XrExtensionsHolder<? extends java.lang.Object?>? holderLegacy;
-    field public static final androidx.xr.scenecore.runtime.extensions.XrExtensionsHolderAccessor INSTANCE;
-  }
-
-}
-
