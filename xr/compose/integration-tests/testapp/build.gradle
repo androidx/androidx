@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    // Project dependencies
     implementation(project(":compose:material3:material3"))
     implementation(project(":datastore:datastore"))
     implementation(project(":datastore:datastore-preferences"))
@@ -52,24 +53,54 @@ dependencies {
     implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
     implementation(project(":xr:arcore:arcore"))
 
-    implementation("androidx.annotation:annotation:1.9.1")
-    implementation("androidx.core:core-ktx:1.15.0")
+    // Compose projects (replacing binary references to fix conflicts)
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:foundation:foundation"))
+
+    // External dependencies (Binary)
     implementation("androidx.activity:activity-compose:1.10.0")
+    implementation("androidx.annotation:annotation:1.9.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation("androidx.media3:media3-exoplayer:1.6.0")
     implementation("androidx.media3:media3-ui:1.5.0")
-    implementation("androidx.compose.ui:ui:1.7.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.7.0")
-    implementation("androidx.compose.runtime:runtime:1.8.0")
-    implementation("androidx.compose.foundation:foundation:1.7.5")
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("androidx.fragment:fragment-ktx:1.8.1")
-    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
+
     implementation(libs.kotlinSerializationCore)
     implementation(libs.kotlinSerializationJson)
     implementation(libs.kotlinCoroutinesGuava)
 
     compileOnly(libs.androidExtensionsXr)
+
+    // Test dependencies
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.0")
+    androidTestImplementation("androidx.compose.ui:ui-test:1.7.0")
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":xr:testutils"))
+
+    // Recommended project dependencies for tests to fix AOSP presubmit
+    androidTestImplementation(project(":compose:runtime:runtime-annotation"))
+    androidTestImplementation(project(":compose:runtime:runtime-saveable"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:ui:ui-geometry"))
+    androidTestImplementation(project(":compose:ui:ui-graphics"))
+    androidTestImplementation(project(":compose:ui:ui-text"))
+    androidTestImplementation(project(":compose:ui:ui-unit"))
+    androidTestImplementation(project(":compose:ui:ui-util"))
+    androidTestImplementation(project(":compose:ui:ui"))
+
+    androidTestImplementation(project(":tracing:tracing"))
+
+    androidTestUtil(libs.testOrchestrator)
 }
 
 // Making this APK available via Android Build so the QA team can
