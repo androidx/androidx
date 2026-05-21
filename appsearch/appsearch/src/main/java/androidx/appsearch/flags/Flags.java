@@ -227,15 +227,8 @@ public final class Flags {
             FLAG_PREFIX + "directly_write_commit_remove_blob_response";
 
     /**
-     * Whether to enable schema-type id optimization for setSchema. When enabled, the type-ids of
-     * existing types will be preserved when possible.
-     */
-    public static final String FLAG_ENABLE_SCHEMA_TYPE_ID_OPTIMIZATION =
-            FLAG_PREFIX + "enable_schema_type_id_optimization";
-
-    /**
-     * Enable deduping schema types' property definitions when storing SchemaTypeConfigs in the
-     * schema store.
+     * Whether to enable deduping schema types' property definitions when storing
+     * SchemaTypeConfigs in the schema store.
      */
     public static final String FLAG_ENABLE_SCHEMA_DEFINITION_DEDUPING =
             FLAG_PREFIX + "enable_schema_definition_deduping";
@@ -552,16 +545,6 @@ public final class Flags {
      */
     public static boolean enableDirectlyWriteCommitRemoveBlobResponse() {
         return true;
-    }
-
-    /**
-     * Whether to enable schema-type id optimization for setSchema. When enabled, the type-ids of
-     * existing types will be preserved when possible, and there will be no schema-type id
-     * reassignment for adding new types.
-     */
-    public static boolean enableSchemaTypeIdOptimization() {
-        // TODO(b/434218554): Enable this once the feature is rolled out to Nextfood in platform.
-        return false;
     }
 
     /**
