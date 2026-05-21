@@ -18,6 +18,7 @@ package androidx.glance.wear
 
 import android.content.ComponentName
 import android.content.Context
+import android.provider.Settings
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.ContainerInfo
@@ -242,6 +243,96 @@ class GlanceWearWidgetTest {
                     any(),
                 )
             verify(mockUpdateClient, never()).requestUpdate(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun triggerUpdate_inDebugEnv_pullsUpdate() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val handle =
+                ActiveWearWidgetHandle(
+                    provider = TEST_COMPONENT,
+                    instanceId = TEST_INSTANCE_ID,
+                    containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                )
+            val widget = TestWidget(mockUpdateClient, activeWidgets = listOf(handle))
+            val context = getApplicationContext<Context>()
+
+            withDevelopmentSettingsEnabled(context) {
+                widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+                verify(mockUpdateClient).requestUpdate(any(), any(), eq(TEST_INSTANCE_ID))
+                verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+            }
+        }
+    }
+
+    @Test
+    fun triggerUpdate_inDebugEnv_notActive_pullsUpdateUsingFallbackProvider() = runTest {
+        withForceAtLeast37 {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val widget = TestWidget(mockUpdateClient, activeWidgets = emptyList())
+            val context = getApplicationContext<Context>()
+
+            val cache = WearWidgetCache(context)
+            val testComponent = ComponentName(context, TEST_COMPONENT.className)
+            cache.update {
+                putServiceToWidgetMapping(
+                    testComponent.className,
+                    TestWidget::class.java.canonicalName!!,
+                )
+            }
+
+            withDevelopmentSettingsEnabled(context) {
+                widget.triggerUpdate(context, TEST_INSTANCE_ID)
+
+                verify(mockUpdateClient)
+                    .requestUpdate(any(), eq(testComponent), eq(TEST_INSTANCE_ID))
+                verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+            }
+        }
+    }
+
+    @Test
+    fun triggerUpdateAll_inDebugEnv_noActiveWidgets_pullsUpdateForProvider() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val widget = TestWidget(mockUpdateClient, activeWidgets = emptyList())
+        val context = getApplicationContext<Context>()
+
+        // Populate the real cache
+        val cache = WearWidgetCache(context)
+        val testComponent = ComponentName(context, TEST_COMPONENT.className)
+        cache.update {
+            putServiceToWidgetMapping(
+                testComponent.className,
+                TestWidget::class.java.canonicalName!!,
+            )
+        }
+
+        withDevelopmentSettingsEnabled(context) {
+            widget.triggerUpdateAll(context)
+
+            verify(mockUpdateClient).requestUpdate(any(), eq(testComponent), eq(null))
+        }
+    }
+
+    private suspend fun withDevelopmentSettingsEnabled(
+        context: Context,
+        block: suspend () -> Unit,
+    ) {
+        val contentResolver = context.contentResolver
+        val originalValue =
+            Settings.Global.getInt(contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0)
+        Settings.Global.putInt(contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 1)
+        try {
+            block()
+        } finally {
+            Settings.Global.putInt(
+                contentResolver,
+                Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
+                originalValue,
+            )
         }
     }
 

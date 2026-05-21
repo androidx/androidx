@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
@@ -166,6 +167,15 @@ internal constructor(
      */
     @SuppressLint("ListIterator") // Not running inside Compose code.
     public suspend fun triggerUpdateAll(context: Context) {
+        // In debugging mode (such as Emulator), we would always trigger a pull update instead of
+        // trying to use push mechanism.
+        if (context.isDebuggingEnabled()) {
+            GlanceWearWidgetManager(context).getProviderForWidget(this::class)?.let {
+                triggerPullUpdate(context, it, instanceId = null)
+                return@triggerUpdateAll
+            }
+        }
+
         val activeWidgets = fetchActiveWidgets(context)
         if (activeWidgets.isEmpty()) {
             Log.i(TAG, "No active instances found to update.")
@@ -192,8 +202,15 @@ internal constructor(
         instanceId: WidgetInstanceId,
         cachedHandle: ActiveWearWidgetHandle? = null,
     ) {
-        if (context.isDebuggable()) {
+        if (context.isDebuggableBuild()) {
             updateClient.sendUpdateBroadcast(context, instanceId = instanceId)
+        }
+
+        if (context.isDebuggingEnabled()) {
+            GlanceWearWidgetManager(context).getProviderForWidget(this::class)?.let {
+                triggerPullUpdate(context, it, instanceId)
+                return@triggerUpdateInternal
+            }
         }
 
         if (isAtLeastC()) {
@@ -267,8 +284,28 @@ internal constructor(
     internal companion object {
         private const val TAG = "GlanceWearWidget"
 
-        private fun Context.isDebuggable(): Boolean =
+        private fun Context.isDebuggableBuild(): Boolean =
             (this.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+
+        /**
+         * Returns whether debugging is enabled for the device.
+         *
+         * Debugging is enabled if the device is an emulator or if the developer settings are
+         * enabled.
+         */
+        internal fun Context.isDebuggingEnabled(): Boolean =
+            isEmulator() ||
+                Settings.Global.getInt(
+                    contentResolver,
+                    Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
+                    0,
+                ) == 1
+
+        private fun Context.isEmulator(): Boolean =
+            Build.HARDWARE.contains("goldfish") ||
+                Build.HARDWARE.contains("ranchu") ||
+                Build.HARDWARE.contains("cutf_cvm") ||
+                Build.HARDWARE.contains("starfish")
 
         /**
          * Robolectric does not support SDK 37 version, so we need to force the SDK version to 37 to

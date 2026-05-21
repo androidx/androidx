@@ -145,6 +145,14 @@ public class GlanceWearWidgetManager {
         state.updateServiceMapping(serviceComponentName.className, widgetName)
     }
 
+    internal suspend fun getProviderForWidget(
+        widgetClass: KClass<out GlanceWearWidget>
+    ): ComponentName? {
+        val serviceToWidgetMapping = state.getServiceToWidgetMapping()
+        val targetName = widgetClass.java.canonicalName ?: widgetClass.java.name
+        return serviceToWidgetMapping.entries.firstOrNull { it.value == targetName }?.key
+    }
+
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private object Api34Impl {
         @DoNotInline
