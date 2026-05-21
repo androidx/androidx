@@ -1283,6 +1283,7 @@ includeProject(":xr:scenecore:scenecore-spatial-rendering", [BuildType.XR])
 includeProject(":xr:scenecore:scenecore-testing", [BuildType.XR])
 includeProject(":xr:scenecore:integration-tests:testapp", [BuildType.XR])
 includeProject(":xr:scenecore:integration-tests:videoplayerdrmtest", [BuildType.XR])
+includeProject(":xr:testutils", [BuildType.XR])
 
 /////////////////////////////
 //
