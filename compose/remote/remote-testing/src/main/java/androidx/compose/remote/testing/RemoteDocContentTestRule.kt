@@ -30,11 +30,16 @@ import org.junit.runners.model.Statement
 /**
  * A [TestRule] that allows you to set a Remote Compose content without the necessity to provide a
  * host for the content. The host, such as an Activity, will be created by the test rule.
+ *
+ * @param _composeTestRule [ComposeContentTestRule] to be used by this [TestRule].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteDocContentTestRule : TestRule {
+public class RemoteDocContentTestRule(
+    private val _composeTestRule: ComposeContentTestRule? = null
+) : TestRule {
+
     internal val remoteBaseDocContentTestRule: RemoteBaseDocContentTestRule =
-        RemoteBaseDocContentTestRule()
+        RemoteBaseDocContentTestRule(_composeTestRule)
 
     /** [ComposeContentTestRule] used by this [TestRule]. */
     public val composeTestRule: ComposeContentTestRule =

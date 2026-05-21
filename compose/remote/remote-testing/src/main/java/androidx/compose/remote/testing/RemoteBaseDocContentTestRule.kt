@@ -36,14 +36,27 @@ import org.junit.runners.model.Statement
  *
  * The [CoreDocument] player implementation should be provided, giving the flexibility for
  * developers to choose their own implementation.
+ *
+ * @param _composeTestRule [ComposeContentTestRule] to be used by this [TestRule].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteBaseDocContentTestRule : TestRule {
+public class RemoteBaseDocContentTestRule(
+    private val _composeTestRule: ComposeContentTestRule? = null
+) : TestRule {
+
     /** [ComposeContentTestRule] used by this [TestRule]. */
-    public val composeTestRule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
+    public val composeTestRule: ComposeContentTestRule =
+        _composeTestRule ?: createComposeRule(StandardTestDispatcher())
 
     override fun apply(base: Statement, description: Description): Statement =
-        composeTestRule.apply(base, description)
+        if (_composeTestRule == null) composeTestRule.apply(base, description)
+        else {
+            object : Statement() {
+                override fun evaluate() {
+                    base.evaluate()
+                }
+            }
+        }
 
     /**
      * Sets the given [CoreDocument] as a content of the current screen.
