@@ -44,6 +44,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinCoroutinesCore)
+    testImplementation(project(":internal-testutils-truth"))
 }
 
 android {

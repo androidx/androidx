@@ -17,9 +17,11 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureResult
 import android.util.Size
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -29,9 +31,14 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.ImageSourceConfig
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.media.ImageReaderWrapper
+import androidx.camera.camera2.pipe.media.ImageWrapper
 import androidx.test.core.app.ApplicationProvider
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -70,6 +77,7 @@ class CameraGraphSimulatorTest {
 
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+    private val stream = checkNotNull(simulator.streams[streamConfig])
 
     @After
     fun tearDown() {
@@ -364,6 +372,105 @@ class CameraGraphSimulatorTest {
             simulator.simulateCameraStarted()
             assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
 
+            simulator.close()
+        }
+
+    @Test
+    fun simulatorShouldThrowWhenSurfacesArentInitialized() =
+        testScope.runTest {
+            // No Surface initialization, and no Surfaces are set on the stream. Thus,
+            // simulateCameraStarted() should throw.
+            assertThrows<IllegalStateException> { simulator.simulateCameraStarted() }
+        }
+
+    @Test
+    fun externalSurfacesCanBeSetOnSimulator() =
+        testScope.runTest {
+            val surfaceTexture = SurfaceTexture(0)
+            val fakeSurface = Surface(surfaceTexture)
+
+            simulator.setSurface(stream.id, fakeSurface)
+            // All Surfaces are set, no initializeSurfaces() call should be required.
+            simulator.simulateCameraStarted()
+
+            fakeSurface.release()
+            surfaceTexture.release()
+        }
+
+    @Test
+    fun simulatorCanBeStartedWithFakeImageReadersExternalSurfaces() =
+        testScope.runTest {
+            val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+            val cameraStream = checkNotNull(simulator.streams[streamConfig])
+            val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+            simulator.setSurface(cameraStream.id, fakeImageReader.surface)
+            simulator.simulateCameraStarted()
+
+            simulator.close()
+        }
+
+    @Test
+    fun simulatorCanSimulateImagesWithFakeImageReadersExternalSurfaces() =
+        testScope.runTest {
+            val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+            val cameraStream = checkNotNull(simulator.streams[streamConfig])
+            val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+            var lastStreamId: StreamId? = null
+            var lastOutputId: OutputId? = null
+            var lastImage: ImageWrapper? = null
+            fakeImageReader.onImageListener =
+                ImageReaderWrapper.OnImageListener { streamId, outputId, image ->
+                    lastStreamId = streamId
+                    lastOutputId = outputId
+                    lastImage = image
+                }
+
+            simulator.setSurface(cameraStream.id, fakeImageReader.surface)
+            simulator.simulateCameraStarted()
+
+            val request = Request(listOf(cameraStream.id))
+            simulator.acquireSession().use { it.submit(request) }
+            advanceUntilIdle()
+
+            val frame = simulator.simulateNextFrame()
+            frame.simulateImages()
+            frame.simulateComplete(emptyMap())
+            advanceUntilIdle()
+
+            assertThat(lastStreamId).isEqualTo(cameraStream.id)
+            assertThat(lastOutputId).isEqualTo(cameraStream.outputs.single().id)
+            assertThat(lastImage).isNotNull()
+
+            fakeImageReader.close()
+            simulator.close()
+        }
+
+    @Test
+    fun simulatorShouldThrowWhenDifferentExternalSurfaceIsSet() =
+        testScope.runTest {
+            val fakeSurfaces = FakeSurfaces()
+            val fakeSurface = fakeSurfaces.createFakeSurface(Size(1280, 720))
+
+            val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+            val cameraStream = checkNotNull(simulator.streams[streamConfig])
+            val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+            // Since we already created a FakeImageReader with the stream, setting a different
+            // Surface creates an ambiguous situation and is thus not allowed.
+            assertThrows<IllegalStateException> {
+                simulator.setSurface(cameraStream.id, fakeSurface)
+            }
+
+            fakeSurfaces.close()
+            fakeImageReader.close()
             simulator.close()
         }
 }
