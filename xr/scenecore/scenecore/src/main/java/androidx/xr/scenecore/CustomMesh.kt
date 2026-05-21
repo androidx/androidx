@@ -17,10 +17,12 @@
 package androidx.xr.scenecore
 
 import android.annotation.SuppressLint
+import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.CustomMeshResource as RtCustomMeshResource
+import java.nio.ByteBuffer
 
 /**
  * An immutable resource that defines the structure of a renderable mesh.
@@ -139,6 +141,20 @@ private constructor(
         }
 
         /**
+         * Adds a [MeshSubset] defining a part of the mesh using the specified topology, index
+         * offset, and index count.
+         *
+         * @throws IllegalArgumentException if [indexOffset] or [indexCount] is negative
+         */
+        public fun addSubset(
+            topology: MeshSubsetTopology,
+            @IntRange(from = 0) indexOffset: Int,
+            @IntRange(from = 0) indexCount: Int,
+        ): BuilderFromMeshBuffer = apply {
+            this.subsets.add(MeshSubset(topology, indexOffset, indexCount))
+        }
+
+        /**
          * Sets an optional user-supplied bounding box for culling.
          *
          * If not provided, the auto-computed bounding box of the entire [MeshBuffer] will be used.
@@ -205,9 +221,9 @@ private constructor(
          * Adds vertex data for a single buffer.
          *
          * The order in which this method is called determines the buffer index. The first call
-         * provides data for buffer index 0, the second for buffer index 1, etc. The data is copied,
-         * so the original [java.nio.ByteBuffer] can be modified or released without affecting the
-         * underlying [MeshBuffer].
+         * provides data for buffer index 0, the second for buffer index 1, etc. The data is copied
+         * during [build], so the original [ByteBuffer] can be modified or released after [build]
+         * without affecting the underlying [MeshBuffer].
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public fun addVertexData(vertexData: ByteBufferRegion): BuilderFromMeshData = apply {
@@ -215,14 +231,73 @@ private constructor(
         }
 
         /**
+         * Adds vertex data for a single buffer using the provided [ByteBuffer], `offset`, and
+         * `size`.
+         *
+         * The order in which this method is called determines the buffer index. The first call
+         * provides data for buffer index 0, the second for buffer index 1, etc. The data is copied
+         * during [build], so the original [ByteBuffer] can be modified or released after [build]
+         * without affecting the underlying [MeshBuffer].
+         *
+         * @param buffer containing the data
+         * @param offset absolute starting position within the buffer (ignoring its current
+         *   position) in bytes (defaults to 0)
+         * @param size number of bytes in the region (defaults to the remaining capacity of the
+         *   buffer after the given offset)
+         * @throws IllegalArgumentException if `offset` is negative, if `size` is zero or negative,
+         *   if `offset` exceeds `buffer.capacity()`, or if `offset + size` exceeds
+         *   `buffer.capacity()`.
+         */
+        @JvmOverloads
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public fun addVertexData(
+            buffer: ByteBuffer,
+            @IntRange(from = 0) offset: Int = 0,
+            @IntRange(from = 1) size: Int = buffer.capacity() - offset,
+        ): BuilderFromMeshData = apply {
+            require(offset >= 0) { "offset must not be negative." }
+            require(offset <= buffer.capacity()) { "offset must not exceed buffer capacity." }
+            require(size > 0) { "size must be greater than zero." }
+            this.vertexDataList.add(ByteBufferRegion(buffer, offset, size))
+        }
+
+        /**
          * Sets the index data.
          *
-         * The data is copied, so the original [java.nio.ByteBuffer] can be modified or released
-         * without affecting the underlying [MeshBuffer].
+         * The data is copied during [build], so the original [ByteBuffer] can be modified or
+         * released after [build] without affecting the underlying [MeshBuffer].
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public fun setIndexData(indexData: ByteBufferRegion): BuilderFromMeshData = apply {
             this.indexData = indexData
+        }
+
+        /**
+         * Sets the index data using the provided [ByteBuffer], `offset`, and `size`.
+         *
+         * The data is copied during [build], so the original [ByteBuffer] can be modified or
+         * released after [build] without affecting the underlying [MeshBuffer].
+         *
+         * @param buffer containing the data
+         * @param offset absolute starting position within the buffer (ignoring its current
+         *   position) in bytes (defaults to 0)
+         * @param size number of bytes in the region (defaults to the remaining capacity of the
+         *   buffer after the given offset)
+         * @throws IllegalArgumentException if `offset` is negative, if `size` is zero or negative,
+         *   if `offset` exceeds `buffer.capacity()`, or if `offset + size` exceeds
+         *   `buffer.capacity()`.
+         */
+        @JvmOverloads
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public fun setIndexData(
+            buffer: ByteBuffer,
+            @IntRange(from = 0) offset: Int = 0,
+            @IntRange(from = 1) size: Int = buffer.capacity() - offset,
+        ): BuilderFromMeshData = apply {
+            require(offset >= 0) { "offset must not be negative." }
+            require(offset <= buffer.capacity()) { "offset must not exceed buffer capacity." }
+            require(size > 0) { "size must be greater than zero." }
+            this.indexData = ByteBufferRegion(buffer, offset, size)
         }
 
         /**
@@ -235,6 +310,24 @@ private constructor(
         public fun addSubset(subset: MeshSubset): BuilderFromMeshData = apply {
             check(topology == null) { "Cannot add subset after setting a single topology." }
             this.subsets.add(subset)
+        }
+
+        /**
+         * Adds a [MeshSubset] defining a part of the mesh using the specified topology, index
+         * offset, and index count.
+         *
+         * This cannot be used in combination with [setTopology].
+         *
+         * @throws IllegalStateException if a topology has already been set
+         * @throws IllegalArgumentException if [indexOffset] or [indexCount] is negative
+         */
+        public fun addSubset(
+            topology: MeshSubsetTopology,
+            @IntRange(from = 0) indexOffset: Int,
+            @IntRange(from = 0) indexCount: Int,
+        ): BuilderFromMeshData = apply {
+            check(this.topology == null) { "Cannot add subset after setting a single topology." }
+            this.subsets.add(MeshSubset(topology, indexOffset, indexCount))
         }
 
         /**
