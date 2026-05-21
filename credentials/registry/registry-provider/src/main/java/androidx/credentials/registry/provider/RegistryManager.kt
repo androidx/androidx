@@ -84,6 +84,7 @@ public abstract class RegistryManager internal constructor() {
      * whether to proceed with the operation.
      *
      * @param request the request containing the credential data to register
+     * @throws RegisterCredentialsException If the request fails
      */
     public suspend fun registerCredentials(
         request: RegisterCredentialsRequest
@@ -132,6 +133,7 @@ public abstract class RegistryManager internal constructor() {
      * with the operation.
      *
      * @param request the request containing the creation options to register
+     * @throws RegisterCreationOptionsException If the request fails
      */
     public suspend fun registerCreationOptions(
         request: RegisterCreationOptionsRequest
@@ -175,6 +177,7 @@ public abstract class RegistryManager internal constructor() {
      * [registerCredentialsAsync] (Java) API.
      *
      * @param request the request to specify clearing configurations
+     * @throws ClearCredentialRegistryException If the request fails
      */
     public suspend fun clearCredentialRegistry(
         request: ClearCredentialRegistryRequest
@@ -212,6 +215,7 @@ public abstract class RegistryManager internal constructor() {
      * [registerCreationOptionsAsync] (Java) API.
      *
      * @param request the request to specify clearing configurations
+     * @throws ClearCreationOptionsException If the request fails
      */
     public suspend fun clearCreationOptions(
         request: ClearCreationOptionsRequest
