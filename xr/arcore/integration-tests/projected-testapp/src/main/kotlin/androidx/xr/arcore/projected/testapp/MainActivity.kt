@@ -55,11 +55,6 @@ class MainActivity : ComponentActivity() {
                 Column(modifier = Modifier.fillMaxWidth(0.8f)) {
                     HorizontalDivider(color = Color.Gray)
                     TestActivityRow(
-                        "Inertial Tracking test",
-                        InertialTrackingActivity::class.java,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
                         "TiltGesture test",
                         TiltGestureTrackingActivity::class.java,
                         this@MainActivity,
