@@ -3,17 +3,20 @@
 **Sean McQuillan, Compose, Mar 18, 2026**
 
 ## Changes
+
 - Renamed APIs to singular form (#5.1, #5.2, #5.3)
 - Removed explicit focus opt-out design (#3.11)
 - Promoted interfaces/Locals to public API (#1.1, #1.2)
 - Removed `FakeSoundEffect` testing vendor (#1.6)
 - Added feature flags to foundation and ui for total rollback (#7.1)
-
-> **Tip:** Naming change to singular because it reads better at use site, and to match Haptic(s). Also nothing is plural.
+- Promoted `LocalSoundEffect` to public, to read from foundation. Non-null, no-ops default.
+- Do not play sounds on *entry* from view focus callbacks, as ViewRootImpl already played sounds.
+- Do go through `View.playSound` to hit non-public Window based sound feature in `ViewRootImpl`.
 
 ## Feature Flags
-- **`ComposeFoundationFlags.isInteractionSoundEffectsEnabled`**: Toggle-off clickable sounds
+- **`ComposeFoundationFlags.isInteractionSoundEffectOnClickEnabled`**: Toggle-off clickable sounds
 - **`AndroidComposeUiFlags.isInteractionSoundEffectsEnabled`**: Toggle-off focus sounds
+
 
 
 ## API Purpose and Goals
@@ -99,9 +102,20 @@ interface SoundEffect {
 /**
  * The CompositionLocal to provide platform sound effects.
  *
- * This is used to trigger sounds on user interaction, like clicks.
+ * This is used to trigger sounds on user interaction, like clicks. To enable, disable, or customize
+ * sound interaction scopes, utilize `SoundEffectOnInteraction`.
+ *
+ * @sample androidx.compose.ui.samples.InteractionSoundSamples
+ * @see SoundEffect
  */
-val LocalSoundEffect = staticCompositionLocalOf<SoundEffect?> { null }
+val LocalSoundEffect =
+    staticCompositionLocalOf<SoundEffect> {
+        object : SoundEffect {
+            override fun playClickSound() {
+                // This platform does not support sound, so sound effects are a no-op
+            }
+        }
+    }
 ```
 
 > **Tip:** `SoundEffect` and `LocalSoundEffect` were promoted to public to allow reading from foundation
@@ -126,21 +140,39 @@ fun SoundEffectOnInteraction(enabled: Boolean, content: @Composable () -> Unit) 
 ### Focus sounds
 | Call in `ViewRootImpl.java`                                                                                                                                                                                                          | Meaning | `AndroidComposeView.android.kt` Lines |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| :--- | :--- |
-| [`playSoundEffect(SoundEffectConstants.getConstantForFocusDirection(direction, isFastScrolling))`](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/view/ViewRootImpl.java;l=7956) | DPAD Key Event Navigation | [3635](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=3635), [3674](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=3674) |
-| [`playSoundEffect(SoundEffectConstants.getContantForFocusDirection(direction))`](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/view/ViewRootImpl.java;l=8019)                   | Keyboard Navigation (Tab, Cluster) | [1023](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1023), [1290](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1290), [1294](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1294), [1357](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1357), [1366](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1366) |
+| [`playSoundEffect(SoundEffectConstants.getConstantForFocusDirection(direction, isFastScrolling))`](https://cs.android.com/android/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168:core/java/android/view/ViewRootImpl.java;l=7956) | DPAD Key Event Navigation | [3586](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=3586), [3598](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=3598), [3627](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=3627), [3643](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=3643) |
+| [`playSoundEffect(SoundEffectConstants.getContantForFocusDirection(direction))`](https://cs.android.com/android/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168:core/java/android/view/ViewRootImpl.java;l=8019)                   | Keyboard Navigation (Tab, Cluster) | [1175](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1175), [1239](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1239), [1258](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1258), [1324](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1324), [1368](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt;l=1368) |
 
 ### Click sounds
 
 
 | Call in `View.java` | Meaning | `Clickable.kt` Lines | `Clickable.kt` Method |
 | :--- | :--- | :--- | :--- |
-| [`performClickInternal()`](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/view/View.java;l=16102) | Accessibility Click Action | [2047](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=2047) | `AbstractClickableNode.applySemantics` |
-| [`performClickInternal()`](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/view/View.java;l=17402) | Key Event Click | [1059](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1059), [1589](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1589), [1635](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1635), [1651](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1651) | `onClickKeyUpEvent`, `onClickKeyDownEvent` |
-| [`performClickInternal()`](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/view/View.java;l=18130) | Touch Event Click | [958](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=958), [967](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=967), [1137](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1137), [1345](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1345), [1349](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1349), [1374](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1374), [1378](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1378) | `handleUpEvent`, `pointerInputNode` `onTap` |
-| [`performClickInternal()`](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/view/View.java;l=31517) | Single Tap Runnable | [958](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=958), [967](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=967), [1137](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1137), [1345](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1345), [1349](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1349), [1374](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1374), [1378](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1378) | `handleUpEvent`, `pointerInputNode` `onTap` |
+| [`performClickInternal()`](https://cs.android.com/android/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168:core/java/android/view/View.java;l=16102) | Accessibility Click Action | [2009](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=2009) | `AbstractClickableNode.applySemantics` |
+| [`performClickInternal()`](https://cs.android.com/android/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168:core/java/android/view/View.java;l=17402) | Key Event Click | [1518](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1518), [1555](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1555) | `onClickKeyUpEvent`, `onClickKeyDownEvent` |
+| [`performClickInternal()`](https://cs.android.com/android/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168:core/java/android/view/View.java;l=18130) | Touch Event Click | [945](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=945), [955](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=955), [1281](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1281), [1313](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1313) | `handleUpEvent`, `pointerInputNode` `onTap` |
+| [`performClickInternal()`](https://cs.android.com/android/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168:core/java/android/view/View.java;l=31517) | Single Tap Runnable | [1290](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1290), [1298](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1298), [1321](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1321), [1330](https://cs.android.com/androidx/platform/frameworks/support/+/13a54b4024e510d42bad02daef8e817f9d207960:compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt;l=1330) | `handleUpEvent`, `pointerInputNode` `onTap` |
 
 ## Testability Specification
-We will not vend a `FakeSoundEffect` object as there is a public interface that can be extended.
+
+We do not vend fakes. Public interfaces are provided.
+
+### Sound Effects
+
+To test, override `LocalSoundEffect` with a custom `SoundEffect` implementation:
+
+```kotlin
+val mockSoundEffect = object : SoundEffect {
+    var playClickSoundCalled = 0
+    override fun playClickSound() { playClickSoundCalled++ }
+}
+
+rule.setContent {
+    CompositionLocalProvider(LocalSoundEffect provides mockSoundEffect) {
+        Box(Modifier.clickable { })
+    }
+}
+```
 
 ## Appendix A: Alternatives Considered (optional)
 
