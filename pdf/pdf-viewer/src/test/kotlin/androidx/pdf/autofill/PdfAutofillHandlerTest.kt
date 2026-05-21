@@ -154,6 +154,38 @@ class PdfAutofillHandlerTest {
     }
 
     @Test
+    fun onProvideVirtualStructure_ignoresReadOnlyWidgets() {
+        val state =
+            PdfFormFillingState(numPages = 1).apply {
+                addPageFormWidgetInfos(
+                    0,
+                    listOf(
+                        createTextField(text = "readOnly", index = 0, isReadOnly = true),
+                        createTextField(text = "editable", index = 1, isReadOnly = false),
+                    ),
+                )
+            }
+
+        val parentId = mock<AutofillId>()
+        val child = mock<ViewStructure>()
+        val structure =
+            mock<ViewStructure> {
+                on { autofillId } doReturn parentId
+                on { addChildCount(1) } doReturn 0
+                on { newChild(0) } doReturn child
+            }
+
+        handler.onProvideVirtualStructure(structure, state, Range(0, 0))
+
+        verify(structure, times(1)).addChildCount(1)
+        child.verifyTextField(
+            parentId = parentId,
+            virtualId = getVirtualFormWidgetId(pageNumber = 0, widgetIndex = 1),
+            text = "editable",
+        )
+    }
+
+    @Test
     fun applyAutofillValues_updatesCurrentEdit() {
         val oldText = "old text"
         val newText = "new text"
@@ -212,6 +244,7 @@ class PdfAutofillHandlerTest {
     private fun createTextField(
         text: String,
         index: Int = WIDGET_INDEX,
+        isReadOnly: Boolean = false,
         rect: Rect = WIDGET_RECT,
     ): FormWidgetInfo {
         return FormWidgetInfo.createTextField(
@@ -219,7 +252,7 @@ class PdfAutofillHandlerTest {
             widgetRect = rect,
             textValue = text,
             accessibilityLabel = "label",
-            isReadOnly = false,
+            isReadOnly = isReadOnly,
             isEditableText = true,
             isMultiLineText = false,
             maxLength = 100,
@@ -229,6 +262,7 @@ class PdfAutofillHandlerTest {
 
     private fun createCheckbox(
         index: Int = WIDGET_INDEX,
+        isReadOnly: Boolean = false,
         rect: Rect = WIDGET_RECT,
         textValue: String = "false",
     ): FormWidgetInfo {
@@ -237,7 +271,7 @@ class PdfAutofillHandlerTest {
             widgetRect = rect,
             textValue = textValue,
             accessibilityLabel = "comboBox",
-            isReadOnly = false,
+            isReadOnly = isReadOnly,
         )
     }
 
