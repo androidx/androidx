@@ -93,7 +93,8 @@ internal class PdfAutofillHandler(
             val widgets = state.getPageFormWidgetInfos(pageNum)
 
             for (widget in widgets) {
-                if (widget.widgetType != FormWidgetInfo.WIDGET_TYPE_TEXTFIELD) continue
+                if (widget.widgetType != FormWidgetInfo.WIDGET_TYPE_TEXTFIELD || widget.isReadOnly)
+                    continue
                 val virtualId = getVirtualFormWidgetId(pageNum, widget.widgetIndex)
 
                 val index = structure.addChildCount(1)
