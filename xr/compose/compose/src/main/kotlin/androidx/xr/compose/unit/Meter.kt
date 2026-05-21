@@ -211,6 +211,8 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
          *
          * @return an instance of [XrExtensions] if available, or `null` otherwise.
          */
+        // TODO (b/515242854) - Remove the suppress before Compose goes to Beta.
+        @Suppress("RestrictedApiAndroidX")
         private fun getXrExtensions(): XrExtensions? =
             XrExtensionsHolderAccessor.holderLegacy?.let {
                 TypeHolder.safeCast(it, XrExtensions::class.java)?.value
