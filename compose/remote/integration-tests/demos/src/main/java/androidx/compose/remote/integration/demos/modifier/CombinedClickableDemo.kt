@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.action.ValueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -39,6 +40,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.demos.common.RemoteDemo
+import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,32 +60,40 @@ fun CombinedClickableDemo() {
         )
 
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp), profile = experimentalProfile) {
-        val clickCounter = rememberMutableRemoteInt(0)
-        val doubleClickCounter = rememberMutableRemoteInt(0)
-        val longClickCounter = rememberMutableRemoteInt(0)
+        CombinedClickableDemoContent()
+    }
+}
 
-        val onClickAction = ValueChange(clickCounter, clickCounter + 1)
-        val onLongClickAction = ValueChange(longClickCounter, longClickCounter + 1)
-        val onDoubleClickAction = ValueChange(doubleClickCounter, doubleClickCounter + 1)
+@Suppress("RestrictedApiAndroidX")
+@RemoteComponentPreview
+@Composable
+@RemoteComposable
+private fun CombinedClickableDemoContent() {
+    val clickCounter = rememberMutableRemoteInt(0)
+    val doubleClickCounter = rememberMutableRemoteInt(0)
+    val longClickCounter = rememberMutableRemoteInt(0)
 
-        RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-            RemoteText("Single: ".rs + clickCounter.toRemoteString(), color = Color.Black.rc)
-            RemoteText("Double: ".rs + doubleClickCounter.toRemoteString(), color = Color.Black.rc)
-            RemoteText("Long: ".rs + longClickCounter.toRemoteString(), color = Color.Black.rc)
-            RemoteBox(
-                modifier =
-                    RemoteModifier.size(width = 200.rdp, height = 100.rdp)
-                        .background(RemoteColor(Color.LightGray))
-                        .combinedClickable(
-                            onClick = onClickAction,
-                            onLongClick = onLongClickAction,
-                            onDoubleClick = onDoubleClickAction,
-                        )
-                        .padding(RemoteDp(16.dp)),
-                contentAlignment = RemoteAlignment.Center,
-            ) {
-                RemoteText("Tap me!")
-            }
+    val onClickAction = ValueChange(clickCounter, clickCounter + 1)
+    val onLongClickAction = ValueChange(longClickCounter, longClickCounter + 1)
+    val onDoubleClickAction = ValueChange(doubleClickCounter, doubleClickCounter + 1)
+
+    RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteText("Single: ".rs + clickCounter.toRemoteString(), color = Color.Black.rc)
+        RemoteText("Double: ".rs + doubleClickCounter.toRemoteString(), color = Color.Black.rc)
+        RemoteText("Long: ".rs + longClickCounter.toRemoteString(), color = Color.Black.rc)
+        RemoteBox(
+            modifier =
+                RemoteModifier.size(width = 200.rdp, height = 100.rdp)
+                    .background(RemoteColor(Color.LightGray))
+                    .combinedClickable(
+                        onClick = onClickAction,
+                        onLongClick = onLongClickAction,
+                        onDoubleClick = onDoubleClickAction,
+                    )
+                    .padding(RemoteDp(16.dp)),
+            contentAlignment = RemoteAlignment.Center,
+        ) {
+            RemoteText("Tap me!")
         }
     }
 }
