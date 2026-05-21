@@ -11,13 +11,16 @@ package androidx.xr.runtime.testing {
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.GeospatialMode> getSupportedGeospatialModes();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.HandTrackingMode> getSupportedHandTrackingModes();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.RenderingMode> getSupportedRenderingModes();
+    method @InaccessibleFromKotlin public boolean isProjectedServiceAvailable();
     method @InaccessibleFromKotlin public void setPreferredDisplayBlendMode(androidx.xr.runtime.DisplayBlendMode);
+    method @InaccessibleFromKotlin public void setProjectedServiceAvailable(boolean);
     method @InaccessibleFromKotlin public void setSpatialApiVersion(int);
     method @InaccessibleFromKotlin public void setSupportedDepthEstimationModes(java.util.Set<androidx.xr.runtime.DepthEstimationMode>);
     method @InaccessibleFromKotlin public void setSupportedEyeTrackingModes(java.util.Set<androidx.xr.runtime.EyeTrackingMode>);
     method @InaccessibleFromKotlin public void setSupportedGeospatialModes(java.util.Set<androidx.xr.runtime.GeospatialMode>);
     method @InaccessibleFromKotlin public void setSupportedHandTrackingModes(java.util.Set<androidx.xr.runtime.HandTrackingMode>);
     method @InaccessibleFromKotlin public void setSupportedRenderingModes(java.util.Set<androidx.xr.runtime.RenderingMode>);
+    property public boolean isProjectedServiceAvailable;
     property public androidx.xr.runtime.DisplayBlendMode preferredDisplayBlendMode;
     property public int spatialApiVersion;
     property public java.util.Set<androidx.xr.runtime.DepthEstimationMode> supportedDepthEstimationModes;

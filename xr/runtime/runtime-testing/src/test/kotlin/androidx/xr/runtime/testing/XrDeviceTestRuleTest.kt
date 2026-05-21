@@ -63,4 +63,20 @@ class XrDeviceTestRuleTest {
 
         assertThat(device.getPreferredDisplayBlendMode()).isEqualTo(DisplayBlendMode.ALPHA_BLEND)
     }
+
+    @Test
+    fun isProjectedServiceAvailable_enabledByDefault() {
+        assertThat(XrDevice.isProjectedServiceAvailable(activity)).isTrue()
+    }
+
+    @Test
+    fun isProjectedServiceAvailable_controlsReturnValue() {
+        underTest.isProjectedServiceAvailable = false
+
+        assertThat(XrDevice.isProjectedServiceAvailable(activity)).isFalse()
+
+        underTest.isProjectedServiceAvailable = true
+
+        assertThat(XrDevice.isProjectedServiceAvailable(activity)).isTrue()
+    }
 }

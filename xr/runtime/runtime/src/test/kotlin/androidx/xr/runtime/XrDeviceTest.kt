@@ -223,6 +223,9 @@ class XrDeviceTest {
 
     @Test
     fun isProjectedServiceAvailable_systemFeatureMissing_returnsFalse() {
+        val shadowPackageManager = shadowOf(context.packageManager)
+        shadowPackageManager.setSystemFeature(XR_PROJECTED_SYSTEM_FEATURE, false)
+
         shadowOf(context.packageManager).apply {
             addServiceIfNotPresent(PROJECTED_SERVICE_COMPONENT_NAME)
             addIntentFilterForService(
@@ -239,6 +242,10 @@ class XrDeviceTest {
     fun isProjectedServiceAvailable_systemServiceMissing_returnsFalse() {
         val shadowPackageManager = shadowOf(context.packageManager)
         shadowPackageManager.setSystemFeature(XR_PROJECTED_SYSTEM_FEATURE, true)
+
+        shadowOf(context.packageManager).apply {
+            clearIntentFilterForService(PROJECTED_SERVICE_COMPONENT_NAME)
+        }
 
         assertThat(XrDevice.isProjectedServiceAvailable(context)).isFalse()
     }

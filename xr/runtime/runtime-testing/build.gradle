@@ -39,6 +39,9 @@ dependencies {
     implementation("com.google.guava:guava:32.0.1-android")
     // forcing junit upgrade (pulled transitively by truth) due to CVE-2020-15250, see b/503192928
     implementation("junit:junit:4.13.1")
+    implementation(libs.testCoreKtx)
+    implementation(libs.robolectric)
+    implementation(libs.mockitoKotlin4)
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
