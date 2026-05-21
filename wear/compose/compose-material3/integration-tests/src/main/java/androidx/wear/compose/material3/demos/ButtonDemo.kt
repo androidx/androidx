@@ -603,7 +603,7 @@ fun CompactButtonDemo() {
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.ExtraSmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.ExtraSmallIconSize) },
                 colors = ButtonDefaults.filledVariantButtonColors(),
             ) {
                 Text("Filled Variant", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -612,7 +612,7 @@ fun CompactButtonDemo() {
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.ExtraSmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.ExtraSmallIconSize) },
                 colors = ButtonDefaults.filledTonalButtonColors(),
             ) {
                 Text("Filled Tonal", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -621,7 +621,7 @@ fun CompactButtonDemo() {
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.ExtraSmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.ExtraSmallIconSize) },
                 colors = ButtonDefaults.outlinedButtonColors(),
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true),
             ) {
@@ -631,7 +631,7 @@ fun CompactButtonDemo() {
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.ExtraSmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.ExtraSmallIconSize) },
                 colors = ButtonDefaults.childButtonColors(),
             ) {
                 Text("Child", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -641,27 +641,27 @@ fun CompactButtonDemo() {
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.SmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.SmallIconSize) },
             )
         }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.SmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.filledVariantButtonColors(),
             )
         }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.SmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.filledTonalButtonColors(),
             )
         }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.SmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.outlinedButtonColors(),
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true),
             )
@@ -669,7 +669,7 @@ fun CompactButtonDemo() {
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { FavoriteIcon(ButtonDefaults.SmallIconSize) },
+                icon = { FavoriteIcon(CompactButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.childButtonColors(),
             )
         }

@@ -54,6 +54,7 @@ import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CenteredText
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
+import androidx.wear.compose.material3.CompactButtonDefaults
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
@@ -303,7 +304,7 @@ class ButtonScreenshotTest {
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
             label = { Text("Icon & label", modifier = Modifier.fillMaxWidth()) },
-            icon = { ButtonIcon(size = ButtonDefaults.ExtraSmallIconSize) },
+            icon = { ButtonIcon(size = CompactButtonDefaults.ExtraSmallIconSize) },
         )
     }
 
@@ -421,7 +422,7 @@ class ButtonScreenshotTest {
         CompactButton(
             onClick = {},
             label = { Text("Compact Button") },
-            icon = { ButtonIcon(size = ButtonDefaults.ExtraSmallIconSize) },
+            icon = { ButtonIcon(size = CompactButtonDefaults.ExtraSmallIconSize) },
             enabled = enabled,
             modifier = Modifier.testTag(TEST_TAG),
         )
