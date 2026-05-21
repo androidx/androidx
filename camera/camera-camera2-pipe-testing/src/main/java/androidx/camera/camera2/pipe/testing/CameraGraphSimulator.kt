@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import android.content.Context
 import android.hardware.HardwareBuffer
 import android.hardware.camera2.CaptureResult
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -48,7 +49,7 @@ public class CameraGraphSimulator
 internal constructor(
     private val cameraMetadata: CameraMetadata,
     private val cameraController: CameraControllerSimulator,
-    private val fakeImageReaders: FakeImageReaders,
+    public val fakeImageReaders: FakeImageReaders,
     private val fakeImageSources: FakeImageSources,
     private val realCameraGraph: CameraGraph,
     public val config: CameraGraph.Config,
@@ -114,6 +115,7 @@ internal constructor(
     private val frameCounter = atomic(0L)
     private val pendingFrameQueue = mutableListOf<FrameSimulator>()
     private val fakeSurfaces = FakeSurfaces()
+    private val externalSurfaces = mutableMapOf<StreamId, Surface>()
 
     override val isClosed: Boolean
         get() = closed.value
@@ -122,6 +124,24 @@ internal constructor(
         if (closed.compareAndSet(expect = false, update = true)) {
             realCameraGraph.close()
             fakeSurfaces.close()
+        }
+    }
+
+    override fun setSurface(stream: StreamId, surface: Surface?) {
+        check(!closed.value) { "Cannot call setSurface on $this after close." }
+        check(fakeImageSources[stream] == null) { "Cannot call setSurface on ImageSource streams." }
+        val imageReader = fakeImageReaders[stream]
+        if (imageReader != null) {
+            check(surface == imageReader.surface) {
+                "Cannot call setSurface with a different surface previously created with " +
+                    "FakeImageReaders! (expected = ${imageReader.surface}, provided = $surface)"
+            }
+        }
+        realCameraGraph.setSurface(stream, surface)
+        if (surface != null) {
+            externalSurfaces[stream] = surface
+        } else {
+            externalSurfaces.remove(stream)
         }
     }
 
@@ -150,6 +170,11 @@ internal constructor(
             "Cannot call simulateFakeSurfaceConfiguration on $this after close."
         }
         for (stream in streams.streams) {
+            if (externalSurfaces.contains(stream.id)) {
+                // This stream is configured with an external Surface. Skip.
+                continue
+            }
+
             val imageSource = fakeImageSources[stream.id]
             if (imageSource != null) {
                 println("Using FakeImageSource ${imageSource.surface} for ${stream.id}")

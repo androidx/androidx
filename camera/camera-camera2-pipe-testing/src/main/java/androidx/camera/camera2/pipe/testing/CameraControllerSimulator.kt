@@ -102,7 +102,8 @@ public class CameraControllerSimulator(
             val captureSequenceProcessor =
                 FakeCaptureSequenceProcessor(graphConfig.camera, graphConfig.defaultTemplate)
             val graphRequestProcessor = GraphRequestProcessor.from(captureSequenceProcessor)
-            captureSequenceProcessor.surfaceMap = checkNotNull(currentSurfaceMap)
+            captureSequenceProcessor.surfaceMap =
+                checkNotNull(currentSurfaceMap) { "Surfaces have not been initialized!" }
             currentCaptureSequenceProcessor = captureSequenceProcessor
             currentGraphRequestProcessor = graphRequestProcessor
 
