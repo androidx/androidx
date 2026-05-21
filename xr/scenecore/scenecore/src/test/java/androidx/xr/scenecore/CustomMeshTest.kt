@@ -82,6 +82,60 @@ class CustomMeshTest {
     }
 
     @Test
+    fun builder_addSubsetOverloadAfterSetTopology_throwsException() {
+        val builder =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                builder.addSubset(MeshSubsetTopology.TRIANGLES, 0, 3)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Cannot add subset after setting a single topology")
+    }
+
+    @Test
+    fun builder_addSubset_withNegativeIndexOffset_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addSubset(MeshSubsetTopology.TRIANGLES, -1, 3)
+            }
+        assertThat(exception).hasMessageThat().contains("indexOffset must not be negative.")
+    }
+
+    @Test
+    fun builder_addSubset_withNegativeIndexCount_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addSubset(MeshSubsetTopology.TRIANGLES, 0, -1)
+            }
+        assertThat(exception).hasMessageThat().contains("indexCount must not be negative.")
+    }
+
+    @Test
+    fun meshBufferBuilder_addSubset_withNegativeIndexOffset_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshBuffer(session, meshBuffer)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addSubset(MeshSubsetTopology.TRIANGLES, -1, 3)
+            }
+        assertThat(exception).hasMessageThat().contains("indexOffset must not be negative.")
+    }
+
+    @Test
+    fun meshBufferBuilder_addSubset_withNegativeIndexCount_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshBuffer(session, meshBuffer)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addSubset(MeshSubsetTopology.TRIANGLES, 0, -1)
+            }
+        assertThat(exception).hasMessageThat().contains("indexCount must not be negative.")
+    }
+
+    @Test
     fun builder_setTopologyAfterAddSubset_throwsException() {
         val builder =
             CustomMesh.BuilderFromMeshData(session, vertexLayout)
@@ -106,6 +160,125 @@ class CustomMeshTest {
             CustomMesh.BuilderFromMeshBuffer(session, meshBuffer)
                 .addSubset(MeshSubset(MeshSubsetTopology.TRIANGLES, 0, 3))
         assertThat(builder.build()).isNotNull()
+    }
+
+    @Test
+    fun meshBufferBuilder_withSubsetsOverload_succeeds() {
+        val builder =
+            CustomMesh.BuilderFromMeshBuffer(session, meshBuffer)
+                .addSubset(MeshSubsetTopology.TRIANGLES, 0, 3)
+        assertThat(builder.build()).isNotNull()
+    }
+
+    @Test
+    fun build_withOverloads_succeeds() {
+        val builder =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
+                .addVertexData(vertexBufferRegion.buffer, 0, 12)
+                .setIndexData(indexBufferRegion.buffer, 0, 12)
+                .addSubset(MeshSubsetTopology.TRIANGLES, 0, 3)
+
+        assertThat(builder.build()).isNotNull()
+    }
+
+    @Test
+    fun builder_addVertexData_withNegativeOffset_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addVertexData(vertexBufferRegion.buffer, offset = -1, size = 5)
+            }
+        assertThat(exception).hasMessageThat().contains("offset must not be negative.")
+    }
+
+    @Test
+    fun builder_addVertexData_withZeroSize_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addVertexData(vertexBufferRegion.buffer, offset = 0, size = 0)
+            }
+        assertThat(exception).hasMessageThat().contains("size must be greater than zero")
+    }
+
+    @Test
+    fun builder_addVertexData_withNegativeSize_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addVertexData(vertexBufferRegion.buffer, offset = 0, size = -1)
+            }
+        assertThat(exception).hasMessageThat().contains("size must be greater than zero")
+    }
+
+    @Test
+    fun builder_addVertexData_withOutOfBounds_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addVertexData(vertexBufferRegion.buffer, offset = 10, size = 5)
+            }
+        assertThat(exception).hasMessageThat().contains("size + offset must not exceed capacity")
+    }
+
+    @Test
+    fun builder_addVertexData_withOffsetGreaterThanCapacity_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.addVertexData(vertexBufferRegion.buffer, offset = 20, size = 5)
+            }
+        assertThat(exception).hasMessageThat().contains("offset must not exceed buffer capacity")
+    }
+
+    @Test
+    fun builder_setIndexData_withNegativeOffset_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.setIndexData(indexBufferRegion.buffer, offset = -1, size = 5)
+            }
+        assertThat(exception).hasMessageThat().contains("offset must not be negative.")
+    }
+
+    @Test
+    fun builder_setIndexData_withZeroSize_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.setIndexData(indexBufferRegion.buffer, offset = 0, size = 0)
+            }
+        assertThat(exception).hasMessageThat().contains("size must be greater than zero")
+    }
+
+    @Test
+    fun builder_setIndexData_withNegativeSize_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.setIndexData(indexBufferRegion.buffer, offset = 0, size = -1)
+            }
+        assertThat(exception).hasMessageThat().contains("size must be greater than zero")
+    }
+
+    @Test
+    fun builder_setIndexData_withOutOfBounds_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.setIndexData(indexBufferRegion.buffer, offset = 10, size = 5)
+            }
+        assertThat(exception).hasMessageThat().contains("size + offset must not exceed capacity")
+    }
+
+    @Test
+    fun builder_setIndexData_withOffsetGreaterThanCapacity_throwsException() {
+        val builder = CustomMesh.BuilderFromMeshData(session, vertexLayout)
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                builder.setIndexData(indexBufferRegion.buffer, offset = 20, size = 5)
+            }
+        assertThat(exception).hasMessageThat().contains("offset must not exceed buffer capacity")
     }
 
     @Test
