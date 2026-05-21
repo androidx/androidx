@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+import subprocess
+import re
+import sys
+import argparse
+
+def get_repo_root():
+    result = subprocess.run("git rev-parse --show-toplevel", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip()
+
+REPO_ROOT = get_repo_root()
+if not REPO_ROOT:
+    print("Error: Not in a git repository.", file=sys.stderr)
+    sys.exit(1)
+
+def run_command(cmd):
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True, cwd=REPO_ROOT)
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+def get_current_user_email():
+    return run_command("git config user.email")
+
+def get_flag_files():
+    # Dynamically list all Compose feature flag files
+    git_files = run_command("git ls-files 'compose/**/Compose*Flags.kt' 'compose/**/*Compose*Flags.kt'")
+    if not git_files:
+        return []
+    return [f.strip() for f in git_files.split("\n") if f.strip()]
+
+def get_compose_version_at_commit(commit):
+    toml_content = run_command(f"git show {commit}:libraryversions.toml")
+    if not toml_content:
+        return "Unknown"
+    match = re.search(r'COMPOSE\s*=\s*"(.*?)"', toml_content)
+    if match:
+        return match.group(1)
+    return "Unknown"
+
+def was_flag_in_parent_state(commit, file_path, flag):
+    parent_content = run_command(f"git show {commit}~1:{file_path}")
+    if not parent_content:
+        return False
+    return flag in parent_content
+
+def get_module_name(file_path):
+    basename = file_path.split("/")[-1].replace(".kt", "")
+    # Extract and clean module name dynamically
+    module = re.sub(r'^(Remote)?Compose', '', basename)
+    module = re.sub(r'Flags$', '', module)
+    return module or "Unknown"
+
+def main():
+    parser = argparse.ArgumentParser(description="Find Compose feature flags introduced by a specific user.")
+    parser.add_argument("--author", help="Git author email to search for (defaults to current git config user.email)")
+    args = parser.parse_args()
+
+    author = args.author or get_current_user_email()
+    if not author:
+        print("Error: No author email specified and git config user.email is not set.", file=sys.stderr)
+        sys.exit(1)
+
+    flag_files = get_flag_files()
+    if not flag_files:
+        print("No Compose flag files found in the workspace.", file=sys.stderr)
+        sys.exit(0)
+
+    # Find all commits by author on flag files
+    files_str = " ".join(flag_files)
+    log_output = run_command(f'git log --author="{author}" --format="%H|%ad|%s" --date=short -- {files_str}')
+    if not log_output:
+        print(f"No commits found for author '{author}' modifying Compose flag files.")
+        return
+
+    results = []
+    commits = log_output.split("\n")
+    for line in commits:
+        if not line.strip():
+            continue
+        parts = line.split("|", 2)
+        commit_hash = parts[0]
+        commit_date = parts[1]
+        commit_msg = parts[2] if len(parts) > 2 else ""
+
+        # For each flag file, see if this commit introduced a flag
+        for file_path in flag_files:
+            diff_output = run_command(f"git show --unified=0 {commit_hash} -- {file_path}")
+            if not diff_output:
+                continue
+
+            # Find additions of flags starting with "is", matching any line starting with "+" and containing "is[A-Z]"
+            flag_matches = re.findall(r'^\+\s*.*?\b(is[A-Z]\w+)\b', diff_output, re.MULTILINE)
+            for flag in flag_matches:
+                if not was_flag_in_parent_state(commit_hash, file_path, flag):
+                    version = get_compose_version_at_commit(commit_hash)
+                    results.append({
+                        "flag": flag,
+                        "module": get_module_name(file_path),
+                        "commit": commit_hash[:11],
+                        "version": version,
+                        "date": commit_date,
+                        "message": commit_msg
+                    })
+
+    if not results:
+        print(f"No new feature flags were introduced by author '{author}'.")
+        return
+
+    # Formulate aligned terminal output table (4 columns)
+    headers = ["Feature Flag", "Module", "Commit", "Added In Version"]
+    formatted_rows = []
+    for r in reversed(results):
+        formatted_rows.append([
+            f'`{r["flag"]}`',
+            r["module"],
+            f'`{r["commit"]}`',
+            f'`{r["version"]}`'
+        ])
+
+    col_widths = [len(h) for h in headers]
+    for row in formatted_rows:
+        for i in range(4):
+            col_widths[i] = max(col_widths[i], len(row[i]))
+
+    # Print table
+    print(f"| {headers[0].ljust(col_widths[0])} | {headers[1].ljust(col_widths[1])} | {headers[2].ljust(col_widths[2])} | {headers[3].ljust(col_widths[3])} |")
+    print(f"| {':' + '-' * (col_widths[0] - 1)} | {':' + '-' * (col_widths[1] - 1)} | {':' + '-' * (col_widths[2] - 1)} | {':' + '-' * (col_widths[3] - 1)} |")
+    for row in formatted_rows:
+        print(f"| {row[0].ljust(col_widths[0])} | {row[1].ljust(col_widths[1])} | {row[2].ljust(col_widths[2])} | {row[3].ljust(col_widths[3])} |")
+
+if __name__ == "__main__":
+    main()
