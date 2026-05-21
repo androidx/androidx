@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.integration.demos.common.RemoteDemo
+import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,20 +40,26 @@ import androidx.compose.ui.unit.dp
 @Suppress("RestrictedApiAndroidX")
 @Composable
 fun ScaleDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-            RemoteText("Scale: 1.0f")
-            Content(RemoteModifier.scale(1.0f.rf))
+    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { ScaleDemoContent() }
+}
 
-            RemoteText("Scale: 0.5f")
-            Content(RemoteModifier.scale(0.5f.rf))
+@Suppress("RestrictedApiAndroidX")
+@RemoteComponentPreview
+@Composable
+@RemoteComposable
+private fun ScaleDemoContent() {
+    RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteText("Scale: 1.0f")
+        Content(RemoteModifier.scale(1.0f.rf))
 
-            RemoteText("Scale: 1.5f")
-            Content(RemoteModifier.scale(1.5f.rf))
+        RemoteText("Scale: 0.5f")
+        Content(RemoteModifier.scale(0.5f.rf))
 
-            RemoteText("Scale: 0.5f, 1.5f")
-            Content(RemoteModifier.scale(0.5f.rf, 1.5f.rf))
-        }
+        RemoteText("Scale: 1.5f")
+        Content(RemoteModifier.scale(1.5f.rf))
+
+        RemoteText("Scale: 0.5f, 1.5f")
+        Content(RemoteModifier.scale(0.5f.rf, 1.5f.rf))
     }
 }
 

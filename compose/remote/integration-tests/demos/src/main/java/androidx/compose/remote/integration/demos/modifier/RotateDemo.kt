@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.integration.demos.common.RemoteDemo
+import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,23 +40,29 @@ import androidx.compose.ui.unit.dp
 @Suppress("RestrictedApiAndroidX")
 @Composable
 fun RotateDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-            RemoteText("Rotate: 0f")
-            Content(RemoteModifier.rotate(0f.rf))
+    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { RotateDemoContent() }
+}
 
-            RemoteText("Rotate: 45f")
-            Content(RemoteModifier.rotate(45f.rf))
+@Suppress("RestrictedApiAndroidX")
+@RemoteComponentPreview
+@Composable
+@RemoteComposable
+private fun RotateDemoContent() {
+    RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteText("Rotate: 0f")
+        Content(RemoteModifier.rotate(0f.rf))
 
-            RemoteText("Rotate: 60f")
-            Content(RemoteModifier.rotate(60f.rf))
+        RemoteText("Rotate: 45f")
+        Content(RemoteModifier.rotate(45f.rf))
 
-            RemoteText("Rotate: 90f")
-            Content(RemoteModifier.rotate(90f.rf))
+        RemoteText("Rotate: 60f")
+        Content(RemoteModifier.rotate(60f.rf))
 
-            RemoteText("Rotate: -45f")
-            Content(RemoteModifier.rotate((-45f).rf))
-        }
+        RemoteText("Rotate: 90f")
+        Content(RemoteModifier.rotate(90f.rf))
+
+        RemoteText("Rotate: -45f")
+        Content(RemoteModifier.rotate((-45f).rf))
     }
 }
 

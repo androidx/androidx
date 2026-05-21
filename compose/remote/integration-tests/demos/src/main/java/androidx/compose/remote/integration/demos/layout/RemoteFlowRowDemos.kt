@@ -20,6 +20,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteFlowRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -30,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.demos.common.RemoteDemo
+import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -46,24 +48,29 @@ private val experimentalProfile =
 @Suppress("RestrictedApiAndroidX")
 @Composable
 fun RemoteFlowRowDemo() {
-    RemoteDemo(profile = experimentalProfile) {
-        RemoteFlowRow(
-            modifier =
-                RemoteModifier.size(RemoteDp(200.dp)).background(RemoteColor(Color.LightGray)),
-            maxItemsInEachRow = 3,
-            maxLines = 3,
-            horizontalArrangement =
-                RemoteArrangement.spacedBy(
-                    space = 8.rdp,
-                    alignment = RemoteAlignment.CenterHorizontally,
-                ),
-        ) {
-            repeat(15) { index ->
-                val color = if (index % 2 == 0) Color(0xFF6200EE) else Color(0xFF03DAC6)
-                RemoteBox(
-                    modifier = RemoteModifier.size(RemoteDp(30.dp)).background(RemoteColor(color))
-                )
-            }
+    RemoteDemo(profile = experimentalProfile) { RemoteFlowRowDemoContent() }
+}
+
+@Suppress("RestrictedApiAndroidX")
+@RemoteComponentPreview
+@Composable
+@RemoteComposable
+private fun RemoteFlowRowDemoContent() {
+    RemoteFlowRow(
+        modifier = RemoteModifier.size(RemoteDp(200.dp)).background(RemoteColor(Color.LightGray)),
+        maxItemsInEachRow = 3,
+        maxLines = 3,
+        horizontalArrangement =
+            RemoteArrangement.spacedBy(
+                space = 8.rdp,
+                alignment = RemoteAlignment.CenterHorizontally,
+            ),
+    ) {
+        repeat(15) { index ->
+            val color = if (index % 2 == 0) Color(0xFF6200EE) else Color(0xFF03DAC6)
+            RemoteBox(
+                modifier = RemoteModifier.size(RemoteDp(30.dp)).background(RemoteColor(color))
+            )
         }
     }
 }

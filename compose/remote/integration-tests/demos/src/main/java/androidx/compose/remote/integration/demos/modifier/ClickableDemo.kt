@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.action.ValueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -37,6 +38,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
+import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,25 +47,31 @@ import androidx.compose.ui.unit.dp
 @Suppress("RestrictedApiAndroidX")
 @Composable
 fun ClickableDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        val clickCounter = rememberMutableRemoteInt(0)
+    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { ClickableDemoContent() }
+}
 
-        val onClickAction = ValueChange(clickCounter, clickCounter + 1)
+@Suppress("RestrictedApiAndroidX")
+@RemoteComponentPreview
+@Composable
+@RemoteComposable
+private fun ClickableDemoContent() {
+    val clickCounter = rememberMutableRemoteInt(0)
 
-        RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-            RemoteRow {
-                RemoteText("Clicks: ".rs + clickCounter.toRemoteString(), color = Color.Black.rc)
-            }
-            RemoteBox(
-                modifier =
-                    RemoteModifier.size(width = 200.rdp, height = 100.rdp)
-                        .background(RemoteColor(Color.LightGray))
-                        .clickable(onClickAction)
-                        .padding(RemoteDp(16.dp)),
-                contentAlignment = RemoteAlignment.Center,
-            ) {
-                RemoteText("Tap me!")
-            }
+    val onClickAction = ValueChange(clickCounter, clickCounter + 1)
+
+    RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteRow {
+            RemoteText("Clicks: ".rs + clickCounter.toRemoteString(), color = Color.Black.rc)
+        }
+        RemoteBox(
+            modifier =
+                RemoteModifier.size(width = 200.rdp, height = 100.rdp)
+                    .background(RemoteColor(Color.LightGray))
+                    .clickable(onClickAction)
+                    .padding(RemoteDp(16.dp)),
+            contentAlignment = RemoteAlignment.Center,
+        ) {
+            RemoteText("Tap me!")
         }
     }
 }
