@@ -125,6 +125,14 @@ public interface RcPaintScope {
     /** Sets the paint typeface by named family (e.g. `"Roboto"`). */
     public fun typeface(name: String)
 
+    // ---- Font Axis & Font Data ----
+
+    /** Sets the font/variable typeface axes by tag names and values. */
+    public fun axis(tags: Array<String>, values: FloatArray)
+
+    /** Sets the typeface using a registered font data ID. */
+    public fun typeface(fontDataId: Int)
+
     // ---- Shaders ----
 
     /** Sets the active shader by [RcShader] reference (returned from `createShader`). */
@@ -278,6 +286,14 @@ internal class RcPaintScopeImpl(override val raw: RcPaint) : RcPaintScope {
 
     override fun typeface(name: String) {
         raw.setTypeface(name)
+    }
+
+    override fun axis(tags: Array<String>, values: FloatArray) {
+        raw.setAxis(tags, values)
+    }
+
+    override fun typeface(fontDataId: Int) {
+        raw.setTypeface(fontDataId)
     }
 
     override fun shader(value: RcShader) {

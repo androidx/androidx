@@ -38,6 +38,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslDataVizWeatherForec
 import androidx.compose.remote.integration.view.demos.dsl.DslDemoAnchorTextKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDemoAttributedStringKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslExampleTimerKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslFontAxisDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
@@ -48,6 +49,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslSmallAnimatedKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSpreadSheetKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSysVarKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTextDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslTouchDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslClockKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
@@ -92,6 +94,7 @@ import androidx.compose.remote.integration.view.demos.examples.ShaderCalendarKt;
 import androidx.compose.remote.integration.view.demos.examples.SimpleShader2Kt;
 import androidx.compose.remote.integration.view.demos.examples.SimpleShaderKt;
 import androidx.compose.remote.integration.view.demos.examples.SmallAnimated;
+import androidx.compose.remote.integration.view.demos.examples.SphereTimeShaderKt;
 import androidx.compose.remote.integration.view.demos.examples.TextKt;
 import androidx.compose.remote.integration.view.demos.examples.components.DemoBoxKt;
 import androidx.compose.remote.integration.view.demos.examples.components.DemoCollapsibleColumnKt;
@@ -180,7 +183,10 @@ public abstract class DemosCreation {
         boolean dsl = true;
         if (dsl) {
             return new ArrayList<>(Arrays.asList(
-
+                    get("0/002/DslFontAxisDemo", DslFontAxisDemoKt::dslFontAxisDemo),
+                    getpc("0/003/SphereTimeShader", SphereTimeShaderKt::sphereTimeShader),
+                    get("0/004/Ticker", RcDslTickerKt::dslTicker),
+                    get("0/005/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
                     get("0/02/DataVizActivityRings",
                             DslDataVizActivityRingsKt::dslDemoActivityRings),
                     get("0/03/DataVizBatteryRadialGauge",
@@ -257,7 +263,9 @@ public abstract class DemosCreation {
                     get("0/49/SimpleDemo", RcDslDemoKt::dslSimpleDemo),
                     get("0/50/SimpleClock", RcDslDemoKt::dslSimpleClock),
                     get("0/51/EnumsDemo", RcDslEnumsDemoKt::enumsDemo),
-                    get("0/53/Ticker", RcDslTickerKt::dslTicker)
+                    get("0/53/Ticker", RcDslTickerKt::dslTicker),
+                    get("0/54/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
+                    get("0/55/DslFontAxisDemo", DslFontAxisDemoKt::dslFontAxisDemo)
             ));
         }
 
