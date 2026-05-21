@@ -106,6 +106,8 @@ public class RemoteBitmapDecoder {
                         }
                         image.setPixels(bdata, 0, width, 0, 0, width, height);
                         break;
+                    case BitmapData.TYPE_PNG:
+                        throw new RuntimeException("TYPE_PNG is not allowed for ENCODING_INLINE");
                 }
                 break;
             case BitmapData.ENCODING_FILE: {
