@@ -274,4 +274,32 @@ Autofix for src/androidx/compose/runtime/foo/Scope.kt line 10: Change to getInt:
                 """
             )
     }
+
+    /**
+     * Verifies that overrides are reliably ignored even when the superclass/interface cannot be
+     * resolved on the classpath (partial resolution/compilation errors). This tests the structural
+     * fallback check for the Kotlin 'override' keyword, which handles cases where semantic
+     * resolution (`findSuperMethods()`) fails.
+     */
+    @Test
+    fun overrideWithMissingSuperclass_ignored() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import androidx.compose.runtime.Composable
+
+                class MyImpl : MyComposer {
+                    @Composable
+                    override fun button() {} // OK: ignored (override)
+                }
+            """
+                ),
+                Stubs.Composable,
+            )
+            .run()
+            .expectClean()
+    }
 }
