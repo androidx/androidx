@@ -23,6 +23,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -30,6 +32,7 @@ import static org.robolectric.Shadows.shadowOf;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Insets;
 import android.os.RemoteException;
 
 import androidx.car.app.HandshakeInfo;
@@ -168,6 +171,32 @@ public class CarAppViewModelTest {
         when(mServiceConnectionManager.getServiceDispatcher()).thenReturn(mServiceDispatcher);
         mCarAppViewModel.setInsetsListener(mIInsetsListener);
         verify(mServiceDispatcher).dispatch(eq("onInsetsChanged"), any());
+    }
+
+    @Test
+    public void dispatchImeInsetsUpdates_shouldCallImeInsetsChanged() throws
+            RemoteException {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
+        when(mServiceConnectionManager.getHandshakeInfo()).thenReturn(
+                createHandshakeInfo("TestApp", 9));
+        when(mServiceConnectionManager.getServiceDispatcher()).thenReturn(mServiceDispatcher);
+        mCarAppViewModel.setInsetsListener(mIInsetsListener);
+        verify(mServiceDispatcher).dispatch(eq("onImeInsetsChanged"), any());
+    }
+
+    @Test
+    public void updateImeInsets_whenApiLevel8Below_shouldNotDispatchImeInsets() throws
+            RemoteException {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
+        when(mServiceConnectionManager.getHandshakeInfo()).thenReturn(
+                createHandshakeInfo("TestApp", 8));
+        when(mServiceConnectionManager.getServiceDispatcher()).thenReturn(mServiceDispatcher);
+        mCarAppViewModel.setInsetsListener(mIInsetsListener);
+
+        mCarAppViewModel.updateImeInsets(Insets.of(0, 0, 0, 100));
+
+        verify(mServiceDispatcher, times(1)).dispatch(eq("onWindowInsetsChanged"), any());
+        verify(mServiceDispatcher, never()).dispatch(eq("onImeInsetsChanged"), any());
     }
 
     private static HandshakeInfo createHandshakeInfo(String packageName, int hostApiLevel) {

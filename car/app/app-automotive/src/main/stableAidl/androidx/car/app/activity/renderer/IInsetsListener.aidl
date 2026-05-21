@@ -35,5 +35,9 @@ interface IInsetsListener {
    */
   void onWindowInsetsChanged(in Insets insets, in Insets safeInsets) = 2;
 
+  /**
+   * Notifies that the IME {@link Insets} have changed.
+   */
+  void onImeInsetsChanged(in Insets imeInsets) = 3;
 }
 
