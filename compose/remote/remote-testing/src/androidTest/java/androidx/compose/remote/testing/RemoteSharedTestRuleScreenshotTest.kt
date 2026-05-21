@@ -41,6 +41,7 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 /**
@@ -51,13 +52,19 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 class RemoteSharedTestRuleScreenshotTest {
-    @get:Rule
-    val composeTestRule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
-    @get:Rule val remoteContentTestRule by lazy { RemoteContentTestRule(composeTestRule) }
-    @get:Rule val remoteDocContentTestRule by lazy { RemoteDocContentTestRule(composeTestRule) }
+    private val composeTestRule: ComposeContentTestRule =
+        createComposeRule(StandardTestDispatcher())
+    private val remoteContentTestRule = RemoteContentTestRule(composeTestRule)
+    private val remoteDocContentTestRule = RemoteDocContentTestRule(composeTestRule)
 
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule("compose/remote/remote-testing")
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
     @get:Rule val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
+
+    @get:Rule
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(remoteContentTestRule)
+            .around(remoteDocContentTestRule)
+            .around(composeTestRule)
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 

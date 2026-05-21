@@ -32,7 +32,8 @@ class GoldenScreenshotNameTestRule : TestWatcher() {
 
 /** Name for the screenshot golden file. */
 fun Description.getTestName(suffix: String = ""): String {
+    val finalSuffix = if (suffix.isEmpty()) "" else "_$suffix"
     val testIdentifier =
-        this.className.substringAfterLast('.') + "_" + this.methodName + "_" + suffix
+        this.className.substringAfterLast('.') + "_" + this.methodName + finalSuffix
     return testIdentifier.replace("[\\[$]".toRegex(), "_").replace("]", "")
 }

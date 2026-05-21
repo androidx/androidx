@@ -42,7 +42,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class RemoteContentTestRuleScreenshotTest {
     @get:Rule val remoteContentTestRule = RemoteContentTestRule()
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule("compose/remote/remote-testing")
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
     @get:Rule val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
 
