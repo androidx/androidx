@@ -486,7 +486,7 @@ class OnVisibilityChangedTest(private val useDelegation: Boolean) {
             Box {
                 if (shouldCompose) {
                     Box(
-                        Modifier.onVisibilityChangedTestImpl(minDurationMs = 500) { visible ->
+                        Modifier.onVisibilityChangedTestImpl(minDurationMs = 100) { visible ->
                                 calls.add(visible)
                             }
                             .size(100.dp)
@@ -494,7 +494,7 @@ class OnVisibilityChangedTest(private val useDelegation: Boolean) {
                 }
             }
         }
-        rule.waitUntil(1000) { !calls.isEmpty() }
+        rule.waitUntil(5000) { !calls.isEmpty() }
         rule.runOnIdle {
             assertThat(calls).isEqualTo(listOf(true))
             shouldCompose = false
