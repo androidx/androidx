@@ -106,8 +106,7 @@ public abstract class AndroidXrEntity(
 
             extensions.createNodeTransaction().use { transaction ->
                 if (newParent == null) {
-                    @Suppress("UNUSED_VARIABLE")
-                    val unused = transaction.setVisibility(node, false).setParent(node, null)
+                    @Suppress("UNUSED_VARIABLE") val unused = transaction.setParent(node, null)
                 } else {
                     @Suppress("UNUSED_VARIABLE")
                     val unused = transaction.setParent(node, newParent.node)

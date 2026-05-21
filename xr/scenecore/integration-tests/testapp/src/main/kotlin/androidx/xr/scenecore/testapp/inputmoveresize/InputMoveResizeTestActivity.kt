@@ -199,14 +199,17 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
         }
 
         PanelEntity.create(
-            session!!,
-            gltfPanelView,
-            IntSize2d(1000, 550),
-            "panel",
-            Pose(Vector3(0.0f, -1f, -0.1f)),
-            parent = session!!.scene.activitySpace,
-        )
-        updateText()
+                session!!,
+                gltfPanelView,
+                IntSize2d(1000, 550),
+                "panel",
+                Pose(Vector3(0.0f, -1f, -0.1f)),
+                parent = null,
+            )
+            .also {
+                updateText()
+                it.parent = session!!.scene.activitySpace
+            }
 
         lifecycleScope.launch {
             val gltfModel = GltfModel.create(session!!, Paths.get("models", "Dragon_Evolved.gltf"))
@@ -215,9 +218,12 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                         session!!,
                         gltfModel,
                         Pose(Vector3(0f, 1.5f, -2f)),
-                        parent = session!!.scene.activitySpace,
+                        parent = null,
                     )
-                    .also { it.setScale(0.75f) }
+                    .also {
+                        it.setScale(0.75f)
+                        it.parent = session!!.scene.activitySpace
+                    }
             val movableComponent = MovableComponent.createSystemMovable(session!!, false)
             val moveEventListener =
                 object : EntityMoveListener {
