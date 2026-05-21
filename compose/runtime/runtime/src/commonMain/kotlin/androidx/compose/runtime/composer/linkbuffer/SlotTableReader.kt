@@ -48,7 +48,12 @@ internal class SlotTableReader(val table: SlotTable) {
         }
 
     private var parent = NULL_ADDRESS
-    private var current: GroupAddress = table.root
+    private var _current = table.root
+    private var current: GroupAddress
+        get() = _current
+        set(value) {
+            _current = value
+        }
 
     var slotCurrent = 0
     var slotEnd = 0
@@ -67,7 +72,12 @@ internal class SlotTableReader(val table: SlotTable) {
     val isEmpty
         get() = table.isEmpty
 
-    var previousSibling: GroupAddress = NULL_ADDRESS
+    private var _previousSibling = NULL_ADDRESS
+    var previousSibling: GroupAddress
+        get() = _previousSibling
+        private set(value) {
+            _previousSibling = value
+        }
 
     val remainingSlots
         get() = slotEnd - slotCurrent
