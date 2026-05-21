@@ -41,7 +41,6 @@ import androidx.xr.arcore.apps.whitebox.mobile.anchorsplaneshittest.AnchorsPlane
 import androidx.xr.arcore.apps.whitebox.mobile.depth.DepthActivity
 import androidx.xr.arcore.apps.whitebox.mobile.facemeshing.FaceMeshActivity
 import androidx.xr.arcore.apps.whitebox.mobile.geospatial.GeospatialActivity
-import androidx.xr.arcore.apps.whitebox.mobile.inertial.InertialTrackingActivity
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -117,13 +116,6 @@ fun WhiteboxSessionMenu() {
             onClick = { context.startActivity(Intent(context, FaceMeshActivity::class.java)) }
         ) {
             Text("Face Meshes")
-        }
-        TextButton(
-            onClick = {
-                context.startActivity(Intent(context, InertialTrackingActivity::class.java))
-            }
-        ) {
-            Text("Inertial Tracking")
         }
     }
 }
