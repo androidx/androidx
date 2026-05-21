@@ -16,13 +16,19 @@
 
 package androidx.compose.material3
 
+import android.hardware.input.InputManager
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -54,11 +61,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @MediumTest
@@ -87,7 +97,10 @@ class InteractiveListTest {
             }
         }
 
-        val expectedHeight = contentSize + InteractiveListTopPadding + InteractiveListBottomPadding
+        val expectedHeight =
+            contentSize +
+                ListItemDefaults.InteractiveListTopPadding +
+                ListItemDefaults.InteractiveListBottomPadding
         rule.onNodeWithTag(ListTag, useUnmergedTree = true).assertHeightIsEqualTo(expectedHeight)
         rule.onNodeWithTag(LeadingTag, useUnmergedTree = true).assertHeightIsEqualTo(contentSize)
         rule.onNodeWithTag(TrailingTag, useUnmergedTree = true).assertHeightIsEqualTo(contentSize)
@@ -126,8 +139,8 @@ class InteractiveListTest {
     fun clickableListItem_verticalAlignmentCenter_positioning() {
         val height =
             InteractiveListVerticalAlignmentBreakpoint +
-                InteractiveListTopPadding +
-                InteractiveListBottomPadding - 10.dp
+                ListItemDefaults.InteractiveListTopPadding +
+                ListItemDefaults.InteractiveListBottomPadding - 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             ListItem(
                 modifier = Modifier.height(height),
@@ -170,8 +183,8 @@ class InteractiveListTest {
     fun clickableListItem_verticalAlignmentTop_positioning() {
         val height =
             InteractiveListVerticalAlignmentBreakpoint +
-                InteractiveListTopPadding +
-                InteractiveListBottomPadding +
+                ListItemDefaults.InteractiveListTopPadding +
+                ListItemDefaults.InteractiveListBottomPadding +
                 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             ListItem(
@@ -197,24 +210,24 @@ class InteractiveListTest {
             rule.onNodeWithTag(TrailingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         leadingBounds.left.assertIsEqualTo(InteractiveListStartPadding)
-        leadingBounds.top.assertIsEqualTo(InteractiveListTopPadding)
+        leadingBounds.top.assertIsEqualTo(ListItemDefaults.InteractiveListTopPadding)
 
         val mainContentX = leadingBounds.right + InteractiveListInternalSpacing
-        overlineBounds.top.assertIsEqualTo(InteractiveListTopPadding)
+        overlineBounds.top.assertIsEqualTo(ListItemDefaults.InteractiveListTopPadding)
         overlineBounds.left.assertIsEqualTo(mainContentX)
         supportingBounds.left.assertIsEqualTo(mainContentX)
         contentBounds.left.assertIsEqualTo(mainContentX)
 
         trailingNodeBounds.right.assertIsEqualTo(rule.rootWidth() - InteractiveListEndPadding)
-        trailingNodeBounds.top.assertIsEqualTo(InteractiveListTopPadding)
+        trailingNodeBounds.top.assertIsEqualTo(ListItemDefaults.InteractiveListTopPadding)
     }
 
     @Test
     fun clickableListItem_verticalAlignmentCenter_positioning_rtl() {
         val height =
             InteractiveListVerticalAlignmentBreakpoint +
-                InteractiveListTopPadding +
-                InteractiveListBottomPadding - 10.dp
+                ListItemDefaults.InteractiveListTopPadding +
+                ListItemDefaults.InteractiveListBottomPadding - 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 ListItem(
@@ -259,8 +272,8 @@ class InteractiveListTest {
     fun clickableListItem_verticalAlignmentTop_positioning_rtl() {
         val height =
             InteractiveListVerticalAlignmentBreakpoint +
-                InteractiveListTopPadding +
-                InteractiveListBottomPadding +
+                ListItemDefaults.InteractiveListTopPadding +
+                ListItemDefaults.InteractiveListBottomPadding +
                 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -288,16 +301,16 @@ class InteractiveListTest {
             rule.onNodeWithTag(TrailingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         leadingBounds.right.assertIsEqualTo(rule.rootWidth() - InteractiveListStartPadding)
-        leadingBounds.top.assertIsEqualTo(InteractiveListTopPadding)
+        leadingBounds.top.assertIsEqualTo(ListItemDefaults.InteractiveListTopPadding)
 
         val mainContentRightX = leadingBounds.left - InteractiveListInternalSpacing
-        overlineBounds.top.assertIsEqualTo(InteractiveListTopPadding)
+        overlineBounds.top.assertIsEqualTo(ListItemDefaults.InteractiveListTopPadding)
         overlineBounds.right.assertIsEqualTo(mainContentRightX)
         supportingBounds.right.assertIsEqualTo(mainContentRightX)
         contentBounds.right.assertIsEqualTo(mainContentRightX)
 
         trailingNodeBounds.left.assertIsEqualTo(InteractiveListEndPadding)
-        trailingNodeBounds.top.assertIsEqualTo(InteractiveListTopPadding)
+        trailingNodeBounds.top.assertIsEqualTo(ListItemDefaults.InteractiveListTopPadding)
     }
 
     @Test
@@ -326,7 +339,7 @@ class InteractiveListTest {
         val trailingNodeBounds =
             rule.onNodeWithTag(TrailingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
 
-        val bottomWithoutPadding = rule.rootHeight() - InteractiveListBottomPadding
+        val bottomWithoutPadding = rule.rootHeight() - ListItemDefaults.InteractiveListBottomPadding
         leadingBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
 
         supportingBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
@@ -478,5 +491,51 @@ class InteractiveListTest {
 
         assertThat(checked).isFalse()
         assertThat(longClicked).isTrue()
+    }
+
+    @Test
+    fun listItem_contentPadding_default() {
+        var contentPadding = PaddingValues(0.dp)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            contentPadding = ListItemDefaults.ContentPadding
+        }
+
+        contentPadding.calculateTopPadding().assertIsEqualTo(ListTokens.ItemTopSpace)
+        contentPadding.calculateBottomPadding().assertIsEqualTo(ListTokens.ItemBottomSpace)
+        contentPadding
+            .calculateStartPadding(LayoutDirection.Ltr)
+            .assertIsEqualTo(ListTokens.ItemLeadingSpace)
+        contentPadding
+            .calculateEndPadding(LayoutDirection.Ltr)
+            .assertIsEqualTo(ListTokens.ItemTrailingSpace)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun listItem_contentPadding_precisionPointer() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+        var contentPadding = PaddingValues(0.dp)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme { contentPadding = ListItemDefaults.ContentPadding }
+            }
+        }
+
+        contentPadding.calculateTopPadding().assertIsEqualTo(12.dp)
+        contentPadding.calculateBottomPadding().assertIsEqualTo(12.dp)
+        contentPadding.calculateStartPadding(LayoutDirection.Ltr).assertIsEqualTo(16.dp)
+        contentPadding.calculateEndPadding(LayoutDirection.Ltr).assertIsEqualTo(16.dp)
     }
 }

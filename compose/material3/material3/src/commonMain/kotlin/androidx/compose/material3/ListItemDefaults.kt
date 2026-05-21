@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 /** Contains the default values used by list items. */
 object ListItemDefaults {
@@ -46,6 +47,22 @@ object ListItemDefaults {
             top = InteractiveListTopPadding,
             bottom = InteractiveListBottomPadding,
         )
+
+    internal val InteractiveListTopPadding
+        get() =
+            if (shouldUsePrecisionPointerComponentSizing.value) {
+                12.dp
+            } else {
+                ListTokens.ItemTopSpace
+            }
+
+    internal val InteractiveListBottomPadding
+        get() =
+            if (shouldUsePrecisionPointerComponentSizing.value) {
+                12.dp
+            } else {
+                ListTokens.ItemBottomSpace
+            }
 
     /** The default elevation of a list item */
     val Elevation: Dp = ListTokens.ItemContainerElevation
