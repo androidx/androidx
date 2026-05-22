@@ -488,7 +488,15 @@ internal class BasicSecureTextFieldTest {
         rule.onNodeWithTag(Tag).requestFocus()
         // We need to disable the traversalMode to show the toolbar.
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.SetSelection) {
-            it(0, 5, false)
+            // Select "Hel" (indices 0 to 3) instead of full "Hello" (0 to 5).
+            // - 0, 3: A partial selection is required so that the "Select All" option remains
+            // enabled.
+            //   Since Copy/Cut are disabled for secure fields, and Paste is disabled on an empty
+            // clipboard,
+            //   "Select All" must be enabled to prevent an empty menu (which would fail to start
+            // Action Mode).
+            // - false: Selection is relative to the transformed (obfuscated) text.
+            it(0, 3, false)
         }
 
         rule.waitForIdle()
@@ -496,6 +504,7 @@ internal class BasicSecureTextFieldTest {
         val menu = assertNotNull(spyTextActionModeCallback.menu)
         val actualLabels = menu.items().map { it.title }
 
+        assertThat(actualLabels).isNotEmpty()
         assertThat(actualLabels).doesNotContain("Cut")
         assertThat(actualLabels).doesNotContain("Copy")
 
