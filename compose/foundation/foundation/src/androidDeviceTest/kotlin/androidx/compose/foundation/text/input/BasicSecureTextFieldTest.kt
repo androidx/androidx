@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import android.database.ContentObserver
 import android.os.Looper
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
@@ -28,16 +27,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicSecureTextField
-import androidx.compose.foundation.text.ContentResolverForSecureTextField
 import androidx.compose.foundation.text.LocalTextFieldContentObserverRegistrationExecutor
-import androidx.compose.foundation.text.contentResolverForSecureTextField
+import androidx.compose.foundation.text.PasswordVisibilitySetting
 import androidx.compose.foundation.text.contextmenu.internal.ProvidePlatformTextContextMenuToolbar
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
 import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
 import androidx.compose.foundation.text.contextmenu.test.assertNotNull
 import androidx.compose.foundation.text.contextmenu.test.items
-import androidx.compose.foundation.text.resetContentResolverForSecureTextField
+import androidx.compose.foundation.text.passwordVisibilitySettingFactory
+import androidx.compose.foundation.text.resetPasswordVisibilitySettingFactory
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.runtime.CompositionLocalProvider
@@ -79,6 +78,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -780,7 +780,42 @@ internal class BasicSecureTextFieldTest {
     }
 
     @Test
-    fun paste_viaCtrlV_immediatelyHidesPassword() = testSystemShowPassword {
+    fun paste_viaCtrlV_revealLastTyped_immediatelyHidesPassword() = testSystemShowPassword {
+        lateinit var clipboard: Clipboard
+        inputMethodInterceptor.setContent {
+            clipboard = LocalClipboard.current
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        // TODO(b/502914003): Ideally, paste should be immediately hidden even for single
+        // characters in RevealLastTyped mode. However, without more detailled source tracking,
+        // a single-character paste is indistinguishable from typing. We use a 2-character
+        // string below to verify that paste hides immediately for multi-character pastes.
+        rule.runOnUiThread {
+            runTest { clipboard.setClipEntry(AnnotatedString("ab").toClipEntry()) }
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            requestFocus()
+            performKeyInput {
+                keyDown(Key.CtrlLeft)
+                pressKey(Key.V)
+                keyUp(Key.CtrlLeft)
+            }
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("**")
+        }
+    }
+
+    @Test
+    fun paste_viaCtrlV_systemMode_immediatelyHidesPassword() = testSystemShowPassword {
+        setTouchShowPassword(true)
+        setPhysicalShowPassword(false)
         lateinit var clipboard: Clipboard
         inputMethodInterceptor.setContent {
             clipboard = LocalClipboard.current
@@ -793,7 +828,7 @@ internal class BasicSecureTextFieldTest {
         }
 
         rule.runOnUiThread {
-            runTest { clipboard.setClipEntry(AnnotatedString("a").toClipEntry()) }
+            runTest { clipboard.setClipEntry(AnnotatedString("ab").toClipEntry()) }
         }
 
         with(rule.onNodeWithTag(Tag)) {
@@ -804,7 +839,51 @@ internal class BasicSecureTextFieldTest {
                 keyUp(Key.CtrlLeft)
             }
             rule.mainClock.advanceTimeByFrame()
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("**")
+        }
+    }
+
+    @Test
+    fun systemMode_softwareKeyboard_respectsSplitSettings_doesNotReveal() = testSystemShowPassword {
+        setTouchShowPassword(false)
+        setPhysicalShowPassword(true)
+        val state = TextFieldState()
+        rule.setContent {
+            BasicSecureTextField(
+                state = state,
+                textObfuscationMode = TextObfuscationMode.System,
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performClick()
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*")
+        }
+    }
+
+    @Test
+    fun systemMode_softwareKeyboard_respectsSplitSettings_doesReveal() = testSystemShowPassword {
+        setTouchShowPassword(true)
+        setPhysicalShowPassword(false)
+        val state = TextFieldState()
+        rule.setContent {
+            BasicSecureTextField(
+                state = state,
+                textObfuscationMode = TextObfuscationMode.System,
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performClick()
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
         }
     }
 
@@ -828,18 +907,57 @@ internal class BasicSecureTextFieldTest {
         }
     }
 
+    @Test
+    fun systemMode_softwareKeyboard_showsAndAutoHides() = testSystemShowPassword {
+        setTouchShowPassword(false)
+        setPhysicalShowPassword(false)
+        val state = TextFieldState()
+        rule.setContent {
+            BasicSecureTextField(
+                state = state,
+                textObfuscationMode = TextObfuscationMode.System,
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        // Initially touch is false (hidden)
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*")
+        }
+
+        // Toggle Touch setting only
+        setTouchShowPassword(true)
+        rule.mainClock.advanceTimeByFrame()
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("b")
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*b")
+
+            rule.mainClock.advanceTimeBy(1400)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("**")
+        }
+    }
+
     private inline fun testSystemShowPassword(block: SystemPasswordControl.() -> Unit) {
         val control = SystemPasswordControl()
+        passwordVisibilitySettingFactory = { _ -> control }
+
         try {
             block(control)
         } finally {
-            resetContentResolverForSecureTextField()
+            resetPasswordVisibilitySettingFactory()
             control.destroyAction?.invoke()
         }
     }
 
-    private class SystemPasswordControl {
-        var registeredContentObserver: ContentObserver? = null
+    private class SystemPasswordControl : PasswordVisibilitySetting {
+        var currentTouchShowPassword = mutableStateOf(false)
+        var currentPhysicalShowPassword = mutableStateOf(false)
+        val observers = CopyOnWriteArrayList<() -> Unit>()
         @Volatile var registerCount = 0
         @Volatile var unregisterCount = 0
         @Volatile var registerThread: Thread? = null
@@ -847,35 +965,38 @@ internal class BasicSecureTextFieldTest {
 
         var destroyAction: (() -> Unit)? = null
 
-        // initialize to false
-        var currentShowPassword = false
+        override fun shouldShowTouchInput(): Boolean = currentTouchShowPassword.value
 
-        init {
-            contentResolverForSecureTextField = {
-                object : ContentResolverForSecureTextField {
-                    override fun registerContentObserver(observer: ContentObserver) {
-                        registerThread = Thread.currentThread()
-                        registeredContentObserver = observer
-                        registerCount++
-                    }
+        override fun shouldShowPhysicalInput(): Boolean = currentPhysicalShowPassword.value
 
-                    override fun unregisterContentObserver(observer: ContentObserver) {
-                        unregisterThread = Thread.currentThread()
-                        registeredContentObserver = null
-                        unregisterCount++
-                    }
+        override fun registerObserver(onChange: () -> Unit): Runnable {
+            registerThread = Thread.currentThread()
+            observers.add(onChange)
+            registerCount++
+            return Runnable {
+                unregisterThread = Thread.currentThread()
+                observers.remove(onChange)
+                unregisterCount++
+            }
+        }
 
-                    override val showPassword: Boolean
-                        get() = currentShowPassword
-                }
+        fun setTouchShowPassword(enabled: Boolean) {
+            if (currentTouchShowPassword.value != enabled) {
+                currentTouchShowPassword.value = enabled
+                observers.forEach { it() }
+            }
+        }
+
+        fun setPhysicalShowPassword(enabled: Boolean) {
+            if (currentPhysicalShowPassword.value != enabled) {
+                currentPhysicalShowPassword.value = enabled
+                observers.forEach { it() }
             }
         }
 
         fun setShowPassword(enabled: Boolean) {
-            if (currentShowPassword != enabled) {
-                currentShowPassword = enabled
-                registeredContentObserver?.onChange(true)
-            }
+            setTouchShowPassword(enabled)
+            setPhysicalShowPassword(enabled)
         }
 
         fun assertRegistrationCount(count: Int) {
