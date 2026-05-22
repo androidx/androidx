@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testing
 
+import android.media.AudioTrack
 import android.media.MediaPlayer
 import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.ActivitySpace
@@ -37,6 +38,8 @@ import androidx.xr.scenecore.PositionalAudioComponent
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SoundEffectPool
+import androidx.xr.scenecore.SpatialAudioTrack
+import androidx.xr.scenecore.SpatialAudioTrackBuilder
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialWindow
 import androidx.xr.scenecore.SurfaceEntity
@@ -340,6 +343,53 @@ public class SceneCoreTestRule : ExternalResource() {
             return _mainPanelEntityTester!!
         }
 
+    private var _spatialAudioTrackTester: SpatialAudioTrackTester? = null
+
+    /**
+     * Provides the test data accessor for the [SpatialAudioTrack].
+     *
+     * This class provides a mechanism for tests to inspect and verify spatial audio attributes
+     * associated with an [AudioTrack] that are otherwise encapsulated within the SceneCore runtime.
+     */
+    public val spatialAudioTrackTester: SpatialAudioTrackTester
+        get() {
+            if (_spatialAudioTrackTester != null) {
+                return _spatialAudioTrackTester!!
+            }
+
+            _spatialAudioTrackTester = requireRuntimesReady {
+                val rtInstance =
+                    requireNotNull(FakeSceneRuntime.instance).audioTrackExtensionsWrapper
+                SpatialAudioTrackTester(rtInstance)
+            }
+
+            return _spatialAudioTrackTester!!
+        }
+
+    private var _spatialAudioTrackBuilderTester: SpatialAudioTrackBuilderTester? = null
+
+    /**
+     * Provides the test data accessor for the [SpatialAudioTrackBuilder].
+     *
+     * This class provides a mechanism for tests to inspect and verify spatial audio attributes
+     * associated with an [AudioTrack.Builder] that are otherwise encapsulated within the SceneCore
+     * runtime.
+     */
+    public val spatialAudioTrackBuilderTester: SpatialAudioTrackBuilderTester
+        get() {
+            if (_spatialAudioTrackBuilderTester != null) {
+                return _spatialAudioTrackBuilderTester!!
+            }
+
+            _spatialAudioTrackBuilderTester = requireRuntimesReady {
+                val rtInstance =
+                    requireNotNull(FakeSceneRuntime.instance).audioTrackExtensionsWrapper
+                SpatialAudioTrackBuilderTester(rtInstance)
+            }
+
+            return _spatialAudioTrackBuilderTester!!
+        }
+
     /** The test data accessor for the [SpatialEnvironment]. */
     public val spatialEnvironmentTester: SpatialEnvironmentTester
         get() = requireRuntimesReady { SpatialEnvironmentTester.instance }
@@ -373,6 +423,8 @@ public class SceneCoreTestRule : ExternalResource() {
         _sceneTester = null
         _activitySpaceTester = null
         _perceptionSpaceTester = null
+        _spatialAudioTrackTester = null
+        _spatialAudioTrackBuilderTester = null
         _spatialSoundPoolTester = null
         _mainPanelEntityTester = null
     }
@@ -381,6 +433,8 @@ public class SceneCoreTestRule : ExternalResource() {
         _sceneTester = null
         _activitySpaceTester = null
         _perceptionSpaceTester = null
+        _spatialAudioTrackTester = null
+        _spatialAudioTrackBuilderTester = null
         _spatialSoundPoolTester = null
         _mainPanelEntityTester = null
     }

@@ -76,7 +76,7 @@ class SpatialMediaPlayerTest {
 
         SpatialMediaPlayer.setPointSourceParams(session, mediaPlayer, pointSourceParams, entity)
 
-        assertThat(tester.isPointSource(entity)).isTrue()
+        assertThat(tester.isCurrentPointSource(entity)).isTrue()
         assertThat(tester.pointSourceParams).isEqualTo(pointSourceParams)
     }
 
