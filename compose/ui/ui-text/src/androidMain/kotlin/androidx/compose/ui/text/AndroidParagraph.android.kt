@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalTextApi::class)
+
 package androidx.compose.ui.text
 
 import android.graphics.RectF
@@ -76,11 +78,13 @@ import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.platform.AndroidTextPaint
+import androidx.compose.ui.text.platform.extensions.resolveLineHeightInPx
 import androidx.compose.ui.text.platform.extensions.setSpan
 import androidx.compose.ui.text.platform.isIncludeFontPaddingEnabled
 import androidx.compose.ui.text.platform.style.ShaderBrushSpan
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -93,6 +97,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import java.util.Locale as JavaLocale
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.max
 
 /** Android specific implementation for [Paragraph] */
 // NOTE(text-perf-review): I see most of the APIs in this class just delegate to TextLayout or to
@@ -136,6 +143,45 @@ internal class AndroidParagraph(
 
     @VisibleForTesting internal val charSequence: CharSequence
 
+    /**
+     * The final resolved vertical height of the paragraph in physical pixels.
+     *
+     * When the single-line line height optimization is active, this holds the explicitly requested
+     * line height, adjusted for any top/bottom padding trims. Otherwise, it defaults to the height
+     * of the underlying unspanned native layout.
+     *
+     * @see applyLineHeightOptimization
+     */
+    private var resolvedLineHeight = 0f
+
+    /**
+     * Indicates whether the single-line line height optimization should be applied.
+     *
+     * This optimization avoids expensive `StaticLayout` passes and allocation of
+     * `LineHeightStyleSpan` by manually applying the line height padding inside Compose when the
+     * layout is guaranteed to be a single line.
+     *
+     * It is only enabled when all the following are true:
+     * 1. Soft wrapping is disabled.
+     * 2. The text does not contain any explicit newlines.
+     * 3. No baseline shift is applied (which would force `StaticLayout` anyway).
+     * 4. The global optimization flag is enabled.
+     */
+    private val applyLineHeightOptimization: Boolean
+        get() =
+            !paragraphIntrinsics.softWrap &&
+                !paragraphIntrinsics.textContainsNewLine &&
+                paragraphIntrinsics.style.baselineShift == null &&
+                AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled
+
+    /**
+     * The downward canvas translation shift applied to the paragraph when rendering. When the
+     * single-line optimization for line height calculation is active, the native text is laid out
+     * in the top-left corner. This offset pushes the text down by the precise computed ascent
+     * padding to perfectly align the ink vertically within the [resolvedLineHeight] frame.
+     */
+    private var topOffset = 0f
+
     init {
         requirePrecondition(constraints.minHeight == 0 && constraints.minWidth == 0) {
             "Setting Constraints.minWidth and Constraints.minHeight is not supported, " +
@@ -155,6 +201,18 @@ internal class AndroidParagraph(
             } else {
                 paragraphIntrinsics.charSequence
             }
+
+        if (applyLineHeightOptimization) {
+            // When softWrap is false, LineHeightStyleSpan was skipped upfront.
+            // Instead, we apply the line height padding manually inside Compose to ensure
+            // correct vertical alignment.
+            resolvedLineHeight =
+                resolveLineHeightInPx(
+                    style.lineHeight,
+                    textPaint.textSize,
+                    paragraphIntrinsics.density,
+                )
+        }
 
         val alignment = toLayoutAlign(style.textAlign)
 
@@ -251,6 +309,8 @@ internal class AndroidParagraph(
             layout = firstLayout
         }
 
+        calculateLineHeight(style)
+
         // Brush is not fully realized on text until layout is complete and size information
         // is known. Brush can now be applied to the overall textpaint and all the spans.
         textPaint.setBrush(style.brush, Size(width, height), style.alpha)
@@ -266,7 +326,7 @@ internal class AndroidParagraph(
         get() = constraints.maxWidth.toFloat()
 
     override val height: Float
-        get() = layout.height.toFloat()
+        get() = resolvedLineHeight
 
     override val maxIntrinsicWidth: Float
         get() = paragraphIntrinsics.maxIntrinsicWidth
@@ -369,11 +429,11 @@ internal class AndroidParagraph(
         get() = paragraphIntrinsics.textPaint
 
     override fun getLineForVerticalPosition(vertical: Float): Int {
-        return layout.getLineForVertical(vertical.toInt())
+        return layout.getLineForVertical((vertical - topOffset).toInt())
     }
 
     override fun getOffsetForPosition(position: Offset): Int {
-        val lineUnbounded = layout.getLineForVerticalUnbounded(position.y.toInt())
+        val lineUnbounded = layout.getLineForVerticalUnbounded((position.y - topOffset).toInt())
         if (lineUnbounded >= lineCount) return layout.text.length
         return layout.getOffsetForHorizontal(lineUnbounded, position.x)
     }
@@ -406,7 +466,9 @@ internal class AndroidParagraph(
             "offset($offset) is out of bounds [0,${charSequence.length})"
         }
         val rectF = layout.getBoundingBox(offset)
-        return with(rectF) { Rect(left = left, top = top, right = right, bottom = bottom) }
+        return with(rectF) {
+            Rect(left = left, top = top + topOffset, right = right, bottom = bottom + topOffset)
+        }
     }
 
     /**
@@ -440,6 +502,12 @@ internal class AndroidParagraph(
         @IntRange(from = 0) arrayStart: Int,
     ) {
         layout.fillBoundingBoxes(range.min, range.max, array, arrayStart)
+        if (topOffset != 0f) {
+            for (i in 0 until range.length) {
+                array[arrayStart + i * 4 + 1] += topOffset // top
+                array[arrayStart + i * 4 + 3] += topOffset // bottom
+            }
+        }
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
@@ -461,7 +529,12 @@ internal class AndroidParagraph(
 
         // The width of the cursor is not taken into account. The callers of this API should use
         // rect.left to get the start X position and then adjust it according to the width if needed
-        return Rect(horizontal, layout.getLineTop(line), horizontal, layout.getLineBottom(line))
+        return Rect(
+            horizontal,
+            layout.getLineTop(line) + topOffset,
+            horizontal,
+            layout.getLineBottom(line) + topOffset,
+        )
     }
 
     override fun getWordBoundary(offset: Int): TextRange {
@@ -473,17 +546,36 @@ internal class AndroidParagraph(
 
     override fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
 
-    override fun getLineTop(lineIndex: Int): Float = layout.getLineTop(lineIndex)
+    override fun getLineTop(lineIndex: Int): Float {
+        return if (applyLineHeightOptimization) {
+            0f
+        } else {
+            layout.getLineTop(lineIndex)
+        }
+    }
 
     internal fun getLineAscent(lineIndex: Int): Float = layout.getLineAscent(lineIndex)
 
-    override fun getLineBaseline(lineIndex: Int): Float = layout.getLineBaseline(lineIndex)
+    override fun getLineBaseline(lineIndex: Int): Float =
+        layout.getLineBaseline(lineIndex) + topOffset
 
     internal fun getLineDescent(lineIndex: Int): Float = layout.getLineDescent(lineIndex)
 
-    override fun getLineBottom(lineIndex: Int): Float = layout.getLineBottom(lineIndex)
+    override fun getLineBottom(lineIndex: Int): Float {
+        return if (applyLineHeightOptimization) {
+            resolvedLineHeight
+        } else {
+            layout.getLineBottom(lineIndex)
+        }
+    }
 
-    override fun getLineHeight(lineIndex: Int): Float = layout.getLineHeight(lineIndex)
+    override fun getLineHeight(lineIndex: Int): Float {
+        return if (applyLineHeightOptimization) {
+            resolvedLineHeight
+        } else {
+            layout.getLineHeight(lineIndex)
+        }
+    }
 
     override fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
@@ -546,7 +638,7 @@ internal class AndroidParagraph(
             setTextDecoration(textDecoration)
         }
 
-        paint(canvas)
+        canvas.withTranslationRun(topOffset, ::paint)
     }
 
     override fun paint(
@@ -566,7 +658,7 @@ internal class AndroidParagraph(
             this.blendMode = blendMode
         }
 
-        paint(canvas)
+        canvas.withTranslationRun(topOffset, ::paint)
 
         textPaint.blendMode = currBlendMode
     }
@@ -589,9 +681,20 @@ internal class AndroidParagraph(
             this.blendMode = blendMode
         }
 
-        paint(canvas)
+        canvas.withTranslationRun(topOffset, ::paint)
 
         textPaint.blendMode = currBlendMode
+    }
+
+    private fun Canvas.withTranslationRun(topOffset: Float, block: (Canvas) -> Unit) {
+        if (topOffset != 0f) {
+            save()
+            translate(0f, topOffset)
+            block(this)
+            restore()
+        } else {
+            block(this)
+        }
     }
 
     private fun paint(canvas: Canvas) {
@@ -635,6 +738,88 @@ internal class AndroidParagraph(
             lineBreakStyle = lineBreakStyle,
             lineBreakWordStyle = lineBreakWordStyle,
         )
+
+    /**
+     * Line height is normally set via [androidx.compose.ui.text.android.style.LineHeightStyleSpan].
+     * However, as an optimization step for single lines, we calculate the line height and place the
+     * text according to [LineHeightStyle] inside this class.
+     *
+     * Note: when setting a new behavior here, make sure to do the corresponding changes inside
+     * [androidx.compose.ui.text.android.style.LineHeightStyleSpan] too.
+     */
+    private fun calculateLineHeight(style: TextStyle) {
+        if (applyLineHeightOptimization && !resolvedLineHeight.isNaN()) {
+            val diff = resolvedLineHeight - layout.height
+            val mode = style.lineHeightStyle?.mode ?: LineHeightStyle.Default.mode
+
+            val trim = style.lineHeightStyle?.trim ?: LineHeightStyle.Default.trim
+            val trimTop = trim.isTrimFirstLineTop()
+            val trimBottom = !layout.didExceedMaxLines && trim.isTrimLastLineBottom()
+
+            val topRatio =
+                style.lineHeightStyle?.alignment?.topRatio
+                    ?: LineHeightStyle.Default.alignment.topRatio
+
+            val ascentRatio =
+                when {
+                    topRatio != -1f -> topRatio
+                    layout.height != 0 -> abs(layout.getLineAscent(0)) / layout.height.toFloat()
+                    else -> 0.5f
+                }
+
+            val ceiledDiff = ceil(diff)
+
+            // Mirroring `descentDiff` calculation from LineHeightStyleSpan.calculateTargetMetrics
+            val descentDiff = ceil(ceiledDiff * ascentRatio)
+
+            if (
+                diff <= 0 &&
+                    (mode == LineHeightStyle.Mode.Minimum ||
+                        (trimTop && trimBottom && mode == LineHeightStyle.Mode.Fixed))
+            ) {
+                // 1. Mirroring LineHeightStyleSpan Mode.Minimum early return and legacy early-outs
+                resolvedLineHeight = layout.height.toFloat()
+                topOffset = 0f
+            } else if (diff < 0 && mode == LineHeightStyle.Mode.Tight) {
+                // 2. Mirroring LineHeightStyleSpan Mode.Tight when shrinking
+                val appliedTopSpace = if (trimTop) ceiledDiff - descentDiff else 0f
+                val appliedBottomSpace = if (trimBottom) descentDiff else 0f
+
+                topOffset = appliedTopSpace
+                resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
+            } else if (diff < 0) {
+                // 3. Mirroring LineHeightStyleSpan Mode.Fixed legacy alignment shifts and padding.
+                // It should have been an early return but we are canceling out the TextLayout's
+                // calculations error inside `getLineHeightPaddings` lastDescentDiff calculation
+                val appliedTopSpace = 0f
+                val appliedBottomSpace =
+                    if (!trimTop && !trimBottom) {
+                        if (descentDiff < 0) {
+                            descentDiff + max(descentDiff - ceiledDiff, -descentDiff)
+                        } else {
+                            0f
+                        }
+                    } else {
+                        0f
+                    }
+
+                topOffset = appliedTopSpace
+                resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
+            } else {
+                // 4. Mirroring LineHeightStyleSpan expanding (diff > 0) and non-legacy distribution
+                val rawBottomSpace = ceil((ceiledDiff * (1f - ascentRatio)))
+                val rawTopSpace = ceiledDiff - rawBottomSpace
+
+                val appliedTopSpace = if (trimTop) 0f else rawTopSpace
+                val appliedBottomSpace = if (trimBottom) 0f else rawBottomSpace
+
+                topOffset = appliedTopSpace
+                resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
+            }
+        } else {
+            resolvedLineHeight = layout.height.toFloat()
+        }
+    }
 }
 
 /** Converts [TextAlign] into [TextLayout] alignment constants. */
