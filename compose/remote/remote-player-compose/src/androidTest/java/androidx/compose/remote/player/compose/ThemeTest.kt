@@ -26,9 +26,9 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.compose.test.util.getCoreDocument
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrapper
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.ComposableWrappers
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteDocScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.ComposableWrapper
+import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
+import androidx.compose.remote.player.compose.test.utils.RemoteDocScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.DarkMode
 import androidx.compose.ui.test.DeviceConfigurationOverride

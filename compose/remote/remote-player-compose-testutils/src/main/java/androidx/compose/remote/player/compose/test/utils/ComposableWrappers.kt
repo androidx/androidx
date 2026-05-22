@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.player.compose.test.utils.screenshot.rule
+package androidx.compose.remote.player.compose.test.utils
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

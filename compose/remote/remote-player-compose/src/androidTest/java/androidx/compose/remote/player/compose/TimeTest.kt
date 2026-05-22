@@ -22,7 +22,7 @@ import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc.Time.TIME_IN_HR
 import androidx.compose.remote.player.compose.test.util.getCoreDocument
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteDocScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.RemoteDocScreenshotTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
