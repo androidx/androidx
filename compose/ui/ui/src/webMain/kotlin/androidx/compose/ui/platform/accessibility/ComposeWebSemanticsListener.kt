@@ -38,6 +38,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.w3c.dom.HTMLElement
 
 internal class ComposeWebSemanticsListener(
@@ -216,7 +218,11 @@ internal class ComposeWebSemanticsListener(
             }
         }
 
-        removedIds.forEach { webNodes.remove(it) }
+        removedIds.forEach {
+            webNodes.remove(it)
+            nodes.remove(it)
+            nodeToParent.remove(it)
+        }
     }
 
     private fun syncNode(
