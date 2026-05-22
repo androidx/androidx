@@ -86,10 +86,14 @@ final class SnapHelper extends RecyclerView.OnFlingListener {
             return false;
         }
         layoutManager.scrollToSelection(targetPosition, 0, true, 0);
-        // We are now in fling mode, the flag will be reset when GridLayoutManager detected a
-        // onScrollStateChanged(), either it's interrupted by another drag or it stopped on idle.
-        mInFling = true;
-        return true;
+        // We are now in fling mode if there is actually scrolling happening, if not we return
+        // false to have RecyclerView.onTouchEvent() to stop the scroll in order to fire child
+        // selected event.
+        // True flag will be later reset when GridLayoutManager detected a onScrollStateChanged(),
+        // either it's interrupted by another drag or it stopped on idle.
+        mInFling = mRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_SETTLING
+                || layoutManager.isSmoothScrolling();
+        return mInFling;
     }
 
     int findTargetSnapPosition(GridLayoutManager layoutManager,
