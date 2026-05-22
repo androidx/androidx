@@ -101,7 +101,7 @@ internal class FakeEntityMoveListener : EntityMoveListener {
                     finalInputRay == event.currentInputRay &&
                     finalPose == event.currentPose &&
                     finalScale == event.currentScale &&
-                    updatedParent == event.initialParent
+                    updatedParent == event.updatedParent
         }
         return false
     }

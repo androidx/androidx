@@ -135,7 +135,7 @@ private constructor(
                                 moveEvent.currentInputRay,
                                 updatedReformEventInfo?.pose ?: moveEvent.currentPose,
                                 updatedReformEventInfo?.scale ?: moveEvent.currentScale,
-                                updatedReformEventInfo?.parent ?: moveEvent.initialParent,
+                                updatedReformEventInfo?.parent ?: moveEvent.updatedParent,
                             )
                         }
                 }
