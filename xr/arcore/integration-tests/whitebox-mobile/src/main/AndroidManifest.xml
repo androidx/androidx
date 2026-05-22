@@ -54,5 +54,10 @@
         android:exported="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
     </activity>
+    <activity
+        android:name=".inertial.InertialTrackingActivity"
+        android:exported="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+    </activity>
   </application>
 </manifest>

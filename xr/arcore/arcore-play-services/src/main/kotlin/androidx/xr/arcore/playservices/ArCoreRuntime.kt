@@ -24,6 +24,7 @@ import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
@@ -59,6 +60,7 @@ import kotlinx.coroutines.delay
  * @property config the current [Config] of the session
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalInertialTrackingApi::class)
 public class ArCoreRuntime
 internal constructor(
     private val context: Context,
@@ -87,10 +89,12 @@ internal constructor(
     }
 
     override fun resume() {
+        perceptionManager.arDevice.resume()
         _session.resume()
     }
 
     override fun pause() {
+        perceptionManager.arDevice.pause()
         _session.pause()
     }
 
@@ -113,6 +117,8 @@ internal constructor(
     @SuppressWarnings("RestrictedApiAndroidX")
     override fun configure(config: Config) {
         val arConfig = _session.config
+
+        perceptionManager.arDevice.configureTracking(config.deviceTracking, context)
 
         if (config.cameraFacingDirection != this.config.cameraFacingDirection) {
             try {
