@@ -1257,7 +1257,11 @@ package androidx.xr.scenecore {
 
   public static final class SurfaceEntity.Shape.Quad implements androidx.xr.scenecore.SurfaceEntity.Shape {
     ctor public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d extents);
+    ctor public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d extents, optional @FloatRange(from=0.0) float cornerRadius);
+    ctor @BytecodeOnly public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getCornerRadius();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
+    property public float cornerRadius;
     property public androidx.xr.runtime.math.FloatSize2d extents;
   }
 

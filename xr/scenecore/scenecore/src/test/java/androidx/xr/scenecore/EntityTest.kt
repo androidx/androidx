@@ -1061,6 +1061,19 @@ class EntityTest {
     }
 
     @Test
+    fun quadShape_cornerRadiusTooLarge_throwsException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                SurfaceEntity.Shape.Quad(FloatSize2d(2.0f, 4.0f), 1.5f)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains(
+                "cornerRadius (1.5) must not be greater than half of the smaller dimension (width or height): 1.0"
+            )
+    }
+
+    @Test
     fun surfaceEntity_setShapeWithInvalidCornerRadius_throwsException() {
         assertThrows(IllegalArgumentException::class.java) {
             SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), -0.5f)
