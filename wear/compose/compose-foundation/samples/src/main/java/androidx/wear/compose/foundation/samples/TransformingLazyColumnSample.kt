@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -175,7 +176,9 @@ fun TransformingLazyColumnScrollToItemSample() {
         }
     }
 
-    LaunchedEffect(state.anchorItemIndex) { println("Anchor item index: ${state.anchorItemIndex}") }
+    LaunchedEffect(Unit) {
+        snapshotFlow { state.anchorItemIndex }.collect { println("Anchor item index: $it") }
+    }
 }
 
 @Sampled

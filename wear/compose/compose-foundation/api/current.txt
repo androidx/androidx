@@ -368,10 +368,10 @@ package androidx.wear.compose.foundation {
   }
 
   public final class ExpandableState {
-    method @InaccessibleFromKotlin public float getExpandProgress();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getExpandProgress();
     method @InaccessibleFromKotlin public boolean isExpanded();
     method @InaccessibleFromKotlin public void setExpanded(boolean);
-    property public float expandProgress;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float expandProgress;
     property public boolean expanded;
     field public static final androidx.wear.compose.foundation.ExpandableState.Companion Companion;
   }
@@ -525,18 +525,18 @@ package androidx.wear.compose.foundation {
   }
 
   @androidx.compose.runtime.Stable public final class SwipeToDismissBoxState {
-    ctor public SwipeToDismissBoxState();
-    ctor @BytecodeOnly public SwipeToDismissBoxState(androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public SwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public SwipeToDismissBoxState();
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public SwipeToDismissBoxState(androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public SwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
     method @InaccessibleFromKotlin public androidx.wear.compose.foundation.SwipeToDismissValue getCurrentValue();
-    method @InaccessibleFromKotlin public float getOffset();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getOffset();
     method @InaccessibleFromKotlin public androidx.wear.compose.foundation.SwipeToDismissValue getTargetValue();
     method @InaccessibleFromKotlin public boolean isAnimationRunning();
-    method public float requireOffset();
+    method @androidx.compose.runtime.annotation.FrequentlyChangingValue public float requireOffset();
     method public suspend Object? snapTo(androidx.wear.compose.foundation.SwipeToDismissValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public androidx.wear.compose.foundation.SwipeToDismissValue currentValue;
     property public boolean isAnimationRunning;
-    property public float offset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float offset;
     property public androidx.wear.compose.foundation.SwipeToDismissValue targetValue;
   }
 
@@ -633,21 +633,21 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   public sealed nonexhaustive interface ScalingLazyListItemInfo {
-    method @InaccessibleFromKotlin public float getAlpha();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getAlpha();
     method @InaccessibleFromKotlin public int getIndex();
     method @InaccessibleFromKotlin public Object getKey();
-    method @InaccessibleFromKotlin public int getOffset();
-    method @InaccessibleFromKotlin public float getScale();
-    method @InaccessibleFromKotlin public int getSize();
-    method @InaccessibleFromKotlin public int getUnadjustedOffset();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getOffset();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getScale();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getSize();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getUnadjustedOffset();
     method @InaccessibleFromKotlin public int getUnadjustedSize();
-    property public abstract float alpha;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float alpha;
     property public abstract int index;
     property public abstract Object key;
-    property public abstract int offset;
-    property public abstract float scale;
-    property public abstract int size;
-    property public abstract int unadjustedOffset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract int offset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float scale;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract int size;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract int unadjustedOffset;
     property public abstract int unadjustedSize;
   }
 
@@ -697,15 +697,15 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   @androidx.compose.runtime.Stable public final class ScalingLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public ScalingLazyListState();
-    ctor public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
-    ctor @BytecodeOnly public ScalingLazyListState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public ScalingLazyListState();
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public ScalingLazyListState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.wear.compose.foundation.lazy.ScalingLazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getCenterItemIndex();
-    method @InaccessibleFromKotlin public int getCenterItemScrollOffset();
-    method @InaccessibleFromKotlin public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo getLayoutInfo();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getCenterItemScrollOffset();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -713,11 +713,11 @@ package androidx.wear.compose.foundation.lazy {
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public int centerItemIndex;
-    property public int centerItemScrollOffset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int centerItemScrollOffset;
     property public boolean isScrollInProgress;
     property public boolean lastScrolledBackward;
     property public boolean lastScrolledForward;
-    property public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo layoutInfo;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo layoutInfo;
     field public static final androidx.wear.compose.foundation.lazy.ScalingLazyListState.Companion Companion;
   }
 
@@ -850,15 +850,15 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   @androidx.compose.runtime.Stable public final class TransformingLazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public TransformingLazyColumnState();
-    ctor public TransformingLazyColumnState(optional int initialAnchorItemIndex, optional int initialAnchorItemScrollOffset);
-    ctor @BytecodeOnly public TransformingLazyColumnState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public TransformingLazyColumnState();
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public TransformingLazyColumnState(optional int initialAnchorItemIndex, optional int initialAnchorItemScrollOffset);
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public TransformingLazyColumnState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
-    method @InaccessibleFromKotlin public int getAnchorItemIndex();
-    method @InaccessibleFromKotlin public int getAnchorItemScrollOffset();
-    method @InaccessibleFromKotlin public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo getLayoutInfo();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getAnchorItemIndex();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getAnchorItemScrollOffset();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method @KotlinOnly public void requestAnchorItem(Object? key, androidx.wear.compose.foundation.lazy.TransformingLazyColumnAnchorType anchorType);
     method @BytecodeOnly public void requestAnchorItem-bw6Eukk(Object?, int);
@@ -867,14 +867,14 @@ package androidx.wear.compose.foundation.lazy {
     method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
-    property public int anchorItemIndex;
-    property public int anchorItemScrollOffset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int anchorItemIndex;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int anchorItemScrollOffset;
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public boolean isScrollInProgress;
     property public boolean lastScrolledBackward;
     property public boolean lastScrolledForward;
-    property public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo layoutInfo;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo layoutInfo;
   }
 
   public final class TransformingLazyColumnStateKt {
@@ -887,16 +887,16 @@ package androidx.wear.compose.foundation.lazy {
     method @InaccessibleFromKotlin public int getIndex();
     method @InaccessibleFromKotlin public Object getKey();
     method @InaccessibleFromKotlin public int getMeasuredHeight();
-    method @InaccessibleFromKotlin public int getOffset();
-    method @BytecodeOnly public long getScrollProgress-xlmz8Ag();
-    method @InaccessibleFromKotlin public int getTransformedHeight();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getOffset();
+    method @BytecodeOnly @androidx.compose.runtime.annotation.FrequentlyChangingValue public long getScrollProgress-xlmz8Ag();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getTransformedHeight();
     property public abstract Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract int measuredHeight;
-    property public abstract int offset;
-    property public abstract androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress scrollProgress;
-    property public abstract int transformedHeight;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract int offset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress scrollProgress;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract int transformedHeight;
   }
 
 }
@@ -935,15 +935,15 @@ package androidx.wear.compose.foundation.pager {
   }
 
   public final class PagerState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor @BytecodeOnly public PagerState(int, float, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public PagerState(optional @IntRange(from=0L) int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, @IntRange(from=1L) kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public PagerState(int, float, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public PagerState(optional @IntRange(from=0L) int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, @IntRange(from=1L) kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
     method public suspend Object? animateScrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! animateScrollToPage$default(androidx.wear.compose.foundation.pager.PagerState!, int, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getCurrentPage();
-    method @InaccessibleFromKotlin public float getCurrentPageOffsetFraction();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getCurrentPageOffsetFraction();
     method @InaccessibleFromKotlin public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
-    method @InaccessibleFromKotlin public androidx.wear.compose.foundation.pager.PagerLayoutInfo getLayoutInfo();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.wear.compose.foundation.pager.PagerLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin public int getPageCount();
     method @InaccessibleFromKotlin public int getSettledPage();
     method @InaccessibleFromKotlin public int getTargetPage();
@@ -952,10 +952,10 @@ package androidx.wear.compose.foundation.pager {
     method public suspend Object? scrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToPage$default(androidx.wear.compose.foundation.pager.PagerState!, int, float, kotlin.coroutines.Continuation!, int, Object!);
     property public int currentPage;
-    property public float currentPageOffsetFraction;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float currentPageOffsetFraction;
     property public androidx.compose.foundation.interaction.InteractionSource interactionSource;
     property public boolean isScrollInProgress;
-    property public androidx.wear.compose.foundation.pager.PagerLayoutInfo layoutInfo;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.wear.compose.foundation.pager.PagerLayoutInfo layoutInfo;
     property public int pageCount;
     property public int settledPage;
     property public int targetPage;

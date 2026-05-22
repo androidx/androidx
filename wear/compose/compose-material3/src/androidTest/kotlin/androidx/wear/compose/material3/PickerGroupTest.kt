@@ -116,7 +116,7 @@ class PickerGroupTest {
     private fun PickerGroupScope.addPickerColumns(count: Int, selectedColumn: Int) =
         repeat(count) {
             PickerGroupItem(
-                pickerState = PickerState(10),
+                pickerState = rememberPickerState(10),
                 selected = selectedColumn == it,
                 onSelected = {},
             ) { index: Int, _: Boolean ->
@@ -132,7 +132,7 @@ class PickerGroupTest {
     ) =
         PickerGroupItem(
             selected = isSelected,
-            pickerState = PickerState(10),
+            pickerState = rememberPickerState(10),
             modifier = Modifier.testTag(tag),
             onSelected = onSelected,
         ) { _: Int, _: Boolean ->

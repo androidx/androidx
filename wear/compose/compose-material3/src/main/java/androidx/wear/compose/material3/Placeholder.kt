@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -266,7 +267,7 @@ public object PlaceholderDefaults {
  *   updating the state using [PlaceholderState.isVisible]
  */
 @Stable
-public class PlaceholderState(isVisible: Boolean) {
+public class PlaceholderState @RememberInComposition constructor(isVisible: Boolean) {
 
     /**
      * Whether the placeholder should be visible. Note that if there is an animation running, this

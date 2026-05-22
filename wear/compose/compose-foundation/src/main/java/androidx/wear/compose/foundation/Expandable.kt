@@ -22,6 +22,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -241,7 +242,7 @@ internal constructor(
      * content is not showing, or 1f if the extra content is showing.
      */
     public val expandProgress: Float
-        get() = _expandProgress.value
+        @FrequentlyChangingValue get() = _expandProgress.value
 
     /**
      * Represents the current state of the component, true means it's showing the extra information.

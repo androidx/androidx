@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.wear.compose.foundation.pager.PagerState
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.PageIndicatorTest.Companion.PAGE_COUNT
 import androidx.wear.compose.material3.PageIndicatorTest.Companion.SELECTED_PAGE_INDEX
 import com.google.testing.junit.testparameterinjector.TestParameter
@@ -231,9 +231,9 @@ class PageIndicatorScreenshotTest {
                 contentAlignment = if (isHorizontal) Alignment.BottomCenter else Alignment.CenterEnd,
             ) {
                 val pagerState =
-                    PagerState(
-                        currentPage = selectedPageIndex,
-                        currentPageOffsetFraction = offsetFraction,
+                    rememberPagerState(
+                        initialPage = selectedPageIndex,
+                        initialPageOffsetFraction = offsetFraction,
                         pageCount = { pageCount },
                     )
                 if (isHorizontal) {

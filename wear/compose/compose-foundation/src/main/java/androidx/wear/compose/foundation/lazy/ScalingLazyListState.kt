@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,7 +82,9 @@ public fun rememberScalingLazyListState(
  * [centerItemIndex] and [centerItemScrollOffset] can be read from the state.
  */
 @Stable
-public class ScalingLazyListState(
+public class ScalingLazyListState
+@RememberInComposition
+constructor(
     private var initialCenterItemIndex: Int = 1,
     private var initialCenterItemScrollOffset: Int = 0,
 ) : ScrollableState {
@@ -147,6 +151,7 @@ public class ScalingLazyListState(
      * viewport center-line.
      */
     public val centerItemScrollOffset: Int
+        @FrequentlyChangingValue
         get() =
             (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
                 if (it.initialized) it.centerItemScrollOffset else null
@@ -156,6 +161,7 @@ public class ScalingLazyListState(
      * The object of [ScalingLazyListLayoutInfo] calculated during the last layout pass. For
      * example, you can use it to calculate what items are currently visible.
      */
+    @get:FrequentlyChangingValue
     public val layoutInfo: ScalingLazyListLayoutInfo by
         derivedStateOf(referentialEqualityPolicy()) {
             val config = config.value

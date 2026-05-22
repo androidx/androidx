@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -167,6 +168,8 @@ public object PageIndicatorDefaults {
         get() = ColorSchemeKeyTokens.Background.value.copy(alpha = 0.85f)
 }
 
+// TODO: Check usage of PagerState.currentPageOffsetFraction in this composable b/481303955
+@SuppressLint("FrequentlyChangingValue")
 @Composable
 internal fun PageIndicatorImpl(
     state: PagerState,
