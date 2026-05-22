@@ -142,9 +142,8 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         ignoreTestSources = false
         checkTestSources = false
 
-        // Write output directly to the console (and nowhere else).
-        textReport = true
-        htmlReport = false
+        // Write output directly to the console.
+        printTextReport = true
 
         // Format output for convenience.
         explainIssues = true
