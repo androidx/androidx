@@ -32,7 +32,6 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
-import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
@@ -42,6 +41,7 @@ import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor.CameraStatus
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -479,7 +479,7 @@ constructor(
         private const val DEBUG = false
         private const val RESTART_TIMEOUT_WHEN_ENABLED_MS = 700L // 0.7s
         private const val MS_TO_NS = 1_000_000
-        private val PRIORITIES_CHANGED_THRESHOLD_NS = DurationNs(200_000_000L) // 200ms
+        private val PRIORITIES_CHANGED_THRESHOLD = 200.milliseconds
 
         @VisibleForTesting
         internal fun shouldRestart(
@@ -500,7 +500,7 @@ constructor(
             // camera priorities changed if we've received such a signal within the last 200ms.
             val prioritiesChanged =
                 if (lastCameraPrioritiesChangedTs == null) false
-                else (currentTs - lastCameraPrioritiesChangedTs) <= PRIORITIES_CHANGED_THRESHOLD_NS
+                else (currentTs - lastCameraPrioritiesChangedTs) <= PRIORITIES_CHANGED_THRESHOLD
 
             when (controllerState) {
                 ControllerState.DISCONNECTED ->

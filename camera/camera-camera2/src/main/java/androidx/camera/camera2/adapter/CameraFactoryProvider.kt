@@ -21,7 +21,6 @@ import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
-import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
@@ -33,6 +32,8 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.utils.ContextUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * The [CameraFactoryProvider] is responsible for creating the root dagger component that is used to
@@ -57,7 +58,7 @@ public class CameraFactoryProvider(
 
         val openRetryMaxTimeout =
             if (cameraOpenRetryMaxTimeoutInMs == -1L) null
-            else DurationNs(cameraOpenRetryMaxTimeoutInMs)
+            else cameraOpenRetryMaxTimeoutInMs.milliseconds
 
         val lazyCameraPipe = lazy {
             if (sharedCameraPipe != null) {
@@ -82,7 +83,7 @@ public class CameraFactoryProvider(
     private fun createCameraPipe(
         context: Context,
         threadConfig: CameraThreadConfig,
-        openRetryMaxTimeout: DurationNs?,
+        openRetryMaxTimeout: Duration?,
     ): CameraPipe =
         Debug.trace("Create CameraPipe") {
             val timeSource = SystemTimeSource()

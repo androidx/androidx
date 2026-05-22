@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraInterop
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Debug
-import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Threads
@@ -39,6 +38,7 @@ import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.common.unwrapAs
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -68,20 +68,20 @@ internal data class CameraStateClosed(
     val cameraRetryCount: Int? = null,
 
     // Record the number of nanoseconds it took to open the camera, including retry attempts.
-    val cameraRetryDurationNs: DurationNs? = null,
+    val cameraRetryDuration: Duration? = null,
 
     // Record the exception that was thrown while trying to open the camera
     val cameraException: Throwable? = null,
 
     // Record the number of nanoseconds it took for the final open attempt.
-    val cameraOpenDurationNs: DurationNs? = null,
+    val cameraOpenDuration: Duration? = null,
 
     // Record the duration the camera device was active. If onOpened is never called, this value
     // will never be set.
-    val cameraActiveDurationNs: DurationNs? = null,
+    val cameraActiveDuration: Duration? = null,
 
     // Record the duration the camera device took to invoke close() on the CameraDevice object.
-    val cameraClosingDurationNs: DurationNs? = null,
+    val cameraClosingDuration: Duration? = null,
 
     // Record the camera ErrorCode, if the camera closed due to an error.
     val cameraErrorCode: CameraError? = null,
@@ -540,10 +540,10 @@ internal class AndroidCameraState(
             cameraId,
             cameraClosedReason = closingInfo.reason,
             cameraRetryCount = attemptNumber - 1,
-            cameraRetryDurationNs = retryDuration,
-            cameraOpenDurationNs = openDuration,
-            cameraActiveDurationNs = activeDuration,
-            cameraClosingDurationNs = closeDuration,
+            cameraRetryDuration = retryDuration,
+            cameraOpenDuration = openDuration,
+            cameraActiveDuration = activeDuration,
+            cameraClosingDuration = closeDuration,
             cameraErrorCode = closingInfo.errorCode,
             cameraException = closingInfo.exception,
         )

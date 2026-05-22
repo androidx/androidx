@@ -16,8 +16,12 @@
 
 package androidx.camera.camera2.pipe.core
 
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Timestamps.formatNs
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -27,19 +31,21 @@ import org.robolectric.annotation.Config
 class TimestampsTest {
 
     @Test
-    fun testDurationComparisons() {
-        val duration1 = DurationNs(100L)
-        val duration2 = DurationNs(200L)
-        val duration3 = DurationNs(100L)
-
-        assertThat(duration1 < duration2).isTrue()
-        assertThat(duration1 > duration2).isFalse()
-        assertThat(duration1 == duration3).isTrue()
+    fun testDurationFormatting() {
+        val duration = 500.milliseconds
+        assertThat(duration.formatMs()).isEqualTo("500.000 ms")
+        assertThat(duration.formatNs()).isEqualTo("500000000 ns")
     }
 
     @Test
-    fun testDurationNsFromMs() {
-        val duration = DurationNs.fromMs(500L)
-        assertThat(duration.value).isEqualTo(500_000_000L)
+    fun testTimestampNsOperations() {
+        val t1 = TimestampNs(100L)
+        val t2 = TimestampNs(200L)
+
+        val diff = t2 - t1
+        assertThat(diff).isEqualTo(100.nanoseconds)
+
+        val t3 = t1 + 100.nanoseconds
+        assertThat(t3.value).isEqualTo(200L)
     }
 }
