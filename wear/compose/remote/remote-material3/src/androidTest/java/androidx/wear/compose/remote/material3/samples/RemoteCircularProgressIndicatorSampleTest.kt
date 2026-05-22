@@ -62,15 +62,11 @@ class RemoteCircularProgressIndicatorSampleTest {
 
     @Test
     fun remoteCircularProgressIndicatorAnimatedSampleTest() {
-        remoteComposeTestRule.composeTestRule.mainClock.autoAdvance = false
-        remoteComposeTestRule.setContent(
+        remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteCircularProgressIndicatorAnimatedSample() }
         }
-        // Advance clock by 1000ms of virtual time to let document serialize and player render
-        remoteComposeTestRule.composeTestRule.mainClock.advanceTimeBy(1000L)
-        remoteComposeTestRule.verifyScreenshot()
     }
 }
