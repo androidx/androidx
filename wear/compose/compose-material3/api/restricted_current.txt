@@ -1177,12 +1177,12 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Stable public final class PickerState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public PickerState(@IntRange(from=1L) int initialNumberOfOptions, optional @IntRange(from=0L) int initiallySelectedIndex, optional boolean shouldRepeatOptions);
-    ctor @BytecodeOnly public PickerState(int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public PickerState(@IntRange(from=1L) int initialNumberOfOptions, optional @IntRange(from=0L) int initiallySelectedIndex, optional boolean shouldRepeatOptions);
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public PickerState(int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getNumberOfOptions();
-    method @InaccessibleFromKotlin public int getSelectedOptionIndex();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getSelectedOptionIndex();
     method @InaccessibleFromKotlin public boolean getShouldRepeatOptions();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -1192,7 +1192,7 @@ package androidx.wear.compose.material3 {
     property public boolean canScrollForward;
     property public boolean isScrollInProgress;
     property public int numberOfOptions;
-    property public int selectedOptionIndex;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int selectedOptionIndex;
     property public boolean shouldRepeatOptions;
     field public static final androidx.wear.compose.material3.PickerState.Companion Companion;
   }
@@ -1222,7 +1222,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Stable public final class PlaceholderState {
-    ctor public PlaceholderState(boolean isVisible);
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public PlaceholderState(boolean isVisible);
     method @InaccessibleFromKotlin public boolean isVisible();
     method @InaccessibleFromKotlin public void setVisible(boolean);
     property public boolean isVisible;
@@ -1350,15 +1350,15 @@ package androidx.wear.compose.material3 {
   }
 
   public final class RevealState {
-    ctor @KotlinOnly public RevealState(androidx.wear.compose.material3.RevealValue initialValue);
-    ctor @BytecodeOnly public RevealState(int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public RevealState(androidx.wear.compose.material3.RevealValue initialValue);
+    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public RevealState(int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public suspend Object? animateTo(androidx.wear.compose.material3.RevealValue targetValue, kotlin.coroutines.Continuation<? super java.lang.Void>);
     method @BytecodeOnly public Object? animateTo-1PKuNuk(int, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
     method public float dispatchRawDelta(float delta);
     method public suspend Object? drag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material3.SwipeToRevealDragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! drag$default(androidx.wear.compose.material3.RevealState!, androidx.compose.foundation.MutatePriority!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
     method @BytecodeOnly public int getCurrentValue-OMiAi4w();
-    method @InaccessibleFromKotlin public float getOffset();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getOffset();
     method @BytecodeOnly public int getTargetValue-OMiAi4w();
     method @InaccessibleFromKotlin public boolean isAnimationRunning();
     method @KotlinOnly public float offsetOf(androidx.wear.compose.material3.RevealValue revealValue);
@@ -1367,7 +1367,7 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly public Object? snapTo-1PKuNuk(int, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
     property public androidx.wear.compose.material3.RevealValue currentValue;
     property public boolean isAnimationRunning;
-    property public float offset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float offset;
     property public androidx.wear.compose.material3.RevealValue targetValue;
   }
 

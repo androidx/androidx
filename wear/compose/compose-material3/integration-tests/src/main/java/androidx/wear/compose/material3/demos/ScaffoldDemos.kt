@@ -217,7 +217,8 @@ fun ScaffoldLoadingSLCEdgeButtonSample() {
 fun ComplexHorizontalPager() {
     AppScaffold {
         val pageCount = 3
-        val pagerState = PagerState(currentPage = 0, currentPageOffsetFraction = 0f) { pageCount }
+        val pagerState =
+            rememberPagerState(initialPage = 0, initialPageOffsetFraction = 0f) { pageCount }
 
         HorizontalPagerScaffold(
             pagerState = pagerState,
@@ -252,7 +253,7 @@ fun ComplexHorizontalPager() {
 fun NestedPagers() {
     val pageCount = 3
     val horizontalPagerState =
-        PagerState(currentPage = 0, currentPageOffsetFraction = 0f) { pageCount }
+        rememberPagerState(initialPage = 0, initialPageOffsetFraction = 0f) { pageCount }
     val verticalPagerStates = remember {
         Array(pageCount) { PagerState(currentPage = 0, currentPageOffsetFraction = 0f) { 5 } }
     }

@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -87,10 +89,10 @@ public fun rememberTransformingLazyColumnState(
  *   correlates with [TransformingLazyColumnState.anchorItemScrollOffset].
  */
 @Stable
-public class TransformingLazyColumnState(
-    initialAnchorItemIndex: Int = -1,
-    initialAnchorItemScrollOffset: Int = 0,
-) : ScrollableState {
+public class TransformingLazyColumnState
+@RememberInComposition
+constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int = 0) :
+    ScrollableState {
 
     private val actualInitialAnchorItemIndex = max(0, initialAnchorItemIndex)
 
@@ -142,7 +144,7 @@ public class TransformingLazyColumnState(
      * consider using "snapshotFlow":
      */
     public val layoutInfo: TransformingLazyColumnLayoutInfo
-        get() = layoutInfoState.value
+        @FrequentlyChangingValue get() = layoutInfoState.value
 
     internal val density: Density
         get() = layoutInfoState.value.density
@@ -169,6 +171,7 @@ public class TransformingLazyColumnState(
      *
      * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnScrollToItemSample
      */
+    @get:FrequentlyChangingValue
     public var anchorItemIndex: Int by mutableIntStateOf(actualInitialAnchorItemIndex)
         private set
 
@@ -181,6 +184,7 @@ public class TransformingLazyColumnState(
      *
      * @see anchorItemIndex for samples with the recommended usage patterns.
      */
+    @get:FrequentlyChangingValue
     public var anchorItemScrollOffset: Int by mutableIntStateOf(actualInitialAnchorItemScrollOffset)
         private set
 

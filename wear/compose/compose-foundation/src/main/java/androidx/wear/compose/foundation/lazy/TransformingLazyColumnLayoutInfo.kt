@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
@@ -108,10 +109,10 @@ public sealed interface TransformingLazyColumnVisibleItemInfo {
     public val index: Int
 
     /** The offset of the item from the start of the visible area. */
-    public val offset: Int
+    @get:FrequentlyChangingValue public val offset: Int
 
     /** The height of the item after applying height transformation. */
-    public val transformedHeight: Int
+    @get:FrequentlyChangingValue public val transformedHeight: Int
 
     /**
      * The height of the item returned during the measurement phase and before height transformation
@@ -120,7 +121,7 @@ public sealed interface TransformingLazyColumnVisibleItemInfo {
     public val measuredHeight: Int
 
     /** The scroll progress of the item, indicating its position within the visible area. */
-    public val scrollProgress: TransformingLazyColumnItemScrollProgress
+    @get:FrequentlyChangingValue public val scrollProgress: TransformingLazyColumnItemScrollProgress
 
     /** The key of the item which was passed to the item() or items() function. */
     public val key: Any

@@ -160,9 +160,9 @@ class PageIndicatorTest {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
                     pagerState =
-                        PagerState(
-                            currentPage = 1,
-                            currentPageOffsetFraction = 0.0f,
+                        rememberPagerState(
+                            initialPage = 1,
+                            initialPageOffsetFraction = 0.0f,
                             pageCount = { 9 },
                         ),
                 )
@@ -187,9 +187,9 @@ class PageIndicatorTest {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
                     pagerState =
-                        PagerState(
-                            currentPage = 1,
-                            currentPageOffsetFraction = 0.0f,
+                        rememberPagerState(
+                            initialPage = 1,
+                            initialPageOffsetFraction = 0.0f,
                             pageCount = { pagesCount },
                         ),
                 )
@@ -219,9 +219,9 @@ class PageIndicatorTest {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
                     pagerState =
-                        PagerState(
-                            currentPage = 0,
-                            currentPageOffsetFraction = 0f,
+                        rememberPagerState(
+                            initialPage = 0,
+                            initialPageOffsetFraction = 0f,
                             pageCount = { 1 },
                         ),
                     selectedColor = selectedColor,

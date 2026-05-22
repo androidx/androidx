@@ -132,7 +132,7 @@ fun NestedSwipeToDismissDemo() {
     val current = items.last()
     val previous = items.dropLast(1).lastOrNull()
 
-    val state = SwipeToDismissBoxState()
+    val state = rememberSwipeToDismissBoxState()
     SwipeToDismissBox(
         state = state,
         backgroundKey = previous ?: SwipeToDismissKeys.Background,

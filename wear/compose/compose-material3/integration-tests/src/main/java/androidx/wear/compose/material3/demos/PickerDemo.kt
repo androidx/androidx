@@ -86,9 +86,12 @@ fun CustomBackgroundSimplePicker() {
                 .background(Brush.linearGradient(listOf(Color.Red, Color.Blue, Color.Green))),
         contentAlignment = Alignment.Center,
     ) {
+        val selectedLabel by remember {
+            derivedStateOf { "Selected: ${items[state.selectedOptionIndex]}" }
+        }
         Text(
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp),
-            text = "Selected: ${items[state.selectedOptionIndex]}",
+            text = selectedLabel,
         )
         Picker(
             modifier = Modifier.size(100.dp, 100.dp),
