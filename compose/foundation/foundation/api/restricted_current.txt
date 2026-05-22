@@ -2951,13 +2951,15 @@ package androidx.compose.foundation.text.input {
     method @BytecodeOnly public long getOriginalSelection-d9O1mEE();
     method @InaccessibleFromKotlin public CharSequence getOriginalText();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.ParagraphStyle getParagraphStyle(androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.ParagraphStyle>);
-    method public java.util.List<androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.ParagraphStyle>> getParagraphStyles(int start, int end);
+    method @KotlinOnly public java.util.List<androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.ParagraphStyle>> getParagraphStyles(androidx.compose.ui.text.TextRange range);
+    method @BytecodeOnly public java.util.List<androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.ParagraphStyle!>!> getParagraphStyles-5zc-tL8(long);
     method @BytecodeOnly public long getSelection-d9O1mEE();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.SpanStyle getSpanStyle(androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>);
-    method public java.util.List<androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>> getSpanStyles(int start, int end);
+    method @KotlinOnly public java.util.List<androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>> getSpanStyles(androidx.compose.ui.text.TextRange range);
+    method @BytecodeOnly public java.util.List<androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle!>!> getSpanStyles-5zc-tL8(long);
     method @BytecodeOnly public long getTextRange--jx7JFs(androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object!>);
-    method @InaccessibleFromKotlin public boolean getValid(androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>);
     method @InaccessibleFromKotlin public boolean hasSelection();
+    method @InaccessibleFromKotlin public boolean isValid(androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>);
     method public void placeCursorAfterCharAt(int index);
     method public void placeCursorBeforeCharAt(int index);
     method public boolean removeStyle(androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?> trackedRange);
@@ -2971,6 +2973,7 @@ package androidx.compose.foundation.text.input {
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList changes;
     property public androidx.compose.foundation.text.input.ExpandPolicy androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>.expandPolicy;
     property public boolean hasSelection;
+    property public boolean androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>.isValid;
     property public int length;
     property public androidx.compose.ui.text.TextRange originalSelection;
     property public CharSequence originalText;
@@ -2978,7 +2981,6 @@ package androidx.compose.foundation.text.input {
     property public androidx.compose.ui.text.TextRange selection;
     property public androidx.compose.ui.text.SpanStyle androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>.spanStyle;
     property public androidx.compose.ui.text.TextRange androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>.textRange;
-    property public boolean androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>.valid;
   }
 
   public static interface TextFieldBuffer.ChangeList {
@@ -3063,8 +3065,10 @@ package androidx.compose.foundation.text.input {
   }
 
   public interface TextFieldTextStyles {
-    method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.ParagraphStyle>> getParagraphStyles(int start, int end);
-    method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>> getSpanStyles(int start, int end);
+    method @KotlinOnly public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.ParagraphStyle>> getParagraphStyles(androidx.compose.ui.text.TextRange range);
+    method @BytecodeOnly public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.ParagraphStyle!>!> getParagraphStyles-5zc-tL8(long);
+    method @KotlinOnly public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>> getSpanStyles(androidx.compose.ui.text.TextRange range);
+    method @BytecodeOnly public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle!>!> getSpanStyles-5zc-tL8(long);
   }
 
   @kotlin.jvm.JvmInline public final value class TextObfuscationMode {

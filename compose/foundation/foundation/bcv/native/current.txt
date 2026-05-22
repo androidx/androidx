@@ -488,8 +488,8 @@ abstract interface androidx.compose.foundation.text.contextmenu.provider/TextCon
 }
 
 abstract interface androidx.compose.foundation.text.input/TextFieldTextStyles { // androidx.compose.foundation.text.input/TextFieldTextStyles|null[0]
-    abstract fun getParagraphStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/ParagraphStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getParagraphStyles|getParagraphStyles(kotlin.Int;kotlin.Int){}[0]
-    abstract fun getSpanStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/SpanStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getSpanStyles|getSpanStyles(kotlin.Int;kotlin.Int){}[0]
+    abstract fun getParagraphStyles(androidx.compose.ui.text/TextRange): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/ParagraphStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getParagraphStyles|getParagraphStyles(androidx.compose.ui.text.TextRange){}[0]
+    abstract fun getSpanStyles(androidx.compose.ui.text/TextRange): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/SpanStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getSpanStyles|getSpanStyles(androidx.compose.ui.text.TextRange){}[0]
 }
 
 abstract interface androidx.compose.foundation.text/KeyboardActionScope { // androidx.compose.foundation.text/KeyboardActionScope|null[0]
@@ -1164,14 +1164,14 @@ final class androidx.compose.foundation.text.contextmenu.data/TextContextMenuDat
 final class androidx.compose.foundation.text.input/TextFieldBuffer : kotlin.text/Appendable { // androidx.compose.foundation.text.input/TextFieldBuffer|null[0]
     final val hasSelection // androidx.compose.foundation.text.input/TextFieldBuffer.hasSelection|{}hasSelection[0]
         final fun <get-hasSelection>(): kotlin/Boolean // androidx.compose.foundation.text.input/TextFieldBuffer.hasSelection.<get-hasSelection>|<get-hasSelection>(){}[0]
+    final val isValid // androidx.compose.foundation.text.input/TextFieldBuffer.isValid|@androidx.compose.foundation.text.input.TrackedRange<*>{}isValid[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<get-isValid>(): kotlin/Boolean // androidx.compose.foundation.text.input/TextFieldBuffer.isValid.<get-isValid>|<get-isValid>@androidx.compose.foundation.text.input.TrackedRange<*>(){}[0]
     final val length // androidx.compose.foundation.text.input/TextFieldBuffer.length|{}length[0]
         final fun <get-length>(): kotlin/Int // androidx.compose.foundation.text.input/TextFieldBuffer.length.<get-length>|<get-length>(){}[0]
     final val originalSelection // androidx.compose.foundation.text.input/TextFieldBuffer.originalSelection|{}originalSelection[0]
         final fun <get-originalSelection>(): androidx.compose.ui.text/TextRange // androidx.compose.foundation.text.input/TextFieldBuffer.originalSelection.<get-originalSelection>|<get-originalSelection>(){}[0]
     final val originalText // androidx.compose.foundation.text.input/TextFieldBuffer.originalText|{}originalText[0]
         final fun <get-originalText>(): kotlin/CharSequence // androidx.compose.foundation.text.input/TextFieldBuffer.originalText.<get-originalText>|<get-originalText>(){}[0]
-    final val valid // androidx.compose.foundation.text.input/TextFieldBuffer.valid|@androidx.compose.foundation.text.input.TrackedRange<*>{}valid[0]
-        final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<get-valid>(): kotlin/Boolean // androidx.compose.foundation.text.input/TextFieldBuffer.valid.<get-valid>|<get-valid>@androidx.compose.foundation.text.input.TrackedRange<*>(){}[0]
 
     final var expandPolicy // androidx.compose.foundation.text.input/TextFieldBuffer.expandPolicy|@androidx.compose.foundation.text.input.TrackedRange<*>{}expandPolicy[0]
         final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<get-expandPolicy>(): androidx.compose.foundation.text.input/ExpandPolicy // androidx.compose.foundation.text.input/TextFieldBuffer.expandPolicy.<get-expandPolicy>|<get-expandPolicy>@androidx.compose.foundation.text.input.TrackedRange<*>(){}[0]
@@ -1198,8 +1198,8 @@ final class androidx.compose.foundation.text.input/TextFieldBuffer : kotlin.text
     final fun append(kotlin/CharSequence?, kotlin/Int, kotlin/Int): kotlin.text/Appendable // androidx.compose.foundation.text.input/TextFieldBuffer.append|append(kotlin.CharSequence?;kotlin.Int;kotlin.Int){}[0]
     final fun asCharSequence(): kotlin/CharSequence // androidx.compose.foundation.text.input/TextFieldBuffer.asCharSequence|asCharSequence(){}[0]
     final fun charAt(kotlin/Int): kotlin/Char // androidx.compose.foundation.text.input/TextFieldBuffer.charAt|charAt(kotlin.Int){}[0]
-    final fun getParagraphStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/ParagraphStyle>> // androidx.compose.foundation.text.input/TextFieldBuffer.getParagraphStyles|getParagraphStyles(kotlin.Int;kotlin.Int){}[0]
-    final fun getSpanStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/SpanStyle>> // androidx.compose.foundation.text.input/TextFieldBuffer.getSpanStyles|getSpanStyles(kotlin.Int;kotlin.Int){}[0]
+    final fun getParagraphStyles(androidx.compose.ui.text/TextRange): kotlin.collections/List<androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/ParagraphStyle>> // androidx.compose.foundation.text.input/TextFieldBuffer.getParagraphStyles|getParagraphStyles(androidx.compose.ui.text.TextRange){}[0]
+    final fun getSpanStyles(androidx.compose.ui.text/TextRange): kotlin.collections/List<androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/SpanStyle>> // androidx.compose.foundation.text.input/TextFieldBuffer.getSpanStyles|getSpanStyles(androidx.compose.ui.text.TextRange){}[0]
     final fun placeCursorAfterCharAt(kotlin/Int) // androidx.compose.foundation.text.input/TextFieldBuffer.placeCursorAfterCharAt|placeCursorAfterCharAt(kotlin.Int){}[0]
     final fun placeCursorBeforeCharAt(kotlin/Int) // androidx.compose.foundation.text.input/TextFieldBuffer.placeCursorBeforeCharAt|placeCursorBeforeCharAt(kotlin.Int){}[0]
     final fun removeStyle(androidx.compose.foundation.text.input/TrackedRange<*>): kotlin/Boolean // androidx.compose.foundation.text.input/TextFieldBuffer.removeStyle|removeStyle(androidx.compose.foundation.text.input.TrackedRange<*>){}[0]

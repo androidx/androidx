@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.input.internal.TextStyleBuffer
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 
 /**
  * Provides access to the styles applied to the text within a [TextFieldState].
@@ -42,12 +43,12 @@ import androidx.compose.ui.text.SpanStyle
 interface TextFieldTextStyles {
     /**
      * Returns a list of [AnnotatedString.Range]s representing the [SpanStyle]s that intersect with
-     * the given range defined by [start] (inclusive) and [end] (exclusive).
+     * the given [range].
      *
      * Styles are returned in the same order they were originally added to the buffer.
      *
      * A style intersects with the range if it overlaps with it at any point. For non-empty ranges,
-     * this means `style.start < end` and `start < style.end`.
+     * this means `style.start < range.max` and `range.min < style.end`.
      *
      * Example Query Range: `[5, 15)`
      *
@@ -75,21 +76,20 @@ interface TextFieldTextStyles {
      *           [----------)        Style [10, 20)(Touching start) -> Returned
      * ```
      *
-     * @param start The start index of the range to query, inclusive.
-     * @param end The end index of the range to query, exclusive.
+     * @param range The range to query.
      * @return A list of [AnnotatedString.Range]s representing the [SpanStyle]s overlapping with the
      *   queried range.
      */
-    fun getSpanStyles(start: Int, end: Int): List<AnnotatedString.Range<SpanStyle>>
+    fun getSpanStyles(range: TextRange): List<AnnotatedString.Range<SpanStyle>>
 
     /**
      * Returns a list of [AnnotatedString.Range]s representing the [ParagraphStyle]s that intersect
-     * with the given range defined by [start] (inclusive) and [end] (exclusive).
+     * with the given [range].
      *
      * Styles are returned in the same order they were originally added to the buffer.
      *
      * A style intersects with the range if it overlaps with it at any point. For non-empty ranges,
-     * this means `style.start < end` and `start < style.end`.
+     * this means `style.start < range.max` and `range.min < style.end`.
      *
      * Example Query Range: `[5, 15)`
      *
@@ -117,28 +117,26 @@ interface TextFieldTextStyles {
      *           [----------)        Style [10, 20)(Touching start) -> Returned
      * ```
      *
-     * @param start The start index of the range to query, inclusive.
-     * @param end The end index of the range to query, exclusive.
+     * @param range The range to query.
      * @return A list of [AnnotatedString.Range]s representing the [ParagraphStyle]s overlapping
      *   with the queried range.
      */
-    fun getParagraphStyles(start: Int, end: Int): List<AnnotatedString.Range<ParagraphStyle>>
+    fun getParagraphStyles(range: TextRange): List<AnnotatedString.Range<ParagraphStyle>>
 }
 
 internal class TextFieldTextStylesImpl(
     internal val textStyleBuffer: TextStyleBuffer<AnnotatedString.Annotation>,
     private val length: Int,
 ) : TextFieldTextStyles {
-    override fun getSpanStyles(start: Int, end: Int): List<AnnotatedString.Range<SpanStyle>> {
-        validateRange(start, end, length)
+    override fun getSpanStyles(range: TextRange): List<AnnotatedString.Range<SpanStyle>> {
+        val start = range.min.coerceIn(0, length)
+        val end = range.max.coerceIn(0, length)
         return textStyleBuffer.getImmutableStyles(start, end)
     }
 
-    override fun getParagraphStyles(
-        start: Int,
-        end: Int,
-    ): List<AnnotatedString.Range<ParagraphStyle>> {
-        validateRange(start, end, length)
+    override fun getParagraphStyles(range: TextRange): List<AnnotatedString.Range<ParagraphStyle>> {
+        val start = range.min.coerceIn(0, length)
+        val end = range.max.coerceIn(0, length)
         return textStyleBuffer.getImmutableStyles(start, end)
     }
 
@@ -154,18 +152,9 @@ internal class TextFieldTextStylesImpl(
 }
 
 internal object EmptyTextFieldTextStyles : TextFieldTextStyles {
-    override fun getSpanStyles(start: Int, end: Int): List<AnnotatedString.Range<SpanStyle>> =
+    override fun getSpanStyles(range: TextRange): List<AnnotatedString.Range<SpanStyle>> =
         emptyList()
 
-    override fun getParagraphStyles(
-        start: Int,
-        end: Int,
-    ): List<AnnotatedString.Range<ParagraphStyle>> = emptyList()
-}
-
-private fun validateRange(start: Int, end: Int, length: Int) {
-    require(end in start..length && start >= 0) {
-        "Expected start to be at least 0, and end to be at least start and no greater than " +
-            "the text length (length=$length, start=$start, end=$end)"
-    }
+    override fun getParagraphStyles(range: TextRange): List<AnnotatedString.Range<ParagraphStyle>> =
+        emptyList()
 }

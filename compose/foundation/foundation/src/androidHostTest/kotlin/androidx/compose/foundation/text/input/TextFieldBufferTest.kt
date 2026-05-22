@@ -729,13 +729,13 @@ class TextFieldBufferTest {
 
         // Assert
         with(buffer) {
-            val spanStyles = buffer.getSpanStyles(0, buffer.length)
+            val spanStyles = buffer.getSpanStyles(TextRange(0, buffer.length))
             assertThat(spanStyles).hasSize(1)
             assertThat(spanStyles[0].spanStyle).isEqualTo(style)
             assertThat(spanStyles[0].textRange.start).isEqualTo(0)
             assertThat(spanStyles[0].textRange.end).isEqualTo(2)
 
-            val paragraphStyles = buffer.getParagraphStyles(0, buffer.length)
+            val paragraphStyles = buffer.getParagraphStyles(TextRange(0, buffer.length))
             assertThat(paragraphStyles).hasSize(1)
             assertThat(paragraphStyles[0].paragraphStyle).isEqualTo(paragraphStyle)
             assertThat(paragraphStyles[0].textRange.start).isEqualTo(3)
@@ -785,17 +785,29 @@ class TextFieldBufferTest {
     }
 
     @Test
-    fun getStyles_throws_whenInvalidRange() {
+    fun getStyles_coerces_whenInvalidRange() {
         assumeTrue(ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
         val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        val style = SpanStyle(fontSize = 12.sp)
+        buffer.addStyle(style, TextRange(0, 5), ExpandPolicy.AtEnd)
 
-        // Invalid ranges
-        assertFailsWith<IllegalArgumentException> { buffer.getSpanStyles(-1, 2) }
-        assertFailsWith<IllegalArgumentException> { buffer.getSpanStyles(2, 6) }
-        assertFailsWith<IllegalArgumentException> { buffer.getSpanStyles(3, 2) }
-        assertFailsWith<IllegalArgumentException> { buffer.getParagraphStyles(-1, 2) }
-        assertFailsWith<IllegalArgumentException> { buffer.getParagraphStyles(2, 6) }
-        assertFailsWith<IllegalArgumentException> { buffer.getParagraphStyles(3, 2) }
+        val outOfBoundsEnd = 10
+        val outOfBoundsRange = TextRange(2, outOfBoundsEnd)
+
+        // It will coerce [2, 10] into [2, 5] and find the intersection with [0, 5]
+        assertThat(buffer.getSpanStyles(outOfBoundsRange)).hasSize(1)
+    }
+
+    @Test
+    fun getStyles_supportsReversedRange() {
+        assumeTrue(ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled)
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        val style = SpanStyle(fontSize = 12.sp)
+        buffer.addStyle(style, TextRange(0, 5), ExpandPolicy.AtEnd)
+
+        val reversedRange = TextRange(4, 1)
+
+        assertThat(buffer.getSpanStyles(reversedRange)).hasSize(1)
     }
 
     @Test
@@ -824,8 +836,10 @@ class TextFieldBufferTest {
         buffer.insert(2, "world") // expand where style is applied
 
         with(buffer) {
-            assertThat(buffer.getSpanStyles(0, buffer.length)[0].textRange.start).isEqualTo(0)
-            assertThat(buffer.getSpanStyles(0, buffer.length)[0].textRange.end).isEqualTo(10)
+            assertThat(buffer.getSpanStyles(TextRange(0, buffer.length))[0].textRange.start)
+                .isEqualTo(0)
+            assertThat(buffer.getSpanStyles(TextRange(0, buffer.length))[0].textRange.end)
+                .isEqualTo(10)
         }
     }
 
