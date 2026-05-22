@@ -56,7 +56,8 @@ public constructor(
     @param:Dimension(unit = Dimension.DP)
     @get:Dimension(unit = Dimension.DP)
     public val cornerRadiusDp: Float,
-    internal val rendererVersion: RendererVersion = RendererVersion(),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rendererVersion: RendererVersion = RendererVersion(),
 ) {
 
     /** Converts this object to [androidx.glance.wear.parcel.WearWidgetRequestParcel]. */
