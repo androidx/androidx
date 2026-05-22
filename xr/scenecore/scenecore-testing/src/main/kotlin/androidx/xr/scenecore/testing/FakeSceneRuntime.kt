@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Trackable
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.AnchorEntity
@@ -118,6 +119,9 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     public val state: Enum<State>
         get() = _state
 
+    override val config: Config
+        get() = internalRuntime.config
+
     override var spatialCapabilities: SpatialCapabilities
         get() = internalRuntime.spatialCapabilities
         private set(value) {
@@ -187,6 +191,10 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
     }
 
     public var deviceDpPerMeter: Float = DEFAULT_DP_PER_METER
+
+    override fun configure(config: Config) {
+        internalRuntime.configure(config)
+    }
 
     override fun createPanelEntity(
         context: Context,

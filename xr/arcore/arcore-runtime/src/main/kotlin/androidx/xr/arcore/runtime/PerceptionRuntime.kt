@@ -31,6 +31,4 @@ import androidx.xr.runtime.internal.JxrRuntime
 public interface PerceptionRuntime : JxrRuntime {
 
     public val perceptionManager: PerceptionManager
-
-    public val config: Config
 }

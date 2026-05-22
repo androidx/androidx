@@ -20,6 +20,7 @@ import android.Manifest
 import android.graphics.Bitmap
 import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.kruth.assertThrows
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -234,6 +235,14 @@ class SessionTest {
     }
 
     @Test
+    fun create_runtimesStartWithDefaultConfig() {
+        activityController.create().start()
+        underTest = createSession()
+
+        underTest.runtimes.forEach { assertThat(it.config).isEqualTo(Session.DEFAULT_CONFIG) }
+    }
+
+    @Test
     fun configure_destroyed_throwsIllegalStateException() {
         activityController.create().start().resume()
         underTest = createSession()
@@ -247,35 +256,21 @@ class SessionTest {
         activityController.create().start().resume()
         underTest = createSession()
 
-        val stubRuntime = getStubRuntime()
-        check(
-            stubRuntime.config ==
-                Config.Builder()
-                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-                    // Needs to contain at least one AugmentedObjectCategory to enable
-                    .setAugmentedObjectCategories(setOf(AugmentedObjectCategory.MOUSE))
-                    .setHandTracking(HandTrackingMode.BOTH)
-                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
-                    .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
-                    .setAnchorPersistence(AnchorPersistenceMode.LOCAL)
-                    .setQrCodeTracking(QrCodeTrackingMode.DYNAMIC)
-                    .build()
-        )
         val newConfig =
             Config.Builder()
-                .setPlaneTracking(PlaneTrackingMode.DISABLED)
-                .setAugmentedObjectCategories(setOf())
-                .setHandTracking(HandTrackingMode.DISABLED)
-                .setDeviceTracking(DeviceTrackingMode.DISABLED)
-                .setDepthEstimation(DepthEstimationMode.DISABLED)
-                .setAnchorPersistence(AnchorPersistenceMode.DISABLED)
-                .setQrCodeTracking(QrCodeTrackingMode.DISABLED)
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .setAugmentedObjectCategories(setOf(AugmentedObjectCategory.MOUSE))
+                .setHandTracking(HandTrackingMode.BOTH)
+                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
+                .setAnchorPersistence(AnchorPersistenceMode.LOCAL)
+                .setQrCodeTracking(QrCodeTrackingMode.DYNAMIC)
                 .build()
 
         val result = underTest.configure(newConfig)
 
         assertThat(result).isInstanceOf(SessionConfigureSuccess::class.java)
-        assertThat(stubRuntime.config).isEqualTo(newConfig)
+        assertThat(underTest.config).isEqualTo(newConfig)
     }
 
     @Test
@@ -284,19 +279,18 @@ class SessionTest {
         underTest = createSession()
         val stubRuntime = getStubRuntime()
 
-        val currentConfig = stubRuntime.config
-        check(currentConfig.depthEstimation == DepthEstimationMode.SMOOTH_AND_RAW)
+        val currentConfig = underTest.config
         stubRuntime.hasMissingPermission = true
 
         assertFailsWith<SecurityException> {
             underTest.configure(
                 Config.Builder(currentConfig)
-                    .setDepthEstimation(DepthEstimationMode.DISABLED)
-                    .setFaceTracking(FaceTrackingMode.DISABLED)
+                    .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
+                    .setFaceTracking(FaceTrackingMode.MESHES)
                     .build()
             )
         }
-        assertThat(stubRuntime.config).isEqualTo(currentConfig)
+        assertThat(underTest.config).isEqualTo(currentConfig)
     }
 
     @Test
@@ -317,7 +311,6 @@ class SessionTest {
             )
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
-        stubRuntime.shouldSupportPlaneTracking = true
     }
 
     @Test
@@ -344,7 +337,6 @@ class SessionTest {
             )
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
-        stubRuntime.shouldSupportImageTracking = true
     }
 
     @Test
@@ -362,7 +354,50 @@ class SessionTest {
             )
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
-        stubRuntime.shouldSupportQrCodeTracking = true
+    }
+
+    @Test
+    fun configure_runtimeConfigureFailure_rollsBackConfiguration() {
+        val runtime1 =
+            object : JxrRuntime {
+                override var config = Session.DEFAULT_CONFIG
+
+                override fun configure(config: Config) {
+                    this.config = config
+                }
+            }
+        val runtime2 =
+            object : JxrRuntime {
+                override var config = Session.DEFAULT_CONFIG
+
+                override fun configure(config: Config) {
+                    if (config.planeTracking == PlaneTrackingMode.HORIZONTAL_AND_VERTICAL) {
+                        throw RuntimeException()
+                    }
+                }
+            }
+        val underTest =
+            Session(
+                activity,
+                runtimes = listOf(runtime1, runtime2),
+                coroutineScope = kotlinx.coroutines.test.TestScope(testDispatcher),
+                lifecycleOwner = activity,
+            )
+        activity.lifecycle.addObserver(underTest.lifecycleObserver)
+        activityController.create().start().resume()
+
+        val initialConfig = Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build()
+        underTest.configure(initialConfig)
+
+        assertThrows<RuntimeException> {
+            underTest.configure(
+                Config.Builder(underTest.config)
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .build()
+            )
+        }
+        assertThat(runtime1.config).isEqualTo(initialConfig)
+        assertThat(runtime2.config).isEqualTo(initialConfig)
     }
 
     @Test
@@ -561,12 +596,16 @@ class SessionTest {
         val callOrder = mutableListOf<String>()
         val runtime1 =
             object : JxrRuntime {
+                override val config = Session.DEFAULT_CONFIG
+
                 override fun destroy() {
                     callOrder.add("runtime1")
                 }
             }
         val runtime2 =
             object : JxrRuntime {
+                override val config = Session.DEFAULT_CONFIG
+
                 override fun destroy() {
                     callOrder.add("runtime2")
                 }

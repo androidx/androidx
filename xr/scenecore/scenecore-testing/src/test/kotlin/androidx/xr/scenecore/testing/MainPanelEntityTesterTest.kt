@@ -19,6 +19,8 @@ package androidx.xr.scenecore.testing
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.RenderViewpoint
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.IntSize2d
@@ -67,6 +69,9 @@ class MainPanelEntityTesterTest {
 
     @Test
     fun triggerOnPerceivedResolutionChanged_triggersListener() {
+        session.configure(
+            Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+        )
         val mainPanelEntity = session.scene.mainPanelEntity
         val tester = testRule.mainPanelEntityTester
         val renderViewpoint = RenderViewpoint.left(session)

@@ -121,6 +121,7 @@ import androidx.xr.scenecore.testing.FakeSceneRuntime
 import androidx.xr.scenecore.testing.FakeSceneRuntimeFactory
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.Dispatchers
@@ -204,12 +205,12 @@ class SubspaceTest {
         )
     }
 
-    private fun configureSessionWithDeviceTracking(): Session {
+    private fun configureSessionWithDeviceTrackingMode(
+        mode: DeviceTrackingMode = DeviceTrackingMode.SPATIAL
+    ): Session {
         val result = Session.create(composeTestRule.activity, testDispatcher)
         val session = assertIs<SessionCreateSuccess>(result).session
-        session.configure(
-            Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
-        )
+        session.configure(Config.Builder(session.config).setDeviceTracking(mode).build())
 
         return session
     }
@@ -1348,21 +1349,24 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_whenNoDeviceTracking_DoNotRender() {
-        composeTestRule.setContent {
-            FollowingSubspace(
-                target = FollowTarget.ArDevice(assertNotNull(LocalSession.current)),
-                behavior = FollowBehavior.Static,
-                modifier = SubspaceModifier.testTag("FollowingSubspace"),
-            ) {}
-        }
+        composeTestRule.session =
+            configureSessionWithDeviceTrackingMode(DeviceTrackingMode.DISABLED)
 
-        composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").assertDoesNotExist()
+        assertFailsWith<IllegalStateException> {
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(assertNotNull(LocalSession.current)),
+                    behavior = FollowBehavior.Static,
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+        }
     }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_whenArDeviceTightUsedTogether_DoNotRender() {
-        composeTestRule.session = configureSessionWithDeviceTracking()
+        composeTestRule.session = configureSessionWithDeviceTrackingMode()
 
         composeTestRule.setContent {
             FollowingSubspace(
@@ -1379,7 +1383,7 @@ class SubspaceTest {
     @Test
     fun followingSubspace_whenLoads_respectsDefaultOffset() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
 
             composeTestRule.setContent {
@@ -1400,7 +1404,7 @@ class SubspaceTest {
     @Test
     fun followingSubspace_withFillMaxSizeModifierAndFraction_shouldRespectRecommendedContentBox() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
 
             var density: Density? = null
@@ -1439,7 +1443,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_withRequiredSizeModifier_overridesDefaultContentBox() {
-        val session = configureSessionWithDeviceTracking()
+        val session = configureSessionWithDeviceTrackingMode()
         val requiredSize = 50000.dp
 
         composeTestRule.setContent {
@@ -1461,7 +1465,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_withRequiredSizeInModifier_overridesDefaultContentBox() {
-        val session = configureSessionWithDeviceTracking()
+        val session = configureSessionWithDeviceTrackingMode()
         val requiredMaxSize = 50000.dp
 
         composeTestRule.setContent {
@@ -1490,7 +1494,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenScaleChanges_subspaceScaleUpdates() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
 
             val fakeSceneRuntime =
@@ -1537,7 +1541,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenFollowTargetChanges_switchesTarget() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             var followTarget by mutableStateOf(FollowTarget.ArDevice(session))
@@ -1576,7 +1580,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenFollowBehaviorChanges_actsLikeNewBehavior() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val durationMs = 1000L
@@ -1615,7 +1619,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenStaticBehavior_OnlyMovesOnce() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
 
@@ -1648,7 +1652,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenFirstPoseReceived_NoAnimation() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val animationTime = 2200
@@ -1694,7 +1698,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenNoDimensionsTracked_DoesNotMove() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
 
@@ -1733,7 +1737,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenDeviceTranslatesAndRotates_MatchesMovement() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val durationMs = 1000L
@@ -1764,7 +1768,7 @@ class SubspaceTest {
     // TODO: b/508337756 Modify Soft Follow tests to move twice
     fun followingSubspace_whenDeviceTranslates_MatchesMovement() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
 
@@ -1802,7 +1806,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenOnlyXTranslationTracked_OnlyXTranslationMatches() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -1837,7 +1841,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenOnlyYTranslationTracked_OnlyYTranslationMatches() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -1872,7 +1876,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenOnlyZTranslationTracked_OnlyZTranslationMatches() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -1906,7 +1910,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenDeviceRotates_MatchesMovement() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -1945,7 +1949,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenOnlyXRotationTracked_OnlyXRotationMatches() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -1986,7 +1990,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenOnlyYRotationTracked_OnlyYRotationMatches() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -2027,7 +2031,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenOnlyZRotationTracked_OnlyZRotationMatches() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -2068,7 +2072,7 @@ class SubspaceTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun followingSubspace_whenTrackedDimensionsChange_MatchedDimensionsChange() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeArDevice = fakeRuntime.perceptionManager.arDevice
@@ -2103,7 +2107,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_whenRemovedFromComposition_isDisposed() {
-        composeTestRule.session = configureSessionWithDeviceTracking()
+        composeTestRule.session = configureSessionWithDeviceTrackingMode()
         val session = assertNotNull(composeTestRule.session)
         var showSubspace by mutableStateOf(true)
 
@@ -2128,7 +2132,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_withFillMaxSizeAndHigherDensity_respectsConstraints() {
-        composeTestRule.session = configureSessionWithDeviceTracking()
+        composeTestRule.session = configureSessionWithDeviceTrackingMode()
         val session = assertNotNull(composeTestRule.session)
         var density: Density? = null
         composeTestRule.setContent {
@@ -2164,7 +2168,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspace_whenUnbounded_withFillMaxSize_doesNotRespectConstraints() {
-        composeTestRule.session = configureSessionWithDeviceTracking()
+        composeTestRule.session = configureSessionWithDeviceTrackingMode()
         val session = assertNotNull(composeTestRule.session)
 
         composeTestRule.setContent {
@@ -2289,6 +2293,7 @@ class SubspaceTest {
     fun followingSubspace_whenAnchoredToIdentity_positionsAtOrigin() {
         composeTestRule.session = composeTestRule.configureFakeSession()
         val session = assertNotNull(composeTestRule.session)
+        session.configure(Config.Builder().build())
 
         val anchorResult = Anchor.create(session, Pose.Identity)
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
@@ -2314,6 +2319,7 @@ class SubspaceTest {
     fun followingSubspace_whenLocked_isPositionedCorrectly() {
         composeTestRule.session = composeTestRule.configureFakeSession()
         val session = assertNotNull(composeTestRule.session)
+        session.configure(Config.Builder().build())
 
         val anchorResult = Anchor.create(session, Pose(Vector3(20.0f, 30.0f, 40.0f)))
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
@@ -2345,6 +2351,7 @@ class SubspaceTest {
     fun followingSubspace_whenAnchorChanges_repositions() {
         composeTestRule.session = composeTestRule.configureFakeSession()
         val session = assertNotNull(composeTestRule.session)
+        session.configure(Config.Builder().build())
 
         val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
         val anchorResult = Anchor.create(session, initialPose)
@@ -2388,7 +2395,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenRecenterOccurs_reloadsSubspace() =
         runTest(testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val followingSubspaceTag = "FollowingSubspace"
@@ -2421,7 +2428,7 @@ class SubspaceTest {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenTargetChanges_recenterUsesNewTarget() =
         runTest(context = testDispatcher) {
-            composeTestRule.session = configureSessionWithDeviceTracking()
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(actual = composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
@@ -2469,7 +2476,7 @@ class SubspaceTest {
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenDisposed_removesOriginChangedListener() {
-        composeTestRule.session = configureSessionWithDeviceTracking()
+        composeTestRule.session = configureSessionWithDeviceTrackingMode()
         val session = assertNotNull(composeTestRule.session)
         val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
         var showSubspace by mutableStateOf(true)

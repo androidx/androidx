@@ -21,7 +21,6 @@ package androidx.xr.scenecore
 import android.app.Activity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
@@ -88,6 +87,3 @@ internal val Session.renderingRuntime: RenderingRuntime
             ?: throw IllegalStateException(
                 "No rendering runtime found. Did you create the Session with a non-Activity context?"
             )
-
-internal val Session.perceptionRuntime: PerceptionRuntime
-    get() = runtimes.filterIsInstance<PerceptionRuntime>().single()

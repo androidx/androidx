@@ -61,6 +61,7 @@ class MainPanelEntityTest {
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
         session = (result as SessionCreateSuccess).session
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
         sceneRuntime = session.sceneRuntime
     }
 
@@ -227,7 +228,6 @@ class MainPanelEntityTest {
         fun createMainPanelEntity(): WeakReference<MainPanelEntity> {
             val entity =
                 MainPanelEntity.create(
-                    session.perceptionRuntime,
                     session.sceneRuntime,
                     session.scene.perceptionSpace,
                     session.scene.entityRegistry,

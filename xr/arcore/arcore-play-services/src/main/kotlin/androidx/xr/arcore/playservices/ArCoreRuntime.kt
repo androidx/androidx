@@ -78,6 +78,8 @@ internal constructor(
      */
     @UnsupportedArCoreCompatApi public fun session(): Session = _session
 
+    // TODO(515763631) - The underlying ArCore 1.x Session configuration does not necessarily match
+    // this default configuration before the runtime is configured.
     public override var config: Config = Config.Builder().build()
         private set
 

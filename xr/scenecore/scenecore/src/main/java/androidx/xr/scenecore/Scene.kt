@@ -18,8 +18,6 @@ package androidx.xr.scenecore
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
-import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.SessionConnector
 import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.math.Pose
@@ -192,15 +190,12 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
         }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Suppress("RestrictedApiAndroidX")
     override fun initialize(runtimes: List<JxrRuntime>) {
         this.sceneRuntime = runtimes.filterIsInstance<SceneRuntime>().first()
         spatialEnvironment = SpatialEnvironment(sceneRuntime, entityRegistry)
         perceptionSpace = PerceptionSpace.create(sceneRuntime)
         activitySpace = ActivitySpace.create(sceneRuntime, entityRegistry)
-        val perceptionRuntime = runtimes.filterIsInstance<PerceptionRuntime>().first()
-        mainPanelEntity =
-            MainPanelEntity.create(perceptionRuntime, sceneRuntime, perceptionSpace, entityRegistry)
+        mainPanelEntity = MainPanelEntity.create(sceneRuntime, perceptionSpace, entityRegistry)
         keyEntity = mainPanelEntity
 
         sceneRuntime.spatialModeChangeListener =
@@ -465,7 +460,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * @param listener The [Consumer] to be invoked asynchronously on the given callbackExecutor
      *   whenever the spatial mode has changed.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated("Use setSpaceChangedListener", replaceWith = ReplaceWith("setSpaceChangedListener"))
     @Suppress("Deprecation")
     public fun setSpatialModeChangedListener(
@@ -492,7 +487,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * @param listener The [Consumer] to be invoked asynchronously on the main thread whenever the
      *   spatial mode has changed.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated("Use setSpaceChangedListener", replaceWith = ReplaceWith("setSpaceChangedListener"))
     @Suppress("Deprecation")
     public fun setSpatialModeChangedListener(listener: Consumer<SpatialModeChangeEvent>): Unit =
@@ -506,7 +501,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * The listener is automatically released at the end of the Scene's lifecycle even if this
      * method is not explicitly called.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated(
         "Use clearSpaceChangedListener",
         replaceWith = ReplaceWith("clearSpaceChangedListener"),

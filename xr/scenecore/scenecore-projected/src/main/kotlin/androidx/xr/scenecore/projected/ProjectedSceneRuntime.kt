@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.Trackable
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.ActivitySpace
@@ -72,6 +73,9 @@ internal constructor(
 ) : SceneRuntime {
 
     private var mIsDestroyed = false
+
+    override var config: Config = Config.Builder().build()
+        private set
 
     override val spatialCapabilities: SpatialCapabilities
         get() = TODO("Not yet implemented")

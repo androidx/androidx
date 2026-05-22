@@ -125,6 +125,8 @@ public constructor(
     public companion object {
         private val contextSessionMap = ConcurrentHashMap<Context, Session>()
 
+        internal val DEFAULT_CONFIG = Config.Builder().build()
+
         /**
          * Creates a new [Session].
          *
@@ -347,7 +349,7 @@ public constructor(
 
     /** The current state of the runtime configuration. */
     @GuardedBy("lock")
-    public var config: Config = Config.Builder().build()
+    public var config: Config = DEFAULT_CONFIG
         private set
 
     @get:VisibleForTesting
@@ -402,16 +404,28 @@ public constructor(
         }
         return runBlocking {
             lock.withLock {
+                val runtimesConfigured: MutableList<JxrRuntime> = mutableListOf()
                 try {
                     for (runtime in runtimes) {
                         runtime.configure(config)
+                        runtimesConfigured.add(runtime)
                     }
-                } catch (e: FaceTrackingNotCalibratedException) {
-                    return@withLock SessionConfigureCalibrationRequired(
-                        RequiredCalibrationType.REQUIRED_CALIBRATION_TYPE_FACE_TRACKING
-                    )
-                } catch (e: LibraryNotLinkedException) {
-                    return@withLock SessionConfigureLibraryNotLinked(e.libraryName)
+                } catch (e: Exception) {
+                    // roll back configuration for all runtimes
+                    for (runtime in runtimesConfigured) {
+                        runtime.configure(this@Session.config)
+                    }
+                    when (e) {
+                        is FaceTrackingNotCalibratedException ->
+                            return@withLock SessionConfigureCalibrationRequired(
+                                RequiredCalibrationType.REQUIRED_CALIBRATION_TYPE_FACE_TRACKING
+                            )
+
+                        is LibraryNotLinkedException ->
+                            return@withLock SessionConfigureLibraryNotLinked(e.libraryName)
+
+                        else -> throw e
+                    }
                 }
                 this@Session.config = config
                 SessionConfigureSuccess()

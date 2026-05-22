@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Trackable
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.AnchorEntity
@@ -115,6 +116,9 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
     val state: Enum<State>
         get() = _state
 
+    override var config: Config = Config.Builder().build()
+        private set
+
     override var spatialCapabilities: SpatialCapabilities =
         SpatialCapabilities(ALL_SPATIAL_CAPABILITIES)
         set(value) {
@@ -146,6 +150,10 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
 
     override var spatialModeChangeListener: SpatialModeChangeListener? =
         FakeSpatialModeChangeListener()
+
+    override fun configure(config: Config) {
+        this.config = config
+    }
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
         return FakePerceptionSpaceScenePose(pose)

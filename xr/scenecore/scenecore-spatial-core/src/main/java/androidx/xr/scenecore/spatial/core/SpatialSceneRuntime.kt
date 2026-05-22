@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.Trackable
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.AnchorEntity
@@ -196,6 +197,9 @@ private constructor(
             }
         }
 
+    override var config: Config = Config.Builder().build()
+        private set
+
     init {
         this.activity = activity
 
@@ -236,6 +240,10 @@ private constructor(
         isBoundaryConsentGrantedCache = AtomicBoolean(calculateBoundaryConsentState())
         registerBoundaryConsentStateListener()
         spatialApiVersion = SpatialCoreApiVersionProvider().spatialApiVersion
+    }
+
+    override fun configure(config: Config) {
+        this.config = config
     }
 
     override fun destroy() {
