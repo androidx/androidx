@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextOnCircle
+import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -1401,3 +1402,61 @@ public fun RcScope.format(
     decimal: Int,
     spec: RcTextFromFloatSpec,
 ): RcText = value.format(whole, decimal, spec.bits)
+
+/** Scope to configure accessibility semantics on layouts. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RcDslMarker
+public interface RcSemanticsScope {
+    /** Sets the content description text. */
+    public fun contentDescription(text: String)
+
+    /** Sets the content description using a remote string reference. */
+    public fun contentDescription(text: RcText)
+
+    /** Sets the accessibility role (BUTTON, CHECKBOX, IMAGE, etc.). */
+    public fun role(role: AccessibleComponent.Role)
+
+    /** Sets the component text content. */
+    public fun text(text: String)
+
+    /** Sets the component text content using a remote string reference. */
+    public fun text(text: RcText)
+
+    /** Sets the state description, e.g., "checked" or "disabled". */
+    public fun stateDescription(text: String)
+
+    /** Sets the state description using a remote string reference. */
+    public fun stateDescription(text: RcText)
+
+    /** Sets the merge mode (SET, CLEAR_AND_SET, MERGE). */
+    public fun mode(mode: AccessibleComponent.Mode)
+
+    /** Sets whether the component is enabled. */
+    public fun enabled(value: Boolean)
+
+    /** Sets whether the component is clickable. */
+    public fun clickable(value: Boolean)
+}
+
+/** Scope for custom layout and measurement computations on the player. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RcDslMarker
+public interface RcLayoutScope {
+    /** Read/write X position of the component. */
+    public var x: RcFloat
+
+    /** Read/write Y position of the component. */
+    public var y: RcFloat
+
+    /** Read/write width dimension of the component. */
+    public var width: RcFloat
+
+    /** Read/write height dimension of the component. */
+    public var height: RcFloat
+
+    /** Read-only width of the parent layout container. */
+    public val parentWidth: RcFloat
+
+    /** Read-only height of the parent layout container. */
+    public val parentHeight: RcFloat
+}

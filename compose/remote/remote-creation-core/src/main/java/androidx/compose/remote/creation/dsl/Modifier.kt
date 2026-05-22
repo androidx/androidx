@@ -264,6 +264,46 @@ public fun Modifier.zIndex(value: Float): Modifier = then(ZIndexModifier(value))
 public fun Modifier.graphicsLayer(attributes: Map<Int, Any>): Modifier =
     then(GraphicsLayerModifier(attributes))
 
+/** Ripple modifier for standard material design touch feedback. */
+public fun Modifier.ripple(): Modifier = then(RippleModifierElement)
+
+/**
+ * Allows injecting custom canvas drawing operations before or after the element's children. The
+ * block receiver is [RcCanvasScope], providing drawing functions (drawCircle, drawRect, etc.) and a
+ * way to explicitly render the layout children via [drawComponentContent()].
+ */
+public fun Modifier.drawWithContent(block: RcCanvasScope.() -> Unit): Modifier =
+    then(DrawWithContentModifierElement(block))
+
+/** Sets the horizontal priority of dynamic layout collapsing (e.g. inside a CollapsibleRow). */
+public fun Modifier.horizontalCollapsiblePriority(priority: Float): Modifier =
+    then(CollapsiblePriorityModifierElement(orientation = 0 /* HORIZONTAL */, priority = priority))
+
+/** Sets the vertical priority of dynamic layout collapsing (e.g. inside a CollapsibleColumn). */
+public fun Modifier.verticalCollapsiblePriority(priority: Float): Modifier =
+    then(CollapsiblePriorityModifierElement(orientation = 1 /* VERTICAL */, priority = priority))
+
+/**
+ * Configures accessibility semantics for screen readers and other assistive technologies. Provides
+ * access to [RcSemanticsScope] to declare descriptions, roles, state, and capabilities.
+ */
+public fun Modifier.semantics(block: RcSemanticsScope.() -> Unit): Modifier =
+    then(SemanticsModifierElement(block))
+
+/**
+ * Allows defining dynamic custom measurement calculations on layout bounds (e.g., forcing aspect
+ * ratios). Provides access to the layout constraints scope [RcLayoutScope].
+ */
+public fun Modifier.computeMeasure(block: RcLayoutScope.() -> Unit): Modifier =
+    then(ComponentLayoutComputeModifierElement(0 /* TYPE_MEASURE */, block))
+
+/**
+ * Allows defining dynamic custom positioning calculations on layout bounds (e.g., centering items).
+ * Provides access to the layout constraints scope [RcLayoutScope].
+ */
+public fun Modifier.computePosition(block: RcLayoutScope.() -> Unit): Modifier =
+    then(ComponentLayoutComputeModifierElement(1 /* TYPE_POSITION */, block))
+
 // =====================================================================================
 //
 // Each delegates to the matching raw-Int border / componentId modifier above. The
@@ -596,5 +636,73 @@ internal class GraphicsLayerModifier(val attributes: Map<Int, Any>) :
     override fun write(writer: RemoteComposeWriter) {
         val hashMap = HashMap<Int, Any>().apply { putAll(attributes) }
         @Suppress("UNCHECKED_CAST") writer.addModifierGraphicsLayer(hashMap as HashMap<Int, Any>)
+    }
+}
+
+internal object RippleModifierElement :
+    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        writer.addModifierRipple()
+    }
+}
+
+internal class DrawWithContentModifierElement(val block: RcCanvasScope.() -> Unit) :
+    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        val scope = RcCanvasScopeImpl(writer)
+        writer.startCanvasOperations()
+        scope.block()
+        writer.endCanvasOperations()
+    }
+}
+
+internal class CollapsiblePriorityModifierElement(val orientation: Int, val priority: Float) :
+    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        writer.addCollapsiblePriorityModifier(orientation, priority)
+    }
+}
+
+internal class SemanticsModifierElement(val block: RcSemanticsScope.() -> Unit) :
+    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        val scope = RcSemanticsScopeImpl(writer)
+        scope.block()
+        val coreSemantics = scope.build()
+        val legacyModifier =
+            androidx.compose.remote.creation.modifiers.SemanticsModifier(coreSemantics)
+        legacyModifier.write(writer)
+    }
+}
+
+internal class ComponentLayoutComputeModifierElement(
+    val type: Int,
+    val block: RcLayoutScope.() -> Unit,
+) : Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        writer.addLayoutCompute(type) { changes ->
+            val scope = RcLayoutScopeImpl(changes, writer)
+            scope.block()
+        }
     }
 }

@@ -24,10 +24,12 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterInterface
+import androidx.compose.remote.creation.modifiers.ComponentLayoutChanges
 import java.lang.Runnable
 
 /** Private implementation of [RcScope]. */
@@ -1469,7 +1471,7 @@ private class RcCollapsibleRowScopeImpl(writer: RemoteComposeWriter) :
         then(WeightModifier(weight, vertical = false))
 }
 
-private class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcCanvasScope {
+internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcCanvasScope {
     override val width: RcFloat
         get() = RcFloat(writer, writer.addComponentWidthValue())
 
@@ -1568,4 +1570,112 @@ private class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(write
             ),
         )
     }
+}
+
+internal class RcSemanticsScopeImpl(val writer: RemoteComposeWriter) : RcSemanticsScope {
+    var contentDescriptionId: Int = 0
+    var roleOrdinal: Byte = -1
+    var textId: Int = 0
+    var stateDescriptionId: Int = 0
+    var modeOrdinal: Int = 0
+    var enabledVal: Boolean = true
+    var clickableVal: Boolean = false
+
+    override fun contentDescription(text: String) {
+        contentDescriptionId = writer.textCreateId(text)
+    }
+
+    override fun contentDescription(text: RcText) {
+        contentDescriptionId = text.id
+    }
+
+    override fun role(role: AccessibleComponent.Role) {
+        roleOrdinal = role.ordinal.toByte()
+    }
+
+    override fun text(text: String) {
+        textId = writer.textCreateId(text)
+    }
+
+    override fun text(text: RcText) {
+        textId = text.id
+    }
+
+    override fun stateDescription(text: String) {
+        stateDescriptionId = writer.textCreateId(text)
+    }
+
+    override fun stateDescription(text: RcText) {
+        stateDescriptionId = text.id
+    }
+
+    override fun mode(mode: AccessibleComponent.Mode) {
+        modeOrdinal = mode.ordinal
+    }
+
+    override fun enabled(value: Boolean) {
+        enabledVal = value
+    }
+
+    override fun clickable(value: Boolean) {
+        clickableVal = value
+    }
+
+    fun build(): androidx.compose.remote.core.semantics.CoreSemantics {
+        val semantics = androidx.compose.remote.core.semantics.CoreSemantics()
+        semantics.mContentDescriptionId = contentDescriptionId
+        semantics.mRole =
+            if (roleOrdinal >= 0) AccessibleComponent.Role.fromInt(roleOrdinal.toInt()) else null
+        semantics.mTextId = textId
+        semantics.mStateDescriptionId = stateDescriptionId
+        semantics.mEnabled = enabledVal
+        semantics.mMode = AccessibleComponent.Mode.values()[modeOrdinal]
+        semantics.mClickable = clickableVal
+        return semantics
+    }
+}
+
+internal class RcLayoutScopeImpl(
+    val changes: androidx.compose.remote.creation.modifiers.ComponentLayoutChanges,
+    val writer: RemoteComposeWriter,
+) : RcLayoutScope {
+
+    private fun toRcFloat(num: Number): RcFloat {
+        val rFloat = num as androidx.compose.remote.creation.RFloat
+        return RcFloat(writer, rFloat.array)
+    }
+
+    private fun toRFloat(rcFloat: RcFloat): androidx.compose.remote.creation.RFloat {
+        return androidx.compose.remote.creation.RFloat(writer, rcFloat.toArray())
+    }
+
+    override var x: RcFloat
+        get() = toRcFloat(changes.getX())
+        set(value) {
+            changes.setX(toRFloat(value))
+        }
+
+    override var y: RcFloat
+        get() = toRcFloat(changes.getY())
+        set(value) {
+            changes.setY(toRFloat(value))
+        }
+
+    override var width: RcFloat
+        get() = toRcFloat(changes.getWidth())
+        set(value) {
+            changes.setWidth(toRFloat(value))
+        }
+
+    override var height: RcFloat
+        get() = toRcFloat(changes.getHeight())
+        set(value) {
+            changes.setHeight(toRFloat(value))
+        }
+
+    override val parentWidth: RcFloat
+        get() = toRcFloat(changes.getParentWidth())
+
+    override val parentHeight: RcFloat
+        get() = toRcFloat(changes.getParentHeight())
 }
