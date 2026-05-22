@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.player.compose.test.utils.screenshot.rule
+package androidx.compose.remote.player.compose.test.utils
 
 import org.junit.runner.Description
 

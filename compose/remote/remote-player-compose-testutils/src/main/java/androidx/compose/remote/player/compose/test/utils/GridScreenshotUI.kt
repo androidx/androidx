@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.player.compose.test.utils.screenshot
+package androidx.compose.remote.player.compose.test.utils
 
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox

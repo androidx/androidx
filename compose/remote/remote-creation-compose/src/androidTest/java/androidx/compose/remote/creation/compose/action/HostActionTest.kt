@@ -34,7 +34,7 @@ import androidx.compose.remote.creation.compose.state.rememberMutableRemoteStrin
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteInteractionTestRule
+import androidx.compose.remote.player.compose.test.utils.RemoteInteractionTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat

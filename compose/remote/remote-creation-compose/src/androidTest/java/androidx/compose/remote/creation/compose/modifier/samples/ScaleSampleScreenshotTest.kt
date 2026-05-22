@@ -23,7 +23,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.samples.ScaleNonUniformSample
 import androidx.compose.remote.creation.compose.samples.ScaleUniformSample
-import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
