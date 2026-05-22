@@ -703,13 +703,12 @@ internal constructor(
     }
 
     /**
-     * Returns the [SpanStyle]s that intersect with the given range defined by [start] (inclusive)
-     * and [end] (exclusive).
+     * Returns the [SpanStyle]s that intersect with the given [range].
      *
      * Styles are returned in the same order they were originally added to the buffer.
      *
      * A style intersects with the range if it overlaps with it at any point. For non-empty ranges,
-     * this means `style.start < end` and `start < style.end`.
+     * this means `style.start < range.max` and `range.min < style.end`.
      *
      * Example Query Range: `[5, 15)`
      *
@@ -737,20 +736,18 @@ internal constructor(
      *           [----------)        Style [10, 20)(Touching start) -> Returned
      * ```
      *
-     * @param start the inclusive start offset of the range
-     * @param end the exclusive end offset of the range
+     * @param range the range to query
      * @return a list of [TrackedRange]s referencing the styles intersecting with the given range,
      *   returned in the order they were added to the buffer.
-     * @throws IllegalArgumentException if [start] or [end] is out of [0, length], or
-     *   [start] > [end].
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun getSpanStyles(start: Int, end: Int): List<TrackedRange<SpanStyle>> {
+    fun getSpanStyles(range: TextRange): List<TrackedRange<SpanStyle>> {
         return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-            requireValidStyleRange(TextRange(start, end))
+            val start = range.min.coerceIn(0, length)
+            val end = range.max.coerceIn(0, length)
             textStyleBuffer?.getStyles<SpanStyle>(start, end) ?: emptyList()
         } else {
             emptyList()
@@ -758,13 +755,12 @@ internal constructor(
     }
 
     /**
-     * Returns the [ParagraphStyle]s that intersect with the range defined by [start] (inclusive)
-     * and [end] (exclusive).
+     * Returns the [ParagraphStyle]s that intersect with the given [range].
      *
      * Styles are returned in the same order they were originally added to the buffer.
      *
      * A style intersects with the range if it overlaps with it at any point. For non-empty ranges,
-     * this means `style.start < end` and `start < style.end`.
+     * this means `style.start < range.max` and `range.min < style.end`.
      *
      * Example Query Range: `[5, 15)`
      *
@@ -792,17 +788,15 @@ internal constructor(
      *           [----------)        Style [10, 20)(Touching start) -> Returned
      * ```
      *
-     * @param start the inclusive start offset of the range
-     * @param end the exclusive end offset of the range
+     * @param range the range to query
      * @return a list of [TrackedRange]s referencing the styles intersecting with the given range,
      *   returned in the order they were added to the buffer.
-     * @throws IllegalArgumentException if [start] or [end] is out of [0, length], or
-     *   [start] > [end].
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun getParagraphStyles(start: Int, end: Int): List<TrackedRange<ParagraphStyle>> {
+    fun getParagraphStyles(range: TextRange): List<TrackedRange<ParagraphStyle>> {
         return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
-            requireValidStyleRange(TextRange(start, end))
+            val start = range.min.coerceIn(0, length)
+            val end = range.max.coerceIn(0, length)
             textStyleBuffer?.getStyles<ParagraphStyle>(start, end) ?: emptyList()
         } else {
             emptyList()
@@ -834,6 +828,21 @@ internal constructor(
     }
 
     /**
+     * Whether this [TrackedRange] is still valid in the buffer.
+     *
+     * A [TrackedRange] is removed from this buffer when [removeStyle] is called, or when its length
+     * collapses to zero due to text edits. Once it's no longer valid, accessing its other
+     * properties will return default values, and modifying them will have no effect.
+     *
+     * This property is only accessible within the [TextFieldBuffer] scope where the [TrackedRange]
+     * was created.
+     *
+     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangePropertiesSample
+     */
+    val TrackedRange<*>.isValid: Boolean
+        get() = textStyleBuffer?.isValid(this) ?: false
+
+    /**
      * The [TextRange] of this style. This range will reflect the up-to-date style range as the text
      * is edited.
      *
@@ -841,13 +850,12 @@ internal constructor(
      * was created. Do not keep a reference to the [TrackedRange] outside of that block.
      *
      * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
-     * zero. It is recommended to check [valid] before accessing this property if any text changes
-     * were made, or if the range might have been explicitly removed via [removeStyle].
+     * zero. If this [TrackedRange] is no longer valid, this property will return [TextRange.Zero],
+     * and setting this property will do nothing.
      *
      * Setting this property will update the range of the style in-place, preserving its original
      * applying order relative to other styles in the buffer.
      *
-     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
      * @throws IllegalArgumentException if the new range is collapsed, reversed or out of range.
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
@@ -855,15 +863,19 @@ internal constructor(
      */
     var TrackedRange<*>.textRange: TextRange
         get() =
-            textStyleBuffer?.getRange(this)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.getRange(this)
+            } else {
+                TextRange.Zero
+            }
         set(value) {
             requireValidStyleRange(value)
             requirePrecondition(!value.collapsed) {
                 "TrackedRange's textRange cannot be collapsed, but was $value"
             }
-            textStyleBuffer?.setRange(this, value)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.setRange(this, value)
+            }
         }
 
     /**
@@ -873,24 +885,27 @@ internal constructor(
      * was created.
      *
      * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
-     * zero. It is recommended to check [valid] before accessing this property if any text changes
-     * were made, or if the range might have been explicitly removed via [removeStyle].
+     * zero. If this [TrackedRange] is no longer valid, this property will return an empty
+     * [SpanStyle], and setting this property will do nothing.
      *
      * Setting this property will update the style applied to the text in-place, preserving its
      * original applying order relative to other styles in the buffer.
      *
-     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
      */
     var TrackedRange<SpanStyle>.spanStyle: SpanStyle
         get() =
-            textStyleBuffer?.getItem<SpanStyle>(this)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.getItem<SpanStyle>(this) ?: SpanStyle()
+            } else {
+                SpanStyle()
+            }
         set(value) {
-            textStyleBuffer?.setItem(this, value)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.setItem(this, value)
+            }
         }
 
     /**
@@ -900,37 +915,24 @@ internal constructor(
      * was created.
      *
      * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
-     * zero. It is recommended to check [valid] before accessing this property if any text changes
-     * were made, or if the range might have been explicitly removed via [removeStyle].
+     * zero. If this [TrackedRange] is no longer valid, this property will return an empty
+     * [ParagraphStyle], and setting this property will do nothing.
      *
      * Setting this property will update the style applied to the text in-place, preserving its
      * original applying order relative to other styles in the buffer.
-     *
-     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
      */
     var TrackedRange<ParagraphStyle>.paragraphStyle: ParagraphStyle
         get() =
-            textStyleBuffer?.getItem<ParagraphStyle>(this)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.getItem<ParagraphStyle>(this) ?: ParagraphStyle()
+            } else {
+                ParagraphStyle()
+            }
         set(value) {
-            textStyleBuffer?.setItem(this, value)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.setItem(this, value)
+            }
         }
-
-    /**
-     * Whether this [TrackedRange] is still valid in the buffer.
-     *
-     * A [TrackedRange] is removed from this buffer when [removeStyle] is called, or when its length
-     * collapses to zero due to text edits. Once it's no longer valid, accessing or modifying its
-     * other properties will throw an [IllegalStateException].
-     *
-     * This property is only accessible within the [TextFieldBuffer] scope where the [TrackedRange]
-     * was created.
-     *
-     * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangePropertiesSample
-     */
-    val TrackedRange<*>.valid: Boolean
-        get() = textStyleBuffer?.isValid(this) ?: false
 
     /**
      * The [ExpandPolicy] defining how the style range expands when text is inserted at its
@@ -940,22 +942,25 @@ internal constructor(
      * was created.
      *
      * Modifying the text can potentially invalidate a [TrackedRange] if its length collapses to
-     * zero. It is recommended to check [valid] before accessing this property if any text changes
-     * were made, or if the range might have been explicitly removed via [removeStyle].
+     * zero. If this [TrackedRange] is no longer valid, this property will return
+     * [ExpandPolicy.InsideOnly], and setting this property will do nothing.
      *
      * Setting this property will update the expand policy in-place, preserving its original
      * applying order relative to other styles in the buffer.
      *
-     * @throws IllegalStateException if this [TrackedRange] no longer exists in the buffer.
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangePropertiesSample
      */
     var TrackedRange<*>.expandPolicy: ExpandPolicy
         get() =
-            textStyleBuffer?.getExpandPolicy(this)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.getExpandPolicy(this)
+            } else {
+                ExpandPolicy.InsideOnly
+            }
         set(value) {
-            textStyleBuffer?.setExpandPolicy(this, value)
-                ?: throw IllegalStateException("TrackedRange is not found.")
+            if (isValid) {
+                textStyleBuffer!!.setExpandPolicy(this, value)
+            }
         }
 
     /**

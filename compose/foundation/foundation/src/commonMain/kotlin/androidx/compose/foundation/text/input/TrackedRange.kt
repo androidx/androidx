@@ -28,7 +28,7 @@ import kotlin.jvm.JvmInline
  * on [TextFieldBuffer]:
  * - `TrackedRange<*>.textRange`
  * - `TrackedRange<*>.expandPolicy`
- * - `TrackedRange<*>.valid`
+ * - `TrackedRange<*>.isValid`
  * - `TrackedRange<SpanStyle>.spanStyle`
  * - `TrackedRange<ParagraphStyle>.paragraphStyle`
  *

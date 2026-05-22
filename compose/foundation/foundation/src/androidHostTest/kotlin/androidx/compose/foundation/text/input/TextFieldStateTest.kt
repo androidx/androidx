@@ -888,7 +888,7 @@ class TextFieldStateTest {
         val state = TextFieldState("hello")
         state.edit { addStyle(SpanStyle(color = Color.Red), 0, 5) }
 
-        val spanStyles = state.textStyles.getSpanStyles(0, 5)
+        val spanStyles = state.textStyles.getSpanStyles(TextRange(0, 5))
         assertThat(spanStyles).hasSize(1)
         assertThat(spanStyles[0].item).isEqualTo(SpanStyle(color = Color.Red))
         assertThat(spanStyles[0].start).isEqualTo(0)
@@ -900,7 +900,7 @@ class TextFieldStateTest {
         val state = TextFieldState("hello")
         state.edit { addStyle(ParagraphStyle(textAlign = TextAlign.Center), 0, 5) }
 
-        val paragraphStyles = state.textStyles.getParagraphStyles(0, 5)
+        val paragraphStyles = state.textStyles.getParagraphStyles(TextRange(0, 5))
         assertThat(paragraphStyles).hasSize(1)
         assertThat(paragraphStyles[0].item).isEqualTo(ParagraphStyle(textAlign = TextAlign.Center))
         assertThat(paragraphStyles[0].start).isEqualTo(0)
@@ -917,12 +917,12 @@ class TextFieldStateTest {
         }
 
         assertThat(recordedStyles).isNotNull()
-        assertThat(recordedStyles?.getSpanStyles(0, 5)).isEmpty()
+        assertThat(recordedStyles?.getSpanStyles(TextRange(0, 5))).isEmpty()
 
         state.edit { addStyle(SpanStyle(color = Color.Blue), 0, 5) }
 
-        assertThat(recordedStyles?.getSpanStyles(0, 5)).hasSize(1)
-        assertThat(recordedStyles?.getSpanStyles(0, 5)?.get(0)?.item)
+        assertThat(recordedStyles?.getSpanStyles(TextRange(0, 5))).hasSize(1)
+        assertThat(recordedStyles?.getSpanStyles(TextRange(0, 5))?.get(0)?.item)
             .isEqualTo(SpanStyle(color = Color.Blue))
     }
 
