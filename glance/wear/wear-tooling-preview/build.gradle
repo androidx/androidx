@@ -22,10 +22,27 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-dependencies {}
+dependencies {
+    def composeVersion = "1.10.1"
+
+    api(project(":glance:wear:wear"))
+    api(project(":compose:remote:remote-tooling-preview"))
+    api(project(":compose:ui:ui-tooling"))
+    api("androidx.compose.ui:ui-tooling-preview:$composeVersion")
+    api("androidx.compose.ui:ui:$composeVersion")
+    api("androidx.compose.runtime:runtime:$composeVersion")
+
+    implementation(project(":compose:remote:remote-player-core"))
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation("androidx.compose.foundation:foundation:$composeVersion")
+}
 
 android {
     namespace = "androidx.glance.wear.tooling.preview"
+    compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
 }
 
 androidx {
