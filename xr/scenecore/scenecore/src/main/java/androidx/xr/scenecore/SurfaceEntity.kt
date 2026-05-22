@@ -72,35 +72,25 @@ private constructor(
          *
          * @property extents The size of the Quad in the local spatial coordinate system of the
          *   entity.
+         * @property cornerRadius The radius of the rounded corners of the Quad in the local spatial
+         *   coordinate system of the entity. The maximum allowed value is half of the smaller
+         *   dimension of [extents]. If set to 0.0f, the corners will be sharp.
          */
-        public class Quad : Shape {
-            public val extents: FloatSize2d
-            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val cornerRadius: Float
-
-            /**
-             * A Quadrilateral-shaped canvas.
-             *
-             * @param extents The size of the Quad in the local spatial coordinate system of the
-             *   entity.
-             */
-            public constructor(extents: FloatSize2d) : this(extents, 0.0f)
-
-            /**
-             * A Quadrilateral-shaped canvas with rounded corners.
-             *
-             * @param extents The size of the Quad in the local spatial coordinate system of the
-             *   entity.
-             * @param cornerRadius The radius of the rounded corners of the Quad in the local
-             *   spatial coordinate system of the entity. If set to 0.0f, the corners will be sharp.
-             */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            public constructor(extents: FloatSize2d, cornerRadius: Float) {
+        public class Quad
+        @JvmOverloads
+        constructor(
+            public val extents: FloatSize2d,
+            @FloatRange(from = 0.0) public val cornerRadius: Float = 0.0f,
+        ) : Shape {
+            init {
                 require(extents.width >= 0.0f && extents.height >= 0.0f) {
                     "extents must be non-negative"
                 }
                 require(cornerRadius >= 0.0f) { "cornerRadius must be non-negative" }
-                this.extents = extents
-                this.cornerRadius = cornerRadius
+                val maxRadius = minOf(extents.width, extents.height) / 2.0f
+                require(cornerRadius <= maxRadius) {
+                    "cornerRadius ($cornerRadius) must not be greater than half of the smaller dimension (width or height): $maxRadius"
+                }
             }
         }
 
