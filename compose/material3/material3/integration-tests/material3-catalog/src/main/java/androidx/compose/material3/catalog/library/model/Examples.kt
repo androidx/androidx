@@ -41,6 +41,7 @@ import androidx.compose.material3.samples.BottomAppBarWithFAB
 import androidx.compose.material3.samples.BottomAppBarWithOverflow
 import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonGroupSample
+import androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithAnimatedShapeSample
 import androidx.compose.material3.samples.ButtonWithIconSample
@@ -593,6 +594,14 @@ val ButtonGroupsExamples =
             isExpressive = true,
         ) {
             ButtonGroupSample()
+        },
+        Example(
+            name = "ButtonGroupWithCustomItemSample",
+            description = ButtonGroupsExampleDescription,
+            sourceUrl = ButtonGroupsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            ButtonGroupWithCustomItemSample()
         },
         Example(
             name = "SingleSelectConnectedButtonGroupSample",
