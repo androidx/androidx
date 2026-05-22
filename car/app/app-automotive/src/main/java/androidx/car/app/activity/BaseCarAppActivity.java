@@ -108,7 +108,8 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
      * A listener to conditionally send insets to the host, or handle them locally if the host
      * is not capable.
      */
-    private final View.OnApplyWindowInsetsListener mWindowInsetsListener =
+    @VisibleForTesting
+    final View.OnApplyWindowInsetsListener mWindowInsetsListener =
             new View.OnApplyWindowInsetsListener() {
                 @Override
                 public @Nullable WindowInsets onApplyWindowInsets(@NonNull View view,
@@ -127,28 +128,39 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                     // SystemUiVisibility set in CarAppActivity#onCreate(). Failing to do so would
                     // cause a mismatch between the insets applied to the content on the hosts side
                     // vs. the actual visible window available on the client side.
-                    Insets insets;
-                    if (Build.VERSION.SDK_INT >= 30) {
-                        insets = Api30Impl.getInsets(windowInsets);
-                    } else {
-                        insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
-                                .getInsets(WindowInsetsCompat.Type.systemBars()
-                                        | WindowInsetsCompat.Type.ime())
-                                .toPlatformInsets();
-                    }
-                    DisplayCutoutCompat displayCutout =
-                            WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
-                                    .getDisplayCutout();
-                    requireNonNull(mViewModel).updateWindowInsets(insets, displayCutout);
+                    WindowInsetsCompat windowInsetsCompat =
+                            WindowInsetsCompat.toWindowInsetsCompat(windowInsets);
 
-                    // Insets are handled by the host. Only local content need padding.
-                    mActivityContainerView.setPadding(0, 0, 0, 0);
-                    mLocalContentContainerView.setPadding(insets.left, insets.top,
-                            insets.right, insets.bottom);
+                    updateHostWindowInsets(windowInsetsCompat);
+                    updateHostImeInsets(windowInsetsCompat);
+                    updateLocalInsets(windowInsetsCompat);
 
                     return WindowInsetsCompat.CONSUMED.toWindowInsets();
                 }
             };
+
+    private void updateHostWindowInsets(@NonNull WindowInsetsCompat windowInsetsCompat) {
+        Insets systemBarsInsets = windowInsetsCompat.getInsets(
+                WindowInsetsCompat.Type.systemBars()).toPlatformInsets();
+        DisplayCutoutCompat displayCutout = windowInsetsCompat.getDisplayCutout();
+        requireNonNull(mViewModel).updateWindowInsets(systemBarsInsets, displayCutout);
+    }
+
+    private void updateHostImeInsets(@NonNull WindowInsetsCompat windowInsetsCompat) {
+        Insets imeInsets = windowInsetsCompat.getInsets(
+                WindowInsetsCompat.Type.ime()).toPlatformInsets();
+        requireNonNull(mViewModel).updateImeInsets(imeInsets);
+    }
+
+    private void updateLocalInsets(@NonNull WindowInsetsCompat windowInsetsCompat) {
+        // Insets are handled by the host. Only local content need padding.
+        mActivityContainerView.setPadding(0, 0, 0, 0);
+        Insets combinedInsets = windowInsetsCompat.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+                        | WindowInsetsCompat.Type.ime()).toPlatformInsets();
+        mLocalContentContainerView.setPadding(combinedInsets.left,
+                combinedInsets.top, combinedInsets.right, combinedInsets.bottom);
+    }
 
     /**
      * {@link ICarAppActivity} implementation that allows the {@link IRendererService} to
@@ -250,10 +262,6 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {
         private Api30Impl() {
-        }
-
-        static Insets getInsets(WindowInsets windowInsets) {
-            return windowInsets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime());
         }
 
         static WindowInsets getDecorViewInsets(WindowInsets insets) {

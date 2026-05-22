@@ -544,6 +544,113 @@ public class CarAppActivityTest {
         }
     }
 
+    @Test
+    public void onApplyWindowInsets_dispatchesWindowInsetsToViewModel() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int statusBarTop = 10;
+            int navigationBarBottom = 20;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(),
+                            Insets.of(0, statusBarTop, 0, navigationBarBottom))
+                    .build();
+
+            activity.mActivityContainerView.onApplyWindowInsets(insets.toWindowInsets());
+
+            verify(mockViewModel).updateWindowInsets(
+                    eq(insets.getInsets(WindowInsetsCompat.Type.systemBars()).toPlatformInsets()),
+                    eq(insets.getDisplayCutout())
+            );
+        });
+    }
+
+    @Test
+    public void onApplyWindowInsets_setsCorrectLocalPadding_systemBars() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int statusBarTop = 10;
+            int navigationBarBottom = 20;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(),
+                            Insets.of(5, statusBarTop, 15, navigationBarBottom))
+                    .build();
+
+            activity.mActivityContainerView.onApplyWindowInsets(insets.toWindowInsets());
+
+            // mActivityContainerView should have 0 padding
+            assertThat(activity.mActivityContainerView.getPaddingLeft()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingTop()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingRight()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingBottom()).isEqualTo(0);
+
+            // mLocalContentContainerView should have systemBars padding
+            assertThat(activity.mLocalContentContainerView.getPaddingLeft()).isEqualTo(5);
+            assertThat(activity.mLocalContentContainerView.getPaddingTop()).isEqualTo(statusBarTop);
+            assertThat(activity.mLocalContentContainerView.getPaddingRight()).isEqualTo(15);
+            assertThat(activity.mLocalContentContainerView.getPaddingBottom()).isEqualTo(navigationBarBottom);
+        });
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.R)
+    public void onApplyWindowInsets_dispatchesImeInsetsToViewModel() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int imeBottom = 100;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.ime(),
+                            Insets.of(0, 0, 0, imeBottom))
+                    .build();
+
+            activity.mWindowInsetsListener.onApplyWindowInsets(
+                    activity.mActivityContainerView, insets.toWindowInsets());
+
+            verify(mockViewModel).updateImeInsets(
+                    eq(insets.getInsets(WindowInsetsCompat.Type.ime()).toPlatformInsets())
+            );
+        });
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.R)
+    public void onApplyWindowInsets_setsCorrectLocalPadding_combined() {
+        runOnActivity((scenario, activity) -> {
+            CarAppViewModel mockViewModel = mock(CarAppViewModel.class);
+            activity.mViewModel = mockViewModel;
+
+            int statusBarTop = 10;
+            int navigationBarBottom = 20;
+            int imeBottom = 100;
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.systemBars(),
+                            Insets.of(5, statusBarTop, 15, navigationBarBottom))
+                    .setInsets(WindowInsetsCompat.Type.ime(),
+                            Insets.of(0, 0, 0, imeBottom))
+                    .build();
+
+            activity.mWindowInsetsListener.onApplyWindowInsets(
+                    activity.mActivityContainerView, insets.toWindowInsets());
+
+            // mActivityContainerView should have 0 padding
+            assertThat(activity.mActivityContainerView.getPaddingLeft()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingTop()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingRight()).isEqualTo(0);
+            assertThat(activity.mActivityContainerView.getPaddingBottom()).isEqualTo(0);
+
+            // mLocalContentContainerView should have combined padding
+            assertThat(activity.mLocalContentContainerView.getPaddingLeft()).isEqualTo(5);
+            assertThat(activity.mLocalContentContainerView.getPaddingTop()).isEqualTo(statusBarTop);
+            assertThat(activity.mLocalContentContainerView.getPaddingRight()).isEqualTo(15);
+            assertThat(activity.mLocalContentContainerView.getPaddingBottom()).isEqualTo(imeBottom);
+        });
+    }
+
     interface CarActivityAction {
         void accept(ActivityScenario<CarAppActivity> scenario, CarAppActivity activity)
                 throws Exception;
