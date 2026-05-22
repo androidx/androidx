@@ -1672,6 +1672,7 @@ package androidx.car.app.model {
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Background? getBackground();
     method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
     method public androidx.car.app.model.Action? getStartHeaderAction();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarIcon? getStartHeaderImage();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
   }
@@ -1682,6 +1683,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Header build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setBackground(androidx.car.app.model.Background);
     method public androidx.car.app.model.Header.Builder setStartHeaderAction(androidx.car.app.model.Action);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setStartHeaderImage(androidx.car.app.model.CarIcon);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(androidx.car.app.model.CarText);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(CharSequence);
     method public androidx.car.app.model.Header.Builder setTitle(androidx.car.app.model.CarText);

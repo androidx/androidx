@@ -242,4 +242,41 @@ public class HeaderTest {
                 .setBackground(background2)
                 .build());
     }
+
+    @Test
+    public void createInstance_startHeaderImage() {
+        CarIcon startHeaderImage = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test"))).build();
+        Header component = new Header.Builder()
+                .setTitle("Title")
+                .setStartHeaderImage(startHeaderImage)
+                .build();
+        assertThat(component.getStartHeaderImage()).isEqualTo(startHeaderImage);
+    }
+
+    @Test
+    public void createInstance_startHeaderImage_onlyCustomIconsAllowed() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Header.Builder()
+                        .setTitle("Title")
+                        .setStartHeaderImage(CarIcon.BACK));
+    }
+
+    @Test
+    public void notEquals_differentStartHeaderImage() {
+        CarIcon startHeaderImage1 = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test1"))).build();
+        CarIcon startHeaderImage2 = new CarIcon.Builder(
+                IconCompat.createWithContentUri(Uri.parse("content://test2"))).build();
+        Header component = new Header.Builder()
+                .setTitle("title")
+                .setStartHeaderImage(startHeaderImage1)
+                .build();
+
+        assertThat(component).isNotEqualTo(new Header.Builder()
+                .setTitle("title")
+                .setStartHeaderImage(startHeaderImage2)
+                .build());
+    }
 }
+
