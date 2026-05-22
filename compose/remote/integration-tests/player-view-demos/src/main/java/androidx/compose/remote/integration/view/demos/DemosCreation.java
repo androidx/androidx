@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizActivityRingsKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizBatteryRadialGaugeKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizCalendarHeatmapKt;
@@ -37,9 +38,11 @@ import androidx.compose.remote.integration.view.demos.dsl.DslDataVizStockSparkli
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizWeatherForecastKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDemoAnchorTextKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDemoAttributedStringKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslDrawWithContentDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslExampleTimerKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslFontAxisDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslLayoutComputeDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPressureGaugeKt;
@@ -183,10 +186,15 @@ public abstract class DemosCreation {
         boolean dsl = true;
         if (dsl) {
             return new ArrayList<>(Arrays.asList(
-                    get("0/002/DslFontAxisDemo", DslFontAxisDemoKt::dslFontAxisDemo),
-                    getpc("0/003/SphereTimeShader", SphereTimeShaderKt::sphereTimeShader),
-                    get("0/004/Ticker", RcDslTickerKt::dslTicker),
-                    get("0/005/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
+                    get("0/001/DslDrawWithContentDemo",
+                            DslDrawWithContentDemoKt::dslDrawWithContentDemo),
+                    get("0/002/DslCollapsiblePriorityDemo",
+                            DslCollapsiblePriorityDemoKt::dslCollapsiblePriorityDemo),
+                    get("0/003/DslLayoutComputeDemo", DslLayoutComputeDemoKt::dslLayoutComputeDemo),
+                    get("0/004/DslFontAxisDemo", DslFontAxisDemoKt::dslFontAxisDemo),
+                    getpc("0/005/SphereTimeShader", SphereTimeShaderKt::sphereTimeShader),
+                    get("0/006/Ticker", RcDslTickerKt::dslTicker),
+                    get("0/007/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
                     get("0/02/DataVizActivityRings",
                             DslDataVizActivityRingsKt::dslDemoActivityRings),
                     get("0/03/DataVizBatteryRadialGauge",
