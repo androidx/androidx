@@ -29,10 +29,6 @@ public sealed interface VerticalScrollMode {
     /** The default LazyColumn behavior: standard scrolling. */
     public object Normal : VerticalScrollMode
 
-    /** Items will snap into place */
-    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
-    public object SnapScroll : VerticalScrollMode
-
     /**
      * Items will snap into place and match the height of the parent view.
      *

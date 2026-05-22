@@ -71,6 +71,9 @@ internal class CustomScrollModifier(
         numItems: Int,
         scrollContainerSizePx: Float,
     ) {
+        if (numItems < 1) {
+            return
+        }
 
         val notchMaxVariable: Float = writer.reserveFloatVariable()
         val touchExpressionDirection: Float =
