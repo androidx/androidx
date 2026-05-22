@@ -5,23 +5,22 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <androidx.ink:ink-brush>
-final class androidx.ink.brush/InputToolType { // androidx.ink.brush/InputToolType|null[0]
-    final val value // androidx.ink.brush/InputToolType.value|{}value[0]
-        final fun <get-value>(): kotlin/Int // androidx.ink.brush/InputToolType.value.<get-value>|<get-value>(){}[0]
-
-    final fun toString(): kotlin/String // androidx.ink.brush/InputToolType.toString|toString(){}[0]
-
-    final object Companion { // androidx.ink.brush/InputToolType.Companion|null[0]
-        final val MOUSE // androidx.ink.brush/InputToolType.Companion.MOUSE|{}MOUSE[0]
-            final fun <get-MOUSE>(): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.MOUSE.<get-MOUSE>|<get-MOUSE>(){}[0]
-        final val STYLUS // androidx.ink.brush/InputToolType.Companion.STYLUS|{}STYLUS[0]
-            final fun <get-STYLUS>(): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.STYLUS.<get-STYLUS>|<get-STYLUS>(){}[0]
-        final val TOUCH // androidx.ink.brush/InputToolType.Companion.TOUCH|{}TOUCH[0]
-            final fun <get-TOUCH>(): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.TOUCH.<get-TOUCH>|<get-TOUCH>(){}[0]
-        final val UNKNOWN // androidx.ink.brush/InputToolType.Companion.UNKNOWN|{}UNKNOWN[0]
-            final fun <get-UNKNOWN>(): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.UNKNOWN.<get-UNKNOWN>|<get-UNKNOWN>(){}[0]
-
-        final fun fromInt(kotlin/Int): androidx.ink.brush/InputToolType // androidx.ink.brush/InputToolType.Companion.fromInt|fromInt(kotlin.Int){}[0]
-    }
+// Library unique name: <androidx.ink:ink-nativeloader>
+open annotation class androidx.ink.nativeloader/UsedByNative : kotlin/Annotation { // androidx.ink.nativeloader/UsedByNative|null[0]
+    constructor <init>() // androidx.ink.nativeloader/UsedByNative.<init>|<init>(){}[0]
 }
+
+final class androidx.ink.nativeloader/NativePointer : kotlin.properties/ReadOnlyProperty<kotlin/Any, kotlin/Long> { // androidx.ink.nativeloader/NativePointer|null[0]
+    constructor <init>(kotlin/Function0<kotlin/Long>, kotlin/Function1<kotlin/Long, kotlin/Unit>) // androidx.ink.nativeloader/NativePointer.<init>|<init>(kotlin.Function0<kotlin.Long>;kotlin.Function1<kotlin.Long,kotlin.Unit>){}[0]
+
+    final fun getValue(kotlin/Any, kotlin.reflect/KProperty<*>): kotlin/Long // androidx.ink.nativeloader/NativePointer.getValue|getValue(kotlin.Any;kotlin.reflect.KProperty<*>){}[0]
+}
+
+final object androidx.ink.nativeloader/NativeLoader { // androidx.ink.nativeloader/NativeLoader|null[0]
+    final fun load() // androidx.ink.nativeloader/NativeLoader.load|load(){}[0]
+}
+
+final val androidx.ink.nativeloader/throwForNonOkStatusCallback // androidx.ink.nativeloader/throwForNonOkStatusCallback|{}throwForNonOkStatusCallback[0]
+    final fun <get-throwForNonOkStatusCallback>(): kotlinx.cinterop/CPointer<kotlinx.cinterop/CFunction<kotlin/Function3<kotlinx.cinterop/CPointer<out kotlinx.cinterop/CPointed>?, kotlin/Int, kotlinx.cinterop/CPointer<kotlinx.cinterop/ByteVarOf<kotlin/Byte>>?, kotlin/Unit>>> // androidx.ink.nativeloader/throwForNonOkStatusCallback.<get-throwForNonOkStatusCallback>|<get-throwForNonOkStatusCallback>(){}[0]
+
+final fun androidx.ink.nativeloader.testing/awaitNativePointerCleanupAfter(kotlin/Function1<kotlin/Long, kotlin/Unit>? = ..., kotlin/Long = ..., kotlin/Function0<kotlin/Unit>) // androidx.ink.nativeloader.testing/awaitNativePointerCleanupAfter|awaitNativePointerCleanupAfter(kotlin.Function1<kotlin.Long,kotlin.Unit>?;kotlin.Long;kotlin.Function0<kotlin.Unit>){}[0]

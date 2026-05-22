@@ -14,6 +14,44 @@ open annotation class androidx.ink.geometry/AngleRadiansFloat : kotlin/Annotatio
     constructor <init>() // androidx.ink.geometry/AngleRadiansFloat.<init>|<init>(){}[0]
 }
 
+abstract class androidx.ink.geometry/AffineTransform { // androidx.ink.geometry/AffineTransform|null[0]
+    abstract val m00 // androidx.ink.geometry/AffineTransform.m00|{}m00[0]
+        abstract fun <get-m00>(): kotlin/Float // androidx.ink.geometry/AffineTransform.m00.<get-m00>|<get-m00>(){}[0]
+    abstract val m01 // androidx.ink.geometry/AffineTransform.m01|{}m01[0]
+        abstract fun <get-m01>(): kotlin/Float // androidx.ink.geometry/AffineTransform.m01.<get-m01>|<get-m01>(){}[0]
+    abstract val m10 // androidx.ink.geometry/AffineTransform.m10|{}m10[0]
+        abstract fun <get-m10>(): kotlin/Float // androidx.ink.geometry/AffineTransform.m10.<get-m10>|<get-m10>(){}[0]
+    abstract val m11 // androidx.ink.geometry/AffineTransform.m11|{}m11[0]
+        abstract fun <get-m11>(): kotlin/Float // androidx.ink.geometry/AffineTransform.m11.<get-m11>|<get-m11>(){}[0]
+    abstract val m20 // androidx.ink.geometry/AffineTransform.m20|{}m20[0]
+        abstract fun <get-m20>(): kotlin/Float // androidx.ink.geometry/AffineTransform.m20.<get-m20>|<get-m20>(){}[0]
+    abstract val m21 // androidx.ink.geometry/AffineTransform.m21|{}m21[0]
+        abstract fun <get-m21>(): kotlin/Float // androidx.ink.geometry/AffineTransform.m21.<get-m21>|<get-m21>(){}[0]
+
+    abstract fun toImmutable(): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/AffineTransform.toImmutable|toImmutable(){}[0]
+    final fun applyTransform(androidx.ink.geometry/Box): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Box){}[0]
+    final fun applyTransform(androidx.ink.geometry/Box, androidx.ink.geometry/MutableParallelogram): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Box;androidx.ink.geometry.MutableParallelogram){}[0]
+    final fun applyTransform(androidx.ink.geometry/Parallelogram): androidx.ink.geometry/ImmutableParallelogram // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Parallelogram){}[0]
+    final fun applyTransform(androidx.ink.geometry/Parallelogram, androidx.ink.geometry/MutableParallelogram): androidx.ink.geometry/MutableParallelogram // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Parallelogram;androidx.ink.geometry.MutableParallelogram){}[0]
+    final fun applyTransform(androidx.ink.geometry/Segment): androidx.ink.geometry/ImmutableSegment // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Segment){}[0]
+    final fun applyTransform(androidx.ink.geometry/Segment, androidx.ink.geometry/MutableSegment): androidx.ink.geometry/MutableSegment // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Segment;androidx.ink.geometry.MutableSegment){}[0]
+    final fun applyTransform(androidx.ink.geometry/Triangle): androidx.ink.geometry/ImmutableTriangle // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Triangle){}[0]
+    final fun applyTransform(androidx.ink.geometry/Triangle, androidx.ink.geometry/MutableTriangle): androidx.ink.geometry/MutableTriangle // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Triangle;androidx.ink.geometry.MutableTriangle){}[0]
+    final fun applyTransform(androidx.ink.geometry/Vec): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Vec){}[0]
+    final fun applyTransform(androidx.ink.geometry/Vec, androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/AffineTransform.applyTransform|applyTransform(androidx.ink.geometry.Vec;androidx.ink.geometry.MutableVec){}[0]
+    final fun computeInverse(): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/AffineTransform.computeInverse|computeInverse(){}[0]
+    final fun computeInverse(androidx.ink.geometry/MutableAffineTransform): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/AffineTransform.computeInverse|computeInverse(androidx.ink.geometry.MutableAffineTransform){}[0]
+    final fun getValues(kotlin/FloatArray = ...): kotlin/FloatArray // androidx.ink.geometry/AffineTransform.getValues|getValues(kotlin.FloatArray){}[0]
+    final fun isAlmostEqual(androidx.ink.geometry/AffineTransform, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/AffineTransform.isAlmostEqual|isAlmostEqual(androidx.ink.geometry.AffineTransform;kotlin.Float){}[0]
+
+    final object Companion { // androidx.ink.geometry/AffineTransform.Companion|null[0]
+        final val IDENTITY // androidx.ink.geometry/AffineTransform.Companion.IDENTITY|{}IDENTITY[0]
+            final fun <get-IDENTITY>(): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/AffineTransform.Companion.IDENTITY.<get-IDENTITY>|<get-IDENTITY>(){}[0]
+
+        final fun multiply(androidx.ink.geometry/AffineTransform, androidx.ink.geometry/AffineTransform, androidx.ink.geometry/MutableAffineTransform) // androidx.ink.geometry/AffineTransform.Companion.multiply|multiply(androidx.ink.geometry.AffineTransform;androidx.ink.geometry.AffineTransform;androidx.ink.geometry.MutableAffineTransform){}[0]
+    }
+}
+
 abstract class androidx.ink.geometry/Box { // androidx.ink.geometry/Box|null[0]
     abstract val xMax // androidx.ink.geometry/Box.xMax|{}xMax[0]
         abstract fun <get-xMax>(): kotlin/Float // androidx.ink.geometry/Box.xMax.<get-xMax>|<get-xMax>(){}[0]
@@ -143,6 +181,64 @@ abstract class androidx.ink.geometry/Vec { // androidx.ink.geometry/Vec|null[0]
     }
 }
 
+final class androidx.ink.geometry/BoxAccumulator { // androidx.ink.geometry/BoxAccumulator|null[0]
+    constructor <init>() // androidx.ink.geometry/BoxAccumulator.<init>|<init>(){}[0]
+    constructor <init>(androidx.ink.geometry/Box) // androidx.ink.geometry/BoxAccumulator.<init>|<init>(androidx.ink.geometry.Box){}[0]
+
+    final val box // androidx.ink.geometry/BoxAccumulator.box|{}box[0]
+        final fun <get-box>(): androidx.ink.geometry/Box? // androidx.ink.geometry/BoxAccumulator.box.<get-box>|<get-box>(){}[0]
+
+    final fun add(androidx.ink.geometry/Box?): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.add|add(androidx.ink.geometry.Box?){}[0]
+    final fun add(androidx.ink.geometry/BoxAccumulator?): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.add|add(androidx.ink.geometry.BoxAccumulator?){}[0]
+    final fun add(androidx.ink.geometry/Parallelogram): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.add|add(androidx.ink.geometry.Parallelogram){}[0]
+    final fun add(androidx.ink.geometry/PartitionedMesh): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.add|add(androidx.ink.geometry.PartitionedMesh){}[0]
+    final fun add(androidx.ink.geometry/Segment): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.add|add(androidx.ink.geometry.Segment){}[0]
+    final fun add(androidx.ink.geometry/Triangle): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.add|add(androidx.ink.geometry.Triangle){}[0]
+    final fun add(androidx.ink.geometry/Vec): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.add|add(androidx.ink.geometry.Vec){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/BoxAccumulator.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/BoxAccumulator.hashCode|hashCode(){}[0]
+    final fun isAlmostEqual(androidx.ink.geometry/BoxAccumulator, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/BoxAccumulator.isAlmostEqual|isAlmostEqual(androidx.ink.geometry.BoxAccumulator;kotlin.Float){}[0]
+    final fun isEmpty(): kotlin/Boolean // androidx.ink.geometry/BoxAccumulator.isEmpty|isEmpty(){}[0]
+    final fun populateFrom(androidx.ink.geometry/Box?): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.populateFrom|populateFrom(androidx.ink.geometry.Box?){}[0]
+    final fun populateFrom(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.populateFrom|populateFrom(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun reset(): androidx.ink.geometry/BoxAccumulator // androidx.ink.geometry/BoxAccumulator.reset|reset(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/BoxAccumulator.toString|toString(){}[0]
+}
+
+final class androidx.ink.geometry/ImmutableAffineTransform : androidx.ink.geometry/AffineTransform { // androidx.ink.geometry/ImmutableAffineTransform|null[0]
+    constructor <init>(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) // androidx.ink.geometry/ImmutableAffineTransform.<init>|<init>(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    constructor <init>(kotlin/FloatArray) // androidx.ink.geometry/ImmutableAffineTransform.<init>|<init>(kotlin.FloatArray){}[0]
+
+    final val m00 // androidx.ink.geometry/ImmutableAffineTransform.m00|{}m00[0]
+        final fun <get-m00>(): kotlin/Float // androidx.ink.geometry/ImmutableAffineTransform.m00.<get-m00>|<get-m00>(){}[0]
+    final val m01 // androidx.ink.geometry/ImmutableAffineTransform.m01|{}m01[0]
+        final fun <get-m01>(): kotlin/Float // androidx.ink.geometry/ImmutableAffineTransform.m01.<get-m01>|<get-m01>(){}[0]
+    final val m10 // androidx.ink.geometry/ImmutableAffineTransform.m10|{}m10[0]
+        final fun <get-m10>(): kotlin/Float // androidx.ink.geometry/ImmutableAffineTransform.m10.<get-m10>|<get-m10>(){}[0]
+    final val m11 // androidx.ink.geometry/ImmutableAffineTransform.m11|{}m11[0]
+        final fun <get-m11>(): kotlin/Float // androidx.ink.geometry/ImmutableAffineTransform.m11.<get-m11>|<get-m11>(){}[0]
+    final val m20 // androidx.ink.geometry/ImmutableAffineTransform.m20|{}m20[0]
+        final fun <get-m20>(): kotlin/Float // androidx.ink.geometry/ImmutableAffineTransform.m20.<get-m20>|<get-m20>(){}[0]
+    final val m21 // androidx.ink.geometry/ImmutableAffineTransform.m21|{}m21[0]
+        final fun <get-m21>(): kotlin/Float // androidx.ink.geometry/ImmutableAffineTransform.m21.<get-m21>|<get-m21>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/ImmutableAffineTransform.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/ImmutableAffineTransform.hashCode|hashCode(){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/ImmutableAffineTransform.toString|toString(){}[0]
+
+    final object Companion { // androidx.ink.geometry/ImmutableAffineTransform.Companion|null[0]
+        final fun rotateDegrees(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.rotateDegrees|rotateDegrees(kotlin.Float){}[0]
+        final fun scale(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.scale|scale(kotlin.Float){}[0]
+        final fun scale(kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.scale|scale(kotlin.Float;kotlin.Float){}[0]
+        final fun scaleX(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.scaleX|scaleX(kotlin.Float){}[0]
+        final fun scaleY(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.scaleY|scaleY(kotlin.Float){}[0]
+        final fun skewX(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.skewX|skewX(kotlin.Float){}[0]
+        final fun skewY(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.skewY|skewY(kotlin.Float){}[0]
+        final fun translate(androidx.ink.geometry/Vec): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.translate|translate(androidx.ink.geometry.Vec){}[0]
+    }
+}
+
 final class androidx.ink.geometry/ImmutableBox : androidx.ink.geometry/Box { // androidx.ink.geometry/ImmutableBox|null[0]
     final val xMax // androidx.ink.geometry/ImmutableBox.xMax|{}xMax[0]
         final fun <get-xMax>(): kotlin/Float // androidx.ink.geometry/ImmutableBox.xMax.<get-xMax>|<get-xMax>(){}[0]
@@ -236,6 +332,114 @@ final class androidx.ink.geometry/ImmutableVec : androidx.ink.geometry/Vec { // 
     final object Companion { // androidx.ink.geometry/ImmutableVec.Companion|null[0]
         final fun fromDirectionInDegreesAndMagnitude(kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableVec // androidx.ink.geometry/ImmutableVec.Companion.fromDirectionInDegreesAndMagnitude|fromDirectionInDegreesAndMagnitude(kotlin.Float;kotlin.Float){}[0]
     }
+}
+
+final class androidx.ink.geometry/Mesh { // androidx.ink.geometry/Mesh|null[0]
+    final val bounds // androidx.ink.geometry/Mesh.bounds|{}bounds[0]
+        final fun <get-bounds>(): androidx.ink.geometry/Box? // androidx.ink.geometry/Mesh.bounds.<get-bounds>|<get-bounds>(){}[0]
+    final val format // androidx.ink.geometry/Mesh.format|{}format[0]
+        final fun <get-format>(): androidx.ink.geometry/MeshFormat // androidx.ink.geometry/Mesh.format.<get-format>|<get-format>(){}[0]
+    final val nativePointer // androidx.ink.geometry/Mesh.nativePointer|{}nativePointer[0]
+        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.geometry/Mesh.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
+    final val triangleCount // androidx.ink.geometry/Mesh.triangleCount|{}triangleCount[0]
+        final fun <get-triangleCount>(): kotlin/Int // androidx.ink.geometry/Mesh.triangleCount.<get-triangleCount>|<get-triangleCount>(){}[0]
+    final val vertexAttributeUnpackingParams // androidx.ink.geometry/Mesh.vertexAttributeUnpackingParams|{}vertexAttributeUnpackingParams[0]
+        final fun <get-vertexAttributeUnpackingParams>(): kotlin.collections/List<androidx.ink.geometry/MeshAttributeUnpackingParams> // androidx.ink.geometry/Mesh.vertexAttributeUnpackingParams.<get-vertexAttributeUnpackingParams>|<get-vertexAttributeUnpackingParams>(){}[0]
+    final val vertexCount // androidx.ink.geometry/Mesh.vertexCount|{}vertexCount[0]
+        final fun <get-vertexCount>(): kotlin/Int // androidx.ink.geometry/Mesh.vertexCount.<get-vertexCount>|<get-vertexCount>(){}[0]
+    final val vertexStride // androidx.ink.geometry/Mesh.vertexStride|{}vertexStride[0]
+        final fun <get-vertexStride>(): kotlin/Int // androidx.ink.geometry/Mesh.vertexStride.<get-vertexStride>|<get-vertexStride>(){}[0]
+
+    final fun fillPosition(kotlin/Int, androidx.ink.geometry/MutableVec) // androidx.ink.geometry/Mesh.fillPosition|fillPosition(kotlin.Int;androidx.ink.geometry.MutableVec){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/Mesh.toString|toString(){}[0]
+
+    final object Companion { // androidx.ink.geometry/Mesh.Companion|null[0]
+        final fun copyFromNative(kotlin/Long): androidx.ink.geometry/Mesh // androidx.ink.geometry/Mesh.Companion.copyFromNative|copyFromNative(kotlin.Long){}[0]
+        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.geometry/Mesh // androidx.ink.geometry/Mesh.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
+    }
+}
+
+final class androidx.ink.geometry/MeshAttributeUnpackingParams { // androidx.ink.geometry/MeshAttributeUnpackingParams|null[0]
+    constructor <init>(kotlin.collections/List<androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams>) // androidx.ink.geometry/MeshAttributeUnpackingParams.<init>|<init>(kotlin.collections.List<androidx.ink.geometry.MeshAttributeUnpackingParams.ComponentUnpackingParams>){}[0]
+
+    final val components // androidx.ink.geometry/MeshAttributeUnpackingParams.components|{}components[0]
+        final fun <get-components>(): kotlin.collections/List<androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams> // androidx.ink.geometry/MeshAttributeUnpackingParams.components.<get-components>|<get-components>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MeshAttributeUnpackingParams.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/MeshAttributeUnpackingParams.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/MeshAttributeUnpackingParams.toString|toString(){}[0]
+
+    final class ComponentUnpackingParams { // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams|null[0]
+        constructor <init>(kotlin/Float, kotlin/Float) // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.<init>|<init>(kotlin.Float;kotlin.Float){}[0]
+
+        final val offset // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.offset|{}offset[0]
+            final fun <get-offset>(): kotlin/Float // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.offset.<get-offset>|<get-offset>(){}[0]
+        final val scale // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.scale|{}scale[0]
+            final fun <get-scale>(): kotlin/Float // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.scale.<get-scale>|<get-scale>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.ink.geometry/MeshAttributeUnpackingParams.ComponentUnpackingParams.toString|toString(){}[0]
+    }
+
+    final object Companion { // androidx.ink.geometry/MeshAttributeUnpackingParams.Companion|null[0]
+        final fun create(kotlin/Float, kotlin/Float): androidx.ink.geometry/MeshAttributeUnpackingParams // androidx.ink.geometry/MeshAttributeUnpackingParams.Companion.create|create(kotlin.Float;kotlin.Float){}[0]
+        final fun create(kotlin/FloatArray, kotlin/FloatArray): androidx.ink.geometry/MeshAttributeUnpackingParams // androidx.ink.geometry/MeshAttributeUnpackingParams.Companion.create|create(kotlin.FloatArray;kotlin.FloatArray){}[0]
+    }
+}
+
+final class androidx.ink.geometry/MeshFormat { // androidx.ink.geometry/MeshFormat|null[0]
+    final val nativePointer // androidx.ink.geometry/MeshFormat.nativePointer|{}nativePointer[0]
+        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.geometry/MeshFormat.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
+
+    final fun attributeCount(): kotlin/Int // androidx.ink.geometry/MeshFormat.attributeCount|attributeCount(){}[0]
+    final fun isPackedEquivalent(androidx.ink.geometry/MeshFormat): kotlin/Boolean // androidx.ink.geometry/MeshFormat.isPackedEquivalent|isPackedEquivalent(androidx.ink.geometry.MeshFormat){}[0]
+    final fun isUnpackedEquivalent(androidx.ink.geometry/MeshFormat): kotlin/Boolean // androidx.ink.geometry/MeshFormat.isUnpackedEquivalent|isUnpackedEquivalent(androidx.ink.geometry.MeshFormat){}[0]
+
+    final object Companion { // androidx.ink.geometry/MeshFormat.Companion|null[0]
+        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.geometry/MeshFormat // androidx.ink.geometry/MeshFormat.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
+    }
+}
+
+final class androidx.ink.geometry/MutableAffineTransform : androidx.ink.geometry/AffineTransform { // androidx.ink.geometry/MutableAffineTransform|null[0]
+    constructor <init>() // androidx.ink.geometry/MutableAffineTransform.<init>|<init>(){}[0]
+    constructor <init>(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.<init>|<init>(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+
+    final var m00 // androidx.ink.geometry/MutableAffineTransform.m00|{}m00[0]
+        final fun <get-m00>(): kotlin/Float // androidx.ink.geometry/MutableAffineTransform.m00.<get-m00>|<get-m00>(){}[0]
+        final fun <set-m00>(kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.m00.<set-m00>|<set-m00>(kotlin.Float){}[0]
+    final var m01 // androidx.ink.geometry/MutableAffineTransform.m01|{}m01[0]
+        final fun <get-m01>(): kotlin/Float // androidx.ink.geometry/MutableAffineTransform.m01.<get-m01>|<get-m01>(){}[0]
+        final fun <set-m01>(kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.m01.<set-m01>|<set-m01>(kotlin.Float){}[0]
+    final var m10 // androidx.ink.geometry/MutableAffineTransform.m10|{}m10[0]
+        final fun <get-m10>(): kotlin/Float // androidx.ink.geometry/MutableAffineTransform.m10.<get-m10>|<get-m10>(){}[0]
+        final fun <set-m10>(kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.m10.<set-m10>|<set-m10>(kotlin.Float){}[0]
+    final var m11 // androidx.ink.geometry/MutableAffineTransform.m11|{}m11[0]
+        final fun <get-m11>(): kotlin/Float // androidx.ink.geometry/MutableAffineTransform.m11.<get-m11>|<get-m11>(){}[0]
+        final fun <set-m11>(kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.m11.<set-m11>|<set-m11>(kotlin.Float){}[0]
+    final var m20 // androidx.ink.geometry/MutableAffineTransform.m20|{}m20[0]
+        final fun <get-m20>(): kotlin/Float // androidx.ink.geometry/MutableAffineTransform.m20.<get-m20>|<get-m20>(){}[0]
+        final fun <set-m20>(kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.m20.<set-m20>|<set-m20>(kotlin.Float){}[0]
+    final var m21 // androidx.ink.geometry/MutableAffineTransform.m21|{}m21[0]
+        final fun <get-m21>(): kotlin/Float // androidx.ink.geometry/MutableAffineTransform.m21.<get-m21>|<get-m21>(){}[0]
+        final fun <set-m21>(kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.m21.<set-m21>|<set-m21>(kotlin.Float){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.geometry/MutableAffineTransform.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.ink.geometry/MutableAffineTransform.hashCode|hashCode(){}[0]
+    final fun populateFrom(androidx.ink.geometry/AffineTransform): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFrom|populateFrom(androidx.ink.geometry.AffineTransform){}[0]
+    final fun populateFromIdentity(): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromIdentity|populateFromIdentity(){}[0]
+    final fun populateFromRotationDegrees(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromRotationDegrees|populateFromRotationDegrees(kotlin.Float){}[0]
+    final fun populateFromScale(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromScale|populateFromScale(kotlin.Float){}[0]
+    final fun populateFromScale(kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromScale|populateFromScale(kotlin.Float;kotlin.Float){}[0]
+    final fun populateFromScaleX(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromScaleX|populateFromScaleX(kotlin.Float){}[0]
+    final fun populateFromScaleY(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromScaleY|populateFromScaleY(kotlin.Float){}[0]
+    final fun populateFromSkewX(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromSkewX|populateFromSkewX(kotlin.Float){}[0]
+    final fun populateFromSkewY(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromSkewY|populateFromSkewY(kotlin.Float){}[0]
+    final fun populateFromTranslation(androidx.ink.geometry/Vec): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromTranslation|populateFromTranslation(androidx.ink.geometry.Vec){}[0]
+    final fun setValues(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.setValues|setValues(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun setValues(kotlin/FloatArray) // androidx.ink.geometry/MutableAffineTransform.setValues|setValues(kotlin.FloatArray){}[0]
+    final fun toImmutable(): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.toImmutable|toImmutable(){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/MutableAffineTransform.toString|toString(){}[0]
 }
 
 final class androidx.ink.geometry/MutableBox : androidx.ink.geometry/Box { // androidx.ink.geometry/MutableBox|null[0]
@@ -354,6 +558,33 @@ final class androidx.ink.geometry/MutableVec : androidx.ink.geometry/Vec { // an
     final object Companion // androidx.ink.geometry/MutableVec.Companion|null[0]
 }
 
+final class androidx.ink.geometry/PartitionedMesh { // androidx.ink.geometry/PartitionedMesh|null[0]
+    final val nativePointer // androidx.ink.geometry/PartitionedMesh.nativePointer|{}nativePointer[0]
+        final fun <get-nativePointer>(): kotlin/Long // androidx.ink.geometry/PartitionedMesh.nativePointer.<get-nativePointer>|<get-nativePointer>(){}[0]
+
+    final fun computeBoundingBox(): androidx.ink.geometry/Box? // androidx.ink.geometry/PartitionedMesh.computeBoundingBox|computeBoundingBox(){}[0]
+    final fun computeCoverage(androidx.ink.geometry/Box, androidx.ink.geometry/AffineTransform = ...): kotlin/Float // androidx.ink.geometry/PartitionedMesh.computeCoverage|computeCoverage(androidx.ink.geometry.Box;androidx.ink.geometry.AffineTransform){}[0]
+    final fun computeCoverage(androidx.ink.geometry/Parallelogram, androidx.ink.geometry/AffineTransform = ...): kotlin/Float // androidx.ink.geometry/PartitionedMesh.computeCoverage|computeCoverage(androidx.ink.geometry.Parallelogram;androidx.ink.geometry.AffineTransform){}[0]
+    final fun computeCoverage(androidx.ink.geometry/PartitionedMesh, androidx.ink.geometry/AffineTransform = ...): kotlin/Float // androidx.ink.geometry/PartitionedMesh.computeCoverage|computeCoverage(androidx.ink.geometry.PartitionedMesh;androidx.ink.geometry.AffineTransform){}[0]
+    final fun computeCoverage(androidx.ink.geometry/Triangle, androidx.ink.geometry/AffineTransform = ...): kotlin/Float // androidx.ink.geometry/PartitionedMesh.computeCoverage|computeCoverage(androidx.ink.geometry.Triangle;androidx.ink.geometry.AffineTransform){}[0]
+    final fun computeCoverageIsGreaterThan(androidx.ink.geometry/Box, kotlin/Float, androidx.ink.geometry/AffineTransform = ...): kotlin/Boolean // androidx.ink.geometry/PartitionedMesh.computeCoverageIsGreaterThan|computeCoverageIsGreaterThan(androidx.ink.geometry.Box;kotlin.Float;androidx.ink.geometry.AffineTransform){}[0]
+    final fun computeCoverageIsGreaterThan(androidx.ink.geometry/Parallelogram, kotlin/Float, androidx.ink.geometry/AffineTransform = ...): kotlin/Boolean // androidx.ink.geometry/PartitionedMesh.computeCoverageIsGreaterThan|computeCoverageIsGreaterThan(androidx.ink.geometry.Parallelogram;kotlin.Float;androidx.ink.geometry.AffineTransform){}[0]
+    final fun computeCoverageIsGreaterThan(androidx.ink.geometry/PartitionedMesh, kotlin/Float, androidx.ink.geometry/AffineTransform = ...): kotlin/Boolean // androidx.ink.geometry/PartitionedMesh.computeCoverageIsGreaterThan|computeCoverageIsGreaterThan(androidx.ink.geometry.PartitionedMesh;kotlin.Float;androidx.ink.geometry.AffineTransform){}[0]
+    final fun computeCoverageIsGreaterThan(androidx.ink.geometry/Triangle, kotlin/Float, androidx.ink.geometry/AffineTransform = ...): kotlin/Boolean // androidx.ink.geometry/PartitionedMesh.computeCoverageIsGreaterThan|computeCoverageIsGreaterThan(androidx.ink.geometry.Triangle;kotlin.Float;androidx.ink.geometry.AffineTransform){}[0]
+    final fun getOutlineCount(kotlin/Int): kotlin/Int // androidx.ink.geometry/PartitionedMesh.getOutlineCount|getOutlineCount(kotlin.Int){}[0]
+    final fun getOutlineVertexCount(kotlin/Int, kotlin/Int): kotlin/Int // androidx.ink.geometry/PartitionedMesh.getOutlineVertexCount|getOutlineVertexCount(kotlin.Int;kotlin.Int){}[0]
+    final fun getRenderGroupCount(): kotlin/Int // androidx.ink.geometry/PartitionedMesh.getRenderGroupCount|getRenderGroupCount(){}[0]
+    final fun initializeSpatialIndex() // androidx.ink.geometry/PartitionedMesh.initializeSpatialIndex|initializeSpatialIndex(){}[0]
+    final fun populateOutlinePosition(kotlin/Int, kotlin/Int, kotlin/Int, androidx.ink.geometry/MutableVec): androidx.ink.geometry/MutableVec // androidx.ink.geometry/PartitionedMesh.populateOutlinePosition|populateOutlinePosition(kotlin.Int;kotlin.Int;kotlin.Int;androidx.ink.geometry.MutableVec){}[0]
+    final fun renderGroupFormat(kotlin/Int): androidx.ink.geometry/MeshFormat // androidx.ink.geometry/PartitionedMesh.renderGroupFormat|renderGroupFormat(kotlin.Int){}[0]
+    final fun renderGroupMeshes(kotlin/Int): kotlin.collections/List<androidx.ink.geometry/Mesh> // androidx.ink.geometry/PartitionedMesh.renderGroupMeshes|renderGroupMeshes(kotlin.Int){}[0]
+    final fun toString(): kotlin/String // androidx.ink.geometry/PartitionedMesh.toString|toString(){}[0]
+
+    final object Companion { // androidx.ink.geometry/PartitionedMesh.Companion|null[0]
+        final fun wrapNative(kotlin/Function0<kotlin/Long>): androidx.ink.geometry/PartitionedMesh // androidx.ink.geometry/PartitionedMesh.Companion.wrapNative|wrapNative(kotlin.Function0<kotlin.Long>){}[0]
+    }
+}
+
 final object androidx.ink.geometry/Angle { // androidx.ink.geometry/Angle|null[0]
     final val FULL_TURN_DEGREES // androidx.ink.geometry/Angle.FULL_TURN_DEGREES|{}FULL_TURN_DEGREES[0]
         final fun <get-FULL_TURN_DEGREES>(): kotlin/Float // androidx.ink.geometry/Angle.FULL_TURN_DEGREES.<get-FULL_TURN_DEGREES>|<get-FULL_TURN_DEGREES>(){}[0]
@@ -378,4 +609,48 @@ final object androidx.ink.geometry/Angle { // androidx.ink.geometry/Angle|null[0
     final fun normalizedDegrees(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.normalizedDegrees|normalizedDegrees(kotlin.Float){}[0]
     final fun normalizedRadians(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.normalizedRadians|normalizedRadians(kotlin.Float){}[0]
     final fun radiansToDegrees(kotlin/Float): kotlin/Float // androidx.ink.geometry/Angle.radiansToDegrees|radiansToDegrees(kotlin.Float){}[0]
+}
+
+final object androidx.ink.geometry/Intersection { // androidx.ink.geometry/Intersection|null[0]
+    final fun (androidx.ink.geometry/Box).intersects(androidx.ink.geometry/Box): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Box(androidx.ink.geometry.Box){}[0]
+    final fun (androidx.ink.geometry/Box).intersects(androidx.ink.geometry/Parallelogram): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Box(androidx.ink.geometry.Parallelogram){}[0]
+    final fun (androidx.ink.geometry/Box).intersects(androidx.ink.geometry/PartitionedMesh, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Box(androidx.ink.geometry.PartitionedMesh;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/Box).intersects(androidx.ink.geometry/Segment): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Box(androidx.ink.geometry.Segment){}[0]
+    final fun (androidx.ink.geometry/Box).intersects(androidx.ink.geometry/Triangle): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Box(androidx.ink.geometry.Triangle){}[0]
+    final fun (androidx.ink.geometry/Box).intersects(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Box(androidx.ink.geometry.Vec){}[0]
+    final fun (androidx.ink.geometry/Box).intersects(kotlin/Float, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Box(kotlin.Float;kotlin.Float){}[0]
+    final fun (androidx.ink.geometry/Parallelogram).intersects(androidx.ink.geometry/Box): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Parallelogram(androidx.ink.geometry.Box){}[0]
+    final fun (androidx.ink.geometry/Parallelogram).intersects(androidx.ink.geometry/Parallelogram): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Parallelogram(androidx.ink.geometry.Parallelogram){}[0]
+    final fun (androidx.ink.geometry/Parallelogram).intersects(androidx.ink.geometry/PartitionedMesh, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Parallelogram(androidx.ink.geometry.PartitionedMesh;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/Parallelogram).intersects(androidx.ink.geometry/Segment): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Parallelogram(androidx.ink.geometry.Segment){}[0]
+    final fun (androidx.ink.geometry/Parallelogram).intersects(androidx.ink.geometry/Triangle): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Parallelogram(androidx.ink.geometry.Triangle){}[0]
+    final fun (androidx.ink.geometry/Parallelogram).intersects(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Parallelogram(androidx.ink.geometry.Vec){}[0]
+    final fun (androidx.ink.geometry/Parallelogram).intersects(kotlin/Float, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Parallelogram(kotlin.Float;kotlin.Float){}[0]
+    final fun (androidx.ink.geometry/PartitionedMesh).intersects(androidx.ink.geometry/Box, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.PartitionedMesh(androidx.ink.geometry.Box;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/PartitionedMesh).intersects(androidx.ink.geometry/Parallelogram, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.PartitionedMesh(androidx.ink.geometry.Parallelogram;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/PartitionedMesh).intersects(androidx.ink.geometry/PartitionedMesh, androidx.ink.geometry/AffineTransform, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.PartitionedMesh(androidx.ink.geometry.PartitionedMesh;androidx.ink.geometry.AffineTransform;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/PartitionedMesh).intersects(androidx.ink.geometry/Segment, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.PartitionedMesh(androidx.ink.geometry.Segment;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/PartitionedMesh).intersects(androidx.ink.geometry/Triangle, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.PartitionedMesh(androidx.ink.geometry.Triangle;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/PartitionedMesh).intersects(androidx.ink.geometry/Vec, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.PartitionedMesh(androidx.ink.geometry.Vec;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/PartitionedMesh).intersects(kotlin/Float, kotlin/Float, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.PartitionedMesh(kotlin.Float;kotlin.Float;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/Segment).intersects(androidx.ink.geometry/Box): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Segment(androidx.ink.geometry.Box){}[0]
+    final fun (androidx.ink.geometry/Segment).intersects(androidx.ink.geometry/Parallelogram): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Segment(androidx.ink.geometry.Parallelogram){}[0]
+    final fun (androidx.ink.geometry/Segment).intersects(androidx.ink.geometry/PartitionedMesh, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Segment(androidx.ink.geometry.PartitionedMesh;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/Segment).intersects(androidx.ink.geometry/Segment): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Segment(androidx.ink.geometry.Segment){}[0]
+    final fun (androidx.ink.geometry/Segment).intersects(androidx.ink.geometry/Triangle): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Segment(androidx.ink.geometry.Triangle){}[0]
+    final fun (androidx.ink.geometry/Segment).intersects(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Segment(androidx.ink.geometry.Vec){}[0]
+    final fun (androidx.ink.geometry/Segment).intersects(kotlin/Float, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Segment(kotlin.Float;kotlin.Float){}[0]
+    final fun (androidx.ink.geometry/Triangle).intersects(androidx.ink.geometry/Box): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Triangle(androidx.ink.geometry.Box){}[0]
+    final fun (androidx.ink.geometry/Triangle).intersects(androidx.ink.geometry/Parallelogram): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Triangle(androidx.ink.geometry.Parallelogram){}[0]
+    final fun (androidx.ink.geometry/Triangle).intersects(androidx.ink.geometry/PartitionedMesh, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Triangle(androidx.ink.geometry.PartitionedMesh;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/Triangle).intersects(androidx.ink.geometry/Segment): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Triangle(androidx.ink.geometry.Segment){}[0]
+    final fun (androidx.ink.geometry/Triangle).intersects(androidx.ink.geometry/Triangle): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Triangle(androidx.ink.geometry.Triangle){}[0]
+    final fun (androidx.ink.geometry/Triangle).intersects(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Triangle(androidx.ink.geometry.Vec){}[0]
+    final fun (androidx.ink.geometry/Triangle).intersects(kotlin/Float, kotlin/Float): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Triangle(kotlin.Float;kotlin.Float){}[0]
+    final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/Box): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.Box){}[0]
+    final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/Parallelogram): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.Parallelogram){}[0]
+    final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/PartitionedMesh, androidx.ink.geometry/AffineTransform): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.PartitionedMesh;androidx.ink.geometry.AffineTransform){}[0]
+    final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/Segment): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.Segment){}[0]
+    final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/Triangle): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.Triangle){}[0]
+    final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.Vec){}[0]
 }
