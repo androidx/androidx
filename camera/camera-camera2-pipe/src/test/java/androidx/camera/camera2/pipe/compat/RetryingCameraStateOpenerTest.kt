@@ -35,7 +35,6 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StrictMode
-import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeAudioRestrictionController
@@ -45,6 +44,9 @@ import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.FakeTimeSource
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -165,7 +167,7 @@ class RetryingCameraStateOpenerTest {
                 return object : CameraAvailabilityMonitor.Session {
                     override suspend fun awaitAvailableCamera(timeoutMillis: Long): Boolean {
                         delay(timeoutMillis)
-                        fakeTimeSource.currentTimestamp += DurationNs.fromMs(timeoutMillis)
+                        fakeTimeSource.currentTimestamp += timeoutMillis.milliseconds
                         return true
                     }
 
@@ -196,7 +198,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_IN_USE,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -210,7 +212,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_IN_USE,
                     1,
-                    DurationNs(3600_000_000_000L), // 3600 seconds (60 minutes)
+                    60.minutes, // 3600 seconds (60 minutes)
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -224,7 +226,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_UNDETERMINED,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -236,7 +238,7 @@ class RetryingCameraStateOpenerTest {
             RetryingCameraStateOpenerImpl.shouldRetry(
                 ERROR_UNDETERMINED,
                 2,
-                DurationNs(1_000_000_001L),
+                2.seconds,
                 camerasDisabledByDevicePolicy = false,
                 isForeground = true,
             )
@@ -249,7 +251,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_IN_USE,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -261,7 +263,7 @@ class RetryingCameraStateOpenerTest {
             RetryingCameraStateOpenerImpl.shouldRetry(
                 ERROR_CAMERA_IN_USE,
                 2,
-                DurationNs(1_000_000_001L),
+                2.seconds,
                 camerasDisabledByDevicePolicy = false,
                 isForeground = true,
             )
@@ -278,7 +280,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_LIMIT_EXCEEDED,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -290,7 +292,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_LIMIT_EXCEEDED,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -304,7 +306,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISABLED,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = true,
                     isForeground = true,
                 )
@@ -316,7 +318,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISABLED,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = true,
                     isForeground = true,
                 )
@@ -330,7 +332,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISABLED,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -342,7 +344,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISABLED,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -356,7 +358,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     CameraError.ERROR_CAMERA_DEVICE,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -368,7 +370,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     CameraError.ERROR_CAMERA_DEVICE,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -382,7 +384,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_SERVICE,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -394,7 +396,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_SERVICE,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -408,7 +410,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISCONNECTED,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -420,7 +422,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISCONNECTED,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -434,7 +436,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -446,7 +448,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_ILLEGAL_ARGUMENT_EXCEPTION,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -460,7 +462,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_SECURITY_EXCEPTION,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -472,7 +474,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_SECURITY_EXCEPTION,
                     2,
-                    DurationNs(1_000_000_001L),
+                    2.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -486,7 +488,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_DO_NOT_DISTURB_ENABLED,
                     1,
-                    DurationNs(1_000_000_000L), // 1 second
+                    1.seconds, // 1 second
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -504,7 +506,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_IN_USE,
                     1,
-                    DurationNs(1_000_000_000L),
+                    1.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -515,7 +517,7 @@ class RetryingCameraStateOpenerTest {
             RetryingCameraStateOpenerImpl.shouldRetry(
                 ERROR_CAMERA_IN_USE,
                 2,
-                DurationNs(30_000_000_000L), // 30s
+                30.seconds, // 30s
                 camerasDisabledByDevicePolicy = false,
                 isForeground = true,
             )
@@ -536,7 +538,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_LIMIT_EXCEEDED,
                     1,
-                    DurationNs(1_000_000_000L),
+                    1.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -547,7 +549,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_LIMIT_EXCEEDED,
                     2,
-                    DurationNs(30_000_000_000L), // 30s
+                    30.seconds, // 30s
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -565,7 +567,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISCONNECTED,
                     1,
-                    DurationNs(1_000_000_000L),
+                    1.seconds,
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
@@ -576,7 +578,7 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpenerImpl.shouldRetry(
                     ERROR_CAMERA_DISCONNECTED,
                     2,
-                    DurationNs(30_000_000_000L), // 30s
+                    30.seconds, // 30s
                     camerasDisabledByDevicePolicy = false,
                     isForeground = true,
                 )
