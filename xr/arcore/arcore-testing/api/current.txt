@@ -108,7 +108,7 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getExpectedPose();
     method @InaccessibleFromKotlin public double getExpectedVerticalAccuracy();
     method @InaccessibleFromKotlin public androidx.xr.arcore.VpsAvailabilityResult getExpectedVpsResult();
-    method @InaccessibleFromKotlin public androidx.xr.arcore.GeospatialState getState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Geospatial.GeospatialTrackingState getState();
     method @InaccessibleFromKotlin public void setAllowedAnchorLatitudeRange(android.util.Range<java.lang.Double>);
     method @InaccessibleFromKotlin public void setExpectedAnchorPose(androidx.xr.runtime.math.Pose?);
     method @InaccessibleFromKotlin public void setExpectedGeospatialPose(androidx.xr.runtime.math.GeospatialPose);
@@ -117,7 +117,7 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public void setExpectedPose(androidx.xr.runtime.math.Pose);
     method @InaccessibleFromKotlin public void setExpectedVerticalAccuracy(double);
     method @InaccessibleFromKotlin public void setExpectedVpsResult(androidx.xr.arcore.VpsAvailabilityResult);
-    method @InaccessibleFromKotlin public void setState(androidx.xr.arcore.GeospatialState);
+    method @InaccessibleFromKotlin public void setState(androidx.xr.arcore.Geospatial.GeospatialTrackingState);
     property public android.util.Range<java.lang.Double> allowedAnchorLatitudeRange;
     property public androidx.xr.runtime.math.Pose? expectedAnchorPose;
     property public androidx.xr.runtime.math.GeospatialPose expectedGeospatialPose;
@@ -126,7 +126,7 @@ package androidx.xr.arcore.testing {
     property public androidx.xr.runtime.math.Pose expectedPose;
     property public double expectedVerticalAccuracy;
     property public androidx.xr.arcore.VpsAvailabilityResult expectedVpsResult;
-    property public androidx.xr.arcore.GeospatialState state;
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState state;
   }
 
   public final class HandTester {

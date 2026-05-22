@@ -95,6 +95,7 @@ class PerceptionStateExtenderTest {
                 FACE_TRACKING,
                 EYE_TRACKING_COARSE,
                 EYE_TRACKING_FINE,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
             )
 
         activityController.create().start().resume()
@@ -109,6 +110,7 @@ class PerceptionStateExtenderTest {
                 .setFaceTracking(FaceTrackingMode.BLEND_SHAPES)
                 .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
                 .setEyeTracking(EyeTrackingMode.FINE_TRACKING)
+                .setGeospatial(androidx.xr.runtime.GeospatialMode.SPATIAL)
                 .build()
         )
 
@@ -307,6 +309,28 @@ class PerceptionStateExtenderTest {
 
             perceptionState = perceptionStateMap[timeMark]!!
             assertThat(perceptionState.arDeviceState.devicePose).isEqualTo(expectedDevicePose)
+        }
+
+    @Test
+    fun extend_twice_geospatialServiceStateUpdated() =
+        runTest(testDispatcher) {
+            var timeMark = timeSource.markNow()
+
+            underTest.extend(CoreState(timeMark))
+
+            var perceptionState = perceptionStateMap[timeMark]!!
+            assertThat(perceptionState.geospatialState?.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.NOT_RUNNING)
+
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
+            advanceUntilIdle()
+
+            timeMark = timeSource.markNow()
+            underTest.extend(CoreState(timeMark))
+
+            perceptionState = perceptionStateMap[timeMark]!!
+            assertThat(perceptionState.geospatialState?.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.RUNNING)
         }
 
     @Test

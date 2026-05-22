@@ -72,7 +72,7 @@ class GeospatialTest {
                 .session
         session.configure(Config.Builder().setGeospatial(GeospatialMode.SPATIAL).build())
 
-        arCoreTestRule.geospatialTester.state = GeospatialState.NOT_RUNNING
+        arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.NOT_RUNNING
     }
 
     @Test
@@ -88,64 +88,81 @@ class GeospatialTest {
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
 
-            assertThat(underTest.state.value).isEqualTo(GeospatialState.NOT_RUNNING)
+            assertThat(underTest.state.value.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.NOT_RUNNING)
+        }
+
+    @Test
+    fun getInstance_initialStateHasCorrectOwner() =
+        runTest(testDispatcher) {
+            val underTest = Geospatial.getInstance(session)
+
+            assertThat(underTest.state.value.owner).isEqualTo(underTest)
         }
 
     @Test
     fun update_stateMatchesDeviceState_whenRunning() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             advanceUntilIdle()
 
-            assertThat(underTest.state.value).isEqualTo(GeospatialState.RUNNING)
+            assertThat(underTest.state.value.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.RUNNING)
         }
 
     @Test
     fun update_stateMatchesDeviceState_whenPaused() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.PAUSED
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.PAUSED
             advanceUntilIdle()
 
-            assertThat(underTest.state.value).isEqualTo(GeospatialState.PAUSED)
+            assertThat(underTest.state.value.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.PAUSED)
         }
 
     @Test
     fun update_stateMatchesDeviceState_whenInternalError() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.ERROR_INTERNAL
+            arCoreTestRule.geospatialTester.state =
+                Geospatial.GeospatialTrackingState.ERROR_INTERNAL
             advanceUntilIdle()
 
-            assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_INTERNAL)
+            assertThat(underTest.state.value.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.ERROR_INTERNAL)
         }
 
     @Test
     fun update_stateMatchesDeviceState_whenNotAuthorized() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.ERROR_NOT_AUTHORIZED
+            arCoreTestRule.geospatialTester.state =
+                Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED
             advanceUntilIdle()
 
-            assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_NOT_AUTHORIZED)
+            assertThat(underTest.state.value.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED)
         }
 
     @Test
     fun update_stateMatchesDeviceState_whenResourcesExhausted() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.ERROR_RESOURCE_EXHAUSTED
+            arCoreTestRule.geospatialTester.state =
+                Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED
             advanceUntilIdle()
 
-            assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_RESOURCE_EXHAUSTED)
+            assertThat(underTest.state.value.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED)
         }
 
     @Test
     fun createGeospatialPoseFromPose_success_returnsSuccessResult() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             advanceUntilIdle()
 
             val result = underTest.createGeospatialPoseFromPose(Pose(Vector3(), Quaternion()))
@@ -165,7 +182,10 @@ class GeospatialTest {
     fun createGeospatialPoseFromPose_notTracking_returnsNotTrackingResult() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            check(underTest.state.value == GeospatialState.NOT_RUNNING)
+            check(
+                underTest.state.value.geospatialTrackingState ==
+                    Geospatial.GeospatialTrackingState.NOT_RUNNING
+            )
 
             val result = underTest.createGeospatialPoseFromPose(Pose(Vector3(), Quaternion()))
 
@@ -176,7 +196,7 @@ class GeospatialTest {
     fun createPoseFromGeospatialPose_success_returnsSuccessResult() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             advanceUntilIdle()
 
             val result = underTest.createPoseFromGeospatialPose(GeospatialPose())
@@ -189,7 +209,10 @@ class GeospatialTest {
     fun createPoseFromGeospatialPose_notTracking_returnsNotTrackingResult() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            check(underTest.state.value == GeospatialState.NOT_RUNNING)
+            check(
+                underTest.state.value.geospatialTrackingState ==
+                    Geospatial.GeospatialTrackingState.NOT_RUNNING
+            )
 
             val result = underTest.createPoseFromGeospatialPose(GeospatialPose())
 
@@ -200,7 +223,7 @@ class GeospatialTest {
     fun createAnchor_success_returnsSuccessResultWithAnchor() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedAnchorPose = Pose()
             advanceUntilIdle()
 
@@ -223,7 +246,7 @@ class GeospatialTest {
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
             arCoreTestRule.anchorResourceLimit = 6
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             advanceUntilIdle()
 
             repeat(arCoreTestRule.anchorResourceLimit) {
@@ -239,7 +262,7 @@ class GeospatialTest {
     fun createAnchor_invalidLatitude_throwsIllegalArgumentException() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             advanceUntilIdle()
 
             val latitude = 99999.0
@@ -273,7 +296,7 @@ class GeospatialTest {
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
             arCoreTestRule.geospatialTester.apply {
-                state = GeospatialState.RUNNING
+                state = Geospatial.GeospatialTrackingState.RUNNING
                 expectedAnchorPose = Pose()
             }
             advanceUntilIdle()
@@ -303,7 +326,7 @@ class GeospatialTest {
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
             arCoreTestRule.anchorResourceLimit = 6
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             advanceUntilIdle()
 
             repeat(arCoreTestRule.anchorResourceLimit) {
@@ -332,7 +355,8 @@ class GeospatialTest {
     fun createAnchorOnSurface_notAuthorized_throwsAnchorNotAuthorizedException() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.ERROR_NOT_AUTHORIZED
+            arCoreTestRule.geospatialTester.state =
+                Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED
             advanceUntilIdle()
 
             assertFailsWith<AnchorNotAuthorizedException> {
@@ -350,7 +374,7 @@ class GeospatialTest {
     fun createAnchorOnSurface_unsupportedLocation_throwsIllegalArgumentException() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             advanceUntilIdle()
 
             val latitude = 10.0
@@ -374,7 +398,7 @@ class GeospatialTest {
     fun createAnchorOnSurface_invalidLatitude_throwsIllegalArgumentException() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedAnchorPose = Pose()
             advanceUntilIdle()
 
@@ -401,7 +425,7 @@ class GeospatialTest {
     fun checkVpsAvailability_vpsUnavailable_returnsVpsAvailabilityUnavailable() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedVpsResult = VpsAvailabilityUnavailable()
             advanceUntilIdle()
 
@@ -413,7 +437,7 @@ class GeospatialTest {
     fun checkVpsAvailability_vpsAvailable_returnsVpsAvailabilityAvailable() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedVpsResult = VpsAvailabilityAvailable()
             advanceUntilIdle()
 
@@ -426,7 +450,7 @@ class GeospatialTest {
     fun checkVpsAvailability_errorInternal_returnsVpsAvailabilityErrorInternal() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedVpsResult = VpsAvailabilityErrorInternal()
             advanceUntilIdle()
 
@@ -438,7 +462,7 @@ class GeospatialTest {
     fun checkVpsAvailability_networkError_returnsVpsAvailabilityNetworkError() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedVpsResult = VpsAvailabilityNetworkError()
             advanceUntilIdle()
 
@@ -450,7 +474,7 @@ class GeospatialTest {
     fun checkVpsAvailability_notAuthorized_returnsVpsAvailabilityNotAuthorized() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedVpsResult = VpsAvailabilityNotAuthorized()
             advanceUntilIdle()
 
@@ -462,7 +486,7 @@ class GeospatialTest {
     fun checkVpsAvailability_resourcesExhausted_returnsVpsAvailabilityResourceExhausted() =
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
-            arCoreTestRule.geospatialTester.state = GeospatialState.RUNNING
+            arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
             arCoreTestRule.geospatialTester.expectedVpsResult = VpsAvailabilityResourceExhausted()
             advanceUntilIdle()
 

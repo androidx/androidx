@@ -17,7 +17,6 @@ package androidx.xr.arcore.testing
 
 import android.util.Range
 import androidx.xr.arcore.Geospatial
-import androidx.xr.arcore.GeospatialState
 import androidx.xr.arcore.VpsAvailabilityAvailable
 import androidx.xr.arcore.VpsAvailabilityErrorInternal
 import androidx.xr.arcore.VpsAvailabilityNetworkError
@@ -50,7 +49,7 @@ import androidx.xr.runtime.math.Quaternion
  *   [Geospatial.createGeospatialPoseFromPose]
  * @property expectedAnchorPose the [Pose] of the [androidx.xr.arcore.Anchor] that will be returned
  *   by [Geospatial.createAnchor] or [Geospatial.createAnchorOnSurface]
- * @property state the [GeospatialState] device's Geospatial communication
+ * @property state the [Geospatial.GeospatialTrackingState] device's Geospatial communication
  * @property expectedVpsResult [VpsAvailabilityResult] that will be returned when checking for VPS
  *   availability if not null
  * @property allowedAnchorLatitudeRange the acceptable range of latitude values that [Geospatial]
@@ -116,7 +115,8 @@ public class GeospatialTester internal constructor(private val arCoreTestRule: A
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
 
-    public var state: GeospatialState = GeospatialState.NOT_RUNNING
+    public var state: Geospatial.GeospatialTrackingState =
+        Geospatial.GeospatialTrackingState.NOT_RUNNING
         set(value) {
             field = value
             if (isConfigured()) {
@@ -146,14 +146,16 @@ public class GeospatialTester internal constructor(private val arCoreTestRule: A
     private fun isConfigured() = arCoreTestRule.runtime.config.geospatial == GeospatialMode.SPATIAL
 }
 
-internal fun GeospatialState.toRuntimeType(): RuntimeGeospatialState =
+internal fun Geospatial.GeospatialTrackingState.toRuntimeType(): RuntimeGeospatialState =
     when (this) {
-        GeospatialState.PAUSED -> RuntimeGeospatialState.PAUSED
-        GeospatialState.RUNNING -> RuntimeGeospatialState.RUNNING
-        GeospatialState.NOT_RUNNING -> RuntimeGeospatialState.NOT_RUNNING
-        GeospatialState.ERROR_INTERNAL -> RuntimeGeospatialState.ERROR_INTERNAL
-        GeospatialState.ERROR_NOT_AUTHORIZED -> RuntimeGeospatialState.ERROR_NOT_AUTHORIZED
-        GeospatialState.ERROR_RESOURCE_EXHAUSTED -> RuntimeGeospatialState.ERROR_RESOURCE_EXHAUSTED
+        Geospatial.GeospatialTrackingState.PAUSED -> RuntimeGeospatialState.PAUSED
+        Geospatial.GeospatialTrackingState.RUNNING -> RuntimeGeospatialState.RUNNING
+        Geospatial.GeospatialTrackingState.NOT_RUNNING -> RuntimeGeospatialState.NOT_RUNNING
+        Geospatial.GeospatialTrackingState.ERROR_INTERNAL -> RuntimeGeospatialState.ERROR_INTERNAL
+        Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED ->
+            RuntimeGeospatialState.ERROR_NOT_AUTHORIZED
+        Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED ->
+            RuntimeGeospatialState.ERROR_RESOURCE_EXHAUSTED
         else ->
             throw IllegalStateException(
                 "failed to convert $this to ${RuntimeGeospatialState::class.qualifiedName}"

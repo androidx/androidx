@@ -60,7 +60,6 @@ import androidx.xr.arcore.CreateGeospatialPoseFromPoseInternalError
 import androidx.xr.arcore.CreateGeospatialPoseFromPoseNotTracking
 import androidx.xr.arcore.CreateGeospatialPoseFromPoseSuccess
 import androidx.xr.arcore.Geospatial
-import androidx.xr.arcore.GeospatialState
 import androidx.xr.arcore.HitResult
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.apps.whitebox.mobile.common.SessionLifecycleHelper
@@ -152,7 +151,10 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
 
     private fun createAnchorAtPose(pose: Pose) {
         val geospatial = Geospatial.getInstance(session)
-        if (geospatial.state.value != GeospatialState.RUNNING) {
+        if (
+            geospatial.state.value.geospatialTrackingState !=
+                Geospatial.GeospatialTrackingState.RUNNING
+        ) {
             Log.e("JetpackXR", "Failed to create anchor: Geospatial is not running.")
             return
         }
@@ -268,14 +270,16 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
     }
 
     private fun localizationTextForGeospatial(geospatial: Geospatial): String {
-        return when (geospatial.state.value) {
-            GeospatialState.NOT_RUNNING -> "Enable Config.GeospatialMode to use the Geospatial API"
-            GeospatialState.ERROR_INTERNAL -> "Error: Internal"
-            GeospatialState.PAUSED -> "Paused"
-            GeospatialState.ERROR_NOT_AUTHORIZED ->
+        return when (geospatial.state.value.geospatialTrackingState) {
+            Geospatial.GeospatialTrackingState.NOT_RUNNING ->
+                "Enable Config.GeospatialMode to use the Geospatial API"
+            Geospatial.GeospatialTrackingState.ERROR_INTERNAL -> "Error: Internal"
+            Geospatial.GeospatialTrackingState.PAUSED -> "Paused"
+            Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED ->
                 "Error: Not authorized. Check your API key or keyless authorization configuration"
-            GeospatialState.ERROR_RESOURCE_EXHAUSTED -> "Error: ARCore API limit reached."
-            GeospatialState.RUNNING ->
+            Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED ->
+                "Error: ARCore API limit reached."
+            Geospatial.GeospatialTrackingState.RUNNING ->
                 when (
                     val result =
                         geospatial.createGeospatialPoseFromPose(

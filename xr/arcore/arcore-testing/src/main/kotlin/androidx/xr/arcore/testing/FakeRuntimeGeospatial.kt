@@ -36,10 +36,10 @@ import androidx.xr.runtime.math.Quaternion
  * @Test
  * fun update_stateMatchesDeviceState_whenNotAuthorized() = runTest(testDispatcher) {
  *     val underTest = Geospatial.getInstance(session)
- *     arCoreTestRule.geospatial.state = GeospatialState.ERROR_NOT_AUTHORIZED
+ *     arCoreTestRule.geospatial.state = Geospatial.State.ERROR_NOT_AUTHORIZED
  *     advanceUntilIdle()
  *
- *     assertThat(underTest.state.value).isEqualTo(GeospatialState.ERROR_NOT_AUTHORIZED)
+ *     assertThat(underTest.state.value).isEqualTo(Geospatial.State.ERROR_NOT_AUTHORIZED)
  * }
  * ```
  *
