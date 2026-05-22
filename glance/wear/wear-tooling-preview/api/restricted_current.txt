@@ -1,1 +1,28 @@
 // Signature format: 4.0
+package androidx.glance.wear.tooling.preview {
+
+  public abstract class BaseWidgetPreviewParams implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<androidx.glance.wear.core.WearWidgetParams> {
+    ctor public BaseWidgetPreviewParams(kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> values);
+    method @InaccessibleFromKotlin public kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> getValues();
+    property public kotlin.sequences.Sequence<androidx.glance.wear.core.WearWidgetParams> values;
+  }
+
+  public final class SquircleAllWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public SquircleAllWidgetPreviewParams();
+  }
+
+  public final class SquircleLargeWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public SquircleLargeWidgetPreviewParams();
+  }
+
+  public final class SquircleSmallWidgetPreviewParams extends androidx.glance.wear.tooling.preview.BaseWidgetPreviewParams {
+    ctor public SquircleSmallWidgetPreviewParams();
+  }
+
+  public final class WearWidgetPreviewKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void WearWidgetPreview(androidx.glance.wear.GlanceWearWidget widget, androidx.glance.wear.core.WearWidgetParams params, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void WearWidgetPreview(androidx.glance.wear.GlanceWearWidget, androidx.glance.wear.core.WearWidgetParams, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+
