@@ -42,6 +42,8 @@ import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -653,6 +655,13 @@ public class GenericDocumentToProtoConverterTest {
         EmbeddingVector quantizedEmbedding = new EmbeddingVector(
                 new EmbeddingVector.QuantizedData(/*minValue=*/ 0.0f, /*scale=*/ 1.0f, data),
                 "my_model_v1");
+        byte[] packedBytes =
+                ByteBuffer.allocate(8 + data.length)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .putFloat(0.0f)
+                        .putFloat(1.0f)
+                        .put(data)
+                        .array();
 
 
         GenericDocument document =
@@ -678,8 +687,7 @@ public class GenericDocumentToProtoConverterTest {
                         .setName("embeddingKey1")
                         .addVectorValues(PropertyProto.VectorProto.newBuilder()
                                 .setModelSignature("my_model_v1")
-                                .setQuantizedValues(ByteString.copyFrom(
-                                        quantizedEmbedding.getQuantizedData().getPackedBytes()))
+                                .setQuantizedValues(ByteString.copyFrom(packedBytes))
 
                         ));
 
@@ -709,8 +717,23 @@ public class GenericDocumentToProtoConverterTest {
                 (byte) 0, (byte) 4, (byte) 120, (byte) 90, (byte) 22, (byte) 7};
         EmbeddingVector qEmbedding1 = new EmbeddingVector(
                 new EmbeddingVector.QuantizedData(0.0f, 1.0f, data1), "model_sig1");
+        byte[] packedBytes1 =
+                ByteBuffer.allocate(8 + data1.length)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .putFloat(0.0f)
+                        .putFloat(1.0f)
+                        .put(data1)
+                        .array();
+
         EmbeddingVector qEmbedding2 = new EmbeddingVector(
                 new EmbeddingVector.QuantizedData(0.5f, 0.5f, data2), "model_sig2");
+        byte[] packedBytes2 =
+                ByteBuffer.allocate(8 + data2.length)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .putFloat(0.5f)
+                        .putFloat(0.5f)
+                        .put(data2)
+                        .array();
 
         GenericDocument document =
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
@@ -734,16 +757,12 @@ public class GenericDocumentToProtoConverterTest {
                         .setName("embeddingKey1")
                         .addVectorValues(PropertyProto.VectorProto.newBuilder()
                                 .setModelSignature("model_sig1")
-                                .setQuantizedValues(
-                                        ByteString.copyFrom(
-                                                qEmbedding1.getQuantizedData().getPackedBytes()))
+                                .setQuantizedValues(ByteString.copyFrom(packedBytes1))
 
                         )
                         .addVectorValues(PropertyProto.VectorProto.newBuilder()
                                 .setModelSignature("model_sig2")
-                                .setQuantizedValues(
-                                        ByteString.copyFrom(
-                                                qEmbedding2.getQuantizedData().getPackedBytes()))
+                                .setQuantizedValues(ByteString.copyFrom(packedBytes2))
 
                         ));
 

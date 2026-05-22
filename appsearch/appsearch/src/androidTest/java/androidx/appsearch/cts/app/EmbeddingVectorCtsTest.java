@@ -26,9 +26,6 @@ import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 public class EmbeddingVectorCtsTest {
 
     /** Tests that an EmbeddingVector can be created with standard float values. */
@@ -63,18 +60,9 @@ public class EmbeddingVectorCtsTest {
         assertThat(vector.getModelSignature()).isEqualTo(modelSignature);
         assertThat(vector.getValues()).isEqualTo(new float[] {0.0f});
         assertThat(vector.getQuantizedData()).isNotNull();
-        byte[] packedData = vector.getQuantizedData().getPackedBytes();
-
-        assertThat(packedData).isNotNull();
-        assertThat(packedData.length).isEqualTo(8 + quantizedValues.length);
-
-        ByteBuffer buffer = ByteBuffer.wrap(packedData).order(ByteOrder.LITTLE_ENDIAN);
-        assertThat(buffer.getFloat()).isEqualTo(minValue);
-        assertThat(buffer.getFloat()).isEqualTo(scale);
-
-        byte[] extractedData = new byte[quantizedValues.length];
-        buffer.get(extractedData);
-        assertThat(extractedData).isEqualTo(quantizedValues);
+        assertThat(vector.getQuantizedData().getMinValue()).isEqualTo(minValue);
+        assertThat(vector.getQuantizedData().getScale()).isEqualTo(scale);
+        assertThat(vector.getQuantizedData().getQuantizedValues()).isEqualTo(quantizedValues);
     }
 
     /** Tests that getQuantizedData returns correct values for quantized embeddings. */
@@ -136,18 +124,10 @@ public class EmbeddingVectorCtsTest {
         assertThat(vector.getModelSignature()).isEqualTo(modelSignature);
         assertThat(vector.getValues()).isEqualTo(new float[] {0.0f});
         assertThat(vector.getQuantizedData()).isNotNull();
-        byte[] packedData = vector.getQuantizedData().getPackedBytes();
-
-        assertThat(packedData).isNotNull();
-        assertThat(packedData.length).isEqualTo(8 + values.length);
-
-        ByteBuffer buffer = ByteBuffer.wrap(packedData).order(ByteOrder.LITTLE_ENDIAN);
-        assertThat(buffer.getFloat()).isEqualTo(1.0f); // min
-        assertThat(buffer.getFloat()).isEqualTo(127.5f); // scale = 255 / (3 - 1)
-
-        byte[] extractedData = new byte[values.length];
-        buffer.get(extractedData);
-        assertThat(extractedData).isEqualTo(new byte[] {(byte) 0, (byte) 128, (byte) 255});
+        assertThat(vector.getQuantizedData().getMinValue()).isEqualTo(1.0f);
+        assertThat(vector.getQuantizedData().getScale()).isEqualTo(127.5f);
+        assertThat(vector.getQuantizedData().getQuantizedValues())
+                .isEqualTo(new byte[]{(byte) 0, (byte) 128, (byte) 255});
     }
 
     /** Tests creating quantized embeddings when all values are identical (prevents div by zero). */
@@ -165,17 +145,10 @@ public class EmbeddingVectorCtsTest {
         assertThat(vector.getModelSignature()).isEqualTo(modelSignature);
         assertThat(vector.getValues()).isEqualTo(new float[] {0.0f});
         assertThat(vector.getQuantizedData()).isNotNull();
-        byte[] packedData = vector.getQuantizedData().getPackedBytes();
-
-        assertThat(packedData).isNotNull();
-
-        ByteBuffer buffer = ByteBuffer.wrap(packedData).order(ByteOrder.LITTLE_ENDIAN);
-        assertThat(buffer.getFloat()).isEqualTo(2.5f); // min
-        assertThat(buffer.getFloat()).isEqualTo(0.0f); // scale fallback to 0.0 per Icing logic
-
-        byte[] extractedData = new byte[values.length];
-        buffer.get(extractedData);
-        assertThat(extractedData).isEqualTo(new byte[] {(byte) 0, (byte) 0});
+        assertThat(vector.getQuantizedData().getMinValue()).isEqualTo(2.5f);
+        assertThat(vector.getQuantizedData().getScale()).isEqualTo(0.0f);
+        assertThat(vector.getQuantizedData().getQuantizedValues())
+                .isEqualTo(new byte[]{(byte) 0, (byte) 0});
     }
 
     /** Tests equals and hashCode contracts for standard float embeddings. */
