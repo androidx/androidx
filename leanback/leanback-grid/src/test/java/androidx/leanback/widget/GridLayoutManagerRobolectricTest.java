@@ -21,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.SystemClock;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -35,6 +37,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowSystemClock;
+
+import java.util.concurrent.TimeUnit;
+
 
 @RunWith(AndroidJUnit4.class)
 public class GridLayoutManagerRobolectricTest {
@@ -45,9 +52,7 @@ public class GridLayoutManagerRobolectricTest {
         mContext = ApplicationProvider.getApplicationContext();
     }
 
-    @Test
-    public void testInitialLayoutInTouchMode_noEdge() {
-        // Force touch mode
+    private VerticalGridView setupGridView(int itemCount, final int[] firstItemHeight) {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(true);
         Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
         VerticalGridView gridView = new VerticalGridView(activity);
@@ -66,11 +71,16 @@ public class GridLayoutManagerRobolectricTest {
                     @Override
                     public void onBindViewHolder(
                             RecyclerView.@NonNull ViewHolder holder, int position) {
+                        if (firstItemHeight != null) {
+                            holder.itemView.getLayoutParams().height = (position == 0)
+                                    ? firstItemHeight[0] : 100;
+                            holder.itemView.requestLayout();
+                        }
                     }
 
                     @Override
                     public int getItemCount() {
-                        return 10;
+                        return itemCount;
                     }
                 };
         gridView.setAdapter(adapter);
@@ -83,13 +93,23 @@ public class GridLayoutManagerRobolectricTest {
 
         activity.setContentView(frameLayout);
 
-        assertTrue(gridView.isInTouchMode());
+        measureAndLayout(frameLayout);
 
-        // measure and layout
-        frameLayout.measure(
+        return gridView;
+    }
+
+    private void measureAndLayout(View view) {
+        view.measure(
                 View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY));
-        frameLayout.layout(0, 0, 1000, 1000);
+        view.layout(0, 0, 1000, 1000);
+    }
+
+    @Test
+    public void testInitialLayoutInTouchMode_noEdge() {
+        VerticalGridView gridView = setupGridView(10, null);
+
+        assertTrue(gridView.isInTouchMode());
 
         View child = gridView.getChildAt(0);
         int top = child.getTop();
@@ -100,65 +120,24 @@ public class GridLayoutManagerRobolectricTest {
 
     @Test
     public void testFastRelayout_InTouchMode_DoesNotInvalidateAllItems_KeepsPosition() {
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(true);
-        Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
-        VerticalGridView gridView = new VerticalGridView(activity);
-        gridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
-
-        RecyclerView.Adapter<RecyclerView.ViewHolder> adapter =
-                new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                    @Override
-                    public RecyclerView.@NonNull ViewHolder onCreateViewHolder(
-                            @NonNull ViewGroup parent, int viewType) {
-                        View view = new View(parent.getContext());
-                        view.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
-                        return new RecyclerView.ViewHolder(view) {};
-                    }
-
-                    @Override
-                    public void onBindViewHolder(
-                            RecyclerView.@NonNull ViewHolder holder, int position) {
-                    }
-
-                    @Override
-                    public int getItemCount() {
-                        return 10;
-                    }
-                };
-        gridView.setAdapter(adapter);
-
-        FrameLayout frameLayout = new FrameLayout(activity);
-        frameLayout.setLayoutParams(new ViewGroup.LayoutParams(1000, 1000));
-        gridView.setLayoutParams(new FrameLayout.LayoutParams(1000, 1000));
-        gridView.setHasFixedSize(false); // force it handle changes in layout().
-        frameLayout.addView(gridView);
-
-        activity.setContentView(frameLayout);
+        VerticalGridView gridView = setupGridView(10, null);
 
         assertTrue(gridView.isInTouchMode());
-
-        // First layout
-        frameLayout.measure(
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY));
-        frameLayout.layout(0, 0, 1000, 1000);
 
         View child = gridView.getChildAt(0);
 
         // Scroll the view to a new position
         gridView.scrollBy(0, 11);
-        int top1 = child.getTop();
+        View childAfterScroll = gridView.getChildAt(0);
+        int top1 = childAfterScroll.getTop();
         assertEquals(439, top1); // 450 - 11 (scrolled up)
 
         // Notify a change of a single item that does not invalidate all items.
         // It triggers fastRelayout but keeps the scroll offset unchanged.
-        adapter.notifyItemChanged(3);
+        gridView.getAdapter().notifyItemChanged(3);
         assertTrue(gridView.isLayoutRequested());
 
-        frameLayout.measure(
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY));
-        frameLayout.layout(0, 0, 1000, 1000);
+        measureAndLayout((View) gridView.getParent());
 
         child = gridView.getChildAt(0);
         int top2 = child.getTop();
@@ -169,51 +148,9 @@ public class GridLayoutManagerRobolectricTest {
 
     @Test
     public void testFastRelayout_InTouchMode_InvalidatesAllItems_AlignsToFocus() {
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(true);
-        Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
-        VerticalGridView gridView = new VerticalGridView(activity);
-        gridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
-
         final int[] firstItemHeight = {100};
+        VerticalGridView gridView = setupGridView(10, firstItemHeight);
 
-        RecyclerView.Adapter<RecyclerView.ViewHolder> adapter =
-                new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                    @Override
-                    public RecyclerView.@NonNull ViewHolder onCreateViewHolder(
-                            @NonNull ViewGroup parent, int viewType) {
-                        View view = new View(parent.getContext());
-                        view.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
-                        return new RecyclerView.ViewHolder(view) {};
-                    }
-
-                    @Override
-                    public void onBindViewHolder(
-                            RecyclerView.@NonNull ViewHolder holder, int position) {
-                        holder.itemView.getLayoutParams().height = (position == 0)
-                                ? firstItemHeight[0] : 100;
-                        holder.itemView.requestLayout();
-                    }
-
-                    @Override
-                    public int getItemCount() {
-                        return 10;
-                    }
-                };
-        gridView.setAdapter(adapter);
-
-        FrameLayout frameLayout = new FrameLayout(activity);
-        frameLayout.setLayoutParams(new ViewGroup.LayoutParams(1000, 1000));
-        gridView.setLayoutParams(new FrameLayout.LayoutParams(1000, 1000));
-        gridView.setHasFixedSize(false); // force it handle changes in layout().
-        frameLayout.addView(gridView);
-
-        activity.setContentView(frameLayout);
-
-        // First layout
-        frameLayout.measure(
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY));
-        frameLayout.layout(0, 0, 1000, 1000);
         View child = gridView.getChildAt(0);
 
         // Scroll the view to a new position
@@ -224,13 +161,10 @@ public class GridLayoutManagerRobolectricTest {
         // Notify a change of the first item with size change to invalidate all items.
         // It triggers fastRelayout which requires alignment.
         firstItemHeight[0] = 200;
-        adapter.notifyItemChanged(0);
+        gridView.getAdapter().notifyItemChanged(0);
         assertTrue(gridView.isLayoutRequested());
 
-        frameLayout.measure(
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY));
-        frameLayout.layout(0, 0, 1000, 1000);
+        measureAndLayout((View) gridView.getParent());
 
         int top2 = child.getTop();
 
@@ -238,5 +172,80 @@ public class GridLayoutManagerRobolectricTest {
         // Item is 200px high, container is 1000px, so it should be centered at 400.
         // The offset of 11 is lost.
         assertEquals(400, top2);
+    }
+
+    @Test
+    public void testFlingToAlreadyAlignedPosition_shouldBeIdle() {
+        VerticalGridView gridView = setupGridView(50, null);
+
+        // Focus on 2nd item (index 1)
+        gridView.setSelectedPosition(1);
+
+        measureAndLayout((View) gridView.getParent());
+
+        // Now we simulate a drag to the exact aligned position of item 0
+        // Item 1 top is at 450. Item 0 top is 350. We want item 0 top to be 450.
+        // So we scroll the view by -100.
+        gridView.scrollBy(0, -100);
+
+        // Verify item 0 is at 450
+        View child = gridView.getChildAt(0);
+        assertEquals(450, child.getTop());
+
+        gridView.setFocusScrollStrategy(BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP);
+
+        // Simulate a fling using touch events dragging UP (to reveal items BELOW).
+        // This generates a positive fling velocity (moving content up).
+        long downTime = SystemClock.uptimeMillis();
+        MotionEvent downEvent = MotionEvent.obtain(
+                downTime, downTime, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        gridView.dispatchTouchEvent(downEvent);
+
+        ShadowSystemClock.advanceBy(50, TimeUnit.MILLISECONDS);
+        long moveTime = SystemClock.uptimeMillis();
+        MotionEvent moveEvent = MotionEvent.obtain(
+                downTime, moveTime, MotionEvent.ACTION_MOVE, 500, 300, 0);
+        gridView.dispatchTouchEvent(moveEvent);
+
+        ShadowSystemClock.advanceBy(50, TimeUnit.MILLISECONDS);
+        long moveTime2 = SystemClock.uptimeMillis();
+        MotionEvent moveEvent2 = MotionEvent.obtain(
+                downTime, moveTime2, MotionEvent.ACTION_MOVE, 500, 100, 0);
+        gridView.dispatchTouchEvent(moveEvent2);
+
+        // Verify that GridView indeed entered DRAGGING state
+        assertEquals("GridView should be in DRAGGING state after ACTION_MOVE",
+                RecyclerView.SCROLL_STATE_DRAGGING, gridView.getScrollState());
+
+        // At this point, GridView is dragging, and SnapHelper should be attached.
+        // We wrap the OnFlingListener so we can verify that onFling() is indeed invoked.
+        final boolean[] onFlingInvoked = {false};
+        final RecyclerView.OnFlingListener originalListener = gridView.getOnFlingListener();
+
+        // Assert that the SnapHelper is actually attached!
+        assertTrue("SnapHelper should be attached after DRAGGING", originalListener != null);
+
+        gridView.setOnFlingListener(null); // Detach temporarily to allow setting a new one
+        gridView.setOnFlingListener(new RecyclerView.OnFlingListener() {
+            @Override
+            public boolean onFling(int velocityX, int velocityY) {
+                onFlingInvoked[0] = true;
+                return originalListener.onFling(velocityX, velocityY);
+            }
+        });
+
+        long upTime = moveTime2 + 10;
+        MotionEvent upEvent = MotionEvent.obtain(
+                downTime, upTime, MotionEvent.ACTION_UP, 500, 0, 0);
+        gridView.dispatchTouchEvent(upEvent);
+
+        downEvent.recycle();
+        moveEvent.recycle();
+        moveEvent2.recycle();
+        upEvent.recycle();
+
+        assertTrue("onFling() should be called during the ACTION_UP phase", onFlingInvoked[0]);
+        ShadowLooper.idleMainLooper();
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, gridView.getScrollState());
     }
 }
