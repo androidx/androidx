@@ -428,8 +428,8 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.CreateGeospatialPoseFromPoseResult createGeospatialPoseFromPose(androidx.xr.runtime.math.Pose pose);
     method public androidx.xr.arcore.CreatePoseFromGeospatialPoseResult createPoseFromGeospatialPose(androidx.xr.runtime.math.GeospatialPose geospatialPose);
     method public static androidx.xr.arcore.Geospatial getInstance(androidx.xr.runtime.Session session);
-    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.GeospatialState> getState();
-    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.GeospatialState> state;
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Geospatial.State> getState();
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Geospatial.State> state;
     field public static final androidx.xr.arcore.Geospatial.Companion Companion;
   }
 
@@ -437,23 +437,30 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.Geospatial getInstance(androidx.xr.runtime.Session session);
   }
 
-  public final class GeospatialState {
-    field public static final androidx.xr.arcore.GeospatialState.Companion Companion;
-    field public static final androidx.xr.arcore.GeospatialState ERROR_INTERNAL;
-    field public static final androidx.xr.arcore.GeospatialState ERROR_NOT_AUTHORIZED;
-    field public static final androidx.xr.arcore.GeospatialState ERROR_RESOURCE_EXHAUSTED;
-    field public static final androidx.xr.arcore.GeospatialState NOT_RUNNING;
-    field public static final androidx.xr.arcore.GeospatialState PAUSED;
-    field public static final androidx.xr.arcore.GeospatialState RUNNING;
+  public static final class Geospatial.GeospatialTrackingState {
+    field public static final androidx.xr.arcore.Geospatial.GeospatialTrackingState.Companion Companion;
+    field public static final androidx.xr.arcore.Geospatial.GeospatialTrackingState ERROR_INTERNAL;
+    field public static final androidx.xr.arcore.Geospatial.GeospatialTrackingState ERROR_NOT_AUTHORIZED;
+    field public static final androidx.xr.arcore.Geospatial.GeospatialTrackingState ERROR_RESOURCE_EXHAUSTED;
+    field public static final androidx.xr.arcore.Geospatial.GeospatialTrackingState NOT_RUNNING;
+    field public static final androidx.xr.arcore.Geospatial.GeospatialTrackingState PAUSED;
+    field public static final androidx.xr.arcore.Geospatial.GeospatialTrackingState RUNNING;
   }
 
-  public static final class GeospatialState.Companion {
-    property public androidx.xr.arcore.GeospatialState ERROR_INTERNAL;
-    property public androidx.xr.arcore.GeospatialState ERROR_NOT_AUTHORIZED;
-    property public androidx.xr.arcore.GeospatialState ERROR_RESOURCE_EXHAUSTED;
-    property public androidx.xr.arcore.GeospatialState NOT_RUNNING;
-    property public androidx.xr.arcore.GeospatialState PAUSED;
-    property public androidx.xr.arcore.GeospatialState RUNNING;
+  public static final class Geospatial.GeospatialTrackingState.Companion {
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState ERROR_INTERNAL;
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState ERROR_NOT_AUTHORIZED;
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState ERROR_RESOURCE_EXHAUSTED;
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState NOT_RUNNING;
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState PAUSED;
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState RUNNING;
+  }
+
+  public static final class Geospatial.State {
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Geospatial.GeospatialTrackingState getGeospatialTrackingState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Geospatial getOwner();
+    property public androidx.xr.arcore.Geospatial.GeospatialTrackingState geospatialTrackingState;
+    property public androidx.xr.arcore.Geospatial owner;
   }
 
   public final class GeospatialSurface {
@@ -543,6 +550,7 @@ package androidx.xr.arcore {
 
   public final class PerceptionState {
     method @InaccessibleFromKotlin public androidx.xr.arcore.ArDevice.State getArDeviceState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Geospatial.State? getGeospatialState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Depth.State? getLeftDepthState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Eye.State? getLeftEyeState();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Hand.State? getLeftHandState();
@@ -557,6 +565,7 @@ package androidx.xr.arcore {
     method @InaccessibleFromKotlin public java.util.Collection<androidx.xr.arcore.Trackable.State> getTrackableStates();
     method @InaccessibleFromKotlin public androidx.xr.arcore.Face.State? getUserFaceState();
     property public androidx.xr.arcore.ArDevice.State arDeviceState;
+    property public androidx.xr.arcore.Geospatial.State? geospatialState;
     property public androidx.xr.arcore.Depth.State? leftDepthState;
     property public androidx.xr.arcore.Eye.State? leftEyeState;
     property public androidx.xr.arcore.Hand.State? leftHandState;

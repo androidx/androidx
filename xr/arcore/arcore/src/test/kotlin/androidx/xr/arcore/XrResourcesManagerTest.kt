@@ -295,12 +295,16 @@ class XrResourcesManagerTest {
             val runtimeGeospatial = StubRuntimeGeospatial()
             underTest.initiateGeospatial(runtimeGeospatial)
             underTest.update()
-            check(underTest.geospatial.state.value == GeospatialState.NOT_RUNNING)
+            check(
+                underTest.geospatial.state.value.geospatialTrackingState ==
+                    Geospatial.GeospatialTrackingState.NOT_RUNNING
+            )
 
             runtimeGeospatial.state = RuntimeGeospatial.State.RUNNING
             underTest.update()
 
-            assertThat(underTest.geospatial.state.value).isEqualTo(GeospatialState.RUNNING)
+            assertThat(underTest.geospatial.state.value.geospatialTrackingState)
+                .isEqualTo(Geospatial.GeospatialTrackingState.RUNNING)
         }
 
     @Test

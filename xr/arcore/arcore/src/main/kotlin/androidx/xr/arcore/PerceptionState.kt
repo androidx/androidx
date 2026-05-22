@@ -50,6 +50,8 @@ import kotlin.time.ComparableTimeMark
  *   supported by the current platform
  * @property rightEyeState the state of the user's right eye at the [timeMark], or null when not
  *   supported by the current platform
+ * @property geospatialState the state of the geospatial service at the [timeMark], or null when not
+ *   supported by the current platform
  */
 public class PerceptionState
 internal constructor(
@@ -67,6 +69,7 @@ internal constructor(
     public val userFaceState: Face.State?,
     public val leftEyeState: Eye.State?,
     public val rightEyeState: Eye.State?,
+    public val geospatialState: Geospatial.State?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -85,6 +88,7 @@ internal constructor(
         if (userFaceState != other.userFaceState) return false
         if (leftEyeState != other.leftEyeState) return false
         if (rightEyeState != other.rightEyeState) return false
+        if (geospatialState != other.geospatialState) return false
         return true
     }
 
@@ -103,6 +107,7 @@ internal constructor(
         result = 31 * result + userFaceState.hashCode()
         result = 31 * result + leftEyeState.hashCode()
         result = 31 * result + rightEyeState.hashCode()
+        result = 31 * result + geospatialState.hashCode()
         return result
     }
 }

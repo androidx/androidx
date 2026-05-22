@@ -113,6 +113,7 @@ public class PerceptionStateExtender : StateExtender {
                 xrResourcesManager.userFace?.state?.value,
                 xrResourcesManager.leftEye?.state?.value,
                 xrResourcesManager.rightEye?.state?.value,
+                xrResourcesManager._geospatial?.state?.value,
             )
         timeMarkQueue.add(coreState.timeMark)
 

@@ -84,7 +84,7 @@ internal class XrResourcesManager {
     val userFace: Face? by lazy { _userFace?.let { Face(it, this) } }
 
     /** Geospatial data */
-    private var _geospatial: Geospatial? = null
+    internal var _geospatial: Geospatial? = null
     val geospatial: Geospatial
         get() = checkNotNull(_geospatial)
 

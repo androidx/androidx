@@ -30,7 +30,6 @@ import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.CreateGeospatialPoseFromPoseSuccess
 import androidx.xr.arcore.CreatePoseFromGeospatialPoseSuccess
 import androidx.xr.arcore.Geospatial
-import androidx.xr.arcore.GeospatialState
 import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.VpsAvailabilityAvailable
 import androidx.xr.arcore.VpsAvailabilityErrorInternal
@@ -249,8 +248,8 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private fun getGeospatialPoseText(): String {
         val devicePose = ArDevice.getInstance(session).state.value.devicePose
         val geospatialState = Geospatial.getInstance(session).state.value
-        if (geospatialState != GeospatialState.RUNNING) {
-            return "\nGeospatial State: ${getGeospatialStateMessage(geospatialState)} (Waiting for Earth...)"
+        if (geospatialState.geospatialTrackingState != Geospatial.GeospatialTrackingState.RUNNING) {
+            return "\nGeospatial State: ${getGeospatialStateMessage(geospatialState.geospatialTrackingState)} (Waiting for Earth...)"
         }
 
         when (val geospatialPoseResult = geospatial.createGeospatialPoseFromPose(devicePose)) {
@@ -275,7 +274,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 val comparisonMessage = testGeospatialConversions(geoPose)
 
                 var text =
-                    "\nGeospatial GeospatialState: ${getGeospatialStateMessage(geospatialState)}"
+                    "\nGeospatial GeospatialState: ${getGeospatialStateMessage(geospatialState.geospatialTrackingState)}"
                 text += "\nGeospatialPose: Lat/Lon: ${lat.fmt(6)}, ${lon.fmt(6)}, Alt: ${alt.fmt()}"
                 text += "\nEUS Quat: ${eus.x.fmt()}, ${eus.y.fmt()}, ${eus.z.fmt()}, ${eus.w.fmt()}"
                 text += "\nVPS availability: $vpsStatusMessage"
@@ -311,14 +310,16 @@ class ProjectedTestAppActivity : ComponentActivity() {
         }
     }
 
-    private fun getGeospatialStateMessage(geospatialState: GeospatialState?): String {
-        return when (geospatialState) {
-            GeospatialState.RUNNING -> "Running"
-            GeospatialState.NOT_RUNNING -> "Not Running"
-            GeospatialState.ERROR_INTERNAL -> "Internal Error"
-            GeospatialState.ERROR_NOT_AUTHORIZED -> "Not Authorized"
-            GeospatialState.ERROR_RESOURCE_EXHAUSTED -> "Resource Exhausted"
-            GeospatialState.PAUSED -> "Paused"
+    private fun getGeospatialStateMessage(
+        geospatialTrackingState: Geospatial.GeospatialTrackingState?
+    ): String {
+        return when (geospatialTrackingState) {
+            Geospatial.GeospatialTrackingState.RUNNING -> "Running"
+            Geospatial.GeospatialTrackingState.NOT_RUNNING -> "Not Running"
+            Geospatial.GeospatialTrackingState.ERROR_INTERNAL -> "Internal Error"
+            Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED -> "Not Authorized"
+            Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED -> "Resource Exhausted"
+            Geospatial.GeospatialTrackingState.PAUSED -> "Paused"
             else -> "Checking..."
         }
     }
