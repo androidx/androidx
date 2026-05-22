@@ -125,6 +125,8 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.MainPanelEntityTester getMainPanelEntityTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.PerceptionSpaceTester getPerceptionSpaceTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SceneTester getSceneTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialAudioTrackBuilderTester getSpatialAudioTrackBuilderTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialAudioTrackTester getSpatialAudioTrackTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialEnvironmentTester getSpatialEnvironmentTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
@@ -132,6 +134,8 @@ package androidx.xr.scenecore.testing {
     property public androidx.xr.scenecore.testing.MainPanelEntityTester mainPanelEntityTester;
     property public androidx.xr.scenecore.testing.PerceptionSpaceTester perceptionSpaceTester;
     property public androidx.xr.scenecore.testing.SceneTester sceneTester;
+    property public androidx.xr.scenecore.testing.SpatialAudioTrackBuilderTester spatialAudioTrackBuilderTester;
+    property public androidx.xr.scenecore.testing.SpatialAudioTrackTester spatialAudioTrackTester;
     property public androidx.xr.scenecore.testing.SpatialEnvironmentTester spatialEnvironmentTester;
     property public androidx.xr.scenecore.testing.SpatialSoundPoolTester spatialSoundPoolTester;
     property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
@@ -153,6 +157,18 @@ package androidx.xr.scenecore.testing {
     method public void triggerLoadCompleteListener(androidx.xr.scenecore.SoundEffect soundEffect, boolean success);
   }
 
+  public final class SpatialAudioTrackBuilderTester {
+    method public androidx.xr.scenecore.PointSourceParams? getPointSourceParams(android.media.AudioTrack.Builder builder);
+    method public androidx.xr.scenecore.SoundFieldAttributes? getSoundFieldAttributes(android.media.AudioTrack.Builder builder);
+    method public boolean isCurrentPointSource(android.media.AudioTrack.Builder builder, androidx.xr.scenecore.Entity entity);
+  }
+
+  public final class SpatialAudioTrackTester {
+    method public boolean isCurrentPointSource(android.media.AudioTrack track, androidx.xr.scenecore.Entity entity);
+    method public void setSoundFieldAttributes(android.media.AudioTrack track, androidx.xr.scenecore.SoundFieldAttributes soundFieldAttributes);
+    method public void setSpatialSourceType(android.media.AudioTrack track, androidx.xr.scenecore.SpatializerConstants.SourceType sourceType);
+  }
+
   public final class SpatialEnvironmentTester {
     method public void triggerPassthroughOpacityChanged(@FloatRange(from=0.0, to=1.0) float opacity);
     method public void triggerSpatialEnvironmentChanged(boolean active);
@@ -161,7 +177,7 @@ package androidx.xr.scenecore.testing {
   public final class SpatialMediaPlayerTester {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams? getPointSourceParams();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SoundFieldAttributes? getSoundFieldAttributes();
-    method public boolean isPointSource(androidx.xr.scenecore.Entity entity);
+    method public boolean isCurrentPointSource(androidx.xr.scenecore.Entity entity);
     property public androidx.xr.scenecore.PointSourceParams? pointSourceParams;
     property public androidx.xr.scenecore.SoundFieldAttributes? soundFieldAttributes;
   }

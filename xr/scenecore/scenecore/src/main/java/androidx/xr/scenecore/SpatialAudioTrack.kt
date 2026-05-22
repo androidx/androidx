@@ -78,7 +78,7 @@ public object SpatialAudioTrack {
      * The new [PointSourceParams] will be applied if the [SpatializerConstants.SourceType] of the
      * AudioTrack was either [SpatializerConstants.SourceType.DEFAULT] or
      * [SpatializerConstants.SourceType.POINT_SOURCE]. If the [SpatializerConstants.SourceType] was
-     * [SpatializerConstants.SourceType.POINT_SOURCE], then this method will throw an
+     * [SpatializerConstants.SourceType.SOUND_FIELD], then this method will throw an
      * [IllegalStateException].
      *
      * @param session The current [Session] instance.

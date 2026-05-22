@@ -52,7 +52,7 @@ internal constructor(
      * @param entity The target [Entity] to check against.
      * @return `true` if the [entity] is the point source for the [mediaPlayer], `false` otherwise.
      */
-    public fun isPointSource(entity: Entity): Boolean {
+    public fun isCurrentPointSource(entity: Entity): Boolean {
         @Suppress("DEPRECATION")
         val expectedInternalEntity = (entity.rtEntity as FakeEntity).fakeInternal
 
