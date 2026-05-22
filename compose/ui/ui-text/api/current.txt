@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.compose.ui.text {
 
+  @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public final class AndroidComposeUiTextFlags {
+    property public boolean isSingleLineLineHeightOptimizationEnabled;
+    field public static final androidx.compose.ui.text.AndroidComposeUiTextFlags INSTANCE;
+    field public static boolean isSingleLineLineHeightOptimizationEnabled;
+  }
+
   public final class AndroidTextStyle_androidKt {
     method public static androidx.compose.ui.text.PlatformParagraphStyle lerp(androidx.compose.ui.text.PlatformParagraphStyle start, androidx.compose.ui.text.PlatformParagraphStyle stop, float fraction);
     method public static androidx.compose.ui.text.PlatformSpanStyle lerp(androidx.compose.ui.text.PlatformSpanStyle start, androidx.compose.ui.text.PlatformSpanStyle stop, float fraction);

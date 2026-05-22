@@ -21,9 +21,11 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.style.CharacterStyle
+import androidx.compose.ui.text.AndroidComposeUiTextFlags
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.DefaultIncludeFontPadding
 import androidx.compose.ui.text.EmojiSupportMatch
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -45,6 +47,7 @@ import androidx.emoji2.text.EmojiCompat
 import androidx.emoji2.text.EmojiCompat.REPLACE_STRATEGY_ALL
 import androidx.emoji2.text.EmojiCompat.REPLACE_STRATEGY_DEFAULT
 
+@OptIn(ExperimentalTextApi::class)
 @Suppress("UNCHECKED_CAST")
 internal fun createCharSequence(
     text: String,
@@ -55,6 +58,8 @@ internal fun createCharSequence(
     density: Density,
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
     useEmojiCompat: Boolean,
+    softWrap: Boolean,
+    textContainsNewLine: Boolean, // adding to avoid `text.contains()` call multiple times
 ): CharSequence {
 
     val currentText =
@@ -107,13 +112,30 @@ internal fun createCharSequence(
             density = density,
         )
     } else {
-        val lineHeightStyle = contextTextStyle.lineHeightStyle ?: LineHeightStyle.Default
-        spannableString.setLineHeight(
-            lineHeight = contextTextStyle.lineHeight,
-            lineHeightStyle = lineHeightStyle,
-            contextFontSize = contextFontSize,
-            density = density,
-        )
+        // When the single-line line height optimization is active, we avoid adding
+        // LineHeightStyleSpan upfront to prevent the text from being forced into an
+        // expensive StaticLayout measurement pass. Instead, the line height padding
+        // will be applied manually inside Paragraph.
+        //
+        // We bypass this optimization and apply the span upfront if:
+        // 1. Soft wrapping is enabled (may result in multiple lines).
+        // 2. The text contains explicit newlines (guaranteed multi-line).
+        // 3. Baseline shift is applied (forces StaticLayout anyway).
+        val hasBaselineShift = contextTextStyle.baselineShift != null
+        if (
+            !AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled ||
+                softWrap ||
+                textContainsNewLine ||
+                hasBaselineShift
+        ) {
+            val lineHeightStyle = contextTextStyle.lineHeightStyle ?: LineHeightStyle.Default
+            spannableString.setLineHeight(
+                lineHeight = contextTextStyle.lineHeight,
+                lineHeightStyle = lineHeightStyle,
+                contextFontSize = contextFontSize,
+                density = density,
+            )
+        }
     }
 
     spannableString.setTextIndent(contextTextStyle.textIndent, contextFontSize, density)

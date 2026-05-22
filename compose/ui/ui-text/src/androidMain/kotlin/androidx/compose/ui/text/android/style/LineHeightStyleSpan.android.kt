@@ -27,6 +27,11 @@ import kotlin.math.ceil
  * of string divided by '\n' character. To make sure the span work as expected, the boundary of this
  * span should align with paragraph boundary.
  *
+ * Note: single lines (softWrap = false) don't use LineHeightStyleSpan, and instead perform the same
+ * calculations in Compose in [androidx.compose.ui.text.AndroidParagraph]. When modifying this
+ * implementation, make sure to do the corresponding changes inside
+ * [androidx.compose.ui.text.AndroidParagraph.calculateLineHeight].
+ *
  * @param startIndex The starting index where the span is added to the Spannable, used to identify
  *   if the line height is requested for the first line.
  * @param endIndex The end index where the span is added to the Spannable, used to identify if the
