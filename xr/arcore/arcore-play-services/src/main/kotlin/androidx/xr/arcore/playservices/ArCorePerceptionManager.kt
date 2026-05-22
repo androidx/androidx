@@ -320,6 +320,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
      * @see ArCoreDepth.dispose
      */
     public fun dispose() {
+        arDevice.dispose()
         xrResources.depth.dispose()
     }
 
