@@ -328,14 +328,14 @@ class MovableComponentTesterTest {
         assertThat(capturedEndRay).isEqualTo(endRay)
         assertThat(capturedEndPose).isEqualTo(endPose)
         assertThat(capturedEndScale).isEqualTo(endScale.x)
-        assertThat(capturedUpdatedParent).isEqualTo(initialParent)
+        assertThat(capturedUpdatedParent).isEqualTo(updatedParent)
 
         // Test with null updated parent
         tester.triggerOnMoveStart(startRay, startPose, startScale, initialParent)
         tester.triggerOnMoveUpdate(updateRay, updatePose, updateScale)
         tester.triggerOnMoveEnd(endRay, endPose, endScale, null)
         ShadowLooper.idleMainLooper()
-        assertThat(capturedUpdatedParent).isEqualTo(initialParent)
+        assertThat(capturedUpdatedParent).isEqualTo(null)
     }
 
     @Test

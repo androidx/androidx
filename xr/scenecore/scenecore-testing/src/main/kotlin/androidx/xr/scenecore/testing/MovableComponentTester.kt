@@ -213,7 +213,7 @@ internal constructor(
                 previousScale = previousScale,
                 currentScale = finalScale,
                 initialParent = initialParent!!.rtEntity,
-                updatedParent = initialParent!!.rtEntity,
+                updatedParent = updatedParent?.rtEntity,
                 disposedEntity = null,
             )
         rtMovableComponent.onMoveEvent(rtEvent)
