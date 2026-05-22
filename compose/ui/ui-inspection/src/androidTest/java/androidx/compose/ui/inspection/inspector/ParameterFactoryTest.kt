@@ -949,6 +949,43 @@ class ParameterFactoryTest {
     }
 
     @Test
+    fun testDeepRecursiveStructure() {
+        val c1 = DeepCycle()
+        val c2 = NextDeepCycle()
+        c1.next = c2
+        c2.next = c1
+        val name = DeepCycle::class.java.simpleName
+        val nextName = NextDeepCycle::class.java.simpleName
+        validate(create("mine", c1, maxRecursions = 2)) {
+            parameter("mine", ParameterType.String, name) {
+                parameter("next", ParameterType.String, nextName) {
+                    parameter("next", ParameterType.String, name, ref(0, 0))
+                }
+            }
+        }
+
+        val expanded = expand("mine", c1, ref(0, 0), maxRecursions = 5)!!
+        validate(expanded) {
+            parameter("next", ParameterType.String, name) {
+                parameter("next", ParameterType.String, nextName) {
+                    parameter("next", ParameterType.String, name) {
+                        parameter("next", ParameterType.String, nextName) {
+                            parameter("next", ParameterType.String, name) {
+                                parameter(
+                                    "next",
+                                    ParameterType.String,
+                                    nextName,
+                                    ref(0, 0, 0, 0, 0, 0, 0),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun testTextUnit() {
         assertThat(lookup(TextUnit.Unspecified)).isEqualTo(ParameterType.String to "Unspecified")
         assertThat(lookup(12.0.sp)).isEqualTo(ParameterType.DimensionSp to 12.0f)
@@ -1168,6 +1205,12 @@ class MyClass(private val name: String) {
 
     override fun equals(other: Any?): Boolean = name == (other as? MyClass)?.name
 }
+
+private open class DeepCycle {
+    var next: DeepCycle? = null
+}
+
+private class NextDeepCycle : DeepCycle()
 
 private fun NodeParameter.checkEquals(other: NodeParameter): Boolean {
     assertThat(other.name).isEqualTo(name)
