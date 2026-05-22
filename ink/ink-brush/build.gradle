@@ -37,8 +37,7 @@ androidXMultiplatform {
     androidResources.enable = true
   }
 
-  // TODO: b/462064872 - Turn on ios() support and enable BuildType.KMP
-  // ios()
+  ios()
 
   defaultPlatform(PlatformIdentifier.JVM)
 
