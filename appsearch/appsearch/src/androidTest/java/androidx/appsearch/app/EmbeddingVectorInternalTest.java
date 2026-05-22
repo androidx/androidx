@@ -25,6 +25,9 @@ import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 /** Tests for private/restricted APIs of {@link EmbeddingVector}. */
 public class EmbeddingVectorInternalTest {
 
@@ -60,5 +63,27 @@ public class EmbeddingVectorInternalTest {
                         /* values= */ null,
                         "model_v1",
                         /* quantizedData= */ null));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_EMBEDDING_PRE_QUANTIZED_DATA)
+    public void testGetPackedBytes() {
+        float minValue = -10.5f;
+        float scale = 12.34f;
+        byte[] quantizedValues = new byte[]{5, 10, 15, 20};
+        EmbeddingVector.QuantizedData quantizedData =
+                new EmbeddingVector.QuantizedData(minValue, scale, quantizedValues);
+
+        byte[] packedBytes = quantizedData.getPackedBytes();
+
+        assertThat(packedBytes).hasLength(8 + quantizedValues.length);
+
+        ByteBuffer buffer = ByteBuffer.wrap(packedBytes).order(ByteOrder.LITTLE_ENDIAN);
+        assertThat(buffer.getFloat()).isEqualTo(minValue);
+        assertThat(buffer.getFloat()).isEqualTo(scale);
+
+        byte[] extractedValues = new byte[quantizedValues.length];
+        buffer.get(extractedValues);
+        assertThat(extractedValues).isEqualTo(quantizedValues);
     }
 }
