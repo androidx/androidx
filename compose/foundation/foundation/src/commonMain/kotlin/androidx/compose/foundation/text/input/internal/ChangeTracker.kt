@@ -33,7 +33,14 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
 
     init {
         initialChanges?._changes?.forEach {
-            _changes += Change(it.preStart, it.preEnd, it.originalStart, it.originalEnd)
+            _changes +=
+                Change(
+                    it.preStart,
+                    it.preEnd,
+                    it.originalStart,
+                    it.originalEnd,
+                    it.isFromHardwareSource,
+                )
         }
     }
 
@@ -61,7 +68,7 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
      *    for the new text.
      * 3. Offset all remaining changes are to account for the new text.
      */
-    fun trackChange(preStart: Int, preEnd: Int, postLength: Int) {
+    fun trackChange(preStart: Int, preEnd: Int, postLength: Int, isFromHardwareSource: Boolean) {
         if (preStart == preEnd && postLength == 0) {
             // Ignore noop changes.
             return
@@ -89,6 +96,8 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
                 } else {
                     mergedOverlappingChange.preEnd = change.preEnd
                     mergedOverlappingChange.originalEnd = change.originalEnd
+                    mergedOverlappingChange.isFromHardwareSource =
+                        mergedOverlappingChange.isFromHardwareSource || change.isFromHardwareSource
                 }
                 // Don't append overlapping changes to the temp list until we're finished merging.
                 i++
@@ -98,7 +107,13 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
             if (change.preStart > preMax && !recordedNewChange) {
                 // First non-overlapping change after the new one – record the change before
                 // proceeding.
-                appendNewChange(mergedOverlappingChange, preMin, preMax, postDelta)
+                appendNewChange(
+                    mergedOverlappingChange,
+                    preMin,
+                    preMax,
+                    postDelta,
+                    isFromHardwareSource,
+                )
                 recordedNewChange = true
             }
 
@@ -113,7 +128,13 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         if (!recordedNewChange) {
             // The new change is after or overlapping all previous changes so it hasn't been
             // appended yet.
-            appendNewChange(mergedOverlappingChange, preMin, preMax, postDelta)
+            appendNewChange(
+                mergedOverlappingChange,
+                preMin,
+                preMax,
+                postDelta,
+                isFromHardwareSource,
+            )
         }
 
         // Swap the lists.
@@ -133,6 +154,9 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
     override fun getOriginalRange(changeIndex: Int): TextRange =
         _changes[changeIndex].let { TextRange(it.originalStart, it.originalEnd) }
 
+    internal fun isFromHardwareSource(changeIndex: Int): Boolean =
+        _changes[changeIndex].isFromHardwareSource
+
     override fun toString(): String = buildString {
         append("ChangeList(changes=[")
         _changes.forEachIndexed { i, change ->
@@ -150,6 +174,7 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         preMin: Int,
         preMax: Int,
         postDelta: Int,
+        isFromHardwareSource: Boolean,
     ) {
         var originalDelta =
             if (_changesTemp.isEmpty()) 0
@@ -167,9 +192,11 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
                     preEnd = preMax + postDelta,
                     originalStart = originalStart,
                     originalEnd = originalEnd,
+                    isFromHardwareSource = isFromHardwareSource,
                 )
         } else {
             newChange = mergedOverlappingChange
+            newChange.isFromHardwareSource = newChange.isFromHardwareSource || isFromHardwareSource
             // Convert the merged overlapping changes to the `post` space.
             // Merge the new changed with the merged overlapping changes.
             if (newChange.preStart > preMin) {
@@ -193,5 +220,6 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         var preEnd: Int,
         var originalStart: Int,
         var originalEnd: Int,
+        var isFromHardwareSource: Boolean,
     )
 }

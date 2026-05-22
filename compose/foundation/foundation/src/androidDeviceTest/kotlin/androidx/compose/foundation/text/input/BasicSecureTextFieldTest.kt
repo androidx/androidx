@@ -20,6 +20,7 @@ import android.database.ContentObserver
 import android.os.Looper
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -71,11 +74,13 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -772,6 +777,35 @@ internal class BasicSecureTextFieldTest {
         rule.waitForIdle()
         assertRegistrationCount(1)
         assertThat(registerThread).isEqualTo(Looper.getMainLooper().thread)
+    }
+
+    @Test
+    fun paste_viaCtrlV_immediatelyHidesPassword() = testSystemShowPassword {
+        lateinit var clipboard: Clipboard
+        inputMethodInterceptor.setContent {
+            clipboard = LocalClipboard.current
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        rule.runOnUiThread {
+            runTest { clipboard.setClipEntry(AnnotatedString("a").toClipEntry()) }
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            requestFocus()
+            performKeyInput {
+                keyDown(Key.CtrlLeft)
+                pressKey(Key.V)
+                keyUp(Key.CtrlLeft)
+            }
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*")
+        }
     }
 
     private inline fun testSystemShowPassword(block: SystemPasswordControl.() -> Unit) {

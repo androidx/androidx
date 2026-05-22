@@ -843,6 +843,51 @@ class TextFieldBufferTest {
         }
     }
 
+    @Test
+    fun textFieldBuffer_replace_defaultsToSoftwareSource() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        buffer.replace(0, 5, "world")
+
+        assertThat(buffer.changeTracker.changeCount).isEqualTo(1)
+        assertThat(buffer.changeTracker.isFromHardwareSource(0)).isFalse()
+    }
+
+    @Test
+    fun textFieldBuffer_replace_canSetHardwareSource() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        buffer.replace(0, 5, "world", isFromHardwareSource = true)
+
+        assertThat(buffer.changeTracker.changeCount).isEqualTo(1)
+        assertThat(buffer.changeTracker.isFromHardwareSource(0)).isTrue()
+    }
+
+    @Test
+    fun textFieldBuffer_append_defaultsToSoftwareSource() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        buffer.append("world")
+
+        assertThat(buffer.changeTracker.changeCount).isEqualTo(1)
+        assertThat(buffer.changeTracker.isFromHardwareSource(0)).isFalse()
+    }
+
+    @Test
+    fun textFieldBuffer_append_subSequence_defaultsToSoftwareSource() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        buffer.append("world", 0, 3)
+
+        assertThat(buffer.changeTracker.changeCount).isEqualTo(1)
+        assertThat(buffer.changeTracker.isFromHardwareSource(0)).isFalse()
+    }
+
+    @Test
+    fun textFieldBuffer_append_char_defaultsToSoftwareSource() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        buffer.append('!')
+
+        assertThat(buffer.changeTracker.changeCount).isEqualTo(1)
+        assertThat(buffer.changeTracker.isFromHardwareSource(0)).isFalse()
+    }
+
     private fun testSelectionAdjustment(
         initial: String,
         transform: TextFieldBuffer.() -> Unit,

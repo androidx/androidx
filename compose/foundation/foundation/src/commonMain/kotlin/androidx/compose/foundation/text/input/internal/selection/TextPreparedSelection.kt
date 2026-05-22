@@ -78,8 +78,8 @@ internal class TextFieldPreparedSelectionState {
  *   through transformed coordinates.
  * @param textLayoutResult Visual representation of text inside [state]. Used to calculate line and
  *   paragraph metrics.
- * @param isFromSoftKeyboard Whether the source event that created this selection context is coming
- *   from the IME.
+ * @param isFromHardwareSource Whether the source event that created this selection context is
+ *   coming from a physical keyboard.
  * @param visibleTextLayoutHeight Height of the visible area of text inside TextField to decide
  *   where cursor needs to move when page up/down is requested.
  * @param textPreparedSelectionState An object that holds any context that needs to be long lived
@@ -90,6 +90,7 @@ internal class SelectionMovementDeletionContext(
     private val state: TransformedTextFieldState,
     private val textLayoutResult: TextLayoutResult?,
     private val isFromSoftKeyboard: Boolean,
+    private val isFromHardwareSource: Boolean,
     private val visibleTextLayoutHeight: Float,
     private val textPreparedSelectionState: TextFieldPreparedSelectionState,
 ) {
@@ -316,12 +317,13 @@ internal class SelectionMovementDeletionContext(
     fun deleteMovement() =
         applyIfNotEmpty(resetCachedX = false) {
             if (!initialValue.selection.collapsed) {
-                state.deleteSelectedText()
+                state.deleteSelectedText(isFromHardwareSource = isFromHardwareSource)
             } else {
                 state.replaceText(
                     newText = "",
                     range = TextRange(initialValue.selection.start, selection.end),
                     restartImeIfContentChanges = !isFromSoftKeyboard,
+                    isFromHardwareSource = isFromHardwareSource,
                 )
             }
             // Update the internal selection to where it was moved by the delete operation.

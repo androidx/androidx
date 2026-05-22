@@ -486,7 +486,8 @@ internal fun TextFieldBuffer.imeReplace(start: Int, end: Int, text: CharSequence
     }
 
     if (cMin != cMax || i != j) {
-        replace(start = cMin, end = cMax, text = text.subSequence(i, j))
+        val replacementText = if (i == 0 && j == text.length) text else text.subSequence(i, j)
+        replace(start = cMin, end = cMax, text = replacementText, isFromHardwareSource = false)
     } else {
         // We still need to clear the current state since this is essentially a replace call.
         commitComposition()
