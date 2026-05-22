@@ -54,6 +54,7 @@ androidx {
     name = "androidx.camera:camera-common"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
+    enableRobolectric()
     description = "CameraX Common is a collection of well documented common types, interfaces, " +
             "wrappers, math and utilities designed to enable library and application developers " +
             "to build on a shared set of types regardless of CameraX or Camera2 usage."
