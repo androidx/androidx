@@ -17,6 +17,7 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -37,8 +38,10 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Work
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -55,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -72,6 +76,69 @@ fun ButtonGroupSample() {
     ) {
         for (i in 0 until numButtons) {
             clickableItem(onClick = {}, label = "$i")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun ButtonGroupWithCustomItemSample() {
+    val options = listOf("Work", "Restaurant", "Home")
+    val unCheckedIcons = listOf(Icons.Outlined.Work, Icons.Outlined.Restaurant, Icons.Outlined.Home)
+    val checkedIcons = listOf(Icons.Filled.Work, Icons.Filled.Restaurant, Icons.Filled.Home)
+    val checked = remember { mutableStateListOf(false, false, false) }
+    val interactionSources = remember { List(options.size) { MutableInteractionSource() } }
+    ButtonGroup(
+        overflowIndicator = { menuState ->
+            ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
+        },
+        expandedRatio = 1f,
+    ) {
+        options.forEachIndexed { index, label ->
+            customItem(
+                buttonGroupContent = {
+                    ToggleButton(
+                        checked = checked[index],
+                        onCheckedChange = { checked[index] = it },
+                        shapes =
+                            when (index) {
+                                0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                options.lastIndex ->
+                                    ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                            },
+                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                        interactionSource = interactionSources[index],
+                        modifier =
+                            Modifier.animateWidth(
+                                interactionSource = interactionSources[index],
+                                compressionLimit = ButtonDefaults.ButtonWithIconContentPadding,
+                            ),
+                    ) {
+                        Icon(
+                            if (checked[index]) checkedIcons[index] else unCheckedIcons[index],
+                            contentDescription = "Localized description",
+                        )
+                        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                        Text(
+                            text = label,
+                            softWrap = false,
+                            maxLines = 1,
+                            overflow = TextOverflow.Visible,
+                        )
+                    }
+                },
+                menuContent = {
+                    DropdownMenuItem(
+                        leadingIcon = { checkedIcons[index] },
+                        text = { Text(label) },
+                        onClick = {},
+                        interactionSource = interactionSources[index],
+                    )
+                },
+            )
         }
     }
 }

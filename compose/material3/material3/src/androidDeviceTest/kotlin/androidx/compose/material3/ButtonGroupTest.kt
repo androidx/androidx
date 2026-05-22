@@ -21,10 +21,12 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,8 +44,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -1363,5 +1367,146 @@ class ButtonGroupTest {
         rule.onNodeWithText("Top").assertTopPositionInRootIsEqualTo(0.dp)
         // The "Tall" button should be aligned to the group's alignment (Bottom).
         rule.onNodeWithText("Tall").assertTopPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun buttonGroup_widthAnimation_exceedPaddingLimit() {
+        val padding = PaddingValues(start = 10.dp, end = 10.dp)
+        rule.setMaterialContent(lightColorScheme()) {
+            val aInteractionSource = remember { MutableInteractionSource() }
+            val bInteractionSource = remember { MutableInteractionSource() }
+            Box(Modifier.width(100.dp)) {
+                ButtonGroup(
+                    overflowIndicator = {},
+                    expandedRatio = 1f,
+                    horizontalArrangement = Arrangement.spacedBy(0.dp),
+                ) {
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                onClick = {},
+                                modifier =
+                                    Modifier.weight(1f).animateWidth(aInteractionSource, padding),
+                                interactionSource = aInteractionSource,
+                                contentPadding = padding,
+                            ) {
+                                Text(
+                                    text = "A",
+                                    softWrap = false,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Visible,
+                                )
+                            }
+                        },
+                        menuContent = {},
+                    )
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                onClick = {},
+                                modifier =
+                                    Modifier.weight(1f).animateWidth(bInteractionSource, padding),
+                                interactionSource = bInteractionSource,
+                                contentPadding = padding,
+                            ) {
+                                Text(
+                                    text = "B",
+                                    softWrap = false,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Visible,
+                                )
+                            }
+                        },
+                        menuContent = {},
+                    )
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithText("A").performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        rule.waitForIdle()
+
+        val bButton = rule.onNodeWithText("B")
+
+        // Since the expand ratio is 1f, it wants to expand to 50.dp (the size of the button)
+        // Since we only have 10.dp of space to compress, we use that instead.
+        // So the expected compressed width is 50.dp - 10.dp = 40.dp
+        bButton.assertWidthIsEqualTo(40.dp)
+    }
+
+    @Test
+    fun buttonGroup_widthAnimation_withinPaddingLimit() {
+        val padding = PaddingValues(start = 10.dp, end = 10.dp)
+        rule.setMaterialContent(lightColorScheme()) {
+            val aInteractionSource = remember { MutableInteractionSource() }
+            val bInteractionSource = remember { MutableInteractionSource() }
+            Box(Modifier.width(100.dp)) {
+                ButtonGroup(
+                    overflowIndicator = {},
+                    horizontalArrangement = Arrangement.spacedBy(0.dp),
+                ) {
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                onClick = {},
+                                modifier =
+                                    Modifier.weight(1f).animateWidth(aInteractionSource, padding),
+                                interactionSource = aInteractionSource,
+                                contentPadding = padding,
+                            ) {
+                                Text(
+                                    text = "A",
+                                    softWrap = false,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Visible,
+                                )
+                            }
+                        },
+                        menuContent = {},
+                    )
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                onClick = {},
+                                modifier =
+                                    Modifier.weight(1f).animateWidth(bInteractionSource, padding),
+                                interactionSource = bInteractionSource,
+                                contentPadding = padding,
+                            ) {
+                                Text(
+                                    text = "B",
+                                    softWrap = false,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Visible,
+                                )
+                            }
+                        },
+                        menuContent = {},
+                    )
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithText("A").performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        rule.waitForIdle()
+
+        val bButton = rule.onNodeWithText("B")
+
+        // The expand ratio is the default 0.15f, so we want to expand by 50.dp * 0.15 = 7.5.dp
+        // We have 10.dp of padding, but since the desired change is less than that we can expand
+        // fully to the desired width of 50.dp - 7.5.dp = 42.5.dp.
+        bButton.assertWidthIsEqualTo(42.5.dp)
     }
 }
