@@ -22,7 +22,6 @@ import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.RenderViewpoint
-import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.FloatSize2d
@@ -563,7 +562,6 @@ private constructor(
         /**
          * Factory method for SurfaceEntity.
          *
-         * @param perceptionRuntime An ARCore PerceptionRuntime
          * @param sceneRuntime SceneRuntime to use.
          * @param renderingRuntime RenderingRuntime to use.
          * @param entityRegistry A SceneCore [EntityRegistry]
@@ -583,10 +581,8 @@ private constructor(
          *   [Scene]'s [ActivitySpace].
          * @return a SurfaceEntity instance
          */
-        @Suppress("RestrictedApiAndroidX")
         internal fun create(
             session: Session,
-            perceptionRuntime: PerceptionRuntime,
             renderingRuntime: RenderingRuntime,
             stereoMode: StereoMode = StereoMode.MONO,
             mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
@@ -665,7 +661,6 @@ private constructor(
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
-                session.perceptionRuntime,
                 session.renderingRuntime,
                 stereoMode,
                 MediaBlendingMode.TRANSPARENT,
@@ -713,7 +708,6 @@ private constructor(
         ): SurfaceEntity =
             SurfaceEntity.create(
                 session,
-                session.perceptionRuntime,
                 session.renderingRuntime,
                 stereoMode,
                 mediaBlendingMode,

@@ -43,6 +43,9 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
         DESTROYED,
     }
 
+    override var config: Config = Config.Builder().build()
+        private set
+
     internal var state: State = State.NOT_INITIALIZED
         private set
 
@@ -74,19 +77,6 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
         state = State.INITIALIZED
     }
 
-    internal var config: Config =
-        Config.Builder()
-            .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-            .setHandTracking(HandTrackingMode.BOTH)
-            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
-            .setDepthEstimation(DepthEstimationMode.SMOOTH_AND_RAW)
-            .setAnchorPersistence(AnchorPersistenceMode.LOCAL)
-            // Needs to contain at least one AugmentedObjectCategory to enable
-            .setAugmentedObjectCategories(setOf(AugmentedObjectCategory.MOUSE))
-            .setQrCodeTracking(QrCodeTrackingMode.DYNAMIC)
-            .build()
-        private set
-
     override fun configure(config: Config) {
         check(
             state == State.NOT_INITIALIZED ||
@@ -114,6 +104,7 @@ internal class StubPerceptionRuntime(internal var hasCreatePermission: Boolean =
         }
 
         if (hasMissingPermission) throw SecurityException()
+
         this.config = config
     }
 

@@ -468,11 +468,13 @@ package androidx.xr.runtime.internal {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface JxrRuntime {
     method public default void configure(androidx.xr.runtime.Config config);
     method public default void destroy();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
     method @InaccessibleFromKotlin public default Long? getSessionPointer();
     method public default void initialize();
     method public default void pause();
     method public default void resume();
     method public default suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark?>);
+    property public abstract androidx.xr.runtime.Config config;
     property public default Long? sessionPointer;
   }
 

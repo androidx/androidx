@@ -27,7 +27,6 @@ import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.MainPanelEntity
-import androidx.xr.scenecore.perceptionRuntime
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.sceneRuntime
 import androidx.xr.scenecore.testing.MainPanelEntityTester
@@ -74,6 +73,7 @@ class TestRuleMainPanelEntityTest {
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
         session = (result as SessionCreateSuccess).session
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
         mainPanelEntity = session.scene.mainPanelEntity
         mainPanelEntityTester = scenecoreTestRule.mainPanelEntityTester
     }
@@ -118,7 +118,7 @@ class TestRuleMainPanelEntityTest {
     @Test
     fun addPerceivedResolutionChangedListener_withoutDeviceTracking_throwsIllegalStateException() {
         // Disable head tracking
-        session.configure(Config(deviceTracking = DeviceTrackingMode.DISABLED))
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.DISABLED).build())
 
         val listener = Consumer<IntSize2d> {}
         val exception =
@@ -254,7 +254,6 @@ class TestRuleMainPanelEntityTest {
         fun createMainPanelEntity(): WeakReference<MainPanelEntity> {
             val entity =
                 MainPanelEntity.create(
-                    session.perceptionRuntime,
                     session.sceneRuntime,
                     session.scene.perceptionSpace,
                     session.scene.entityRegistry,

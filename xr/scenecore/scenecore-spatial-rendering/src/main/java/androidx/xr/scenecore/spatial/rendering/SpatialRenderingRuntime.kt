@@ -19,6 +19,7 @@ package androidx.xr.scenecore.spatial.rendering
 import android.app.Activity
 import android.os.Looper
 import androidx.annotation.VisibleForTesting
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Matrix3
@@ -73,6 +74,9 @@ private constructor(
     private val renderer: ImpSplitEngineRenderer,
 ) : RenderingRuntime {
 
+    override var config: Config = Config.Builder().build()
+        private set
+
     private lateinit var renderingEntityFactory: RenderingEntityFactory
     private var spatialEnvironmentFeature: SpatialEnvironmentFeatureImpl?
     private var isDestroyed = false
@@ -91,6 +95,10 @@ private constructor(
         (sceneRuntime.spatialEnvironment as SpatialEnvironmentExt).onRenderingFeatureReady(
             spatialEnvironmentFeature as SpatialEnvironmentFeature
         )
+    }
+
+    override fun configure(config: Config) {
+        this.config = config
     }
 
     @SuppressWarnings("RestrictTo")

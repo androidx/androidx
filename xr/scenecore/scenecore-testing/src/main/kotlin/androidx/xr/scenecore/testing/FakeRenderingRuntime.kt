@@ -19,6 +19,7 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix3
 import androidx.xr.runtime.math.Pose
@@ -62,6 +63,9 @@ public class FakeRenderingRuntime(
     private val entityFactory: RenderingEntityFactory = sceneRuntime as RenderingEntityFactory,
 ) : RenderingRuntime {
 
+    override val config: Config
+        get() = internalRuntime.config
+
     internal var internalRuntime: InternalFakeRenderingRuntime =
         InternalFakeRenderingRuntime(sceneRuntime)
 
@@ -72,6 +76,10 @@ public class FakeRenderingRuntime(
         (sceneRuntime.spatialEnvironment as SpatialEnvironmentExt).onRenderingFeatureReady(
             spatialEnvironmentFeature
         )
+    }
+
+    override fun configure(config: Config) {
+        internalRuntime.configure(config)
     }
 
     override suspend fun loadGltfByAssetName(assetName: String): FakeGltfModelResource {

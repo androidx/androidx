@@ -84,6 +84,7 @@ class EyeTest {
     fun left_trackingStateMatchesRuntime() =
         runTest(testDispatcher) {
             val underTest = Eye.left(session)
+            arCoreTestRule.leftEyeTester.isOpen = true
             advanceUntilIdle()
 
             assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
@@ -135,6 +136,7 @@ class EyeTest {
     fun right_trackingStateMatchesRuntime() =
         runTest(testDispatcher) {
             val underTest = Eye.right(session)
+            arCoreTestRule.rightEyeTester.isOpen = true
             advanceUntilIdle()
 
             assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)

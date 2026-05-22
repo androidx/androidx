@@ -27,6 +27,9 @@ import kotlin.time.ComparableTimeMark
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Suppress("NotCloseable")
 public interface JxrRuntime {
+    /** The configuration of the runtime. */
+    public val config: Config
+
     /**
      * Executes the [JxrRuntime] initialization logic. It is necessary to call [resume] after
      * calling this method to start the runtime's execution logic.
