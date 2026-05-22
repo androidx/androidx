@@ -21,7 +21,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.Default
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -135,7 +134,7 @@ fun BasicSecureTextField(
     decorator: TextFieldDecorator? = null,
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
-    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.Default,
+    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.System,
     textObfuscationCharacter: Char = DefaultObfuscationCharacter,
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -150,8 +149,11 @@ fun BasicSecureTextField(
     // 1 - Requested Obfuscation method
     // 2 - if the system allows it
     val revealLastTypedEnabled =
-        textObfuscationMode == TextObfuscationMode.RevealLastTyped &&
-            platformAllowsRevealLastTyped()
+        when (textObfuscationMode) {
+            TextObfuscationMode.RevealLastTyped -> true
+            TextObfuscationMode.System -> platformAllowsRevealLastTyped()
+            else -> false
+        }
 
     // while toggling between obfuscation methods if the revealing gets disabled, reset the reveal.
     LaunchedEffect(revealLastTypedEnabled) {
@@ -163,7 +165,8 @@ fun BasicSecureTextField(
     val codepointTransformation =
         remember(textObfuscationMode) {
             when (textObfuscationMode) {
-                TextObfuscationMode.RevealLastTyped -> {
+                TextObfuscationMode.RevealLastTyped,
+                TextObfuscationMode.System -> {
                     secureTextFieldController.codepointTransformation
                 }
                 TextObfuscationMode.Hidden -> {

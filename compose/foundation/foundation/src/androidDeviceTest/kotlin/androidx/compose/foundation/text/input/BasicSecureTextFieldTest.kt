@@ -650,8 +650,8 @@ internal class BasicSecureTextFieldTest {
     }
 
     @Test
-    fun defaultTextObfuscationMode_isRevealLastTypedEnabled() {
-        assertThat(TextObfuscationMode.Default).isEqualTo(TextObfuscationMode.RevealLastTyped)
+    fun systemTextObfuscationMode_isRevealLastTypedEnabled() {
+        assertThat(TextObfuscationMode.System).isNotEqualTo(TextObfuscationMode.RevealLastTyped)
     }
 
     @Test
@@ -659,7 +659,7 @@ internal class BasicSecureTextFieldTest {
         inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
-                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationMode = TextObfuscationMode.System,
                 textObfuscationCharacter = '*',
                 modifier = Modifier.testTag(Tag),
             )
@@ -720,7 +720,7 @@ internal class BasicSecureTextFieldTest {
         rule.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
-                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationMode = TextObfuscationMode.System,
                 textObfuscationCharacter = '*',
                 modifier = Modifier.testTag(Tag),
             )
@@ -786,7 +786,7 @@ internal class BasicSecureTextFieldTest {
             clipboard = LocalClipboard.current
             BasicSecureTextField(
                 state = rememberTextFieldState(),
-                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationMode = TextObfuscationMode.System,
                 textObfuscationCharacter = '*',
                 modifier = Modifier.testTag(Tag),
             )
@@ -808,6 +808,26 @@ internal class BasicSecureTextFieldTest {
         }
     }
 
+    @Test
+    fun revealLastTyped_alwaysReveals_evenWhenSystemSettingDisabled() = testSystemShowPassword {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        setShowPassword(false)
+        rule.mainClock.advanceTimeByFrame()
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
+        }
+    }
+
     private inline fun testSystemShowPassword(block: SystemPasswordControl.() -> Unit) {
         val control = SystemPasswordControl()
         try {
@@ -818,10 +838,10 @@ internal class BasicSecureTextFieldTest {
         }
     }
 
-    private class SystemPasswordControl() {
+    private class SystemPasswordControl {
         var registeredContentObserver: ContentObserver? = null
-        @Volatile var registerCount: Int = 0
-        @Volatile var unregisterCount: Int = 0
+        @Volatile var registerCount = 0
+        @Volatile var unregisterCount = 0
         @Volatile var registerThread: Thread? = null
         @Volatile var unregisterThread: Thread? = null
 

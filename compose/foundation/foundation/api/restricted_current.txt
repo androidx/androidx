@@ -3082,9 +3082,11 @@ package androidx.compose.foundation.text.input {
   public static final class TextObfuscationMode.Companion {
     method @BytecodeOnly public int getHidden-vTwcZD0();
     method @BytecodeOnly public int getRevealLastTyped-vTwcZD0();
+    method @BytecodeOnly public int getSystem-vTwcZD0();
     method @BytecodeOnly public int getVisible-vTwcZD0();
     property public androidx.compose.foundation.text.input.TextObfuscationMode Hidden;
     property public androidx.compose.foundation.text.input.TextObfuscationMode RevealLastTyped;
+    property public androidx.compose.foundation.text.input.TextObfuscationMode System;
     property public androidx.compose.foundation.text.input.TextObfuscationMode Visible;
   }
 

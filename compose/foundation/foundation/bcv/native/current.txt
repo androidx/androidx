@@ -1455,6 +1455,8 @@ final value class androidx.compose.foundation.text.input/TextObfuscationMode { /
             final fun <get-Hidden>(): androidx.compose.foundation.text.input/TextObfuscationMode // androidx.compose.foundation.text.input/TextObfuscationMode.Companion.Hidden.<get-Hidden>|<get-Hidden>(){}[0]
         final val RevealLastTyped // androidx.compose.foundation.text.input/TextObfuscationMode.Companion.RevealLastTyped|{}RevealLastTyped[0]
             final fun <get-RevealLastTyped>(): androidx.compose.foundation.text.input/TextObfuscationMode // androidx.compose.foundation.text.input/TextObfuscationMode.Companion.RevealLastTyped.<get-RevealLastTyped>|<get-RevealLastTyped>(){}[0]
+        final val System // androidx.compose.foundation.text.input/TextObfuscationMode.Companion.System|{}System[0]
+            final fun <get-System>(): androidx.compose.foundation.text.input/TextObfuscationMode // androidx.compose.foundation.text.input/TextObfuscationMode.Companion.System.<get-System>|<get-System>(){}[0]
         final val Visible // androidx.compose.foundation.text.input/TextObfuscationMode.Companion.Visible|{}Visible[0]
             final fun <get-Visible>(): androidx.compose.foundation.text.input/TextObfuscationMode // androidx.compose.foundation.text.input/TextObfuscationMode.Companion.Visible.<get-Visible>|<get-Visible>(){}[0]
     }
