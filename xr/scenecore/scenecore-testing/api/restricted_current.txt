@@ -153,6 +153,23 @@ package androidx.xr.scenecore.testing {
     property public java.util.Set<androidx.xr.scenecore.SpatialCapability> spatialCapabilities;
   }
 
+  public final class SoundEffectPoolComponentTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastPausedStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams? getLastPlayedPointSourceParams();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastPlayedStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastResumedStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastStoppedStream();
+    method @IntRange(from=0L) public int getPriority(androidx.xr.scenecore.Stream stream);
+    method public androidx.xr.scenecore.SoundEffect getSoundEffect(androidx.xr.scenecore.Stream stream);
+    method @FloatRange(from=0.0, to=1.0) public float getVolume(androidx.xr.scenecore.Stream stream);
+    method public boolean isLooping(androidx.xr.scenecore.Stream stream);
+    property public androidx.xr.scenecore.Stream? lastPausedStream;
+    property public androidx.xr.scenecore.PointSourceParams? lastPlayedPointSourceParams;
+    property public androidx.xr.scenecore.Stream? lastPlayedStream;
+    property public androidx.xr.scenecore.Stream? lastResumedStream;
+    property public androidx.xr.scenecore.Stream? lastStoppedStream;
+  }
+
   public final class SoundEffectPoolTester {
     method public boolean isAssetLoaded(android.content.res.AssetFileDescriptor assetFileDescriptor);
     method public boolean isResourceLoaded(int resourceId);

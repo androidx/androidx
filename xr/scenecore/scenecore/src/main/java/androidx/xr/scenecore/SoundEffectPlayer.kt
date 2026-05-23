@@ -18,19 +18,39 @@ package androidx.xr.scenecore
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.Stream as RtStream
 
 /**
  * Represents the handle of a [SoundEffect] that was returned by [SoundEffectPlayer.play]. The
  * Stream can be used to control playback with that [SoundEffectPlayer].
  */
-public class Stream internal constructor(internal val streamId: Int) {
+public class Stream
+internal constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val streamId: Int) {
     internal fun toRtStream(): RtStream {
         return RtStream(streamId)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Stream
+
+        return streamId == other.streamId
+    }
+
+    override fun hashCode(): Int {
+        return streamId
+    }
+
+    override fun toString(): String {
+        return "Stream(streamId=$streamId)"
+    }
 }
 
-internal fun RtStream.toStream(): Stream {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtStream.toStream(): Stream {
     return Stream(this.streamId)
 }
 
