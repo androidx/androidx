@@ -187,12 +187,13 @@ constructor(
             return
         }
 
-        val delayMs =
-            if (graphConfig.flags.enableRestartDelays) RESTART_TIMEOUT_WHEN_ENABLED_MS else 0L
+        val restartDelay =
+            if (graphConfig.flags.enableRestartDelays) RESTART_TIMEOUT_WHEN_ENABLED
+            else 0.milliseconds
         restartJob?.cancel()
         restartJob =
             scope.launch {
-                delay(delayMs)
+                delay(restartDelay)
                 synchronized(lock) {
                     if (
                         !isClosed() &&
@@ -477,7 +478,7 @@ constructor(
 
     companion object {
         private const val DEBUG = false
-        private const val RESTART_TIMEOUT_WHEN_ENABLED_MS = 700L // 0.7s
+        private val RESTART_TIMEOUT_WHEN_ENABLED = 700.milliseconds
         private const val MS_TO_NS = 1_000_000
         private val PRIORITIES_CHANGED_THRESHOLD = 200.milliseconds
 

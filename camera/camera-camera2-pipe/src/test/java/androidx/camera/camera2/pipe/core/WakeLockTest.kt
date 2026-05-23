@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.core
 
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -49,7 +50,7 @@ internal class WakeLockTest {
         val token2 = wakelock.acquire()!!
 
         token1.release()
-        delay(50)
+        delay(50.milliseconds)
 
         assertThat(result.isActive).isTrue()
         token2.release()
@@ -60,7 +61,7 @@ internal class WakeLockTest {
     @Test
     fun testClosingWakelockInvokesCallback() = runTest {
         val result = CompletableDeferred<Boolean>()
-        val wakelock = WakeLock(this, 100) { result.complete(true) }
+        val wakelock = WakeLock(this, 100.milliseconds) { result.complete(true) }
         wakelock.release()
         assertThat(result.await()).isTrue()
     }
@@ -68,7 +69,7 @@ internal class WakeLockTest {
     @Test
     fun testWakeLockCompletesWhenStartTimeoutOnCreation() = runTest {
         val result = CompletableDeferred<Boolean>()
-        WakeLock(this, 100, startTimeoutOnCreation = true) { result.complete(true) }
+        WakeLock(this, 100.milliseconds, startTimeoutOnCreation = true) { result.complete(true) }
         assertThat(result.await()).isTrue()
     }
 }

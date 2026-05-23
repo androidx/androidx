@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.core
 
 import androidx.annotation.GuardedBy
+import kotlin.time.Duration
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -35,7 +36,7 @@ import kotlinx.coroutines.launch
  */
 internal class WakeLock(
     private val scope: CoroutineScope,
-    private val timeout: Long = 0,
+    private val timeout: Duration = Duration.ZERO,
     private val startTimeoutOnCreation: Boolean = false,
     private val callback: () -> Unit,
 ) {

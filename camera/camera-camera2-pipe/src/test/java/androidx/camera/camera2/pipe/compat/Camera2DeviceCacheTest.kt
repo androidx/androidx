@@ -35,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import javax.inject.Provider
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
@@ -763,7 +764,7 @@ class Camera2DeviceCacheTest {
             camera2DeviceCache.onCriticalCameraError(cameraId2)
 
             // Advance time by a little bit to simulate a delay before we update the camera ID list.
-            advanceTimeBy(500)
+            advanceTimeBy(500.milliseconds)
 
             // Verify that the list remains the same since we haven't updated it.
             assertThat(camera2DeviceCache.getCameraIds())

@@ -40,6 +40,7 @@ import androidx.camera.camera2.pipe.media.ImageWrapper
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -126,7 +127,7 @@ class CameraGraphSimulatorTest {
 
             val totalCaptureResultEvent =
                 withContext(Dispatchers.IO) {
-                    withTimeoutOrNull(timeMillis = 50) { listener.onTotalCaptureResultFlow.first() }
+                    withTimeoutOrNull(50.milliseconds) { listener.onTotalCaptureResultFlow.first() }
                 }
 
             assertThat(totalCaptureResultEvent).isNull()
@@ -137,15 +138,15 @@ class CameraGraphSimulatorTest {
                 // Simulate two partial capture results, and one total capture result.
                 resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_MOVING
                 frame.simulatePartialCaptureResult(resultMetadata)
-                delay(10)
+                delay(10.milliseconds)
 
                 resultMetadata[CaptureResult.LENS_APERTURE] = 2.0f
                 frame.simulatePartialCaptureResult(resultMetadata)
-                delay(10)
+                delay(10.milliseconds)
 
                 resultMetadata[CaptureResult.FLASH_STATE] = CaptureResult.FLASH_STATE_FIRED
                 frame.simulateTotalCaptureResult(resultMetadata)
-                delay(10)
+                delay(10.milliseconds)
 
                 frame.simulateComplete(
                     resultMetadata,
@@ -254,18 +255,18 @@ class CameraGraphSimulatorTest {
                 frame1.simulateTotalCaptureResult(resultMetadata)
                 frame1.simulateComplete(resultMetadata)
 
-                delay(15)
+                delay(15.milliseconds)
                 frame2.simulateTotalCaptureResult(resultMetadata)
                 frame2.simulateComplete(resultMetadata)
 
-                delay(15)
+                delay(15.milliseconds)
                 resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_STATIONARY
                 frame3.simulateTotalCaptureResult(resultMetadata)
                 frame3.simulateComplete(resultMetadata)
             }
 
             val startEvents =
-                withTimeout(timeMillis = 250) { listener.onStartedFlow.take(3).toList() }
+                withTimeout(250.milliseconds) { listener.onStartedFlow.take(3).toList() }
             assertThat(startEvents).hasSize(3)
 
             val event1 = startEvents[0]
@@ -289,7 +290,7 @@ class CameraGraphSimulatorTest {
             assertThat(event3.requestMetadata.request).isSameInstanceAs(request)
 
             val completeEvents =
-                withTimeout(timeMillis = 250) { listener.onCompleteFlow.take(3).toList() }
+                withTimeout(250.milliseconds) { listener.onCompleteFlow.take(3).toList() }
             assertThat(completeEvents).hasSize(3)
 
             val completeEvent1 = completeEvents[0]

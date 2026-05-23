@@ -35,6 +35,8 @@ import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import javax.inject.Provider
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -190,7 +192,7 @@ internal class PruningCamera2DeviceManagerImplTest {
 
             // Simulate a small delay for capture session switching, but short enough to keep the
             // camera opened.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             // Now open the same camera again.
             val virtualCamera2 =
@@ -222,7 +224,7 @@ internal class PruningCamera2DeviceManagerImplTest {
             virtualCamera1!!.disconnect()
 
             // Simulate a long delay such that the camera should be closed.
-            advanceTimeBy(3000)
+            advanceTimeBy(3.seconds)
 
             // Now open the same camera again.
             val virtualCamera2 =
@@ -333,14 +335,14 @@ internal class PruningCamera2DeviceManagerImplTest {
             deviceManager.prewarm(cameraId0)
 
             // Advance time by a little bit to complete the prewarm processing request.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState.onOpened(fakeCameraDevice0)
 
             // Advance time by a little bit to allow camera open processing to finish.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             val virtualCamera =
                 deviceManager.open(cameraId0, emptyList(), fakeGraphListener1, false) { true }
@@ -360,7 +362,7 @@ internal class PruningCamera2DeviceManagerImplTest {
                 deviceManager.open(cameraId0, emptyList(), fakeGraphListener1, false) { true }
             assertThat(virtualCamera).isNotNull()
             deviceManager.prewarm(cameraId0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             // The prewarm request should not disconnect the virtual camera.
             assertThat(virtualCamera!!.value).isNotInstanceOf(CameraStateClosed::class.java)
@@ -387,13 +389,13 @@ internal class PruningCamera2DeviceManagerImplTest {
             // Test to make sure we do close the camera eventually if a prewarmed camera went
             // unused after a period of time.
             deviceManager.prewarm(cameraId0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState.onOpened(fakeCameraDevice0)
 
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             // Verify the camera is still open due to prewarm.
             assertThat(androidCameraState.state.value).isInstanceOf(CameraStateOpen::class.java)
 
@@ -407,17 +409,17 @@ internal class PruningCamera2DeviceManagerImplTest {
         testScope.runTest {
             // Test to verify when we open a camera later than expected after
             deviceManager.prewarm(cameraId0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState.onOpened(fakeCameraDevice0)
 
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             // Verify the camera is still open due to prewarm.
             assertThat(androidCameraState.state.value).isInstanceOf(CameraStateOpen::class.java)
 
-            advanceTimeBy(5000)
+            advanceTimeBy(5.seconds)
             // Make sure the camera is closed.
             assertThat(androidCameraState.state.value).isInstanceOf(CameraStateClosed::class.java)
 
@@ -425,14 +427,14 @@ internal class PruningCamera2DeviceManagerImplTest {
             val virtualCamera =
                 deviceManager.open(cameraId0, emptyList(), fakeGraphListener1, false) { true }
             assertThat(virtualCamera).isNotNull()
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             // Verify we do open the camera again.
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(2)
             val androidCameraState2 = fakeRetryingCameraStateOpener.androidCameraStates.last()
             androidCameraState2.onOpened(fakeCameraDevice0)
 
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             // Verify that we opened the camera successfully.
             assertThat(androidCameraState2.state.value).isInstanceOf(CameraStateOpen::class.java)
             assertThat(virtualCamera!!.value).isInstanceOf(CameraStateOpen::class.java)
@@ -452,14 +454,14 @@ internal class PruningCamera2DeviceManagerImplTest {
             deviceManager.prewarm(cameraId0)
 
             // Advance time by a little bit to complete the prewarm processing request.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState.onOpened(fakeCameraDevice0)
 
             // Advance time by a little bit to allow camera open processing to finish.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             assertThat(androidCameraState.state.value).isInstanceOf(CameraStateOpen::class.java)
 
             val virtualCamera =
@@ -485,16 +487,16 @@ internal class PruningCamera2DeviceManagerImplTest {
             // Test to make sure the camera can be prewarmed multiple times before the camera is
             // actually opened.
             deviceManager.prewarm(cameraId0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             deviceManager.prewarm(cameraId0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState.onOpened(fakeCameraDevice0)
 
             // Advance time by a little bit to allow camera open processing to finish.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             // The prewarm requests should result in an opened camera.
             assertThat(androidCameraState.state.value).isInstanceOf(CameraStateOpen::class.java)
 
@@ -521,14 +523,14 @@ internal class PruningCamera2DeviceManagerImplTest {
             // Test to make sure the camera can be prewarmed multiple times before the camera is
             // actually opened.
             deviceManager.prewarm(cameraId0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState.onOpened(fakeCameraDevice0)
 
             // Advance time by a little bit to allow camera open processing to finish.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             assertThat(androidCameraState.state.value).isInstanceOf(CameraStateOpen::class.java)
 
             // Open the camera.
@@ -559,12 +561,12 @@ internal class PruningCamera2DeviceManagerImplTest {
                 deviceManager.open(cameraId0, listOf(cameraId1), fakeGraphListener1, false) { true }
             assertThat(virtualCamera1).isNotNull()
             // Advance time by just a bit to allow coroutines to finish.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState1 = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState1.onOpened(fakeCameraDevice0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             // Since camera 1 is not yet opened, the virtual camera should not be connected yet.
             var virtualCameraState1 = virtualCamera1!!.value
@@ -573,7 +575,7 @@ internal class PruningCamera2DeviceManagerImplTest {
             val virtualCamera2 =
                 deviceManager.open(cameraId1, listOf(cameraId0), fakeGraphListener2, false) { true }
             assertThat(virtualCamera2).isNotNull()
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(2)
             val androidCameraState2 = fakeRetryingCameraStateOpener.androidCameraStates.last()
@@ -639,7 +641,7 @@ internal class PruningCamera2DeviceManagerImplTest {
             val virtualCamera2 =
                 deviceManager.open(cameraId0, listOf(cameraId1), fakeGraphListener2, false) { true }
             assertThat(virtualCamera2).isNotNull()
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             // Even though we request the same camera, the single camera 0 cannot be reused, and
             // should thus be closed.
@@ -648,12 +650,12 @@ internal class PruningCamera2DeviceManagerImplTest {
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(2)
             val androidCameraState2 = fakeRetryingCameraStateOpener.androidCameraStates.last()
             androidCameraState2.onOpened(fakeCameraDevice0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             val virtualCamera3 =
                 deviceManager.open(cameraId1, listOf(cameraId0), fakeGraphListener3, false) { true }
             assertThat(virtualCamera3).isNotNull()
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(3)
             val androidCameraState3 = fakeRetryingCameraStateOpener.androidCameraStates.last()
@@ -675,17 +677,17 @@ internal class PruningCamera2DeviceManagerImplTest {
                 deviceManager.open(cameraId0, listOf(cameraId1), fakeGraphListener1, false) { true }
             assertThat(virtualCamera1).isNotNull()
             // Advance time by just a bit to allow coroutines to finish.
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
             val androidCameraState1 = fakeRetryingCameraStateOpener.androidCameraStates.first()
             androidCameraState1.onOpened(fakeCameraDevice0)
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             val virtualCamera2 =
                 deviceManager.open(cameraId1, listOf(cameraId0), fakeGraphListener2, false) { true }
             assertThat(virtualCamera2).isNotNull()
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(2)
             val androidCameraState2 = fakeRetryingCameraStateOpener.androidCameraStates.last()

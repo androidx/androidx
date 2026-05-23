@@ -46,6 +46,7 @@ import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -357,7 +358,7 @@ internal class GraphProcessorTest {
             graphProcessor.submit(request2)
 
             val abortEvent1 =
-                withTimeoutOrNull(timeMillis = 50L) { requestListener1.onAbortedFlow.firstOrNull() }
+                withTimeoutOrNull(50.milliseconds) { requestListener1.onAbortedFlow.firstOrNull() }
             val abortEvent2 = requestListener2.onAbortedFlow.first()
             assertThat(abortEvent1).isNull()
             assertThat(abortEvent2.request).isSameInstanceAs(request2)

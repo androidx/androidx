@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.config.CameraPipeJob
 import androidx.camera.camera2.pipe.core.Log
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
@@ -116,7 +117,7 @@ constructor(@CameraPipeJob private val cameraPipeJob: Job) {
                 shutdownAction.run()
             }
             runBlocking {
-                withTimeoutOrNull(CAMERA_PIPE_JOB_CANCEL_TIMEOUT_MS) {
+                withTimeoutOrNull(CAMERA_PIPE_JOB_CANCEL_TIMEOUT) {
                     Log.debug { "Cancelling CameraPipe root Job..." }
                     cameraPipeJob.cancelAndJoin()
                 }
@@ -138,6 +139,6 @@ constructor(@CameraPipeJob private val cameraPipeJob: Job) {
     }
 
     companion object {
-        private const val CAMERA_PIPE_JOB_CANCEL_TIMEOUT_MS = 3_000L
+        private val CAMERA_PIPE_JOB_CANCEL_TIMEOUT = 3.seconds
     }
 }

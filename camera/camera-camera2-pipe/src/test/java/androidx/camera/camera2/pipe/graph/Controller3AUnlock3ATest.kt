@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -90,7 +91,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -150,7 +151,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -214,7 +215,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -276,7 +277,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -360,13 +361,13 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
         // Act. Unlock AE
         val result3ADeferred = controller3A.unlock3A(ae = true, frameLimit = frameLimit)
-        advanceTimeBy(FRAME_RATE_MS * frameLimit)
+        advanceTimeBy(FRAME_RATE * frameLimit)
         result3ADeferred.await()
 
         // Assert. Result of unlock3A call should be completed with timeout result.
@@ -402,7 +403,7 @@ internal class Controller3AUnlock3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -460,6 +461,6 @@ internal class Controller3AUnlock3ATest {
 
     companion object {
         // The time duration in milliseconds between two frame results.
-        private const val FRAME_RATE_MS = 33L
+        private val FRAME_RATE = 33.milliseconds
     }
 }

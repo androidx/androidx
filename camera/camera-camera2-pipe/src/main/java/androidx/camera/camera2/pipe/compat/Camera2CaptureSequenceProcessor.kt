@@ -48,6 +48,7 @@ import androidx.camera.camera2.pipe.writeParameters
 import androidx.camera.common.unwrapAs
 import java.lang.Class
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.atomicfu.atomic
 
 internal interface Camera2CaptureSequenceProcessorFactory {
@@ -392,7 +393,7 @@ internal class Camera2CaptureSequenceProcessor(
         //
         // [1] b/307588161 - [ANR] at
         // androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
-        threads.runBlockingCheckedOrNull(WAIT_FOR_REPEATING_TIMEOUT_MS) {
+        threads.runBlockingCheckedOrNull(WAIT_FOR_REPEATING_TIMEOUT) {
             captureSequence.awaitStarted()
         }
             ?: Log.error {
@@ -612,7 +613,7 @@ internal class Camera2CaptureSequenceProcessor(
     }
 
     companion object {
-        private const val WAIT_FOR_REPEATING_TIMEOUT_MS = 2_000L // 2s
+        private val WAIT_FOR_REPEATING_TIMEOUT = 2.seconds
     }
 }
 
