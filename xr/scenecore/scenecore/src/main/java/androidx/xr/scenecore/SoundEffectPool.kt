@@ -38,9 +38,27 @@ internal constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val 
     internal fun toRtSoundEffect(): RtSoundEffect {
         return RtSoundEffect(id)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SoundEffect
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id
+    }
+
+    override fun toString(): String {
+        return "SoundEffect(id=$id)"
+    }
 }
 
-internal fun RtSoundEffect.toSoundEffect(): SoundEffect {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtSoundEffect.toSoundEffect(): SoundEffect {
     return SoundEffect(this.id)
 }
 

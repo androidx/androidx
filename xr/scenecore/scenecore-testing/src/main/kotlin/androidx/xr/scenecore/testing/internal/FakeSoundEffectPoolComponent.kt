@@ -30,6 +30,7 @@ internal class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolCo
     var lastPlayedVolume: Float? = null
     var lastPlayedPriority: Int? = null
     var lastPlayedIsLooping: Boolean? = null
+    var lastPlayedStream: Stream? = null
     var lastPausedStream: Stream? = null
     var lastResumedStream: Stream? = null
     var lastStoppedStream: Stream? = null
@@ -37,6 +38,42 @@ internal class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolCo
     var lastSetVolumeVolume: Float? = null
     var lastSetLoopingStream: Stream? = null
     var lastSetLoopingIsLooping: Boolean? = null
+
+    private var nextStreamId = 1
+
+    private fun getStream(): Stream {
+        val stream = Stream(nextStreamId)
+        nextStreamId++
+        return stream
+    }
+
+    private fun releaseStream(stream: Stream) {
+        val streamId = stream.streamId
+        _soundEffectMap.remove(streamId)
+        _volumeMap.remove(streamId)
+        _priorityMap.remove(streamId)
+        _isLoopingMap.remove(streamId)
+    }
+
+    private val _soundEffectMap: MutableMap<Int, SoundEffect> = mutableMapOf()
+    /** A map from [Stream] ID to the [SoundEffect] being played. */
+    val soundEffectMap: Map<Int, SoundEffect>
+        get() = _soundEffectMap
+
+    private val _priorityMap: MutableMap<Int, Int> = mutableMapOf()
+    /** A map from [Stream] ID to the priority of the sound effect. */
+    val priorityMap: Map<Int, Int>
+        get() = _priorityMap
+
+    private val _volumeMap: MutableMap<Int, Float> = mutableMapOf()
+    /** A map from [Stream] ID to the volume of the sound effect. */
+    val volumeMap: Map<Int, Float>
+        get() = _volumeMap
+
+    private val _isLoopingMap: MutableMap<Int, Boolean> = mutableMapOf()
+    /** A map from [Stream] ID to whether the sound effect is looping. */
+    val isLoopingMap: Map<Int, Boolean>
+        get() = _isLoopingMap
 
     override fun play(
         soundEffect: SoundEffect,
@@ -46,13 +83,22 @@ internal class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolCo
         priority: Int,
         isLooping: Boolean,
     ): Stream {
+        val stream = getStream()
+        val streamId = stream.streamId
+
         lastPlayedSoundEffect = soundEffect
         lastPlayedParams = pointSourceParams
         lastPlayedEntity = entity
         lastPlayedVolume = volume
         lastPlayedPriority = priority
         lastPlayedIsLooping = isLooping
-        return Stream(1)
+        lastPlayedStream = stream
+        _soundEffectMap[streamId] = soundEffect
+        _volumeMap[streamId] = volume
+        _priorityMap[streamId] = priority
+        _isLoopingMap[streamId] = isLooping
+
+        return stream
     }
 
     override fun pause(stream: Stream) {
@@ -65,15 +111,18 @@ internal class FakeSoundEffectPoolComponent : FakeComponent(), SoundEffectPoolCo
 
     override fun stop(stream: Stream) {
         lastStoppedStream = stream
+        releaseStream(stream)
     }
 
     override fun setVolume(stream: Stream, volume: Float) {
         lastSetVolumeStream = stream
         lastSetVolumeVolume = volume
+        _volumeMap[stream.streamId] = volume
     }
 
     override fun setLooping(stream: Stream, isLooping: Boolean) {
         lastSetLoopingStream = stream
         lastSetLoopingIsLooping = isLooping
+        _isLoopingMap[stream.streamId] = isLooping
     }
 }

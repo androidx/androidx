@@ -38,6 +38,7 @@ import androidx.xr.scenecore.PositionalAudioComponent
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SoundEffectPool
+import androidx.xr.scenecore.SoundEffectPoolComponent
 import androidx.xr.scenecore.SpatialAudioTrack
 import androidx.xr.scenecore.SpatialAudioTrackBuilder
 import androidx.xr.scenecore.SpatialEnvironment
@@ -116,6 +117,7 @@ public class SceneCoreTestRule : ExternalResource() {
             is PointerCaptureComponent -> PointerCaptureComponentTester.create(component)
             is PositionalAudioComponent -> PositionalAudioComponentTester.create(component)
             is ResizableComponent -> ResizableComponentTester.create(component)
+            is SoundEffectPoolComponent -> SoundEffectPoolComponentTester.create(component)
             else -> null
         }
     }
