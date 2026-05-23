@@ -28,6 +28,7 @@ import androidx.camera.common.unwrapAs
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.atomicfu.atomic
 
 @JvmDefaultWithCompatibility
@@ -175,14 +176,14 @@ constructor(
     ) {
         val cameraDeviceId = cameraDevice.id
         var cameraDeviceClosed = false
-        threads.runBlockingCheckedOrNull(CAMERA_CLOSE_TIMEOUT_MS) {
+        threads.runBlockingCheckedOrNull(CAMERA_CLOSE_TIMEOUT) {
             cameraDevice.closeWithTrace()
             cameraDeviceClosed = true
         }
             ?: run {
                 Log.error {
                     "Failed to close CameraDevice($cameraDeviceId) after " +
-                        "${CAMERA_CLOSE_TIMEOUT_MS}ms. The camera is likely in a bad state."
+                        "$CAMERA_CLOSE_TIMEOUT. The camera is likely in a bad state."
                 }
             }
 
@@ -257,6 +258,6 @@ constructor(
     }
 
     companion object {
-        const val CAMERA_CLOSE_TIMEOUT_MS = 7_000L // 7s
+        val CAMERA_CLOSE_TIMEOUT = 7.seconds
     }
 }

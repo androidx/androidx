@@ -38,6 +38,7 @@ import androidx.camera.featurecombinationquery.CameraDeviceSetupCompatFactory
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -409,7 +410,7 @@ constructor(
                             Log.info { "External $cameraId was removed" }
                             break
                         }
-                        delay(CRITICAL_CAMERA_ERROR_READ_CAMERA_ID_INTERVAL_MS)
+                        delay(CRITICAL_CAMERA_ERROR_READ_CAMERA_ID_INTERVAL)
                         cameraIds = readCameraIds()
                     }
                 }
@@ -428,7 +429,7 @@ constructor(
     }
 
     companion object {
-        const val CRITICAL_CAMERA_ERROR_READ_CAMERA_ID_INTERVAL_MS = 300L
+        val CRITICAL_CAMERA_ERROR_READ_CAMERA_ID_INTERVAL = 300.milliseconds
         const val CRITICAL_CAMERA_ERROR_READ_CAMERA_ID_RETRY_COUNT = 3
     }
 }

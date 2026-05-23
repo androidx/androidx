@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -108,7 +109,7 @@ internal class Controller3AConverge3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -168,7 +169,7 @@ internal class Controller3AConverge3ATest {
                             ),
                     ),
                 )
-                delay(FRAME_RATE_MS)
+                delay(FRAME_RATE)
             }
         }
 
@@ -250,6 +251,6 @@ internal class Controller3AConverge3ATest {
 
     companion object {
         // The time duration in milliseconds between two frame results.
-        private const val FRAME_RATE_MS = 33L
+        private val FRAME_RATE = 33.milliseconds
     }
 }

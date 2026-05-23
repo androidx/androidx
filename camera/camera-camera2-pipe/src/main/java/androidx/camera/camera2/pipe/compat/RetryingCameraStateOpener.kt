@@ -38,6 +38,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
@@ -62,9 +63,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 private val defaultCameraRetryTimeout = 10.seconds
 private val activeResumeCameraRetryTimeout = 30.minutes
 
-private const val defaultCameraRetryDelayMs = 500L
+private val defaultCameraRetryDelay = 500.milliseconds
 
-private const val activeResumeCameraRetryDelayBaseMs = defaultCameraRetryDelayMs
+private val activeResumeCameraRetryDelayBase = defaultCameraRetryDelay
 
 private val activeResumeCameraRetryThresholds =
     arrayOf(
@@ -80,7 +81,7 @@ internal interface CameraAvailabilityMonitor {
     suspend fun startMonitoring(cameraId: CameraId): Session
 
     interface Session : AutoCloseable {
-        suspend fun awaitAvailableCamera(timeoutMillis: Long): Boolean
+        suspend fun awaitAvailableCamera(timeout: Duration): Boolean
     }
 }
 
@@ -178,10 +179,10 @@ constructor(
                 }
             }
 
-            override suspend fun awaitAvailableCamera(timeoutMillis: Long): Boolean {
+            override suspend fun awaitAvailableCamera(timeout: Duration): Boolean {
                 val listener = CompletableDeferred<Unit>()
                 listeners.add(listener)
-                val success = withTimeoutOrNull(timeoutMillis) { listener.await() } != null
+                val success = withTimeoutOrNull(timeout) { listener.await() } != null
                 listeners.remove(listener)
                 return success
             }
@@ -311,13 +312,13 @@ constructor(
             }
 
             // Timeout job to monitor and cancel camera opening when it times out.
-            var timeoutJob: Job? = launch { delay(CAMERA_OPEN_TIMEOUT_MS) }
+            var timeoutJob: Job? = launch { delay(CAMERA_OPEN_TIMEOUT) }
 
             // Cancellation job to await on the camera open cancellation signal and start a
             // timeout before cancelling camera opening with a timeout error.
             var cameraOpenCancelJob: Job? = launch {
                 cameraOpenCancelled.await()
-                delay(CAMERA_OPEN_CANCEL_TIMEOUT_MS)
+                delay(CAMERA_OPEN_CANCEL_TIMEOUT)
             }
 
             while (isActive) {
@@ -389,13 +390,13 @@ constructor(
         // The timeout for the CameraManager.openCamera call itself. Note that this is the timeout
         // for making the call and waiting for the call to return, rather than waiting for the
         // whole camera opening process
-        const val CAMERA_OPEN_TIMEOUT_MS = 3_000L
+        val CAMERA_OPEN_TIMEOUT = 3.seconds
 
         // The timeout for waiting for the camera open result to come back after camera open
         // cancellation is issued. This is needed because during shutdown, we need to abandon
         // camera opening attempts in a timely manner, and unfortunately state callbacks don't come
         // sometimes.
-        const val CAMERA_OPEN_CANCEL_TIMEOUT_MS = 2_000L
+        val CAMERA_OPEN_CANCEL_TIMEOUT = 2.seconds
     }
 }
 
@@ -479,8 +480,8 @@ constructor(
                     // then retry immediately.
                     if (
                         !it.awaitAvailableCamera(
-                            timeoutMillis =
-                                getRetryDelayMs(
+                            timeout =
+                                getRetryDelay(
                                     elapsed,
                                     shouldActivateActiveResume(isForeground, errorCode),
                                 )
@@ -642,16 +643,16 @@ constructor(
                 min(activeResumeCameraRetryTimeout, cameraOpenRetryMaxTimeout)
             }
 
-        internal fun getRetryDelayMs(elapsed: Duration, activeResumeActivated: Boolean): Long {
+        internal fun getRetryDelay(elapsed: Duration, activeResumeActivated: Boolean): Duration {
             if (!activeResumeActivated) {
-                return defaultCameraRetryDelayMs
+                return defaultCameraRetryDelay
             }
             return if (elapsed < activeResumeCameraRetryThresholds[0]) {
-                activeResumeCameraRetryDelayBaseMs
+                activeResumeCameraRetryDelayBase
             } else if (elapsed < activeResumeCameraRetryThresholds[1]) {
-                activeResumeCameraRetryDelayBaseMs * 4L
+                activeResumeCameraRetryDelayBase * 4
             } else {
-                activeResumeCameraRetryDelayBaseMs * 8L
+                activeResumeCameraRetryDelayBase * 8
             }
         }
 

@@ -41,6 +41,9 @@ import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import java.util.Collections.synchronizedMap
 import java.util.concurrent.CountDownLatch
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -227,7 +230,7 @@ internal class CaptureSessionState(
             Log.debug { "$this session finalizing" }
             Debug.traceStart { "$this#onSessionFinalized" }
             shutdown()
-            finalizeSession(0L)
+            finalizeSession()
             Debug.traceStop()
         }
     }
@@ -336,7 +339,7 @@ internal class CaptureSessionState(
             // observed that both onConfigured() and onClosed() may not be called at all by the
             // camera framework. If we really cannot get a configured session after a timeout, just
             // proceed with the rest of the shutdown.
-            threads.runBlockingCheckedOrNull(CAPTURE_SESSION_TIMEOUT_MS) {
+            threads.runBlockingCheckedOrNull(CAPTURE_SESSION_TIMEOUT) {
                 captureSessionAttemptCompleted.await()
             } ?: Log.error { "Waiting for CameraCaptureSession configuration timed out" }
 
@@ -374,10 +377,10 @@ internal class CaptureSessionState(
             // [1] b/287020251
             // [2] b/379855962
             if (cameraGraphFlags.abortCapturesOnStop) {
-                threads.runBlockingCheckedOrNull(ABORT_CAPTURES_TIMEOUT_MS) {
+                threads.runBlockingCheckedOrNull(ABORT_CAPTURES_TIMEOUT) {
                     Debug.trace("$this stopRepeating") { graphProcessor.stopRepeating() }
                     Debug.trace("$this abortCaptures") { graphProcessor.abortCaptures() }
-                } ?: Log.error { "Failed to abort captures in ${ABORT_CAPTURES_TIMEOUT_MS}ms" }
+                } ?: Log.error { "Failed to abort captures in $ABORT_CAPTURES_TIMEOUT" }
             }
 
             // Explicitly release ImageWriter resources for the edge case when two capture sessions
@@ -402,15 +405,12 @@ internal class CaptureSessionState(
             // [2] b/277675483
             // [3] b/307594946 - [ANR] at Camera2CameraController.disconnectSessionAndCamera
             if (cameraGraphFlags.closeCaptureSessionOnDisconnect) {
-                threads.runBlockingCheckedOrNull(CLOSE_SESSION_TIMEOUT_MS) {
+                threads.runBlockingCheckedOrNull(CLOSE_SESSION_TIMEOUT) {
                     Debug.trace("$this CameraCaptureSessionWrapper#close") {
                         Log.debug { "Closing capture session for $this" }
                         captureSession.session.close()
                     }
-                }
-                    ?: Log.error {
-                        "Failed to close the capture session in ${CLOSE_SESSION_TIMEOUT_MS}ms"
-                    }
+                } ?: Log.error { "Failed to close the capture session in $CLOSE_SESSION_TIMEOUT" }
             }
 
             Debug.traceStart { "$graphListener#onGraphStopped" }
@@ -439,7 +439,7 @@ internal class CaptureSessionState(
         disconnect()
 
         var shouldFinalizeSession = false
-        var finalizeSessionDelayMs = 0L
+        var finalizeSessionDelay = 0.milliseconds
         synchronized(lock) {
             // If the CameraDevice is never opened, the session will never be created. For cleanup
             // reasons, make sure the session is finalized after shutdown if the cameraDevice was
@@ -454,7 +454,7 @@ internal class CaptureSessionState(
                         }
                         FinalizeSessionOnCloseBehavior.TIMEOUT -> {
                             shouldFinalizeSession = true
-                            finalizeSessionDelayMs = 2000L
+                            finalizeSessionDelay = 2.seconds
                         }
                     }
                 }
@@ -464,16 +464,16 @@ internal class CaptureSessionState(
         }
 
         if (shouldFinalizeSession) {
-            finalizeSession(finalizeSessionDelayMs)
+            finalizeSession(finalizeSessionDelay)
         }
     }
 
-    internal fun finalizeSession(delayMs: Long = 0L) {
-        if (delayMs != 0L) {
+    internal fun finalizeSession(delay: Duration = 0.milliseconds) {
+        if (delay != 0.milliseconds) {
             scope.launch {
-                Log.debug { "Finalizing $this in $delayMs ms" }
-                delay(delayMs)
-                finalizeSession(0L)
+                Log.debug { "Finalizing $this in $delay" }
+                delay(delay)
+                finalizeSession()
             }
         } else {
             Log.debug { "Finalizing $this" }
@@ -665,8 +665,8 @@ internal class CaptureSessionState(
     )
 
     private companion object {
-        const val CAPTURE_SESSION_TIMEOUT_MS = 3_000L
-        const val ABORT_CAPTURES_TIMEOUT_MS = 2_000L
-        const val CLOSE_SESSION_TIMEOUT_MS = 3_000L
+        val CAPTURE_SESSION_TIMEOUT = 3.seconds
+        val ABORT_CAPTURES_TIMEOUT = 2.seconds
+        val CLOSE_SESSION_TIMEOUT = 3.seconds
     }
 }

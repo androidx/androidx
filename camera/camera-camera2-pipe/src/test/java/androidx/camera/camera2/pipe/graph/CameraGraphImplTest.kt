@@ -48,6 +48,8 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -295,7 +297,7 @@ internal class CameraGraphImplTest {
                 }
             val job2 =
                 cameraGraph.useSessionIn(testScope) {
-                    delay(100)
+                    delay(100.milliseconds)
                     events += 3
                 }
             val job3 =
@@ -345,7 +347,7 @@ internal class CameraGraphImplTest {
 
     @Test
     fun useSessionInWithRunBlockingDoesNotStall() = runBlocking {
-        val deferred = cameraGraph.useSessionIn(this) { delay(1) }
+        val deferred = cameraGraph.useSessionIn(this) { delay(1.milliseconds) }
         deferred.await() // Make sure this does not block.
     }
 
@@ -423,7 +425,7 @@ internal class CameraGraphImplTest {
 
             val deferred =
                 scope.async {
-                    delay(100000) // Delay skipping
+                    delay(100.seconds) // Delay skipping
                     throw RuntimeException()
                 }
             deferred.join()

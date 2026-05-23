@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.core
 
 import android.os.Handler
 import java.util.concurrent.Executor
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -58,16 +59,16 @@ public class Threads(
      * completes, even if the calling thread is blocked. Throws [IllegalStateException] when the
      * execution of the [block] times out.
      */
-    public fun <T> runBlockingChecked(timeoutMs: Long, block: suspend () -> T): T {
+    public fun <T> runBlockingChecked(timeout: Duration, block: suspend () -> T): T {
         return runBlocking(blockingDispatcher) {
             val result = runAsyncSupervised(backgroundDispatcher, block)
             try {
-                withTimeout(timeoutMs) { result.await() }
+                withTimeout(timeout) { result.await() }
             } catch (e: TimeoutCancellationException) {
-                Log.error { "Timed out after ${timeoutMs}ms running $block!" }
+                Log.error { "Timed out after $timeout running $block!" }
                 // For some reason, if TimeoutCancellationException is thrown, runBlocking can
                 // suspend indefinitely. Catch it and rethrow IllegalStateException.
-                throw IllegalStateException("Timed out after ${timeoutMs}ms running $block!")
+                throw IllegalStateException("Timed out after $timeout running $block!")
             }
         }
     }
@@ -78,11 +79,11 @@ public class Threads(
      * after the timeout completes, even if the calling thread is blocked. Returns null when the
      * execution of the [block] times out.
      */
-    public fun <T> runBlockingCheckedOrNull(timeoutMs: Long, block: suspend () -> T): T? {
+    public fun <T> runBlockingCheckedOrNull(timeout: Duration, block: suspend () -> T): T? {
         return try {
             runBlocking(blockingDispatcher) {
                 val result = runAsyncSupervised(backgroundDispatcher, block)
-                withTimeoutOrNull(timeoutMs) { result.await() }
+                withTimeoutOrNull(timeout) { result.await() }
             }
         } catch (e: InterruptedException) {
             Log.info(e) { "runBlockingCheckedOrNull cancelled by thread interruption" }

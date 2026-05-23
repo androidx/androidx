@@ -44,6 +44,7 @@ import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.FakeTimeSource
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -108,7 +109,7 @@ class RetryingCameraStateOpenerTest {
             ) {
                 numberOfOpens++
                 if (toBlock) {
-                    delay(10_000L)
+                    delay(10.seconds)
                 }
                 toThrow?.let { throw it }
 
@@ -165,9 +166,9 @@ class RetryingCameraStateOpenerTest {
                 cameraId: CameraId
             ): CameraAvailabilityMonitor.Session {
                 return object : CameraAvailabilityMonitor.Session {
-                    override suspend fun awaitAvailableCamera(timeoutMillis: Long): Boolean {
-                        delay(timeoutMillis)
-                        fakeTimeSource.currentTimestamp += timeoutMillis.milliseconds
+                    override suspend fun awaitAvailableCamera(timeout: Duration): Boolean {
+                        delay(timeout)
+                        fakeTimeSource.currentTimestamp += timeout
                         return true
                     }
 
@@ -658,7 +659,7 @@ class RetryingCameraStateOpenerTest {
         }
 
         // Simulate the opening of a camera that takes 1s.
-        advanceTimeBy(1_000L)
+        advanceTimeBy(1.seconds)
         cameraOpener.simulateCameraOpen()
 
         advanceUntilIdle()
@@ -680,7 +681,7 @@ class RetryingCameraStateOpenerTest {
         }
 
         // Simulate the opening of a camera that takes 10s.
-        advanceTimeBy(10_000L)
+        advanceTimeBy(10.seconds)
         cameraOpener.simulateCameraOpen()
 
         advanceUntilIdle()
@@ -726,7 +727,7 @@ class RetryingCameraStateOpenerTest {
         // When camera open is cancelled, we should stop the wait for camera open result after a
         // timeout.
         cameraStateOpener.cancelOpen()
-        advanceTimeBy(10_000L)
+        advanceTimeBy(10.seconds)
 
         val result = resultDeferred.getCompleted()
         assertThat(result.cameraState).isNull()
@@ -809,7 +810,7 @@ class RetryingCameraStateOpenerTest {
         }
 
         // Advance virtual clock to move past the retry timeout.
-        advanceTimeBy(30_000)
+        advanceTimeBy(30.seconds)
         advanceUntilIdle()
 
         val openResult = result.await()
@@ -835,7 +836,7 @@ class RetryingCameraStateOpenerTest {
         }
 
         // Advance virtual clock to move past the retry timeout.
-        advanceTimeBy(30_000)
+        advanceTimeBy(30.seconds)
         advanceUntilIdle()
 
         val openResult = result.await()
@@ -858,7 +859,7 @@ class RetryingCameraStateOpenerTest {
 
         // Advance virtual clock with just enough time for 1 camera retry (we wait 500ms before the
         // next retry).
-        advanceTimeBy(750)
+        advanceTimeBy(750.milliseconds)
         advanceUntilIdle()
 
         val openResult = result.getCompleted()
@@ -879,7 +880,7 @@ class RetryingCameraStateOpenerTest {
         }
 
         // Advance virtual clock to move past the retry timeout.
-        advanceTimeBy(30_000)
+        advanceTimeBy(30.seconds)
         advanceUntilIdle()
 
         val openResult = result.await()
@@ -901,7 +902,7 @@ class RetryingCameraStateOpenerTest {
         }
 
         // Advance virtual clock to move past the retry timeout.
-        advanceTimeBy(30_000)
+        advanceTimeBy(30.seconds)
         advanceUntilIdle()
 
         val openResult = result.await()
@@ -923,7 +924,7 @@ class RetryingCameraStateOpenerTest {
         }
 
         // Advance virtual clock to move past the retry timeout.
-        advanceTimeBy(30_000)
+        advanceTimeBy(30.seconds)
         advanceUntilIdle()
 
         val openResult = result.await()
@@ -946,7 +947,7 @@ class RetryingCameraStateOpenerTest {
 
         // Advance virtual clock with just enough time for 1 camera retry (we wait 500ms before the
         // next retry).
-        advanceTimeBy(750)
+        advanceTimeBy(750.milliseconds)
         advanceUntilIdle()
 
         val openResult = result.getCompleted()

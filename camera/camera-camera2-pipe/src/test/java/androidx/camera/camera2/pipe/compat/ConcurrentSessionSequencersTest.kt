@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.ConcurrentCameraGraphs
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -120,7 +121,7 @@ class ConcurrentSessionSequencersTest {
 
         val job = launch { sessionSequencer.awaitSessionLock() }
         // Advance to allow the job to execute and lock the mutex
-        advanceTimeBy(1)
+        advanceTimeBy(1.milliseconds)
 
         assertThat(concurrentSequencer.sharedMutex.isLocked).isTrue()
 
@@ -135,7 +136,7 @@ class ConcurrentSessionSequencersTest {
         val sessionSequencer = SessionSequencer(concurrentSequencer)
 
         val job = launch { sessionSequencer.awaitSessionLock() }
-        advanceTimeBy(1)
+        advanceTimeBy(1.milliseconds)
         assertThat(concurrentSequencer.sharedMutex.isLocked).isTrue()
 
         sessionSequencer.release()
@@ -158,17 +159,17 @@ class ConcurrentSessionSequencersTest {
 
         // First await locks and sets state to CREATING
         val job1 = launch { sessionSequencer.awaitSessionLock() }
-        advanceTimeBy(1)
+        advanceTimeBy(1.milliseconds)
         assertThat(concurrentSequencer.sharedMutex.isLocked).isTrue()
 
         // Second await will suspend waiting for the lock, then when it acquires it,
         // it will see the state is not PENDING and will immediately unlock.
         val job2 = launch { sessionSequencer.awaitSessionLock() }
-        advanceTimeBy(1)
+        advanceTimeBy(1.milliseconds)
 
         // Release the first lock
         sessionSequencer.release()
-        advanceTimeBy(1)
+        advanceTimeBy(1.milliseconds)
 
         // The mutex should be unlocked now, because job2 acquired and immediately released it.
         assertThat(concurrentSequencer.sharedMutex.isLocked).isFalse()
@@ -189,7 +190,7 @@ class ConcurrentSessionSequencersTest {
         launch {
             sessionSequencer1.awaitSessionLock()
             assertThat(activeCounter.incrementAndGet()).isEqualTo(1)
-            delay(100)
+            delay(100.milliseconds)
             assertThat(activeCounter.value).isEqualTo(1)
             activeCounter.decrementAndGet()
             sessionSequencer1.release()
@@ -199,14 +200,14 @@ class ConcurrentSessionSequencersTest {
         launch {
             sessionSequencer2.awaitSessionLock()
             assertThat(activeCounter.incrementAndGet()).isEqualTo(1)
-            delay(100)
+            delay(100.milliseconds)
             assertThat(activeCounter.value).isEqualTo(1)
             activeCounter.decrementAndGet()
             sessionSequencer2.release()
             job2Completed = true
         }
 
-        advanceTimeBy(300) // Enough time for both to complete sequentially
+        advanceTimeBy(300.milliseconds) // Enough time for both to complete sequentially
 
         assertThat(job1Completed).isTrue()
         assertThat(job2Completed).isTrue()
