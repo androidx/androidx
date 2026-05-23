@@ -21,32 +21,49 @@ package androidx.xr.scenecore
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.scenecore.testing.FakeSoundEffectPoolComponent
+import androidx.xr.scenecore.testing.SceneCoreTestRule
+import androidx.xr.scenecore.testing.SoundEffectPoolComponentTester
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class SoundEffectPoolComponentTest {
 
-    private val activity =
-        Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
+    @Rule @JvmField val testRule = SceneCoreTestRule()
+
+    private lateinit var activityController: ActivityController<ComponentActivity>
+    private lateinit var activity: ComponentActivity
     private lateinit var session: Session
 
     @Before
     fun setUp() {
+        activityController = Robolectric.buildActivity(ComponentActivity::class.java)
+        activity = activityController.create().start().get()
+
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(activity, testDispatcher)
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
         session = (result as SessionCreateSuccess).session
+    }
+
+    @After
+    fun tearDown() {
+        if (::activityController.isInitialized) {
+            activityController.destroy()
+        }
     }
 
     @Test
@@ -56,9 +73,9 @@ class SoundEffectPoolComponentTest {
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
 
+        assertThat(entity.getComponents()).isEmpty()
         assertThat(entity.addComponent(component)).isTrue()
-        assertThat(entity.rtEntity?.getComponents()?.get(0))
-            .isInstanceOf(FakeSoundEffectPoolComponent::class.java)
+        assertThat(entity.getComponents()).containsExactly(component)
     }
 
     @Test
@@ -69,104 +86,127 @@ class SoundEffectPoolComponentTest {
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
 
+        assertThat(firstEntity.getComponents()).isEmpty()
         assertThat(firstEntity.addComponent(component)).isTrue()
-        assertThat(firstEntity.rtEntity?.getComponents()?.get(0))
-            .isInstanceOf(FakeSoundEffectPoolComponent::class.java)
+        assertThat(firstEntity.getComponents()).containsExactly(component)
 
         firstEntity.removeComponent(component)
-        assertThat(firstEntity.rtEntity?.getComponents()).hasSize(0)
+        assertThat(firstEntity.getComponents()).isEmpty()
 
+        assertThat(secondEntity.getComponents()).isEmpty()
         assertThat(secondEntity.addComponent(component)).isTrue()
-        assertThat(secondEntity.rtEntity?.getComponents()?.get(0))
-            .isInstanceOf(FakeSoundEffectPoolComponent::class.java)
+        assertThat(secondEntity.getComponents()).containsExactly(component)
     }
 
     @Test
-    fun play_callsRuntime() {
+    fun play_withEntity_forwardsCorrectDataToRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
+        val tester = testRule.createTester<SoundEffectPoolComponentTester>(component)
         val soundEffect = soundEffectPool.load(activity, 123)
         val entity = Entity.create(session, "test")
         entity.addComponent(component)
 
-        component.play(soundEffect, 0.5f, 1, true)
+        // Use an invalid or uninitialized stream id
+        var stream = Stream(0)
 
-        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
+        assertThat(tester.lastPlayedPointSourceParams).isNull()
+        assertThat(tester.lastPlayedStream).isNull()
+        // Throws an exception if the stream is inactive.
+        assertThrows(IllegalArgumentException::class.java) { tester.getSoundEffect(stream) }
+        assertThrows(IllegalArgumentException::class.java) { tester.getVolume(stream) }
+        assertThrows(IllegalArgumentException::class.java) { tester.getPriority(stream) }
+        assertThrows(IllegalArgumentException::class.java) { tester.isLooping(stream) }
 
-        assertThat(fakeComponent.lastPlayedSoundEffect?.id).isEqualTo(soundEffect.id)
-        assertThat(fakeComponent.lastPlayedParams).isEqualTo(params.rtPointSourceParams)
-        assertThat(fakeComponent.lastPlayedEntity).isEqualTo(entity.rtEntity)
-        assertThat(fakeComponent.lastPlayedVolume).isEqualTo(0.5f)
-        assertThat(fakeComponent.lastPlayedPriority).isEqualTo(1)
-        assertThat(fakeComponent.lastPlayedIsLooping).isTrue()
+        stream = component.play(soundEffect, 0.5f, 1, true)
+
+        assertThat(tester.lastPlayedPointSourceParams).isEqualTo(params)
+        assertThat(tester.lastPlayedStream).isEqualTo(stream)
+        assertThat(tester.getSoundEffect(stream)).isEqualTo(soundEffect)
+        assertThat(tester.getVolume(stream)).isEqualTo(0.5f)
+        assertThat(tester.getPriority(stream)).isEqualTo(1)
+        assertThat(tester.isLooping(stream)).isTrue()
     }
 
     @Test
-    fun pause_callsRuntime() {
+    fun pause_forwardsCorrectStreamIdToRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
+        val tester = testRule.createTester<SoundEffectPoolComponentTester>(component)
         val stream = Stream(1)
+
+        // Null indicates no stream has been paused
+        assertThat(tester.lastPausedStream).isNull()
 
         component.pause(stream)
 
-        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
-        assertThat(fakeComponent.lastPausedStream?.streamId).isEqualTo(stream.streamId)
+        assertThat(tester.lastPausedStream).isEqualTo(stream)
     }
 
     @Test
-    fun resume_callsRuntime() {
+    fun resume_forwardsCorrectStreamIdToRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
-        val stream = Stream(1)
+        val tester = testRule.createTester<SoundEffectPoolComponentTester>(component)
+        val stream = Stream(2)
+
+        // Null indicates no stream has been resumed
+        assertThat(tester.lastResumedStream).isNull()
 
         component.resume(stream)
 
-        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
-        assertThat(fakeComponent.lastResumedStream?.streamId).isEqualTo(stream.streamId)
+        assertThat(tester.lastResumedStream).isEqualTo(stream)
     }
 
     @Test
-    fun stop_callsRuntime() {
+    fun stop_forwardsCorrectStreamIdToRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
-        val stream = Stream(1)
+        val tester = testRule.createTester<SoundEffectPoolComponentTester>(component)
+        val stream = Stream(3)
+
+        // Null indicates no stream has been stopped
+        assertThat(tester.lastStoppedStream).isNull()
 
         component.stop(stream)
 
-        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
-        assertThat(fakeComponent.lastStoppedStream?.streamId).isEqualTo(stream.streamId)
+        assertThat(tester.lastStoppedStream).isEqualTo(stream)
     }
 
     @Test
-    fun setVolume_callsRuntime() {
+    fun setVolume_forwardsCorrectDataToRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
-        val stream = Stream(1)
+        val tester = testRule.createTester<SoundEffectPoolComponentTester>(component)
+        val stream = Stream(4)
+
+        // Throws an exception if the stream is inactive.
+        assertThrows(IllegalArgumentException::class.java) { tester.getVolume(stream) }
 
         component.setVolume(stream, 0.8f)
 
-        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
-        assertThat(fakeComponent.lastSetVolumeStream?.streamId).isEqualTo(stream.streamId)
-        assertThat(fakeComponent.lastSetVolumeVolume).isEqualTo(0.8f)
+        assertThat(tester.getVolume(stream)).isEqualTo(0.8f)
     }
 
     @Test
-    fun setLooping_callsRuntime() {
+    fun setLooping_forwardsCorrectDataToRuntime() {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
-        val stream = Stream(1)
+        val tester = testRule.createTester<SoundEffectPoolComponentTester>(component)
+        val stream = Stream(5)
+
+        // Throws an exception if the stream is inactive.
+        assertThrows(IllegalArgumentException::class.java) { tester.isLooping(stream) }
 
         component.setLooping(stream, true)
 
-        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
-        assertThat(fakeComponent.lastSetLoopingStream?.streamId).isEqualTo(stream.streamId)
-        assertThat(fakeComponent.lastSetLoopingIsLooping).isTrue()
+        assertThat(tester.isLooping(stream)).isTrue()
     }
 
     @Test
@@ -174,6 +214,7 @@ class SoundEffectPoolComponentTest {
         val soundEffectPool = SoundEffectPool.create(session, 1)
         val params = PointSourceParams()
         val component = SoundEffectPoolComponent.create(session, soundEffectPool, params)
+        val tester = testRule.createTester<SoundEffectPoolComponentTester>(component)
         val newParams = PointSourceParams()
 
         assertThat(component.pointSourceParams).isEqualTo(params)
@@ -188,7 +229,6 @@ class SoundEffectPoolComponentTest {
 
         component.play(soundEffect, 0.5f, 1, true)
 
-        val fakeComponent = component.rtComponent as FakeSoundEffectPoolComponent
-        assertThat(fakeComponent.lastPlayedParams).isEqualTo(newParams.rtPointSourceParams)
+        assertThat(tester.lastPlayedPointSourceParams).isEqualTo(newParams)
     }
 }
