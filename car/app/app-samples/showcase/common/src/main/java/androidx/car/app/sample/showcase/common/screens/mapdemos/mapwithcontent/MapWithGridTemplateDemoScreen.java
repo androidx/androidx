@@ -90,7 +90,7 @@ public class MapWithGridTemplateDemoScreen extends Screen {
     private GridItem createGridItem() {
         return new GridItem.Builder()
                 .setImage(new CarIcon.Builder(IconCompat.createWithResource(getCarContext(),
-                        R.drawable.ic_fastfood_white_48dp)).build())
+                        R.drawable.ic_fastfood_white_48dp)).build(), GridItem.IMAGE_TYPE_ICON)
                 .setTitle("Primary")
                 .setText("Secondary")
                 .setOnClickListener(() -> CarToast.makeText(
