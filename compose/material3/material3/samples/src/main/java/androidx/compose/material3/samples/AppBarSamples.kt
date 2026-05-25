@@ -100,6 +100,7 @@ import androidx.window.core.layout.WindowSizeClass
  *
  * The top app bar here does not react to any scroll events in the content under it.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -187,6 +188,7 @@ fun SimpleTopAppBar() {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -315,7 +317,7 @@ fun SimpleTopAppBarWithAdaptiveActions() {
  *
  * The top app bar here does not react to any scroll events in the content under it.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -412,6 +414,7 @@ fun SimpleTopAppBarWithSubtitle() {
  *
  * The top app bar here does not react to any scroll events in the content under it.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -504,7 +507,7 @@ fun SimpleCenterAlignedTopAppBar() {
  *
  * The top app bar here does not react to any scroll events in the content under it.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -603,6 +606,7 @@ fun SimpleCenterAlignedTopAppBarWithSubtitle() {
  * The top app bar here is pinned to its location and changes its container color when the content
  * under it is scrolled.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -723,6 +727,7 @@ fun PinnedTopAppBar() {
  * The top app bar here is pinned to its location and changes its container color when the content
  * under it is scrolled. The content of the [LazyColumn] is pre-scrolled.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -791,6 +796,7 @@ fun PinnedTopAppBarWithPreScrolledLazyColumn() {
  * The top app bar here is pinned to its location and changes its container color when the content
  * under it is scrolled.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -873,7 +879,7 @@ fun PinnedTopAppBarWithReversedLazyGrid() {
  * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears when
  * the content scrolled down.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -967,7 +973,7 @@ fun EnterAlwaysTopAppBar() {
  * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears when
  * the content is scrolled down, using a [Column] with reverse scrolling.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -1037,6 +1043,7 @@ fun EnterAlwaysTopAppBarWithReverseScrolling() {
  * A sample for a [MediumTopAppBar] that collapses when the content is scrolled up, and appears when
  * the content is completely scrolled back down.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -1131,7 +1138,7 @@ fun ExitUntilCollapsedMediumTopAppBar() {
  * A sample for a [MediumFlexibleTopAppBar] that collapses when the content is scrolled up, and
  * appears when the content is completely scrolled back down, centered with subtitle.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -1228,6 +1235,7 @@ fun ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar() {
  * A sample for a [LargeTopAppBar] that collapses when the content is scrolled up, and appears when
  * the content is completely scrolled back down.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -1320,7 +1328,7 @@ fun ExitUntilCollapsedLargeTopAppBar() {
  * A sample for a [LargeFlexibleTopAppBar] that collapses when the content is scrolled up, and
  * appears when the content is completely scrolled back down, centered with subtitle.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -1415,7 +1423,7 @@ fun ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar() {
  * A sample for a [TwoRowsTopAppBar] that collapses when the content is scrolled up, and appears
  * when the content is completely scrolled back down.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable

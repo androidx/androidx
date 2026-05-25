@@ -1358,6 +1358,7 @@ private fun BottomAppBarLayout(
  * @see [TopAppBarDefaults.enterAlwaysScrollBehavior]
  * @see [TopAppBarDefaults.exitUntilCollapsedScrollBehavior]
  */
+@ExperimentalMaterial3Api
 @Stable
 interface TopAppBarScrollBehavior {
 
@@ -1652,6 +1653,7 @@ object TopAppBarDefaults {
      * @param canScroll a callback used to determine whether scroll events are to be handled by this
      *   pinned [TopAppBarScrollBehavior]
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun pinnedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
@@ -1679,6 +1681,7 @@ object TopAppBarDefaults {
      * @param canScroll a callback used to determine whether scroll events are to be handled by this
      *   pinned [TopAppBarScrollBehavior]
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun pinnedScrollBehavior(
         lazyListState: LazyListState,
@@ -1713,6 +1716,7 @@ object TopAppBarDefaults {
      * @param canScroll a callback used to determine whether scroll events are to be handled by this
      *   pinned [TopAppBarScrollBehavior]
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun pinnedScrollBehavior(
         scrollState: ScrollState,
@@ -1753,6 +1757,7 @@ object TopAppBarDefaults {
      *   origin of its content. Handles reversed layouts to ensure "start" always refers to the
      *   first logical item.
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun pinnedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
@@ -1788,6 +1793,7 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
@@ -1833,6 +1839,7 @@ object TopAppBarDefaults {
             ),
         level = DeprecationLevel.WARNING,
     )
+    @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
@@ -1875,6 +1882,7 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         lazyListState: LazyListState,
@@ -1924,6 +1932,7 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         scrollState: ScrollState,
@@ -1969,6 +1978,7 @@ object TopAppBarDefaults {
      *   origin of its content. Handles reversed layouts to ensure "start" always refers to the
      *   first logical item.
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
@@ -2008,6 +2018,7 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
+    @ExperimentalMaterial3Api
     @Composable
     fun exitUntilCollapsedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
@@ -3569,6 +3580,7 @@ private class TopAppBarMeasurePolicy(
  *   origin of its content. Handles reversed layouts to ensure "start" always refers to the first
  *   logical item.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 private class PinnedScrollBehavior(
     override val state: TopAppBarState,
     val canScroll: () -> Boolean = { true },
@@ -3622,6 +3634,7 @@ private class PinnedScrollBehavior(
  * @param reverseLayout indicates that this behavior is applied to a scrollable content that has a
  *   reversed direction of scrolling and layout
  */
+@OptIn(ExperimentalMaterial3Api::class)
 private class LegacyEnterAlwaysScrollBehavior(
     override val state: TopAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,
@@ -3698,6 +3711,7 @@ private class LegacyEnterAlwaysScrollBehavior(
  *   origin of its content. Handles reversed layouts to ensure "start" always refers to the first
  *   logical item.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 private class EnterAlwaysScrollBehavior(
     override val state: TopAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,
@@ -3769,6 +3783,7 @@ private class EnterAlwaysScrollBehavior(
  * @param canScroll a callback used to determine whether scroll events are to be handled by this
  *   [ExitUntilCollapsedScrollBehavior]
  */
+@OptIn(ExperimentalMaterial3Api::class)
 private class ExitUntilCollapsedScrollBehavior(
     override val state: TopAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,
