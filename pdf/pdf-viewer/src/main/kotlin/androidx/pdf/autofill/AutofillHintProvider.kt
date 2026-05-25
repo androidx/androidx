@@ -93,8 +93,8 @@ internal class AutofillHintProvider(
         val selection =
             pdfDocument.getSelectionBounds(
                 pageNum,
-                PointF(startX, widgetBounds.top.toFloat()),
-                PointF(widgetBounds.left - HINT_SEARCH_MARGIN, widgetBounds.bottom.toFloat()),
+                PointF(startX, widgetBounds.centerY().toFloat()),
+                PointF(widgetBounds.left - HINT_SEARCH_MARGIN, widgetBounds.centerY().toFloat()),
             ) ?: return null
 
         return selection.extractTextFromSelection()

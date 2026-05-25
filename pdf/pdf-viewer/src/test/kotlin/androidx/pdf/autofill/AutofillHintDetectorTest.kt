@@ -87,7 +87,7 @@ class AutofillHintDetectorTest {
             .contains(HintConstants.AUTOFILL_HINT_PERSON_NAME)
         assertThat(detector.detectHints("contact person"))
             .contains(HintConstants.AUTOFILL_HINT_PERSON_NAME)
-        assertThat(detector.detectHints("receiver"))
+        assertThat(detector.detectHints("receiver name"))
             .contains(HintConstants.AUTOFILL_HINT_PERSON_NAME)
     }
 
