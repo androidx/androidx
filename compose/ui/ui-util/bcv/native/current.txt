@@ -35,6 +35,7 @@ final inline fun (kotlin/Double).androidx.compose.ui.util/fastCoerceAtLeast(kotl
 final inline fun (kotlin/Double).androidx.compose.ui.util/fastCoerceAtMost(kotlin/Double): kotlin/Double // androidx.compose.ui.util/fastCoerceAtMost|fastCoerceAtMost@kotlin.Double(kotlin.Double){}[0]
 final inline fun (kotlin/Double).androidx.compose.ui.util/fastCoerceIn(kotlin/Double, kotlin/Double): kotlin/Double // androidx.compose.ui.util/fastCoerceIn|fastCoerceIn@kotlin.Double(kotlin.Double;kotlin.Double){}[0]
 final inline fun (kotlin/Double).androidx.compose.ui.util/fastIsFinite(): kotlin/Boolean // androidx.compose.ui.util/fastIsFinite|fastIsFinite@kotlin.Double(){}[0]
+final inline fun (kotlin/Float).androidx.compose.ui.util/equalsIncludingNaN(kotlin/Float): kotlin/Boolean // androidx.compose.ui.util/equalsIncludingNaN|equalsIncludingNaN@kotlin.Float(kotlin.Float){}[0]
 final inline fun (kotlin/Float).androidx.compose.ui.util/fastCoerceAtLeast(kotlin/Float): kotlin/Float // androidx.compose.ui.util/fastCoerceAtLeast|fastCoerceAtLeast@kotlin.Float(kotlin.Float){}[0]
 final inline fun (kotlin/Float).androidx.compose.ui.util/fastCoerceAtMost(kotlin/Float): kotlin/Float // androidx.compose.ui.util/fastCoerceAtMost|fastCoerceAtMost@kotlin.Float(kotlin.Float){}[0]
 final inline fun (kotlin/Float).androidx.compose.ui.util/fastCoerceIn(kotlin/Float, kotlin/Float): kotlin/Float // androidx.compose.ui.util/fastCoerceIn|fastCoerceIn@kotlin.Float(kotlin.Float;kotlin.Float){}[0]
