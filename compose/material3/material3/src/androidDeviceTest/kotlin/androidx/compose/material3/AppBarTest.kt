@@ -322,6 +322,7 @@ class AppBarTest {
             .assertContainsColor(expectedContainerColor)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun smallTopAppBar_scrolledContentColor() {
@@ -351,6 +352,7 @@ class AppBarTest {
             .assertContainsColor(expectedScrolledContainerColor)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun smallTopAppBar_scrolledPositioning() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
@@ -378,6 +380,7 @@ class AppBarTest {
             .assertHeightIsEqualTo(AppBarSmallTokens.ContainerHeight - scrollHeightOffsetDp)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun smallTopAppBar_customHeight() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
@@ -424,6 +427,7 @@ class AppBarTest {
         rule.onNodeWithTag(TopAppBarTestTag).assertHeightIsEqualTo(totalHeight)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun smallTopAppBar_transparentContainerColor() {
@@ -712,6 +716,7 @@ class AppBarTest {
             .assertContainsColor(expectedContainerColor)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun centerAlignedTopAppBar_scrolledContentColor() {
@@ -1373,6 +1378,7 @@ class AppBarTest {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun topAppBar_enterAlways_allowHorizontalScroll() {
         lateinit var state: LazyListState
@@ -1388,6 +1394,7 @@ class AppBarTest {
         rule.runOnIdle { assertThat(state.firstVisibleItemIndex).isEqualTo(0) }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun topAppBar_exitUntilCollapsed_allowHorizontalScroll() {
         lateinit var state: LazyListState
@@ -1403,6 +1410,7 @@ class AppBarTest {
         rule.runOnIdle { assertThat(state.firstVisibleItemIndex).isEqualTo(0) }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun topAppBar_pinned_allowHorizontalScroll() {
         lateinit var state: LazyListState
@@ -1695,6 +1703,7 @@ class AppBarTest {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun topAppBar_intrinsicHeight() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
@@ -1729,6 +1738,7 @@ class AppBarTest {
         rule.onNodeWithTag(RowTestTag + 1).assertHeightIsEqualTo(expandedHeightDp)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun topAppBar_intrinsicWidth() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
@@ -3602,6 +3612,7 @@ class AppBarTest {
      * @param content a Composable that adds a MediumTopAppBar, a LargeTopAppBar, or their flexible
      *   variations
      */
+    @OptIn(ExperimentalMaterial3Api::class)
     private fun assertMediumOrLargeScrolledHeight(
         appBarMaxHeight: Dp,
         appBarMinHeight: Dp,
@@ -3664,6 +3675,7 @@ class AppBarTest {
      * @param content a Composable that adds a MediumTopAppBar, a LargeTopAppBar, or their flexible
      *   variations
      */
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun assertMediumOrLargeScrolledColors(
         appBarMaxHeight: Dp,
@@ -3761,6 +3773,7 @@ class AppBarTest {
      * @param content a Composable that adds a MediumTopAppBar or a LargeTopAppBar
      * @param withSubtitle whether a subtitle is present
      */
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun assertMediumOrLargeScrolledSemantics(
         appBarMaxHeight: Dp,
