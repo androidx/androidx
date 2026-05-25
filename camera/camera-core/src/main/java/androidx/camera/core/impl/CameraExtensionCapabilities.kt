@@ -19,6 +19,7 @@ package androidx.camera.core.impl
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import android.util.Pair
 import android.util.Range
 import android.util.Size
 import androidx.annotation.RequiresApi

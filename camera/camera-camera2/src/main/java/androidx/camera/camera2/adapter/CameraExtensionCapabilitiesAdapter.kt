@@ -18,6 +18,7 @@ package androidx.camera.camera2.adapter
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import android.util.Pair
 import android.util.Range
 import android.util.Size
 import androidx.annotation.RequiresApi
@@ -66,7 +67,7 @@ internal class CameraExtensionCapabilitiesAdapter(
         for (key in extensionMetadata.keys) {
             val value = extensionMetadata[key]
             if (value != null) {
-                result.add(key to value)
+                result.add(Pair.create(key, value))
             }
         }
         return result
