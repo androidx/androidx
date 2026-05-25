@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import android.util.Pair
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
@@ -141,7 +142,7 @@ class CameraExtensionCapabilitiesAdapterTest {
 
     @Test
     fun getAvailableCharacteristicsKeyValues_returnsCorrectValue() {
-        val expected = characteristics.toList()
+        val expected = characteristics.map { Pair.create(it.key as Any, it.value as Any) }
         assertThat(adapter.getAvailableCharacteristicsKeyValues())
             .containsExactlyElementsIn(expected)
     }

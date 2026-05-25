@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.impl.fakes
 
+import android.util.Pair
 import android.util.Range
 import android.util.Size
 import androidx.annotation.RequiresApi
@@ -66,7 +67,7 @@ public class FakeCameraExtensionCapabilities(
         val result = mutableListOf<Pair<Any, Any>>()
         for ((key, value) in characteristicsKeys) {
             if (value != null) {
-                result.add(key to value)
+                result.add(Pair.create(key, value))
             }
         }
         return result
