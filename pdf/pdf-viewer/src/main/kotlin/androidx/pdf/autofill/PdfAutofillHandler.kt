@@ -117,9 +117,8 @@ internal class PdfAutofillHandler(
                 val autofillHints = hintDetector.detectHints(hintText)
                 if (autofillHints.isNotEmpty()) {
                     setAutofillHints(autofillHints.toTypedArray())
-                } else {
-                    hint = hintText
                 }
+                hint = hintText
             }
 
             setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES)

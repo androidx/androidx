@@ -33,7 +33,7 @@ private val NAME_PATTERNS =
             Regex("""\b((last|family|sur|second)(.*name)?|lname|surname)\b"""),
         HintConstants.AUTOFILL_HINT_PERSON_NAME to
             Regex(
-                """\b(name|(full|your|customer|bill|ship|contact).?name|contact.?person|receiver)\b"""
+                """\b(name|(full|your|customer|bill|ship|contact).?name|contact.?person|receiver.?name)\b"""
             ),
     )
 
