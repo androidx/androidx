@@ -18,6 +18,7 @@ package androidx.xr.runtime.testing
 
 import androidx.activity.ComponentActivity
 import androidx.kruth.assertThat
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.DisplayBlendMode
 import androidx.xr.runtime.XrDevice
@@ -78,5 +79,21 @@ class XrDeviceTestRuleTest {
         underTest.isProjectedServiceAvailable = true
 
         assertThat(XrDevice.isProjectedServiceAvailable(activity)).isTrue()
+    }
+
+    @Test
+    fun lifecycleState_stateInitializedByDefault() {
+        val device = XrDevice.getCurrentDevice(activity)
+        assertThat(device.getLifecycle().currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+    }
+
+    @Test
+    fun lifecycleState_controlsReturnValue() {
+        val testLifecycleState = Lifecycle.State.STARTED
+        val device = XrDevice.getCurrentDevice(activity)
+
+        underTest.lifecycleState = testLifecycleState
+
+        assertThat(device.getLifecycle().currentState).isEqualTo(testLifecycleState)
     }
 }

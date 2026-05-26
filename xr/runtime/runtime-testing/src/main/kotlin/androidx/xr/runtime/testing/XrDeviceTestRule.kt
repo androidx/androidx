@@ -22,6 +22,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.ServiceInfo
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DisplayBlendMode
@@ -182,6 +183,16 @@ public class XrDeviceTestRule : ExternalResource() {
             field = value
         }
 
+    /**
+     * Tests can set this property to control the lifecycle state of the [XrDevice]. By default, the
+     * value is set to [Lifecycle.State.INITIALIZED].
+     */
+    public var lifecycleState: Lifecycle.State = Lifecycle.State.INITIALIZED
+        set(value) {
+            capabilityProvider?.lifecycleState = value
+            field = value
+        }
+
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     internal fun DisplayBlendMode.toInternal() =
@@ -205,6 +216,7 @@ public class XrDeviceTestRule : ExternalResource() {
         spatialApiVersion =
             spatialApiVersionProvider?.spatialApiVersion ?: SpatialApiVersions.UNKNOWN
         isProjectedServiceAvailable = true
+        lifecycleState = Lifecycle.State.INITIALIZED
     }
 
     override fun after() {
