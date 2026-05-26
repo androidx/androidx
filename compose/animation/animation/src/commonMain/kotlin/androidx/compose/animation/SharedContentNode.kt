@@ -508,8 +508,6 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
             currentDensity = currentValueOf(LocalDensity)
             currentLayoutDirection = currentValueOf(LocalLayoutDirection)
         }
-        val lookaheadAnimationVisualDebugColor =
-            currentValueOf(LocalLookaheadAnimationVisualDebugColor)
         val strokeWeight = 2.5.dp.toPx()
         val targetData = sharedElement.state.targetData
         updateTextMeasurer(currentValueOf(LocalFontFamilyResolver))
@@ -530,7 +528,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
                             )
                         } else if (targetData != null && bounds != null) {
                             drawScope.drawLocalVisualizations(
-                                lookaheadAnimationVisualDebugColor,
+                                currentValueOf(LocalLookaheadAnimationVisualDebugColor),
                                 targetData.targetBounds.topLeft,
                                 targetData.size,
                                 bounds,
@@ -552,7 +550,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
                     }
                 } else {
                     drawScope.drawInactiveVisualizations(
-                        lookaheadAnimationVisualDebugColor,
+                        visualDebugConfig.inactiveElementColor,
                         visualDebugConfig.isShowKeyLabelEnabled,
                         strokeWeight,
                         sharedElement.key,

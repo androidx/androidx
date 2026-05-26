@@ -202,7 +202,7 @@ internal class LookaheadAnimationVisualDebugHelper() {
     }
 
     internal fun ContentDrawScope.drawInactiveVisualizations(
-        animationColor: Color,
+        inactiveElementColor: Color,
         isShowKeyLabelEnabled: Boolean,
         strokeWidth: Float,
         key: Any,
@@ -210,19 +210,9 @@ internal class LookaheadAnimationVisualDebugHelper() {
     ) {
         val highlightWidth = strokeWidth * 2f
 
-        // If there is no specified color, choose a "random" color out of the default list
-        val chosenColor: Color =
-            if (animationColor != Color.Unspecified) {
-                animationColor
-            } else {
-                // Draw animation border
-                drawRect(color = Color.White, style = Stroke(width = highlightWidth))
-
-                Color(0xFF9AA0A6)
-            }
-
         // Draw animation border
-        drawRect(color = chosenColor, style = Stroke(width = strokeWidth))
+        drawRect(color = Color.White, style = Stroke(width = highlightWidth))
+        drawRect(color = inactiveElementColor, style = Stroke(width = strokeWidth))
 
         // Print shared element key
         if (isShowKeyLabelEnabled) {
@@ -232,7 +222,7 @@ internal class LookaheadAnimationVisualDebugHelper() {
                         text = key.toString(),
                         style =
                             TextStyle(
-                                color = chosenColor,
+                                color = inactiveElementColor,
                                 fontSize = 18.sp,
                                 background = Color.White.copy(alpha = 0.6f),
                             ),
@@ -539,6 +529,9 @@ internal class LookaheadAnimationVisualDebugHelper() {
  *   layer (where the shared elements and other elements rendered in overlay are rendered).
  * @param multipleMatchesColor The color to indicate a shared element key with multiple matches.
  * @param unmatchedElementColor The color to indicate a shared element key with no matches.
+ * @param inactiveElementColor The color to indicate a shared element is currently inactive. A
+ *   shared element is inactive when it is not currently animating. If the shared element is
+ *   inactive due to having no match, unmatchedElementColor will be shown instead.
  * @param isShowKeyLabelEnabled Boolean specifying whether to print animated element keys.
  * @param content The composable content that debugging visualizations will apply to, although which
  *   visualizations appear depends on where the Modifiers are placed.
@@ -554,6 +547,7 @@ public fun LookaheadAnimationVisualDebugging(
     overlayColor: Color = Color(0x8034A853),
     multipleMatchesColor: Color = Color(0xFFEA4335),
     unmatchedElementColor: Color = Color(0xFF9AA0A6),
+    inactiveElementColor: Color = Color(0xFF000000),
     isShowKeyLabelEnabled: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -564,6 +558,7 @@ public fun LookaheadAnimationVisualDebugging(
                 overlayColor,
                 multipleMatchesColor,
                 unmatchedElementColor,
+                inactiveElementColor,
                 isShowKeyLabelEnabled,
             ),
         content = content,
