@@ -205,29 +205,33 @@ internal class GestureRegistry(
                 // A slight delay of 1s to avoid jumping indicators while the user is mid-flick.
                 delay(1000)
 
-                val sdkPrimaryAction = toSdkGestureAction(GestureAction.Primary)
-                // Make a copy of registeredGestures, because invoking onShowIndicator() might
-                // modify the list
+                // Make a copy of registeredGestures, because emitting Indicate() might modify the
+                // list
                 val snapshot = registeredGestures.toList()
                 // Since gestures are sorted by priority, the first visible gesture corresponds
                 // to the highest priority.
-                val priority =
-                    snapshot
-                        .fastFirstOrNull { (gesture, isActive) ->
-                            isActive() && gesture.action == GestureAction.Primary
-                        }
-                        ?.first
-                        ?.priority
+                supportedSdkGestureActions.forEach { sdkAction ->
+                    val gestureAction = fromSdkGestureAction(sdkAction)
+                    val priority =
+                        snapshot
+                            .fastFirstOrNull { (gesture, isActive) ->
+                                isActive() && gesture.action == gestureAction
+                            }
+                            ?.first
+                            ?.priority
 
-                snapshot.fastForEach { (gesture, isActive) ->
-                    if (
-                        gesture.priority == priority &&
-                            gesture.action == GestureAction.Primary &&
-                            isActive() &&
-                            gestureInputManager.shouldShowIndicator(gesture.key, sdkPrimaryAction)
-                    ) {
-                        gesture.onShowIndicator()
-                        gestureInputManager.notifyIndicatorShown(gesture.key, sdkPrimaryAction)
+                    snapshot.fastForEach { (gesture, isActive) ->
+                        if (
+                            gesture.priority == priority &&
+                                gesture.action == gestureAction &&
+                                isActive() &&
+                                gestureInputManager.shouldShowIndicator(gesture.key, sdkAction)
+                        ) {
+                            gesture.interactionSource?.emit(
+                                OneHandedGestureInteraction.Indicate(gesture.action, gesture.key)
+                            )
+                            gestureInputManager.notifyIndicatorShown(gesture.key, sdkAction)
+                        }
                     }
                 }
             }
@@ -485,7 +489,6 @@ internal data class GestureConfig(
     val priority: Int,
     val enabledInAmbient: Boolean,
     val interactionSource: MutableInteractionSource?,
-    val onShowIndicator: () -> Unit,
     val onGesture: suspend () -> Unit,
 )
 
