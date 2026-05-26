@@ -333,6 +333,9 @@ val WearMaterial3Demos =
                         ComposableDemo("Two Buttons with the same priority") {
                             OneHandedGestureTwoButtonsSamePriorityDemo()
                         },
+                        ComposableDemo("Primary/Dismiss Buttons") {
+                            OneHandedGesturePrimaryDismissButtons()
+                        },
                         ActivityDemo(
                             "SwipeDismissableNavHost",
                             OneHandedGestureSwipeDismissableNavHostDemoActivity::class,

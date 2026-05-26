@@ -18,11 +18,14 @@ package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +61,61 @@ fun OneHandedGestureTwoButtonsSamePriorityDemo() {
             var label by remember { mutableStateOf("Gesturable Button $idx") }
 
             OneHandedGestureButton(onClick = { label = "Clicked/Gestured $idx" }) { Text(label) }
+        }
+    }
+}
+
+@Composable
+fun OneHandedGesturePrimaryDismissButtons() {
+    var primaryLabel by remember { mutableStateOf("Confirm") }
+    val primaryOnClick = remember { { primaryLabel = "Confirmed" } }
+    val primaryInteractionSource = remember { MutableInteractionSource() }
+
+    var dismissLabel by remember { mutableStateOf("Dismiss") }
+    val dismissOnClick = remember { { dismissLabel = "Dismissed" } }
+    val dismissInteractionSource = remember { MutableInteractionSource() }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text("Both gestures")
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Button(
+                    onClick = dismissOnClick,
+                    interactionSource = dismissInteractionSource,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Dismiss,
+                            interactionSource = dismissInteractionSource,
+                            onGesture = dismissOnClick,
+                        ),
+                ) {
+                    OneHandedGestureIndicator(interactionSource = dismissInteractionSource) {
+                        Text(dismissLabel)
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = primaryOnClick,
+                    interactionSource = primaryInteractionSource,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            interactionSource = primaryInteractionSource,
+                            onGesture = primaryOnClick,
+                        ),
+                ) {
+                    OneHandedGestureIndicator(interactionSource = primaryInteractionSource) {
+                        Text(primaryLabel)
+                    }
+                }
+            }
         }
     }
 }
@@ -99,40 +157,38 @@ fun OneHandedGestureSwipeDismissableNavHostDemo() {
 fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
     var buttonText by remember { mutableStateOf("Gesture me") }
     val onClick = remember { { buttonText = "Gestured" } }
-    val tlcState = rememberTransformingLazyColumnState()
-    var scrollGestureIndicatorVisible by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
+    val scrollState = rememberTransformingLazyColumnState()
+    val scrollInteractionSource = remember { MutableInteractionSource() }
 
     ScreenScaffold(
-        scrollState = tlcState,
+        scrollState = scrollState,
         scrollIndicator = {
             OneHandedGestureScrollIndicator(
-                scrollGestureIndicatorVisible,
-                onGestureIndicatorFinished = { scrollGestureIndicatorVisible = false },
-                tlcState,
+                interactionSource = scrollInteractionSource,
+                state = scrollState,
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         },
     ) { contentPadding ->
         TransformingLazyColumn(
-            state = tlcState,
+            state = scrollState,
             contentPadding = contentPadding,
             modifier =
                 Modifier.fillMaxSize()
                     .oneHandedGesture(
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
-                        onGesture = { OneHandedGestureDefaults.scrollDown(tlcState) },
-                        onShowIndicator = { scrollGestureIndicatorVisible = true },
+                        interactionSource = scrollInteractionSource,
+                        onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
         ) {
             items(10) { Text("Item $it") }
             item {
-                var buttonGestureIndicatorVisible by remember { mutableStateOf(false) }
                 var buttonVisible by remember { mutableStateOf(false) }
+                val buttonInteractionSource = remember { MutableInteractionSource() }
                 Button(
                     onClick = onClick,
-                    interactionSource = interactionSource,
+                    interactionSource = buttonInteractionSource,
                     modifier =
                         Modifier.onVisibilityChanged { buttonVisible = it } then
                             if (buttonVisible) {
@@ -141,18 +197,14 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                                 Modifier.oneHandedGesture(
                                     action = GestureAction.Primary,
                                     priority = GesturePriority.Clickable,
-                                    interactionSource = interactionSource,
-                                    onShowIndicator = { buttonGestureIndicatorVisible = true },
+                                    interactionSource = buttonInteractionSource,
                                     onGesture = onClick,
                                 )
                             } else {
                                 Modifier
                             },
                 ) {
-                    OneHandedGestureIndicator(
-                        buttonGestureIndicatorVisible,
-                        { buttonGestureIndicatorVisible = false },
-                    ) {
+                    OneHandedGestureIndicator(interactionSource = buttonInteractionSource) {
                         Text(buttonText)
                     }
                 }
@@ -163,7 +215,6 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
 
 @Composable
 private fun OneHandedGestureButton(onClick: () -> Unit, content: @Composable BoxScope.() -> Unit) {
-    var gestureIndicatorVisible by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
 
     Button(
@@ -173,14 +224,9 @@ private fun OneHandedGestureButton(onClick: () -> Unit, content: @Composable Box
             Modifier.oneHandedGesture(
                 action = GestureAction.Primary,
                 interactionSource = interactionSource,
-                onShowIndicator = { gestureIndicatorVisible = true },
                 onGesture = onClick,
             ),
     ) {
-        OneHandedGestureIndicator(
-            gestureIndicatorVisible,
-            onGestureIndicatorFinished = { gestureIndicatorVisible = false },
-            content = content,
-        )
+        OneHandedGestureIndicator(interactionSource = interactionSource, content = content)
     }
 }

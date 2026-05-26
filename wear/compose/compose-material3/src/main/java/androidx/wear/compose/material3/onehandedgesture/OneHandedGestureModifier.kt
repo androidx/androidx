@@ -90,11 +90,8 @@ import kotlin.String
  * @param enabledInAmbient Whether the gesture should remain active in ambient mode.
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  *   [androidx.compose.foundation.interaction.Interaction]s for this gesture. This can be used to
- *   visualize the gesture state (e.g., showing a ripple or custom pressed state) when the
- *   one-handed gesture is being interacted with.
- * @param onShowIndicator Callback invoked when the system determines a gesture indicator should be
- *   displayed for this component. This occurs when the component holds the highest priority for the
- *   current gesture. Only [GestureAction.Primary] gesture indicator callbacks will be called.
+ *   visualize the gesture state (e.g., showing a ripple, custom pressed state or gesture indicator)
+ *   when the one-handed gesture is being interacted with.
  * @param onGesture The callback invoked when the gesture is triggered.
  */
 @Composable
@@ -103,7 +100,6 @@ public fun Modifier.oneHandedGesture(
     priority: GesturePriority = GesturePriority.Unspecified,
     enabledInAmbient: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-    onShowIndicator: () -> Unit = {},
     onGesture: suspend () -> Unit,
 ): Modifier {
     val key = currentCompositeKeyHashCode.toString(MaxSupportedRadix)
@@ -114,7 +110,6 @@ public fun Modifier.oneHandedGesture(
             priority = priority,
             enabledInAmbient = enabledInAmbient,
             interactionSource = interactionSource,
-            onShowIndicator = onShowIndicator,
             onGesture = onGesture,
         )
     )
@@ -182,11 +177,8 @@ public fun Modifier.oneHandedGesture(
  * @param enabledInAmbient Whether the gesture should remain active in ambient mode.
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  *   [androidx.compose.foundation.interaction.Interaction]s for this gesture. This can be used to
- *   visualize the gesture state (e.g., showing a ripple or custom pressed state) when the
- *   one-handed gesture is being interacted with.
- * @param onShowIndicator Callback invoked when the system determines a gesture indicator should be
- *   displayed for this component. This occurs when the component holds the highest priority for the
- *   current gesture. Only [GestureAction.Primary] gesture indicator callbacks will be called.
+ *   visualize the gesture state (e.g., showing a ripple, custom pressed state or gesture indicator)
+ *   when the one-handed gesture is being interacted with.
  * @param onGesture The callback invoked when the gesture is triggered.
  */
 public fun Modifier.oneHandedGesture(
@@ -195,7 +187,6 @@ public fun Modifier.oneHandedGesture(
     priority: GesturePriority = GesturePriority.Unspecified,
     enabledInAmbient: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-    onShowIndicator: () -> Unit = {},
     onGesture: suspend () -> Unit,
 ): Modifier {
     return then(
@@ -206,7 +197,6 @@ public fun Modifier.oneHandedGesture(
                 priority = priority.value,
                 enabledInAmbient = enabledInAmbient,
                 interactionSource = interactionSource,
-                onShowIndicator = onShowIndicator,
                 onGesture = onGesture,
             )
         )
