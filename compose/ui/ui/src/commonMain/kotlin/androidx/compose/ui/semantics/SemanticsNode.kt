@@ -546,9 +546,13 @@ internal inline fun LayoutNode.findClosestParentNode(
     return null
 }
 
+internal const val RoleFakeNodeIdOffset = 1_000_000_000
+internal const val ContentDescriptionFakeNodeIdOffset = 2_000_000_000
+
 private val SemanticsNode.role
     get() = this.unmergedConfig.getOrNull(SemanticsProperties.Role)
 
-private fun SemanticsNode.contentDescriptionFakeNodeId() = this.id + 2_000_000_000
+private fun SemanticsNode.contentDescriptionFakeNodeId() =
+    this.id + ContentDescriptionFakeNodeIdOffset
 
-private fun SemanticsNode.roleFakeNodeId() = this.id + 1_000_000_000
+private fun SemanticsNode.roleFakeNodeId() = this.id + RoleFakeNodeIdOffset
