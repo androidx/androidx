@@ -91,16 +91,79 @@ class DeepLinkDecoderTest {
     }
 
     @Test
+    fun testDecodeBoolean() {
+        val arguments = mapOf("bool" to listOf("true"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<BooleanKey>())
+        assertThat(result.bool).isTrue()
+    }
+
+    @Test
+    fun testDecodeByte() {
+        val arguments = mapOf("byte" to listOf("1"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<ByteKey>())
+        assertThat(result.byte).isEqualTo(1.toByte())
+    }
+
+    @Test
+    fun testDecodeShort() {
+        val arguments = mapOf("short" to listOf("2"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<ShortKey>())
+        assertThat(result.short).isEqualTo(2.toShort())
+    }
+
+    @Test
+    fun testDecodeInt() {
+        val arguments = mapOf("int" to listOf("1"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<IntKey>())
+        assertThat(result.int).isEqualTo(1)
+    }
+
+    @Test
+    fun testDecodeLong() {
+        val arguments = mapOf("long" to listOf("4"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<LongKey>())
+        assertThat(result.long).isEqualTo(4L)
+    }
+
+    @Test
+    fun testDecodeFloat() {
+        val arguments = mapOf("float" to listOf("5.0"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<FloatKey>())
+        assertThat(result.float).isEqualTo(5.0f)
+    }
+
+    @Test
+    fun testDecodeDouble() {
+        val arguments = mapOf("double" to listOf("6.0"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<DoubleKey>())
+        assertThat(result.double).isEqualTo(6.0)
+    }
+
+    @Test
+    fun testDecodeChar() {
+        val arguments = mapOf("char" to listOf("a"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<CharKey>())
+        assertThat(result.char).isEqualTo('a')
+    }
+
+    @Test
     fun testDecodeInvalidIntThrows() {
         val arguments =
             mapOf(
-                "name" to listOf("john"),
-                "age" to listOf("notAnInt"), // Invalid Int
+                "int" to listOf("notAnInt") // Invalid Int
             )
         val decoder = DeepLinkDecoder(arguments)
 
         assertFailsWith<IllegalArgumentException> {
-            decoder.decodeSerializableValue(serializer<SimpleKey>())
+            decoder.decodeSerializableValue(serializer<IntKey>())
         }
     }
 
@@ -111,6 +174,66 @@ class DeepLinkDecoderTest {
 
         assertFailsWith<IllegalArgumentException> {
             decoder.decodeSerializableValue(serializer<BooleanKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeInvalidByteThrows() {
+        val arguments = mapOf("byte" to listOf("notAByte"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<IllegalArgumentException> {
+            decoder.decodeSerializableValue(serializer<ByteKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeInvalidShortThrows() {
+        val arguments = mapOf("short" to listOf("notAShort"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<IllegalArgumentException> {
+            decoder.decodeSerializableValue(serializer<ShortKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeInvalidLongThrows() {
+        val arguments = mapOf("long" to listOf("notALong"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<IllegalArgumentException> {
+            decoder.decodeSerializableValue(serializer<LongKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeInvalidFloatThrows() {
+        val arguments = mapOf("float" to listOf("notAFloat"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<IllegalArgumentException> {
+            decoder.decodeSerializableValue(serializer<FloatKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeInvalidDoubleThrows() {
+        val arguments = mapOf("double" to listOf("notADouble"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<IllegalArgumentException> {
+            decoder.decodeSerializableValue(serializer<DoubleKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeEmptyCharThrows() {
+        val arguments = mapOf("char" to listOf(""))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<NoSuchElementException> {
+            decoder.decodeSerializableValue(serializer<CharKey>())
         }
     }
 
@@ -262,4 +385,18 @@ class DeepLinkDecoderTest {
     @Serializable data class MapKey(val map: Map<Int, String>)
 
     @Serializable data class BooleanKey(val bool: Boolean)
+
+    @Serializable data class ByteKey(val byte: Byte)
+
+    @Serializable data class ShortKey(val short: Short)
+
+    @Serializable data class LongKey(val long: Long)
+
+    @Serializable data class FloatKey(val float: Float)
+
+    @Serializable data class DoubleKey(val double: Double)
+
+    @Serializable data class CharKey(val char: Char)
+
+    @Serializable data class IntKey(val int: Int)
 }
