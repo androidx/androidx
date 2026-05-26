@@ -3421,7 +3421,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                                     Int::class.java,
                                 )
                     findViewByAccessibilityIdTraversalMethod.isAccessible = true
-                    findViewByAccessibilityIdTraversalMethod.invoke(this, accessibilityId) as? View
+                    findViewByAccessibilityIdTraversalMethod.invoke(view, accessibilityId) as? View
                 } else {
                     findViewByAccessibilityIdRootedAtCurrentView(accessibilityId, view)
                 }
