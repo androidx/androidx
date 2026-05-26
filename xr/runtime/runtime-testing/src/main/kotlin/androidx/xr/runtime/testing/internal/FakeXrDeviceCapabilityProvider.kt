@@ -30,7 +30,8 @@ import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 internal class FakeXrDeviceCapabilityProvider(override val context: Context) :
     XrDeviceCapabilityProvider {
 
-    private val testLifecycleOwner: TestLifecycleOwner = TestLifecycleOwner()
+    private val testLifecycleOwner: TestLifecycleOwner =
+        TestLifecycleOwner(initialState = Lifecycle.State.INITIALIZED)
 
     internal var preferredDisplayBlendMode: DisplayBlendMode = DisplayBlendMode.ALPHA_BLEND
 
@@ -45,6 +46,12 @@ internal class FakeXrDeviceCapabilityProvider(override val context: Context) :
 
     internal var supportedGeospatialModes: MutableSet<InternalGeospatialMode> =
         mutableSetOf(InternalGeospatialMode.DISABLED)
+
+    internal var lifecycleState: Lifecycle.State = Lifecycle.State.INITIALIZED
+        set(value) {
+            testLifecycleOwner.currentState = value
+            field = value
+        }
 
     internal var supportedRenderingModes: MutableSet<InternalRenderingMode> = mutableSetOf()
 

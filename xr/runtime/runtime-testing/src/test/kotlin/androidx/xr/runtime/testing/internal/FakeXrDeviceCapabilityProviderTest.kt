@@ -18,6 +18,7 @@ package androidx.xr.runtime.testing.internal
 
 import androidx.activity.ComponentActivity
 import androidx.kruth.assertThat
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.interfaces.DisplayBlendMode
 import kotlin.test.Test
@@ -54,5 +55,21 @@ class FakeXrDeviceCapabilityProviderTest {
 
         assertThat(underTest.getPreferredDisplayBlendMode())
             .isEqualTo(underTest.preferredDisplayBlendMode)
+    }
+
+    @Test
+    fun lifecycleState_stateInitializedByDefault() {
+        val underTest = FakeXrDeviceCapabilityProvider(activity)
+        assertThat(underTest.lifecycleState).isEqualTo(Lifecycle.State.INITIALIZED)
+    }
+
+    @Test
+    fun lifecycleState_controlsReturnValue() {
+        val testLifecycleState = Lifecycle.State.STARTED
+        val underTest = FakeXrDeviceCapabilityProvider(activity)
+
+        underTest.lifecycleState = testLifecycleState
+
+        assertThat(underTest.lifecycle.currentState).isEqualTo(testLifecycleState)
     }
 }
