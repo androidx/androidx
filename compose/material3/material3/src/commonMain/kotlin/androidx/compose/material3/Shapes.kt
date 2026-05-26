@@ -271,6 +271,8 @@ constructor(
     internal var defaultMenuMiddleGroupShapesCached: MenuGroupShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultMenuTrailingGroupShapesCached: MenuGroupShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultTimePickerShapesCached: TimePickerShapes? = null
 }
 
 /** Contains the default values used by [Shapes] */

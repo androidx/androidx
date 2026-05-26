@@ -4582,6 +4582,10 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerColors colors-u3YEpmA(long, long, long, long, long, long, long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.TimePickerLayoutType layoutType();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public int layoutType-sDNSZnc(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes();
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes(optional androidx.compose.ui.graphics.Shape? timeFieldShape, optional androidx.compose.ui.graphics.Shape? periodSelectorShape);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes(androidx.compose.ui.graphics.Shape?, androidx.compose.ui.graphics.Shape?, androidx.compose.runtime.Composer?, int, int);
     field public static final androidx.compose.material3.TimePickerDefaults INSTANCE;
   }
 
@@ -4618,6 +4622,8 @@ package androidx.compose.material3 {
   }
 
   public final class TimePickerKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, androidx.compose.material3.TimePickerShapes shapes, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.material3.TimePickerShapes, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TimePicker(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors, optional androidx.compose.material3.TimePickerLayoutType layoutType);
@@ -4661,6 +4667,16 @@ package androidx.compose.material3 {
     method @BytecodeOnly public int getMinute-yecRtBI();
     property public androidx.compose.material3.TimePickerSelectionMode Hour;
     property public androidx.compose.material3.TimePickerSelectionMode Minute;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Immutable public final class TimePickerShapes {
+    ctor public TimePickerShapes(androidx.compose.ui.graphics.Shape timeFieldShape, androidx.compose.ui.graphics.Shape periodSelectorShape);
+    method public androidx.compose.material3.TimePickerShapes copy(optional androidx.compose.ui.graphics.Shape? timeFieldShape, optional androidx.compose.ui.graphics.Shape? periodSelectorShape);
+    method @BytecodeOnly public static androidx.compose.material3.TimePickerShapes! copy$default(androidx.compose.material3.TimePickerShapes!, androidx.compose.ui.graphics.Shape!, androidx.compose.ui.graphics.Shape!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getPeriodSelectorShape();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getTimeFieldShape();
+    property public androidx.compose.ui.graphics.Shape periodSelectorShape;
+    property public androidx.compose.ui.graphics.Shape timeFieldShape;
   }
 
   public interface TimePickerState {
