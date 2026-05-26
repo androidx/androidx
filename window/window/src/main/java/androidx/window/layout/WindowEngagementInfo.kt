@@ -27,7 +27,12 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  *   example, the Glasses display may turn off to transition to an audio-only experience. Apps can
  *   observe this state to adapt their behavior, such as pausing visual rendering, without this
  *   change affecting the Activity lifecycle. This ensures the user's session remains continuous and
- *   uninterrupted.
+ *   uninterrupted. [EngagementMode] can also indicate what layout the app is optimized for. This
+ *   complements [androidx.window.core.layout.WindowSizeClass] by allowing the layout to adapt not
+ *   just to screen dimensions, but to the input context. This is designed for large screen
+ *   experiences where the presentation can change dynamically. For example, the combination of a
+ *   large display, a connected precise pointer (mouse/touchpad), and a connected physical keyboard
+ *   triggers a cursor-optimized layout.
  */
 public class WindowEngagementInfo
 @RestrictTo(LIBRARY_GROUP)
@@ -47,6 +52,8 @@ constructor(
             when (id) {
                 1 -> "VISUALS_ON"
                 2 -> "AUDIO_ON"
+                3 -> "PRECISE_POINTER"
+                4 -> "TOUCH"
                 else -> "UNKNOWN($id)"
             }
 
@@ -67,6 +74,21 @@ constructor(
              * experience.
              */
             @JvmField public val AUDIO_ON: EngagementMode = EngagementMode(2)
+
+            /**
+             * Indicates the engagement mode is optimized for precise pointer layout. This mode is
+             * usually active when a physical keyboard and a physical mouse or touchpad are
+             * connected and enabled on a large screen device. This mode is mutually exclusive with
+             * [TOUCH].
+             */
+            @JvmField public val PRECISE_POINTER: EngagementMode = EngagementMode(3)
+
+            /**
+             * Indicates the engagement mode is optimized for touch layout. This is usually the
+             * default engagement layout mode. This mode is mutually exclusive with
+             * [PRECISE_POINTER].
+             */
+            @JvmField public val TOUCH: EngagementMode = EngagementMode(4)
         }
     }
 

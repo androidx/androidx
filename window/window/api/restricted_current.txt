@@ -808,11 +808,15 @@ package androidx.window.layout {
   public static final class WindowEngagementInfo.EngagementMode {
     field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode AUDIO_ON;
     field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode.Companion Companion;
+    field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode PRECISE_POINTER;
+    field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode TOUCH;
     field public static final androidx.window.layout.WindowEngagementInfo.EngagementMode VISUALS_ON;
   }
 
   public static final class WindowEngagementInfo.EngagementMode.Companion {
     property public androidx.window.layout.WindowEngagementInfo.EngagementMode AUDIO_ON;
+    property public androidx.window.layout.WindowEngagementInfo.EngagementMode PRECISE_POINTER;
+    property public androidx.window.layout.WindowEngagementInfo.EngagementMode TOUCH;
     property public androidx.window.layout.WindowEngagementInfo.EngagementMode VISUALS_ON;
   }
 

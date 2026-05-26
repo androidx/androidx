@@ -20,7 +20,7 @@
             android:exported="true"
             android:supportsPictureInPicture="true"
             android:configChanges=
-                "orientation|screenSize|screenLayout|screenSize|layoutDirection|smallestScreenSize"
+                "orientation|screenSize|screenLayout|layoutDirection|smallestScreenSize|density"
             android:allowUntrustedActivityEmbedding="true"
             android:label="@string/display_features_config_change" />
     </application>

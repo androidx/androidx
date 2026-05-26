@@ -21,7 +21,10 @@ import android.content.Context
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import androidx.window.WindowSdkExtensions
+import androidx.window.layout.adapter.EngagementModeBackend
 import androidx.window.layout.adapter.WindowBackend
+import androidx.window.layout.util.CombineLatestConsumerAdapter
+import androidx.window.layout.util.DeduplicateConsumer
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -42,11 +45,19 @@ internal class WindowInfoTrackerImpl(
     private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend,
     private val windowSdkExtensions: WindowSdkExtensions,
+    private val engagementModeBackend: EngagementModeBackend,
 ) : WindowInfoTracker {
 
     private val lock = ReentrantLock()
-    private val listenerMapping =
-        mutableMapOf<Consumer<WindowEngagementInfo>, Consumer<WindowLayoutInfo>>()
+    private val consumerToAdapterMap =
+        mutableMapOf<
+            Consumer<WindowEngagementInfo>,
+            CombineLatestConsumerAdapter<
+                WindowLayoutInfo,
+                WindowEngagementInfo.EngagementMode,
+                WindowEngagementInfo,
+            >,
+        >()
 
     /**
      * A [Flow] of window layout changes in the current visual [UiContext]. A context has to be
@@ -104,55 +115,52 @@ internal class WindowInfoTrackerImpl(
         executor: Executor,
         listener: Consumer<WindowEngagementInfo>,
     ) {
-        lock.withLock {
-            if (listenerMapping.containsKey(listener)) {
-                return
+        val adapter =
+            lock.withLock {
+                if (consumerToAdapterMap.containsKey(listener)) {
+                    return
+                }
+                CombineLatestConsumerAdapter(::combineEngagementInfo, DeduplicateConsumer(listener))
+                    .also { adapter ->
+                        consumerToAdapterMap[listener] = adapter
+                        windowBackend.registerLayoutChangeCallback(
+                            context,
+                            executor,
+                            adapter.consumerT,
+                        )
+                    }
             }
-            val backendListener = EngagementInfoTranslator(executor, listener)
-            listenerMapping[listener] = backendListener
-            windowBackend.registerLayoutChangeCallback(context, Runnable::run, backendListener)
-        }
+
+        engagementModeBackend.addEngagementLayoutChangeCallback(
+            context,
+            executor,
+            adapter.consumerU,
+        )
     }
 
     override fun unregisterWindowEngagementInfoListener(listener: Consumer<WindowEngagementInfo>) {
         lock.withLock {
-            val backendListener = listenerMapping.remove(listener) ?: return
-            windowBackend.unregisterLayoutChangeCallback(backendListener)
+            val adapter = consumerToAdapterMap.remove(listener) ?: return
+            windowBackend.unregisterLayoutChangeCallback(adapter.consumerT)
+            engagementModeBackend.removeEngagementLayoutChangeCallback(adapter.consumerU)
         }
     }
-}
 
-@Suppress("DEPRECATION")
-private class EngagementInfoTranslator(
-    private val executor: Executor,
-    private val listener: Consumer<WindowEngagementInfo>,
-) : Consumer<WindowLayoutInfo> {
-    private var lastInfo: WindowEngagementInfo? = null
-    private val lock = ReentrantLock()
-
-    override fun accept(value: WindowLayoutInfo) {
-        val oemModes = value.engagementModes
+    private fun combineEngagementInfo(
+        layoutInfo: WindowLayoutInfo,
+        mode: WindowEngagementInfo.EngagementMode,
+    ): WindowEngagementInfo {
+        @Suppress("DEPRECATION") val oemModes = layoutInfo.engagementModes
         val newModes = mutableSetOf<WindowEngagementInfo.EngagementMode>()
+        @Suppress("DEPRECATION")
         if (oemModes.contains(WindowLayoutInfo.EngagementMode.VISUALS_ON)) {
             newModes.add(WindowEngagementInfo.EngagementMode.VISUALS_ON)
         }
+        @Suppress("DEPRECATION")
         if (oemModes.contains(WindowLayoutInfo.EngagementMode.AUDIO_ON)) {
             newModes.add(WindowEngagementInfo.EngagementMode.AUDIO_ON)
         }
-
-        val engagementInfo = WindowEngagementInfo(newModes)
-        val shouldSend =
-            lock.withLock {
-                if (engagementInfo != lastInfo) {
-                    lastInfo = engagementInfo
-                    true
-                } else {
-                    false
-                }
-            }
-
-        if (shouldSend) {
-            executor.execute { listener.accept(engagementInfo) }
-        }
+        newModes.add(mode)
+        return WindowEngagementInfo(newModes)
     }
 }
