@@ -527,26 +527,46 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
                                 strokeWeight * 3,
                             )
                         } else if (targetData != null && bounds != null) {
-                            drawScope.drawLocalVisualizations(
-                                currentValueOf(LocalLookaheadAnimationVisualDebugColor),
-                                targetData.targetBounds.topLeft,
-                                targetData.size,
-                                bounds,
-                                drawScope.center,
+                            if (bounds != targetData.targetBounds) {
+                                drawScope.drawLocalVisualizations(
+                                    currentValueOf(LocalLookaheadAnimationVisualDebugColor),
+                                    targetData.targetBounds.topLeft,
+                                    targetData.size,
+                                    bounds,
+                                    drawScope.center,
+                                    visualDebugConfig.isShowKeyLabelEnabled,
+                                    strokeWeight,
+                                    sharedElement.key,
+                                    textMeasurer,
+                                )
+                            } else {
+                                drawScope.drawInactiveVisualizations(
+                                    visualDebugConfig.inactiveElementColor,
+                                    visualDebugConfig.isShowKeyLabelEnabled,
+                                    strokeWeight,
+                                    sharedElement.key,
+                                    textMeasurer,
+                                )
+                            }
+                        }
+                    } else {
+                        if (!sharedElement.foundMatch) {
+                            drawScope.drawUnmatchedElement(
+                                visualDebugConfig.unmatchedElementColor,
+                                visualDebugConfig.isShowKeyLabelEnabled,
+                                sharedElement.key,
+                                textMeasurer!!,
+                                strokeWeight,
+                            )
+                        } else {
+                            drawScope.drawInactiveVisualizations(
+                                visualDebugConfig.inactiveElementColor,
                                 visualDebugConfig.isShowKeyLabelEnabled,
                                 strokeWeight,
                                 sharedElement.key,
                                 textMeasurer,
                             )
                         }
-                    } else {
-                        drawScope.drawUnmatchedElement(
-                            visualDebugConfig.unmatchedElementColor,
-                            visualDebugConfig.isShowKeyLabelEnabled,
-                            sharedElement.key,
-                            textMeasurer!!,
-                            strokeWeight,
-                        )
                     }
                 } else {
                     drawScope.drawInactiveVisualizations(
