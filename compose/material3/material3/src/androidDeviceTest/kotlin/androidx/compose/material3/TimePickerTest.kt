@@ -1040,6 +1040,63 @@ class TimePickerTest {
             rule.runOnIdle { assertThat(state.minute).isEqualTo(number * 5) }
         }
     }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun richTimeInput_keyboardInput_valid() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        rule.onNodeWithText("10").performKeyInput {
+            pressKey(Key.Zero)
+            pressKey(Key.Four)
+        }
+
+        rule.waitForIdle()
+
+        // Switched to minutes text field
+        rule.onNodeWithText("23").performKeyInput {
+            pressKey(Key.Five)
+            pressKey(Key.Two)
+        }
+
+        assertThat(state.minute).isEqualTo(52)
+        assertThat(state.hour).isEqualTo(4)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun richTimeInput_keyboardInput_switchAmPm() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        rule.onNodeWithText("PM").performClick()
+
+        // Value didn't change
+        assertThat(state.hour).isEqualTo(22)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun richTimeInput_keyboardInput_maintainsPm() {
+        val state = TimePickerState(initialHour = 23, initialMinute = 23, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        assertThat(state.isPm).isTrue()
+
+        rule.onNodeWithText("11").performKeyInput { pressKey(Key.Four) }
+
+        rule.runOnIdle { assertThat(state.isPm).isTrue() }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
