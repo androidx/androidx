@@ -326,6 +326,7 @@ internal class FontCache {
         if (!registered.contains(key)) {
             fontProvider.registerTypeface(typeface, key)
             registered.add(key)
+            fonts.paragraphCache.reset()
         }
     }
 

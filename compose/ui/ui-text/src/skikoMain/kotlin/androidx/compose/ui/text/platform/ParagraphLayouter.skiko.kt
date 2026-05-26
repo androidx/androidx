@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text.platform
 
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.BlendMode
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.UnresolvedSymbolsRegistry
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
@@ -37,6 +39,9 @@ import androidx.compose.ui.util.fastAny
 import kotlin.math.abs
 import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.Paragraph as SkParagraph
+
+@OptIn(InternalComposeApi::class)
+internal expect fun getUnresolvedSymbolsRegistry(): UnresolvedSymbolsRegistry?
 
 /**
  * The purpose of this class is to store already built paragraph and pass it between
@@ -57,6 +62,7 @@ import org.jetbrains.skia.paragraph.Paragraph as SkParagraph
  * reusedParagraph.layout(300f): 10.004400ms
  * builder.build().layout(300f): 23.421500ms
  */
+@OptIn(InternalComposeApi::class)
 internal class ParagraphLayouter(
     val text: String,
     textDirection: ResolvedTextDirection,
@@ -64,7 +70,8 @@ internal class ParagraphLayouter(
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
+    private val onFontStale: () -> Unit
 ) {
     private val builder = ParagraphBuilder(
         fontFamilyResolver = fontFamilyResolver,
@@ -78,6 +85,30 @@ internal class ParagraphLayouter(
     private var paragraphCache: SkParagraph? = null
     private var updateForeground = false
     private var width: Float = Float.NaN
+
+    private val unresolvedSymbolsRegistry = getUnresolvedSymbolsRegistry()
+    private var unresolvedCodepoints = IntArray(0)
+        set(value) {
+            if (unresolvedSymbolsRegistry == null) return
+
+            if (field.contentEquals(value)) return
+            if (field.isEmpty() && value.isNotEmpty()) {
+                unresolvedSymbolsRegistry.addListener(unresolvedSymbolsRegistryListener)
+            } else if (field.isNotEmpty() && value.isEmpty()) {
+                unresolvedSymbolsRegistry.removeListener(unresolvedSymbolsRegistryListener)
+            }
+            field = value
+            if (value.isNotEmpty()) {
+                unresolvedSymbolsRegistry.addUnresolvedCodepoints(value)
+            }
+        }
+
+    private val unresolvedSymbolsRegistryListener = object : UnresolvedSymbolsRegistry.Listener {
+        override fun onNewFontInstalled() {
+            invalidateParagraph()
+            onFontStale()
+        }
+    }
 
     val defaultFont get() = builder.defaultFont
     val textStyle get() = builder.textStyle
@@ -213,8 +244,9 @@ internal class ParagraphLayouter(
             paragraph = builder.build()
             paragraph.layout(width)
             paragraphCache = paragraph
+            unresolvedCodepoints = paragraph.unresolvedCodepoints
             updateForeground = false
-            return paragraph
+            paragraph
         }
     }
 }
