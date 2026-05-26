@@ -1331,6 +1331,149 @@ class LookaheadAnimationVisualDebugHelperTest {
     }
 
     @Test
+    fun testInactiveAndActiveSharedElements() {
+        var transitionScope: SharedTransitionScope? = null
+        var visible by mutableStateOf(false)
+        var currentBounds: Rect? by mutableStateOf(null)
+        val testTag = "inactive_active_test"
+
+        val backgroundColor = Color.Gray
+        val contentColor = Color.Blue
+
+        val activeColor = Color.Red
+        val inactiveColor = Color.Green
+        val unmatchedColor = Color.Yellow
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadAnimationVisualDebugging(
+                    true,
+                    Color.Transparent,
+                    Color.Transparent,
+                    unmatchedColor,
+                    inactiveColor,
+                    false,
+                ) {
+                    CustomizedLookaheadAnimationVisualDebugging(activeColor) {
+                        SharedTransitionLayout(
+                            Modifier.requiredSize(200.dp)
+                                .background(backgroundColor)
+                                .testTag(testTag)
+                        ) {
+                            transitionScope = this
+                            AnimatedContent(
+                                targetState = visible,
+                                modifier = Modifier.fillMaxSize(),
+                                transitionSpec = {
+                                    (EnterTransition.None togetherWith ExitTransition.None).using(
+                                        SizeTransform(clip = false)
+                                    )
+                                },
+                            ) { isScreenB ->
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Box(
+                                        modifier =
+                                            Modifier.onGloballyPositioned {
+                                                    currentBounds = it.boundsInRoot()
+                                                }
+                                                .sharedElement(
+                                                    rememberSharedContentState(
+                                                        key = "inactive_key"
+                                                    ),
+                                                    this@AnimatedContent,
+                                                    boundsTransform = { _, _ -> tween(10) },
+                                                )
+                                                .size(50.dp)
+                                                .background(contentColor)
+                                                .align(Alignment.CenterEnd)
+                                    )
+
+                                    Box(
+                                        modifier =
+                                            Modifier.sharedElement(
+                                                    rememberSharedContentState(key = "active_key"),
+                                                    this@AnimatedContent,
+                                                    boundsTransform = { _, _ -> tween(200) },
+                                                )
+                                                .size(if (isScreenB) 80.dp else 50.dp)
+                                                .background(contentColor)
+                                                .align(Alignment.CenterStart)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnIdle { visible = true }
+
+        while (transitionScope?.isTransitionActive != true) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        while (transitionScope?.isTransitionActive != false) {
+            rule.onNodeWithTag(testTag).captureToImage().run {
+                val pixelMap = toPixelMap()
+
+                for (x in 0 until width) {
+                    for (y in 0 until height) {
+                        val isBorderPixel = x == 0 || x == width - 1 || y == 0 || y == height - 1
+                        if (isBorderPixel) {
+                            val pixelColor = pixelMap[x, y]
+                            if (pixelColor == backgroundColor || pixelColor == contentColor) {
+                                throw AssertionError(
+                                    "Expected a progress indicator color on the border at ($x, $y), " +
+                                        "but found background or content color."
+                                )
+                            }
+                        }
+                    }
+                }
+                if (rule.mainClock.currentTime > 20) {
+                    val bounds = currentBounds!!
+
+                    for (x in 0 until width) {
+                        for (y in 0 until height) {
+                            val leftEdge =
+                                x == bounds.left.roundToInt() &&
+                                    y >= bounds.top.roundToInt() &&
+                                    y <= bounds.bottom.roundToInt()
+                            val topEdge =
+                                y == bounds.top.roundToInt() &&
+                                    x >= bounds.left.roundToInt() &&
+                                    x <= (bounds.right.roundToInt() - 3)
+                            val bottomEdge =
+                                y == bounds.bottom.roundToInt() &&
+                                    x >= bounds.left.roundToInt() &&
+                                    x <= (bounds.right.roundToInt() - 3)
+
+                            // Omit last 3 pixels of rightEdge from check for progress indicator
+                            val currentBorderPixel = leftEdge || topEdge || bottomEdge
+
+                            if (currentBorderPixel) {
+                                val pixelColor = pixelMap[x, y]
+                                if (pixelColor != inactiveColor) {
+                                    throw AssertionError(
+                                        "Expected inactive color ($inactiveColor) at ($x, $y), " +
+                                            "but found ($pixelColor)."
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+    }
+
+    @Test
     fun testUnmatched() {
         var transitionScope: SharedTransitionScope? = null
         var visible by mutableStateOf(false)

@@ -208,6 +208,9 @@ internal class LookaheadAnimationVisualDebugHelper() {
         key: Any,
         textMeasurer: TextMeasurer? = null,
     ) {
+        // Necessary for testing purposes
+        if (inactiveElementColor == Color.Transparent) return
+
         val highlightWidth = strokeWidth * 2f
 
         // Draw animation border
