@@ -2068,10 +2068,20 @@ private fun ClockText(
                     // Handle keyboard navigation within the clock face to meet a11y requirements.
                     if (it.type == KeyEventType.KeyDown) {
                         // A11y focus trap: Arrow keys loop focus inside the clock face
-                        if (it.key == Key.DirectionDown || it.key == Key.DirectionRight) {
+                        if (
+                            it.key == Key.DirectionDown ||
+                                it.key == Key.NumPadDirectionDown ||
+                                it.key == Key.DirectionRight ||
+                                it.key == Key.NumPadDirectionRight
+                        ) {
                             focusManager.moveFocus(FocusDirection.Next)
                             return@onKeyEvent true
-                        } else if (it.key == Key.DirectionUp || it.key == Key.DirectionLeft) {
+                        } else if (
+                            it.key == Key.DirectionUp ||
+                                it.key == Key.NumPadDirectionUp ||
+                                it.key == Key.DirectionLeft ||
+                                it.key == Key.NumPadDirectionLeft
+                        ) {
                             focusManager.moveFocus(FocusDirection.Previous)
                             return@onKeyEvent true
                         }

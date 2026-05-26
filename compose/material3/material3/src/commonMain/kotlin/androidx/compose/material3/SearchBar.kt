@@ -2139,12 +2139,18 @@ object SearchBarDefaults {
                 modifier
                     .onPreviewKeyEvent {
                         val expandOnDownKey = !isInTouchMode && !searchBarState.isExpanded
-                        if (expandOnDownKey && it.key == Key.DirectionDown) {
+                        if (
+                            expandOnDownKey &&
+                                (it.key == Key.DirectionDown || it.key == Key.NumPadDirectionDown)
+                        ) {
                             coroutineScope.launch { searchBarState.animateToExpanded() }
                             return@onPreviewKeyEvent true
                         }
                         // Make sure arrow key down moves to list of suggestions.
-                        if (searchBarState.isExpanded && it.key == Key.DirectionDown) {
+                        if (
+                            searchBarState.isExpanded &&
+                                (it.key == Key.DirectionDown || it.key == Key.NumPadDirectionDown)
+                        ) {
                             focusManager.moveFocus(FocusDirection.Down)
                             return@onPreviewKeyEvent true
                         }
