@@ -333,13 +333,11 @@ internal class BoundsAnimationModifierNode(
                 }
                 val lookaheadAnimationVisualDebugHelper =
                     boundsAnimation.lookaheadAnimationVisualDebugHelper!!
-                val lookaheadAnimationVisualDebugColor =
-                    currentValueOf(LocalLookaheadAnimationVisualDebugColor)
                 updateTextMeasurer(currentValueOf(LocalFontFamilyResolver))
                 if (boundsAnimation.isIdle) {
                     with(lookaheadAnimationVisualDebugHelper) {
                         drawInactiveVisualizations(
-                            lookaheadAnimationVisualDebugColor,
+                            lookaheadAnimationVisualDebugConfig.inactiveElementColor,
                             lookaheadAnimationVisualDebugConfig.isShowKeyLabelEnabled,
                             2.5.dp.toPx(),
                             boundsAnimation.toString().substring(60),
@@ -349,7 +347,7 @@ internal class BoundsAnimationModifierNode(
                 } else {
                     with(lookaheadAnimationVisualDebugHelper) {
                         drawLocalVisualizations(
-                            lookaheadAnimationVisualDebugColor,
+                            currentValueOf(LocalLookaheadAnimationVisualDebugColor),
                             boundsAnimation.targetOffset,
                             boundsAnimation.targetSize,
                             boundsAnimation.value!!,

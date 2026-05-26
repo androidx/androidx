@@ -155,6 +155,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
+                    Color.Transparent,
                     false,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(debugColor) {
@@ -322,6 +323,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
+                    Color.Transparent,
                     false,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(borderColor) {
@@ -447,6 +449,7 @@ class LookaheadAnimationVisualDebugHelperTest {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 LookaheadAnimationVisualDebugging(
                     true,
+                    Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
@@ -579,6 +582,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
+                    Color.Transparent,
                     false,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(borderColor) {
@@ -678,6 +682,7 @@ class LookaheadAnimationVisualDebugHelperTest {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 LookaheadAnimationVisualDebugging(
                     true,
+                    Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
@@ -809,6 +814,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
+                    Color.Transparent,
                     false,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(borderColor) {
@@ -903,6 +909,7 @@ class LookaheadAnimationVisualDebugHelperTest {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 LookaheadAnimationVisualDebugging(
                     true,
+                    Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
@@ -1021,6 +1028,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
+                    Color.Transparent,
                     false,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(borderColor) {
@@ -1106,6 +1114,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                 LookaheadAnimationVisualDebugging(
                     true,
                     overlayColor,
+                    Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
                     false,
@@ -1235,6 +1244,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
+                    Color.Transparent,
                     false,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(Color.Transparent) {
@@ -1338,6 +1348,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     Color.Transparent,
                     unmatchedColor,
+                    Color.Transparent,
                     true,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(matchedColor) {
@@ -1477,6 +1488,7 @@ class LookaheadAnimationVisualDebugHelperTest {
                     Color.Transparent,
                     multipleMatchesColor,
                     Color.Transparent,
+                    Color.Transparent,
                     true,
                 ) {
                     CustomizedLookaheadAnimationVisualDebugging(matchedColor) {
@@ -1592,6 +1604,113 @@ class LookaheadAnimationVisualDebugHelperTest {
     }
 
     @Test
+    fun testInactiveElementSharedElement() {
+        var transitionScope: SharedTransitionScope? = null
+        var visible by mutableStateOf(false)
+        var currentBounds: Rect? by mutableStateOf(null)
+        val testTag = "inactive_element_test"
+        val borderColor = Color.Red
+        val inactiveColor = Color.Black
+        val backgroundColor = Color.Gray
+        val contentColor = Color.Blue
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadAnimationVisualDebugging(
+                    true,
+                    Color.Transparent,
+                    Color.Transparent,
+                    Color.Transparent,
+                    inactiveColor,
+                    true,
+                ) {
+                    CustomizedLookaheadAnimationVisualDebugging(borderColor) {
+                        SharedTransitionLayout(
+                            Modifier.requiredSize(50.dp)
+                                .background(backgroundColor)
+                                .testTag(testTag)
+                        ) {
+                            transitionScope = this
+                            AnimatedContent(
+                                targetState = visible,
+                                modifier = Modifier.fillMaxSize(),
+                                transitionSpec = {
+                                    (EnterTransition.None togetherWith ExitTransition.None).using(
+                                        SizeTransform(clip = false)
+                                    )
+                                },
+                            ) { isScreenA ->
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    val sharedState = rememberSharedContentState(key = "key")
+
+                                    Box(
+                                        modifier =
+                                            Modifier.onGloballyPositioned {
+                                                    currentBounds = it.boundsInRoot()
+                                                }
+                                                .sharedElement(sharedState, this@AnimatedContent)
+                                                .size(if (isScreenA) 40.dp else 30.dp)
+                                                .background(contentColor)
+                                                .align(
+                                                    if (isScreenA) Alignment.CenterStart
+                                                    else Alignment.CenterEnd
+                                                )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        rule.waitForIdle()
+
+        assert(transitionScope?.isTransitionActive == false)
+
+        rule.onNodeWithTag(testTag).captureToImage().run {
+            val pixelMap = toPixelMap()
+
+            val bounds = currentBounds!!
+
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    val leftEdge =
+                        x == bounds.left.roundToInt() &&
+                            y >= bounds.top.roundToInt() &&
+                            y <= bounds.bottom.roundToInt()
+                    val rightEdge =
+                        x == bounds.right.roundToInt() &&
+                            y >= bounds.top.roundToInt() &&
+                            y <= bounds.bottom.roundToInt()
+                    val topEdge =
+                        y == bounds.top.roundToInt() &&
+                            x >= bounds.left.roundToInt() &&
+                            x <= bounds.right.roundToInt()
+                    val bottomEdge =
+                        y == bounds.bottom.roundToInt() &&
+                            x >= bounds.left.roundToInt() &&
+                            x <= bounds.right.roundToInt()
+
+                    val currentBorderPixel = leftEdge || rightEdge || topEdge || bottomEdge
+
+                    if (currentBorderPixel) {
+                        val pixelColor = pixelMap[x, y]
+                        if (pixelColor == backgroundColor || pixelColor == contentColor) {
+                            throw AssertionError(
+                                "Expected a bounds color on the border at ($x, $y), " +
+                                    "but found background or content color."
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun testIsShowKeyLabelEnabled() {
         var transitionScope: SharedTransitionScope? = null
         var visible by mutableStateOf(false)
@@ -1604,6 +1723,7 @@ class LookaheadAnimationVisualDebugHelperTest {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 LookaheadAnimationVisualDebugging(
                     true,
+                    Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
                     Color.Transparent,
