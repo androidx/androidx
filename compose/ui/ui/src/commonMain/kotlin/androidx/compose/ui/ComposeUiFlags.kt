@@ -139,7 +139,7 @@ object ComposeUiFlags {
     // TODO: b/506963276
     @field:Suppress("MutableBareField")
     @JvmField
-    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
 
     /** Enables using out of frame scheduler instead of Choreographer for text input events. */
     // TODO(b/513525072): Cleanup once proven stable.

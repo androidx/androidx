@@ -53,7 +53,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.sign
-import kotlin.test.Ignore
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
@@ -1646,7 +1645,6 @@ class NestedScrollModifierTest {
     }
 
     @Test
-    @Ignore("b/509847892")
     fun modifierIsRemoved_scopeIsCleared() {
         val innerDispatcher = NestedScrollDispatcher()
         val outerDispatcher = NestedScrollDispatcher()
@@ -1685,7 +1683,7 @@ class NestedScrollModifierTest {
         rule.waitForIdle()
 
         assertThat(innerDispatcher.calculateNestedScrollScope()).isNotEqualTo(calculatedScope)
-        assertThat(innerDispatcher.calculateNestedScrollScope()).isNull()
+        assertThat(innerDispatcher.calculateNestedScrollScope()?.isActive).isFalse()
         assertThat(innerDispatcher.scope).isNotEqualTo(coroutineScope)
         assertThat(innerDispatcher.scope).isNull()
     }
