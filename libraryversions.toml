@@ -143,7 +143,6 @@ SQLITE_INSPECTOR = "2.1.0-alpha01"
 STABLE_AIDL = "1.0.0-alpha01"
 STARTUP = "1.2.0-rc01"
 SWIPEREFRESHLAYOUT = "1.2.0-rc01"
-TESTEXT = "1.0.0-alpha03"
 TESTSCREENSHOT = "1.0.0-alpha01"
 TEST_UIAUTOMATOR = "2.4.0-rc01"
 TEXT = "1.0.0-alpha06"
@@ -298,7 +297,6 @@ SQLITE = { group = "androidx.sqlite", atomicGroupVersion = "versions.SQLITE" }
 STABLE_AIDL = { group = "androidx.stableaidl", atomicGroupVersion = "versions.STABLE_AIDL" }
 STARTUP = { group = "androidx.startup", atomicGroupVersion = "versions.STARTUP" }
 SWIPEREFRESHLAYOUT = { group = "androidx.swiperefreshlayout", atomicGroupVersion = "versions.SWIPEREFRESHLAYOUT" }
-TESTEXT = { group = "androidx.test.ext", atomicGroupVersion = "versions.TESTEXT" }
 TESTSCREENSHOT = { group = "androidx.test.screenshot", atomicGroupVersion = "versions.TESTSCREENSHOT" }
 TEST_UIAUTOMATOR = { group = "androidx.test.uiautomator", atomicGroupVersion = "versions.TEST_UIAUTOMATOR" }
 TEXT = { group = "androidx.text", atomicGroupVersion = "versions.TEXT" }
