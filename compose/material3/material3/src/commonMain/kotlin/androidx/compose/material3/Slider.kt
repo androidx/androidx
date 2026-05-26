@@ -978,29 +978,33 @@ private fun Modifier.slideOnKeyEvents(
                 val delta = rangeLength / actualSteps
                 val sign = if (reverseDirection) -1 else 1
 
-                if (it.key == Key.MoveHome) {
+                if ((it.key == Key.MoveHome) || (it.key == Key.NumPadMoveHome)) {
                     onValueChangeState(valueRange.start)
                     return@onKeyEvent true
-                } else if (it.key == Key.MoveEnd) {
+                } else if ((it.key == Key.MoveEnd) || (it.key == Key.NumPadMoveEnd)) {
                     onValueChangeState(valueRange.endInclusive)
                     return@onKeyEvent true
                 }
                 if (isVertical) {
                     when (it.key) {
-                        Key.DirectionUp -> {
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> {
                             onValueChangeState((value - sign * delta).coerceIn(valueRange))
                             return@onKeyEvent true
                         }
-                        Key.DirectionDown -> {
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> {
                             onValueChangeState((value + sign * delta).coerceIn(valueRange))
                             return@onKeyEvent true
                         }
-                        Key.PageUp -> {
+                        Key.PageUp,
+                        Key.NumPadPageUp -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState((value - page * sign * delta).coerceIn(valueRange))
                             return@onKeyEvent true
                         }
-                        Key.PageDown -> {
+                        Key.PageDown,
+                        Key.NumPadPageDown -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState((value + page * sign * delta).coerceIn(valueRange))
                             return@onKeyEvent true
@@ -1009,20 +1013,24 @@ private fun Modifier.slideOnKeyEvents(
                     }
                 } else {
                     when (it.key) {
-                        Key.DirectionRight -> {
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> {
                             onValueChangeState((value + sign * delta).coerceIn(valueRange))
                             return@onKeyEvent true
                         }
-                        Key.DirectionLeft -> {
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> {
                             onValueChangeState((value - sign * delta).coerceIn(valueRange))
                             return@onKeyEvent true
                         }
-                        Key.PageUp -> {
+                        Key.PageUp,
+                        Key.NumPadPageUp -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState((value + page * delta).coerceIn(valueRange))
                             return@onKeyEvent true
                         }
-                        Key.PageDown -> {
+                        Key.PageDown,
+                        Key.NumPadPageDown -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState((value - page * delta).coerceIn(valueRange))
                             return@onKeyEvent true
@@ -1036,11 +1044,17 @@ private fun Modifier.slideOnKeyEvents(
                 if (isVertical) {
                     when (it.key) {
                         Key.DirectionUp,
+                        Key.NumPadDirectionUp,
                         Key.DirectionDown,
+                        Key.NumPadDirectionDown,
                         Key.MoveHome,
+                        Key.NumPadMoveHome,
                         Key.MoveEnd,
+                        Key.NumPadMoveEnd,
                         Key.PageUp,
-                        Key.PageDown -> {
+                        Key.NumPadPageUp,
+                        Key.PageDown,
+                        Key.NumPadPageDown -> {
                             onValueChangeFinishedState?.invoke()
                             return@onKeyEvent true
                         }
@@ -1049,11 +1063,17 @@ private fun Modifier.slideOnKeyEvents(
                 } else {
                     when (it.key) {
                         Key.DirectionRight,
+                        Key.NumPadDirectionRight,
                         Key.DirectionLeft,
+                        Key.NumPadDirectionLeft,
                         Key.MoveHome,
+                        Key.NumPadMoveHome,
                         Key.MoveEnd,
+                        Key.NumPadMoveEnd,
                         Key.PageUp,
-                        Key.PageDown -> {
+                        Key.NumPadPageUp,
+                        Key.PageDown,
+                        Key.NumPadPageDown -> {
                             onValueChangeFinishedState?.invoke()
                             return@onKeyEvent true
                         }
@@ -1095,7 +1115,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                 if (isStartThumb) {
                     val coerceInRange = valueRange.start..valueEnd
                     when (it.key) {
-                        Key.DirectionRight -> {
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> {
                             onValueChangeState(
                                 SliderRange(
                                     (valueStart + sign * delta).coerceIn(coerceInRange),
@@ -1105,7 +1126,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.DirectionLeft -> {
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> {
                             onValueChangeState(
                                 SliderRange(
                                     (valueStart - sign * delta).coerceIn(coerceInRange),
@@ -1115,7 +1137,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.PageUp -> {
+                        Key.PageUp,
+                        Key.NumPadPageUp -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState(
                                 SliderRange(
@@ -1126,7 +1149,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.PageDown -> {
+                        Key.PageDown,
+                        Key.NumPadPageDown -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState(
                                 SliderRange(
@@ -1137,12 +1161,14 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.MoveHome -> {
+                        Key.MoveHome,
+                        Key.NumPadMoveHome -> {
                             onValueChangeState(SliderRange(valueRange.start, valueEnd))
                             return@onKeyEvent true
                         }
 
-                        Key.MoveEnd -> {
+                        Key.MoveEnd,
+                        Key.NumPadMoveEnd -> {
                             onValueChangeState(SliderRange(valueEnd, valueEnd))
                             return@onKeyEvent true
                         }
@@ -1152,7 +1178,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                 } else {
                     val coerceInRange = valueStart..valueRange.endInclusive
                     when (it.key) {
-                        Key.DirectionRight -> {
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> {
                             onValueChangeState(
                                 SliderRange(
                                     valueStart,
@@ -1163,7 +1190,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.DirectionLeft -> {
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> {
                             onValueChangeState(
                                 SliderRange(
                                     valueStart,
@@ -1174,7 +1202,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.PageUp -> {
+                        Key.PageUp,
+                        Key.NumPadPageUp -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState(
                                 SliderRange(
@@ -1185,7 +1214,8 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.PageDown -> {
+                        Key.PageDown,
+                        Key.NumPadPageDown -> {
                             val page = (actualSteps / 10).coerceIn(1, 10)
                             onValueChangeState(
                                 SliderRange(
@@ -1196,12 +1226,14 @@ private fun Modifier.rangeSliderOnKeyEvents(
                             return@onKeyEvent true
                         }
 
-                        Key.MoveHome -> {
+                        Key.MoveHome,
+                        Key.NumPadMoveHome -> {
                             onValueChangeState(SliderRange(valueStart, valueStart))
                             return@onKeyEvent true
                         }
 
-                        Key.MoveEnd -> {
+                        Key.MoveEnd,
+                        Key.NumPadMoveEnd -> {
                             onValueChangeState(SliderRange(valueStart, valueRange.endInclusive))
                             return@onKeyEvent true
                         }
@@ -1214,11 +1246,17 @@ private fun Modifier.rangeSliderOnKeyEvents(
             KeyEventType.KeyUp -> {
                 when (it.key) {
                     Key.DirectionRight,
+                    Key.NumPadDirectionRight,
                     Key.DirectionLeft,
+                    Key.NumPadDirectionLeft,
                     Key.MoveHome,
+                    Key.NumPadMoveHome,
                     Key.MoveEnd,
+                    Key.NumPadMoveEnd,
                     Key.PageUp,
-                    Key.PageDown -> {
+                    Key.NumPadPageUp,
+                    Key.PageDown,
+                    Key.NumPadPageDown -> {
                         onValueChangeFinishedState?.invoke()
                         return@onKeyEvent true
                     }

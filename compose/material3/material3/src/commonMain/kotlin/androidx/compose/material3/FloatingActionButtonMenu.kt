@@ -140,7 +140,8 @@ fun FloatingActionButtonMenu(
                         expanded &&
                             it.type == KeyEventType.KeyDown &&
                             ((it.key == Key.Tab && !it.isShiftPressed) ||
-                                it.key == Key.DirectionDown)
+                                it.key == Key.DirectionDown ||
+                                it.key == Key.NumPadDirectionDown)
                     ) {
                         focusRequester.requestFocus()
                         return@onKeyEvent true
