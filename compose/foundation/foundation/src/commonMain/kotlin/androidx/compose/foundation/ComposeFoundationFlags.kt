@@ -188,7 +188,7 @@ object ComposeFoundationFlags {
     // TODO: b/506963276
     @field:Suppress("MutableBareField")
     @JvmField
-    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
 
     /**
      * This flag controls whether selecting text in
