@@ -17,11 +17,13 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.PlatformOptimizedCancellationException
+import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.runtime.tooling.ComposeToolingFlags
 import androidx.compose.runtime.tooling.CompositionErrorContextImpl
+import androidx.compose.runtime.tooling.verboseTrace
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -57,7 +59,7 @@ import kotlinx.coroutines.launch
 @ExplicitGroupsComposable
 @OptIn(InternalComposeApi::class)
 public fun SideEffect(effect: () -> Unit) {
-    currentComposer.recordSideEffect(effect)
+    currentComposer.recordSideEffectWithTracing(effect)
 }
 
 /**
@@ -85,7 +87,7 @@ public fun SideEffect(effect: () -> Unit) {
 @OptIn(InternalComposeApi::class)
 public fun SideEffect(key1: Any?, effect: () -> Unit) {
     if (currentComposer.changed(key1)) {
-        currentComposer.recordSideEffect(effect)
+        currentComposer.recordSideEffectWithTracing(effect)
     }
 }
 
@@ -116,7 +118,7 @@ public fun SideEffect(key1: Any?, effect: () -> Unit) {
 @OptIn(InternalComposeApi::class)
 public fun SideEffect(key1: Any?, key2: Any?, effect: () -> Unit) {
     if (currentComposer.changed(key1) or currentComposer.changed(key2)) {
-        currentComposer.recordSideEffect(effect)
+        currentComposer.recordSideEffectWithTracing(effect)
     }
 }
 
@@ -153,7 +155,7 @@ public fun SideEffect(key1: Any?, key2: Any?, key3: Any?, effect: () -> Unit) {
             currentComposer.changed(key2) or
             currentComposer.changed(key3)
     ) {
-        currentComposer.recordSideEffect(effect)
+        currentComposer.recordSideEffectWithTracing(effect)
     }
 }
 
@@ -183,7 +185,7 @@ public fun SideEffect(vararg keys: Any?, effect: () -> Unit) {
     var invalid = currentComposer.changed(keys.size)
     for (key in keys) invalid = invalid or currentComposer.changed(key)
     if (invalid) {
-        currentComposer.recordSideEffect(effect)
+        currentComposer.recordSideEffectWithTracing(effect)
     }
 }
 
@@ -210,18 +212,31 @@ public interface DisposableEffectResult {
 
 private val InternalDisposableEffectScope = DisposableEffectScope()
 
+@OptIn(ComposeToolingApi::class, InternalComposeApi::class)
+private fun Composer.recordSideEffectWithTracing(effect: () -> Unit) {
+    if (ComposeToolingFlags.isVerboseTracingEnabled) {
+        recordSideEffect { trace("Compose:SideEffect:effect", effect) }
+    } else {
+        recordSideEffect(effect)
+    }
+}
+
 private class DisposableEffectImpl(
     private val effect: DisposableEffectScope.() -> DisposableEffectResult
 ) : RememberObserver {
     private var onDispose: DisposableEffectResult? = null
 
     override fun onRemembered() {
-        onDispose = InternalDisposableEffectScope.effect()
+        verboseTrace("Compose:DisposableEffect:effect") {
+            onDispose = InternalDisposableEffectScope.effect()
+        }
     }
 
     override fun onForgotten() {
-        onDispose?.dispose()
-        onDispose = null
+        verboseTrace("Compose:DisposableEffect:dispose") {
+            onDispose?.dispose()
+            onDispose = null
+        }
     }
 
     override fun onAbandoned() {
