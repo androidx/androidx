@@ -123,7 +123,6 @@ class DepthActivity : ComponentActivity(), GLSurfaceView.Renderer {
                     surfaceView.setWillNotDraw(false)
                     setContent { DepthMapPanel(surfaceView) }
                 },
-                context = applicationContext,
             )
         sessionHelper.tryCreateSession()
     }
