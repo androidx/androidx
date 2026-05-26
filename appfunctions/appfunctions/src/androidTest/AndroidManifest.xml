@@ -1,0 +1,46 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <application>
+        <property
+            android:name="android.app.appfunctions.app_metadata"
+            android:resource="@xml/app_metadata" />
+        <service
+            android:name="androidx.appfunctions.PlatformAppFunctionService"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            android:exported="true"
+            android:enabled="@bool/enablePlatformAppFunctionService"
+            tools:targetApi="36">
+            <property
+                android:name="android.app.appfunctions"
+                android:value="app_functions.xml" />
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="app_functions_v2.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="androidx.appfunctions.ExtensionAppFunctionService"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
+            android:exported="true"
+            android:enabled="@bool/enableExtensionAppFunctionService">
+            <property
+                android:name="android.app.appfunctions"
+                android:value="app_functions.xml" />
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="app_functions_v2.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

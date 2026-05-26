@@ -1,7 +1,7 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
 
 @AppFunctionSerializable

@@ -50,6 +50,13 @@ data class AnnotatedAppFunction(
             .isDescribedByKDoc ?: false
     }
 
+    // TODO(b/463909015): Remove this once service module is deleted
+    /** Returns true if the function is annotated with the base @AppFunction annotation. */
+    val isBaseAnnotation: Boolean by lazy {
+        appFunctionDeclaration.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME_BASE) !=
+            null
+    }
+
     /** Returns true if the function is deprecated. */
     val isDeprecated: Boolean by lazy { appFunctionDeclaration.getDeprecationMetadata() != null }
 
@@ -59,6 +66,20 @@ data class AnnotatedAppFunction(
      * @throws SymbolNotReadyException if any related nodes are not ready for processing yet.
      */
     fun validate(skipFirstParameterValidation: Boolean = false): AnnotatedAppFunction {
+        val hasServiceAnnotation =
+            appFunctionDeclaration.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME) !=
+                null
+        val hasBaseAnnotation =
+            appFunctionDeclaration.annotations.findAnnotation(
+                AppFunctionAnnotation.CLASS_NAME_BASE
+            ) != null
+        if (hasServiceAnnotation && hasBaseAnnotation) {
+            throw ProcessingException(
+                "An app function cannot be annotated with both @androidx.appfunctions.AppFunction and @androidx.appfunctions.service.AppFunction",
+                appFunctionDeclaration,
+            )
+        }
+
         for (parameter in appFunctionDeclaration.parameters) {
             if (!parameter.validate()) {
                 throw SymbolNotReadyException(
@@ -242,6 +263,9 @@ data class AnnotatedAppFunction(
     ): AppFunctionMetadataCreatorHelper.AppFunctionAnnotationProperties {
         val appFunctionAnnotation =
             functionDeclaration.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME)
+                ?: functionDeclaration.annotations.findAnnotation(
+                    AppFunctionAnnotation.CLASS_NAME_BASE
+                )
                 ?: throw ProcessingException(
                     "Function not annotated with @AppFunction.",
                     functionDeclaration,

@@ -2,7 +2,7 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunction
 
 /**
  * Tests the generation of descriptions elements for app functions and serializable classes.

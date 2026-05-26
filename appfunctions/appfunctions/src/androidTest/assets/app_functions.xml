@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <version>1</version>
+    <appfunction>
+        <function_id>androidx.appfunctions.test#noSchema_enabledByDefault</function_id>
+        <enabled_by_default>true</enabled_by_default>
+    </appfunction>
+    <appfunction>
+        <function_id>androidx.appfunctions.test#noSchema_disabledByDefault</function_id>
+        <enabled_by_default>false</enabled_by_default>
+    </appfunction>
+    <appfunction>
+        <function_id>androidx.appfunctions.test#noSchema_executionSucceed</function_id>
+        <enabled_by_default>true</enabled_by_default>
+    </appfunction>
+    <appfunction>
+        <function_id>androidx.appfunctions.test#noSchema_executionFail</function_id>
+        <enabled_by_default>true</enabled_by_default>
+    </appfunction>
+    <appfunction>
+        <function_id>androidx.appfunctions.test#notesSchema_print</function_id>
+        <enabled_by_default>true</enabled_by_default>
+        <schema_name>print</schema_name>
+        <schema_category>notes</schema_category>
+        <schema_version>1</schema_version>
+    </appfunction>
+    <appfunction>
+        <function_id>androidx.appfunctions.test#mediaSchema_print</function_id>
+        <enabled_by_default>true</enabled_by_default>
+        <schema_name>print</schema_name>
+        <schema_category>media</schema_category>
+        <schema_version>1</schema_version>
+    </appfunction>
+    <appfunction>
+        <function_id>androidx.appfunctions.test#mediaSchema2_print</function_id>
+        <enabled_by_default>false</enabled_by_default>
+        <schema_name>print</schema_name>
+        <schema_category>media</schema_category>
+        <schema_version>2</schema_version>
+    </appfunction>
+</appfunctions>

@@ -2,7 +2,7 @@ package com.testdata
 
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
 
 class ParcelablePrimitiveFunctions {

@@ -24,13 +24,13 @@ import androidx.appfunction.integration.test.sharedschema.MultiServiceCreateNote
 import androidx.appfunction.integration.test.sharedschema.MultiServiceFilesData
 import androidx.appfunction.integration.test.sharedschema.MultiServiceNote
 import androidx.appfunction.integration.test.sharedschema.MultiServiceProxyTypesWrapper
+import androidx.appfunctions.AppFunctionEntryPoint
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.service.AppFunction
-import androidx.appfunctions.service.AppFunctionEntryPoint
 
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 @AppFunctionEntryPoint(

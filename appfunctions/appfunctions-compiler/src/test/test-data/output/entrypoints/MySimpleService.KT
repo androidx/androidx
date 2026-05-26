@@ -3,8 +3,8 @@ package com.testdata
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.`internal`.AppFunctionExecutionDispatcher
 import androidx.appfunctions.`internal`.AppFunctionInventory
-import androidx.appfunctions.service.`internal`.AppFunctionExecutionDispatcher
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String

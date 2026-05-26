@@ -2,8 +2,8 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
-import androidx.appfunctions.service.`internal`.AppFunctionInvoker
-import androidx.appfunctions.service.`internal`.ConfigurableAppFunctionFactory
+import androidx.appfunctions.`internal`.AppFunctionInvoker
+import androidx.appfunctions.`internal`.ConfigurableAppFunctionFactory
 import javax.`annotation`.processing.Generated
 import kotlin.Any
 import kotlin.String

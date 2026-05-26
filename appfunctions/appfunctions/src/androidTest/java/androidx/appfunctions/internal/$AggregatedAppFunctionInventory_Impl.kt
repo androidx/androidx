@@ -21,18 +21,64 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.Attachment.Companion.ATTACHMENT_OBJECT_TYPE_METADATA
 import androidx.appfunctions.Note.Companion.NOTE_OBJECT_TYPE_METADATA
 import androidx.appfunctions.OpenableNote
+import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionParameterMetadata
+import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
 import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 
 /** Test implementation for [androidx.appfunctions.AppFunctionDataTest] */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class `$AggregatedAppFunctionInventory_Impl` : AggregatedAppFunctionInventory() {
     override val inventories: List<AppFunctionInventory>
-        get() = listOf(AppFunctionUriGrantTestInventory())
+        get() = listOf(AppFunctionUriGrantTestInventory(), InternalAppFunctionInventory())
+
+    private class InternalAppFunctionInventory : AppFunctionInventory {
+        override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
+            get() =
+                mapOf(
+                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED to
+                        CompileTimeAppFunctionMetadata(
+                            id =
+                                AppFunctionMetadataTestHelper.FunctionIds
+                                    .NO_SCHEMA_EXECUTION_SUCCEED,
+                            isEnabledByDefault = true,
+                            schema = null,
+                            parameters = listOf(),
+                            response =
+                                AppFunctionResponseMetadata(
+                                    valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                                ),
+                        ),
+                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_FAIL to
+                        CompileTimeAppFunctionMetadata(
+                            id = AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_FAIL,
+                            isEnabledByDefault = true,
+                            schema = null,
+                            parameters =
+                                listOf(
+                                    AppFunctionParameterMetadata(
+                                        name = "arg1",
+                                        isRequired = true,
+                                        dataType = AppFunctionLongTypeMetadata(isNullable = false),
+                                    )
+                                ),
+                            response =
+                                AppFunctionResponseMetadata(
+                                    valueType = AppFunctionUnitTypeMetadata(isNullable = false)
+                                ),
+                        ),
+                )
+
+        override val componentsMetadata: AppFunctionComponentsMetadata
+            get() = AppFunctionComponentsMetadata()
+    }
 }
 
 internal class AppFunctionUriGrantTestInventory : AppFunctionInventory {

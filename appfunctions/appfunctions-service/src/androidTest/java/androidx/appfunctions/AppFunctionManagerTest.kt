@@ -602,7 +602,8 @@ class AppFunctionManagerTest {
     fun observeAppFunctions_isDisabledInRuntime_returnsIsEnabledFalse() =
         runBlocking<Unit> {
             val functionIdToTest = AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT
-            val searchFunctionSpec = AppFunctionSearchSpec()
+            val searchFunctionSpec =
+                AppFunctionSearchSpec(packageNames = setOf(context.packageName))
             mAppFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
@@ -622,7 +623,8 @@ class AppFunctionManagerTest {
     fun observeAppFunctions_isEnabledInRuntime_returnsIsEnabledTrue() =
         runBlocking<Unit> {
             val functionIdToTest = AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA2_PRINT
-            val searchFunctionSpec = AppFunctionSearchSpec()
+            val searchFunctionSpec =
+                AppFunctionSearchSpec(packageNames = setOf(context.packageName))
             mAppFunctionManager.setAppFunctionEnabled(
                 functionIdToTest,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,

@@ -1,7 +1,7 @@
 package com.testdata
 
-import androidx.appfunctions.service.AppFunctionEntryPoint
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunctionEntryPoint
+import androidx.appfunctions.AppFunction
 
 @AppFunctionEntryPoint("MySimpleService", "app_functions_v2.xml")
 abstract class MissingSuperClassEntryPoint {

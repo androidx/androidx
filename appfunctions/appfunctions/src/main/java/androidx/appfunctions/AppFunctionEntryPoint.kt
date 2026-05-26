@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appfunctions.service
+package androidx.appfunctions
 
 import androidx.annotation.RestrictTo
 

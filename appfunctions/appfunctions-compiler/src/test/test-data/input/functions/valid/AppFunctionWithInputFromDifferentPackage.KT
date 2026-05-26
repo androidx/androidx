@@ -1,6 +1,6 @@
 package com.testdata
 
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
 import com.testdata.anotherDifferentPackage.AnotherDiffPackageSerializable
 import com.testdata.diffPackageSchemas.DiffPackageInputSchemas
