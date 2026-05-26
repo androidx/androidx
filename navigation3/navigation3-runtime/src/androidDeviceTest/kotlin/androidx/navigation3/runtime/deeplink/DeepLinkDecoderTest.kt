@@ -91,7 +91,7 @@ class DeepLinkDecoderTest {
     }
 
     @Test
-    fun testDecodeInvalidPrimitiveFormatThrows() {
+    fun testDecodeInvalidIntThrows() {
         val arguments =
             mapOf(
                 "name" to listOf("john"),
@@ -101,6 +101,16 @@ class DeepLinkDecoderTest {
 
         assertFailsWith<IllegalArgumentException> {
             decoder.decodeSerializableValue(serializer<SimpleKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeInvalidBooleanThrows() {
+        val arguments = mapOf("bool" to listOf("notABoolean"))
+        val decoder = DeepLinkDecoder(arguments)
+
+        assertFailsWith<IllegalArgumentException> {
+            decoder.decodeSerializableValue(serializer<BooleanKey>())
         }
     }
 
@@ -250,4 +260,6 @@ class DeepLinkDecoderTest {
     @Serializable data class NonEmptyDefaultListKey(val list: List<Int> = listOf(1, 2, 3))
 
     @Serializable data class MapKey(val map: Map<Int, String>)
+
+    @Serializable data class BooleanKey(val bool: Boolean)
 }
