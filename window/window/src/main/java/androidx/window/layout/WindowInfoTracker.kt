@@ -27,6 +27,7 @@ import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ConsumerAdapter
+import androidx.window.layout.adapter.EngagementModeBackend
 import androidx.window.layout.adapter.WindowBackend
 import androidx.window.layout.adapter.extensions.ExtensionWindowBackend
 import androidx.window.layout.adapter.sidecar.SidecarWindowBackend
@@ -103,6 +104,9 @@ public interface WindowInfoTracker {
     /**
      * A [Flow] of [WindowEngagementInfo] that contains the current engagement modes.
      *
+     * This method can be long-running as it performs an initial check of all input devices. It is
+     * recommended to collect this [Flow] on a background dispatcher.
+     *
      * @param context a [UiContext] such as an [Activity] or a WindowContext.
      * @see WindowEngagementInfo
      */
@@ -140,6 +144,10 @@ public interface WindowInfoTracker {
     /**
      * Registers a [UiContext] listener to consume [WindowEngagementInfo] values. If the same
      * listener is registered twice then this method is a no-op.
+     *
+     * This method can be long-running as it performs an initial check of all input devices. It is
+     * recommended to provide a background [Executor] and call this method from a background
+     * coroutine context.
      *
      * @param context a [UiContext] such as an [Activity].
      * @param executor that the listener will invoke on.
@@ -243,11 +251,13 @@ public interface WindowInfoTracker {
         @JvmStatic
         public fun getOrCreate(context: Context): WindowInfoTracker {
             val backend = extensionBackend ?: SidecarWindowBackend.getInstance(context)
+            val engagementStateTracker = EngagementModeBackend.getInstance(context)
             val repo =
                 WindowInfoTrackerImpl(
                     WindowMetricsCalculatorCompat(),
                     backend,
                     WindowSdkExtensions.getInstance(),
+                    engagementStateTracker,
                 )
             return decorator.decorate(repo)
         }

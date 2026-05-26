@@ -32,6 +32,8 @@ import androidx.window.WindowTestUtils.Companion.assumeBeforeWindowExtensionVers
 import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.WindowEngagementInfo.EngagementMode
+import androidx.window.layout.adapter.EngagementModeBackend
 import androidx.window.layout.adapter.WindowBackend
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
@@ -51,6 +53,11 @@ import kotlinx.coroutines.test.setMain
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -64,8 +71,24 @@ class WindowInfoTrackerImplTest {
     private val windowSdkExtensions = WindowSdkExtensions.getInstance()
     private val windowMetricsCalculator = WindowMetricsCalculatorCompat()
     private val fakeBackend = FakeWindowBackend()
+    private val engagementCallbacks = mutableListOf<Consumer<EngagementMode>>()
+    private val mEngagementModeBackend =
+        mock<EngagementModeBackend> {
+            on { engagementMode(any()) } doReturn EngagementMode.PRECISE_POINTER
+            on { removeEngagementLayoutChangeCallback(any()) } doAnswer
+                { invocation ->
+                    val callback = invocation.getArgument<Consumer<EngagementMode>>(0)
+                    engagementCallbacks.remove(callback)
+                    Unit
+                }
+        }
     private val tracker =
-        WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
+        WindowInfoTrackerImpl(
+            windowMetricsCalculator,
+            fakeBackend,
+            windowSdkExtensions,
+            mEngagementModeBackend,
+        )
 
     @AfterTest
     fun tearDown() {
@@ -90,26 +113,45 @@ class WindowInfoTrackerImplTest {
         }
 
     @Test
-    fun testWindowEngagementInfo_activityAsListener() =
+    fun testWindowEngagementInfo_combinedFlow() =
         testScope.runTest {
             activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
+                Dispatchers.setMain(testDispatcher)
                 val collector = mutableListOf<WindowEngagementInfo>()
                 val job = Job()
 
                 testScope.launch(job) {
+                    whenever(
+                            mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                                any(),
+                                any(),
+                                any(),
+                            )
+                        )
+                        .thenAnswer { invocation ->
+                            val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                            engagementCallbacks.add(callback)
+                            Unit
+                        }
                     tracker.windowEngagementInfo(testActivity).toList(collector)
                 }
 
+                // Simulate OEM backend emitting VISUALS_ON
                 @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
                 fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
 
-                assertThat(collector)
+                engagementCallbacks.forEach { callback ->
+                    callback.accept(EngagementMode.PRECISE_POINTER)
+                }
+
+                // EngagementModeBackend mock returns PRECISE_POINTER by default
+                assertThat(collector.last().engagementModes)
                     .containsExactly(
-                        WindowEngagementInfo(setOf(WindowEngagementInfo.EngagementMode.VISUALS_ON))
+                        WindowEngagementInfo.EngagementMode.VISUALS_ON,
+                        EngagementMode.PRECISE_POINTER,
                     )
+
                 job.cancel()
-                assertThat(fakeBackend.consumers).isEmpty()
             }
         }
 
@@ -188,7 +230,7 @@ class WindowInfoTrackerImplTest {
     @Test
     fun testSupportedWindowPostures_throwsBeforeApi6() {
         assumeBeforeWindowExtensionVersion(6)
-        activityScenario.scenario.onActivity { _ ->
+        activityScenario.scenario.onActivity { testActivity ->
             assertFailsWith<UnsupportedOperationException> { tracker.supportedPostures }
         }
     }
@@ -196,11 +238,16 @@ class WindowInfoTrackerImplTest {
     @Test
     fun testSupportedWindowPostures_reportsFeatures() {
         assumeAtLeastWindowExtensionVersion(6)
-        activityScenario.scenario.onActivity { _ ->
+        activityScenario.scenario.onActivity { testActivity ->
             val fakeBackend =
                 FakeWindowBackend(supportedPostures = listOf(SupportedPosture.TABLETOP))
             val tracker =
-                WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
+                WindowInfoTrackerImpl(
+                    windowMetricsCalculator,
+                    fakeBackend,
+                    windowSdkExtensions,
+                    mEngagementModeBackend,
+                )
 
             assertThat(tracker.supportedPostures).containsExactly(SupportedPosture.TABLETOP)
         }
@@ -234,10 +281,16 @@ class WindowInfoTrackerImplTest {
             val currentWindowLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
             val fakeBackend = FakeWindowBackend(currentWindowLayoutInfo = currentWindowLayoutInfo)
             val tracker =
-                WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
+                WindowInfoTrackerImpl(
+                    windowMetricsCalculator,
+                    fakeBackend,
+                    windowSdkExtensions,
+                    mEngagementModeBackend,
+                )
 
-            assertThat(tracker.getCurrentWindowLayoutInfo(testActivity))
-                .isEqualTo(currentWindowLayoutInfo)
+            val expected = WindowLayoutInfo(listOf(displayFeature))
+
+            assertThat(tracker.getCurrentWindowLayoutInfo(testActivity)).isEqualTo(expected)
         }
     }
 
@@ -250,12 +303,18 @@ class WindowInfoTrackerImplTest {
             HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
         val currentWindowLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
         val fakeBackend = FakeWindowBackend(currentWindowLayoutInfo = currentWindowLayoutInfo)
-        val tracker =
-            WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
         val windowContext = WindowTestUtils.createOverlayWindowContext()
+        val tracker =
+            WindowInfoTrackerImpl(
+                windowMetricsCalculator,
+                fakeBackend,
+                windowSdkExtensions,
+                mEngagementModeBackend,
+            )
 
-        assertThat(tracker.getCurrentWindowLayoutInfo(windowContext))
-            .isEqualTo(currentWindowLayoutInfo)
+        val expected = WindowLayoutInfo(listOf(displayFeature))
+
+        assertThat(tracker.getCurrentWindowLayoutInfo(windowContext)).isEqualTo(expected)
     }
 
     @Test
@@ -264,7 +323,7 @@ class WindowInfoTrackerImplTest {
             activityScenario.scenario.onActivity { testActivity ->
                 Dispatchers.setMain(testDispatcher)
                 val receivedValues = mutableListOf<WindowLayoutInfo>()
-                val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+                val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
                 // Use a direct executor to run the listener callback immediately.
                 val executor = Executor { command -> command.run() }
 
@@ -284,7 +343,7 @@ class WindowInfoTrackerImplTest {
             assumeAtLeastWindowExtensionVersion(2)
             Dispatchers.setMain(testDispatcher)
             val receivedValues = mutableListOf<WindowLayoutInfo>()
-            val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+            val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
             val executor = Executor { command -> command.run() }
             val windowContext = WindowTestUtils.createOverlayWindowContext()
 
@@ -301,7 +360,7 @@ class WindowInfoTrackerImplTest {
             activityScenario.scenario.onActivity { testActivity ->
                 Dispatchers.setMain(testDispatcher)
                 val receivedValues = mutableListOf<WindowLayoutInfo>()
-                val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+                val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
                 val executor = Executor { command -> command.run() }
 
                 tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
@@ -324,7 +383,7 @@ class WindowInfoTrackerImplTest {
     fun testRegisterWindowLayoutInfoListener_doesNotAddSameListenerTwice() {
         activityScenario.scenario.onActivity { testActivity ->
             val receivedValues = mutableListOf<WindowLayoutInfo>()
-            val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+            val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
             val executor = Executor { command -> command.run() }
 
             tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
@@ -340,17 +399,38 @@ class WindowInfoTrackerImplTest {
             activityScenario.scenario.onActivity { testActivity ->
                 Dispatchers.setMain(testDispatcher)
                 val receivedValues = mutableListOf<WindowEngagementInfo>()
-                val listener = Consumer<WindowEngagementInfo> { receivedValues.add(it) }
+                val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
                 val executor = Executor { command -> command.run() }
-
+                whenever(
+                        mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                            any(),
+                            any(),
+                            any(),
+                        )
+                    )
+                    .thenAnswer { invocation ->
+                        val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                        engagementCallbacks.add(callback)
+                        Unit
+                    }
                 tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+
+                engagementCallbacks.forEach { callback ->
+                    callback.accept(EngagementMode.PRECISE_POINTER)
+                }
+                receivedValues.clear()
 
                 @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
                 fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
 
                 assertThat(receivedValues)
                     .containsExactly(
-                        WindowEngagementInfo(setOf(WindowEngagementInfo.EngagementMode.VISUALS_ON))
+                        WindowEngagementInfo(
+                            setOf(
+                                WindowEngagementInfo.EngagementMode.VISUALS_ON,
+                                EngagementMode.PRECISE_POINTER,
+                            )
+                        )
                     )
             }
         }
@@ -361,10 +441,26 @@ class WindowInfoTrackerImplTest {
             activityScenario.scenario.onActivity { testActivity ->
                 Dispatchers.setMain(testDispatcher)
                 val receivedValues = mutableListOf<WindowEngagementInfo>()
-                val listener = Consumer<WindowEngagementInfo> { receivedValues.add(it) }
+                val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
                 val executor = Executor { command -> command.run() }
-
+                whenever(
+                        mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                            any(),
+                            any(),
+                            any(),
+                        )
+                    )
+                    .thenAnswer { invocation ->
+                        val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                        engagementCallbacks.add(callback)
+                        Unit
+                    }
                 tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+
+                // Trigger engagement mode to satisfy CombineLatest
+                engagementCallbacks.forEach { callback ->
+                    callback.accept(EngagementMode.PRECISE_POINTER)
+                }
 
                 // Verify listener is active
                 @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
@@ -380,23 +476,41 @@ class WindowInfoTrackerImplTest {
         }
 
     @Test
-    fun testRegisterWindowEngagementInfoListener_doesNotAddSameListenerTwice() {
-        activityScenario.scenario.onActivity { testActivity ->
-            val receivedValues = mutableListOf<WindowEngagementInfo>()
-            val listener = Consumer<WindowEngagementInfo> { receivedValues.add(it) }
-            val executor = Executor { command -> command.run() }
+    fun testRegisterWindowEngagementInfoListener_doesNotAddSameListenerTwice() =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                val receivedValues = mutableListOf<WindowEngagementInfo>()
+                val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
+                val executor = Executor { command -> command.run() }
 
-            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
-            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+                whenever(
+                        mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                            any(),
+                            any(),
+                            any(),
+                        )
+                    )
+                    .thenAnswer { invocation ->
+                        val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                        engagementCallbacks.add(callback)
+                        Unit
+                    }
+                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
 
-            tracker.unregisterWindowEngagementInfoListener(listener)
+                tracker.unregisterWindowEngagementInfoListener(listener)
 
-            @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
-            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+                // Trigger engagement mode to satisfy CombineLatest
+                engagementCallbacks.forEach { callback ->
+                    callback.accept(EngagementMode.PRECISE_POINTER)
+                }
 
-            assertThat(receivedValues).isEmpty()
+                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+
+                assertThat(receivedValues).isEmpty()
+            }
         }
-    }
 
     private class FakeWindowBackend(
         override val supportedPostures: List<SupportedPosture> = emptyList(),
