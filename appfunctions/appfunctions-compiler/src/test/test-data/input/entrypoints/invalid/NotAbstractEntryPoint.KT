@@ -3,8 +3,8 @@ package com.testdata
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
-import androidx.appfunctions.service.AppFunctionEntryPoint
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunctionEntryPoint
+import androidx.appfunctions.AppFunction
 
 @AppFunctionEntryPoint("MySimpleService", "app_functions_v2.xml")
 class NotAbstractEntryPoint: AppFunctionService() {

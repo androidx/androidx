@@ -1,6 +1,6 @@
 package com.testdata.diff
 
-    import androidx.appfunctions.service.AppFunction
+    import androidx.appfunctions.AppFunction
     import androidx.appfunctions.AppFunctionContext
 
 class DiffPackageFunction {

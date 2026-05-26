@@ -19,7 +19,7 @@ package com.testdata
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionStringValueConstraint
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunction
 
 class StringEnumValueFunctions {
     @AppFunction

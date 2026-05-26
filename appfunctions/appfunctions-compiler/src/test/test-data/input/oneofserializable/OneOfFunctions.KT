@@ -18,7 +18,7 @@ package com.testdata.oneofserializable
 
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunction
 
 class OneOfFunctions {
 

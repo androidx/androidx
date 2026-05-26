@@ -32,6 +32,10 @@ data class AnnotatedAppFunctions(
     /** The list of [AnnotatedAppFunction] that are annotated as app function. */
     val appFunctions: List<AnnotatedAppFunction>,
 ) {
+    // TODO(b/463909015): Remove this once service module is deleted
+    /** Returns true if any function contains the base annotation. */
+    val hasBaseAnnotation: Boolean by lazy { appFunctions.any { it.isBaseAnnotation } }
+
     /** Gets all annotated nodes. */
     fun getAllAnnotated(): List<KSAnnotated> {
         return buildList {

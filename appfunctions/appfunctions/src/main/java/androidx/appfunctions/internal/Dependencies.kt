@@ -63,4 +63,8 @@ public object Dependencies {
 
         return@lazy schemaAppFunctionInventory
     }
+
+    internal val aggregatedAppFunctionInvoker: AggregatedAppFunctionInvoker by lazy {
+        AggregatedAppFunctionInvoker::class.java.findImpl(prefix = "$", suffix = "_Impl")
+    }
 }

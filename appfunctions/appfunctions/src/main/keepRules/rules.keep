@@ -35,3 +35,20 @@
 # TODO: b/506032409 - Checks why AppSearch keep rule doesn't apply
 # Keeps all metadata document converter classes
 -keep class androidx.appfunctions.metadata.$$__AppSearch__* implements androidx.appsearch.app.DocumentClassFactory { *; }
+
+# Keeps Aggregated invoker only as they are created from reflection.
+-keep,allowoptimization class * implements androidx.appfunctions.internal.AggregatedAppFunctionInvoker {
+    public *;
+}
+
+# Keeps PlatformAppFunctionService because the caller is from IPC
+-keep,allowoptimization class androidx.appfunctions.PlatformAppFunctionService {
+    public *;
+}
+
+# Keeps ExtensionAppFunctionService because the caller is from IPC
+-keep,allowoptimization class androidx.appfunctions.ExtensionAppFunctionService {
+    public *;
+}
+
+-keep class androidx.appfunctions.internal.AggregatedAppFunctionInvoker { *; }

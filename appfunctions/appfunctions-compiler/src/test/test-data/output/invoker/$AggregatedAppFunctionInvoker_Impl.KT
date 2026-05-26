@@ -1,4 +1,4 @@
-package androidx.appfunctions.service.`internal`
+package androidx.appfunctions.`internal`
 
 import com.testdata.`$AllPrimitiveInputFunctions_AppFunctionInvoker`
 import com.testdata.diff.`$DiffPackageFunction_AppFunctionInvoker`

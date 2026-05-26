@@ -17,7 +17,7 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionContext
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunction
 import android.os.Parcelable
 
 class InvalidBaseParcelable {
