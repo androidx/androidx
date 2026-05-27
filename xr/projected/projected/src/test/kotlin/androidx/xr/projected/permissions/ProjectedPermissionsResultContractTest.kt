@@ -27,7 +27,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle.State
@@ -39,6 +39,7 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +55,7 @@ import org.robolectric.util.ReflectionHelpers
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @OptIn(ExperimentalProjectedApi::class)
+@Suppress("DEPRECATION")
 class ProjectedPermissionsResultContractTest {
 
     private val appContext: Application = getApplicationContext()
@@ -965,6 +967,7 @@ class ProjectedPermissionsResultContractTest {
     }
 
     @Test
+    @Ignore("b/508189550 - Ignoring since this feature is deprecated.")
     fun newHostActivityIntentWithRationale_requestsNewPermissionsAndSendNewResultsToNewAppActivity() {
         // This test involves:
         // 1. User launching a projected activity that launches the GoToHostProjectedActivity
