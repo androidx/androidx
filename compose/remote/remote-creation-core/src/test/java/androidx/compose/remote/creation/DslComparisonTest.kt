@@ -107,7 +107,12 @@ class DslComparisonTest {
                     horizontal = RcHorizontalPositioning.Center,
                     vertical = RcColumnVerticalPositioning.Top,
                 ) {
-                    Text("Hello from New DSL!", fontSize = 24.rsp, color = 0xFF333333.toInt())
+                    Text(
+                        "Hello from New DSL!",
+                        fontSize = 24.rsp,
+                        color = 0xFF333333.toInt(),
+                        maxLines = 1,
+                    )
                 }
             }
 
@@ -238,6 +243,7 @@ class DslComparisonTest {
                         color = 0xFFFFFFFF.toInt(),
                         fontWeight = 700f,
                         textAlign = RcTextAlign.Center, // CENTER
+                        maxLines = 1,
                     )
 
                     Row(
@@ -245,8 +251,8 @@ class DslComparisonTest {
                         horizontal = RcRowHorizontalPositioning.SpaceBetween,
                         vertical = RcVerticalPositioning.Center,
                     ) {
-                        Text("Left", color = 0xFF00FF00.toInt(), fontSize = 18.rsp)
-                        Text("Right", color = 0xFF0000FF.toInt(), fontSize = 18.rsp)
+                        Text("Left", color = 0xFF00FF00.toInt(), fontSize = 18.rsp, maxLines = 1)
+                        Text("Right", color = 0xFF0000FF.toInt(), fontSize = 18.rsp, maxLines = 1)
                     }
 
                     Box(
@@ -263,6 +269,7 @@ class DslComparisonTest {
                             fontSize = 14.rsp,
                             color = 0xFFFFFFFF.toInt(),
                             textAlign = RcTextAlign.Center,
+                            maxLines = 1,
                         )
                     }
                 }

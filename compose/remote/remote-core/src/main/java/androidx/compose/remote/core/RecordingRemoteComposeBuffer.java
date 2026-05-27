@@ -1560,7 +1560,8 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void setVersion(int documentApiLevel, int profiles) {
-        throw new UnsupportedOperationException("setVersion is not supported");
+        mApiLevel = documentApiLevel;
+        mProfileMask = profiles;
     }
 
     @Override
@@ -1568,7 +1569,8 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             int documentApiLevel,
             int operationsProfiles,
             @NonNull Set<Integer> supportedOperations) {
-        throw new UnsupportedOperationException("setVersion is not supported");
+        mApiLevel = documentApiLevel;
+        mProfileMask = operationsProfiles;
     }
 
     @Override

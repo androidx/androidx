@@ -174,7 +174,7 @@ public class ComponentValue extends Operation
     @NonNull
     @Override
     public String deepToString(@NonNull String indent) {
-        return null;
+        return indent + toString();
     }
 
     @Override

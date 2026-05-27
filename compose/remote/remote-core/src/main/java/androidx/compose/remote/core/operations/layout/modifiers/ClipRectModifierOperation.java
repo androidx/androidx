@@ -60,6 +60,12 @@ public class ClipRectModifierOperation extends DecoratorModifierOperation {
     }
 
     @Override
+    @NonNull
+    public String deepToString(@NonNull String indent) {
+        return indent + "ClipRectModifierOperation(" + mWidth + ", " + mHeight + ")";
+    }
+
+    @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(buffer);
     }

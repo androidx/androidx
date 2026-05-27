@@ -28,7 +28,7 @@ import java.util.Arrays;
 
 /** Common RemotePath implementation that manages the path buffer. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemotePathBase {
+public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
     private static final int DEFAULT_BUFFER_SIZE = 1024;
     int mMaxSize = DEFAULT_BUFFER_SIZE;
     float[] mPath = new float[mMaxSize];
@@ -547,6 +547,7 @@ public class RemotePathBase {
      *
      * @return the array
      */
+    @Override
     public float @NonNull [] createFloatArray() {
         return Arrays.copyOf(mPath, mSize);
     }

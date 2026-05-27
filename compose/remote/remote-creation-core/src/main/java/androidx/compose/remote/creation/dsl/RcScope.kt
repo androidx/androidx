@@ -108,6 +108,7 @@ public interface RcScope {
         fontWeight: Float = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
+        maxLines: Int = Int.MAX_VALUE,
         content: RcScope.() -> Unit = {},
     )
 
@@ -120,6 +121,7 @@ public interface RcScope {
         fontWeight: Float = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
+        maxLines: Int = Int.MAX_VALUE,
         content: RcScope.() -> Unit = {},
     )
 
@@ -256,6 +258,15 @@ public interface RcScope {
 
     /** Registers a float array and returns its reference. */
     public fun remoteFloatArray(array: FloatArray): RcFloat
+
+    /** Registers a named float array and returns its reference. */
+    public fun addNamedFloatArray(name: String, array: FloatArray): RcFloat
+
+    /** Sets the name of a remote float in the buffer. */
+    public fun RcFloat.named(name: String): RcFloat
+
+    /** Sets the name of a remote color in the buffer. */
+    public fun RcColor.named(name: String): RcColor
 
     /** Returns an [RcFloat] representing the current animation time. */
     public fun animationTime(): RcFloat
@@ -1080,7 +1091,17 @@ public interface RcScope {
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         content: RcScope.() -> Unit = {},
-    ): Unit = Text(text, modifier, color as Any, fontSize, fontWeight, textAlign, overflow, content)
+    ): Unit =
+        Text(
+            text,
+            modifier,
+            color as Any,
+            fontSize,
+            fontWeight,
+            textAlign,
+            overflow,
+            content = content,
+        )
 
     /** [Text] overload taking a typed [RcColorValue] reference. */
     public fun Text(
@@ -1092,7 +1113,17 @@ public interface RcScope {
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         content: RcScope.() -> Unit = {},
-    ): Unit = Text(text, modifier, color as Any, fontSize, fontWeight, textAlign, overflow, content)
+    ): Unit =
+        Text(
+            text,
+            modifier,
+            color as Any,
+            fontSize,
+            fontWeight,
+            textAlign,
+            overflow,
+            content = content,
+        )
 
     /** [Text] overload taking a [RcText] reference and a typed [RcColor]. */
     public fun Text(
@@ -1104,7 +1135,17 @@ public interface RcScope {
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         content: RcScope.() -> Unit = {},
-    ): Unit = Text(text, modifier, color as Any, fontSize, fontWeight, textAlign, overflow, content)
+    ): Unit =
+        Text(
+            text,
+            modifier,
+            color as Any,
+            fontSize,
+            fontWeight,
+            textAlign,
+            overflow,
+            content = content,
+        )
 
     /** [Text] overload taking a [RcText] reference and a typed [RcColorValue]. */
     public fun Text(
@@ -1116,7 +1157,17 @@ public interface RcScope {
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         content: RcScope.() -> Unit = {},
-    ): Unit = Text(text, modifier, color as Any, fontSize, fontWeight, textAlign, overflow, content)
+    ): Unit =
+        Text(
+            text,
+            modifier,
+            color as Any,
+            fontSize,
+            fontWeight,
+            textAlign,
+            overflow,
+            content = content,
+        )
 
     /** [Text] overload taking a typed [RcWeight]. */
     public fun Text(
@@ -1128,7 +1179,8 @@ public interface RcScope {
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         content: RcScope.() -> Unit = {},
-    ): Unit = Text(text, modifier, color, fontSize, weight.value, textAlign, overflow, content)
+    ): Unit =
+        Text(text, modifier, color, fontSize, weight.value, textAlign, overflow, content = content)
 
     /** [Text] overload taking a [RcText] reference and typed [RcWeight]. */
     public fun Text(
@@ -1140,7 +1192,8 @@ public interface RcScope {
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         content: RcScope.() -> Unit = {},
-    ): Unit = Text(text, modifier, color, fontSize, weight.value, textAlign, overflow, content)
+    ): Unit =
+        Text(text, modifier, color, fontSize, weight.value, textAlign, overflow, content = content)
 
     /** [remoteTextStyle] overload taking a typed [RcWeight]. */
     public fun remoteTextStyle(
@@ -1373,7 +1426,8 @@ public interface RcCanvasScope : RcScope {
 }
 
 /** Internal helper to convert the new [Modifier] chain to the legacy [RecordingModifier]. */
-internal fun Modifier.toRecordingModifier(): RecordingModifier {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Modifier.toRecordingModifier(): RecordingModifier {
     val recording = RecordingModifier()
     foldIn(Unit) { _, element -> element.applyTo(recording) }
     return recording

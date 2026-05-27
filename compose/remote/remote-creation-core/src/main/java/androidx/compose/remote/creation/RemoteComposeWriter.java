@@ -128,6 +128,10 @@ public class RemoteComposeWriter {
         return mWriterCallback;
     }
 
+    public int getApiLevel() {
+        return mApiLevel;
+    }
+
     /**
      * Create a RemoteComposeWriter
      *
@@ -287,6 +291,8 @@ public class RemoteComposeWriter {
         this.mApiLevel = apiLevel;
         mBuffer = new RemoteComposeBuffer(apiLevel);
 
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+
         Object w = HTag.getValue(tags, Header.DOC_WIDTH);
         Object h = HTag.getValue(tags, Header.DOC_HEIGHT);
         Object d = HTag.getValue(tags, Header.DOC_CONTENT_DESCRIPTION);
@@ -351,6 +357,7 @@ public class RemoteComposeWriter {
             mContentDescription = (String) d;
         }
 
+        mBuffer.setVersion(mApiLevel, HTag.getProfiles(tags));
         mBuffer.addHeader(HTag.getTags(tags), HTag.getValues(tags));
     }
 
@@ -536,8 +543,12 @@ public class RemoteComposeWriter {
             float matrixId, short type, float @Nullable [] from, float @NonNull [] out) {
         int[] outId = new int[out.length];
         for (int i = 0; i < out.length; i++) {
-            outId[i] = mState.createNextAvailableId();
-            out[i] = Utils.asNan(outId[i]);
+            if (Utils.isVariable(out[i])) {
+                outId[i] = Utils.idFromNan(out[i]);
+            } else {
+                outId[i] = mState.createNextAvailableId();
+                out[i] = Utils.asNan(outId[i]);
+            }
         }
         mBuffer.addMatrixVectorMath(matrixId, type, from, outId);
     }
@@ -2012,6 +2023,30 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Set the name of the variable associated with the id
+     *
+     * @param id   id of the variable
+     * @param name name of the variable
+     * @param type the type of variable NamedVariable.COLOR_TYPE, STRING_TYPE, etc
+     */
+    public void setNamedVariable(int id, @NonNull String name, int type) {
+        mBuffer.setNamedVariable(id, name, type);
+    }
+
+    /**
+     * Create a named variable and return its id as a NaN-encoded float
+     *
+     * @param name name of the variable
+     * @param type the type of variable
+     * @return the id of the variable
+     */
+    public float createNamedVariable(@NonNull String name, int type) {
+        int id = mState.createNextAvailableId();
+        setNamedVariable(id, name, type);
+        return Utils.asNan(id);
+    }
+
+    /**
      * Set the name of the float associated with the id
      *
      * @param id   of the float
@@ -2268,7 +2303,6 @@ public class RemoteComposeWriter {
 
     /**
      * Add a light and dark themed color
-     * TODO replace with a operation
      *
      * @param lightName  the name of the light color
      * @param lightValue the value of the light color
@@ -2975,7 +3009,9 @@ public class RemoteComposeWriter {
      * @param content content of the layout
      */
     public void root(@NonNull RemoteComposeWriterInterface content) {
-        mInsertPoint = mBuffer.getBuffer().size();
+        if (mInsertPoint == -1) {
+            mInsertPoint = mBuffer.getBuffer().size();
+        }
         mBuffer.addRootStart();
         content.run();
         mBuffer.addContainerEnd();
@@ -3193,6 +3229,20 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Start the root component
+     */
+    public void startRoot() {
+        mBuffer.addRootStart();
+    }
+
+    /**
+     * End the root component
+     */
+    public void endRoot() {
+        mBuffer.addContainerEnd();
+    }
+
+    /**
      * Start a row layout
      */
     public void startRow(@NonNull RecordingModifier modifier, int horizontal, int vertical) {
@@ -3269,6 +3319,13 @@ public class RemoteComposeWriter {
         startFlow(modifier, horizontal, vertical, maxItemsInEachRow, maxLines);
         content.run();
         endFlow();
+    }
+
+    /**
+     * Start a flow layout
+     */
+    public void startFlow(@NonNull RecordingModifier modifier, int horizontal, int vertical) {
+        startFlow(modifier, horizontal, vertical, Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
 
     /**
@@ -4806,6 +4863,9 @@ public class RemoteComposeWriter {
     public void beginGlobal() {
         if (mStartGlobalSection != -1) {
             throw new RuntimeException("Trying to start a global section twice");
+        }
+        if (mInsertPoint == -1) {
+            mInsertPoint = mBuffer.getBuffer().size();
         }
         mStartGlobalSection = mBuffer.getBuffer().size();
     }

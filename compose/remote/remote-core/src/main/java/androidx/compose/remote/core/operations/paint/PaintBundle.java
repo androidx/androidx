@@ -460,6 +460,9 @@ public class PaintBundle implements Serializable {
                 case SHADER_MATRIX:
                     ret.append("    ShaderMatrix(" + asFloatStr(mArray[i++]));
                     break;
+                default:
+                    ret.append("    UNKNOWN_OPCODE(" + type + ")");
+                    break;
             }
             ret.append("),\n");
         }

@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterInterface
-import androidx.compose.remote.creation.modifiers.ComponentLayoutChanges
 import java.lang.Runnable
 
 /** Private implementation of [RcScope]. */
@@ -321,10 +320,21 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         fontWeight: Float,
         textAlign: RcTextAlign,
         overflow: RcTextOverflow,
+        maxLines: Int,
         content: RcScope.() -> Unit,
     ) {
         val textId = writer.addText(text)
-        Text(RcText(textId), modifier, color, fontSize, fontWeight, textAlign, overflow)
+        Text(
+            RcText(textId),
+            modifier,
+            color,
+            fontSize,
+            fontWeight,
+            textAlign,
+            overflow,
+            maxLines,
+            content,
+        )
     }
 
     override fun Text(
@@ -335,69 +345,63 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         fontWeight: Float,
         textAlign: RcTextAlign,
         overflow: RcTextOverflow,
+        maxLines: Int,
         content: RcScope.() -> Unit,
     ) {
         // Resolve the color into a colorId (RcColor / RcColorValue) or a raw int.
         // Previously RcColor fell into the `else` and rendered as default black —
         // fixed here so the typed RcColor surface actually colors text.
-        val colorId: Int =
-            when (color) {
-                is RcColor -> color.id
-                is RcColorValue -> color.id
-                else -> -1 // sentinel meaning "no colorId, use raw int below"
+        val colorId: Int
+        val colorInt: Int
+        when (color) {
+            is RcColor -> {
+                colorId = color.id
+                colorInt = 0xFF000000.toInt()
             }
-        if (colorId != -1) {
-            writer.textComponent(
-                modifier.toRecordingModifier(),
-                text.id,
-                -1, // textStyleId
-                0, // color
-                colorId,
-                fontSize.value,
-                -1f, // minFontSize
-                -1f, // maxFontSize
-                0, // fontStyle
-                fontWeight,
-                null, // fontFamily
-                textAlign.value,
-                overflow.value,
-                Int.MAX_VALUE, // maxLines
-                0f, // letterSpacing
-                0f, // lineHeightAdd
-                1f, // lineHeightMultiplier
-                0, // lineBreakStrategy
-                0, // hyphenationFrequency
-                0, // justificationMode
-                false, // underline
-                false, // strikethrough
-                null, // fontAxis
-                null, // fontAxisValues
-                false, // autosize
-                0, // flags
-            ) {
-                RcScopeImpl(writer).content()
+            is RcColorValue -> {
+                colorId = color.id
+                colorInt = 0xFF000000.toInt()
             }
-        } else {
-            val colorInt =
-                when (color) {
-                    is Int -> color
-                    is Long -> color.toInt()
-                    else -> 0xFF000000.toInt()
-                }
-            writer.textComponent(
-                modifier.toRecordingModifier(),
-                text.id,
-                colorInt,
-                fontSize.value,
-                0,
-                fontWeight,
-                null,
-                textAlign.value,
-                overflow.value,
-                1,
-            ) {
-                RcScopeImpl(writer).content()
+            else -> {
+                colorId = -1
+                colorInt =
+                    when (color) {
+                        is Int -> color
+                        is Long -> color.toInt()
+                        else -> 0xFF000000.toInt()
+                    }
             }
+        }
+
+        writer.textComponent(
+            modifier.toRecordingModifier(),
+            text.id,
+            -1, // textStyleId
+            colorInt, // color (default; ignored when colorId is set)
+            colorId,
+            fontSize.value,
+            -1f, // minFontSize
+            -1f, // maxFontSize
+            0, // fontStyle
+            fontWeight,
+            null, // fontFamily
+            textAlign.value,
+            overflow.value,
+            maxLines, // maxLines
+            0f, // letterSpacing
+            0f, // lineHeightAdd
+            1f, // lineHeightMultiplier
+            0, // lineBreakStrategy
+            0, // hyphenationFrequency
+            0, // justificationMode
+            false, // underline
+            false, // strikethrough
+            null, // fontAxis
+            null, // fontAxisValues
+            false, // autosize
+            0, // flags
+        ) {
+            RcScopeImpl(writer).content()
         }
     }
 
@@ -541,6 +545,25 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun remoteFloatArray(array: FloatArray): RcFloat =
         RcFloat(writer, writer.addFloatArray(array))
+
+    override fun addNamedFloatArray(name: String, array: FloatArray): RcFloat {
+        val id = RcFloat(writer, writer.addFloatArray(array))
+        writer.setFloatName(Utils.idFromNan(id.toArray()[0]), name)
+        return id
+    }
+
+    override fun RcFloat.named(name: String): RcFloat {
+        this@RcScopeImpl.writer.setFloatName(
+            Utils.idFromNan(this.withWriter(this@RcScopeImpl.writer).toFloat()),
+            name,
+        )
+        return this
+    }
+
+    override fun RcColor.named(name: String): RcColor {
+        writer.setColorName(this.id, name)
+        return this
+    }
 
     override fun animationTime(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.ANIMATION_TIME))
 

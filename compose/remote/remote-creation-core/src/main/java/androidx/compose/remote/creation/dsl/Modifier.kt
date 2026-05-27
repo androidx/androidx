@@ -100,10 +100,14 @@ public fun Modifier.size(size: RcDp): Modifier = size(size.value, size.value)
 /** Basic width modifier. */
 public fun Modifier.width(width: Float): Modifier = then(WidthModifier(width))
 
+public fun Modifier.width(width: RcFloat): Modifier = then(WidthRcFloatModifier(width))
+
 public fun Modifier.width(width: RcDp): Modifier = width(width.value)
 
 /** Basic height modifier. */
 public fun Modifier.height(height: Float): Modifier = then(HeightModifier(height))
+
+public fun Modifier.height(height: RcFloat): Modifier = then(HeightRcFloatModifier(height))
 
 public fun Modifier.height(height: RcDp): Modifier = height(height.value)
 
@@ -115,6 +119,14 @@ public fun Modifier.background(color: Long): Modifier = background(color.toInt()
 public fun Modifier.background(color: RcColorValue): Modifier = then(BackgroundColorModifier(color))
 
 public fun Modifier.background(color: RcColor): Modifier = then(BackgroundColorIdModifier(color))
+
+/** horizontalWeight modifier. */
+public fun Modifier.horizontalWeight(weight: Float): Modifier =
+    then(WeightModifier(weight, vertical = false))
+
+/** verticalWeight modifier. */
+public fun Modifier.verticalWeight(weight: Float): Modifier =
+    then(WeightModifier(weight, vertical = true))
 
 /** Basic fillMaxWidth modifier. */
 public fun Modifier.fillMaxWidth(fraction: Float = Float.NaN): Modifier =
@@ -375,6 +387,28 @@ internal class HeightModifier(val height: Float) : Modifier.Element {
     }
 }
 
+internal class WidthRcFloatModifier(val width: RcFloat) :
+    Modifier.Element, RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        writer.addWidthModifierOperation(0 /* EXACT */, width.withWriter(writer).id)
+    }
+}
+
+internal class HeightRcFloatModifier(val height: RcFloat) :
+    Modifier.Element, RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        writer.addHeightModifierOperation(0 /* EXACT */, height.withWriter(writer).id)
+    }
+}
+
 internal class BackgroundModifier(val color: Int) : Modifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.background(color)
@@ -458,7 +492,8 @@ internal class VerticalScrollRcFloatModifier(val position: RcFloat) :
     }
 
     override fun write(writer: RemoteComposeWriter) {
-        writer.addModifierScroll(0 /* VERTICAL */, position.withWriter(writer).toFloat())
+        writer.addClipRectModifier()
+        writer.addModifierScroll(0 /* VERTICAL */, position.withWriter(writer).id)
     }
 }
 

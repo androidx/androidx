@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import androidx.compose.remote.core.Operations;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -668,7 +669,7 @@ public class OpcodeRegistry {
      * Get OpSpec for a given opcode.
      */
     @SuppressLint("RestrictedApiAndroidX")
-    public static @NonNull OpSpec get(int opcode) {
+    public static @Nullable OpSpec get(int opcode) {
         return sSpecs.get(opcode);
     }
 
