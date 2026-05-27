@@ -216,6 +216,7 @@ internal constructor(
             val driver = traceDriver
             if (driver != null) return driver
             return synchronized(lock) {
+                if (traceDriver != null) return traceDriver
                 // If the application subtype provides a custom implementation of an
                 // AbstractTraceDriver, use it. Otherwise, fallback to the default initializer.
                 val provider =
