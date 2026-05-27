@@ -406,6 +406,11 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         return runOnUiThread(action)
     }
 
+    override fun <T> runWithoutImplicitWait(block: () -> T): T {
+        // TODO https://youtrack.jetbrains.com/issue/CMP-10244/ui-test.-Implement-runWithoutImplicitWait
+        throw NotImplementedError("runWithoutImplicitWait is not implemented.")
+    }
+
     override fun waitUntil(
         conditionDescription: String?,
         timeoutMillis: Long,
@@ -442,16 +447,6 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
             // executing future tasks on the main thread.
             waitForIdle()
         }
-    }
-
-    override fun <T> runWhenIdle(action: () -> T): T {
-        waitForIdle()
-        return action()
-    }
-
-    override suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T {
-        awaitIdle()
-        return action()
     }
 
     override fun hasPendingWork(): Boolean {
@@ -573,26 +568,6 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
             awaitCancellation()
         }
     }
-}
-
-@ExperimentalTestApi
-actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
-    actual val density: Density
-    actual val mainClock: MainTestClock
-    actual fun <T> runOnUiThread(action: () -> T): T
-    actual fun <T> runOnIdle(action: () -> T): T
-    actual fun waitForIdle()
-    actual suspend fun awaitIdle()
-    actual fun waitUntil(
-        conditionDescription: String?,
-        timeoutMillis: Long,
-        condition: () -> Boolean
-    )
-
-    actual fun setContent(composable: @Composable () -> Unit)
-    actual fun <T> runWhenIdle(action: () -> T): T
-    actual suspend fun <T> awaitAndRunWhenIdle(action: () -> T): T
-    actual fun hasPendingWork(): Boolean
 }
 
 private const val FRAME_DELAY_MILLIS = 16L
