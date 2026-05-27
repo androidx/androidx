@@ -112,6 +112,13 @@ fun ComposeViewport(
             user-select: none;
             
             position: relative;
+            padding: 0;
+        }
+        
+        canvas {
+               display: block;
+               width: 100%;
+               height: 100%;
         }
     """.trimIndent()
     shadowRoot.appendChild(shadowRootStyle)

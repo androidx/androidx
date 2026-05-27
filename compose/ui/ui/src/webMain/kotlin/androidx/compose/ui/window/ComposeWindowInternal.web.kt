@@ -496,13 +496,10 @@ internal class ComposeWindow(
     private fun resize(boxSize: DpSize) {
         val sizeInPx = boxSize.toSize(density).toIntSize()
 
+        // we need to scale canvas both via CSS styling and HTML attributes
+        // https://www.khronos.org/webgl/wiki/HandlingHighDPI
         canvas.width = sizeInPx.width
         canvas.height = sizeInPx.height
-
-        // Scale canvas to allow high DPI rendering as suggested in
-        // https://www.khronos.org/webgl/wiki/HandlingHighDPI.
-        canvas.style.width = "${boxSize.width.value}px"
-        canvas.style.height = "${boxSize.height.value}px"
 
         _windowInfo.containerSize = sizeInPx
         _windowInfo.containerDpSize = boxSize

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,41 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo.bug
 
-import androidx.compose.mpp.demo.Screen
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
 
-val BugReproducers = Screen.Selection(
-    "Bug Reproducers",
-    NoRecompositionInLazyGrid,
-    RoundedCornerCrashOnJS,
-    CodeViewerReproducer,
-    IOSSelectionContainerCrash,
-    IOSDynamicKeyboardType,
-    NoPressInteractionInOutlinedTextField,
-    WebBaselineAlways0,
-    ResizePopupCrashOnJS,
-    ResizeInLazyList,
-)
+body {
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+h1 {
+    padding: 0 16px;
+    font-size: 2em;
+}
+
+#composeApplication {
+    overflow: hidden;
+}
+
+body:has(textarea) {
+    background-color: aliceblue;
+}
+
+body:has(textarea:focus) {
+    background-color: #eaffe3;
+}
+
+body:has(input) {
+    background-color: aliceblue;
+}
+
+body:has(input:focus) {
+    background-color: #eaffe3;
+}
