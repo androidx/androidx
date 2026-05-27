@@ -41,8 +41,8 @@ import androidx.navigationevent.NavigationEventTransitionState.InProgress
  */
 public abstract class NavigationEventInput() {
 
-    /** The [NavigationEventDispatcher] that this input is connected to. */
-    internal var dispatcher: NavigationEventDispatcher? = null
+    /** The current [NavigationEventDispatcher] that this input is connected to. */
+    private var currentDispatcher: NavigationEventDispatcher? = null
 
     /**
      * Tracks if a predictive **back** gesture is currently in progress from this input.
@@ -73,6 +73,10 @@ public abstract class NavigationEventInput() {
     /** @see [NavigationEventProcessor.addInput] */
     @MainThread
     internal fun doOnAdded(dispatcher: NavigationEventDispatcher) {
+        require(currentDispatcher == null) {
+            "Input '$this' is already added to dispatcher ${currentDispatcher}."
+        }
+        currentDispatcher = dispatcher
         onAdded(dispatcher)
     }
 
@@ -88,6 +92,9 @@ public abstract class NavigationEventInput() {
     /** @see [NavigationEventProcessor.removeInput] */
     @MainThread
     internal fun doOnRemoved() {
+        currentDispatcher = null
+        isPredictiveBackInProgress = false
+        isPredictiveForwardInProgress = false
         onRemoved()
     }
 
@@ -145,7 +152,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnBackStarted(event: NavigationEvent) {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         // Don't allow a new gesture to start if one is already in progress.
         if (!isPredictiveBackInProgress) {
@@ -168,7 +175,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnBackProgressed(event: NavigationEvent) {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         if (isPredictiveBackInProgress) {
             dispatcher.dispatchOnProgressed(input = this, direction = TRANSITIONING_BACK, event)
@@ -187,7 +194,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnBackCancelled() {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         if (!isPredictiveBackInProgress) {
             // This is a non-predictive tap.
@@ -215,7 +222,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnBackCompleted() {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         if (!isPredictiveBackInProgress) {
             // This is a non-predictive tap.
@@ -242,7 +249,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnForwardStarted(event: NavigationEvent) {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         // Don't allow a new gesture to start if one is already in progress.
         if (!isPredictiveForwardInProgress) {
@@ -265,7 +272,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnForwardProgressed(event: NavigationEvent) {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         if (isPredictiveForwardInProgress) {
             dispatcher.dispatchOnProgressed(input = this, direction = TRANSITIONING_FORWARD, event)
@@ -284,7 +291,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnForwardCancelled() {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         if (!isPredictiveForwardInProgress) {
             // This is a non-predictive tap.
@@ -316,7 +323,7 @@ public abstract class NavigationEventInput() {
      */
     @MainThread
     protected fun dispatchOnForwardCompleted() {
-        val dispatcher = checkNotNull(dispatcher) { "This input is not added to any dispatcher." }
+        val dispatcher = currentDispatcher ?: return // This input is not added to any dispatcher.
 
         if (!isPredictiveForwardInProgress) {
             // This is a non-predictive tap.
