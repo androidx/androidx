@@ -1045,6 +1045,16 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                     remember(stateForContent == pendingTargetState) {
                         if (stateForContent == pendingTargetState && pendingScope != null) {
                             pendingScope.transitionSpec()
+                        } else if (
+                            stateForContent != segment.initialState &&
+                                stateForContent != segment.targetState
+                        ) {
+                            PendingAnimatedContentTransitionScope(
+                                    rootScope,
+                                    segment.initialState,
+                                    stateForContent,
+                                )
+                                .transitionSpec()
                         } else {
                             rootScope.transitionSpec()
                         }
@@ -1056,10 +1066,22 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                         segment.targetState == stateForContent,
                         stateForContent == pendingTargetState,
                     ) {
-                        if (segment.targetState == stateForContent) {
+                        if (
+                            segment.targetState == stateForContent ||
+                                (stateForContent == pendingTargetState && pendingScope != null)
+                        ) {
                             ExitTransition.None
-                        } else if (stateForContent == pendingTargetState && pendingScope != null) {
-                            pendingScope.transitionSpec().initialContentExit
+                        } else if (
+                            stateForContent != segment.initialState &&
+                                stateForContent != segment.targetState
+                        ) {
+                            PendingAnimatedContentTransitionScope(
+                                    rootScope,
+                                    stateForContent,
+                                    segment.initialState,
+                                )
+                                .transitionSpec()
+                                .initialContentExit
                         } else {
                             rootScope.transitionSpec().initialContentExit
                         }
