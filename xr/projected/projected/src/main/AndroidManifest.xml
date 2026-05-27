@@ -14,9 +14,15 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
+        <activity
+            android:name="androidx.xr.projected.TrampolineRequestPermissionsOnHostActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="false"
+            tools:targetApi="35" />
         <activity android:name="androidx.xr.projected.permissions.RequestPermissionsOnHostActivity"
             android:label="@string/request_permission_on_host_activity_label"
             android:theme="@style/Theme.AppCompat.DayNight"
