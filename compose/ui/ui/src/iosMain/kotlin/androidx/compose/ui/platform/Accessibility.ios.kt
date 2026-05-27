@@ -995,8 +995,7 @@ internal class AccessibilityNotification private constructor(
 ) {
     companion object {
         // For testing purposes only
-        var lastPostedNotificationForTests: AccessibilityNotification? = null
-            private set
+        var onNotificationPostedForTests: ((AccessibilityNotification) -> Unit)? = null
 
         private val notificationsWithFocusedElement = setOf(
             UIAccessibilityScreenChangedNotification,
@@ -1012,7 +1011,7 @@ internal class AccessibilityNotification private constructor(
 
     fun postNotification() {
         val focusNotification = notification in notificationsWithFocusedElement
-        lastPostedNotificationForTests = this
+        onNotificationPostedForTests?.invoke(this)
         UIAccessibilityPostNotification(
             notification,
             argument = if (focusNotification) elementToFocus?.value else message

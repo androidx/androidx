@@ -63,7 +63,7 @@ class AccessibilityFocusRequesterTest {
 
         assertEquals(
             expected = findNodeWithLabel("Text B").element,
-            actual = AccessibilityNotification.lastPostedNotificationForTests?.elementToFocus?.value
+            actual = lastAccessibilityNotification?.elementToFocus?.value
         )
 
         focusRequesterA.requestFocus()
@@ -71,7 +71,7 @@ class AccessibilityFocusRequesterTest {
 
         assertEquals(
             expected = findNodeWithLabel("Text A").element,
-            actual = AccessibilityNotification.lastPostedNotificationForTests?.elementToFocus?.value
+            actual = lastAccessibilityNotification?.elementToFocus?.value
         )
     }
 
@@ -102,7 +102,7 @@ class AccessibilityFocusRequesterTest {
 
         assertEquals(
             expected = findNodeWithLabel("Text 1").element,
-            actual = AccessibilityNotification.lastPostedNotificationForTests?.elementToFocus?.value
+            actual = lastAccessibilityNotification?.elementToFocus?.value
         )
     }
 }
