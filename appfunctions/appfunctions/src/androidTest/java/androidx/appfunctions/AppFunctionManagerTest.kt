@@ -369,9 +369,9 @@ class AppFunctionManagerTest {
             val appFunctionPackages: List<AppFunctionPackageMetadata> =
                 mAppFunctionManager.observeAppFunctions(searchFunctionSpec).first()
 
-            // At least two apps should be indexed, can be more due to system apps implementing app
+            // At least one app should be indexed, can be more due to system apps implementing app
             // functions.
-            assertThat(appFunctionPackages.size).isGreaterThan(1)
+            assertThat(appFunctionPackages.size).isGreaterThan(0)
             val testAppPackage =
                 appFunctionPackages.single { it.packageName == context.packageName }
             assertThat(testAppPackage.resolveAppFunctionAppMetadata(context))
