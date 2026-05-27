@@ -47,6 +47,7 @@ internal abstract class RemoteComposeNode {
 
             creationState.document.startCanvasOperations()
             drawWithContent.onDraw(drawWithContentScope)
+            remoteCanvas.internalCanvas.buffer.flush(creationState)
             creationState.document.endCanvasOperations()
         }
 

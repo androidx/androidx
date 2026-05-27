@@ -33,9 +33,10 @@ import androidx.compose.ui.graphics.asAndroidBitmap
  * offscreen buffer.
  */
 public abstract class RemoteBitmap
-internal constructor(public override val constantValueOrNull: ImageBitmap?) :
-    BaseRemoteState<ImageBitmap>() {
-    abstract override val cacheKey: RemoteStateCacheKey
+internal constructor(
+    public override val constantValueOrNull: ImageBitmap?,
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<ImageBitmap>(cacheKey) {
 
     internal enum class OperationKey {
         Width,
@@ -135,9 +136,8 @@ internal constructor(public override val constantValueOrNull: ImageBitmap?) :
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createOffscreenRemoteBitmap(width: Int, height: Int): RemoteBitmap =
-            object : RemoteBitmap(null) {
+            object : RemoteBitmap(null, RemoteStateInstanceKey()) {
                 public override val constantValueOrNull: ImageBitmap? = null
-                override val cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey()
 
                 public override fun writeToDocument(
                     creationState: RemoteComposeCreationState
@@ -152,8 +152,9 @@ internal constructor(
     constantValueOrNull: ImageBitmap?,
     cacheKey: RemoteStateCacheKey?,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : RemoteBitmap(constantValueOrNull), MutableRemoteState<ImageBitmap> {
-    internal override val cacheKey: RemoteStateCacheKey = cacheKey ?: RemoteStateInstanceKey()
+) :
+    RemoteBitmap(constantValueOrNull, cacheKey ?: RemoteStateInstanceKey()),
+    MutableRemoteState<ImageBitmap> {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =

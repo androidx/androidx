@@ -819,6 +819,9 @@ class RecordingCanvasTest {
 
     private fun constructDocument() =
         CoreDocument(clock).apply {
+            // Needed because RecordingCanvas buffers up operations to facilitate global CSE &
+            // hoisting passes.
+            recordingCanvas.buffer.flush(creationState)
             recordingBuffer.writeToBuffer()
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0
@@ -834,6 +837,9 @@ class RecordingCanvasTest {
     }
 
     private fun inflateOperations(): ArrayList<Operation> {
+        // Needed because RecordingCanvas buffers up operations to facilitate global CSE &
+        // hoisting passes.
+        recordingCanvas.flush()
         recordingBuffer.writeToBuffer()
         val buffer = creationState.document.buffer
         buffer.buffer.index = 0

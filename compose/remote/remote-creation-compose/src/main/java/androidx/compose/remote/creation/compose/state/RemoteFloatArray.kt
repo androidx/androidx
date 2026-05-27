@@ -25,18 +25,26 @@ import androidx.compose.ui.util.fastMap
 
 /** Represents an array of floats. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteFloatArray(public override val constantValueOrNull: List<RemoteFloat>?) :
-    BaseRemoteState<List<RemoteFloat>>() {
+public class RemoteFloatArray
+internal constructor(
+    public override val constantValueOrNull: List<RemoteFloat>?,
+    internal override val cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<List<RemoteFloat>>(cacheKey) {
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        constantValueOrNull: List<RemoteFloat>?
+    ) : this(
+        constantValueOrNull,
+        constantValueOrNull?.let { values ->
+            RemoteOperationCacheKey.create(OperationKey.Create, *values.toTypedArray())
+        } ?: RemoteStateInstanceKey(),
+    )
 
     internal enum class OperationKey {
         Create,
         Get,
     }
-
-    internal override val cacheKey: RemoteStateCacheKey =
-        constantValueOrNull?.let { values ->
-            RemoteOperationCacheKey.create(OperationKey.Create, *values.toTypedArray())
-        } ?: RemoteStateInstanceKey()
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val asFloat =

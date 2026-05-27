@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.isSpecified
 public class RemoteDp
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val value: RemoteFloat
-) : BaseRemoteState<Dp>() {
+) : BaseRemoteState<Dp>(RemoteStateInstanceKey()) {
     internal override val cacheKey: RemoteStateCacheKey
         get() = toPx().cacheKey
 

@@ -148,8 +148,18 @@ internal class RemoteComponentCacheKey(private val componentId: Int, private val
  */
 internal class RemoteOperationCacheKey(
     internal val op: Enum<*>,
-    private val args: List<RemoteStateCacheKey>,
+    internal val args: List<RemoteStateCacheKey>,
 ) : BaseRemoteStateCacheKey() {
+
+    /** Parent RemoteState, used for common sub expression elimination. */
+    internal var state: RemoteState<*>? = null
+        set(value) {
+            if (field != null) {
+                throw IllegalStateException("state can only be set once.")
+            }
+            field = value
+        }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteOperationCacheKey) return false

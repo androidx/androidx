@@ -31,9 +31,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteMutableFloatArray
 /** Constructs a [RemoteMutableFloatArray] with [size] elements which are initialized to 0 */
-constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>() {
-
-    override val cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey()
+constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteStateInstanceKey()) {
 
     public override val constantValueOrNull: List<RemoteFloat>? = null
 
