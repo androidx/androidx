@@ -24,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.draganddrop.WebDragAndDropManager
 import androidx.compose.ui.events.EventTargetListener
@@ -172,6 +174,12 @@ internal class DefaultWindowState(private val viewportContainer: Element) : Comp
     override fun sizeFlow() = channel.receiveAsFlow()
 }
 
+@VisibleForTesting
+// This value is for internal usage, for example, to call ComposeWindow.dispose() in the tests
+internal val LocalComposeWindow: ProvidableCompositionLocal<ComposeWindow?> = staticCompositionLocalOf {
+    error("ComposeWindow is not available in this composition")
+}
+
 @OptIn(InternalComposeApi::class)
 internal class ComposeWindow(
     private val canvas: HTMLCanvasElement,
@@ -251,7 +259,6 @@ internal class ComposeWindow(
             override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener? =
                 if (configuration.isA11YEnabled) {
                     ComposeWebSemanticsListener(
-                        coroutineScope = MainScope(),
                         webSemanticsRoot = a11yContainerElement?.apply {
                             setAttribute("aria-label", "")
                             setAttribute("role", "presentation")
@@ -468,6 +475,7 @@ internal class ComposeWindow(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
                 LocalInteropContainer provides interopContainer,
                 LocalActiveClipEventsTarget provides clipEventsTargetProvider,
+                LocalComposeWindow provides this,
                 content = {
                     installFallbackFontDownloader()
                     interopContainer.TrackInteropPlacementContainer {
@@ -479,6 +487,18 @@ internal class ComposeWindow(
                             // Convert to proper type: IntSize was exposed to public API with meaning of DPs.
                             val boxSize = DpSize(size.width.dp, size.height.dp)
                             this@ComposeWindow.resize(boxSize)
+                        }
+                    }
+
+                    val webSemanticsListener = platformContext.semanticsOwnerListener as? ComposeWebSemanticsListener
+                    if (webSemanticsListener != null) {
+                        LaunchedEffect(Unit) {
+                            coroutineScope {
+                                // The initial composition would create a lot of noisy invalidations,
+                                // so it makes sense to start the listener here - after the initial composition.
+                                // The composition's coroutine scope ties the listener's lifetime to the composition.
+                                webSemanticsListener.start(this)
+                            }
                         }
                     }
                 }

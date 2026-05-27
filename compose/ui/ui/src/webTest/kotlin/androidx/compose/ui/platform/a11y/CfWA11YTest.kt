@@ -62,11 +62,11 @@ import org.w3c.dom.get
  *   That's why it's better to use an Int state in such tests, so the change in HTML will be noticed 100%.
  * - Note: running the k/js tests in FF takes 15% longer than in Chrome. K/Wasm is fast in both cases.
  */
-@Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-10001/Fix-CfWA11YTest.a11yButtonClick-is-too-flaky
 class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun a11yButtonClick() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var clickCounter = 0
 
         createComposeWindow {
@@ -97,6 +97,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun changesAreApplied() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var clickCounter1 = 0
         var clickCounter2 = 0
 
@@ -158,6 +159,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun orderOfElements() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var show1 by mutableStateOf(true)
         var show2 by mutableStateOf(false)
         var show3 by mutableStateOf(false)
@@ -226,6 +228,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun changesMustBeBatched() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var value by mutableStateOf(0)
 
         var recompositions = 0
@@ -273,6 +276,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun changesMustBeAppliedDespiteConstantDebounceAfter1Second() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var value by mutableStateOf(0)
 
         createComposeWindow {
@@ -328,6 +332,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun noChangesFor1SecondTheDebounceShouldWork() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var show by mutableStateOf(true)
 
         var recompositions = 0
@@ -364,6 +369,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun clickListenerMustBeUpdated() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var clickCounter1 = 0
         var clickCounter2 = 0
 
@@ -412,6 +418,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun noA11YRootAndElementsWithDisabledA11Y() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         createComposeWindow(
             configure = { isA11YEnabled = false }
         ) {
@@ -435,6 +442,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun modifierTestTagIsSetToId() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var showButton by mutableStateOf(true)
         var clickCounter = 0
 
@@ -466,6 +474,7 @@ class CfWA11YTest : OnCanvasTests {
 
     @Test
     fun textFieldHasTextBoxRole() = runApplicationTest {
+        assertEquals(0, getContainer().childElementCount, "No content expected before a composition")
         var text by mutableStateOf("Hello, World!")
 
         createComposeWindow {
