@@ -162,7 +162,7 @@ class WindowInsetsRulersTest {
 
     private fun sendOnApplyWindowInsets(insets: WindowInsetsCompat) {
         val view = composeView.parent as View
-        rule.runOnIdle { composeView.insetsWatcher.onApplyWindowInsets(view, insets) }
+        rule.runOnIdle { composeView.insetsListener.onApplyWindowInsets(view, insets) }
     }
 
     private fun startAnimation(
@@ -174,7 +174,7 @@ class WindowInsetsRulersTest {
     ) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val insetsListener = composeView.insetsWatcher
+            val insetsListener = composeView.insetsListener
             insetsListener.onPrepare(animation)
             insetsListener.onApplyWindowInsets(view, createInsets(type to target))
             insetsListener.onStart(animation, BoundsCompat(low, high))
@@ -187,7 +187,7 @@ class WindowInsetsRulersTest {
     ) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val insetsListener = composeView.insetsWatcher
+            val insetsListener = composeView.insetsListener
             insetsListener.onProgress(insets, mutableListOf(animation))
             insetsListener.onApplyWindowInsets(view, insets)
         }
@@ -196,7 +196,7 @@ class WindowInsetsRulersTest {
     private fun endAnimation(animation: WindowInsetsAnimationCompat, insets: WindowInsetsCompat) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val insetsListener = composeView.insetsWatcher
+            val insetsListener = composeView.insetsListener
             insetsListener.onEnd(animation)
             insetsListener.onApplyWindowInsets(view, insets)
         }
@@ -773,9 +773,9 @@ class WindowInsetsRulersTest {
                     Type.tappableElement() to Insets.of(0, 0, 0, 13),
                 )
             val view = composeView.parent as View
-            composeView.insetsWatcher.onApplyWindowInsets(view, insets)
+            composeView.insetsListener.onApplyWindowInsets(view, insets)
             val dialogView = dialogComposeView.parent as View
-            dialogComposeView.insetsWatcher.onApplyWindowInsets(dialogView, createInsets())
+            dialogComposeView.insetsListener.onApplyWindowInsets(dialogView, createInsets())
         }
 
         rule.runOnIdle {
@@ -823,9 +823,9 @@ class WindowInsetsRulersTest {
                     Type.tappableElement() to Insets.of(0, 0, 0, 13),
                 )
             val view = composeView.parent as View
-            composeView.insetsWatcher.onApplyWindowInsets(view, insets)
+            composeView.insetsListener.onApplyWindowInsets(view, insets)
             val dialogView = dialogComposeView.parent as View
-            dialogComposeView.insetsWatcher.onApplyWindowInsets(dialogView, insets)
+            dialogComposeView.insetsListener.onApplyWindowInsets(dialogView, insets)
         }
 
         rule.runOnIdle {
