@@ -36,18 +36,18 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 /**
- * Defines an object that has an Android Lifecycle. [Fragment][androidx.fragment.app.Fragment] and
- * [FragmentActivity][androidx.fragment.app.FragmentActivity] classes implement [LifecycleOwner]
- * interface which has the [ getLifecycle][LifecycleOwner.lifecycle] method to access the Lifecycle.
- * You can also implement [LifecycleOwner] in your own classes.
+ * Defines an object that has an Android Lifecycle. `androidx.fragment.app.Fragment` and
+ * `androidx.fragment.app.FragmentActivity` classes implement [LifecycleOwner] interface which has
+ * the [ getLifecycle][LifecycleOwner.lifecycle] method to access the Lifecycle. You can also
+ * implement [LifecycleOwner] in your own classes.
  *
  * [Event.ON_CREATE], [Event.ON_START], [Event.ON_RESUME] events in this class are dispatched
  * **after** the [LifecycleOwner]'s related method returns. [Event.ON_PAUSE], [Event.ON_STOP],
  * [Event.ON_DESTROY] events in this class are dispatched **before** the [LifecycleOwner]'s related
  * method is called. For instance, [Event.ON_START] will be dispatched after
- * [onStart][android.app.Activity.onStart] returns, [Event.ON_STOP] will be dispatched before
- * [onStop][android.app.Activity.onStop] is called. This gives you certain guarantees on which state
- * the owner is in.
+ * `android.app.Activity.onStart` returns, [Event.ON_STOP] will be dispatched before
+ * `android.app.Activity.onStop` is called. This gives you certain guarantees on which state the
+ * owner is in.
  *
  * To observe lifecycle events call [.addObserver] passing an object that implements either
  * [DefaultLifecycleObserver] or [LifecycleEventObserver].
@@ -81,7 +81,7 @@ public abstract class Lifecycle {
      * * If the given observer has not yet received that event, it will not receive it.
      * * If the given observer has more than 1 method that observes the currently dispatched event
      *   and at least one of them received the event, all of them will receive the event and the
-     *   removal will happen afterwards.
+     *   removal will happen afterward.
      *
      * @param observer The observer to be removed.
      */
@@ -101,7 +101,7 @@ public abstract class Lifecycle {
      * @return [StateFlow] where the [StateFlow.value] represents the current [State] of this
      *   Lifecycle.
      */
-    public open val currentStateFlow: StateFlow<Lifecycle.State>
+    public open val currentStateFlow: StateFlow<State>
         get() {
             val mutableStateFlow = MutableStateFlow(currentState)
             LifecycleEventObserver { _, event -> mutableStateFlow.value = event.targetState }
@@ -136,7 +136,7 @@ public abstract class Lifecycle {
          * [Lifecycle.Event].
          *
          * Throws [IllegalArgumentException] if called on [.ON_ANY], as it is a special value used
-         * by [OnLifecycleEvent] and not a real lifecycle event.
+         * by `androidx.lifecycle.OnLifecycleEvent` and not a real lifecycle event.
          *
          * @return the state that will result from this event
          */
@@ -236,37 +236,36 @@ public abstract class Lifecycle {
     public enum class State {
         /**
          * Destroyed state for a LifecycleOwner. After this event, this Lifecycle will not dispatch
-         * any more events. For instance, for an [android.app.Activity], this state is reached
-         * **right before** Activity's [onDestroy][android.app.Activity.onDestroy] call.
+         * any more events. For instance, for an `android.app.Activity`, this state is reached
+         * **right before** `android.app.Activity.onDestroy` call.
          */
         DESTROYED,
 
         /**
-         * Initialized state for a LifecycleOwner. For an [android.app.Activity], this is the state
-         * when it is constructed but has not received [onCreate][android.app.Activity.onCreate]
-         * yet.
+         * Initialized state for a LifecycleOwner. For an `android.app.Activity`, this is the state
+         * when it is constructed but has not received `android.app.Activity.onCreate` yet.
          */
         INITIALIZED,
 
         /**
-         * Created state for a LifecycleOwner. For an [android.app.Activity], this state is reached
+         * Created state for a LifecycleOwner. For an `android.app.Activity`, this state is reached
          * in two cases:
-         * * after [onCreate][android.app.Activity.onCreate] call;
-         * * **right before** [onStop][android.app.Activity.onStop] call.
+         * * after `android.app.Activity.onCreate` call;
+         * * **right before** `android.app.Activity.onStop` call.
          */
         CREATED,
 
         /**
-         * Started state for a LifecycleOwner. For an [android.app.Activity], this state is reached
-         * in two cases:
-         * * after [onStart][android.app.Activity.onStart] call;
-         * * **right before** [onPause][android.app.Activity.onPause] call.
+         * Started state for a [LifecycleOwner]. For an `android.app.Activity`, this state is
+         * reached in two cases:
+         * * after `android.app.Activity.onStart` call;
+         * * **right before** `android.app.Activity.onPause` call.
          */
         STARTED,
 
         /**
-         * Resumed state for a LifecycleOwner. For an [android.app.Activity], this state is reached
-         * after [onResume][android.app.Activity.onResume] is called.
+         * Resumed state for a LifecycleOwner. For an `android.app.Activity`, this state is reached
+         * after `android.app.Activity.onResume` is called.
          */
         RESUMED;
 
@@ -298,7 +297,7 @@ public constructor(initialValue: V) {
 /**
  * [CoroutineScope] tied to this [Lifecycle].
  *
- * This scope will be cancelled when the [Lifecycle] is destroyed.
+ * This scope will be canceled when the [Lifecycle] is destroyed.
  *
  * This scope is bound to
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
@@ -323,7 +322,7 @@ public val Lifecycle.coroutineScope: LifecycleCoroutineScope
  * [CoroutineScope] tied to a [Lifecycle] and
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  *
- * This scope will be cancelled when the [Lifecycle] is destroyed.
+ * This scope will be canceled when the [Lifecycle] is destroyed.
  */
 public expect abstract class LifecycleCoroutineScope internal constructor() : CoroutineScope {
     internal abstract val lifecycle: Lifecycle
@@ -334,9 +333,9 @@ internal class LifecycleCoroutineScopeImpl(
     override val coroutineContext: CoroutineContext,
 ) : LifecycleCoroutineScope(), LifecycleEventObserver {
     init {
-        // in case we are initialized on a non-main thread, make a best effort check before
+        // in case we are initialized on a non-main thread, make the best effort check before
         // we return the scope. This is not sync but if developer is launching on a non-main
-        // dispatcher, they cannot be 100% sure anyways.
+        // dispatcher, they cannot be 100% sure anyway.
         if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
             coroutineContext.cancel()
         }

@@ -35,11 +35,11 @@ import kotlinx.coroutines.flow.StateFlow
  * These values will persist after the process is killed by the system and remain available via the
  * same object.
  *
- * You can read a value from it via [get] or observe it via [androidx.lifecycle.LiveData] returned
- * by [getLiveData].
+ * You can read a value from it via [get] or observe it via `androidx.lifecycle.LiveData` returned
+ * by `getLiveData`.
  *
- * You can write a value to it via [set] or setting a value to [androidx.lifecycle.MutableLiveData]
- * returned by [getLiveData].
+ * You can write a value to it via [set] or setting a value to `androidx.lifecycle.MutableLiveData`
+ * returned by `getLiveData`.
  */
 public expect class SavedStateHandle {
 
@@ -93,11 +93,11 @@ public expect class SavedStateHandle {
      *
      * If there is already a value associated with the given key, the initial value will be ignored.
      *
-     * Note: If [T] is an [Array] of [Parcelable] classes, note that you should always use
-     * `Array<Parcelable>` and create a typed array from the result as going through process death
-     * and recreation (or using the `Don't keep activities` developer option) will result in the
-     * type information being lost, thus resulting in a `ClassCastException` if you directly try to
-     * collect the result as an `Array<CustomParcelable>`.
+     * Note: If [T] is an [Array] of `android.os.Parcelable` classes, note that you should always
+     * use `Array<Parcelable>` and create a typed array from the result as going through process
+     * death and recreation (or using the `Don't keep activities` developer option) will result in
+     * the type information being lost, thus resulting in a `ClassCastException` if you directly try
+     * to collect the result as an `Array<CustomParcelable>`.
      *
      * ```
      * val typedArrayFlow = savedStateHandle.getStateFlow<Array<Parcelable>>(
@@ -166,11 +166,11 @@ public expect class SavedStateHandle {
     /**
      * Returns a value associated with the given key.
      *
-     * Note: If [T] is an [Array] of [Parcelable] classes, note that you should always use
-     * `Array<Parcelable>` and create a typed array from the result as going through process death
-     * and recreation (or using the `Don't keep activities` developer option) will result in the
-     * type information being lost, thus resulting in a `ClassCastException` if you directly try to
-     * assign the result to an `Array<CustomParcelable>` value.
+     * Note: If [T] is an [Array] of `android.os.Parcelable` classes, note that you should always
+     * use `Array<Parcelable>` and create a typed array from the result as going through process
+     * death and recreation (or using the `Don't keep activities` developer option) will result in
+     * the type information being lost, thus resulting in a `ClassCastException` if you directly try
+     * to assign the result to an `Array<CustomParcelable>` value.
      *
      * ```
      * val typedArray = savedStateHandle.get<Array<Parcelable>>("KEY").map {
@@ -186,7 +186,7 @@ public expect class SavedStateHandle {
      * Associate the given value with the key. The value must have a type that could be stored in
      * [SavedState]
      *
-     * This also sets values for any active [LiveData]s or [StateFlow]s.
+     * This also sets values for any active `androidx.lifecycle.LiveData` or [StateFlow].
      *
      * @param key a key used to associate with the given value.
      * @param value object of any type that can be accepted by Bundle.
@@ -195,12 +195,12 @@ public expect class SavedStateHandle {
     @MainThread public operator fun <T> set(key: String, value: T?)
 
     /**
-     * Removes a value associated with the given key. If there is a [LiveData] and/or [StateFlow]
-     * associated with the given key, they will be removed as well.
+     * Removes a value associated with the given key. If there is a `androidx.lifecycle.LiveData`
+     * and/or [StateFlow] associated with the given key, they will be removed as well.
      *
-     * All changes to [androidx.lifecycle.LiveData]s or [StateFlow]s previously returned by
-     * [SavedStateHandle.getLiveData] or [getStateFlow] won't be reflected in the saved state. Also
-     * that `LiveData` or `StateFlow` won't receive any updates about new values associated by the
+     * All changes to `LiveData` or [StateFlow] previously returned by
+     * `SavedStateHandle.getLiveData` or [getStateFlow] won't be reflected in the saved state. Also,
+     * that `LiveData` or [StateFlow] won't receive any updates about new values associated by the
      * given key.
      *
      * @param key a key
