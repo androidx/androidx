@@ -197,6 +197,8 @@ public constructor(
                 "Cannot create a new session on a destroyed lifecycleOwner."
             }
 
+            val coroutineScope = CoroutineScope(coroutineContext)
+
             if (contextSessionMap.containsKey(context)) {
                 return SessionCreateSuccess(contextSessionMap[context]!!)
             }
@@ -210,8 +212,7 @@ public constructor(
                     loadProviders(PerceptionRuntimeFactory::class.java, RUNTIME_FACTORY_PROVIDERS),
                     features,
                 )
-            val perceptionRuntime =
-                perceptionRuntimeFactory?.createRuntime(context, coroutineContext)
+            val perceptionRuntime = perceptionRuntimeFactory?.createRuntime(context, coroutineScope)
             try {
                 perceptionRuntime?.initialize()
             } catch (e: ApkNotInstalledException) {
@@ -278,7 +279,7 @@ public constructor(
                     stateExtenders,
                     sessionConnectors,
                     runtimes,
-                    CoroutineScope(context = coroutineContext),
+                    coroutineScope,
                     lifecycleOwner,
                 )
 

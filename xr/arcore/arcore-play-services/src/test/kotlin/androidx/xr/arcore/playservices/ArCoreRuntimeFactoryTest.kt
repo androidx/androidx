@@ -23,6 +23,7 @@ import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import com.google.common.truth.Truth.assertThat
 import java.util.ServiceLoader
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -51,7 +52,7 @@ class ArCoreRuntimeFactoryTest {
         val factory = ArCoreRuntimeFactory()
 
         activityRule.scenario.onActivity {
-            val runtime = factory.createRuntime(it, EmptyCoroutineContext)
+            val runtime = factory.createRuntime(it, CoroutineScope(EmptyCoroutineContext))
 
             assertThat(runtime).isInstanceOf(ArCoreRuntime::class.java)
         }
