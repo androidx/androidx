@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -44,8 +45,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -55,7 +58,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -100,6 +106,8 @@ class OneHandedGestureTest {
     fun simple_primary_gesture() {
         var gestured = false
         var indicatorAction: GestureAction? = null
+        var pressCoordinates: Offset = Offset.Zero
+        var textSize: IntSize = IntSize.Zero
         val sdkGestureInputManager = SdkGestureInputManagerMock()
         val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
 
@@ -109,16 +117,20 @@ class OneHandedGestureTest {
                 Text(
                     "Clickable",
                     modifier =
-                        Modifier.oneHandedGesture(
-                            action = GestureAction.Primary,
-                            interactionSource = interactionSource,
-                        ) {
-                            gestured = true
-                        },
+                        Modifier.onSizeChanged { textSize = it }
+                            .oneHandedGesture(
+                                action = GestureAction.Primary,
+                                interactionSource = interactionSource,
+                            ) {
+                                gestured = true
+                            },
                 )
             }
 
-            interactionSource.ListenForGestureInteraction { action -> indicatorAction = action }
+            interactionSource.ListenForInteractions(
+                onPressInteraction = { pressCoordinates = it },
+                onGestureInteraction = { indicatorAction = it },
+            )
         }
 
         // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
@@ -128,6 +140,7 @@ class OneHandedGestureTest {
         rule.runOnIdle {
             assertEquals(true, gestured)
             assertEquals(GestureAction.Primary, indicatorAction)
+            assertEquals(textSize.center.toOffset(), pressCoordinates)
 
             assertThat(hapticResults).hasSize(1)
             assertEquals(hapticResults[HapticFeedbackType.LongPress], 1)
@@ -139,6 +152,8 @@ class OneHandedGestureTest {
     fun simple_dismiss_gesture() {
         var gestured = false
         var indicatorAction: GestureAction? = null
+        var pressCoordinates: Offset = Offset.Zero
+        var textSize: IntSize = IntSize.Zero
         val sdkGestureInputManager = SdkGestureInputManagerMock()
         val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
 
@@ -148,15 +163,19 @@ class OneHandedGestureTest {
                 Text(
                     "Clickable",
                     modifier =
-                        Modifier.oneHandedGesture(
-                            action = GestureAction.Dismiss,
-                            interactionSource = interactionSource,
-                        ) {
-                            gestured = true
-                        },
+                        Modifier.onSizeChanged { textSize = it }
+                            .oneHandedGesture(
+                                action = GestureAction.Dismiss,
+                                interactionSource = interactionSource,
+                            ) {
+                                gestured = true
+                            },
                 )
             }
-            interactionSource.ListenForGestureInteraction { action -> indicatorAction = action }
+            interactionSource.ListenForInteractions(
+                onPressInteraction = { pressCoordinates = it },
+                onGestureInteraction = { indicatorAction = it },
+            )
         }
 
         // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
@@ -167,6 +186,7 @@ class OneHandedGestureTest {
         rule.runOnIdle {
             assertEquals(true, gestured)
             assertEquals(GestureAction.Dismiss, indicatorAction)
+            assertEquals(textSize.center.toOffset(), pressCoordinates)
 
             assertThat(hapticResults).hasSize(1)
             assertEquals(hapticResults[HapticFeedbackType.LongPress], 1)
@@ -212,13 +232,9 @@ class OneHandedGestureTest {
                 }
             }
 
-            tlcInteractionSource.ListenForGestureInteraction { action ->
-                tlcIndicatorAction = action
-            }
+            tlcInteractionSource.ListenForInteractions { action -> tlcIndicatorAction = action }
 
-            textInteractionSource.ListenForGestureInteraction { action ->
-                textIndicatorAction = action
-            }
+            textInteractionSource.ListenForInteractions { action -> textIndicatorAction = action }
         }
 
         // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
@@ -265,7 +281,7 @@ class OneHandedGestureTest {
                                     textGestured[index] = true
                                 },
                         )
-                        interactionSource.ListenForGestureInteraction { action ->
+                        interactionSource.ListenForInteractions { action ->
                             textIndicatorActions[index] = action
                         }
                     }
@@ -795,13 +811,16 @@ class OneHandedGestureTest {
     }
 
     @Composable
-    private fun InteractionSource.ListenForGestureInteraction(
-        onGestureInteraction: (GestureAction) -> Unit
+    private fun InteractionSource.ListenForInteractions(
+        onPressInteraction: (Offset) -> Unit = {},
+        onGestureInteraction: (GestureAction) -> Unit,
     ) {
         LaunchedEffect(this) {
             interactions.collect { interaction ->
                 if (interaction is OneHandedGestureInteraction.Indicate) {
                     onGestureInteraction(interaction.action)
+                } else if (interaction is PressInteraction.Press) {
+                    onPressInteraction(interaction.pressPosition)
                 }
             }
         }

@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
@@ -231,7 +233,10 @@ private class GestureElement(val config: GestureConfig) : ModifierNodeElement<Ge
 }
 
 private class GestureNode(var config: GestureConfig) :
-    Modifier.Node(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
+    Modifier.Node(),
+    CompositionLocalConsumerModifierNode,
+    ObserverModifierNode,
+    LayoutAwareModifierNode {
 
     private var gestureManager: GestureManager? = null
     private var localScreenIsActive = false
@@ -252,6 +257,10 @@ private class GestureNode(var config: GestureConfig) :
         localScreenIsActive = false
         currentView = null
         hapticFeedback = null
+    }
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        size = coordinates.size
     }
 
     fun updateGesture(newConfig: GestureConfig) {
