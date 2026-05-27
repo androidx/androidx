@@ -236,8 +236,8 @@ public abstract class Tracer {
      *   sections as a forest, and require that there is at least one top level root span.
      * @param metadataBlock The lambda that can be used to decorate the trace event with additional
      *   debug annotations.
-     * @param block The block of code being traced.
-     * @return The [AutoCloseable] instance that can be used to close the trace section.
+     * @param block The [block] of code being traced.
+     * @return [T] as returned by the [block] being traced.
      */
     @JvmOverloads
     public inline fun <T> trace(
@@ -293,8 +293,8 @@ public abstract class Tracer {
      *   sections as a forest, and require that there is at least one top level root span.
      * @param metadataBlock The lambda that can be used to decorate the trace event with additional
      *   debug annotations.
-     * @param block The suspending block of code being traced.
-     * @return The [AutoCloseable] instance that can be used to close the trace section.
+     * @param block The suspending [block] of code being traced.
+     * @return [T] as returned by the suspending [block] being traced.
      */
     @JvmOverloads
     public suspend inline fun <T> traceCoroutine(
