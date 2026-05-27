@@ -20,6 +20,7 @@ import android.view.View
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositeKeyHashCode
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -104,7 +105,14 @@ public fun Modifier.oneHandedGesture(
     interactionSource: MutableInteractionSource? = null,
     onGesture: suspend () -> Unit,
 ): Modifier {
-    val key = currentCompositeKeyHashCode.toString(MaxSupportedRadix)
+    val hash = currentCompositeKeyHashCode
+
+    val key =
+        remember(hash, action, priority) {
+            hash.toString(MaxSupportedRadix) +
+                action.value.toString().padStart(2, '0') +
+                priority.value.toString().padStart(3, '0')
+        }
     return then(
         Modifier.oneHandedGesture(
             action = action,

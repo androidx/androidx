@@ -90,6 +90,8 @@ import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
@@ -129,7 +131,7 @@ class OneHandedGestureTest {
 
             interactionSource.ListenForInteractions(
                 onPressInteraction = { pressCoordinates = it },
-                onGestureInteraction = { indicatorAction = it },
+                onGestureInteraction = { interaction -> indicatorAction = interaction.action },
             )
         }
 
@@ -174,7 +176,7 @@ class OneHandedGestureTest {
             }
             interactionSource.ListenForInteractions(
                 onPressInteraction = { pressCoordinates = it },
-                onGestureInteraction = { indicatorAction = it },
+                onGestureInteraction = { interaction -> indicatorAction = interaction.action },
             )
         }
 
@@ -232,9 +234,13 @@ class OneHandedGestureTest {
                 }
             }
 
-            tlcInteractionSource.ListenForInteractions { action -> tlcIndicatorAction = action }
+            tlcInteractionSource.ListenForInteractions { interaction ->
+                tlcIndicatorAction = interaction.action
+            }
 
-            textInteractionSource.ListenForInteractions { action -> textIndicatorAction = action }
+            textInteractionSource.ListenForInteractions { interaction ->
+                textIndicatorAction = interaction.action
+            }
         }
 
         // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
@@ -281,8 +287,8 @@ class OneHandedGestureTest {
                                     textGestured[index] = true
                                 },
                         )
-                        interactionSource.ListenForInteractions { action ->
-                            textIndicatorActions[index] = action
+                        interactionSource.ListenForInteractions { indicator ->
+                            textIndicatorActions[index] = indicator.action
                         }
                     }
                 }
@@ -605,6 +611,57 @@ class OneHandedGestureTest {
     }
 
     @Test
+    fun key_uniqueness() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val primaryInteractionSource = MutableInteractionSource()
+        val dismissInteractionSource = MutableInteractionSource()
+
+        var primaryKey: String? = null
+        var dismissKey: String? = null
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Button(
+                    onClick = {},
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            interactionSource = primaryInteractionSource,
+                            onGesture = {},
+                        ),
+                ) {
+                    Text("Primary")
+                }
+                Button(
+                    onClick = {},
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Dismiss,
+                            interactionSource = dismissInteractionSource,
+                            onGesture = {},
+                        ),
+                ) {
+                    Text("Dismiss")
+                }
+            }
+            primaryInteractionSource.ListenForInteractions { interaction ->
+                primaryKey = interaction.key
+            }
+            dismissInteractionSource.ListenForInteractions { interaction ->
+                dismissKey = interaction.key
+            }
+        }
+
+        // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
+        rule.mainClock.advanceTimeBy(3000)
+        rule.runOnIdle {
+            assertNotNull(primaryKey)
+            assertNotNull(dismissKey)
+            assertNotEquals(primaryKey, dismissKey)
+        }
+    }
+
+    @Test
     fun gesture_indicator_colors() {
         val tintColor = Color.Yellow
         val interactionSource = MutableInteractionSource()
@@ -813,12 +870,12 @@ class OneHandedGestureTest {
     @Composable
     private fun InteractionSource.ListenForInteractions(
         onPressInteraction: (Offset) -> Unit = {},
-        onGestureInteraction: (GestureAction) -> Unit,
+        onGestureInteraction: (OneHandedGestureInteraction.Indicate) -> Unit,
     ) {
         LaunchedEffect(this) {
             interactions.collect { interaction ->
                 if (interaction is OneHandedGestureInteraction.Indicate) {
-                    onGestureInteraction(interaction.action)
+                    onGestureInteraction(interaction)
                 } else if (interaction is PressInteraction.Press) {
                     onPressInteraction(interaction.pressPosition)
                 }
