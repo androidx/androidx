@@ -112,8 +112,6 @@ androidXMultiplatform {
         desktopTest.dependsOn(nonAndroidTest)
         nativeTest.dependsOn(nonAndroidTest)
         webTest.dependsOn(nonAndroidTest)
-
-        desktopTest.dependsOn(jvmAndAndroidTest)
     }
 }
 

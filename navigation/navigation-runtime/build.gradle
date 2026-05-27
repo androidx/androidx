@@ -24,7 +24,6 @@
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -64,12 +63,15 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
         }
 
-        androidMain.dependencies {
-            api("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-            api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+        androidMain {
+            kotlin.srcDirs += "src/androidMain/java"
+            dependencies {
+                api("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+                api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
             api("androidx.activity:activity-ktx:1.7.1")
             api("androidx.core:core-ktx:1.8.0")
             api("androidx.annotation:annotation-experimental:1.4.1")
+        }
         }
         androidDeviceTest.dependencies {
             implementation("androidx.annotation:annotation:1.9.1")
@@ -94,7 +96,11 @@ androidXMultiplatform {
             implementation(libs.mockitoCore)
         }
 
-        webMain.dependencies {
+        nonJvmMain.dependencies {
+            implementation(libs.atomicFu)
+        }
+
+        wasmJsMain.dependencies {
             implementation(libs.kotlinXw3c)
         }
 
@@ -102,38 +108,6 @@ androidXMultiplatform {
         desktopMain.dependsOn(nonAndroidMain)
         nativeMain.dependsOn(nonAndroidMain)
         webMain.dependsOn(nonAndroidMain)
-
-        desktopMain.dependsOn(jvmMain)
-        desktopTest.dependsOn(jvmTest)
-
-        desktopMain.dependsOn(nonAndroidMain)
-        desktopTest.dependsOn(nonAndroidTest)
-
-		nonJvmMain {
-            dependsOn(nonAndroidMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
-        }
-        nonJvmTest.dependsOn(nonAndroidTest)
-
-        nonAndroidTest.dependencies {
-            implementation(libs.kotlinCoroutinesTest)
-            implementation(project(":kruth:kruth"))
-            implementation(project(":navigation:navigation-testing"))
-            implementation(project(":internal-testutils-navigation"))
-        }
-
-        nativeMain {
-            dependsOn(nonJvmMain)
-        }
-        nativeTest {
-            dependsOn(nonJvmTest)
-        }
-
-        webMain.dependencies {
-            implementation(libs.kotlinXw3c)
-        }
     }
 }
 
