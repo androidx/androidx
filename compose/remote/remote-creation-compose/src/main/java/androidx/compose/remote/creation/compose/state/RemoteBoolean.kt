@@ -33,7 +33,7 @@ import androidx.compose.runtime.remember
  * engine.
  */
 public open class RemoteBoolean internal constructor(internal val intValue: RemoteInt) :
-    BaseRemoteState<Boolean>() {
+    BaseRemoteState<Boolean>(RemoteStateInstanceKey()) {
     internal override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 

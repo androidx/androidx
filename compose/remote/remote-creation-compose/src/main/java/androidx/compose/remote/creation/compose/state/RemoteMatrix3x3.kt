@@ -27,8 +27,9 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 public class RemoteMatrix3x3
 internal constructor(
     private val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
-    override val cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<Any>() {
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<Any>(cacheKey) {
+
     internal enum class OperationKey {
         IDENTITY,
         ROTATE,

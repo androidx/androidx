@@ -59,7 +59,8 @@ import java.text.DecimalFormat
  * variable, or a dynamic expression (e.g., an arithmetic operation).
  */
 @Stable
-public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float>() {
+public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCacheKey) :
+    BaseRemoteState<Float>(cacheKey) {
     internal abstract val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
 
     internal enum class OperationKey(public val opCode: Float) {
@@ -1508,9 +1509,9 @@ public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
 /** A mutable implementation of [RemoteFloat]. It also implements [MutableRemoteState<Float>]. */
 public class MutableRemoteFloat
 internal constructor(
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     private var idProvider: (creationState: RemoteComposeCreationState) -> Float,
-) : RemoteFloat(), MutableRemoteState<Float> {
+) : RemoteFloat(cacheKey), MutableRemoteState<Float> {
 
     internal constructor() :
         this(
@@ -1573,9 +1574,9 @@ internal constructor(
 public class RemoteFloatExpression
 internal constructor(
     public override val constantValueOrNull: Float?,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     internal override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
-) : RemoteFloat() {
+) : RemoteFloat(cacheKey) {
 
     init {
         if (constantValueOrNull?.isNaN() == true) {
@@ -1619,9 +1620,9 @@ internal constructor(
  */
 internal class UncachedRemoteFloatExpression(
     public override val constantValueOrNull: Float?,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     internal override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
-) : RemoteFloat() {
+) : RemoteFloat(cacheKey) {
 
     init {
         if (constantValueOrNull?.isNaN() == true) {
@@ -1648,10 +1649,23 @@ internal class UncachedRemoteFloatExpression(
  * @property anim The [FloatArray] defining the animation (e.g., keyframes, easing parameters).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AnimatedRemoteFloat(public val input: RemoteFloat, public val anim: FloatArray) :
-    RemoteFloat() {
-    internal override val cacheKey: RemoteStateCacheKey =
-        RemoteOperationCacheKey.create(OperationKey.Anim, input, FloatArrayCacheKey(anim))
+public class AnimatedRemoteFloat
+internal constructor(
+    public val input: RemoteFloat,
+    public val anim: FloatArray,
+    cacheKey: RemoteStateCacheKey,
+) : RemoteFloat(cacheKey) {
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        input: RemoteFloat,
+        anim: FloatArray,
+    ) : this(
+        input,
+        anim,
+        RemoteOperationCacheKey.create(OperationKey.Anim, input, FloatArrayCacheKey(anim)),
+    )
+
     public override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
         get() = { creationState -> floatArrayOf(asNan(getIdForCreationState(creationState))) }
 

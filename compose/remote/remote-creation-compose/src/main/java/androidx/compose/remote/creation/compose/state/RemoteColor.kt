@@ -44,7 +44,8 @@ internal constructor(
     green: RemoteFloat?,
     blue: RemoteFloat?,
     internal val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : BaseRemoteState<Color>() {
+) : BaseRemoteState<Color>(cacheKey) {
+
     internal val configuredAlpha: RemoteFloat? = alpha
     internal val configuredRed: RemoteFloat? = red
     internal val configuredGreen: RemoteFloat? = green

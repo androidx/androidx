@@ -196,6 +196,7 @@ public suspend fun captureSingleRemoteDocument(
 
                 trace("CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender") {
                     rootNode.render(creationState, remoteCanvas)
+                    recordingCanvas.flush()
                 }
 
                 creationState.document.encodeToByteArray()

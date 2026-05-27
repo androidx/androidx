@@ -48,7 +48,7 @@ import kotlin.math.min
 public class RemoteBitmapFont(
     glyphs: List<Glyph>,
     @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
-) : BaseRemoteState<Any>() {
+) : BaseRemoteState<Any>(RemoteStateInstanceKey()) {
     public val glyphs: List<Glyph> =
         if (glyphs.size <= 1) {
             glyphs
@@ -65,8 +65,6 @@ public class RemoteBitmapFont(
         MeasureWidth,
         MeasureHeight,
     }
-
-    internal override val cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey()
 
     /** A Glyph from a [RemoteBitmapFont] which may represent one or more characters. */
     public class Glyph(

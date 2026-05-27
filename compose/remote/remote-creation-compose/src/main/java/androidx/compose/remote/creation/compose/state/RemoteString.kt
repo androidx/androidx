@@ -34,7 +34,8 @@ import androidx.compose.runtime.remember
  * expression (e.g., a concatenation).
  */
 @Stable
-public abstract class RemoteString internal constructor() : BaseRemoteState<String>() {
+public abstract class RemoteString internal constructor(cacheKey: RemoteStateCacheKey) :
+    BaseRemoteState<String>(cacheKey) {
 
     internal enum class OperationKey {
         Concat,
@@ -919,9 +920,9 @@ internal fun mergeSets(a: Set<String>?, b: Set<String>?): Set<String>? {
 public class MutableRemoteString
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: String?,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     private val lazyRemoteString: LazyRemoteString,
-) : RemoteString(), MutableRemoteState<String> {
+) : RemoteString(cacheKey), MutableRemoteState<String> {
 
     /** Create a MutableRemoteString from an existing id. */
     internal constructor(

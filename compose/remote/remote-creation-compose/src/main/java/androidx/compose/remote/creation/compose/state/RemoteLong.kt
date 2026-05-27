@@ -30,7 +30,8 @@ public open class RemoteLong
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val low: RemoteInt,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val high: RemoteInt,
-) : BaseRemoteState<Long>() {
+    cacheKey: RemoteStateCacheKey = RemoteOperationCacheKey.create(RemoteLongOp.Emulated, low, high),
+) : BaseRemoteState<Long>(cacheKey) {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:Suppress("AutoBoxing")
@@ -40,10 +41,6 @@ internal constructor(
             val h = high.constantValueOrNull ?: return null
             return (h.toLong() shl 32) or (l.toLong() and 0xFFFFFFFFL)
         }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    internal override val cacheKey: RemoteStateCacheKey
-        get() = RemoteOperationCacheKey.create(RemoteLongOp.Emulated, low, high)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
@@ -63,10 +60,8 @@ internal constructor(
         val minVal = Int.MIN_VALUE.ri
         val carry = selectIfLt(lowAdd xor minVal, this.low xor minVal, 1.ri, 0.ri)
         val highAdd = this.high + v.high + carry
-        return object : RemoteLong(lowAdd, highAdd) {
-            override val cacheKey: RemoteStateCacheKey
-                get() = RemoteOperationCacheKey.create(RemoteLongOp.Add, this@RemoteLong, v)
-        }
+        val key = RemoteOperationCacheKey.create(RemoteLongOp.Add, this@RemoteLong, v)
+        return object : RemoteLong(lowAdd, highAdd, key) {}
     }
 
     /** Returns a new [RemoteLong] that evaluates to this [RemoteLong] minus [v]. */
@@ -85,10 +80,8 @@ internal constructor(
         val minVal = Int.MIN_VALUE.ri
         val borrow = selectIfLt(this.low xor minVal, v.low xor minVal, 1.ri, 0.ri)
         val highSub = this.high - v.high - borrow
-        return object : RemoteLong(lowSub, highSub) {
-            override val cacheKey: RemoteStateCacheKey
-                get() = RemoteOperationCacheKey.create(RemoteLongOp.Sub, this@RemoteLong, v)
-        }
+        val key = RemoteOperationCacheKey.create(RemoteLongOp.Sub, this@RemoteLong, v)
+        return object : RemoteLong(lowSub, highSub, key) {}
     }
 
     /** Returns a new [RemoteLong] that evaluates to this [RemoteLong] times [v]. */
@@ -128,10 +121,8 @@ internal constructor(
         val finalLow = this.low * v.low
         val finalHigh = (this.high * v.low) + (this.low * v.high) + upper32
 
-        return object : RemoteLong(finalLow, finalHigh) {
-            override val cacheKey: RemoteStateCacheKey
-                get() = RemoteOperationCacheKey.create(RemoteLongOp.Mul, this@RemoteLong, v)
-        }
+        val key = RemoteOperationCacheKey.create(RemoteLongOp.Mul, this@RemoteLong, v)
+        return object : RemoteLong(finalLow, finalHigh, key) {}
     }
 
     /**
@@ -211,8 +202,7 @@ internal constructor(
 public class MutableRemoteLong
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Long?,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     low: RemoteInt =
         constantValueOrNull?.let { RemoteInt(it.toInt()) }
             ?: RemoteIntExpression(null, RemoteStateInstanceKey()) {
@@ -224,7 +214,7 @@ internal constructor(
                 throw UnsupportedOperationException("Cannot extract high from dynamic RemoteLong")
             },
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : RemoteLong(low, high), MutableRemoteState<Long> {
+) : RemoteLong(low, high, cacheKey), MutableRemoteState<Long> {
 
     /**
      * Constructor for [MutableRemoteLong] that allows specifying an optional initial ID. If no ID

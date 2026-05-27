@@ -36,7 +36,7 @@ import kotlin.enums.enumEntries
 public open class RemoteEnum<T : Enum<T>>(
     internal val intValue: RemoteInt,
     internal val enumEntries: EnumEntries<T>,
-) : BaseRemoteState<T>() {
+) : BaseRemoteState<T>(RemoteStateInstanceKey()) {
     override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 

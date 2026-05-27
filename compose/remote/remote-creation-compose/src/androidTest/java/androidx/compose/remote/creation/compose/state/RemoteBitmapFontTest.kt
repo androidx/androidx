@@ -191,6 +191,7 @@ class RemoteBitmapFontTest {
 
     private fun constructDocument() =
         CoreDocument(SystemClock(clock)).apply {
+            recordingCanvas.flush()
             recordingBuffer.writeToBuffer()
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0

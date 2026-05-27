@@ -76,8 +76,9 @@ public value class RemoteIntReference(private val v: Int) {
 public abstract class RemoteInt
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?,
+    cacheKey: RemoteStateCacheKey,
     internal val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
-) : BaseRemoteState<Int>() {
+) : BaseRemoteState<Int>(cacheKey) {
     internal enum class OperationKey {
         ToRemoteString,
         Add,
@@ -960,11 +961,12 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
 public class MutableRemoteInt
 internal constructor(
     constantValueOrNull: Int? = null,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     internal val idProvider: (creationState: RemoteComposeCreationState) -> Long,
 ) :
     RemoteInt(
         constantValueOrNull = constantValueOrNull,
+        cacheKey = cacheKey,
         arrayProvider = { creationState ->
             val id =
                 creationState.getOrPutVariableId(cacheKey) {
@@ -1177,9 +1179,9 @@ public fun selectIfGe(
 public class RemoteIntExpression
 internal constructor(
     public override val constantValueOrNull: Int?,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
-) : RemoteInt(constantValueOrNull, arrayProvider) {
+) : RemoteInt(constantValueOrNull, cacheKey, arrayProvider) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
