@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.catalog.library.model.Theme
 import androidx.compose.material3.catalog.library.ui.theme.ThemePicker
@@ -33,7 +34,7 @@ import androidx.compose.material3.catalog.library.util.ReleasesUrl
 import androidx.compose.material3.catalog.library.util.SourceUrl
 import androidx.compose.material3.catalog.library.util.TermsUrl
 import androidx.compose.material3.catalog.library.util.openUrl
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,7 +65,7 @@ fun CatalogScaffold(
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     var openThemePicker by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(

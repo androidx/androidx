@@ -89,6 +89,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -107,7 +111,18 @@ fun MenuSample() {
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Localized description") } },
+            tooltip = {
+                PlainTooltip(
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+                ) {
+                    Text("Localized description")
+                }
+            },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = { expanded = true }) {
@@ -170,7 +185,18 @@ fun GroupedMenuSample() {
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Localized description") } },
+            tooltip = {
+                PlainTooltip(
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+                ) {
+                    Text("Localized description")
+                }
+            },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = { expanded = true }) {
@@ -283,7 +309,18 @@ fun MenuWithCascadingMenusSample() {
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Localized description") } },
+            tooltip = {
+                PlainTooltip(
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+                ) {
+                    Text("Localized description")
+                }
+            },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = { expanded = true }) {
@@ -356,7 +393,18 @@ fun MenuWithScrollStateSample() {
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Localized description") } },
+            tooltip = {
+                PlainTooltip(
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Localized description"
+                    }
+                ) {
+                    Text("Localized description")
+                }
+            },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = { expanded = true }) {

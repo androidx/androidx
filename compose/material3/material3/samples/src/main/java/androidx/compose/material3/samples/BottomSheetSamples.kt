@@ -51,7 +51,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,7 +79,7 @@ fun ManualModalBottomSheetSample() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Button(onClick = { showSheet = true }) { Text("Show Manual Sheet") }
     }
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
 
     if (showSheet) {
         Scrim("scrim", onClick = { showSheet = false })
@@ -126,7 +126,12 @@ fun ModalBottomSheetSample() {
     var skipPartiallyExpanded by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val bottomSheetState =
-        rememberModalBottomSheetState(skipPartiallyExpanded = skipPartiallyExpanded)
+        rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues =
+                if (skipPartiallyExpanded) setOf(SheetValue.Hidden, SheetValue.Expanded)
+                else setOf(SheetValue.Hidden, SheetValue.PartiallyExpanded, SheetValue.Expanded),
+        )
 
     // App content
     Column(

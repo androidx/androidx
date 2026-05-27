@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,7 +54,7 @@ import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
@@ -85,7 +86,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ModalNavigationDrawerTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     private val NavigationDrawerWidth = NavigationDrawerTokens.ContainerWidth
 
@@ -742,6 +743,122 @@ class ModalNavigationDrawerTest {
 
         // Assert drawer content is focused.
         rule.onNodeWithTag(DrawerTestTag).assertIsFocused()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @LargeTest
+    fun navigationDrawer_drawerIsClosed_whenBackPressedDuringOpen() {
+        lateinit var drawerState: DrawerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val scope = rememberCoroutineScope()
+            drawerState = rememberDrawerState(DrawerValue.Closed)
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet(drawerState) {
+                        Button(
+                            onClick = { scope.launch { drawerState.close() } },
+                            modifier = Modifier.testTag(DrawerTestTag),
+                        ) {}
+                    }
+                },
+                content = {
+                    Button(
+                        onClick = { scope.launch { drawerState.open() } },
+                        modifier = Modifier.testTag("Button"),
+                    ) {}
+                },
+            )
+        }
+
+        // Make sure drawer is closed initially
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+            assertThat(drawerState.targetValue).isEqualTo(DrawerValue.Closed)
+            assertThat(drawerState.isAnimationRunning).isEqualTo(false)
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        // Click open drawer button and let drawer open partially
+        rule.onNodeWithTag("Button").performClick()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Make sure drawer is opening
+        assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+        assertThat(drawerState.targetValue).isEqualTo(DrawerValue.Open)
+        assertThat(drawerState.isAnimationRunning).isEqualTo(true)
+
+        // Do system back
+        rule.runOnUiThread { rule.activity.onBackPressedDispatcher.onBackPressed() }
+
+        rule.mainClock.autoAdvance = true
+
+        // Make sure drawer is fully closed
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+            assertThat(drawerState.targetValue).isEqualTo(DrawerValue.Closed)
+            assertThat(drawerState.isAnimationRunning).isEqualTo(false)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @LargeTest
+    fun navigationDrawer_drawerIsClosed_whenBackPressedDuringClose() {
+        lateinit var drawerState: DrawerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val scope = rememberCoroutineScope()
+            drawerState = rememberDrawerState(DrawerValue.Open)
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet(drawerState) {
+                        Button(
+                            onClick = { scope.launch { drawerState.close() } },
+                            modifier = Modifier.testTag(DrawerTestTag),
+                        ) {}
+                    }
+                },
+                content = {
+                    Button(
+                        onClick = { scope.launch { drawerState.open() } },
+                        modifier = Modifier.testTag("Button"),
+                    ) {}
+                },
+            )
+        }
+
+        // Make sure drawer is open initially
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
+            assertThat(drawerState.targetValue).isEqualTo(DrawerValue.Open)
+            assertThat(drawerState.isAnimationRunning).isEqualTo(false)
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        // Click close drawer button and let drawer close partially
+        rule.onNodeWithTag(DrawerTestTag).performClick()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Make sure drawer is closing
+        assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
+        assertThat(drawerState.targetValue).isEqualTo(DrawerValue.Closed)
+        assertThat(drawerState.isAnimationRunning).isEqualTo(true)
+
+        // Do system back
+        rule.runOnUiThread { rule.activity.onBackPressedDispatcher.onBackPressed() }
+
+        rule.mainClock.autoAdvance = true
+
+        // Make sure drawer is fully closed
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+            assertThat(drawerState.targetValue).isEqualTo(DrawerValue.Closed)
+            assertThat(drawerState.isAnimationRunning).isEqualTo(false)
+        }
     }
 }
 

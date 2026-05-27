@@ -167,7 +167,7 @@ internal class ClickableAppBarItem(
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text(label) } },
+            tooltip = { PlainTooltipInternal(label) { Text(label) } },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = onClick, enabled = enabled, content = icon)
@@ -202,7 +202,7 @@ internal class ToggleableAppBarItem(
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text(label) } },
+            tooltip = { PlainTooltipInternal(label) { Text(label) } },
             state = rememberTooltipState(),
         ) {
             IconToggleButton(
@@ -444,7 +444,7 @@ fun AppBarOverflowIndicator(
     TooltipBox(
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = { PlainTooltip { Text(contentDescription) } },
+        tooltip = { PlainTooltipInternal(contentDescription) { Text(contentDescription) } },
         state = rememberTooltipState(),
     ) {
         IconButton(

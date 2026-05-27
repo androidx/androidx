@@ -70,7 +70,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -257,7 +261,19 @@ private fun SampleLeadingIcon(searchBarState: SearchBarState, scope: CoroutineSc
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Back") } },
+            tooltip = {
+                PlainTooltip(
+                    modifier =
+                        Modifier.semantics {
+                            // TODO(b/496338253): Remove this modifier once bug where tooltip text
+                            //  is not announced by a11y screen readers is resolved.
+                            liveRegion = LiveRegionMode.Assertive
+                            paneTitle = "Back"
+                        }
+                ) {
+                    Text("Back")
+                }
+            },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = { scope.launch { searchBarState.animateToCollapsed() } }) {
@@ -273,7 +289,19 @@ private fun SampleTrailingIcon() =
     TooltipBox(
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = { PlainTooltip { Text("Mic") } },
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Mic"
+                    }
+            ) {
+                Text("Mic")
+            }
+        },
         state = rememberTooltipState(),
     ) {
         IconButton(onClick = { /* doSomething() */ }) {
@@ -300,7 +328,19 @@ private fun SampleNavigationIcon(state: SearchBarState, isAnimated: Boolean = fa
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Menu") } },
+            tooltip = {
+                PlainTooltip(
+                    modifier =
+                        Modifier.semantics {
+                            // TODO(b/496338253): Remove this modifier once bug where tooltip text
+                            //  is not announced by a11y screen readers is resolved.
+                            liveRegion = LiveRegionMode.Assertive
+                            paneTitle = "Menu"
+                        }
+                ) {
+                    Text("Menu")
+                }
+            },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = { /* doSomething() */ }) {
@@ -328,7 +368,19 @@ private fun SampleActions(state: SearchBarState, isAnimated: Boolean = false) =
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Account") } },
+            tooltip = {
+                PlainTooltip(
+                    modifier =
+                        Modifier.semantics {
+                            // TODO(b/496338253): Remove this modifier once bug where tooltip text
+                            //  is not announced by a11y screen readers is resolved.
+                            liveRegion = LiveRegionMode.Assertive
+                            paneTitle = "Account"
+                        }
+                ) {
+                    Text("Account")
+                }
+            },
             state = rememberTooltipState(),
         ) {
             IconButton(onClick = { /* doSomething() */ }) {

@@ -160,9 +160,6 @@ private fun ScaffoldLayout(
         }
     }
 
-    val bodyContent: @Composable () -> Unit =
-        remember(content, contentPadding) { { content(contentPadding) } }
-
     SubcomposeLayout { constraints ->
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
@@ -272,10 +269,10 @@ private fun ScaffoldLayout(
                 end = insets.calculateEndPadding(layoutDirection),
             )
 
+        @Suppress("ComposableLambdaInMeasurePolicy")
         val bodyContentPlaceables =
-            subcompose(ScaffoldLayoutContent.MainContent, bodyContent).fastMap {
-                it.measure(looseConstraints)
-            }
+            subcompose(ScaffoldLayoutContent.MainContent) { content(contentPadding) }
+                .fastMap { it.measure(looseConstraints) }
 
         layout(layoutWidth, layoutHeight) {
             // Placing to control drawing order to match default elevation of each placeable

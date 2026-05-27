@@ -98,7 +98,7 @@ class ModalBottomSheetScreenshotTest {
             BottomSheetImpl(
                 modifier = Modifier.testTag(testTag),
                 predictiveBackProgress = progress,
-                state = rememberSheetState(initialValue = SheetValue.Expanded),
+                state = rememberBottomSheetState(initialValue = SheetValue.Expanded),
             ) {
                 Text(
                     "Modal Bottom Sheet Predictive Back\nProgress: $progress",
