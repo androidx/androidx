@@ -43,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -799,10 +800,17 @@ internal fun <T> AnimatedEnterExitImpl(
     content: @Composable() AnimatedVisibilityScope.() -> Unit,
 ) {
     val localPendingTargetState = transition.pendingTargetState
+    var hasBeenPending by remember { mutableStateOf(false) }
+    transition.DeferredTransitionCleanupEffect { hasBeenPending = false }
+    if (localPendingTargetState != null && visible(localPendingTargetState)) {
+        hasBeenPending = true
+    }
+
     if (
         visible(transition.targetState) ||
             visible(transition.currentState) ||
             (localPendingTargetState != null && visible(localPendingTargetState)) ||
+            (hasBeenPending && transition.currentState != transition.targetState) ||
             transition.isSeeking ||
             transition.hasInitialValueAnimations
     ) {
@@ -946,11 +954,15 @@ private fun <T> Transition<T>.targetEnterExit(
             }
         } else {
             val hasBeenVisible = remember { mutableStateOf(false) }
-            if (visible(currentState)) {
+            val localPendingTargetState = pendingTargetState
+
+            if (
+                visible(currentState) ||
+                    (localPendingTargetState != null && visible(localPendingTargetState))
+            ) {
                 hasBeenVisible.value = true
             }
 
-            val localPendingTargetState = pendingTargetState
             if (visible(targetState)) {
                 EnterExitState.Visible
             } else if (localPendingTargetState != null && visible(localPendingTargetState)) {

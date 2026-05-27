@@ -1010,4 +1010,66 @@ class DeferredAnimatedContentTest {
         rule.waitForIdle()
         assertEquals(fullWidth, measuredWidth, 1f)
     }
+
+    @Test
+    fun animatedContent_interruption_during_deferred_phase_uses_correct_spec() {
+        val state = DeferredTransitionState("A")
+        var exitSpecForA: ExitTransition? = null
+        var exitSpecForB: ExitTransition? = null
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    val spec =
+                        if (initialState == "A" && targetState == "B") {
+                            fadeIn() togetherWith fadeOut(tween(100))
+                        } else if (initialState == "A" && targetState == "C") {
+                            fadeIn() togetherWith fadeOut(tween(500))
+                        } else if (initialState == "B" && targetState == "A") {
+                            fadeIn() togetherWith fadeOut(tween(800))
+                        } else {
+                            fadeIn() togetherWith fadeOut()
+                        }
+                    if (initialState == "A") {
+                        exitSpecForA = spec.initialContentExit
+                    }
+                    if (initialState == "B") {
+                        exitSpecForB = spec.initialContentExit
+                    }
+                    spec
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp).testTag("content_$target"))
+            }
+        }
+
+        rule.waitForIdle()
+
+        // 1. Defer to B. Spec for A should be fadeOut(100).
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+        assertEquals(fadeOut(tween(100)), exitSpecForA)
+
+        // 2. Interrupt by animating to C.
+        // Spec for A should now be re-evaluated to fadeOut(500).
+        rule.runOnIdle { state.animateTo("C") }
+        rule.waitForIdle()
+
+        assertEquals(
+            "Exit spec for A should be re-evaluated to the one for A->C",
+            fadeOut(tween(500)),
+            exitSpecForA,
+        )
+
+        assertEquals(
+            "Exit spec for B should be the one for B->A",
+            fadeOut(tween(800)),
+            exitSpecForB,
+        )
+
+        rule.onNodeWithTag("content_C").assertIsDisplayed()
+        rule.onNodeWithTag("content_A").assertDoesNotExist()
+        rule.onNodeWithTag("content_B").assertDoesNotExist()
+    }
 }
