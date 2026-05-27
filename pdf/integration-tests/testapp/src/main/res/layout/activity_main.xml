@@ -31,10 +31,12 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationContentDescription="@string/back_string"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_pdf_button"
+            android:contentDescription="@string/save_pdf_string"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"

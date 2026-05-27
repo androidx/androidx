@@ -11,6 +11,7 @@
     <string name="styled_pdf_fragment_name">Single Styled PDF</string>
     <string name="xml_styled_pdf_fragment_name">Single XML Styled PDF</string>
     <string name="page_object_pdf_string">PageObject Pdf</string>
+    <string name="back_string">Back</string>
     <string name="save_pdf_string">Save Pdf</string>
     <string name="compose_fragment">Compose PDF</string>
     <string name="thumbnail_content_description">Page thumbnail</string>
