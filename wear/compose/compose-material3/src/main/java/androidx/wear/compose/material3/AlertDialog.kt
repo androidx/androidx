@@ -158,10 +158,7 @@ public fun AlertDialog(
         visible = visible,
         onDismissRequest = onDismissRequest,
         modifier =
-            Modifier.alertDialogGesture(
-                action = GestureAction.Dismiss,
-                onGesture = onDismissRequest,
-            ),
+            Modifier.oneHandedGesture(action = GestureAction.Dismiss, onGesture = onDismissRequest),
         properties = properties,
     ) {
         AlertDialogContent(
@@ -263,10 +260,7 @@ public fun AlertDialog(
         visible = visible,
         onDismissRequest = onDismissRequest,
         modifier =
-            Modifier.alertDialogGesture(
-                action = GestureAction.Dismiss,
-                onGesture = onDismissRequest,
-            ),
+            Modifier.oneHandedGesture(action = GestureAction.Dismiss, onGesture = onDismissRequest),
         properties = properties,
     ) {
         AlertDialogContent(
@@ -344,10 +338,7 @@ public fun AlertDialog(
         visible = visible,
         onDismissRequest = onDismissRequest,
         modifier =
-            Modifier.alertDialogGesture(
-                action = GestureAction.Dismiss,
-                onGesture = onDismissRequest,
-            ),
+            Modifier.oneHandedGesture(action = GestureAction.Dismiss, onGesture = onDismissRequest),
         properties = properties,
     ) {
         AlertDialogContent(
@@ -435,10 +426,7 @@ public fun AlertDialog(
         visible = visible,
         onDismissRequest = onDismissRequest,
         modifier =
-            Modifier.alertDialogGesture(
-                action = GestureAction.Dismiss,
-                onGesture = onDismissRequest,
-            ),
+            Modifier.oneHandedGesture(action = GestureAction.Dismiss, onGesture = onDismissRequest),
         properties = properties,
     ) {
         AlertDialogContent(
@@ -527,10 +515,7 @@ public fun AlertDialog(
         visible = visible,
         onDismissRequest = onDismissRequest,
         modifier =
-            Modifier.alertDialogGesture(
-                action = GestureAction.Dismiss,
-                onGesture = onDismissRequest,
-            ),
+            Modifier.oneHandedGesture(action = GestureAction.Dismiss, onGesture = onDismissRequest),
         properties = properties,
     ) {
         AlertDialogContent(
@@ -632,10 +617,7 @@ public fun AlertDialog(
         visible = visible,
         onDismissRequest = onDismissRequest,
         modifier =
-            Modifier.alertDialogGesture(
-                action = GestureAction.Dismiss,
-                onGesture = onDismissRequest,
-            ),
+            Modifier.oneHandedGesture(action = GestureAction.Dismiss, onGesture = onDismissRequest),
         properties = properties,
     ) {
         AlertDialogContent(
@@ -727,7 +709,7 @@ public fun AlertDialogContent(
                 autoCentering = null,
                 modifier =
                     Modifier.fillMaxSize()
-                        .alertDialogGesture(
+                        .oneHandedGesture(
                             action = GestureAction.Primary,
                             priority = GesturePriority.Scrollable,
                             interactionSource = interactionSource,
@@ -846,7 +828,7 @@ public fun AlertDialogContent(
                 verticalArrangement = verticalArrangement,
                 modifier =
                     Modifier.fillMaxSize()
-                        .alertDialogGesture(
+                        .oneHandedGesture(
                             action = GestureAction.Primary,
                             priority = GesturePriority.Scrollable,
                             interactionSource = interactionSource,
@@ -959,7 +941,7 @@ public fun AlertDialogContent(
                 autoCentering = null,
                 modifier =
                     Modifier.fillMaxSize()
-                        .alertDialogGesture(
+                        .oneHandedGesture(
                             action = GestureAction.Primary,
                             priority = GesturePriority.Scrollable,
                             interactionSource = interactionSource,
@@ -1062,7 +1044,7 @@ public fun AlertDialogContent(
                 verticalArrangement = verticalArrangement,
                 modifier =
                     Modifier.fillMaxSize()
-                        .alertDialogGesture(
+                        .oneHandedGesture(
                             action = GestureAction.Primary,
                             priority = GesturePriority.Scrollable,
                             interactionSource = interactionSource,
@@ -1176,7 +1158,7 @@ public fun AlertDialogContent(
             autoCentering = null,
             modifier =
                 Modifier.fillMaxSize()
-                    .alertDialogGesture(
+                    .oneHandedGesture(
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                         interactionSource = interactionSource,
@@ -1278,7 +1260,7 @@ public fun AlertDialogContent(
             verticalArrangement = verticalArrangement,
             modifier =
                 Modifier.fillMaxSize()
-                    .alertDialogGesture(
+                    .oneHandedGesture(
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                         interactionSource = interactionSource,
@@ -1337,7 +1319,7 @@ public object AlertDialogDefaults {
             modifier =
                 modifier.onSizeChanged { size -> currentButtonSize = size } then
                     if (isButtonFullyVisible) {
-                        Modifier.alertDialogGesture(
+                        Modifier.oneHandedGesture(
                             action = GestureAction.Primary,
                             priority = GesturePriority.Clickable,
                             interactionSource = interactionSource,
@@ -1394,7 +1376,7 @@ public object AlertDialogDefaults {
                     .size(confirmWidth, confirmHeight)
                     .then(
                         if (buttonVisible) {
-                            Modifier.alertDialogGesture(
+                            Modifier.oneHandedGesture(
                                 action = GestureAction.Primary,
                                 interactionSource = interactionSource,
                                 priority = GesturePriority.Clickable,
@@ -1916,24 +1898,6 @@ private fun TextMessage(modifier: Modifier = Modifier, content: @Composable () -
         )
     }
 }
-
-@OptIn(ExperimentalWearComposeMaterial3Api::class)
-@Composable
-private fun Modifier.alertDialogGesture(
-    action: GestureAction,
-    priority: GesturePriority = GesturePriority.Unspecified,
-    interactionSource: MutableInteractionSource? = null,
-    onGesture: suspend () -> Unit,
-): Modifier =
-    this then
-        if (WearComposeMaterial3Flags.isOneHandedGesturesInAlertDialogEnabled) {
-            Modifier.oneHandedGesture(
-                action = action,
-                priority = priority,
-                interactionSource = interactionSource,
-                onGesture = onGesture,
-            )
-        } else Modifier
 
 internal val AlertIconBottomSpacing = 4.dp
 internal val AlertTextMessageTopSpacing = 4.dp

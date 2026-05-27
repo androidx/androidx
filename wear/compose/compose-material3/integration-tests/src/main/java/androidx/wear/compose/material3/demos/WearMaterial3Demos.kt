@@ -41,6 +41,7 @@ import androidx.wear.compose.material3.samples.ListHeaderSample
 import androidx.wear.compose.material3.samples.NonClickableImageCardSample
 import androidx.wear.compose.material3.samples.NonClickableTitleCardWithImageWithTimeAndTitleSample
 import androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
+import androidx.wear.compose.material3.samples.OneHandedGestureDisableButtonSample
 import androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
 import androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
 import androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnScrollToNextItemSample
@@ -311,6 +312,9 @@ val WearMaterial3Demos =
                     title = "One Handed Gestures",
                     listOf(
                         ComposableDemo("Button") { OneHandedGestureButtonSample() },
+                        ComposableDemo("Enable/Disable Gestures") {
+                            OneHandedGestureDisableButtonSample()
+                        },
                         ComposableDemo("TLC scrollDown with EdgeButton") {
                             OneHandedGestureTransformingLazyColumnSample()
                         },
