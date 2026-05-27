@@ -380,7 +380,7 @@ internal class SkiaParagraph(
                     return if (!isRtl) {
                         val bottom = box.rect.bottom + box.rect.bottom - box.rect.top
                         val rect = SkRect(0f, box.rect.bottom, 0f, bottom)
-                        return TextBox(rect, box.direction)
+                        TextBox(rect, box.direction)
                     } else {
                         // For RTL:
                         // When cursor changes its position across lines, we apply the following rules:
@@ -399,10 +399,10 @@ internal class SkiaParagraph(
                             TextBox(rect, box.direction)
                         } else {
                             // TODO: Use unicode code points (CodePoint.charCount() instead of +1)
-                            val nextBox =  paragraph.getRectsForRange(
+                            val nextBox = paragraph.getRectsForRange(
                                 offset, offset + 1,
                                 RectHeightMode.STRUT, RectWidthMode.TIGHT
-                            ).first()
+                            ).firstOrNull() ?: return null
                             val rect = SkRect(
                                 nextBox.rect.left, nextBox.rect.top,
                                 nextBox.rect.left, nextBox.rect.bottom
