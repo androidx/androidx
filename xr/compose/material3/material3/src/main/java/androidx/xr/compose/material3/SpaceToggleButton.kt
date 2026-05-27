@@ -16,16 +16,24 @@
 
 package androidx.xr.compose.material3
 
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.activity.ComponentActivity
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.IconToggleButtonColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.xr.compose.platform.LocalSpatialCapabilities
-import androidx.xr.compose.platform.LocalSpatialConfiguration
+import androidx.xr.compose.platform.requestFullSpace
+import androidx.xr.compose.platform.requestHomeSpace
+import kotlinx.coroutines.launch
 
 /**
  * A composable button that toggles between "Full Space" and "Home Space" in an Android XR
@@ -52,26 +60,35 @@ public fun SpaceToggleButton(
 ) {
     // Get the current system state for spatial UI
     val isSpatialUiEnabled = LocalSpatialCapabilities.current.isSpatialUiEnabled
-    val config = LocalSpatialConfiguration.current
+    val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
+    val coroutineScope = rememberCoroutineScope()
 
     IconToggleButton(
         colors = colors,
         modifier = modifier,
         checked = isSpatialUiEnabled,
-        onCheckedChange = {
-            if (isSpatialUiEnabled) {
-                // TODO(b/466137882) Update once material has access to
-                //  ActivityExt.requestHomeSpace()
-                @Suppress("DEPRECATION") config.requestHomeSpaceMode()
-            } else {
-                // TODO(b/466137882) Update once material has access to
-                //  ActivityExt.requestFullSpace()
-                @Suppress("DEPRECATION") config.requestFullSpaceMode()
+        onCheckedChange = { checked ->
+            coroutineScope.launch {
+                if (checked) {
+                    activity?.requestFullSpace()
+                } else {
+                    activity?.requestHomeSpace()
+                }
             }
         },
     ) {
         content(isSpatialUiEnabled)
     }
+}
+
+private fun Context.findActivity(): ComponentActivity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is ComponentActivity) return context
+        context = context.baseContext
+    }
+    return null
 }
 
 /** Contains the default values used by [SpaceToggleButton]. */
