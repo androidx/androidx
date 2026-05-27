@@ -189,8 +189,35 @@ class RemoteScreenshotTestRule(
     private fun getOnCoreDocumentCreated(
         onCoreDocumentCreated: ((CoreDocument) -> Unit)?
     ): ((CoreDocument) -> Unit) = { coreDocument ->
-        saveDocument(coreDocument.buffer, getGoldenScreenshotName(null).getName() + ".rc")
+        val name = getGoldenScreenshotName(null).getName()
+        saveDocument(coreDocument.buffer, "$name.rc")
+        saveDrawCommands(coreDocument, "$name.txt")
         onCoreDocumentCreated?.invoke(coreDocument)
+    }
+
+    private fun saveDrawCommands(coreDocument: CoreDocument, fileName: String) {
+        try {
+            val width = remoteCreationDisplayInfo.widthDp.value
+            val height = remoteCreationDisplayInfo.heightDp.value
+            val player = TestPlayer(coreDocument, width, height)
+            val actualCommands = player.paint()
+
+            saveTextFile(actualCommands.joinToString(separator = "\n"), fileName)
+        } catch (t: Throwable) {
+            Log.e(TAG, "Failed to generate draw commands", t)
+        }
+    }
+
+    private fun saveTextFile(content: String, name: String) {
+        try {
+            val filePath = screenshotTestRule.deviceOutputDirectory
+            val myFile = File(filePath, name)
+            myFile.parentFile?.mkdirs() // Ensure parent directories are created
+            myFile.writeText(content)
+            Log.i(TAG, "Wrote draw commands to $name at ${myFile.absolutePath}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to write draw commands to $name", e)
+        }
     }
 
     private fun getGoldenScreenshotName(goldenScreenshotName: GoldenScreenshotName?) =
