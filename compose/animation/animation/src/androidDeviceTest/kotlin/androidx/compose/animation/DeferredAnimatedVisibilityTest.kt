@@ -1014,4 +1014,77 @@ class DeferredAnimatedVisibilityTest {
             xWithVelocity > xNoVelocity,
         )
     }
+
+    @Test
+    fun visibility_previewScale_interrupt_deferred_by_original_state_is_seamless() {
+        lateinit var state: DeferredTransitionState<Boolean>
+        var previewScale by mutableStateOf(1f)
+        var measuredWidth = 0f
+
+        rule.setContent {
+            state = remember { DeferredTransitionState(true) }
+            val transition = rememberTransition(state)
+
+            transition.DeferredAnimatedVisibility(
+                visible = { it },
+                // Use linear easing and long duration to make progress predictable
+                enter = scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f),
+                exit = scaleOut(tween(1000, easing = LinearEasing), targetScale = 0f),
+                mutableTransform =
+                    remember {
+                        MutableTransform { _ ->
+                            if (state.pendingTargetState != null) {
+                                scale = previewScale
+                            }
+                        }
+                    },
+            ) {
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        measuredWidth = coords.boundsInRoot().width
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val fullWidth = measuredWidth
+        rule.mainClock.autoAdvance = false
+
+        // 1. Deferred phase (e.g. back gesture)
+        rule.runOnIdle {
+            state.defer(false)
+            previewScale = 0.8f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        assertEquals(fullWidth * 0.8f, measuredWidth, 1f)
+
+        // 2. Interrupt deferred phase by navigating back to original state (true)
+        rule.runOnIdle { state.animateTo(true) }
+        rule.mainClock.advanceTimeByFrame() // Interruption frame
+        rule.waitForIdle()
+
+        // 3. Verify it is seamless (no jump to 1.0f or 0.0f)
+        val widthAfterInterruption = measuredWidth
+        assertEquals(
+            "Width should not jump after interrupting deferred phase",
+            fullWidth * 0.8f,
+            widthAfterInterruption,
+            1f,
+        )
+
+        // 4. Verify it continues to animate back to full width
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+        assertTrue(
+            "Width should be increasing towards fullWidth. " +
+                "Was $widthAfterInterruption, now $measuredWidth",
+            measuredWidth > widthAfterInterruption,
+        )
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertEquals(fullWidth, measuredWidth, 1f)
+    }
 }
