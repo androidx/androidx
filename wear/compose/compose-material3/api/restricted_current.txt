@@ -2315,10 +2315,8 @@ package androidx.wear.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearComposeMaterial3Api public final class WearComposeMaterial3Flags {
-    property public boolean isOneHandedGesturesInAlertDialogEnabled;
     property public boolean isSwipeToRevealDualFlingThresholdEnabled;
     field public static final androidx.wear.compose.material3.WearComposeMaterial3Flags INSTANCE;
-    field public static boolean isOneHandedGesturesInAlertDialogEnabled;
     field public static boolean isSwipeToRevealDualFlingThresholdEnabled;
   }
 
@@ -2436,6 +2434,11 @@ package androidx.wear.compose.material3.onehandedgesture {
     property public androidx.wear.compose.material3.onehandedgesture.GesturePriority Clickable;
     property public androidx.wear.compose.material3.onehandedgesture.GesturePriority Scrollable;
     property public androidx.wear.compose.material3.onehandedgesture.GesturePriority Unspecified;
+  }
+
+  public final class LocalOneHandedGestureEnabledKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalOneHandedGestureEnabled();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalOneHandedGestureEnabled;
   }
 
   public final class OneHandedGestureDefaults {

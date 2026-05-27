@@ -40,6 +40,9 @@ import kotlin.String
 /**
  * Registers a gesture handler.
  *
+ * Note: Gesture recognition can be explicitly disabled across a component hierarchy by providing
+ * false` to [LocalOneHandedGestureEnabled].
+ *
  * **Visibility Management:** This gesture handler is active as long as the Modifier is part of the
  * composition. On its own, it does not track whether the composable is visible or clipped (e.g., in
  * a Lazy layout).
@@ -127,6 +130,9 @@ public fun Modifier.oneHandedGesture(
 
 /**
  * Registers a gesture handler.
+ *
+ * Note: Gesture recognition can be explicitly disabled across a component hierarchy by providing
+ * false` to [LocalOneHandedGestureEnabled].
  *
  * **Visibility Management:** This gesture handler is active as long as the Modifier is part of the
  * composition. On its own, it does not track whether the composable is visible or clipped (e.g., in
@@ -251,10 +257,10 @@ private class GestureNode(var config: GestureConfig) :
     private var currentView: View? = null
     private var hapticFeedback: HapticFeedback? = null
     private var size: IntSize = IntSize.Zero
+    private var isEnabled = true
 
     override fun onAttach() {
-        updateCompositionLocals(false)
-        registerGesture(gestureManager, currentView!!, hapticFeedback!!, config)
+        updateCompositionLocals(true)
     }
 
     override fun onObservedReadsChanged() = updateCompositionLocals(true)
@@ -274,21 +280,25 @@ private class GestureNode(var config: GestureConfig) :
     fun updateGesture(newConfig: GestureConfig) {
         val oldConfig = config
         val oldGestureManager = gestureManager
+        val wasEnabled = isEnabled
         /* Update local compositions here to handle node reparenting. onAttach is not sufficient as
          * it may trigger before the node is fully settled in its new composition context. Manually
          * syncing ensures we capture the correct providers after the tree has stabilized. */
         updateCompositionLocals(false)
 
-        if (oldGestureManager == gestureManager) {
-            if (isAttached) {
+        val managerChanged = oldGestureManager != gestureManager
+        if (!isEnabled || managerChanged) {
+            unregisterGesture(oldGestureManager, currentView!!, oldConfig)
+        }
+
+        if (isEnabled && isAttached) {
+            if (managerChanged || !wasEnabled) {
+                registerGesture(gestureManager, currentView!!, hapticFeedback!!, newConfig)
+            } else {
                 gestureManager?.updateGesture(currentView!!, oldConfig, newConfig)
             }
-        } else {
-            unregisterGesture(oldGestureManager, currentView!!, oldConfig)
-            if (isAttached) {
-                registerGesture(gestureManager, currentView!!, hapticFeedback!!, newConfig)
-            }
         }
+
         config = newConfig
     }
 
@@ -296,6 +306,7 @@ private class GestureNode(var config: GestureConfig) :
         localScreenIsActive = currentValueOf(LocalScreenIsActive)
         currentView = currentValueOf(LocalView)
         hapticFeedback = currentValueOf(LocalHapticFeedback)
+        isEnabled = currentValueOf(LocalOneHandedGestureEnabled)
         val newGestureManager = currentValueOf(LocalGestureManager)
         if (reregister) {
             unregisterGesture(gestureManager, currentView!!, config)
@@ -310,13 +321,15 @@ private class GestureNode(var config: GestureConfig) :
         haptic: HapticFeedback,
         gesture: GestureConfig,
     ) {
-        manager?.registerGesture(
-            view = view,
-            haptic = haptic,
-            gesture = gesture,
-            isActive = { localScreenIsActive },
-            size = { size },
-        )
+        if (isEnabled) {
+            manager?.registerGesture(
+                view = view,
+                haptic = haptic,
+                gesture = gesture,
+                isActive = { localScreenIsActive },
+                size = { size },
+            )
+        }
     }
 
     private fun unregisterGesture(manager: GestureManager?, view: View, gesture: GestureConfig) {

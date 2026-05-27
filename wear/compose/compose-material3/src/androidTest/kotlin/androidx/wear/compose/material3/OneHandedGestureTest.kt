@@ -80,6 +80,7 @@ import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
 import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
+import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
@@ -146,6 +147,35 @@ class OneHandedGestureTest {
 
             assertThat(hapticResults).hasSize(1)
             assertEquals(hapticResults[HapticFeedbackType.LongPress], 1)
+        }
+    }
+
+    /** Verifies that gesture isn't triggered when LocalOneHandedGestureEnabled is false */
+    @Test
+    fun local_composition_disable_gesture() {
+        var gestured = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val hapticResults = mutableMapOf<HapticFeedbackType, Int>()
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager, hapticResults) {
+                // Disable gestures with LocalOneHandedGestureEnabled
+                CompositionLocalProvider(LocalOneHandedGestureEnabled provides false) {
+                    Text(
+                        "Clickable",
+                        modifier =
+                            Modifier.oneHandedGesture(action = GestureAction.Primary) {
+                                gestured = true
+                            },
+                    )
+                }
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(false, gestured)
+            assertThat(hapticResults).hasSize(0)
         }
     }
 
@@ -516,64 +546,68 @@ class OneHandedGestureTest {
     private fun alert_dialog_content_groups_edge_button(enabled: Boolean) {
         val sdkGestureInputManager = SdkGestureInputManagerMock(false)
         var edgeButtonClicked = false
-        WearComposeMaterial3Flags.isOneHandedGesturesInAlertDialogEnabled = enabled
-
         rule.setContentWithTheme {
-            MockSdkGestureInputManager(sdkGestureInputManager) {
-                val transformationSpec = rememberTransformationSpec()
-                AlertDialog(
-                    visible = true,
-                    onDismissRequest = {},
-                    title = { Text("Title") },
-                    transformationSpec = transformationSpec,
-                    edgeButton = {
-                        AlertDialogDefaults.EdgeButton(onClick = { edgeButtonClicked = true }) {
-                            Text("Share once")
+            CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    val transformationSpec = rememberTransformationSpec()
+                    AlertDialog(
+                        visible = true,
+                        onDismissRequest = {},
+                        title = { Text("Title") },
+                        transformationSpec = transformationSpec,
+                        edgeButton = {
+                            AlertDialogDefaults.EdgeButton(onClick = { edgeButtonClicked = true }) {
+                                Text("Share once")
+                            }
+                        },
+                    ) {
+                        item {
+                            SwitchButton(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .transformedHeight(this, transformationSpec),
+                                checked = true,
+                                onCheckedChange = {},
+                                label = { Text("Weather") },
+                                transformation = SurfaceTransformation(transformationSpec),
+                            )
                         }
-                    },
-                ) {
-                    item {
-                        SwitchButton(
-                            modifier =
-                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
-                            checked = true,
-                            onCheckedChange = {},
-                            label = { Text("Weather") },
-                            transformation = SurfaceTransformation(transformationSpec),
-                        )
-                    }
-                    item {
-                        SwitchButton(
-                            modifier =
-                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
-                            checked = true,
-                            onCheckedChange = {},
-                            label = { Text("Calendar") },
-                            transformation = SurfaceTransformation(transformationSpec),
-                        )
-                    }
-                    item { AlertDialogDefaults.GroupSeparator() }
-                    item {
-                        FilledTonalButton(
-                            modifier =
-                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
-                            onClick = {},
-                            label = {
-                                Text(modifier = Modifier.fillMaxWidth(), text = "Never share")
-                            },
-                            transformation = SurfaceTransformation(transformationSpec),
-                        )
-                    }
-                    item {
-                        FilledTonalButton(
-                            modifier =
-                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
-                            onClick = {},
-                            label = {
-                                Text(modifier = Modifier.fillMaxWidth(), text = "Share always")
-                            },
-                            transformation = SurfaceTransformation(transformationSpec),
-                        )
+                        item {
+                            SwitchButton(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .transformedHeight(this, transformationSpec),
+                                checked = true,
+                                onCheckedChange = {},
+                                label = { Text("Calendar") },
+                                transformation = SurfaceTransformation(transformationSpec),
+                            )
+                        }
+                        item { AlertDialogDefaults.GroupSeparator() }
+                        item {
+                            FilledTonalButton(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .transformedHeight(this, transformationSpec),
+                                onClick = {},
+                                label = {
+                                    Text(modifier = Modifier.fillMaxWidth(), text = "Never share")
+                                },
+                                transformation = SurfaceTransformation(transformationSpec),
+                            )
+                        }
+                        item {
+                            FilledTonalButton(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .transformedHeight(this, transformationSpec),
+                                onClick = {},
+                                label = {
+                                    Text(modifier = Modifier.fillMaxWidth(), text = "Share always")
+                                },
+                                transformation = SurfaceTransformation(transformationSpec),
+                            )
+                        }
                     }
                 }
             }
@@ -659,6 +693,66 @@ class OneHandedGestureTest {
             assertNotNull(dismissKey)
             assertNotEquals(primaryKey, dismissKey)
         }
+    }
+
+    fun local_composition_disable_enable_gesture() {
+        var gestured = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        var enabled by mutableStateOf(false)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
+                    Text(
+                        "Clickable",
+                        modifier =
+                            Modifier.oneHandedGesture(action = GestureAction.Primary) {
+                                gestured = true
+                            },
+                    )
+                }
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, gestured) }
+
+        enabled = true
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+
+        rule.runOnIdle { assertEquals(true, gestured) }
+    }
+
+    @Test
+    fun local_composition_enable_disable_gesture() {
+        var gestured = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        var enabled by mutableStateOf(true)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
+                    Text(
+                        "Clickable",
+                        modifier =
+                            Modifier.oneHandedGesture(action = GestureAction.Primary) {
+                                gestured = true
+                            },
+                    )
+                }
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(true, gestured) }
+
+        gestured = false
+        enabled = false
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+
+        rule.runOnIdle { assertEquals(false, gestured) }
     }
 
     @Test

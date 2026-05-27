@@ -29,7 +29,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,10 +50,12 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.VerticalPagerScaffold
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
+import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
@@ -77,6 +81,38 @@ fun OneHandedGestureButtonSample() {
                 ),
         ) {
             OneHandedGestureIndicator(interactionSource = interactionSource) { Text(label) }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun OneHandedGestureDisableButtonSample() {
+    var counter by remember { mutableIntStateOf(0) }
+    var enabled by remember { mutableStateOf(true) }
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            SwitchButton(checked = enabled, onCheckedChange = { enabled = it }) {
+                Text("Gestures enabled")
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
+                Button(
+                    onClick = {},
+                    interactionSource = interactionSource,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            action = GestureAction.Primary,
+                            interactionSource = interactionSource,
+                            onGesture = { counter++ },
+                        ),
+                ) {
+                    OneHandedGestureIndicator(interactionSource = interactionSource) {
+                        Text("Gestured $counter times")
+                    }
+                }
+            }
         }
     }
 }
