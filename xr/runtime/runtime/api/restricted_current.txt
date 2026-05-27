@@ -491,7 +491,7 @@ package androidx.xr.runtime.internal {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionRuntimeFactory extends androidx.xr.runtime.interfaces.Service {
-    method public androidx.xr.runtime.internal.JxrRuntime createRuntime(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+    method public androidx.xr.runtime.internal.JxrRuntime createRuntime(android.content.Context context, kotlinx.coroutines.CoroutineScope coroutineScope);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface RenderingRuntimeFactory extends androidx.xr.runtime.interfaces.Service {

@@ -23,6 +23,7 @@ import androidx.xr.runtime.internal.LibraryNotLinkedException
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -35,7 +36,7 @@ class OpenXrRuntimeFactoryTest {
         activityRule.scenario.onActivity {
             val underTest = OpenXrRuntimeFactory()
             assertFailsWith<LibraryNotLinkedException> {
-                underTest.createRuntime(it, EmptyCoroutineContext)
+                underTest.createRuntime(it, CoroutineScope(EmptyCoroutineContext))
             }
         }
     }

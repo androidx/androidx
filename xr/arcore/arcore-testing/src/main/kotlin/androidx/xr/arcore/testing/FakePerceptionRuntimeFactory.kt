@@ -24,6 +24,7 @@ import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 // TODO b/500091606 Remove when no longer used in G3
 /**
@@ -51,21 +52,21 @@ public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
     // TODO b/438853896 - migrate all tests to use the coroutine context
     @Suppress("DEPRECATION")
     public fun createRuntime(context: Context): PerceptionRuntime =
-        createRuntime(context, EmptyCoroutineContext)
+        createRuntime(context, CoroutineScope(EmptyCoroutineContext))
 
     /**
      * Creates a [FakePerceptionRuntime] instance for testing purposes.
      *
      * @param context The host [Context].
-     * @param coroutineContext The [CoroutineContext] for the runtime to use during testing.
+     * @param coroutineScope The [CoroutineContext] for the runtime to use during testing.
      */
     @Suppress("DEPRECATION")
     override fun createRuntime(
         context: Context,
-        coroutineContext: CoroutineContext,
+        coroutineScope: CoroutineScope,
     ): PerceptionRuntime =
         if (createNewFakeRuntime) {
-            InternalFactory().createRuntime(context, coroutineContext)
+            InternalFactory().createRuntime(context, coroutineScope)
         } else {
             FakePerceptionRuntime(FakePerceptionManager(), hasCreatePermission)
         }

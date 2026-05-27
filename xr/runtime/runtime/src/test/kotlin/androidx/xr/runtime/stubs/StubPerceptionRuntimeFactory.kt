@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 /** Stub factory for creating a [StubPerceptionRuntime] for testing purposes. */
 internal class StubPerceptionRuntimeFactory : PerceptionRuntimeFactory {
@@ -34,7 +34,7 @@ internal class StubPerceptionRuntimeFactory : PerceptionRuntimeFactory {
 
     override val requirements: Set<Feature> = emptySet()
 
-    override fun createRuntime(context: Context, coroutineContext: CoroutineContext): JxrRuntime {
+    override fun createRuntime(context: Context, coroutineScope: CoroutineScope): JxrRuntime {
         println(hasCreatePermission)
         return StubPerceptionRuntime(hasCreatePermission)
     }

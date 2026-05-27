@@ -18,19 +18,20 @@ package androidx.xr.runtime.internal
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.interfaces.Service
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 /** Factory for creating instances of a PerceptionRuntime. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface PerceptionRuntimeFactory : Service {
+
     /**
-     * Creates a [JxrRuntime] instance with a specified [CoroutineContext].
+     * Creates a [JxrRuntime] instance with a specified [CoroutineScope].
      *
-     * The provided [coroutineContext] will be used for any asynchronous operations initiated by the
+     * The provided [coroutineScope] will be used for any asynchronous operations initiated by the
      * runtime.
      *
      * @param context The host [Context].
-     * @param coroutineContext The [CoroutineContext] for the runtime to use.
+     * @param coroutineScope The [CoroutineScope] for the runtime to use.
      */
-    public fun createRuntime(context: Context, coroutineContext: CoroutineContext): JxrRuntime
+    public fun createRuntime(context: Context, coroutineScope: CoroutineScope): JxrRuntime
 }

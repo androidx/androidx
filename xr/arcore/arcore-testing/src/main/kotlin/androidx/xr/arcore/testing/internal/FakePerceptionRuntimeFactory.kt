@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 internal class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
     companion object {
@@ -31,7 +31,7 @@ internal class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
 
     override fun createRuntime(
         context: Context,
-        coroutineContext: CoroutineContext,
+        coroutineScope: CoroutineScope,
     ): FakePerceptionRuntime {
         val runtime = FakePerceptionRuntime(FakePerceptionManager())
         arCoreTestRule?.registerWithRuntime(runtime)

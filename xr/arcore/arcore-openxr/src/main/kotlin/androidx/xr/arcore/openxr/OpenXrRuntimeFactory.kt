@@ -22,6 +22,7 @@ import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.LibraryNotLinkedException
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 /** Factory for creating instances of [OpenXrRuntime]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -33,9 +34,20 @@ public class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
 
     override val requirements: Set<Feature> = setOf(Feature.FULLSTACK, Feature.OPEN_XR)
 
-    override fun createRuntime(
+    @Deprecated(
+        message = "Use OpenXrRuntimeFactory.createRuntime(context, coroutineScope) instead.",
+        ReplaceWith(
+            "OpenXrRuntimeFactory.create(context = context, coroutineScope = CoroutineScope(coroutineContext))"
+        ),
+    )
+    public fun createRuntime(
         context: Context,
         coroutineContext: CoroutineContext,
+    ): PerceptionRuntime = createRuntime(context, CoroutineScope(coroutineContext))
+
+    override fun createRuntime(
+        context: Context,
+        coroutineScope: CoroutineScope,
     ): PerceptionRuntime {
         try {
             System.loadLibrary(LIBRARY_NAME)
