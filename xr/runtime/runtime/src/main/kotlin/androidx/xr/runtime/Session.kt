@@ -133,8 +133,6 @@ public constructor(
          * The thread on which this method should be called depends on the features being used:
          * - If you are using SceneCore rendering APIs, this method must be called on the **Main
          *   Thread**.
-         * - If you are using ARCore APIs on a Projected device, this method must be called on a
-         *   **Worker Thread** (e.g., [Dispatchers.IO][kotlinx.coroutines.Dispatchers.IO]).
          * > **Thread Safety Warning:** This method performs significant disk I/O, including loading
          * > native libraries. If StrictMode is enabled, calling this on the **Main Thread** (UI
          * > Thread) will trigger a [android.os.StrictMode] `DiskReadViolation`.
