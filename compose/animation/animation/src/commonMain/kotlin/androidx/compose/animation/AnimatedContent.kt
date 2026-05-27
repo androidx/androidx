@@ -1052,9 +1052,14 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                 // NOTE: enter and exit for this AnimatedVisibility will be using different spec,
                 // naturally.
                 val exit =
-                    remember(segment.targetState == stateForContent) {
+                    remember(
+                        segment.targetState == stateForContent,
+                        stateForContent == pendingTargetState,
+                    ) {
                         if (segment.targetState == stateForContent) {
                             ExitTransition.None
+                        } else if (stateForContent == pendingTargetState && pendingScope != null) {
+                            pendingScope.transitionSpec().initialContentExit
                         } else {
                             rootScope.transitionSpec().initialContentExit
                         }

@@ -1076,7 +1076,24 @@ internal constructor(
 
     @PublishedApi
     internal fun updatePendingTarget(value: S?) {
+        val previousPending = pendingTargetState
+        val wasPendingCleared =
+            previousPending != null && value == null && this.targetState == currentState
         pendingTargetState = value
+        if (wasPendingCleared) {
+            segment = SegmentImpl(previousPending, targetState)
+            // This handles the case where a deferred phase is interrupted by an
+            // animateTo(original state) call. By setting the currentState to the
+            // pendingTargetState, the transition system picks up any manual transformations
+            // from the deferred phase and seamlessly animates them back to the original state.
+            // If no transformations were made during the deferred phase, it will immediately
+            // settle.
+            transitionState.currentState = previousPending
+            if (!isRunning) {
+                updateChildrenNeeded = true
+            }
+            _animations.fastForEach { it.resetAnimation() }
+        }
     }
 
     /**
