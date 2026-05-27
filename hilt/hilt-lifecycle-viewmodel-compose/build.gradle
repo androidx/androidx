@@ -36,7 +36,7 @@ dependencies {
     api(project(":hilt:hilt-lifecycle-viewmodel"))
     api("androidx.compose.runtime:runtime:1.8.2")
     api("androidx.compose.ui:ui:1.8.2")
-    api(project(":lifecycle:lifecycle-viewmodel-compose"))
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-rc01")
     api(libs.hiltAndroid)
 
     androidTestImplementation(libs.testExtJunit)
