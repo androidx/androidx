@@ -100,7 +100,6 @@ androidXMultiplatform {
         }
 
         jvmAndAndroidMain.dependencies {
-            api(libs.jspecify)
         }
 
         androidMain.dependencies {
@@ -110,6 +109,7 @@ androidXMultiplatform {
             compileOnly(project(":compose:ui:ui-android-stubs"))
             implementation("androidx.autofill:autofill:1.0.0")
             implementation(libs.kotlinCoroutinesAndroid)
+            api(libs.jspecify)
 
             implementation("androidx.activity:activity-ktx:1.7.0")
             implementation("androidx.core:core:1.16.0")
