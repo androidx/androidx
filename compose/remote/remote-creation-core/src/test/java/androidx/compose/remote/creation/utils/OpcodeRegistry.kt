@@ -1108,8 +1108,8 @@ object OpcodeRegistry {
 
     /** Get OpSpec for a given opcode. */
     @JvmStatic
-    fun get(opcode: Int): OpSpec {
-        return all.get(opcode)!!
+    fun get(opcode: Int): OpSpec? {
+        return all.get(opcode)
     }
 
     enum class FieldType {

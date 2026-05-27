@@ -101,6 +101,12 @@ public class WidthInModifierOperation extends DimensionInModifierOperation {
     }
 
     @Override
+    @NonNull
+    public String deepToString(@NonNull String indent) {
+        return indent + "WidthInModifierOperation " + getMin() + " " + getMax();
+    }
+
+    @Override
     public void serializeToString(int indent, @NonNull StringSerializer serializer) {
         serializer.append(indent, "WIDTH_IN = [" + getMin() + ", " + getMax() + "]");
     }

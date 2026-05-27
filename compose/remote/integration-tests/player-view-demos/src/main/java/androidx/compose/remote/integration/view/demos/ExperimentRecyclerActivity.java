@@ -1005,7 +1005,6 @@ public class ExperimentRecyclerActivity extends Activity {
         return getp(name, () -> gen.get().mRemoteWriter);
     }
 
-
     /**
      * Creates a document with a name and a writer supplier
      *
@@ -1083,7 +1082,6 @@ public class ExperimentRecyclerActivity extends Activity {
         };
     }
 
-    /**
     /**
      * Creates a document with a name and a writer supplier
      *

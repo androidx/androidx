@@ -2932,7 +2932,7 @@ public class RemoteComposeBuffer {
 
     /** Add a dimension constraints modifier operation */
     public void addDimensionConstraintsModifierOperation(int type, float min, float max) {
-        DimensionConstraintsModifierOperation.apply(mBuffer, type, min, max);
+        DimensionConstraintsModifierOperation.apply(mBuffer, (byte) type, min, max);
     }
 
     /** Add a draw content operation */

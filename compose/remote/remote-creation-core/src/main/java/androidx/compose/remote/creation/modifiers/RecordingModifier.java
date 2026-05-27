@@ -314,6 +314,15 @@ public class RecordingModifier {
     }
 
     /**
+     * Add a horizontal scroll modifier
+     */
+    public @NonNull RecordingModifier horizontalScroll(float position) {
+        mList.add(new ClipModifier(new RectShape(0, 0, 0, 0)));
+        mList.add(new ScrollModifier(ScrollModifier.HORIZONTAL, position, 0));
+        return this;
+    }
+
+    /**
      * Add a vertical scroll modifier
      */
     public @NonNull RecordingModifier verticalScroll() {

@@ -280,7 +280,7 @@ public open class RemoteComposeContext {
     }
 
     public fun buffer(): ByteArray {
-        return mRemoteWriter.buffer()
+        return mRemoteWriter.encodeToByteArray()
     }
 
     public fun bufferSize(): Int {

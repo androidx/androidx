@@ -65,7 +65,7 @@ public class DimensionConstraintsModifierOperation extends DimensionInModifierOp
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mType, getMin(), getMax());
+        apply(buffer, (byte) mType, getMin(), getMax());
     }
 
     /**
@@ -128,7 +128,7 @@ public class DimensionConstraintsModifierOperation extends DimensionInModifierOp
      * @param max maximum dimension
      * @param type type of constraint
      */
-    public static void apply(@NonNull WireBuffer buffer, int type, float min, float max) {
+    public static void apply(@NonNull WireBuffer buffer, byte type, float min, float max) {
         buffer.start(OP_CODE);
         buffer.writeByte(type);
         buffer.writeFloat(min);

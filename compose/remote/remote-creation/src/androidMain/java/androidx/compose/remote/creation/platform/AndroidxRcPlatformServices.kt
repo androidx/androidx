@@ -131,7 +131,7 @@ public open class AndroidxRcPlatformServices(private val logger: RCLogger = RCLo
                     .split("[,\\s]+".toRegex())
                     .dropLastWhile { it.isEmpty() }
                     .toTypedArray()
-            when (cmd) {
+            when (cmd.uppercaseChar()) {
                 'M' -> path.moveTo(values[0].toFloat(), values[1].toFloat())
                 'L' -> {
                     var i = 0
@@ -146,6 +146,11 @@ public open class AndroidxRcPlatformServices(private val logger: RCLogger = RCLo
                         path.lineTo(value.toFloat(), cords[1])
                     }
 
+                'V' ->
+                    for (value in values) {
+                        path.lineTo(cords[0], value.toFloat())
+                    }
+
                 'C' -> {
                     var i = 0
                     while (i < values.size) {
@@ -158,6 +163,19 @@ public open class AndroidxRcPlatformServices(private val logger: RCLogger = RCLo
                             values[i + 5].toFloat(),
                         )
                         i += 6
+                    }
+                }
+
+                'Q' -> {
+                    var i = 0
+                    while (i < values.size) {
+                        path.quadTo(
+                            values[i].toFloat(),
+                            values[i + 1].toFloat(),
+                            values[i + 2].toFloat(),
+                            values[i + 3].toFloat(),
+                        )
+                        i += 4
                     }
                 }
 
@@ -179,10 +197,15 @@ public open class AndroidxRcPlatformServices(private val logger: RCLogger = RCLo
                 'Z' -> path.close()
                 else -> throw IllegalArgumentException("Unsupported command: " + cmd)
             }
-            if (cmd != 'Z' && cmd != 'H') {
+            val uCmd = cmd.uppercaseChar()
+            if (uCmd == 'H') {
+                cords[0] = values[values.size - 1].toFloat()
+            } else if (uCmd == 'V') {
+                cords[1] = values[values.size - 1].toFloat()
+            } else if (uCmd != 'Z') {
                 cords[0] = values[values.size - 2].toFloat()
                 cords[1] = values[values.size - 1].toFloat()
-                if (cmd == 'C' || cmd == 'S') {
+                if (uCmd == 'C' || uCmd == 'S' || uCmd == 'Q') {
                     cords[2] = values[values.size - 4].toFloat()
                     cords[3] = values[values.size - 3].toFloat()
                 }

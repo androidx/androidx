@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.cos
 import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.sin
-import androidx.compose.remote.creation.times
 
 /** Draw a circular pressure gauge */
 @Suppress("RestrictedApiAndroidX")
