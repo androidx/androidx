@@ -314,10 +314,6 @@ internal class NavigationEventProcessor {
         input: NavigationEventInput,
         priority: Int,
     ) {
-        require(input.dispatcher == null) {
-            "Input '$input' is already added to dispatcher ${input.dispatcher}."
-        }
-
         val inputs =
             when (priority) {
                 PRIORITY_OVERLAY -> overlayInputs
@@ -326,7 +322,6 @@ internal class NavigationEventProcessor {
             }
         inputs += input
 
-        input.dispatcher = dispatcher
         input.doOnAdded(dispatcher)
 
         // Input must get 'history' immediately to avoid missing initial state.
@@ -349,7 +344,6 @@ internal class NavigationEventProcessor {
         overlayInputs.remove(input)
         defaultInputs.remove(input)
         unspecifiedInputs.remove(input)
-        input.dispatcher = null
         input.doOnRemoved()
     }
 
