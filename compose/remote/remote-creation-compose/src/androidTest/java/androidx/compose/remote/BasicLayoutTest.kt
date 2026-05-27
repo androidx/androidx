@@ -55,7 +55,9 @@ import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.radialGradient
@@ -505,6 +507,33 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                             .padding(8.rdp)
                             .background(Color.LightGray)
                 )
+            }
+        }
+    }
+
+    @Test
+    fun testVerticalScroll() {
+        val result =
+            """
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+    MODIFIERS
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+    BOX [-5:-1] = [220.0, 275.0, 275.0, 275.0] VISIBLE
+      MODIFIERS
+        WIDTH = 100.0 dp
+        HEIGHT = 100.0 dp
+        CLIP_RECT = [275.0, 275.0]
+        SCROLL = [0]
+"""
+        testLayout(result) {
+            RemoteColumn(
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                verticalArrangement = RemoteArrangement.Center,
+                horizontalAlignment = RemoteAlignment.CenterHorizontally,
+            ) {
+                val state = rememberRemoteScrollState()
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).verticalScroll(state))
             }
         }
     }
