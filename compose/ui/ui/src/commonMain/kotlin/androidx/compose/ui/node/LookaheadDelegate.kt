@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableObjectIntMapOf
+import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.internal.checkPrecondition
@@ -46,7 +47,7 @@ import androidx.compose.ui.unit.round
  * between the two are extracted here.
  */
 internal abstract class LookaheadCapablePlaceable :
-    Placeable(), MeasureScopeWithLayoutNode, MotionReferencePlacementDelegate {
+    Placeable(), MeasureScopeWithLayoutNode, MotionReferencePlacementDelegate, OwnerScope {
     abstract val position: IntOffset
     abstract val child: LookaheadCapablePlaceable?
     abstract val parent: LookaheadCapablePlaceable?
@@ -55,12 +56,16 @@ internal abstract class LookaheadCapablePlaceable :
     abstract val coordinates: LayoutCoordinates
     private var _rulerScope: ResettableRulerScope? = null
     private var rulersLambda: (RulerScope.() -> Unit)? = null
+    private var rulerProvider: (RulerScope.(Ruler) -> Unit)? = null
+    private var providedRulers: ((Ruler) -> Boolean)? = null
 
     /**
      * A cached value for PlaceableResult, used when calculating Rulers. This is used to avoid
      * reallocating a PlaceableResult every time rulers are calculated.
      */
     private var cachedRulerPlaceableResult: PlaceableResult? = null
+
+    private var cachedRulerPlaceableResults: MutableScatterMap<Ruler, PlaceableResult>? = null
 
     /**
      * Indicates whether the [Placeable] was placed under a motion frame of reference.
@@ -69,6 +74,9 @@ internal abstract class LookaheadCapablePlaceable :
      * `includeMotionFrameOfReference = false` in [LookaheadLayoutCoordinates.localPositionOf].
      */
     override var isPlacedUnderMotionFrameOfReference: Boolean = false
+
+    override val isValidOwnerScope: Boolean
+        get() = layoutNode.isValidOwnerScope
 
     override fun updatePlacedUnderMotionFrameOfReference(newMFR: Boolean) {
         val parentNode = parent?.layoutNode
@@ -92,6 +100,13 @@ internal abstract class LookaheadCapablePlaceable :
         get() {
             return _rulerScope ?: ResettableRulerScope().also { _rulerScope = it }
         }
+
+    private var _rulerScopes: MutableScatterMap<Ruler, ResettableRulerScope>? = null
+
+    private val rulerScopes: MutableScatterMap<Ruler, ResettableRulerScope>
+        get() =
+            _rulerScopes
+                ?: mutableScatterMapOf<Ruler, ResettableRulerScope>().also { _rulerScopes = it }
 
     final override fun get(alignmentLine: AlignmentLine): Int {
         if (!hasMeasureResult) return AlignmentLine.Unspecified
@@ -157,6 +172,21 @@ internal abstract class LookaheadCapablePlaceable :
                 p.addRulerReader(layoutNode, ruler)
                 return ruler.calculateCoordinate(rulerValue, p.coordinates, coordinates)
             }
+            val rulerProvider = p.rulerProvider
+            if (rulerProvider != null && p.providedRulers?.invoke(ruler) == true) {
+                val placeableResult = p.getOrCreatePlaceableResult(ruler)
+                layoutNode.owner?.snapshotObserver?.observeReads(
+                    placeableResult,
+                    onCommitAffectingSingleRuler,
+                ) {
+                    p.getOrCreateRulerScope(ruler).rulerProvider(ruler)
+                }
+                p.addRulerReader(layoutNode, ruler)
+                val rulerValue = p.rulerValues?.getOrDefault(ruler, Float.NaN) ?: Float.NaN
+                if (!rulerValue.isNaN()) {
+                    return ruler.calculateCoordinate(rulerValue, p.coordinates, coordinates)
+                }
+            }
             val parent = p.parent
             if (parent == null) {
                 p.addRulerReader(layoutNode, ruler)
@@ -165,6 +195,22 @@ internal abstract class LookaheadCapablePlaceable :
             p = parent
         }
     }
+
+    private fun getOrCreatePlaceableResult(ruler: Ruler): PlaceableResult {
+        val placeableMap =
+            cachedRulerPlaceableResults
+                ?: mutableScatterMapOf<Ruler, PlaceableResult>().also {
+                    cachedRulerPlaceableResults = it
+                }
+        return placeableMap
+            .getOrPut(ruler) { PlaceableResult(measureResult, this, ruler) }
+            .also { it.result = measureResult }
+    }
+
+    private fun getOrCreateRulerScope(ruler: Ruler): ResettableRulerScope =
+        rulerScopes
+            .getOrPut(ruler) { ResettableRulerScope() }
+            .also { it.coordinatesAccessed = false }
 
     private fun addRulerReader(layoutNode: LayoutNode, ruler: Ruler) {
         rulerReaders?.forEachValue { set -> set.removeIf { it.get()?.isAttached != true } }
@@ -232,20 +278,102 @@ internal abstract class LookaheadCapablePlaceable :
         }
     }
 
+    override fun layout(
+        width: Int,
+        height: Int,
+        isRulerProvided: (Ruler) -> Boolean,
+        rulerProvider: RulerScope.(Ruler) -> Unit,
+        alignmentLines: Map<AlignmentLine, Int>,
+        placementBlock: Placeable.PlacementScope.() -> Unit,
+    ): MeasureResult {
+        checkMeasuredSize(width, height)
+        return object : MeasureResult {
+            override val width: Int
+                get() = width
+
+            override val height: Int
+                get() = height
+
+            override val alignmentLines: Map<AlignmentLine, Int>
+                get() = alignmentLines
+
+            override val isRulerProvided: (Ruler) -> Boolean
+                get() = isRulerProvided
+
+            override val rulerProvider: (RulerScope.(Ruler) -> Unit)
+                get() = rulerProvider
+
+            override fun placeChildren() {
+                placementScope.placementBlock()
+            }
+        }
+    }
+
     internal fun captureRulersIfNeeded(result: MeasureResult?) {
-        val rulerReaders = rulerReaders
         if (result != null) {
             if (isPlacingForAlignment) {
                 return
             }
             val rulerLambda = result.rulers
-            if (rulerLambda == null) {
-                // Notify anything that read a value it must have a relayout
-                if (rulerReaders != null) {
-                    rulerReaders.forEachValue { notifyRulerValueChange(it) }
-                    rulerReaders.clear()
+            val rulerProvider = result.rulerProvider
+            val providedRulers = result.isRulerProvided
+            if (rulerProvider != null) {
+                if (
+                    rulerProvider !== this.rulerProvider || providedRulers !== this.providedRulers
+                ) {
+                    // all values will be reset because the provided rulers or lambda has changed
+                    this.rulerProvider = rulerProvider
+                    this.providedRulers = providedRulers
+                    resetProvidedRulers()
+                } else {
+                    var rulerScope: ResettableRulerScope? = null
+                    _rulerScopes?.forEachValue {
+                        if (it.coordinatesAccessed) {
+                            rulerScope = it
+                            return@forEachValue
+                        }
+                    }
+                    if (rulerScope != null) {
+                        // At least one Ruler provider needs coordinates
+                        val coordinates = this.coordinates
+                        val positionOnScreen = coordinates.positionOnScreen().round()
+                        val size = coordinates.size
+                        if (
+                            positionOnScreen != rulerScope.positionOnScreen ||
+                                size != rulerScope.size
+                        ) {
+                            // The position has changed, so we must reevaluate some of the rulers
+                            _rulerScopes?.forEach { ruler, rulerScope ->
+                                val reevaluate =
+                                    rulerScope.coordinatesAccessed &&
+                                        (rulerScope.size != size ||
+                                            rulerScope.positionOnScreen != positionOnScreen)
+                                rulerScope.size = size
+                                rulerScope.positionOnScreen = positionOnScreen
+                                rulerScope.coordinatesAccessed = false
+                                if (reevaluate) {
+                                    rulerValues?.remove(ruler)
+                                    val layoutNodes = rulerReaders?.get(ruler)
+                                    if (layoutNodes != null) {
+                                        notifyRulerValueChange(layoutNodes)
+                                        layoutNodes.clear()
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+            } else if (rulerLambda == null) {
+                // Notify anything that read a value it must have a relayout
+                resetProvidedRulers()
+                this.rulersLambda = null
+                this.rulerProvider = null
+                this.providedRulers = null
+                _rulerScope?.coordinatesAccessed = false
+                _rulerScope?.positionOnScreen = IntOffset.Max
             } else {
+                this.rulerProvider = null
+                this.providedRulers = null
                 // NOTE: consider using a mutable PlaceableResult to be reused for this purpose
                 var recaptureRulers = (this.rulersLambda !== rulerLambda)
                 var positionOnScreen = IntOffset.Max
@@ -268,9 +396,7 @@ internal abstract class LookaheadCapablePlaceable :
                 }
             }
         } else {
-            rulerReaders?.forEachValue { notifyRulerValueChange(it) }
-            rulerReaders?.clear()
-            rulerValues?.clear()
+            resetProvidedRulers()
         }
     }
 
@@ -292,21 +418,45 @@ internal abstract class LookaheadCapablePlaceable :
         newValues.notifyChanged(isLookingAhead, this, rulerReaders)
     }
 
+    // We don't track coordinatesAccessed separately across the ruler providers, so
+    // we're just going to invalidate all rulers if any one invalidates. If there is
+    // a need to improve performance of individual rulers at the expense of memory,
+    // we can give each provide its own RulerScope and invalidation scope.
+    fun resetProvidedRulers() {
+        rulerValues?.clear()
+        val rulerReaders = rulerReaders ?: return
+        rulerReaders.forEachValue { notifyRulerValueChange(it) }
+        rulerReaders.clear()
+    }
+
     private fun captureRulersIfNeeded(placeableResult: PlaceableResult) {
         if (isPlacingForAlignment) {
             return
         }
         val rulerLambda = placeableResult.result.rulers
-        val rulerReaders = rulerReaders
-        if (rulerLambda == null) {
+        val rulerProvider = placeableResult.result.rulerProvider
+        if (rulerProvider != null) {
+            resetProvidedRulers()
+        } else if (rulerLambda == null) {
             // Notify anything that read a value it must have a relayout
-            if (rulerReaders != null) {
-                rulerReaders.forEachValue { notifyRulerValueChange(it) }
-                rulerReaders.clear()
-            }
+            this.rulerProvider = null
+            this.providedRulers = null
+            this.rulersLambda = null
+            resetProvidedRulers()
         } else {
+            this.rulerProvider = null
+            this.providedRulers = null
             captureRulers(placeableResult)
             this.rulersLambda = rulerLambda
+        }
+    }
+
+    private fun resetSingleRulerRead(ruler: Ruler) {
+        val layoutNodes = rulerReaders?.get(ruler)
+        if (layoutNodes != null) {
+            rulerValues?.remove(ruler)
+            notifyRulerValueChange(layoutNodes)
+            layoutNodes.clear()
         }
     }
 
@@ -337,7 +487,7 @@ internal abstract class LookaheadCapablePlaceable :
             }
     }
 
-    private inner class ResettableRulerScope : RulerScope {
+    internal inner class ResettableRulerScope : RulerScope {
         var coordinatesAccessed = false
         var positionOnScreen = IntOffset.Max
         var size = IntSize.Zero
@@ -375,11 +525,22 @@ internal abstract class LookaheadCapablePlaceable :
                 result.placeable.captureRulersIfNeeded(result)
             }
         }
+        private val onCommitAffectingSingleRuler: (PlaceableResult) -> Unit = { result ->
+            if (result.isValidOwnerScope) {
+                val ruler = result.ruler
+                if (ruler != null) {
+                    result.placeable.resetSingleRulerRead(ruler)
+                }
+            }
+        }
     }
 }
 
-private class PlaceableResult(var result: MeasureResult, val placeable: LookaheadCapablePlaceable) :
-    OwnerScope {
+private class PlaceableResult(
+    var result: MeasureResult,
+    val placeable: LookaheadCapablePlaceable,
+    val ruler: Ruler? = null,
+) : OwnerScope {
     override val isValidOwnerScope: Boolean
         get() = placeable.coordinates.isAttached
 }
@@ -569,6 +730,32 @@ private class RulerTrackingMap {
             defaultValue
         } else {
             values[index]
+        }
+    }
+
+    fun remove(ruler: Ruler) {
+        val index = rulers.indexOf(ruler)
+        if (index >= 0) {
+            rulers.copyInto(
+                destination = rulers,
+                destinationOffset = index,
+                startIndex = index + 1,
+                size,
+            )
+            rulers[size - 1] = null
+            values.copyInto(
+                destination = values,
+                destinationOffset = index,
+                startIndex = index + 1,
+                size,
+            )
+            accessFlags.copyInto(
+                destination = accessFlags,
+                destinationOffset = index,
+                startIndex = index + 1,
+                size,
+            )
+            size--
         }
     }
 

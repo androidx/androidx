@@ -120,12 +120,8 @@ internal constructor(
         internal set
 }
 
-// TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
-@Suppress("KmpVisibilityMismatch") // linked to todo above
-/* internal */ expect class NativePointerButtons
-
 /** Contains the state of pointer buttons (e.g. mouse and stylus buttons). */
-@kotlin.jvm.JvmInline value class PointerButtons(internal val packedValue: NativePointerButtons)
+@kotlin.jvm.JvmInline value class PointerButtons(internal val packedValue: Int = 0)
 
 /**
  * `true` when the primary button (left mouse button) is pressed or `false` when it isn't pressed.
@@ -176,19 +172,11 @@ expect fun PointerButtons.indexOfFirstPressed(): Int
  */
 expect fun PointerButtons.indexOfLastPressed(): Int
 
-// TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
-@Suppress("KmpVisibilityMismatch") // linked to todo above
-/* internal */ expect class NativePointerKeyboardModifiers
-
 /**
  * Contains the state of modifier keys, such as Shift, Control, and Alt, as well as the state of the
  * lock keys, such as Caps Lock and Num Lock.
  */
-@kotlin.jvm.JvmInline
-value class PointerKeyboardModifiers(internal val packedValue: NativePointerKeyboardModifiers)
-
-// helps initialize `WindowInfo.keyboardModifiers` with a non-null value
-internal expect fun EmptyPointerKeyboardModifiers(): PointerKeyboardModifiers
+@kotlin.jvm.JvmInline value class PointerKeyboardModifiers(internal val packedValue: Int = 0)
 
 /** `true` when the Control key is pressed. */
 expect val PointerKeyboardModifiers.isCtrlPressed: Boolean

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
 /**
@@ -29,49 +28,17 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
  * The renderer can be stateful (e.g. on Android) and maintain internal buffers (such as index and
  * vertex buffers) to optimize rendering performance and avoid per-frame allocations.
  *
- * @see Modifier.meshGradient
+ * @see MeshGradientConfig
  */
-interface MeshGradientRenderer {
+internal interface MeshGradientRenderer {
     /**
-     * Renders the mesh gradient onto the given [DrawScope].
+     * Renders the mesh gradient defined by [config] onto the given [DrawScope].
      *
-     * @param rows The number of rows in the mesh grid. Must be greater than 0.
-     * @param columns The number of columns in the mesh grid. Must be greater than 0.
-     * @param positions A flattened [FloatArray] containing the (x, y) coordinates for each vertex
-     *   in the mesh. The array must contain at least `(rows + 1) * (columns + 1) * 2` elements. The
-     *   coordinates should be normalized (0.0 to 1.0) relative to the [DrawScope.size].
-     * @param colors A flattened [IntArray] containing the ARGB colors in sRGB color space for each
-     *   vertex. The array must contain at least `(rows + 1) * (columns + 1)` elements.
-     * @param leftBezierOffsets Optional flattened [FloatArray] of (x, y) offsets for the left
-     *   Bezier control points relative to the vertex position. If null, or if values are
-     *   Offset.Unspecified, the renderer will infer smooth control points based on neighbors.
-     * @param topBezierOffsets Optional [FloatArray] for top Bezier control point offsets.
-     * @param rightBezierOffsets Optional [FloatArray] for right Bezier control point offsets.
-     * @param bottomBezierOffsets Optional [FloatArray] for bottom Bezier control point offsets.
-     * @param hasBicubicColor Whether to use bicubic interpolation for colors (Catmull-Rom) or
-     *   bilinear interpolation. Bicubic provides smoother transitions but is more computationally
-     *   expensive.
-     *
-     * Note: If any Bezier offset is Unspecified, the renderer may modify the provided bezier offset
-     * arrays to store the inferred values instead of Offset.Unspecified, avoiding redundant
-     * calculations in subsequent calls.
+     * @param config The MeshGradientConfig to draw
+     * @see MeshGradientConfig
      */
-    fun DrawScope.draw(
-        rows: Int,
-        columns: Int,
-        positions: FloatArray,
-        colors: IntArray,
-        leftBezierOffsets: FloatArray? = null,
-        topBezierOffsets: FloatArray? = null,
-        rightBezierOffsets: FloatArray? = null,
-        bottomBezierOffsets: FloatArray? = null,
-        hasBicubicColor: Boolean = false,
-    )
+    fun DrawScope.draw(config: MeshGradientConfig)
 }
 
-/**
- * Creates a [MeshGradientRenderer].
- *
- * @sample androidx.compose.ui.samples.MeshGradientRendererSample
- */
-expect fun MeshGradientRenderer(): MeshGradientRenderer
+/** Creates a [MeshGradientRenderer]. */
+internal expect fun MeshGradientRenderer(): MeshGradientRenderer

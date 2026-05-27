@@ -142,6 +142,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.sign
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -4125,6 +4126,67 @@ class ScrollableTest {
             // outer scrollable is flinging from onPostFling
             assertThat(outerStateDeltas).isNonZero()
         }
+    }
+
+    @Test
+    fun overscroll_applyToScrollCalledIfIsInProgress() {
+        var applyToScrollCalled = false
+        val mockOverscroll =
+            object : OverscrollEffect {
+                override fun applyToScroll(
+                    delta: Offset,
+                    source: NestedScrollSource,
+                    performScroll: (Offset) -> Offset,
+                ): Offset {
+                    applyToScrollCalled = true
+                    return performScroll(delta)
+                }
+
+                override suspend fun applyToFling(
+                    velocity: Velocity,
+                    performFling: suspend (Velocity) -> Velocity,
+                ) {
+                    performFling(velocity)
+                }
+
+                // Forcing true should mean that applyToScroll is called
+                override val isInProgress
+                    get() = true
+            }
+
+        val scrollableState =
+            object : ScrollableState {
+                override fun dispatchRawDelta(delta: Float) = 0f
+
+                override val isScrollInProgress = false
+                override val canScrollForward = false
+                override val canScrollBackward = false
+
+                override suspend fun scroll(
+                    scrollPriority: MutatePriority,
+                    block: suspend ScrollScope.() -> Unit,
+                ) {
+                    block(
+                        object : ScrollScope {
+                            override fun scrollBy(pixels: Float) = 0f
+                        }
+                    )
+                }
+            }
+
+        setScrollableContent {
+            Modifier.scrollable(
+                state = scrollableState,
+                orientation = Orientation.Vertical,
+                overscrollEffect = mockOverscroll,
+            )
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
+            swipe(start = center, end = Offset(center.x, center.y + 100f), durationMillis = 100)
+        }
+
+        rule.runOnIdle { assertTrue(applyToScrollCalled) }
     }
 
     private fun setScrollableContent(

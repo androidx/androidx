@@ -4601,6 +4601,7 @@ class ParagraphIntegrationTest {
                     density = defaultDensity,
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
                     placeholders = listOf(),
+                    softWrap = true,
                 )
 
             val paragraph =

@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.test.ComposeAccessibilityValidator
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.setComposeAccessibilityValidator
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 
 /**

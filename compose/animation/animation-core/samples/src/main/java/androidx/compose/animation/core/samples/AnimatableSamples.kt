@@ -21,7 +21,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.DeferredTargetAnimation
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.calculateTargetValue
@@ -228,7 +227,6 @@ fun AnimatableFadeIn() {
     }
 }
 
-@OptIn(ExperimentalAnimatableApi::class)
 @Sampled
 @Composable
 fun DeferredTargetAnimationSample() {

@@ -25,10 +25,10 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -52,15 +52,11 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
     val line = "Test Text"
     val text = "$line\n$line"
 
-    private val selection = mutableStateOf<Selection?>(null)
+    val state = SelectionState()
 
     @Composable
     override fun Content() {
-        SelectionContainer(
-            selection = selection.value,
-            onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag),
-        ) {
+        SelectionContainer(state = state, modifier = Modifier.testTag(pointerAreaTag)) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -307,7 +303,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         endOffset: Int,
         handlesCrossed: Boolean,
     ) {
-        assertThat(selection.value)
+        assertThat(state.selection)
             .isEqualTo(
                 Selection(
                     start =

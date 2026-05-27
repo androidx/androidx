@@ -62,6 +62,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.nativeClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.semantics.SemanticsActions
@@ -359,7 +360,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
             clickCenter()
             Handle.Cursor.click()
 
-            verify(clipboard.nativeClipboard, never()).primaryClip
+            verify(clipboard.nativeClipboardManager, never()).primaryClip
             assertThat(clipboard.getClipEntryCalled).isEqualTo(0)
         }
     }
@@ -372,8 +373,8 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
             clickCenter()
             Handle.Cursor.click()
 
-            verify(clipboard.nativeClipboard, never()).primaryClip
-            verify(clipboard.nativeClipboard, never()).primaryClipDescription
+            verify(clipboard.nativeClipboardManager, never()).primaryClip
+            verify(clipboard.nativeClipboardManager, never()).primaryClipDescription
             assertThat(clipboard.getClipEntryCalled).isEqualTo(0)
         }
     }

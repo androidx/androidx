@@ -225,7 +225,7 @@ class WindowInfoCompositionLocalTest {
     @Test
     fun windowInfo_providesKeyModifiers() {
         lateinit var ownerView: View
-        var keyModifiers = PointerKeyboardModifiers(0)
+        var keyModifiers = PointerKeyboardModifiers()
 
         rule.setFocusableContent {
             ownerView = LocalView.current

@@ -30,11 +30,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.UiComposable
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.util.trace
 import androidx.core.view.isEmpty
-import androidx.core.view.isNotEmpty
 import androidx.core.viewtree.getParentOrViewTreeDisjointParent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -129,25 +127,27 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      */
     internal var composeViewContext: ComposeViewContext? = null
         set(value) {
-            val existing = field
-            if (existing !== value) {
-                if (value == null) {
-                    disposeComposition()
-                } else if (isNotEmpty()) {
-                    val child = getChildAt(0) as? AndroidComposeView
-                    if (child != null) {
-                        if (
-                            child.coroutineContext !==
-                                value.compositionContext.effectCoroutineContext
-                        ) {
-                            disposeComposition()
-                        }
-                        child.composeViewContext = value
-                    }
-                }
-                field = value
+            val current = field
+            if (current === value) {
+                return
+            }
+
+            field = value
+            updateComposeViewContext(value)
+        }
+
+    internal fun updateComposeViewContext(context: ComposeViewContext?) {
+        val restartComposition = composition?.isDisposed == false
+        disposeComposition()
+
+        val child = getChildAt(0) as? AndroidComposeView
+        if (context != null) {
+            child?.composeViewContext = context
+            if (restartComposition) {
+                ensureCompositionCreated()
             }
         }
+    }
 
     /**
      * Set the [CompositionContext] that should be the parent of this view's composition. If
@@ -193,7 +193,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * Enables the display of visual layout bounds for the Compose UI content of this view. This is
      * typically configured using the system developer setting for "Show layout bounds."
      */
-    @OptIn(InternalCoreApi::class)
     @InternalComposeUiApi
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")

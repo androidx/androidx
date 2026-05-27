@@ -75,6 +75,9 @@ class LazyLayoutPinnedItemList private constructor(private val items: MutableLis
         items.remove(item)
     }
 
+    // helper for more efficient access to the snapshot of the list
+    internal fun toList(): List<PinnedItem> = (items as SnapshotStateList<PinnedItem>).toList()
+
     /**
      * Item pinned in a lazy layout. Pinned item should be always measured and laid out, even if the
      * item is beyond the boundaries of the layout.
@@ -143,18 +146,24 @@ private class LazyLayoutPinnableItem(
         return this
     }
 
+    private fun unpin() {
+        pinnedItemList.release(this)
+        parentHandle?.release()
+        parentHandle = null
+    }
+
     override fun release() {
         if (isDisposed) return // already during item disposal.
         checkPrecondition(pinsCount > 0) { "Release should only be called once" }
         pinsCount--
         if (pinsCount == 0) {
-            pinnedItemList.release(this)
-            parentHandle?.release()
-            parentHandle = null
+            unpin()
         }
     }
 
     fun onDisposed() {
         isDisposed = true
+        pinsCount = 0
+        unpin()
     }
 }

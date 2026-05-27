@@ -67,6 +67,7 @@ interface ClipboardManager {
      * @throws UnsupportedOperationException If the current platform does not offer a native
      *   Clipboard interface.
      */
+    @Suppress("DEPRECATION")
     val nativeClipboard: NativeClipboard
         get() {
             throw UnsupportedOperationException("This platform does not offer a native Clipboard")
@@ -93,4 +94,5 @@ expect class ClipEntry {
 expect class ClipMetadata
 
 /** Native Clipboard specific to each platform. */
+@Deprecated("Use direct reference to platform type instead of typealias")
 expect class NativeClipboard

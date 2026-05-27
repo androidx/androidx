@@ -898,24 +898,6 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     }
 
     /**
-     * Removes the interval defined between a [start] and an [end] coordinate.
-     *
-     * @param start The start index of the interval
-     * @param end The end index of the interval, must be > [start] or it'll return false and do
-     *   nothing
-     * @param item Data item associated with the interval
-     * @return true if the interval is removed successfully, false otherwise
-     */
-    fun removeInterval(item: T, interval: Interval): Boolean {
-        if (interval.start >= interval.end) return false
-        val node = findNode(item, interval)
-        if (node == terminator) return false
-        detachNode(node)
-        disposeNode(node, true)
-        return true
-    }
-
-    /**
      * Removes the interval defined by the given [intervalHandle].
      *
      * @param intervalHandle The handle of the interval to remove
@@ -980,10 +962,10 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
      * @param intervalHandle The [IntervalHandle] of the target interval.
      * @return the item or null if the interval is not found.
      */
-    fun getItem(intervalHandle: IntervalHandle): T? {
+    inline fun <reified R : T> getItem(intervalHandle: IntervalHandle): R? {
         if (intervalHandle == IntervalHandle.Invalid) return null
         val node = findNode(intervalHandle)
-        return node.item
+        return node.item as? R
     }
 
     /**
@@ -998,45 +980,6 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         // Update the item doesn't change the tree structure.
         node.item = item
         return true
-    }
-
-    /** Helper method to find a specific Node given the range and data. */
-    private fun findNode(item: T, interval: Interval): Node {
-        if (root == terminator || !root.minMax.overlaps(interval.start, interval.end))
-            return terminator
-
-        val stack = tempArray
-        stack.add(root)
-        while (stack.isNotEmpty()) {
-            val node = stack.pop()
-            if (node.startEnd == interval && node.item == item) {
-                stack.clear()
-                return node
-            }
-            if (node.start >= interval.start) {
-                val left = node.left
-                // Prune if left's max is smaller than end.
-                // There is no need to check left.min, because we know node.min >= start and
-                // left.min == node.min.
-                if (left != terminator && left.max >= interval.end) {
-                    stack.add(left)
-                }
-            }
-
-            if (node.start <= interval.start) {
-                val right = node.right
-                // Prune if right's min/max can't contain the target range.
-                // We have to check right.max even if we know end <= node.max, because left.max
-                // can be larger than right.max
-                if (
-                    right != terminator && right.min <= interval.start && right.max >= interval.end
-                ) {
-                    stack.add(right)
-                }
-            }
-        }
-        // [stack] should be empty at this point, no need to clean it.
-        return terminator
     }
 
     /** Helper method to find a specific Node given the [IntervalHandle]. */

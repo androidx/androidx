@@ -2432,7 +2432,7 @@ internal class MockOwner(
     override val localeList: LocaleList
         get() = TODO("Not yet implemented")
 
-    @InternalCoreApi override var showLayoutBounds: Boolean = false
+    override var showLayoutBounds: Boolean = false
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
     override val dragAndDropManager: DragAndDropManager

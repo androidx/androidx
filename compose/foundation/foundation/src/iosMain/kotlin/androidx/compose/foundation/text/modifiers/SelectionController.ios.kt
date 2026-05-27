@@ -62,12 +62,12 @@ private interface CupertinoTextDragObserver {
 
 internal actual fun SelectionRegistrar.makeSelectionModifier(
     selectableId: Long,
-    layoutCoordinates: () -> LayoutCoordinates?
+    layoutCoordinatesProvider: () -> LayoutCoordinates?
 ): Modifier {
     return CupertinoSelectionModifierElement(
         selectionRegistrar = this,
         selectableId = selectableId,
-        layoutCoordinates = layoutCoordinates,
+        layoutCoordinates = layoutCoordinatesProvider,
     )
 }
 

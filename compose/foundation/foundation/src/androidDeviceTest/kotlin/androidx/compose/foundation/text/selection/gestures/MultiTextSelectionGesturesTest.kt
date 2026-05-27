@@ -69,7 +69,7 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
                     textToolbar = textToolbar,
                     spyTextActionModeCallback = spyTextActionModeCallback,
                     hapticFeedback = hapticFeedback,
-                    getActual = { selection.value },
+                    getActual = { state.selection },
                 ) {
                 override fun subAssert() {
                     Truth.assertAbout(MultiSelectionSubject.withContent(texts.value))

@@ -120,6 +120,7 @@ val FoundationDemos =
             DemoCategory("Pointer Icon", PointerIconDemos),
             DemoCategory("Long screenshots", LongScreenshotsDemos),
             DemoCategory("Context Menu", ContextMenuDemos),
+            ComposableDemo("Interaction Sounds") { InteractionSoundDemos() },
             ComposableDemo("Input Debugger") { InputDebuggerDemo() },
         ),
     )

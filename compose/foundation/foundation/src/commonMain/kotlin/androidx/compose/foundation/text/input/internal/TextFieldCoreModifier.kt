@@ -85,6 +85,7 @@ import kotlinx.coroutines.launch
 internal data class TextFieldCoreModifier(
     private val isFocused: Boolean, /* true iff component is focused and the window in focus */
     private val isDragHovered: Boolean,
+    private val isTouchDragInProgress: Boolean,
     private val textLayoutState: TextLayoutState,
     private val textFieldState: TransformedTextFieldState,
     private val textFieldSelectionState: TextFieldSelectionState,
@@ -100,6 +101,7 @@ internal data class TextFieldCoreModifier(
         TextFieldCoreModifierNode(
             isFocused = isFocused,
             isDragHovered = isDragHovered,
+            isTouchDragInProgress = isTouchDragInProgress,
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
@@ -115,6 +117,7 @@ internal data class TextFieldCoreModifier(
         node.updateNode(
             isFocused = isFocused,
             isDragHovered = isDragHovered,
+            isTouchDragInProgress = isTouchDragInProgress,
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
@@ -137,6 +140,7 @@ internal class TextFieldCoreModifierNode(
     // true iff this component is focused and the window is focused
     private var isFocused: Boolean,
     private var isDragHovered: Boolean,
+    isTouchDragInProgress: Boolean,
     private var textLayoutState: TextLayoutState,
     private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
@@ -198,7 +202,7 @@ internal class TextFieldCoreModifierNode(
                 textFieldState = textFieldState,
                 textFieldSelectionState = textFieldSelectionState,
                 textLayoutState = textLayoutState,
-                visible = isFocused || isDragHovered,
+                visible = isFocused || isDragHovered || isTouchDragInProgress,
             )
         )
 
@@ -233,6 +237,7 @@ internal class TextFieldCoreModifierNode(
         // if the attributes are right during onAttach, start the cursor job immediately.
         // This is possible when BasicTextField2 decorator toggles innerTextField in-and-out of
         // composition.
+        textFieldSelectionState.isWindowAndTextFieldFocused = isFocused
         if (isFocused && showCursor) {
             startCursorJob()
         }
@@ -242,6 +247,7 @@ internal class TextFieldCoreModifierNode(
     fun updateNode(
         isFocused: Boolean,
         isDragHovered: Boolean,
+        isTouchDragInProgress: Boolean,
         textLayoutState: TextLayoutState,
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
@@ -260,6 +266,7 @@ internal class TextFieldCoreModifierNode(
         val previousScrollState = this.scrollState
 
         this.isFocused = isFocused
+        textFieldSelectionState.isWindowAndTextFieldFocused = isFocused
         this.isDragHovered = isDragHovered
         this.textLayoutState = textLayoutState
         this.textFieldState = textFieldState
@@ -275,7 +282,7 @@ internal class TextFieldCoreModifierNode(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            visible = isFocused || isDragHovered,
+            visible = isFocused || isDragHovered || isTouchDragInProgress,
         )
 
         textContextMenuToolbarHandlerNode.update(toolbarRequester)

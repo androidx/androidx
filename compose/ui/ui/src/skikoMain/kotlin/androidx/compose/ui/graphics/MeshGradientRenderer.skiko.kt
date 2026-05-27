@@ -16,6 +16,6 @@
 
 package androidx.compose.ui.graphics
 
-actual fun MeshGradientRenderer(): MeshGradientRenderer {
+internal actual fun MeshGradientRenderer(): MeshGradientRenderer {
     TODO("https://youtrack.jetbrains.com/issue/CMP-10167")
 }

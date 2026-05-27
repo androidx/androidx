@@ -26,6 +26,7 @@ import androidx.compose.testutils.expectError
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.android.ComposeNotIdleException
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.registerIdlingResource
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies

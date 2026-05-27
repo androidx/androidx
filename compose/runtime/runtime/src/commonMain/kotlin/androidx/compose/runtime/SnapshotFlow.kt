@@ -399,25 +399,28 @@ private class MultiSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() {
      */
     private val pendingChanges = mutableListOf<SubscriptionChange>()
 
-    /** Used by the apply observer to keep track of the channels that it needs to notify. */
-    private val toNotify = mutableScatterSetOf<SendChannel<Unit>>()
-
     // Used by [readObserverFor] to cache partially applied functions.
     private val readObserverCache = mutableScatterMapOf<SendChannel<Unit>, (Any) -> Unit>()
 
     private val unregisterApplyObserver =
         Snapshot.registerApplyObserver { changed, _ ->
+            var toNotify: MutableList<SendChannel<Unit>>? = null
+
             synchronized(lock) {
                 // Assumption: there will typically be fewer keys in [subscriptions] than elements
                 // in [changed].
                 subscriptions.forEachKey { key ->
                     if (changed.contains(key)) {
-                        subscriptions.forEachScopeOf(key) { toNotify.add(it) }
+                        subscriptions.forEachScopeOf(key) {
+                            if (toNotify == null) {
+                                toNotify = mutableListOf()
+                            }
+                            toNotify.add(it)
+                        }
                     }
                 }
 
-                toNotify.forEach { it.trySend(Unit) }
-                toNotify.clear()
+                toNotify?.fastForEach { it.trySend(Unit) }
             }
         }
 

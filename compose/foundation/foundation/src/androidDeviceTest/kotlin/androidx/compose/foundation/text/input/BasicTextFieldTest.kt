@@ -1292,7 +1292,6 @@ internal class BasicTextFieldTest {
                     density = density,
                     enabled = true,
                     readOnly = false,
-                    isFocused = false,
                     isPassword = false,
                     toolbarRequester = FakeToolbarRequester(),
                     coroutineScope = CoroutineScope(EmptyCoroutineContext),

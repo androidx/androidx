@@ -1537,6 +1537,7 @@ class SelectionLayoutTest {
         containerCoordinates: LayoutCoordinates = MockCoordinates(),
         isStartHandle: Boolean = false,
         previousSelection: Selection? = null,
+        previousLayout: SelectionLayout? = null,
         selectableIdOrderingComparator: Comparator<Long> = naturalOrder(),
         block: SelectionLayoutBuilder.() -> Unit,
     ): SelectionLayout {
@@ -1547,6 +1548,7 @@ class SelectionLayoutTest {
                 containerCoordinates = containerCoordinates,
                 isStartHandle = isStartHandle,
                 previousSelection = previousSelection,
+                previousLayout = previousLayout,
                 selectableIdOrderingComparator = selectableIdOrderingComparator,
                 block = block,
             )
@@ -1561,6 +1563,7 @@ class SelectionLayoutTest {
         containerCoordinates: LayoutCoordinates = MockCoordinates(),
         isStartHandle: Boolean = false,
         previousSelection: Selection? = null,
+        previousLayout: SelectionLayout? = null,
         selectableIdOrderingComparator: Comparator<Long> = naturalOrder(),
         block: SelectionLayoutBuilder.() -> Unit,
     ): SelectionLayout? {
@@ -1571,6 +1574,7 @@ class SelectionLayoutTest {
                 containerCoordinates = containerCoordinates,
                 isStartHandle = isStartHandle,
                 previousSelection = previousSelection,
+                previousLayout = previousLayout,
                 selectableIdOrderingComparator = selectableIdOrderingComparator,
             )
             .run {

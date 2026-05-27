@@ -154,11 +154,35 @@ fun compositionTest(
         runTestWithComposer(ComposerToUse.Link)
     }
 
-    if (composerToUse == ComposerToUse.Gap || composerToUse == ComposerToUse.Both) {
-        runGapComposerTest()
-    }
-    if (composerToUse == ComposerToUse.Link || composerToUse == ComposerToUse.Both) {
-        runLinkComposerTest()
+    when (composerToUse) {
+        ComposerToUse.Gap -> runGapComposerTest()
+        ComposerToUse.Link -> runLinkComposerTest()
+        ComposerToUse.Both -> {
+            val gapError = runCatching { runGapComposerTest() }.exceptionOrNull()
+            val linkError = runCatching { runLinkComposerTest() }.exceptionOrNull()
+
+            if (gapError != null && linkError != null) {
+                throw AssertionError(
+                    """
+                    |Test failed under both composers.
+                    |GapComposer error: ${gapError.stackTraceToString()}
+                    |
+                    |LinkComposer error: ${linkError.stackTraceToString()}
+                """
+                        .trimMargin()
+                )
+            } else if (gapError != null) {
+                throw AssertionError(
+                    "Test failed under the GapComposer: ${gapError.message}",
+                    gapError,
+                )
+            } else if (linkError != null) {
+                throw AssertionError(
+                    "Test failed under the LinkComposer: ${linkError.message}",
+                    linkError,
+                )
+            }
+        }
     }
 }
 

@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
@@ -71,7 +70,6 @@ expect interface PlatformTextInputSession {
 interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineScope
 
 /** Single-function interface passed to [InterceptPlatformTextInput]. */
-@ExperimentalComposeUiApi
 fun interface PlatformTextInputInterceptor {
 
     /**
@@ -148,7 +146,6 @@ suspend fun PlatformTextInputModifierNode.establishTextInputSession(
  * @sample androidx.compose.ui.samples.InterceptPlatformTextInputSample
  * @sample androidx.compose.ui.samples.disableSoftKeyboardSample
  */
-@ExperimentalComposeUiApi
 @Composable
 fun InterceptPlatformTextInput(
     interceptor: PlatformTextInputInterceptor,
@@ -191,7 +188,6 @@ private suspend fun Owner.interceptedTextInputSession(
  * A link in a chain of [PlatformTextInputInterceptor]s. Knows about its [parent] and dispatches
  * [textInputSession] calls up the chain.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Stable
 private class ChainedPlatformTextInputInterceptor(
     initialInterceptor: PlatformTextInputInterceptor,

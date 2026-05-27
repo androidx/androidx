@@ -92,6 +92,62 @@ interface MeasureScope : IntrinsicMeasureScope {
             }
         }
     }
+
+    /**
+     * Sets the size and alignment lines of the measured layout, as well as the positioning block
+     * that defines the children positioning logic. The [placementBlock] is a lambda used for
+     * positioning children. [Placeable.placeAt] should be called on children inside placementBlock.
+     * The [alignmentLines] can be used by the parent layouts to decide layout, and can be queried
+     * using the [Placeable.get] operator. Note that alignment lines will be inherited by parent
+     * layouts, such that indirect parents will be able to query them as well.
+     *
+     * Use this version when providing the [Ruler]s is expensive and should only be done when
+     * needed.
+     *
+     * @sample androidx.compose.ui.samples.ProvideRulerOnlyWhenUsed
+     * @param width the measured width of the layout
+     * @param height the measured height of the layout
+     * @param alignmentLines the alignment lines defined by the layout
+     * @param isRulerProvided Works in conjunction with [rulerProvider] to
+     *   [provide][RulerScope.provides] Ruler values individually. A return value of `true`
+     *   indicates that [rulerProvider] might be able to provide a value for the passed-in [Ruler].
+     *   A value of `false` means it can never provide the value.
+     * @param rulerProvider A lambda that can [provide][RulerScope.provides] [Ruler] values. When
+     *   [isRulerProvided] returns `true` for a [Ruler], [rulerProvider] will be called to provide
+     *   its value. [rulerProvider] can choose not to provide the value if it isn't available. It
+     *   can also provide more [Ruler] values if it is convenient to provide them. For example, it
+     *   may be convenient to provide all values for a [RectRulers] when one is provided.
+     * @param placementBlock block defining the children positioning of the current layout
+     */
+    @Suppress("PrimitiveInCollection")
+    fun layout(
+        width: Int,
+        height: Int,
+        isRulerProvided: (Ruler) -> Boolean,
+        rulerProvider: RulerScope.(Ruler) -> Unit,
+        alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
+        placementBlock: Placeable.PlacementScope.() -> Unit,
+    ): MeasureResult {
+        checkMeasuredSize(width, height)
+        return object : MeasureResult {
+            override val width = width
+            override val height = height
+            override val alignmentLines = alignmentLines
+            override val isRulerProvided = isRulerProvided
+            override val rulerProvider = rulerProvider
+
+            override fun placeChildren() {
+                // This isn't called from anywhere inside the compose framework. This might
+                // be called by tests or external frameworks.
+                if (this@MeasureScope is LookaheadCapablePlaceable) {
+                    placementScope.placementBlock()
+                } else {
+                    SimplePlacementScope(width, layoutDirection, density, fontScale)
+                        .placementBlock()
+                }
+            }
+        }
+    }
 }
 
 /**

@@ -171,12 +171,6 @@ internal const val ObjectPropertyCount = LastObjectProperty - FirstObjectPropert
 internal const val PropertyCount = PrimitivePropertyCount + ObjectPropertyCount
 private val propertyFlags = IntArray(PropertyCount)
 
-internal const val BrushPropertiesMask =
-    (1 shl (BorderBrushId - FirstObjectProperty)) or
-        (1 shl (BackgroundBrushId - FirstObjectProperty)) or
-        (1 shl (ForegroundBrushId - FirstObjectProperty)) or
-        (1 shl (ContentBrushId - FirstObjectProperty))
-
 private inline fun Byte.flag(flags: Int) {
     propertyFlags[this.toInt()] = propertyFlags[this.toInt()] or flags
 }
@@ -455,8 +449,11 @@ internal class StyleProperties {
     }
 
     internal fun copyInto(target: StyleProperties, flags: Int) {
-        val primitivesSet = primitivesSet and primitiveFlagsOf(flags)
-        val objectsSet = objectsSet and objectsSetForFlags(flags)
+        copyInto(target, primitiveFlagsOf(flags), objectsSetForFlags(flags))
+    }
+
+    internal fun copyInto(target: StyleProperties, primitivesFilter: Long, objectsFilter: Int) {
+        val primitivesSet = primitivesSet and primitivesFilter
         if (primitivesSet != 0L) {
             if (primitivesSet.hasId(LeftId)) target.left(left)
             if (primitivesSet.hasId(TopId)) target.top(top)
@@ -519,6 +516,7 @@ internal class StyleProperties {
                 if (primitivesSet.hasId(FontStyleId)) target.fontStyle(fontStyle)
             }
         }
+        val objectsSet = objectsFilter and objectsSet
         if (objectsSet != 0) {
             if (objectsSet.hasId(ShapeId)) target.shape(shape)
             if (objectsSet.hasId(ColorFilterId)) target.colorFilter(colorFilter)
@@ -534,6 +532,185 @@ internal class StyleProperties {
         }
     }
 
+    internal fun diffPrimitives(other: StyleProperties, filter: Long = -1L): Long {
+        // Compute which properties were set in both.
+        val both = (primitivesSet and other.primitivesSet) and filter
+
+        // Compute properties this has set but not other
+        val exclusive = (primitivesSet xor other.primitivesSet) and filter
+
+        // If none of the properties were set in both return exclusive
+        if (both == 0L) return exclusive
+
+        // Compare the properties both have set
+        val compared =
+            both
+                .compareFloatProperty(
+                    ContentPaddingStartId,
+                    { contentPaddingStart },
+                    { other.contentPaddingStart },
+                )
+                .compareFloatProperty(
+                    ContentPaddingEndId,
+                    { contentPaddingEnd },
+                    { other.contentPaddingEnd },
+                )
+                .compareFloatProperty(
+                    ContentPaddingTopId,
+                    { contentPaddingTop },
+                    { other.contentPaddingTop },
+                )
+                .compareFloatProperty(
+                    ContentPaddingBottomId,
+                    { contentPaddingBottom },
+                    { other.contentPaddingBottom },
+                )
+                .compareFloatProperty(
+                    ExternalPaddingStartId,
+                    { externalPaddingStart },
+                    { other.externalPaddingStart },
+                )
+                .compareFloatProperty(
+                    ExternalPaddingEndId,
+                    { externalPaddingEnd },
+                    { other.externalPaddingEnd },
+                )
+                .compareFloatProperty(
+                    ExternalPaddingTopId,
+                    { externalPaddingTop },
+                    { other.externalPaddingTop },
+                )
+                .compareFloatProperty(
+                    ExternalPaddingBottomId,
+                    { externalPaddingBottom },
+                    { other.externalPaddingBottom },
+                )
+                .compareFloatProperty(BorderWidthId, { borderWidth }, { other.borderWidth })
+                .compareFloatProperty(WidthId, { width }, { other.width })
+                .compareFloatProperty(HeightId, { height }, { other.height })
+                .compareFloatProperty(WidthFractionId, { widthFraction }, { other.widthFraction })
+                .compareFloatProperty(
+                    HeightFractionId,
+                    { heightFraction },
+                    { other.heightFraction },
+                )
+                .compareFloatProperty(LeftId, { left }, { other.left })
+                .compareFloatProperty(TopId, { top }, { other.top })
+                .compareFloatProperty(RightId, { right }, { other.right })
+                .compareFloatProperty(BottomId, { bottom }, { other.bottom })
+                .compareFloatProperty(MinWidthId, { minWidth }, { other.minWidth })
+                .compareFloatProperty(MinHeightId, { minHeight }, { other.minHeight })
+                .compareFloatProperty(MaxWidthId, { maxWidth }, { other.maxWidth })
+                .compareFloatProperty(MaxHeightId, { maxHeight }, { other.maxHeight })
+                .compareFloatProperty(AlphaId, { alpha }, { other.alpha })
+                .compareFloatProperty(ScaleXId, { scaleX }, { other.scaleX })
+                .compareFloatProperty(ScaleYId, { scaleY }, { other.scaleY })
+                .compareFloatProperty(TranslationXId, { translationX }, { other.translationX })
+                .compareFloatProperty(TranslationYId, { translationY }, { other.translationY })
+                .compareFloatProperty(RotationXId, { rotationX }, { other.rotationX })
+                .compareFloatProperty(RotationYId, { rotationY }, { other.rotationY })
+                .compareFloatProperty(RotationZId, { rotationZ }, { other.rotationZ })
+                .compareFloatProperty(
+                    TransformOriginXId,
+                    { transformOriginX },
+                    { other.transformOriginX },
+                )
+                .compareFloatProperty(
+                    TransformOriginYId,
+                    { transformOriginY },
+                    { other.transformOriginY },
+                )
+                .compareBooleanProperty(ClipId, { clip }, { other.clip })
+                .compareFloatProperty(ZIndexId, { zIndex }, { other.zIndex })
+                .compareFloatProperty(
+                    CameraDistanceId,
+                    { cameraDistance },
+                    { other.cameraDistance },
+                )
+                .compareColorProperty(
+                    BackgroundColorId,
+                    { backgroundColor },
+                    { other.backgroundColor },
+                )
+                .compareColorProperty(BorderColorId, { borderColor }, { other.borderColor })
+                .compareColorProperty(
+                    ForegroundColorId,
+                    { foregroundColor },
+                    { other.foregroundColor },
+                )
+                .compareColorProperty(ContentColorId, { contentColor }, { other.contentColor })
+                .compareTextDecorationProperty(
+                    TextDecorationId,
+                    { textDecoration },
+                    { other.textDecoration },
+                )
+                .compareFontWeightProperty(FontWeightId, { fontWeight }, { other.fontWeight })
+                .compareFontStyleProperty(FontStyleId, { fontStyle }, { other.fontStyle })
+                .compareTextAlignProperty(TextAlignId, { textAlign }, { other.textAlign })
+                .compareTextDirectionProperty(
+                    TextDirectionId,
+                    { textDirection },
+                    { other.textDirection },
+                )
+                .compareBaselineShiftProperty(
+                    BaselineShiftId,
+                    { baselineShift },
+                    { other.baselineShift },
+                )
+                .compareHyphensProperty(HyphensId, { hyphens }, { other.hyphens })
+                .compareFontSynthesisProperty(
+                    FontSynthesisId,
+                    { fontSynthesis },
+                    { other.fontSynthesis },
+                )
+                .compareTextUnitProperty(FontSizeId, { fontSize }, { other.fontSize })
+                .compareTextUnitProperty(LineHeightId, { lineHeight }, { other.lineHeight })
+                .compareTextUnitProperty(
+                    LetterSpacingId,
+                    { letterSpacing },
+                    { other.letterSpacing },
+                )
+                .compareLineBreakProperty(LineBreakId, { lineBreak }, { other.lineBreak })
+
+        return compared or exclusive
+    }
+
+    internal fun diffObjects(other: StyleProperties, filter: Int = -1): Int {
+        // Compute which properties need to be compared.
+        val both = (objectsSet and other.objectsSet) and filter
+
+        // Compute properties this has set but not other
+        val exclusive = (objectsSet xor other.objectsSet) and filter
+
+        // If none of the properties were set in both return exclusive
+        if (both == 0) return exclusive
+
+        // Compare the properties both have set
+        val compared =
+            both
+                .compareObjectProperty(BorderBrushId, { borderBrush }, { other.borderBrush })
+                .compareObjectProperty(
+                    BackgroundBrushId,
+                    { backgroundBrush },
+                    { other.backgroundBrush },
+                )
+                .compareObjectProperty(
+                    ForegroundBrushId,
+                    { foregroundBrush },
+                    { other.foregroundBrush },
+                )
+                .compareObjectProperty(ShapeId, { shape }, { other.shape })
+                .compareObjectProperty(ColorFilterId, { colorFilter }, { other.colorFilter })
+                .compareObjectProperty(DropShadowId, { dropShadow }, { other.dropShadow })
+                .compareObjectProperty(InnerShadowId, { innerShadow }, { other.innerShadow })
+                .compareObjectProperty(ContentBrushId, { contentBrush }, { other.contentBrush })
+                .compareObjectProperty(FontFamilyId, { fontFamily }, { other.fontFamily })
+                .compareObjectProperty(TextMotionId, { textMotion }, { other.textMotion })
+                .compareObjectProperty(TextIndentId, { textIndent }, { other.textIndent })
+
+        return compared or exclusive
+    }
+
     /**
      * Given another StyleProperties instance, this function will return a bitmask of the property
      * phases should be invalidated due to the differences between the two.
@@ -542,351 +719,22 @@ internal class StyleProperties {
      * limit which categories of properties this function will actually check for differences of.
      */
     internal fun diff(other: StyleProperties, filterFlags: Int = PhaseFlagMask): Int {
-        // Compute the set of primitive properties set by both styles
-        val bothPrimitiveSet = primitivesSet and other.primitivesSet
-
-        // Compute properties that are only set by this and or the other.
-        val exclusivePrimitiveSet = primitivesSet xor other.primitivesSet
-
-        // Compute the set of objects properties set by both styles
-        val bothObjectsSet = objectsSet and other.objectsSet
-
-        // Compute the properties exclusively set by this style or the other
-        val exclusiveObjectsSet = objectsSet xor other.objectsSet
-
-        // Set change to those phases which are invalidated because this or the other adds or
-        // removes the setting of the value.
-        var change =
-            primitivePhaseFlagsOf(exclusivePrimitiveSet) or objectPhaseFlagsOf(exclusiveObjectsSet)
-
-        // Return early if we know, without comparing values, all phases in the filter are affected.
-        if (change and filterFlags == filterFlags) return change
-
-        val primitivesToCheck =
-            primitivesSet and bothPrimitiveSet and primitivesSetForFlags(filterFlags)
-        val objectsToCheck = objectsSet and bothObjectsSet and objectsSetForFlags(filterFlags)
-
-        // If we don't have anything direct comparisons to make return
-        if (primitivesToCheck == 0L && objectsToCheck == 0) return change
-
-        if (
-            filterFlags and InnerLayoutFlag != 0 &&
-                primitivesToCheck and InnerLayoutPrimitiveFlags != 0L
-        ) {
-            if (
-                compareProperty(
-                    primitivesToCheck,
-                    ContentPaddingStartId,
-                    contentPaddingStart,
-                    other.contentPaddingStart,
-                ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        ContentPaddingEndId,
-                        contentPaddingEnd,
-                        other.contentPaddingEnd,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        ContentPaddingTopId,
-                        contentPaddingTop,
-                        other.contentPaddingTop,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        ContentPaddingBottomId,
-                        contentPaddingBottom,
-                        other.contentPaddingBottom,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        BorderWidthId,
-                        borderWidth,
-                        other.borderWidth,
-                    )
-            ) {
-                change = change or InnerLayoutFlag
-            }
-        }
-
-        if (
-            filterFlags and OuterLayoutFlag != 0 &&
-                primitivesToCheck and OuterLayoutPrimitiveFlags != 0L
-        ) {
-            if (
-                compareProperty(primitivesToCheck, WidthId, width, other.width) ||
-                    compareProperty(primitivesToCheck, HeightId, height, other.height) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        WidthFractionId,
-                        widthFraction,
-                        other.widthFraction,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        HeightFractionId,
-                        heightFraction,
-                        other.heightFraction,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        ExternalPaddingStartId,
-                        externalPaddingStart,
-                        other.externalPaddingStart,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        ExternalPaddingEndId,
-                        externalPaddingEnd,
-                        other.externalPaddingEnd,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        ExternalPaddingTopId,
-                        externalPaddingTop,
-                        other.externalPaddingTop,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        ExternalPaddingBottomId,
-                        externalPaddingBottom,
-                        other.externalPaddingBottom,
-                    ) ||
-                    compareProperty(primitivesToCheck, LeftId, left, other.left) ||
-                    compareProperty(primitivesToCheck, TopId, top, other.top) ||
-                    compareProperty(primitivesToCheck, RightId, right, other.right) ||
-                    compareProperty(primitivesToCheck, BottomId, bottom, other.bottom) ||
-                    compareProperty(primitivesToCheck, MinHeightId, minHeight, other.minHeight) ||
-                    compareProperty(primitivesToCheck, MinWidthId, minWidth, other.minWidth) ||
-                    compareProperty(primitivesToCheck, MaxHeightId, maxHeight, other.maxHeight) ||
-                    compareProperty(primitivesToCheck, MaxWidthId, maxWidth, other.maxWidth)
-            ) {
-                change = change or OuterLayoutFlag
-            }
-        }
-
-        if (filterFlags and OuterLayoutFlag != 0) {
-            if (primitivesToCheck and DrawPrimitiveFlags != 0L) {
-                if (
-                    compareProperty(
-                        primitivesToCheck,
-                        BorderWidthId,
-                        borderWidth,
-                        other.borderWidth,
-                    ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            BorderColorId,
-                            borderColor,
-                            other.borderColor,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            BackgroundColorId,
-                            backgroundColor,
-                            other.backgroundColor,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            ForegroundColorId,
-                            foregroundColor,
-                            other.foregroundColor,
-                        )
-                ) {
-                    change = change or DrawFlag
-                }
-            }
-            if (objectsToCheck and DrawObjectFlags != 0) {
-                if (
-                    compareProperty(
-                        objectsToCheck,
-                        BorderBrushId,
-                        borderBrush,
-                        other.borderBrush,
-                    ) ||
-                        compareProperty(
-                            objectsToCheck,
-                            BackgroundBrushId,
-                            backgroundBrush,
-                            other.backgroundBrush,
-                        ) ||
-                        compareProperty(
-                            objectsToCheck,
-                            ForegroundBrushId,
-                            foregroundBrush,
-                            other.foregroundBrush,
-                        ) ||
-                        compareProperty(
-                            objectsToCheck,
-                            InnerShadowId,
-                            innerShadow,
-                            other.innerShadow,
-                        ) ||
-                        compareProperty(
-                            objectsToCheck,
-                            DropShadowId,
-                            dropShadow,
-                            other.dropShadow,
-                        ) ||
-                        compareProperty(objectsToCheck, ShapeId, shape, other.shape)
-                ) {
-                    change = change or DrawFlag
-                }
-            }
-        }
-
-        if (filterFlags and LayerFlag != 0 && primitivesToCheck and LayerPrimitiveFlags != 0L) {
-            if (
-                compareProperty(primitivesToCheck, AlphaId, alpha, other.alpha) ||
-                    compareProperty(primitivesToCheck, ScaleXId, scaleX, other.scaleX) ||
-                    compareProperty(primitivesToCheck, ScaleYId, scaleY, other.scaleY) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        TranslationXId,
-                        translationX,
-                        other.translationX,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        TranslationYId,
-                        translationY,
-                        other.translationY,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        TransformOriginXId,
-                        transformOriginX,
-                        other.transformOriginX,
-                    ) ||
-                    compareProperty(
-                        primitivesToCheck,
-                        TransformOriginYId,
-                        transformOriginY,
-                        other.transformOriginY,
-                    ) ||
-                    compareProperty(primitivesToCheck, RotationXId, rotationX, other.rotationX) ||
-                    compareProperty(primitivesToCheck, RotationYId, rotationY, other.rotationY) ||
-                    compareProperty(primitivesToCheck, RotationZId, rotationZ, other.rotationZ) ||
-                    compareProperty(primitivesToCheck, ZIndexId, zIndex, other.zIndex) ||
-                    compareProperty(primitivesToCheck, ClipId, clip, other.clip)
-            ) {
-                change = change or LayerFlag
-            }
-        }
-
-        if (filterFlags and LayerFlag != 0 && objectsToCheck and LayerObjectFlags != 0) {
-            if (compareProperty(objectsToCheck, ColorFilterId, colorFilter, other.colorFilter)) {
-                change = change or LayerFlag
-            }
-        }
+        val primitivesFilter = primitivesSetForFlags(filterFlags)
+        val objectsFilter = objectsSetForFlags(filterFlags)
+        val primitiveChanges = diffPrimitives(other, primitivesFilter)
+        val objectsChanges = diffObjects(other, objectsFilter)
+        var phases = primitivePhaseFlagsOf(primitiveChanges) or objectPhaseFlagsOf(objectsChanges)
 
         // Special case for shape, it should invalidate the layer flag if either this or other
         // has layer properties set even if they are the same. The layer needs to be rebuilt for the
         // shape change even if only the shape changed.
-        if (filterFlags and (LayerFlag or DrawFlag) != 0) {
-            val hasLayoutProperties = hasLayerProperties() || other.hasLayerProperties()
-            if (
-                hasLayoutProperties && compareProperty(objectsToCheck, ShapeId, shape, other.shape)
-            ) {
-                change = change or LayerFlag
+        if (filterFlags and (LayerFlag or DrawFlag) != 0 && objectsChanges.hasId(ShapeId)) {
+            if (hasLayerProperties() || other.hasLayerProperties()) {
+                phases = phases or LayerFlag
             }
         }
 
-        if (filterFlags and TextDrawFlag != 0) {
-            if (
-                compareProperty(primitivesToCheck, ContentColorId, contentColor, other.contentColor)
-            ) {
-                // TODO: we could include TextDecoration here but it's part of textEnums so we would
-                //  have to break it out.
-                change = change or TextDrawFlag
-            }
-
-            if (compareProperty(objectsToCheck, ContentBrushId, contentBrush, other.contentBrush)) {
-                change = change or TextDrawFlag
-            }
-        }
-
-        if (filterFlags and (TextLayoutFlag or TextDrawFlag) != 0) {
-            if (primitivesToCheck and (TextLayoutPrimitiveFlags or TextDrawPrimitiveFlags) != 0L) {
-                if (
-                    compareProperty(primitivesToCheck, FontSizeId, fontSize, other.fontSize) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            LineHeightId,
-                            lineHeight,
-                            other.lineHeight,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            LetterSpacingId,
-                            letterSpacing,
-                            other.letterSpacing,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            BaselineShiftId,
-                            baselineShift,
-                            other.baselineShift,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            LineBreakId,
-                            lineBreak,
-                            other.lineBreak,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            FontStyleId,
-                            fontStyle,
-                            other.fontStyle,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            FontWeightId,
-                            fontWeight,
-                            other.fontWeight,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            TextAlignId,
-                            textAlign,
-                            other.textAlign,
-                        ) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            TextDirectionId,
-                            textDirection,
-                            other.textDirection,
-                        ) ||
-                        compareProperty(primitivesToCheck, HyphensId, hyphens, other.hyphens) ||
-                        compareProperty(
-                            primitivesToCheck,
-                            FontSynthesisId,
-                            fontSynthesis,
-                            other.fontSynthesis,
-                        )
-                ) {
-                    change = change or TextLayoutFlag or TextDrawFlag
-                }
-            }
-
-            if (objectsToCheck and (TextLayoutObjectFlags or TextDrawObjectFlags) != 0) {
-                if (
-                    compareProperty(objectsToCheck, FontFamilyId, fontFamily, other.fontFamily) ||
-                        compareProperty(
-                            objectsToCheck,
-                            TextMotionId,
-                            textMotion,
-                            other.textMotion,
-                        ) ||
-                        compareProperty(objectsToCheck, TextIndentId, textIndent, other.textIndent)
-                ) {
-                    change = change or TextLayoutFlag or TextDrawFlag
-                }
-            }
-        }
-
-        return change
+        return phases
     }
 
     fun hasLayerProperties(): Boolean =
@@ -1311,10 +1159,10 @@ internal class StyleProperties {
                 )
             else TextDecoration.None
 
-    fun valueElements(): List<ValueElement> =
+    fun valueElements(primitivesFilter: Long, objectsFilter: Int): List<ValueElement> =
         mutableListOf<ValueElement>().apply {
-            val primitivesSet = primitivesSet
-            val objectsSet = objectsSet
+            val primitivesSet = primitivesSet and primitivesFilter
+            val objectsSet = objectsSet and objectsFilter
             fun add(name: String, value: Any?) = add(ValueElement(name, value))
             if (primitivesSet.hasId(ContentPaddingStartId))
                 add("contentPaddingStart", contentPaddingStart)
@@ -1354,6 +1202,7 @@ internal class StyleProperties {
             if (objectsSet.hasId(BorderBrushId)) add("borderBrush", borderBrush)
             if (primitivesSet.hasId(BackgroundColorId)) add("backgroundColor", backgroundColor)
             if (objectsSet.hasId(BackgroundBrushId)) add("backgroundBrush", backgroundBrush)
+            if (primitivesSet.hasId(ForegroundColorId)) add("foregroundColor", foregroundColor)
             if (objectsSet.hasId(ForegroundBrushId)) add("foregroundBrush", foregroundBrush)
             if (primitivesSet.hasId(ClipId)) add("clip", clip)
             if (objectsSet.hasId(ShapeId)) add("shape", shape)
@@ -1495,17 +1344,17 @@ internal fun lerpDraw(
             borderWidth(lerp(a.borderWidth, b.borderWidth, t))
         }
         if (primitivesSet.hasId(BorderColorId)) {
-            val t = animations.timeOf(BorderColorId)
+            val t = animations.timeOf(BorderBrushId)
             borderColor(androidx.compose.ui.graphics.lerp(a.borderColor, b.borderColor, t))
         }
         if (primitivesSet.hasId(BackgroundColorId)) {
-            val t = animations.timeOf(BackgroundColorId)
+            val t = animations.timeOf(BackgroundBrushId)
             backgroundColor(
                 androidx.compose.ui.graphics.lerp(a.backgroundColor, b.backgroundColor, t)
             )
         }
         if (primitivesSet.hasId(ForegroundColorId)) {
-            val t = animations.timeOf(ForegroundColorId)
+            val t = animations.timeOf(ForegroundBrushId)
             foregroundColor(
                 androidx.compose.ui.graphics.lerp(a.foregroundColor, b.foregroundColor, t)
             )
@@ -1757,12 +1606,52 @@ private inline fun <T> StyleProperties.animateAB(
     }
 }
 
-internal fun removeColorForBrushProperties(primitivesSet: Long, objectsSet: Int): Long {
+private const val BrushesMask =
+    (1 shl (BorderBrushId - FirstObjectProperty)) or
+        (1 shl (ContentBrushId - FirstObjectProperty)) or
+        (1 shl (BackgroundBrushId - FirstObjectProperty)) or
+        (1 shl (ForegroundBrushId - FirstObjectProperty))
+
+// If a color is set include the corresponding brush
+internal fun widenPrimitivesSet(primitivesSet: Long, objectsSet: Int): Long {
     var result = primitivesSet
-    if (objectsSet.hasId(BorderBrushId)) result = result.withoutId(BorderColorId)
-    if (objectsSet.hasId(ContentBrushId)) result = result.withoutId(ContentColorId)
-    if (objectsSet.hasId(BackgroundBrushId)) result = result.withoutId(BackgroundColorId)
-    if (objectsSet.hasId(ForegroundBrushId)) result = result.withoutId(ForegroundColorId)
+    if (objectsSet and BrushesMask != 0) {
+        if (objectsSet.hasId(BorderBrushId)) result = result.withId(BorderColorId)
+        if (objectsSet.hasId(ContentBrushId)) result = result.withId(ContentColorId)
+        if (objectsSet.hasId(BackgroundBrushId)) result = result.withId(BackgroundColorId)
+        if (objectsSet.hasId(ForegroundBrushId)) result = result.withId(ForegroundColorId)
+    }
+    return result
+}
+
+private const val ColorsMask =
+    (1L shl BorderColorId.toInt()) or
+        (1L shl ContentColorId.toInt()) or
+        (1L shl BackgroundColorId.toInt()) or
+        (1L shl ForegroundColorId.toInt())
+
+internal fun filterPrimitiveColors(primitivesSet: Long) = primitivesSet and ColorsMask.inv()
+
+// If a brush is set include the corresponding color
+internal fun widenObjectsSet(primitivesSet: Long, objectsSet: Int): Int {
+    var result = objectsSet
+    if (primitivesSet and ColorsMask != 0L) {
+        if (primitivesSet.hasId(BorderColorId)) result = result.withId(BorderBrushId)
+        if (primitivesSet.hasId(ContentColorId)) result = result.withId(ContentBrushId)
+        if (primitivesSet.hasId(BackgroundColorId)) result = result.withId(BackgroundBrushId)
+        if (primitivesSet.hasId(ForegroundColorId)) result = result.withId(ForegroundBrushId)
+    }
+    return result
+}
+
+internal fun favorBrushesOverColors(primitivesSet: Long, objectsSet: Int): Long {
+    var result = primitivesSet
+    if (objectsSet and BrushesMask != 0) {
+        if (objectsSet.hasId(BorderBrushId)) result = result.withoutId(BorderColorId)
+        if (objectsSet.hasId(ContentBrushId)) result = result.withoutId(ContentColorId)
+        if (objectsSet.hasId(BackgroundBrushId)) result = result.withoutId(BackgroundColorId)
+        if (objectsSet.hasId(ForegroundBrushId)) result = result.withoutId(ForegroundColorId)
+    }
     return result
 }
 
@@ -1775,12 +1664,17 @@ internal fun lerp(
     objectsSet: Int,
     result: StyleProperties,
 ) {
-    val effectiveObjectsSet = (a.objectsSet or b.objectsSet) and objectsSet
+    // Color and Brush properties form a logical group and should animate as a brush
+    // if either has a brush.
+    val effectivePrimitivesFilter = widenPrimitivesSet(primitivesSet, objectsSet)
+    val effectiveObjectsFilter = widenObjectsSet(primitivesSet, objectsSet)
+    val effectiveObjectsSet = (a.objectsSet or b.objectsSet) and effectiveObjectsFilter
     val effectivePrimitivesSet =
-        removeColorForBrushProperties(
-            (a.primitivesSet or b.primitivesSet) and primitivesSet,
+        favorBrushesOverColors(
+            (a.primitivesSet or b.primitivesSet) and effectivePrimitivesFilter,
             effectiveObjectsSet,
         )
+
     if (effectivePrimitivesSet == 0L && effectiveObjectsSet == 0) {
         // Nothing to do
         return
@@ -1806,7 +1700,7 @@ internal fun lerp(
         lerpLayer(effectiveObjectsSet, a, b, animations, result)
     }
     if (effectivePrimitivesSet.hasId(ContentColorId)) {
-        val t = animations.timeOf(ContentColorId)
+        val t = animations.timeOf(ContentBrushId)
         result.contentColor(androidx.compose.ui.graphics.lerp(a.contentColor, b.contentColor, t))
     }
     if (effectiveObjectsSet.hasId(ContentBrushId)) {
@@ -1935,9 +1829,11 @@ private inline fun Byte.shiftOffset() = this.toInt()
 
 private inline fun Int.shiftOffset() = this - FirstObjectProperty
 
-private inline fun Long.hasId(primitiveId: Byte) = this and (1L shl primitiveId.shiftOffset()) != 0L
+internal inline fun Long.hasId(primitiveId: Byte) =
+    primitiveId < PrimitivePropertyCount && this and (1L shl primitiveId.shiftOffset()) != 0L
 
-private inline fun Int.hasId(objectId: Int) = this and (1 shl objectId.shiftOffset()) != 0
+internal inline fun Int.hasId(objectId: Int) =
+    objectId >= FirstObjectProperty && this and (1 shl objectId.shiftOffset()) != 0
 
 internal inline fun Long.withId(primitiveId: Byte) = this or (1L shl primitiveId.shiftOffset())
 
@@ -1946,75 +1842,73 @@ internal inline fun Long.withoutId(primitiveId: Byte) =
 
 internal inline fun Int.withId(objectId: Int) = this or (1 shl objectId.shiftOffset())
 
-private inline fun Int.withoutId(objectId: Int) = this and (1 shl objectId.shiftOffset()).inv()
+internal inline fun Int.withoutId(objectId: Int) = this and (1 shl objectId.shiftOffset()).inv()
 
-private inline fun compareProperty(primitivesSet: Long, id: Byte, a: Float, b: Float): Boolean =
-    primitivesSet.hasId(id) && a.toRawBits() != b.toRawBits()
+private inline fun Long.compareFloatProperty(id: Byte, a: () -> Float, b: () -> Float): Long =
+    if (this.hasId(id) && a().toRawBits() == b().toRawBits()) this.withoutId(id) else this
 
-private inline fun compareProperty(primitivesSet: Long, id: Byte, a: Color, b: Color): Boolean =
-    primitivesSet.hasId(id) && a != b
+private inline fun Long.compareColorProperty(id: Byte, a: () -> Color, b: () -> Color): Long =
+    if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(primitivesSet: Long, id: Byte, a: Boolean, b: Boolean): Boolean =
-    primitivesSet.hasId(id) && a != b
+private inline fun Long.compareBooleanProperty(id: Byte, a: () -> Boolean, b: () -> Boolean): Long =
+    if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareTextDecorationProperty(
     id: Byte,
-    a: TextUnit,
-    b: TextUnit,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> TextDecoration,
+    b: () -> TextDecoration,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareTextUnitProperty(
     id: Byte,
-    a: BaselineShift,
-    b: BaselineShift,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> TextUnit,
+    b: () -> TextUnit,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareBaselineShiftProperty(
     id: Byte,
-    a: LineBreak,
-    b: LineBreak,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> BaselineShift,
+    b: () -> BaselineShift,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareLineBreakProperty(
     id: Byte,
-    a: FontStyle,
-    b: FontStyle,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> LineBreak,
+    b: () -> LineBreak,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareFontStyleProperty(
     id: Byte,
-    a: FontWeight,
-    b: FontWeight,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> FontStyle,
+    b: () -> FontStyle,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareFontWeightProperty(
     id: Byte,
-    a: TextAlign,
-    b: TextAlign,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> FontWeight,
+    b: () -> FontWeight,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareTextAlignProperty(
     id: Byte,
-    a: TextDirection,
-    b: TextDirection,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> TextAlign,
+    b: () -> TextAlign,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun compareProperty(primitivesSet: Long, id: Byte, a: Hyphens, b: Hyphens): Boolean =
-    primitivesSet.hasId(id) && a != b
-
-private inline fun compareProperty(
-    primitivesSet: Long,
+private inline fun Long.compareTextDirectionProperty(
     id: Byte,
-    a: FontSynthesis,
-    b: FontSynthesis,
-): Boolean = primitivesSet.hasId(id) && a != b
+    a: () -> TextDirection,
+    b: () -> TextDirection,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
 
-private inline fun <T : Any> compareProperty(objectsSet: Int, id: Int, a: T?, b: T?): Boolean =
-    objectsSet.hasId(id) && a != b
+private inline fun Long.compareHyphensProperty(id: Byte, a: () -> Hyphens, b: () -> Hyphens): Long =
+    if (this.hasId(id) && a() == b()) this.withoutId(id) else this
+
+private inline fun Long.compareFontSynthesisProperty(
+    id: Byte,
+    a: () -> FontSynthesis,
+    b: () -> FontSynthesis,
+): Long = if (this.hasId(id) && a() == b()) this.withoutId(id) else this
+
+private inline fun <T> Int.compareObjectProperty(id: Int, a: () -> T?, b: () -> T?) =
+    if (this.hasId(id) && a() == b()) this.withoutId(id) else this

@@ -341,7 +341,6 @@ internal class RootNodeOwner(
         pointerInputEventProcessor.processCancel()
     }
 
-    @OptIn(InternalCoreApi::class)
     fun onPointerInput(event: PointerInputEvent): PointerEventResult {
         if (event.button != null) {
             platformContext.inputModeManager.requestInputMode(InputMode.Touch)
@@ -548,7 +547,6 @@ internal class RootNodeOwner(
         override val layoutDirection get() = _layoutDirection
         override val localeList get() = platformContext.localeList
         override var showLayoutBounds by mutableStateOf(false)
-            @InternalCoreApi
             set
 
         override val modifierLocalManager = ModifierLocalManager(this)

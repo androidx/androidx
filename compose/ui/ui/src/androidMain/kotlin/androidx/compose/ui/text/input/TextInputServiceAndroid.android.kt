@@ -59,7 +59,7 @@ internal class TextInputServiceAndroid(
     val view: View,
     rootPositionCalculator: MatrixPositionCalculator,
     private val inputMethodManager: InputMethodManager,
-    private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
+    private val inputCommandProcessorExecutor: Executor = Executor(view::postOnAnimation),
 ) : PlatformTextInputService {
 
     /**

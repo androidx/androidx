@@ -390,7 +390,7 @@ internal class LinkComposer(
     private var shouldPauseCallback: ShouldPauseCallback? = null
 
     override val errorContext: CompositionErrorContextImpl? = CompositionErrorContextImpl(this)
-        get() = if (sourceMarkersEnabled) field else null
+        get() = if (parentContext.stackTraceEnabled) field else null
 
     override fun forceRecomposeScopes(): Boolean {
         return if (!forceRecomposeScopes) {
@@ -1036,8 +1036,6 @@ internal class LinkComposer(
 
     /** See [InternalComposer.stackTraceForValue] */
     override fun stackTraceForValue(value: Any?): ComposeStackTrace {
-        if (!sourceMarkersEnabled) return ComposeStackTrace(emptyList(), false)
-
         return ComposeStackTrace(
             slotTable
                 .findLocation { it === value || (it as? RememberObserverHolder)?.wrapped === value }
@@ -1381,10 +1379,7 @@ internal class LinkComposer(
             val parentGroup = reader.parentGroup
             val parentRecomposeScope = reader.getRecomposeScopeOrNull(parentGroup)
             val invalidation = parentRecomposeScope?.let { invalidations.remove(it) }
-            val wasInvalidated = reader.recomposeRequired(parentGroup)
-            if (wasInvalidated) {
-                reader.removeFlag(IsRecompositionRequiredFlag)
-            }
+            reader.removeFlag(IsRecompositionRequiredFlag)
             val slot = reader.next()
             val scope =
                 if (slot == Composer.Empty) {
@@ -1395,8 +1390,7 @@ internal class LinkComposer(
                     newScope
                 } else slot as RecomposeScopeImpl
             scope.requiresRecompose =
-                wasInvalidated ||
-                    invalidation != null ||
+                invalidation != null ||
                     scope.forcedRecompose.also { forced ->
                         if (forced) scope.forcedRecompose = false
                     }
@@ -1432,7 +1426,7 @@ internal class LinkComposer(
     }
 
     private fun currentStackTrace(): ComposeStackTrace? =
-        if (sourceMarkersEnabled) {
+        if (parentContext.stackTraceEnabled) {
             ComposeStackTrace(
                 buildList {
                     addAll(builder.buildTrace())
@@ -2106,9 +2100,10 @@ internal class LinkComposer(
                 if (reader.recomposeRequired(group)) {
                     reader.reposition(group)
                     val scope = requireRecomposeScope(group)
-                    val invalidations = invalidations[scope]
+                    val invalidation = invalidations[scope]
 
-                    if (scope.isInvalidFor(invalidations)) {
+                    if (scope.isInvalidFor(invalidation)) {
+                        invalidations.remove(scope)
                         recomposed = true
 
                         // We have moved so the cached lookup of the provider is invalid
@@ -2632,8 +2627,6 @@ internal class LinkComposer(
     }
 
     private fun stackTraceForGroup(group: Int, dataOffset: Int?): List<ComposeStackTraceFrame> {
-        if (!sourceMarkersEnabled) return emptyList()
-
         return slotTable.read { traceForGroup(group, dataOffset) }
     }
 

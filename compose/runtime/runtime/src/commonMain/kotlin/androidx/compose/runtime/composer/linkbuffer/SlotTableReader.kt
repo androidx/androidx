@@ -484,7 +484,8 @@ internal fun SlotTableReader.traceForGroup(
     addressSpace.traverseGroupAndParents(group) { currentGroup ->
         traceBuilder.processEdge(
             groupKey = groupKey(currentGroup),
-            objectKey = groupObjectKey(currentGroup),
+            objectKey =
+                if (hasObjectKey(currentGroup)) groupObjectKey(currentGroup) else Composer.Empty,
             sourceInformation = addressSpace.sourceInformationOf(currentGroup),
             childData = childAnchor,
         )

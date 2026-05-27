@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.collection.LongObjectMap
+import androidx.collection.buildLongObjectMap
 import androidx.collection.emptyLongObjectMap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -211,6 +212,9 @@ internal fun getSelectionLayoutFake(
     lastInfo: SelectableInfo = if (crossStatus == CrossStatus.CROSSED) startInfo else endInfo,
     middleInfos: List<SelectableInfo> =
         if (infos.size < 2) emptyList() else infos.subList(1, infos.size - 1),
+    infoBySelectableId: LongObjectMap<SelectableInfo> = buildLongObjectMap {
+        infos.forEach { put(it.selectableId, it) }
+    },
     isStartHandle: Boolean = false,
     previousSelection: Selection? = null,
     shouldRecomputeSelection: Boolean = true,
@@ -227,6 +231,7 @@ internal fun getSelectionLayoutFake(
         firstInfo = firstInfo,
         lastInfo = lastInfo,
         middleInfos = middleInfos,
+        infoBySelectableId = infoBySelectableId,
         isStartHandle = isStartHandle,
         previousSelection = previousSelection,
         shouldRecomputeSelection = shouldRecomputeSelection,
@@ -246,6 +251,7 @@ internal class FakeSelectionLayout(
     override val isStartHandle: Boolean,
     override val previousSelection: Selection?,
     private val middleInfos: List<SelectableInfo>,
+    private val infoBySelectableId: LongObjectMap<SelectableInfo>,
     private val shouldRecomputeSelection: Boolean,
     private val subSelections: LongObjectMap<Selection>,
 ) : SelectionLayout {
@@ -254,6 +260,9 @@ internal class FakeSelectionLayout(
     override fun forEachMiddleInfo(block: (SelectableInfo) -> Unit) {
         middleInfos.forEach(block)
     }
+
+    override fun infoForSelectable(selectableId: Long): SelectableInfo? =
+        infoBySelectableId[selectableId]
 
     override fun shouldRecomputeSelection(other: SelectionLayout?): Boolean =
         shouldRecomputeSelection
@@ -286,6 +295,8 @@ internal fun getSelection(
 
 internal class FakeSelectable : Selectable {
     override var selectableId = 0L
+    override val pinnableContainer = null
+    override val bringIntoViewRequester = null
     var getTextCalledTimes = 0
     var textToReturn: AnnotatedString? = null
 

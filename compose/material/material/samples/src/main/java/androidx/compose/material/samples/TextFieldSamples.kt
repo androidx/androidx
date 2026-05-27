@@ -171,6 +171,12 @@ fun PasswordTextField() {
     SecureTextField(
         state = rememberTextFieldState(),
         label = { Text("Enter password") },
+        keyboardOptions =
+            KeyboardOptions(
+                autoCorrectEnabled = false,
+                keyboardType =
+                    if (passwordHidden) KeyboardType.Password else KeyboardType.PasswordVisible,
+            ),
         textObfuscationMode =
             if (passwordHidden) TextObfuscationMode.RevealLastTyped
             else TextObfuscationMode.Visible,

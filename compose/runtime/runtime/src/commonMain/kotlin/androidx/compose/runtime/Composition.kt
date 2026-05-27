@@ -756,8 +756,15 @@ internal class CompositionImpl(
 
     private fun composeInitialWithReuse(content: @Composable () -> Unit) {
         composer.startReuseFromRoot()
-        composeInitial(content)
-        composer.endReuseFromRoot()
+        var completed = false
+        try {
+            composeInitial(content)
+            completed = true
+        } finally {
+            // Failed initial composition aborts reuse state in the composer, so only perform the
+            // normal root-reuse unwind after a successful compose.
+            if (completed) composer.endReuseFromRoot()
+        }
     }
 
     private fun ensureRunning() {

@@ -1709,7 +1709,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun showOnScreen_nestedScrollables() {
-        assumeTrue(AndroidComposeUiFlags.isAccessibilityShowOnScreenNestedScrollingEnabled)
         val verticalScroll = ScrollState(initial = 0)
         val horizontalScroll = ScrollState(initial = 0)
         var density: Density? = null

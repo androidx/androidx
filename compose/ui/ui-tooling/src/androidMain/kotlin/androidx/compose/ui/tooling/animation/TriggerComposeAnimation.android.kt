@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.tooling.animation
 
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.tooling.AnimationDebugMutableState
 
@@ -29,10 +31,12 @@ import androidx.compose.ui.tooling.AnimationDebugMutableState
  */
 internal class TriggerComposeAnimation<T>
 private constructor(
-    val animationObject: MutableState<T>,
-    val label: String,
+    override val animationObject: MutableState<T>,
+    override val label: String,
     availableStates: Set<T>,
-) {
+) : ComposeAnimation {
+
+    override val type = ComposeAnimationType.TRIGGER
 
     /** The current state of the trigger. */
     var initialState: T = animationObject.value
@@ -47,7 +51,7 @@ private constructor(
      *
      * TODO(b/478807872) At the moment nullability is not fully supported.
      */
-    val states =
+    override val states =
         availableStates.filterNotNull().toMutableSet().also {
             it.addAll(setOfNotNull(animationObject.value))
         }

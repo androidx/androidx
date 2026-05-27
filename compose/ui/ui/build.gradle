@@ -100,6 +100,7 @@ androidXMultiplatform {
         }
 
         jvmAndAndroidMain.dependencies {
+            api(libs.jspecify)
         }
 
         androidMain.dependencies {
@@ -109,7 +110,6 @@ androidXMultiplatform {
             compileOnly(project(":compose:ui:ui-android-stubs"))
             implementation("androidx.autofill:autofill:1.0.0")
             implementation(libs.kotlinCoroutinesAndroid)
-            api(libs.jspecify)
 
             implementation("androidx.activity:activity-ktx:1.7.0")
             implementation("androidx.core:core:1.16.0")
@@ -134,6 +134,8 @@ androidXMultiplatform {
             // the `lifecycle-viewmodel-savedstate` dependency directly works around the issue.
             // See https://github.com/gradle/gradle/issues/14220 for details.
             compileOnly("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.2")
+
+            implementation("androidx.navigationevent:navigationevent:1.1.0")
         }
 
         androidDeviceTest.dependencies {
@@ -178,6 +180,7 @@ androidXMultiplatform {
             implementation("androidx.core:core-ktx:1.2.0")
             implementation("androidx.activity:activity-compose:1.7.0")
             implementation("androidx.fragment:fragment-testing:1.4.1")
+            implementation("androidx.navigationevent:navigationevent:1.1.0")
         }
 
         androidHostTest.dependencies {

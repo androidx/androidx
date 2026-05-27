@@ -20,11 +20,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.PlatformSelectionBehaviorCommonTestCases
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -42,7 +37,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 28)
 class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPress: Boolean) :
     PlatformSelectionBehaviorCommonTestCases() {
-    private var _selection: MutableState<Selection?>? = null
+    private val _state = SelectionState()
 
     companion object {
         @JvmStatic
@@ -52,25 +47,24 @@ class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPres
 
     @Composable
     override fun Content(text: String, textStyle: TextStyle, modifier: Modifier) {
-        var selection by remember { mutableStateOf<Selection?>(null).also { _selection = it } }
-        SelectionContainer(selection = selection, onSelectionChange = { selection = it }) {
+        SelectionContainer(state = _state) {
             BasicText(text = text, modifier = modifier, style = textStyle)
         }
     }
 
     override val selection: TextRange
         get() {
-            val currentSelection = _selection?.value ?: return TextRange.Zero
+            val currentSelection = _state.selection ?: return TextRange.Zero
             // Only one BasicText is in SelectionContainer for relevant tests.
             return TextRange(currentSelection.start.offset, currentSelection.end.offset)
         }
 
     @Test
     fun multipleBasicText_callSuggestSelectionForLongPressOrDoubleClick() {
-        var selection by mutableStateOf<Selection?>(null)
+        val state = SelectionState()
 
         rule.setTextFieldTestContent {
-            SelectionContainer(selection = selection, onSelectionChange = { selection = it }) {
+            SelectionContainer(state = state) {
                 Column {
                     BasicText(text = "abc def", style = defaultTextStyle)
                     BasicText(
@@ -87,8 +81,8 @@ class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPres
 
         rule.waitForIdle()
 
-        assertThat(selection!!.start.offset).isEqualTo(0)
-        assertThat(selection!!.end.offset).isEqualTo(3)
+        assertThat(state.selection!!.start.offset).isEqualTo(0)
+        assertThat(state.selection!!.end.offset).isEqualTo(3)
         platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
             "ghi",
             TextRange(0, 3),
@@ -98,10 +92,10 @@ class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPres
 
     @Test
     fun multipleBasicText_doesApplySuggestedRange() {
-        var selection by mutableStateOf<Selection?>(null)
+        val state = SelectionState()
 
         rule.setTextFieldTestContent {
-            SelectionContainer(selection = selection, onSelectionChange = { selection = it }) {
+            SelectionContainer(state = state) {
                 Column {
                     BasicText(
                         text = "abc def",
@@ -120,8 +114,8 @@ class SelectionContainerPlatformSelectionsBehaviorTest(override val testLongPres
 
         rule.waitForIdle()
 
-        assertThat(selection!!.start.offset).isEqualTo(0)
-        assertThat(selection!!.end.offset).isEqualTo(7)
+        assertThat(state.selection!!.start.offset).isEqualTo(0)
+        assertThat(state.selection!!.end.offset).isEqualTo(7)
         platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
             "abc def",
             TextRange(4, 7),

@@ -40,7 +40,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.modifier.ModifierLocalManager
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
@@ -165,7 +164,7 @@ private class FakeOwner(
 
     override fun onInteropViewLayoutChange(view: InteropView) {}
 
-    @OptIn(InternalCoreApi::class) override var showLayoutBounds: Boolean = false
+    override var showLayoutBounds: Boolean = false
 
     override fun onPreAttach(node: LayoutNode) {}
 

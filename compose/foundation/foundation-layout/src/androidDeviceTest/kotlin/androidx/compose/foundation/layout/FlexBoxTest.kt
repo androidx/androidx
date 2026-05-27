@@ -2027,6 +2027,62 @@ class FlexBoxTest {
         }
     }
 
+    @OptIn(ExperimentalFlexBoxApi::class)
+    @Test
+    fun testFlexBox_wrap_maxIntrinsicWidth_reportsSumOfChildren() {
+        var width = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.width(IntrinsicSize.Max)) {
+                    FlexBox(
+                        modifier = Modifier.onSizeChanged { width = it.width },
+                        config = {
+                            direction(FlexDirection.Row)
+                            wrap(FlexWrap.Wrap)
+                        },
+                    ) {
+                        Box(Modifier.size(20.dp))
+                        Box(Modifier.size(30.dp))
+                        Box(Modifier.size(40.dp))
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Max intrinsic width should be the sum of all children widths (20 + 30 + 40 = 90)
+        Truth.assertThat(width).isEqualTo(90)
+    }
+
+    @OptIn(ExperimentalFlexBoxApi::class)
+    @Test
+    fun testFlexBox_wrap_minIntrinsicWidth_reportsMaxChildWidth() {
+        var width = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.width(IntrinsicSize.Min)) {
+                    FlexBox(
+                        modifier = Modifier.onSizeChanged { width = it.width },
+                        config = {
+                            direction(FlexDirection.Row)
+                            wrap(FlexWrap.Wrap)
+                        },
+                    ) {
+                        Box(Modifier.size(20.dp))
+                        Box(Modifier.size(30.dp))
+                        Box(Modifier.size(40.dp))
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Min intrinsic width should be the width of the single widest child (40)
+        Truth.assertThat(width).isEqualTo(40)
+    }
+
     companion object {
         private val NoOpDensity =
             object : Density {

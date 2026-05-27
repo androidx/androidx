@@ -302,7 +302,7 @@ class ModifierLocalConsumerEntityTest {
     private class FakeOwner : Owner {
         val listeners = mutableVectorOf<() -> Unit>()
 
-        @OptIn(InternalCoreApi::class) override var showLayoutBounds: Boolean = false
+        override var showLayoutBounds: Boolean = false
         override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }
 
         override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)

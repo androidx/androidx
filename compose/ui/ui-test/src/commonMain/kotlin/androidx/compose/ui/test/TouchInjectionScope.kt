@@ -223,6 +223,20 @@ interface TouchInjectionScope : InjectionScope {
     }
 
     /**
+     * Updates the position of the default pointer by the given [delta], but does not send a move
+     * event. The move event can be sent with [move]. The default pointer is `pointerId = 0`.
+     *
+     * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+     *
+     * @param delta The position for this move event, relative to the last sent position of the
+     *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
+     *   x-position, and subtract 10.px from the pointer's y-position.
+     */
+    fun updatePointerBy(delta: Offset) {
+        updatePointerBy(0, delta)
+    }
+
+    /**
      * Sends a move event [delayMillis] after the last sent event without updating any of the
      * pointer positions. This can be useful when batching movement of multiple pointers together,
      * which can be done with [updatePointerTo] and [updatePointerBy].

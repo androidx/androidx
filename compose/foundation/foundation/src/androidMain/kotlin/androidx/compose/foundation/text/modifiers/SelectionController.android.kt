@@ -23,5 +23,5 @@ import androidx.compose.ui.layout.LayoutCoordinates
 @Suppress(names = ["ModifierFactoryExtensionFunction"])
 internal actual fun SelectionRegistrar.makeSelectionModifier(
     selectableId: Long,
-    layoutCoordinates: () -> LayoutCoordinates?,
-): Modifier = makeDefaultSelectionModifier(selectableId, layoutCoordinates)
+    layoutCoordinatesProvider: () -> LayoutCoordinates?,
+): Modifier = makeDefaultSelectionModifier(selectableId, layoutCoordinatesProvider)

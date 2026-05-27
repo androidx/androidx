@@ -74,6 +74,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver,
             placeholders = listOf(),
+            softWrap = true,
         )
     }
 

@@ -145,14 +145,14 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
     private val boundsAnimation: BoundsAnimation
         get() = sharedElementEntry.boundsAnimation
 
-    private var layer: GraphicsLayer? = state.layer
+    private var layer: GraphicsLayer?
+        get() = sharedElementEntry.layer
         set(value) {
-            if (value == null) {
-                field?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
-            } else {
+            val oldLayer = sharedElementEntry.layer
+            if (value != oldLayer) {
+                oldLayer?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
                 sharedElementEntry.layer = value
             }
-            field = value
         }
 
     private val sharedElement: SharedElement
@@ -164,7 +164,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
     private fun setup() {
         provide(ModifierLocalSharedElementInternalState, sharedElementEntry)
         sharedElementEntry.parentState = ModifierLocalSharedElementInternalState.current
-        layer = requireGraphicsContext().createGraphicsLayer()
+        layer = null
         isPlaced = false
         sharedElementEntry.boundsProvider = this
     }
@@ -208,9 +208,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
     override fun onReset() {
         super.onReset()
         boundsBeforeDetached = null
-        // Reset layer
-        layer?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
-        layer = requireGraphicsContext().createGraphicsLayer()
+        layer = null
     }
 
     override fun MeasureScope.measure(
@@ -432,11 +430,22 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         val bounds = matchState.currentBounds
         sharedTransitionDebug {
             "ContentDrawScope.draw() invoked. Bounds size: ${bounds?.size}" +
-                " for key = ${sharedElement.key}"
+                " for key = ${sharedElement.key}, ${sharedElementEntry.shouldRenderInOverlay}," +
+                " becoming visible? ${sharedElementEntry.target}, " +
+                "should render in overlay? ${sharedElementEntry.shouldRenderInOverlay}"
         }
+        if (!sharedElementEntry.shouldRenderInOverlay) {
+            sharedElementEntry.clipPathInOverlay = null
+            layer = null
+            if (sharedElementEntry.shouldRenderInPlace) {
+                drawContentWithOptionalDebug(layer = null, bounds)
+            }
+            return
+        }
+
         // Update clipPath
         sharedElementEntry.clipPathInOverlay =
-            if (sharedElementEntry.shouldRenderInOverlay && bounds != null) {
+            if (bounds != null) {
                 sharedElementEntry.overlayClip.getClipPath(
                     sharedElementEntry.userState,
                     bounds,
@@ -446,38 +455,48 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
             } else {
                 null
             }
-        val layer =
-            requireNotNull(sharedElementEntry.layer) {
-                "Error: Layer is null when accessed for shared bounds/element : ${sharedElement.key}," +
-                    "target: ${sharedElementEntry.boundsAnimation.target}, is attached: $isAttached"
-            }
 
-        val visualDebugConfig =
-            if (isLookaheadAnimationVisualDebuggingEnabled) {
-                currentValueOf(LocalLookaheadAnimationVisualDebugConfig)
-            } else {
-                null
-            }
-
-        if (visualDebugConfig == null || !visualDebugConfig.isEnabled) {
-            layer.record {
-                sharedTransitionDebug {
-                    "record layer at size: ${bounds?.size} for" + " key = ${sharedElement.key}"
-                }
-
-                this@draw.drawContent()
-            }
-        } else {
-            drawContentWithLookaheadAnimationDebug(layer, bounds, visualDebugConfig)
+        if (layer == null) {
+            layer = requireGraphicsContext().createGraphicsLayer()
         }
+        val layer =
+            checkNotNull(sharedElementEntry.layer) {
+                "Error: shared element does not have a layer for rendering in the overlay."
+            }
+
+        drawContentWithOptionalDebug(layer, bounds)
         if (sharedElementEntry.shouldRenderInPlace) {
             sharedTransitionDebug { "drawing in place. key = ${sharedElement.key}" }
             drawLayer(layer)
         }
     }
 
+    private fun ContentDrawScope.drawContentWithOptionalDebug(
+        layer: GraphicsLayer?,
+        bounds: Rect?,
+    ) {
+        val visualDebugConfig =
+            if (isLookaheadAnimationVisualDebuggingEnabled) {
+                currentValueOf(LocalLookaheadAnimationVisualDebugConfig)
+            } else {
+                null
+            }
+        if (visualDebugConfig != null && visualDebugConfig.isEnabled) {
+            drawContentWithLookaheadAnimationDebug(layer, bounds, visualDebugConfig)
+        } else if (layer != null) {
+            layer.record {
+                sharedTransitionDebug {
+                    "record layer at size: ${bounds?.size} for key = ${sharedElement.key}"
+                }
+                this@drawContentWithOptionalDebug.drawContent()
+            }
+        } else {
+            drawContent()
+        }
+    }
+
     private fun ContentDrawScope.drawContentWithLookaheadAnimationDebug(
-        layer: GraphicsLayer,
+        layer: GraphicsLayer?,
         bounds: Rect?,
         visualDebugConfig: LookaheadAnimationVisualDebugConfig,
     ) {
@@ -494,12 +513,9 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         val strokeWeight = 2.5.dp.toPx()
         val targetData = sharedElement.state.targetData
         updateTextMeasurer(currentValueOf(LocalFontFamilyResolver))
-        layer.record {
-            val drawScope = this@drawContentWithLookaheadAnimationDebug
-            drawScope.drawContent()
 
-            if (!sharedElementEntry.isEnabled) return@record
-
+        fun drawDebug(drawScope: ContentDrawScope) {
+            if (!sharedElementEntry.isEnabled) return
             with(lookaheadAnimationVisualDebugHelper!!) {
                 if (sharedElement.scope.isTransitionActive) {
                     if (sharedElement.boundsTransformIsActive) {
@@ -518,7 +534,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
                                 targetData.targetBounds.topLeft,
                                 targetData.size,
                                 bounds,
-                                center,
+                                drawScope.center,
                                 visualDebugConfig.isShowKeyLabelEnabled,
                                 strokeWeight,
                                 sharedElement.key,
@@ -544,6 +560,17 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
                     )
                 }
             }
+        }
+
+        if (layer != null) {
+            layer.record {
+                val drawScope = this@drawContentWithLookaheadAnimationDebug
+                drawScope.drawContent()
+                drawDebug(drawScope)
+            }
+        } else {
+            drawContent()
+            drawDebug(this)
         }
     }
 
