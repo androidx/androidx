@@ -23,10 +23,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteIntReference
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
@@ -381,35 +379,4 @@ internal class RemoteTextNode : RemoteComposeNode() {
         )
         creationState.document.endTextComponent()
     }
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-public fun RemoteText(
-    textId: RemoteIntReference,
-    modifier: RemoteModifier = RemoteModifier,
-    color: RemoteColor = RemoteColor(Color.Black),
-    fontSize: RemoteTextUnit = 12.rsp,
-    fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: RemoteFontFamily? = null,
-    textAlign: TextAlign = TextAlign.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
-    maxLines: Int = Int.MAX_VALUE,
-    style: RemoteTextStyle = RemoteTextStyle.Default,
-) {
-    RemoteText(
-        text = MutableRemoteString(textId.toInt()),
-        modifier = modifier,
-        color = color,
-        fontSize = fontSize,
-        fontStyle = fontStyle,
-        fontWeight = fontWeight,
-        fontFamily = fontFamily,
-        textAlign = textAlign,
-        overflow = overflow,
-        maxLines = maxLines,
-        style = style,
-    )
 }
