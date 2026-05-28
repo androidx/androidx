@@ -25,10 +25,17 @@ import androidx.glance.wear.core.WearWidgetRawContent
 /** Describes how a widget is rendered on a host. */
 public interface WearWidgetData {
 
-    /** Captures and serializes the widget data. */
+    /**
+     * Captures and serializes the widget data.
+     *
+     * @param context the context to use for capturing raw content.
+     * @param params the parameters for the wear widget.
+     * @param isInspectionMode whether the capture is in inspection mode (e.g., for IDE previews).
+     */
     @RestrictTo(LIBRARY_GROUP)
     public suspend fun captureRawContent(
         context: Context,
         params: WearWidgetParams,
+        isInspectionMode: Boolean = false,
     ): WearWidgetRawContent
 }

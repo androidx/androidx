@@ -16,12 +16,14 @@
 
 package androidx.glance.wear
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Size
 import androidx.glance.wear.composable.WearWidgetContainer
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WearWidgetRawContent
@@ -47,16 +49,22 @@ public class WearWidgetDocument(
 ) : WearWidgetData {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressLint("RestrictedApiAndroidX")
     override suspend fun captureRawContent(
         context: Context,
         params: WearWidgetParams,
+        isInspectionMode: Boolean,
     ): WearWidgetRawContent {
         return WearWidgetCapture.capture(
             context,
-            CreationDisplayInfo(
-                params.widthDp.dpToPx(context),
-                params.heightDp.dpToPx(context),
-                context.resources.displayMetrics.densityDpi,
+            createCreationDisplayInfo(
+                context = context,
+                size =
+                    Size(
+                        width = params.widthDp.dpToPx(context).toFloat(),
+                        height = params.heightDp.dpToPx(context).toFloat(),
+                    ),
+                isInspectionMode = isInspectionMode,
             ),
         ) {
             WearWidgetContainer(

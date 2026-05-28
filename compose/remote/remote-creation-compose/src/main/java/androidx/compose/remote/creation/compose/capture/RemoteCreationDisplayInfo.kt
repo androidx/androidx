@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -31,7 +32,11 @@ import androidx.compose.ui.unit.Dp
 private const val baseDensity = 160f
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteCreationDisplayInfo(public val size: Size, public val density: Density)
+public class RemoteCreationDisplayInfo(
+    public val size: Size,
+    public val density: Density,
+    public val isInspectionMode: Boolean = false,
+)
 
 /**
  * Creates a [RemoteCreationDisplayInfo] instance from width, height, and density metrics.
@@ -41,6 +46,8 @@ public class RemoteCreationDisplayInfo(public val size: Size, public val density
  * @param densityDpi The logical densityDpi of the display.
  * @param fontScale The user preference for the scaling factor for fonts, relative to the base
  *   density scaling.
+ * @param isInspectionMode Whether the capture is happening in inspection mode (e.g. for a preview).
+ *   Defaults to false.
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -49,10 +56,12 @@ public fun RemoteCreationDisplayInfo(
     height: Int,
     densityDpi: Int,
     fontScale: Float = 1.0f,
+    isInspectionMode: Boolean = false,
 ): RemoteCreationDisplayInfo {
     return RemoteCreationDisplayInfo(
         Size(width.toFloat(), height.toFloat()),
         Density(densityDpi / baseDensity, fontScale),
+        isInspectionMode,
     )
 }
 
@@ -65,8 +74,9 @@ public fun RemoteCreationDisplayInfo(
  * @param width The width of the display in pixels. Defaults to the system display width.
  * @param height The height of the display in pixels. Defaults to the system display height.
  * @param densityDpi The logical densityDpi of the display. Defaults to the system display density.
- *     @param fontScale The user preference for the scaling factor for fonts, relative to the base
- *       density scaling.
+ * @param fontScale The user preference for the scaling factor for fonts, relative to the base
+ *   density scaling.
+ * @param isInspectionMode Whether the capture is happening in inspection mode (e.g. for a preview).
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
  */
 @Composable
@@ -75,8 +85,9 @@ public fun createCreationDisplayInfo(
     height: Int = LocalResources.current.displayMetrics.heightPixels,
     densityDpi: Int = LocalConfiguration.current.densityDpi,
     fontScale: Float = LocalConfiguration.current.fontScale,
+    isInspectionMode: Boolean = LocalInspectionMode.current,
 ): RemoteCreationDisplayInfo {
-    return RemoteCreationDisplayInfo(width, height, densityDpi, fontScale)
+    return RemoteCreationDisplayInfo(width, height, densityDpi, fontScale, isInspectionMode)
 }
 
 /**
@@ -86,6 +97,9 @@ public fun createCreationDisplayInfo(
  * resources.
  *
  * @param context The [Context] used to access display metrics.
+ * @param size The size of the display.
+ * @param isInspectionMode Whether the capture is happening in inspection mode (e.g. for a preview).
+ *   Defaults to false.
  * @return A [RemoteCreationDisplayInfo] object containing the display metrics from the context.
  */
 public fun createCreationDisplayInfo(
@@ -95,6 +109,7 @@ public fun createCreationDisplayInfo(
             width = context.resources.displayMetrics.widthPixels.toFloat(),
             height = context.resources.displayMetrics.heightPixels.toFloat(),
         ),
+    isInspectionMode: Boolean = false,
 ): RemoteCreationDisplayInfo {
     val resources = context.resources
     return RemoteCreationDisplayInfo(
@@ -102,6 +117,7 @@ public fun createCreationDisplayInfo(
         height = size.height.toInt(),
         densityDpi = resources.displayMetrics.densityDpi,
         fontScale = resources.configuration.fontScale,
+        isInspectionMode = isInspectionMode,
     )
 }
 
