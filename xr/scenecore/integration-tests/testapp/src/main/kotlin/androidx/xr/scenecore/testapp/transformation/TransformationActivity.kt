@@ -148,7 +148,10 @@ class TransformationActivity : AppCompatActivity() {
                     for (panel in debugTextPanelsToUpdate) {
                         if (panel.trackedEntity == null) continue // Skip if no tracked entity
                         if (panel == anchorDebugPanel) {
-                            anchorDebugPanel.view.setLine("Anchor State", anchorState.toString())
+                            anchorDebugPanel.view.setLine(
+                                "Anchor State",
+                                anchorState.toFormattedString(),
+                            )
                         }
                         updateDebugTextPanel(panel.view, panel.trackedEntity!!, anchorState)
                     }
@@ -497,6 +500,15 @@ class TransformationActivity : AppCompatActivity() {
     private fun length(position: Vector3): Float {
         return sqrt(position.x * position.x + position.y * position.y + position.z * position.z)
     }
+
+    private fun AnchorEntity.State.toFormattedString(): String =
+        when (this) {
+            AnchorEntity.State.UNANCHORED -> "UNANCHORED"
+            AnchorEntity.State.ANCHORED -> "ANCHORED"
+            AnchorEntity.State.TIMED_OUT -> "TIMED_OUT"
+            AnchorEntity.State.ERROR -> "ERROR"
+            else -> "UNKNOWN"
+        }
 
     companion object {
         var onActivitySpaceUpdatedCount = 0
