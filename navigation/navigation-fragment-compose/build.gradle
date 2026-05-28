@@ -30,8 +30,8 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.runtime:runtime:1.5.4")
-    api("androidx.compose.ui:ui:1.5.4")
+    api("androidx.compose.runtime:runtime:1.10.5")
+    api("androidx.compose.ui:ui:1.10.5")
     api("androidx.fragment:fragment:1.6.2")
     api(project(":navigation:navigation-common"))
     api(project(":navigation:navigation-fragment"))
