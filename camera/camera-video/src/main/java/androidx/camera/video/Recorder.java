@@ -2533,7 +2533,9 @@ public final class Recorder implements VideoOutput {
             // the encoder when the source has actually stopped in the FutureCallback.
             // If the recording is explicitly stopped by the user, pass the stop timestamp to the
             // encoder so that the encoding can be stop as close as to the actual stop time.
-            mVideoEncoder.stop(explicitlyStopTime);
+            if (mVideoEncoder != null) {
+                mVideoEncoder.stop(explicitlyStopTime);
+            }
         }
     }
 
