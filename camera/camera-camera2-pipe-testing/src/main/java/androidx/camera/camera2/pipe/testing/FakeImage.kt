@@ -20,7 +20,6 @@ import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.hardware.HardwareBuffer
 import android.os.Build
-import android.os.Build.VERSION_CODES
 import androidx.camera.camera2.pipe.media.ImagePlane
 import androidx.camera.camera2.pipe.media.ImageWrapper
 import java.nio.ByteBuffer
@@ -33,28 +32,48 @@ public class FakeImage(
     override val height: Int,
     override val format: Int,
     override val timestamp: Long,
+    // TODO: b/516888993 - Remove providedHardwareBuffer once Google3 tests are migrated.
     private val providedHardwareBuffer: HardwareBuffer? = null,
     override var cropRect: Rect = Rect(0, 0, width, height),
+    hardwareBuffer: HardwareBuffer? = null,
 ) : ImageWrapper {
     private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)
     public val isClosed: Boolean
         get() = closed.value
 
+    private val _providedHardwareBuffer = providedHardwareBuffer ?: hardwareBuffer
+    private var _createdHardwareBuffer: HardwareBuffer? = null
+
+    /**
+     * Returns the fake hardware buffer for this [FakeImage].
+     *
+     * Returns the provided hardware buffer if present. If a hardware buffer isn't provided during
+     * construction, a fake hardware buffer is created and returned on API levels >= 34. Otherwise,
+     * null is returned.
+     */
     override val hardwareBuffer: HardwareBuffer? by lazy {
-        // Create default hardware buffer only after API 34
-        if (
-            providedHardwareBuffer == null &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-        ) {
-            HardwareBuffer.create(width, height, format, 1, HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
-        }
-        providedHardwareBuffer
+        check(!isClosed)
+        _providedHardwareBuffer
+            ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                _createdHardwareBuffer =
+                    HardwareBuffer.create(
+                        width,
+                        height,
+                        format,
+                        1,
+                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE,
+                    )
+                _createdHardwareBuffer
+            } else {
+                null
+            }
     }
     public var numberOfTimesClosed: Int = 0
         private set
 
     override val planes: List<ImagePlane> by lazy {
+        check(!isClosed)
         // TODO(b/507590815): Support other formats as needed
         if (format == ImageFormat.YUV_420_888) {
             listOf(
@@ -69,6 +88,7 @@ public class FakeImage(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? {
+        check(!isClosed)
         if (
             Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1 && type == HardwareBuffer::class.java
         ) {
@@ -80,8 +100,8 @@ public class FakeImage(
     override fun close() {
         numberOfTimesClosed++
         if (closed.compareAndSet(expect = false, update = true)) {
-            if (Build.VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                hardwareBuffer?.close()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                _createdHardwareBuffer?.close()
             }
         }
     }
