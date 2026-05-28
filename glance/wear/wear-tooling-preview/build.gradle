@@ -27,8 +27,8 @@ dependencies {
 
     api(project(":glance:wear:wear"))
     api(project(":compose:remote:remote-tooling-preview"))
-    api(project(":compose:ui:ui-tooling"))
-    api("androidx.compose.ui:ui-tooling-preview:$composeVersion")
+    api("androidx.compose.ui:ui-tooling:1.12.0-alpha03")
+    api("androidx.compose.ui:ui-tooling-preview:1.12.0-alpha03")
     api("androidx.compose.ui:ui:$composeVersion")
     api("androidx.compose.runtime:runtime:$composeVersion")
 
