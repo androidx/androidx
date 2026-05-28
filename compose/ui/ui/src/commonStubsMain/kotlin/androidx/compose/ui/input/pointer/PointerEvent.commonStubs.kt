@@ -18,7 +18,7 @@ package androidx.compose.ui.input.pointer
 
 import androidx.compose.ui.implementedInJetBrainsFork
 
-@Suppress("DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
+@Suppress("DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING", "DataClassDefinition")
 actual data class PointerEvent
 internal actual constructor(
     actual val changes: List<PointerInputChange>,

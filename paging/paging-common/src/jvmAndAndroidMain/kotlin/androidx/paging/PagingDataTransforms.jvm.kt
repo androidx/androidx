@@ -168,6 +168,7 @@ public fun <T : Any> PagingData<T>.filter(
 @CheckResult
 @JvmOverloads
 public fun <R : Any, T : R> PagingData<T>.insertSeparators(
+    @Suppress("KotlinDefaultParameterOrder")
     terminalSeparatorType: TerminalSeparatorType = TerminalSeparatorType.FULLY_COMPLETE,
     executor: Executor,
     generator: (T?, T?) -> R?,

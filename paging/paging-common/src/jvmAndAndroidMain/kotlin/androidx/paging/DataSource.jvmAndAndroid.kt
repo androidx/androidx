@@ -200,6 +200,7 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.map
          * @see DataSource.mapByPage
          */
+        @Suppress("TypeParameterName")
         public open fun <ToValue : Any> mapByPage(
             function: Function<List<Value>, List<ToValue>>
         ): Factory<Key, ToValue> =
@@ -223,6 +224,7 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.map
          * @see DataSource.mapByPage
          */
+        @Suppress("TypeParameterName")
         @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
         public open fun <ToValue : Any> mapByPage(
             function: (List<Value>) -> List<ToValue>
@@ -251,6 +253,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.map
      * @see DataSource.Factory.mapByPage
      */
+    @Suppress("TypeParameterName")
     public open fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
     ): DataSource<Key, ToValue> = WrapperDataSource(this, function)
@@ -270,6 +273,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.map
      * @see DataSource.Factory.mapByPage
      */
+    @Suppress("TypeParameterName")
     @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
     public open fun <ToValue : Any> mapByPage(
         function: (List<Value>) -> List<ToValue>

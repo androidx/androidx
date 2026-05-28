@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
 // TODO(b/442842414): Replace with `kotlinx.io.IOException` when it is stable.
+@Suppress("AcronymName")
 actual open class IOException actual constructor(message: String?, cause: Throwable?) :
     Exception() {
     actual constructor(message: String?) : this(message, null)

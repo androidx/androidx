@@ -30,6 +30,7 @@ import java.util.UUID
  * @param bytes byte array stored in database as BLOB
  * @return a UUID object created based on the provided byte array
  */
+@Suppress("AcronymName")
 public fun convertByteToUUID(bytes: ByteArray): UUID {
     val buffer = ByteBuffer.wrap(bytes)
     val firstLong = buffer.long
@@ -43,6 +44,7 @@ public fun convertByteToUUID(bytes: ByteArray): UUID {
  * @param uuid the UUID pojo
  * @return a byte array to store into database
  */
+@Suppress("AcronymName")
 public fun convertUUIDToByte(uuid: UUID): ByteArray {
     val bytes = ByteArray(16)
     val buffer = ByteBuffer.wrap(bytes)

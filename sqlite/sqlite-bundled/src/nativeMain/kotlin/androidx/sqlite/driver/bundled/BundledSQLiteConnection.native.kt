@@ -20,5 +20,8 @@ package androidx.sqlite.driver.bundled
 
 import androidx.annotation.RestrictTo
 
-@Suppress("KmpHideShowAnnotationMismatch") // RestrictTo is not applicable to typealias
+@Suppress(
+    "KmpHideShowAnnotationMismatch",
+    "TypealiasDefinition",
+) // RestrictTo is not applicable to typealias
 public actual typealias BundledSQLiteConnection = androidx.sqlite.driver.NativeSQLiteConnection

@@ -154,6 +154,7 @@ private constructor(
         impl.saveState(outBundle)
     }
 
+    @Suppress("EqualsAndHashCode")
     public override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + destination.hashCode()
