@@ -1,4 +1,20 @@
 // Signature format: 4.0
+package androidx.a2ui.core.platform {
+
+  public interface A2uiComponentRegistry {
+    method public void dispose();
+    method public void reportError(String id, androidx.a2ui.core.protocol.A2uiException exception);
+    method public void update(java.util.List<androidx.a2ui.core.protocol.A2uiComponentPayload> components);
+  }
+
+  public interface A2uiDataModel {
+    method public void dispose();
+    method public operator Object? get(androidx.a2ui.core.protocol.A2uiDataPath path);
+    method public void update(androidx.a2ui.core.protocol.A2uiDataPath path, Object? value);
+  }
+
+}
+
 package androidx.a2ui.core.protocol {
 
   public final class A2uiClientError implements androidx.a2ui.core.protocol.A2uiClientToServerMessage {
@@ -38,6 +54,18 @@ package androidx.a2ui.core.protocol {
     property public boolean shouldSendDataModel;
     property public String surfaceId;
     property public java.util.Map<java.lang.String,java.lang.Object?> theme;
+  }
+
+  public final class A2uiDataPath {
+    ctor public A2uiDataPath(String path);
+    method @InaccessibleFromKotlin public String getNormalizedPath();
+    method @InaccessibleFromKotlin public String getPath();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getSegments();
+    method @InaccessibleFromKotlin public boolean isAbsolute();
+    property public boolean isAbsolute;
+    property public String normalizedPath;
+    property public String path;
+    property public java.util.List<java.lang.String> segments;
   }
 
   public final class A2uiDeleteSurfaceMessage implements androidx.a2ui.core.protocol.A2uiServerToClientMessage {
