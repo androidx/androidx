@@ -24,7 +24,7 @@ plugins {
 
 dependencies {
     api(project(":xr:glimmer:glimmer"))
-    implementation(project(":compose:ui:ui-text-google-fonts"))
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.12.0-alpha03")
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
