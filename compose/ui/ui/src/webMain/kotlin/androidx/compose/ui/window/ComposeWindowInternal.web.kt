@@ -585,6 +585,20 @@ internal class ComposeWindow(
     }
 
     private fun onPointerEvent(event: PointerEvent) {
+        if (event.type == "pointercancel") {
+            if (isTouchEvent(event)) {
+                activeTouchPointers.clear()
+                activeTouchOffset = null
+            } else {
+                actualActivePointerButtons = null
+            }
+
+            event.target?.let { releasePointerCapture(it, event.pointerId) }
+
+            scene.cancelPointerInput()
+            return
+        }
+
         val eventType = event.getPointerEventType()
         var result: PointerEventResult? = null
 
@@ -781,6 +795,10 @@ internal fun onDomReady(block: () -> Unit) {
     }
 }
 
+private fun releasePointerCapture(target: EventTarget, pointerId: Int) {
+    js("try { target.releasePointerCapture(pointerId) } catch (e) {}")
+}
+
 private fun setPointerCapture(target: EventTarget, pointerId: Int) {
     js("try { target.setPointerCapture(pointerId) } catch (e) {}")
 }
@@ -842,6 +860,10 @@ private fun clipTargetElement(canvas: HTMLCanvasElement): HTMLTextAreaElement {
 
 // strings checks are faster on a JS side
 // language=js
+private fun isTouchEvent(event: PointerEvent): Boolean = js("event.pointerType === 'touch'")
+
+// strings checks are faster on a JS side
+// language=js
 private fun isMouseEvent(event: PointerEvent): Boolean = js("event.pointerType === 'mouse'")
 
 // strings checks are faster on a JS side
@@ -852,7 +874,6 @@ private fun getPointerEventCode(event: PointerEvent): Int = js(
           case 'pointerdown':
             return 1; // PointerEventType.Press
           case 'pointerup':
-          case 'pointercancel':
             return 2; // PointerEventType.Release
           case 'pointermove':
             return 3; // PointerEventType.Move
