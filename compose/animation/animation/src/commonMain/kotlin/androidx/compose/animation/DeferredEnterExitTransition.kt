@@ -44,21 +44,32 @@ import kotlin.time.TimeSource
  * etc.) of content during the deferred phase (initiated by [DeferredTransitionState.defer]) of a
  * [DeferredTransition] (e.g., for predictive back gestures).
  *
- * Manual transformations defined in this object are applied **on top of** the transition's initial
- * state.
+ * Manual transformations defined in this object are combined with (i.e., applied on top of) the
+ * transition's current visual state. During the deferred phase, the transition's state is held at
+ * its initial value.
  *
- * This object provides an [invoke] operator that accepts a [TransformScope] lambda. This lambda is
- * evaluated repeatedly to ensure that state reads (e.g., from gesture progress) are deferred to the
- * layout phase, preventing unnecessary composition churn while keeping Draw-phase operations
- * performant.
+ * Visual properties in [TransformScope] (like [TransformScope.alpha] and [TransformScope.scale])
+ * are applied multiplicatively to the transition's values, while [TransformScope.offset] is applied
+ * additively. For example, if the transition's initial alpha is 0.5 and the manual alpha is set to
+ * 0.5, the resulting visual alpha will be 0.25. Properties that are not manually set in the
+ * [update] block default to the transition's value.
  *
- * Values set in this object are seamlessly handed off to the automatic transition animation when
- * the deferred phase ends.
+ * Properties in [TransformScope] are set directly and reflect the manual value for the current
+ * frame. They do not automatically animate between values; instead, they should be updated
+ * continuously (e.g., in response to gesture progress) to create a smooth manual animation.
+ *
+ * The [update] lambda is evaluated repeatedly to ensure that state reads (e.g., from gesture
+ * progress) are deferred to the layout phase, preventing unnecessary composition churn while
+ * keeping Draw-phase operations performant.
+ *
+ * Values set in this object are handed off to the automatic transition animation when the deferred
+ * phase ends.
  *
  * @param veilMatchParentSize Whether the veil should match the size of the parent.
  * @param offsetVelocityProvider The velocity of the offset change in pixels/sec. The
  *   [offsetVelocityProvider] lambda is evaluated exactly once when the deferred phase ends to
- *   ensure a seamless handoff to the automatic transition.
+ *   ensure a seamless handoff to the automatic transition. If `null`, the system will automatically
+ *   calculate the velocity based on [TransformScope.offset] changes during the deferred phase.
  * @param block A lambda that applies transformations to the provided [TransformScope]. This block
  *   executes dynamically to reflect state changes.
  */
@@ -75,7 +86,7 @@ public class MutableTransform(
      * @param block A lambda that applies transformations to the provided [TransformScope]. This
      *   block executes dynamically to reflect state changes.
      */
-    public operator fun invoke(block: TransformScope.(fullSize: IntSize) -> Unit) {
+    public fun update(block: TransformScope.(fullSize: IntSize) -> Unit) {
         this.block = block
     }
 
@@ -92,15 +103,29 @@ public class MutableTransform(
  */
 @ExperimentalDeferredTransitionApi
 public interface TransformScope {
+
     /** Manually controls the alpha value during the deferred phase. */
     public var alpha: Float
+
     /** Manually controls the scale value during the deferred phase. */
     public var scale: Float
+
     /** Manually controls the pivot point for the scale transformation. */
     public var transformOrigin: TransformOrigin
+
     /** Manually controls the offset value during the deferred phase. */
     public var offset: IntOffset
-    /** Manually controls the veil color during the deferred phase. */
+
+    /**
+     * Manually controls the veil color during the deferred phase.
+     *
+     * A veil is a color overlay (similar to a scrim) that is drawn on top of the content to
+     * partially or fully obscure it. This is typically used to visually signal that the content is
+     * in a background or non-interactive state during a transition.
+     *
+     * @see unveilIn
+     * @see veilOut
+     */
     public var veil: Color
 }
 

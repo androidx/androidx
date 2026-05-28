@@ -724,33 +724,24 @@ private val UnspecifiedSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
  * An object that allows manual manipulation of both entering and exiting content during the
  * deferred phase (initiated by [DeferredTransitionState.defer]) of an [AnimatedContent] transition.
  *
- * @param initialVeilMatchParentSize Whether the initial content's veil should match the parent
- *   size.
- * @param targetVeilMatchParentSize Whether the target content's veil should match the parent size.
- * @param initialOffsetVelocityProvider The velocity of the offset change for the exiting content in
- *   pixels/sec. The [initialOffsetVelocityProvider] lambda is evaluated exactly once when the
- *   deferred phase ends to ensure a seamless handoff to the automatic transition.
- * @param targetOffsetVelocityProvider The velocity of the offset change for the entering content in
- *   pixels/sec. The [targetOffsetVelocityProvider] lambda is evaluated exactly once when the
- *   deferred phase ends to ensure a seamless handoff to the automatic transition.
- * @param block A configuration block to set up the transformations for initial and target content.
+ * Use [initialContentTransform] to define transformations for the exiting (initial) content and
+ * [targetContentTransform] for the entering (target) content.
+ *
+ * @see MutableTransform
  */
 @ExperimentalDeferredTransitionApi
-public class MutableContentTransform(
-    initialVeilMatchParentSize: Boolean = false,
-    targetVeilMatchParentSize: Boolean = false,
-    initialOffsetVelocityProvider: (() -> Offset)? = null,
-    targetOffsetVelocityProvider: (() -> Offset)? = null,
-    block: MutableContentTransform.() -> Unit = {},
+public class MutableContentTransform
+@PublishedApi
+internal constructor(
+    initialVeilMatchParentSize: Boolean,
+    targetVeilMatchParentSize: Boolean,
+    initialOffsetVelocityProvider: (() -> Offset)?,
+    targetOffsetVelocityProvider: (() -> Offset)?,
 ) {
     internal val targetTransform: MutableTransform =
         MutableTransform(targetVeilMatchParentSize, targetOffsetVelocityProvider)
     internal val initialTransform: MutableTransform =
         MutableTransform(initialVeilMatchParentSize, initialOffsetVelocityProvider)
-
-    init {
-        block()
-    }
 
     /**
      * Define the manual transformation to apply to the exiting content during the deferred phase.
@@ -758,7 +749,7 @@ public class MutableContentTransform(
      * @param block A lambda that applies transformations to the provided [TransformScope].
      */
     public fun initialContentTransform(block: TransformScope.(fullSize: IntSize) -> Unit) {
-        initialTransform(block)
+        initialTransform.update(block)
     }
 
     /**
@@ -767,9 +758,39 @@ public class MutableContentTransform(
      * @param block A lambda that applies transformations to the provided [TransformScope].
      */
     public fun targetContentTransform(block: TransformScope.(fullSize: IntSize) -> Unit) {
-        targetTransform(block)
+        targetTransform.update(block)
     }
 }
+
+/**
+ * Creates a [MutableContentTransform] and applies the provided configuration [block].
+ *
+ * @param initialVeilMatchParentSize Whether the initial content's veil should match the parent
+ *   size.
+ * @param targetVeilMatchParentSize Whether the target content's veil should match the parent size.
+ * @param initialOffsetVelocityProvider The velocity of the offset change for the exiting content in
+ *   pixels/sec. If `null`, the system will automatically calculate the velocity based on
+ *   [TransformScope.offset] changes during the deferred phase.
+ * @param targetOffsetVelocityProvider The velocity of the offset change for the entering content in
+ *   pixels/sec. If `null`, the system will automatically calculate the velocity based on
+ *   [TransformScope.offset] changes during the deferred phase.
+ * @param block A configuration block to set up the transformations for initial and target content.
+ */
+@ExperimentalDeferredTransitionApi
+public inline fun MutableContentTransform(
+    initialVeilMatchParentSize: Boolean = false,
+    targetVeilMatchParentSize: Boolean = false,
+    noinline initialOffsetVelocityProvider: (() -> Offset)? = null,
+    noinline targetOffsetVelocityProvider: (() -> Offset)? = null,
+    block: MutableContentTransform.() -> Unit = {},
+): MutableContentTransform =
+    MutableContentTransform(
+            initialVeilMatchParentSize = initialVeilMatchParentSize,
+            targetVeilMatchParentSize = targetVeilMatchParentSize,
+            initialOffsetVelocityProvider = initialOffsetVelocityProvider,
+            targetOffsetVelocityProvider = targetOffsetVelocityProvider,
+        )
+        .apply(block)
 
 /**
  * Receiver scope for content lambda for AnimatedContent. In this scope,
@@ -901,9 +922,11 @@ public fun <S> Transition<S>.AnimatedContent(
  *   ends and the automatic transition begins when [DeferredTransitionState.animateTo] is called.
  *
  *   **Transformations:** During this phase, you can manually manipulate the entering and exiting
- *   content's transformations (via [MutableContentTransform]). These transformations are applied
- *   **on top of** the transition's initial state. For example, if the enter transition starts at an
- *   alpha of 0.5, applying a manual alpha of 0.5 will result in a combined alpha of 0.25.
+ *   content's transformations (via [MutableContentTransform]). These transformations are combined
+ *   with (i.e., applied on top of) the transition's initial state. Properties like alpha and scale
+ *   are applied multiplicatively, while offset is applied additively. For example, if the enter
+ *   transition starts at an alpha of 0.5, applying a manual alpha of 0.5 will result in a combined
+ *   visual alpha of 0.25. Properties that are not manually set default to the transition's values.
  *
  * **Handoff:** Once the transition starts, the manually applied transformations are seamlessly
  * handed off to the configured [transitionSpec]. For exiting content, a "sustain unless specified"

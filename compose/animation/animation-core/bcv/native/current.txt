@@ -505,6 +505,12 @@ final class <#A: kotlin/Any?> androidx.compose.animation.core/SpringSpec : andro
     final fun hashCode(): kotlin/Int // androidx.compose.animation.core/SpringSpec.hashCode|hashCode(){}[0]
 }
 
+final class <#A: kotlin/Any?> androidx.compose.animation.core/TransitionInstance : androidx.compose.animation.core/Transition<#A> { // androidx.compose.animation.core/TransitionInstance|null[0]
+    constructor <init>(androidx.compose.animation.core/MutableTransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/TransitionInstance.<init>|<init>(androidx.compose.animation.core.MutableTransitionState<1:0>;kotlin.String?){}[0]
+    constructor <init>(androidx.compose.animation.core/TransitionState<#A>, androidx.compose.animation.core/Transition<*>?, kotlin/String? = ...) // androidx.compose.animation.core/TransitionInstance.<init>|<init>(androidx.compose.animation.core.TransitionState<1:0>;androidx.compose.animation.core.Transition<*>?;kotlin.String?){}[0]
+    constructor <init>(androidx.compose.animation.core/TransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/TransitionInstance.<init>|<init>(androidx.compose.animation.core.TransitionState<1:0>;kotlin.String?){}[0]
+}
+
 final class <#A: kotlin/Any?> androidx.compose.animation.core/TweenSpec : androidx.compose.animation.core/DurationBasedAnimationSpec<#A> { // androidx.compose.animation.core/TweenSpec|null[0]
     constructor <init>(kotlin/Int = ..., kotlin/Int = ..., androidx.compose.animation.core/Easing = ...) // androidx.compose.animation.core/TweenSpec.<init>|<init>(kotlin.Int;kotlin.Int;androidx.compose.animation.core.Easing){}[0]
 
@@ -692,10 +698,22 @@ final value class androidx.compose.animation.core/StartOffsetType { // androidx.
     }
 }
 
-open class <#A: kotlin/Any?> androidx.compose.animation.core/Transition { // androidx.compose.animation.core/Transition|null[0]
-    constructor <init>(androidx.compose.animation.core/MutableTransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/Transition.<init>|<init>(androidx.compose.animation.core.MutableTransitionState<1:0>;kotlin.String?){}[0]
-    constructor <init>(androidx.compose.animation.core/TransitionState<#A>, kotlin/String? = ...) // androidx.compose.animation.core/Transition.<init>|<init>(androidx.compose.animation.core.TransitionState<1:0>;kotlin.String?){}[0]
+sealed class <#A: kotlin/Any?, #B: androidx.compose.animation.core/KeyframeBaseEntity<#A>> androidx.compose.animation.core/KeyframesSpecBaseConfig { // androidx.compose.animation.core/KeyframesSpecBaseConfig|null[0]
+    final var delayMillis // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis|{}delayMillis[0]
+        final fun <get-delayMillis>(): kotlin/Int // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis.<get-delayMillis>|<get-delayMillis>(){}[0]
+        final fun <set-delayMillis>(kotlin/Int) // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis.<set-delayMillis>|<set-delayMillis>(kotlin.Int){}[0]
+    final var durationMillis // androidx.compose.animation.core/KeyframesSpecBaseConfig.durationMillis|{}durationMillis[0]
+        final fun <get-durationMillis>(): kotlin/Int // androidx.compose.animation.core/KeyframesSpecBaseConfig.durationMillis.<get-durationMillis>|<get-durationMillis>(){}[0]
+        final fun <set-durationMillis>(kotlin/Int) // androidx.compose.animation.core/KeyframesSpecBaseConfig.durationMillis.<set-durationMillis>|<set-durationMillis>(kotlin.Int){}[0]
 
+    final fun (#B).using(androidx.compose.animation.core/Easing): #B // androidx.compose.animation.core/KeyframesSpecBaseConfig.using|using@1:1(androidx.compose.animation.core.Easing){}[0]
+    open fun (#A).at(kotlin/Int): #B // androidx.compose.animation.core/KeyframesSpecBaseConfig.at|at@1:0(kotlin.Int){}[0]
+    open fun (#A).atFraction(kotlin/Float): #B // androidx.compose.animation.core/KeyframesSpecBaseConfig.atFraction|atFraction@1:0(kotlin.Float){}[0]
+}
+
+sealed class <#A: kotlin/Any?> androidx.compose.animation.core/KeyframeBaseEntity // androidx.compose.animation.core/KeyframeBaseEntity|null[0]
+
+sealed class <#A: kotlin/Any?> androidx.compose.animation.core/Transition { // androidx.compose.animation.core/Transition|null[0]
     final val animations // androidx.compose.animation.core/Transition.animations|{}animations[0]
         final fun <get-animations>(): kotlin.collections/List<androidx.compose.animation.core/Transition.TransitionAnimationState<*, *, #A>> // androidx.compose.animation.core/Transition.animations.<get-animations>|<get-animations>(){}[0]
     final val currentState // androidx.compose.animation.core/Transition.currentState|{}currentState[0]
@@ -762,21 +780,6 @@ open class <#A: kotlin/Any?> androidx.compose.animation.core/Transition { // and
         final fun toString(): kotlin/String // androidx.compose.animation.core/Transition.TransitionAnimationState.toString|toString(){}[0]
     }
 }
-
-sealed class <#A: kotlin/Any?, #B: androidx.compose.animation.core/KeyframeBaseEntity<#A>> androidx.compose.animation.core/KeyframesSpecBaseConfig { // androidx.compose.animation.core/KeyframesSpecBaseConfig|null[0]
-    final var delayMillis // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis|{}delayMillis[0]
-        final fun <get-delayMillis>(): kotlin/Int // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis.<get-delayMillis>|<get-delayMillis>(){}[0]
-        final fun <set-delayMillis>(kotlin/Int) // androidx.compose.animation.core/KeyframesSpecBaseConfig.delayMillis.<set-delayMillis>|<set-delayMillis>(kotlin.Int){}[0]
-    final var durationMillis // androidx.compose.animation.core/KeyframesSpecBaseConfig.durationMillis|{}durationMillis[0]
-        final fun <get-durationMillis>(): kotlin/Int // androidx.compose.animation.core/KeyframesSpecBaseConfig.durationMillis.<get-durationMillis>|<get-durationMillis>(){}[0]
-        final fun <set-durationMillis>(kotlin/Int) // androidx.compose.animation.core/KeyframesSpecBaseConfig.durationMillis.<set-durationMillis>|<set-durationMillis>(kotlin.Int){}[0]
-
-    final fun (#B).using(androidx.compose.animation.core/Easing): #B // androidx.compose.animation.core/KeyframesSpecBaseConfig.using|using@1:1(androidx.compose.animation.core.Easing){}[0]
-    open fun (#A).at(kotlin/Int): #B // androidx.compose.animation.core/KeyframesSpecBaseConfig.at|at@1:0(kotlin.Int){}[0]
-    open fun (#A).atFraction(kotlin/Float): #B // androidx.compose.animation.core/KeyframesSpecBaseConfig.atFraction|atFraction@1:0(kotlin.Float){}[0]
-}
-
-sealed class <#A: kotlin/Any?> androidx.compose.animation.core/KeyframeBaseEntity // androidx.compose.animation.core/KeyframeBaseEntity|null[0]
 
 sealed class <#A: kotlin/Any?> androidx.compose.animation.core/TransitionState { // androidx.compose.animation.core/TransitionState|null[0]
     abstract var currentState // androidx.compose.animation.core/TransitionState.currentState|{}currentState[0]
