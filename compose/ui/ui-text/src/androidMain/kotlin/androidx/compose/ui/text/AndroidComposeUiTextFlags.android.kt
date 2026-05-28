@@ -34,7 +34,7 @@ package androidx.compose.ui.text
  *
  *      class MyApplication : Application() {
  *          override fun onCreate() {
- *              ComposeUiTextFlags.SomeFeatureEnabled = false
+ *              AndroidComposeUiTextFlags.SomeFeatureEnabled = false
  *              super.onCreate()
  *          }
  *      }
@@ -44,7 +44,7 @@ package androidx.compose.ui.text
  * paths being completely removed from the artifact, which can often have nontrivial positive
  * performance impact.
  *
- *      -assumevalues class androidx.compose.ui.text.ComposeUiTextFlags {
+ *      -assumevalues class androidx.compose.ui.text.AndroidComposeUiTextFlags {
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
