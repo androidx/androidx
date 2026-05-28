@@ -67,8 +67,6 @@ fun runMetalavaWithArgs(
                 "--ignore-comments",
                 "--hide",
                 "DeprecationMismatch",
-                "--hide",
-                "DocumentExceptions",
 
                 // Don't track annotations that aren't needed for review or checking compat.
                 "--exclude-annotation",
