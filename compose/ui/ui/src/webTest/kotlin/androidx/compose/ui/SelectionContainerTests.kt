@@ -21,12 +21,15 @@ package androidx.compose.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.Selection
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import kotlin.test.Test
@@ -37,6 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.w3c.dom.HTMLCanvasElement
@@ -60,15 +65,11 @@ class SelectionContainerTests : OnCanvasTests {
         var viewConfiguration: ViewConfiguration? = null
 
         createComposeWindow {
-            var selection by remember { mutableStateOf<Selection?>(null) }
+            val selectionState = SelectionState()
 
             androidx.compose.foundation.text.selection.SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.fillMaxSize(),
-                selection = selection,
-                onSelectionChange = {
-                    selection = it
-                    syncChannel.sendFromScope(it)
-                },
                 // TODO: investigate why explicit @Composable is needed https://youtrack.jetbrains.com/issue/CMP-7410
                 children = @Composable {
                     Column {
@@ -79,6 +80,12 @@ class SelectionContainerTests : OnCanvasTests {
                     viewConfiguration = LocalViewConfiguration.current
                 }
             )
+
+            LaunchedEffect(Unit) {
+                snapshotFlow { selectionState.selection }
+                    .onEach { syncChannel.sendFromScope(it) }
+                    .launchIn(this)
+            }
         }
 
         val canvas = getCanvas()
@@ -123,15 +130,11 @@ class SelectionContainerTests : OnCanvasTests {
         var viewConfiguration: ViewConfiguration? = null
 
         createComposeWindow {
-            var selection by remember { mutableStateOf<Selection?>(null) }
+            val selectionState = SelectionState()
 
             androidx.compose.foundation.text.selection.SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.fillMaxSize(),
-                selection = selection,
-                onSelectionChange = {
-                    selection = it
-                    syncChannel.sendFromScope(it)
-                },
                 children = @Composable {
                     Column {
                         Text("012345 uiopasdfghjklzxcvbnm")
@@ -141,6 +144,12 @@ class SelectionContainerTests : OnCanvasTests {
                     viewConfiguration = LocalViewConfiguration.current
                 }
             )
+
+            LaunchedEffect(Unit) {
+                snapshotFlow { selectionState.selection }
+                    .onEach { syncChannel.sendFromScope(it) }
+                    .launchIn(this)
+            }
         }
 
         val canvas = getCanvas()
@@ -175,16 +184,11 @@ class SelectionContainerTests : OnCanvasTests {
         var viewConfiguration: ViewConfiguration? = null
 
         createComposeWindow {
-            var selection by remember { mutableStateOf<Selection?>(null) }
+            val selectionState = SelectionState()
 
             androidx.compose.foundation.text.selection.SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.fillMaxSize(),
-                selection = selection,
-                onSelectionChange = {
-                    selection = it
-                    syncChannel.sendFromScope(it)
-                    selectionCallbackCounter++
-                },
                 children = @Composable {
                     Column {
                         Text("asdfgh uiopasdfghjklzxcvbnm")
@@ -194,6 +198,14 @@ class SelectionContainerTests : OnCanvasTests {
                     viewConfiguration = LocalViewConfiguration.current
                 }
             )
+            LaunchedEffect(Unit) {
+                snapshotFlow { selectionState.selection }
+                    .onEach {
+                        syncChannel.sendFromScope(it)
+                        selectionCallbackCounter++
+                    }
+                    .launchIn(this)
+            }
         }
 
         val canvas = getCanvas()

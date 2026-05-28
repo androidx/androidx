@@ -50,15 +50,12 @@ import kotlin.test.assertTrue
 class SelectionContainerTest {
     @Test
     fun selectionWorksWhenDraggingFromBelowText() = runComposeUiTest {
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         val text = "Line 1\nLine2"
         setContent {
             SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.size(500.dp).testTag("selection_container"),
-                selection = selection,
-                onSelectionChange = {
-                    selection = it
-                }
             ) {
                 BasicText(
                     text = text,
@@ -76,20 +73,17 @@ class SelectionContainerTest {
 
         assertEquals(
             expected = TextRange(text.length, 0),
-            actual = selection?.toTextRange()
+            actual = selectionState.selection?.toTextRange()
         )
     }
 
     @Test
     fun clickOnDisabledSelectionClearsSelection() = runComposeUiTest {
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         setContent {
             SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.fillMaxSize(),
-                selection = selection,
-                onSelectionChange = {
-                    selection = it
-                }
             ) {
                 Column {
                     BasicText(
@@ -107,25 +101,22 @@ class SelectionContainerTest {
         onNodeWithTag("selectable").performMouseInput {
             doubleClick(Offset(1f, 1f))
         }
-        assertTrue(selection.exists())
+        assertTrue(selectionState.selection.exists())
 
         onNodeWithTag("unselectable").performMouseInput {
             click()
         }
-        assertFalse(selection.exists())
+        assertFalse(selectionState.selection.exists())
     }
 
     @Test
     fun dragToSelect() = runComposeUiTest {
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         var size: IntSize = IntSize.Zero
         setContent {
             SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.fillMaxSize(),
-                selection = selection,
-                onSelectionChange = {
-                    selection = it
-                }
             ) {
                 Column {
                     BasicText(
@@ -146,7 +137,7 @@ class SelectionContainerTest {
                 end =  Offset(size.width.toFloat(), size.height/2f)
             )
         }
-        assertTrue(selection.exists())
+        assertTrue(selectionState.selection.exists())
     }
 
     @Test
@@ -158,12 +149,11 @@ class SelectionContainerTest {
     @Test
     fun dragOutsideScrollsAndSelects() = androidx.compose.ui.test.v2.runComposeUiTest {
         val scrollState by mutableStateOf(ScrollState(0))
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         setContent {
             Box(Modifier.testTag("container").size(200.dp).verticalScroll(scrollState)) {
                 SelectionContainer(
-                    selection = selection,
-                    onSelectionChange = { selection = it },
+                    state = selectionState,
                 ) {
                     Column(Modifier.testTag("content")) {
                         repeat(50) { BasicText("Line $it", Modifier.testTag("tag$it")) }
@@ -186,7 +176,7 @@ class SelectionContainerTest {
         assertEquals(contentSize.height, scrollState.value + scrollState.viewportSize)
 
         // Verify that the selection is the entire content
-        selection.let {
+        selectionState.selection.let {
             assertNotNull(it)
             assertEquals(1, it.start.selectableId)
             assertEquals(0, it.start.offset)
