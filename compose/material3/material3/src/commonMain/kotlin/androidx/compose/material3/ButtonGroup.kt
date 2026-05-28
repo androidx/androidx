@@ -88,142 +88,6 @@ import kotlinx.coroutines.launch
  * listen to the interactions and expand the width of the pressed child element as well as compress
  * the neighboring child elements. Please also pass in a relevant maximum compression limit to
  * [ButtonGroupScope.animateWidth], so button groups can correctly calculate the maximum compression
- * that each item can compress by; this defaults to [ButtonDefaults.ContentPadding].
- *
- * Standard button group using [ButtonGroupScope.clickableItem]
- *
- * @sample androidx.compose.material3.samples.ButtonGroupSample
- *
- * standard button group using [ButtonGroupScope.customItem] with [ButtonGroupScope.animateWidth]
- *
- * @sample androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
- *
- * A connected button group is a variant of a button group that have leading and trailing buttons
- * that are asymmetric in shape and are used to make a selection.
- *
- * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
- * @param modifier the [Modifier] to be applied to the button group.
- * @param expandedRatio the percentage, represented by a float, of the width of the interacted child
- *   element that will be used to expand the interacted child element as well as compress the
- *   neighboring children. By Default, standard button group will expand the interacted child
- *   element by [ButtonGroupDefaults.ExpandedRatio] of its width and this will be propagated to its
- *   neighbors. If 0f is passed into this slot, then the interacted child element will not expand at
- *   all and the neighboring elements will not compress. If 1f is passed into this slot, then the
- *   interacted child element will expand to 200% of its default width when pressed.
- * @param horizontalArrangement The horizontal arrangement of the button group's children.
- * @param content the content displayed in the button group, expected to use a Material3 component
- *   or a composable that is tagged with [Modifier.interactionSourceData].
- */
-@Deprecated(
-    message =
-        "Please use the overload with overflowIndicator parameter. This overload will " +
-            "create a composable that is cut off if there are too many items to fit " +
-            "on the screen neatly.",
-    replaceWith =
-        ReplaceWith(
-            "ButtonGroup(overflowIndicator, modifier, expandedRatio, horizontalArrangement, content)"
-        ),
-    level = DeprecationLevel.WARNING,
-)
-@Composable
-@ExperimentalMaterial3ExpressiveApi
-fun ButtonGroup(
-    modifier: Modifier = Modifier,
-    @FloatRange(0.0) expandedRatio: Float = ButtonGroupDefaults.ExpandedRatio,
-    horizontalArrangement: Arrangement.Horizontal = ButtonGroupDefaults.HorizontalArrangement,
-    content: @Composable ButtonGroupScope.() -> Unit,
-) {
-    // TODO Load the motionScheme tokens from the component tokens file
-    val defaultAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
-    val scope = remember { ButtonGroupScopeImpl(defaultAnimationSpec) }
-
-    val measurePolicy =
-        remember(horizontalArrangement) {
-            NonAdaptiveButtonGroupMeasurePolicy(
-                horizontalArrangement = horizontalArrangement,
-                expandedRatio = expandedRatio,
-            )
-        }
-
-    Layout(measurePolicy = measurePolicy, modifier = modifier, content = { scope.content() })
-}
-
-// TODO link to mio page when available.
-// TODO link to an image when available
-/**
- * A layout composable that places its children in a horizontal sequence. When a child uses
- * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
- * listen to the interactions and expand the width of the pressed child element as well as compress
- * the neighboring child elements. Please also pass in a relevant maximum compression limit to
- * [ButtonGroupScope.animateWidth], so button groups can correctly calculate the maximum compression
- * that each item can compress by; this defaults to [ButtonDefaults.ContentPadding]. Additionally,
- * items will overflow into a dropdown menu if there are too many items or the items are too wide to
- * all fit onto the screen.
- *
- * Standard button group using [ButtonGroupScope.clickableItem]
- *
- * @sample androidx.compose.material3.samples.ButtonGroupSample
- *
- * standard button group using [ButtonGroupScope.customItem] with [ButtonGroupScope.animateWidth]
- *
- * @sample androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
- *
- * A connected button group is a variant of a button group that have leading and trailing buttons
- * that are asymmetric in shape and are used to make a selection.
- *
- * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
- * @sample androidx.compose.material3.samples.VerticalButtonGroupSample
- * @param overflowIndicator composable that is displayed at the end of the button group if it needs
- *   to overflow. It receives a [ButtonGroupMenuState].
- * @param modifier the [Modifier] to be applied to the button group.
- * @param expandedRatio the percentage, represented by a float, of the width of the interacted child
- *   element that will be used to expand the interacted child element as well as compress the
- *   neighboring children. By Default, standard button group will expand the interacted child
- *   element by [ButtonGroupDefaults.ExpandedRatio] of its width and this will be propagated to its
- *   neighbors. If 0f is passed into this slot, then the interacted child element will not expand at
- *   all and the neighboring elements will not compress. If 1f is passed into this slot, then the
- *   interacted child element will expand to 200% of its default width when pressed.
- * @param horizontalArrangement The horizontal arrangement of the button group's children.
- * @param content the content displayed in the button group, expected to use a composable that i s
- *   tagged with [ButtonGroupScope.animateWidth].
- */
-@Deprecated(
-    message = "Use overload with `verticalAlignment` parameter",
-    replaceWith =
-        ReplaceWith(
-            "ButtonGroup(overflowIndicator, modifier, expandedRatio, horizontalArrangement, verticalAlignment, content)"
-        ),
-    level = DeprecationLevel.HIDDEN,
-)
-@Composable
-@ExperimentalMaterial3ExpressiveApi
-fun ButtonGroup(
-    overflowIndicator: @Composable (ButtonGroupMenuState) -> Unit,
-    modifier: Modifier = Modifier,
-    @FloatRange(0.0) expandedRatio: Float = ButtonGroupDefaults.ExpandedRatio,
-    horizontalArrangement: Arrangement.Horizontal = ButtonGroupDefaults.HorizontalArrangement,
-    content: ButtonGroupScope.() -> Unit,
-) {
-    ButtonGroup(
-        overflowIndicator = overflowIndicator,
-        modifier = modifier,
-        expandedRatio = expandedRatio,
-        horizontalArrangement = horizontalArrangement,
-        verticalAlignment = Alignment.Top,
-        content = content,
-    )
-}
-
-// TODO link to mio page when available.
-// TODO link to an image when available
-/**
- * A layout composable that places its children in a horizontal sequence. When a child uses
- * [ButtonGroupScope.animateWidth] with a relevant [MutableInteractionSource], this button group can
- * listen to the interactions and expand the width of the pressed child element as well as compress
- * the neighboring child elements. Please also pass in a relevant maximum compression limit to
- * [ButtonGroupScope.animateWidth], so button groups can correctly calculate the maximum compression
  * that each item can compress by; this defaults to [ButtonDefaults.ContentPadding]. Additionally,
  * items will overflow into a dropdown menu if there are too many items or the items are too wide to
  * all fit onto the screen.
@@ -258,7 +122,6 @@ fun ButtonGroup(
  *   tagged with [ButtonGroupScope.animateWidth].
  */
 @Composable
-@ExperimentalMaterial3ExpressiveApi
 fun ButtonGroup(
     overflowIndicator: @Composable (ButtonGroupMenuState) -> Unit,
     modifier: Modifier = Modifier,
@@ -309,7 +172,6 @@ fun ButtonGroup(
 }
 
 /** Default values used by [ButtonGroup] */
-@ExperimentalMaterial3ExpressiveApi
 object ButtonGroupDefaults {
     /**
      * The default percentage, represented as a float, of the width of the interacted child element
@@ -469,12 +331,6 @@ object ButtonGroupDefaults {
 
 /** State class for the overflow menu in [ButtonGroup]. */
 class ButtonGroupMenuState(initialIsShowing: Boolean = false) {
-    /** Indicates whether the overflow menu is currently expanded. */
-    @Deprecated("Keeping for binary compatibility", level = DeprecationLevel.HIDDEN)
-    var isExpanded = initialIsShowing
-        get() = isShowing
-        private set
-
     /** Indicates whether the overflow menu is currently showing. */
     var isShowing by mutableStateOf(initialIsShowing)
         private set
@@ -974,26 +830,7 @@ private class ButtonGroupMeasurePolicy(
  * Button group scope used to indicate a [Modifier.weight] and [Modifier.animateWidth] of a child
  * element. Also defines the DSL to build the content of a [ButtonGroup]
  */
-@ExperimentalMaterial3ExpressiveApi
 interface ButtonGroupScope {
-    /**
-     * Size the element's width proportional to its [weight] relative to other weighted sibling
-     * elements in the [ButtonGroup]. The parent will divide the horizontal space remaining after
-     * measuring unweighted child elements and distribute it according to this weight. When [fill]
-     * is true, the element will be forced to occupy the whole width allocated to it. Otherwise, the
-     * element is allowed to be smaller - this will result in [ButtonGroup] being smaller, as the
-     * unused allocated width will not be redistributed to other siblings.
-     *
-     * @param weight The proportional width to give to this element, as related to the total of all
-     *   weighted siblings. Must be positive.
-     * @param fill When `true`, the element will occupy the whole width allocated.
-     */
-    @Deprecated("For binary compatibility", level = DeprecationLevel.HIDDEN)
-    fun Modifier.weight(
-        @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
-        fill: Boolean = true,
-    ): Modifier
-
     /**
      * Size the element's width proportional to its [weight] relative to other weighted sibling
      * elements in the [ButtonGroup]. The parent will divide the horizontal space remaining after
@@ -1090,7 +927,6 @@ internal val IntrinsicMeasurable.buttonGroupParentData: ButtonGroupParentData?
 internal val ButtonGroupParentData?.weight: Float
     get() = this?.weight ?: 0f
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal data class ButtonGroupParentData(
     var weight: Float = 0f,
     var pressedAnimatable: Animatable<Float, AnimationVector1D> = Animatable(0f),
@@ -1319,7 +1155,6 @@ internal class ToggleableButtonGroupItem(
     private val label: String,
 ) : ButtonGroupItem {
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun ButtonGroupContent() {
         val interactionSource = remember { MutableInteractionSource() }
@@ -1482,7 +1317,6 @@ private class OverflowStateImpl : ButtonGroupOverflowState {
  *
  * @param content The content lambda of the [ButtonGroup].
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun rememberButtonGroupScopeState(
     content: ButtonGroupScope.() -> Unit,
@@ -1503,7 +1337,6 @@ private interface ButtonGroupItemProvider {
 }
 
 /** Implementation of [ButtonGroupScope] and [ButtonGroupItemProvider]. */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
     ButtonGroupScope, ButtonGroupItemProvider {
 
@@ -1564,9 +1397,6 @@ private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
     ) {
         items.add(CustomButtonGroupItem(buttonGroupContent, menuContent))
     }
-
-    @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-    override fun Modifier.weight(weight: Float, fill: Boolean): Modifier = this.weight(weight)
 
     override fun Modifier.weight(weight: Float): Modifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
