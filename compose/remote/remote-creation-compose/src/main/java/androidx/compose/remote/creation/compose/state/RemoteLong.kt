@@ -272,8 +272,6 @@ public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {
     return remember { MutableRemoteLong(initialValue) }
 }
 
-/** Factory composable for mutable remote long state. */
-
 /**
  * Remembers a named remote long expression.
  *
@@ -293,7 +291,6 @@ public fun rememberNamedRemoteLong(
     }
 }
 
-/** A Composable function to remember and provide a **named** mutable remote long value. */
 internal enum class RemoteLongOp {
     Emulated,
     Add,
