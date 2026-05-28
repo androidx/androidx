@@ -31,7 +31,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
@@ -396,7 +396,7 @@ public fun Orbiter(
 
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val parentView = LocalView.current
-    @Suppress("DEPRECATION") val localId = currentCompositeKeyHash
+    val localId = currentCompositeKeyHashCode
     val context = LocalContext.current
     val compositionContext = rememberCompositionContext()
     val parentEntity: CoreEntity? = findNearestParentEntity()
@@ -888,7 +888,7 @@ private class SpatialOrbiter(
     private var parentView: View,
     private var compositionContext: CompositionContext,
     private var session: Session,
-    private var localId: Int,
+    private var localId: Long,
     initialPoseProvider: OrbiterPoseProvider,
     initialShape: SpatialShape,
 ) : RememberObserver {

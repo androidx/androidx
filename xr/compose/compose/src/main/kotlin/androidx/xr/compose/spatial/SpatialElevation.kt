@@ -23,7 +23,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
@@ -88,7 +88,7 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val context = LocalContext.current
     val compositionContext = rememberCompositionContext()
-    @Suppress("DEPRECATION") val localId = currentCompositeKeyHash
+    val localId = currentCompositeKeyHashCode
 
     /**
      * Determine the reference panel size for the SpatialElevation positioning.
@@ -162,7 +162,7 @@ private class SpatialElevationRenderer(
     private var parentView: View,
     private var compositionContext: CompositionContext,
     private var session: Session,
-    private var localId: Int,
+    private var localId: Long,
 ) : RememberObserver {
     var measuredContentSize: IntSize by mutableStateOf(IntSize.Zero)
         private set
