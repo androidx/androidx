@@ -32,8 +32,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.creation.compose.action.ValueChange
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -171,7 +171,7 @@ fun GesturePropagationDemo() {
                         modifier =
                             RemoteModifier.size(80.rdp)
                                 .background(RemoteColor(Color.Green))
-                                .clickable(ValueChange(clickCount, clickCount + 1)),
+                                .clickable(valueChange(clickCount, clickCount + 1)),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
                         RemoteText("ValueChange.".rs, color = Color.Black.rc)
@@ -199,10 +199,10 @@ fun GesturePropagationDemo() {
                             RemoteModifier.size(80.rdp)
                                 .background(RemoteColor(Color.Green))
                                 .combinedClickable(
-                                    onClick = ValueChange(clickCount, clickCount + 1),
+                                    onClick = valueChange(clickCount, clickCount + 1),
                                     onDoubleClick =
-                                        ValueChange(doubleClickCount, doubleClickCount + 1),
-                                    onLongClick = ValueChange(longClickCount, longClickCount + 1),
+                                        valueChange(doubleClickCount, doubleClickCount + 1),
+                                    onLongClick = valueChange(longClickCount, longClickCount + 1),
                                 ),
                         contentAlignment = RemoteAlignment.Center,
                     ) {

@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
@@ -42,7 +42,7 @@ fun RemoteTextButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     val text = "+".rs + tapCount.toRemoteString()
 
     RemoteTextButton(
-        ValueChange(tapCount, tapCount + 1),
+        valueChange(tapCount, tapCount + 1),
         modifier = modifier,
         colors = filledTonalColor(),
     ) {

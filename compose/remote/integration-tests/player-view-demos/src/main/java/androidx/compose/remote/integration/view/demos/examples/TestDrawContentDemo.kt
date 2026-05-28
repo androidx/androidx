@@ -19,7 +19,7 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import androidx.compose.remote.core.operations.layout.Component
-import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
@@ -53,7 +53,7 @@ fun TestDrawContentDemo() {
                     .width(rcFloat)
                     .border(1.rdp, Color.Companion.Red.rc)
                     .clickable(
-                        ValueChange(remoteState = visibility, updatedValue = (visibility + 1) % 2)
+                        valueChange(remoteState = visibility, updatedValue = (visibility + 1) % 2)
                     )
         ) {
             RemoteText(text = "Hello world!")

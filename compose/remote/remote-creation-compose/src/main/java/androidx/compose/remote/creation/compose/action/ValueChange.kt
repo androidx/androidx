@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.actions.ValueStringChange
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteState
-import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
@@ -77,27 +76,6 @@ internal class ValueFloatChangeAction(
     }
 }
 
-internal class ValueFloatDpChangeAction(
-    public val value: RemoteDp,
-    public val updatedValue: Float,
-) : RemoteAction() {
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun RemoteStateScope.toRemoteAction(): CreationAction {
-        val id = value.value.id
-        return ValueFloatChange(id, updatedValue)
-    }
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun ValueChange(value: RemoteDp, updatedValue: Float): Action {
-    return ValueFloatDpChangeAction(value, updatedValue)
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun ValueChange(value: RemoteDp, updatedValue: Int): Action {
-    return ValueFloatDpChangeAction(value, updatedValue.toFloat())
-}
-
 /**
  * Creates an [Action] that updates the value of a [MutableRemoteState] to a new [RemoteState].
  *
@@ -105,7 +83,7 @@ public fun ValueChange(value: RemoteDp, updatedValue: Int): Action {
  * @param updatedValue The new remote state value to apply.
  * @return An [Action] representing the value change.
  */
-public fun <T> ValueChange(
+public fun <T> valueChange(
     remoteState: MutableRemoteState<T>,
     updatedValue: RemoteState<T>,
 ): Action = ValueChangeAction(remoteState, updatedValue)

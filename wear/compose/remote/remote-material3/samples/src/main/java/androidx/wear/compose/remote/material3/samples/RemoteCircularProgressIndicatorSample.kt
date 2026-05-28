@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -65,7 +65,7 @@ public fun RemoteCircularProgressIndicatorAnimatedSample(
     val progress = rememberMutableRemoteFloat { 0.25f.rf }
     val animatedProgress = animateRemoteFloat(progress, 0.25f)
 
-    val toggleAction = ValueChange(progress, ((progress + 0.25f) % 1f).createReference())
+    val toggleAction = valueChange(progress, ((progress + 0.25f) % 1f).createReference())
 
     RemoteCircularProgressIndicator(progress = animatedProgress, modifier.clickable(toggleAction))
 }
