@@ -16,11 +16,15 @@
 
 package androidx.wear.compose.material3
 
+import android.content.Context
+import android.view.View
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -39,14 +43,18 @@ import androidx.wear.compose.material3.internal.LocalWristOrientation
 import androidx.wear.compose.material3.internal.WristOrientation
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
+import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
+import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureInteraction
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
+import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -197,10 +205,16 @@ class OneHandedGestureIndicatorScreenshotTest {
         content: @Composable () -> Unit,
     ) {
         rule.mainClock.autoAdvance = false
+
         rule.setContentWithTheme {
+            val scope: CoroutineScope = rememberCoroutineScope()
+            val gestureManager =
+                remember(scope) { GestureManagerImpl(scope, SdkGestureInputManagerMock()) }
+
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
                 LocalWristOrientation provides wrist.toWristOrientation(),
+                LocalGestureManager provides gestureManager,
                 content = content,
             )
         }
@@ -215,6 +229,29 @@ class OneHandedGestureIndicatorScreenshotTest {
             screenshotRule,
             testTagNode = rule.onAllNodes(hasTestTag(TEST_TAG), true).onFirst(),
         )
+    }
+
+    private class SdkGestureInputManagerMock : SdkGestureInputManager {
+        override fun isAvailable(context: Context): Boolean = true
+
+        override fun subscribeToSdkGestureAction(
+            view: View,
+            sdkGestureAction: Int,
+            enabledInAmbient: Boolean,
+            onGesture: (Int) -> Unit,
+        ) {}
+
+        override fun unsubscribeFromSdkGestureAction(view: View, sdkGestureAction: Int) {}
+
+        override fun notifyGestureConsumed(key: String, sdkGestureAction: Int) {}
+
+        override fun shouldShowIndicator(
+            key: String,
+            sdkGestureAction: Int,
+            isOverlay: Boolean,
+        ): Boolean = true
+
+        override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {}
     }
 
     internal fun Wrist.toWristOrientation(): WristOrientation =
