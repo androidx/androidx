@@ -43,6 +43,11 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import androidx.xr.compose.testing.session
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
@@ -59,6 +64,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -101,6 +108,7 @@ class TransformingMovableTest {
                 }
             }
         }
+
         assertMovableComponentDoesNotExist()
     }
 
@@ -154,21 +162,23 @@ class TransformingMovableTest {
                 }
             }
         }
+
         assertSingleMovableComponentExist()
+
         val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
         val expectedPose =
             Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_START,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                expectedPose,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_START,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = expectedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -176,14 +186,14 @@ class TransformingMovableTest {
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_ONGOING,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                expectedPose,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_ONGOING,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = expectedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -192,14 +202,14 @@ class TransformingMovableTest {
         // Add the END event so TransformingMovableNode commits the pose to the layout
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_END,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                expectedPose,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_END,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = expectedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -240,14 +250,14 @@ class TransformingMovableTest {
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_START,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                Pose.Identity,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_START,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = Pose.Identity,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -257,6 +267,254 @@ class TransformingMovableTest {
         assertThat(moveEvent).isNotNull()
         assertThat(assertNotNull(moveEvent).type).isEqualTo(SpatialMoveEventType.Start)
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalRotateToLookAtUserApi::class)
+    @Test
+    fun transformingMovable_withRotateToLookAtUser_movesAndRotatesCorrectly() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val sessionCreateResult = Session.create(composeTestRule.activity, testDispatcher)
+        assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
+
+        val session = (sessionCreateResult as SessionCreateSuccess).session
+        composeTestRule.session = session
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .transformingMovable(enabled = true)
+                            .rotateToLookAtUser()
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        assertSingleMovableComponentExist()
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val expectedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_START,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = expectedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_ONGOING,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = expectedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_END,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = expectedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+
+        composeTestRule.waitForIdle()
+
+        val entity =
+            composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+        assertNotNull(entity)
+        assertThat(entity.getPose(Space.ACTIVITY).translation).isEqualTo(expectedPose.translation)
+
+        val fakePerceptionRuntimeInstance =
+            session.runtimes
+                .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
+                .single()
+        val arDevice = fakePerceptionRuntimeInstance.perceptionManager.arDevice
+
+        val userLocation = Vector3(x = 5f, y = 2f, z = 10f)
+        arDevice.devicePose = arDevice.devicePose.translate(translation = userLocation)
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        fakePerceptionRuntimeInstance.allowOneMoreCallToUpdate()
+        testDispatcher.scheduler.advanceUntilIdle()
+        composeTestRule.waitForIdle()
+
+        // Verify that the panel's position remains at the dragged translation,
+        // but its rotation turns to face the new user location
+        val finalPose = entity.getPose(Space.ACTIVITY)
+        assertThat(finalPose.translation).isEqualTo(expectedPose.translation)
+
+        val targetVector = userLocation - finalPose.translation
+        val expectedRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
+
+        assertThat(finalPose.rotation.x).isWithin(TOLERANCE).of(expectedRotation.x)
+        assertThat(finalPose.rotation.y).isWithin(TOLERANCE).of(expectedRotation.y)
+        assertThat(finalPose.rotation.z).isWithin(TOLERANCE).of(expectedRotation.z)
+        assertThat(finalPose.rotation.w).isWithin(TOLERANCE).of(expectedRotation.w)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalRotateToLookAtUserApi::class)
+    @Test
+    fun transformingMovable_withRotateToLookAtUser_oppositeOrder_movesAndRotatesCorrectly() =
+        runTest {
+            val testDispatcher = StandardTestDispatcher(testScheduler)
+            val sessionCreateResult = Session.create(composeTestRule.activity, testDispatcher)
+            assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
+
+            val session = (sessionCreateResult as SessionCreateSuccess).session
+            composeTestRule.session = session
+            session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL))
+            val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+            val activitySpace = sceneRuntime.activitySpace
+
+            val fakePerceptionRuntimeInstance =
+                session.runtimes
+                    .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
+                    .single()
+            val arDevice = fakePerceptionRuntimeInstance.perceptionManager.arDevice
+            arDevice.devicePose = Pose.Identity
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        modifier =
+                            SubspaceModifier.testTag("panel")
+                                .rotateToLookAtUser()
+                                .transformingMovable(enabled = true)
+                    ) {
+                        Text(text = "Spatial Panel")
+                    }
+                }
+            }
+
+            assertSingleMovableComponentExist()
+
+            val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+            val expectedPose =
+                Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+
+            rtMovableComponent.onMoveEvent(
+                MoveEvent(
+                    moveState = MoveEvent.MOVE_STATE_START,
+                    initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                    currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                    previousPose = Pose.Identity,
+                    currentPose = expectedPose,
+                    previousScale = Vector3(1f, 1f, 1f),
+                    currentScale = Vector3(1f, 1f, 1f),
+                    initialParent = activitySpace,
+                    updatedParent = null,
+                    disposedEntity = null,
+                )
+            )
+
+            rtMovableComponent.onMoveEvent(
+                MoveEvent(
+                    moveState = MoveEvent.MOVE_STATE_ONGOING,
+                    initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                    currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                    previousPose = Pose.Identity,
+                    currentPose = expectedPose,
+                    previousScale = Vector3(1f, 1f, 1f),
+                    currentScale = Vector3(1f, 1f, 1f),
+                    initialParent = activitySpace,
+                    updatedParent = null,
+                    disposedEntity = null,
+                )
+            )
+
+            rtMovableComponent.onMoveEvent(
+                MoveEvent(
+                    moveState = MoveEvent.MOVE_STATE_END,
+                    initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                    currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                    previousPose = Pose.Identity,
+                    currentPose = expectedPose,
+                    previousScale = Vector3(1f, 1f, 1f),
+                    currentScale = Vector3(1f, 1f, 1f),
+                    initialParent = activitySpace,
+                    updatedParent = null,
+                    disposedEntity = null,
+                )
+            )
+
+            composeTestRule.waitForIdle()
+
+            val entity =
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            assertNotNull(entity)
+
+            // With the opposite order (rotateToLookAtUser preceding transformingMovable),
+            // the transformingMovable is a child of rotateToLookAtUser.
+            // Thus, the translation applied by transformingMovable is rotated by the parent's
+            // look-at rotation.
+            // This causes the final translation in Activity space to be mathematically rotated:
+            val initialTranslation = entity.getPose(Space.ACTIVITY).translation
+            assertThat(initialTranslation.x).isWithin(TOLERANCE).of(expectedPose.translation.x)
+            assertThat(initialTranslation.y).isWithin(TOLERANCE).of(expectedPose.translation.y)
+            assertThat(initialTranslation.z).isWithin(TOLERANCE).of(expectedPose.translation.z)
+
+            val userLocation = Vector3(x = 5f, y = 2f, z = 10f)
+            arDevice.devicePose = arDevice.devicePose.translate(translation = userLocation)
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            fakePerceptionRuntimeInstance.allowOneMoreCallToUpdate()
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            val finalPose = entity.getPose(Space.ACTIVITY)
+
+            // Since the parent rotates to follow the user's new head location,
+            // the child's relative translation is rotated.
+            // Specifically, the parent look-at rotation is computed from the origin [0, 0, 0]
+            // to the user head location [5f, 2f, 10f]:
+            //   D = normalized([5, 2, 10])
+            //   R = Quaternion.fromLookTowards(D, Vector3.Up)
+            //
+            // Applying this look-towards rotation R to the child's cached layout translation [1f,
+            // 2f, 3f]
+            // (i.e. finalTranslation = R * [1f, 2f, 3f]) yields exactly the rotated translation:
+            val expectedFinalTranslation = Vector3(2.0576036f, 2.4970186f, 1.8791394f)
+            assertThat(finalPose.translation.x).isWithin(TOLERANCE).of(expectedFinalTranslation.x)
+            assertThat(finalPose.translation.y).isWithin(TOLERANCE).of(expectedFinalTranslation.y)
+            assertThat(finalPose.translation.z).isWithin(TOLERANCE).of(expectedFinalTranslation.z)
+
+            val targetVector = userLocation
+            val lookAtRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
+            val expectedRotation = lookAtRotation * expectedPose.rotation
+
+            assertThat(finalPose.rotation.x).isWithin(TOLERANCE).of(expectedRotation.x)
+            assertThat(finalPose.rotation.y).isWithin(TOLERANCE).of(expectedRotation.y)
+            assertThat(finalPose.rotation.z).isWithin(TOLERANCE).of(expectedRotation.z)
+            assertThat(finalPose.rotation.w).isWithin(TOLERANCE).of(expectedRotation.w)
+        }
 
     @CanIgnoreReturnValue
     private fun assertSingleMovableComponentExist(testTag: String = "panel"): MovableComponent {
@@ -307,14 +565,14 @@ class TransformingMovableTest {
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_START,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                draggedPose,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_START,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = draggedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -322,14 +580,14 @@ class TransformingMovableTest {
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_ONGOING,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                draggedPose,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_ONGOING,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = draggedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -337,14 +595,14 @@ class TransformingMovableTest {
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_END,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                draggedPose,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_END,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = draggedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -389,14 +647,14 @@ class TransformingMovableTest {
 
         rtMovableComponent.onMoveEvent(
             MoveEvent(
-                MoveEvent.MOVE_STATE_START,
-                Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
-                Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
-                Pose.Identity,
-                Pose.Identity,
-                Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveState = MoveEvent.MOVE_STATE_START,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = Pose.Identity,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -454,5 +712,9 @@ class TransformingMovableTest {
                 }
             }
         )
+    }
+
+    private companion object {
+        const val TOLERANCE = 1e-5f
     }
 }

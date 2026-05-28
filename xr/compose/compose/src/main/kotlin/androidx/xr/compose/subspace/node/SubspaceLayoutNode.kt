@@ -117,6 +117,15 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
      */
     internal var depth: Int = 0
 
+    /** Whether a system movement/drag is currently ongoing for this layout node. */
+    internal var isSystemMoveOngoing: Boolean = false
+        private set
+
+    /** Marks whether a system movement/drag is currently ongoing for this layout node. */
+    internal fun markSystemMoveOngoing(isOngoing: Boolean) {
+        isSystemMoveOngoing = isOngoing
+    }
+
     override var measurePolicy: SubspaceMeasurePolicy = ErrorMeasurePolicy
         set(value) {
             if (field != value) {

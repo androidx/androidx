@@ -180,6 +180,13 @@ internal sealed class CoreEntity(initialEntity: Entity? = null) : OpaqueEntity {
         }
 
     fun updatePoseFromLayout() {
+        // Skip updating the pose from layout coordinate changes if a system-initiated movement/drag
+        // (e.g. via transformingMovable) is actively ongoing to prevent Compose from fighting or
+        // overriding the native drag orientation/position.
+        if (layout?.isSystemMoveOngoing == true) {
+            return
+        }
+
         // Compose XR uses pixels, SceneCore uses meters.
         poseInMeters = layoutPoseInPixels.convertPixelsToMeters(density ?: return)
     }
