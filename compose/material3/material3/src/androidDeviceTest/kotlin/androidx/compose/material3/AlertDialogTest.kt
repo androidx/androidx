@@ -59,7 +59,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withTimeout
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -499,7 +498,6 @@ class AlertDialogTest {
         )
     }
 
-    @Ignore("TODO(b/503167234): Re-enable this test once flakiness is fixed.")
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun alertDialog_withIcon_precisionPointer_positioning() {
@@ -610,7 +608,6 @@ class AlertDialogTest {
         )
     }
 
-    @Ignore("TODO(b/503167234): Re-enable this test once flakiness is fixed.")
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun alertDialog_precisionPointer_positioning() {
