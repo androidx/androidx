@@ -12,3 +12,7 @@
 -keep class androidx.credentials.providerevents.playservices.ProviderEventsApiProviderPlayServices {
   *;
 }
+
+-keep class androidx.credentials.providerevents.playservices.ImportExportFileProvider {
+  *;
+}
