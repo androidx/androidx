@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -53,14 +54,17 @@ import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi
 import androidx.xr.compose.subspace.layout.SpatialArrangement
+import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.gravityAligned
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.rotateToLookAtUser
+import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.components.TopBarWithBackArrow
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
@@ -114,7 +118,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         var isRotateToLookAtUserOn by remember { mutableStateOf(true) }
 
         IntegrationTestsAppTheme {
-            Subspace(modifier = SubspaceModifier.width(1600.dp).height(1400.dp)) {
+            Subspace(modifier = SubspaceModifier.width(2100.dp).height(1400.dp)) {
                 SpatialRow(
                     modifier = SubspaceModifier.offset(y = 100.dp),
                     horizontalArrangement = SpatialArrangement.spacedBy(40.dp),
@@ -254,8 +258,8 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 }
             }
 
-            // Column 2: Specialized Configurations & Edge Cases
-            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(60.dp)) {
+            // Column 2: Specialized Configurations, Edge Cases & Movable Tests
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(30.dp)) {
                 // Billboard: Horizontal tracking only (upright)
                 TestPanelContainer(
                     title = "Billboard (Look + Gravity)",
@@ -269,23 +273,56 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                     title = "Up Vector (1, 0, 0)",
                     isFeatureOn = isFeatureOn,
                     upVector = Vector3(1f, 0f, 0f),
-                    width = 300,
+                    width = 250,
                 ) { modifier, content ->
                     SpatialPanel(modifier = modifier, content = content)
                 }
 
-                // Panel with massive manual offset
+                // Panel that uses transformingMovable
                 TestPanelContainer(
-                    title = "Large Offset",
+                    title = "RotateToLookAtUser +\ntransformingMovable",
                     isFeatureOn = isFeatureOn,
-                    modifier = SubspaceModifier.offset(x = 1000.dp, y = 500.dp, z = 2000.dp),
+                    modifier = SubspaceModifier.transformingMovable(),
                 ) { modifier, content ->
                     SpatialPanel(modifier = modifier, content = content)
+                }
+
+                // Panel that uses custom movable
+                var xValueMovable by remember { mutableStateOf(0.dp) }
+                var yValueMovable by remember { mutableStateOf(0.dp) }
+                var zValueMovable by remember { mutableStateOf(0.dp) }
+                val density = LocalDensity.current
+                var rotateValueMovable by remember { mutableStateOf(Quaternion.Identity) }
+                val customMovement: (SpatialMoveEvent) -> Unit = { event ->
+                    val deltaX = event.pose.translation.x - event.previousPose.translation.x
+                    val deltaY = event.pose.translation.y - event.previousPose.translation.y
+                    val deltaZ = event.pose.translation.z - event.previousPose.translation.z
+                    val deltaRot = event.previousPose.rotation.inverse * event.pose.rotation
+
+                    with(density) {
+                        xValueMovable += deltaX.toDp()
+                        yValueMovable += deltaY.toDp()
+                        zValueMovable += deltaZ.toDp()
+                    }
+                    rotateValueMovable *= deltaRot
+                }
+
+                TestPanelContainer(
+                    title = "RotateToLookAtUser +\nmovable",
+                    isFeatureOn = isFeatureOn,
+                    modifier =
+                        SubspaceModifier.offset(xValueMovable, yValueMovable, zValueMovable)
+                            .rotate(rotateValueMovable),
+                ) { modifier, content ->
+                    SpatialPanel(
+                        modifier = modifier.movable(onMove = customMovement),
+                        content = content,
+                    )
                 }
             }
 
             // Column 3: Hierarchy & Nesting Tests
-            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(60.dp)) {
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(40.dp)) {
                 // Nested rotation test: Demonstrates a tracking child within a fixed rotated parent
                 val parentRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 0f, roll = 10f)
                 SpatialBox(
@@ -337,6 +374,14 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                         // Offset by 5dp on Z axis to prevent clipping with parent panel
                         SpatialPanel(modifier = modifier.offset(z = 5.dp), content = content)
                     }
+                }
+                // Panel with massive manual offset
+                TestPanelContainer(
+                    title = "Large Offset",
+                    isFeatureOn = isFeatureOn,
+                    modifier = SubspaceModifier.offset(x = 1000.dp, y = 500.dp, z = 2000.dp),
+                ) { modifier, content ->
+                    SpatialPanel(modifier = modifier, content = content)
                 }
             }
         }
