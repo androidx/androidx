@@ -105,13 +105,15 @@ internal fun AndroidVectorParser.parseCurrentVectorNode(
                 }
                 SHAPE_GROUP -> {
                     parseGroup(res, theme, attrs, builder)
+                    pushGroup(nestedGroups)
+                    return 0
                 }
             }
         }
         XmlPullParser.END_TAG -> {
             if (SHAPE_GROUP == xmlParser.name) {
                 repeat(nestedGroups + 1) { builder.clearGroup() }
-                return 0
+                return popGroup()
             }
         }
     }
@@ -517,7 +519,39 @@ internal fun AndroidVectorParser.parseGroup(
  * For example, if the fill color for a path was dependent on the orientation of the device the
  * config flag would include the value [android.content.pm.ActivityInfo.CONFIG_ORIENTATION]
  */
-internal data class AndroidVectorParser(val xmlParser: XmlPullParser, var config: Int = 0) {
+internal class AndroidVectorParser(val xmlParser: XmlPullParser, var config: Int = 0) {
+    // Stack to keep track of parent `nestedGroups` counts when traversing nested group tags.
+    //
+    // In Vector XML, `<clip-path>` is a self-closing tag, whereas in Compose, clip paths
+    // are represented by wrapping subsequent sibling nodes inside an implicit child group.
+    //
+    // This primitive-backed stack is used to save the parent's clip-group count when entering a new
+    // nested `<group>` and restore it when that group ends. This ensures that parent-level
+    // clip paths continue to clip their sibling elements correctly after a child group closes,
+    // without generating object allocation overhead during parsing.
+    private var nestedGroupsStack: IntArray? = null
+    private var stackPointer = 0
+
+    fun pushGroup(nestedGroups: Int) {
+        var stack = nestedGroupsStack
+        if (stack == null) {
+            stack = IntArray(4)
+            nestedGroupsStack = stack
+        } else if (stackPointer >= stack.size) {
+            stack = stack.copyOf(stack.size * 2)
+            nestedGroupsStack = stack
+        }
+        stack[stackPointer++] = nestedGroups
+    }
+
+    fun popGroup(): Int {
+        val stack = nestedGroupsStack
+        if (stack == null || stackPointer == 0) {
+            return 0
+        }
+        return stack[--stackPointer]
+    }
+
     @JvmField internal val pathParser = PathParser()
 
     private fun updateConfig(resConfig: Int) {
