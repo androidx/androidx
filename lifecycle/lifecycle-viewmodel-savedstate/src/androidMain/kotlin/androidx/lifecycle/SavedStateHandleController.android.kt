@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalStdlibApi::class)
-
 package androidx.lifecycle
 
 import androidx.savedstate.SavedStateRegistry
