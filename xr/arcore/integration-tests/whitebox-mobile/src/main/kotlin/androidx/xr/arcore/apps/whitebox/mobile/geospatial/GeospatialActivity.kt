@@ -99,7 +99,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
             SessionLifecycleHelper(
                 this,
                 config =
-                    Config.Builder(session.config)
+                    Config.Builder()
                         .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
                         .setDeviceTracking(DeviceTrackingMode.SPATIAL)
                         .setGeospatial(GeospatialMode.SPATIAL)
