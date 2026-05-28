@@ -18,7 +18,7 @@ package androidx.compose.remote.integration.demos.modifier
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -56,8 +56,7 @@ fun ClickableDemo() {
 @RemoteComposable
 private fun ClickableDemoContent() {
     val clickCounter = rememberMutableRemoteInt(0)
-
-    val onClickAction = ValueChange(clickCounter, clickCounter + 1)
+    val onClickAction = valueChange(clickCounter, clickCounter + 1)
 
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteRow {

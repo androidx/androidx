@@ -25,7 +25,7 @@ package androidx.compose.remote.creation.compose.action {
   }
 
   public final class ValueChangeKt {
-    method public static <T> androidx.compose.remote.creation.compose.action.Action ValueChange(androidx.compose.remote.creation.compose.state.MutableRemoteState<T> remoteState, androidx.compose.remote.creation.compose.state.RemoteState<T> updatedValue);
+    method public static <T> androidx.compose.remote.creation.compose.action.Action valueChange(androidx.compose.remote.creation.compose.state.MutableRemoteState<T> remoteState, androidx.compose.remote.creation.compose.state.RemoteState<T> updatedValue);
   }
 
 }

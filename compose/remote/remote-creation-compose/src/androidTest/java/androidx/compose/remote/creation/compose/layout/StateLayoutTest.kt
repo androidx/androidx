@@ -17,7 +17,7 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
@@ -76,7 +76,7 @@ class StateLayoutTest {
                         color = Color.Black.rc,
                         modifier =
                             RemoteModifier.clickable(
-                                ValueChange(
+                                valueChange(
                                     currentState,
                                     RemoteEnum(
                                         if (state == LayoutState.First) LayoutState.Second

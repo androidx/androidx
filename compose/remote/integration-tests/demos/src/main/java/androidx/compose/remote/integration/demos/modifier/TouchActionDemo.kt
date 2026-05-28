@@ -18,7 +18,7 @@ package androidx.compose.remote.integration.demos.modifier
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.remote.creation.compose.action.ValueChange
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -60,10 +60,9 @@ private fun TouchActionDemoContent() {
     val downCounter = rememberMutableRemoteInt(0)
     val upCounter = rememberMutableRemoteInt(0)
     val cancelCounter = rememberMutableRemoteInt(0)
-
-    val onDownAction = ValueChange(downCounter, downCounter + 1)
-    val onUpAction = ValueChange(upCounter, upCounter + 1)
-    val onCancelAction = ValueChange(cancelCounter, cancelCounter + 1)
+    val onDownAction = valueChange(downCounter, downCounter + 1)
+    val onUpAction = valueChange(upCounter, upCounter + 1)
+    val onCancelAction = valueChange(cancelCounter, cancelCounter + 1)
 
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteRow {
