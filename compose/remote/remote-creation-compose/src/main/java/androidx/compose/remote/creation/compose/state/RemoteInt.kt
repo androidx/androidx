@@ -1213,23 +1213,6 @@ public fun rememberMutableRemoteInt(initialValue: Int): MutableRemoteInt {
 }
 
 /**
- * Factory composable for state.
- *
- * @param value A lambda that provides the initial [Int] value for this remote integer.
- * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
- */
-
-/**
- * A Composable function to remember and provide a **named** mutable remote integer value.
- *
- * @param name The unique name for this remote integer.
- * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]). This helps
- *   organize named values in the remote document.
- * @param value A lambda that provides the initial [Int] value for this remote integer.
- * @return A [RemoteInt] instance that will be remembered across recompositions.
- */
-
-/**
  * A Composable function to remember and provide a [RemoteInt] expression.
  *
  * @param value A lambda that provides the [RemoteInt] expression.
