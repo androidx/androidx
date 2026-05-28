@@ -54,13 +54,15 @@ final enum class androidx.compose.foundation/MutatePriority : kotlin/Enum<androi
     final fun values(): kotlin/Array<androidx.compose.foundation/MutatePriority> // androidx.compose.foundation/MutatePriority.values|values#static(){}[0]
 }
 
+abstract fun interface <#A: androidx.compose.foundation.style/CustomStyleScope> androidx.compose.foundation.style/CustomStyle { // androidx.compose.foundation.style/CustomStyle|null[0]
+    abstract fun (#A).applyStyle() // androidx.compose.foundation.style/CustomStyle.applyStyle|applyStyle@1:0(){}[0]
+}
+
 abstract fun interface androidx.compose.foundation.lazy.layout/LazyLayoutMeasurePolicy { // androidx.compose.foundation.lazy.layout/LazyLayoutMeasurePolicy|null[0]
     abstract fun (androidx.compose.foundation.lazy.layout/LazyLayoutMeasureScope).measure(androidx.compose.ui.unit/Constraints): androidx.compose.ui.layout/MeasureResult // androidx.compose.foundation.lazy.layout/LazyLayoutMeasurePolicy.measure|measure@androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope(androidx.compose.ui.unit.Constraints){}[0]
 }
 
-abstract fun interface androidx.compose.foundation.style/Style { // androidx.compose.foundation.style/Style|null[0]
-    abstract fun (androidx.compose.foundation.style/StyleScope).applyStyle() // androidx.compose.foundation.style/Style.applyStyle|applyStyle@androidx.compose.foundation.style.StyleScope(){}[0]
-
+abstract fun interface androidx.compose.foundation.style/Style : androidx.compose.foundation.style/CustomStyle<androidx.compose.foundation.style/StyleScope> { // androidx.compose.foundation.style/Style|null[0]
     final object Companion : androidx.compose.foundation.style/Style { // androidx.compose.foundation.style/Style.Companion|null[0]
         final fun (androidx.compose.foundation.style/StyleScope).applyStyle() // androidx.compose.foundation.style/Style.Companion.applyStyle|applyStyle@androidx.compose.foundation.style.StyleScope(){}[0]
     }
@@ -482,6 +484,200 @@ abstract interface androidx.compose.foundation.shape/CornerSize { // androidx.co
     abstract fun toPx(androidx.compose.ui.geometry/Size, androidx.compose.ui.unit/Density): kotlin/Float // androidx.compose.foundation.shape/CornerSize.toPx|toPx(androidx.compose.ui.geometry.Size;androidx.compose.ui.unit.Density){}[0]
 }
 
+abstract interface androidx.compose.foundation.style/AlphaScope { // androidx.compose.foundation.style/AlphaScope|null[0]
+    abstract fun alpha(kotlin/Float) // androidx.compose.foundation.style/AlphaScope.alpha|alpha(kotlin.Float){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/AnimateStyleScope { // androidx.compose.foundation.style/AnimateStyleScope|null[0]
+    abstract fun animate(androidx.compose.animation.core/AnimationSpec<kotlin/Float>, androidx.compose.animation.core/AnimationSpec<kotlin/Float>, kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/AnimateStyleScope.animate|animate(androidx.compose.animation.core.AnimationSpec<kotlin.Float>;androidx.compose.animation.core.AnimationSpec<kotlin.Float>;kotlin.Function0<kotlin.Unit>){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/BackgroundScope { // androidx.compose.foundation.style/BackgroundScope|null[0]
+    abstract fun background(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/BackgroundScope.background|background(androidx.compose.ui.graphics.Brush){}[0]
+    abstract fun background(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/BackgroundScope.background|background(androidx.compose.ui.graphics.Color){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/BaselineShiftScope { // androidx.compose.foundation.style/BaselineShiftScope|null[0]
+    abstract fun baselineShift(androidx.compose.ui.text.style/BaselineShift) // androidx.compose.foundation.style/BaselineShiftScope.baselineShift|baselineShift(androidx.compose.ui.text.style.BaselineShift){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/BorderScope { // androidx.compose.foundation.style/BorderScope|null[0]
+    abstract fun borderBrush(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/BorderScope.borderBrush|borderBrush(androidx.compose.ui.graphics.Brush){}[0]
+    abstract fun borderColor(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/BorderScope.borderColor|borderColor(androidx.compose.ui.graphics.Color){}[0]
+    abstract fun borderWidth(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/BorderScope.borderWidth|borderWidth(androidx.compose.ui.unit.Dp){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ClipScope { // androidx.compose.foundation.style/ClipScope|null[0]
+    abstract fun clip(kotlin/Boolean = ...) // androidx.compose.foundation.style/ClipScope.clip|clip(kotlin.Boolean){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ColorFilterScope { // androidx.compose.foundation.style/ColorFilterScope|null[0]
+    abstract fun colorFilter(androidx.compose.ui.graphics/ColorFilter?) // androidx.compose.foundation.style/ColorFilterScope.colorFilter|colorFilter(androidx.compose.ui.graphics.ColorFilter?){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ContentColorScope { // androidx.compose.foundation.style/ContentColorScope|null[0]
+    abstract fun contentBrush(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/ContentColorScope.contentBrush|contentBrush(androidx.compose.ui.graphics.Brush){}[0]
+    abstract fun contentColor(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/ContentColorScope.contentColor|contentColor(androidx.compose.ui.graphics.Color){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ContentPaddingScope { // androidx.compose.foundation.style/ContentPaddingScope|null[0]
+    abstract fun contentPaddingBottom(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ContentPaddingScope.contentPaddingBottom|contentPaddingBottom(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun contentPaddingEnd(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ContentPaddingScope.contentPaddingEnd|contentPaddingEnd(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun contentPaddingStart(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ContentPaddingScope.contentPaddingStart|contentPaddingStart(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun contentPaddingTop(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ContentPaddingScope.contentPaddingTop|contentPaddingTop(androidx.compose.ui.unit.Dp){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/CustomStyleScope : androidx.compose.runtime/CompositionLocalAccessorScope, androidx.compose.ui.unit/Density // androidx.compose.foundation.style/CustomStyleScope|null[0]
+
+abstract interface androidx.compose.foundation.style/DrawStyleScope : androidx.compose.foundation.style/BackgroundScope, androidx.compose.foundation.style/BorderScope, androidx.compose.foundation.style/ForegroundScope, androidx.compose.foundation.style/ShadowScope, androidx.compose.foundation.style/ShapeScope // androidx.compose.foundation.style/DrawStyleScope|null[0]
+
+abstract interface androidx.compose.foundation.style/ExternalPaddingScope { // androidx.compose.foundation.style/ExternalPaddingScope|null[0]
+    abstract fun externalPaddingBottom(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ExternalPaddingScope.externalPaddingBottom|externalPaddingBottom(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun externalPaddingEnd(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ExternalPaddingScope.externalPaddingEnd|externalPaddingEnd(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun externalPaddingStart(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ExternalPaddingScope.externalPaddingStart|externalPaddingStart(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun externalPaddingTop(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/ExternalPaddingScope.externalPaddingTop|externalPaddingTop(androidx.compose.ui.unit.Dp){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/FontFamilyScope { // androidx.compose.foundation.style/FontFamilyScope|null[0]
+    abstract fun fontFamily(androidx.compose.ui.text.font/FontFamily) // androidx.compose.foundation.style/FontFamilyScope.fontFamily|fontFamily(androidx.compose.ui.text.font.FontFamily){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/FontSizeScope { // androidx.compose.foundation.style/FontSizeScope|null[0]
+    abstract fun fontSize(androidx.compose.ui.unit/TextUnit) // androidx.compose.foundation.style/FontSizeScope.fontSize|fontSize(androidx.compose.ui.unit.TextUnit){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/FontStyleScope { // androidx.compose.foundation.style/FontStyleScope|null[0]
+    abstract fun fontStyle(androidx.compose.ui.text.font/FontStyle) // androidx.compose.foundation.style/FontStyleScope.fontStyle|fontStyle(androidx.compose.ui.text.font.FontStyle){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/FontSynthesisScope { // androidx.compose.foundation.style/FontSynthesisScope|null[0]
+    abstract fun fontSynthesis(androidx.compose.ui.text.font/FontSynthesis) // androidx.compose.foundation.style/FontSynthesisScope.fontSynthesis|fontSynthesis(androidx.compose.ui.text.font.FontSynthesis){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/FontWeightScope { // androidx.compose.foundation.style/FontWeightScope|null[0]
+    abstract fun fontWeight(androidx.compose.ui.text.font/FontWeight) // androidx.compose.foundation.style/FontWeightScope.fontWeight|fontWeight(androidx.compose.ui.text.font.FontWeight){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ForegroundScope { // androidx.compose.foundation.style/ForegroundScope|null[0]
+    abstract fun foreground(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/ForegroundScope.foreground|foreground(androidx.compose.ui.graphics.Brush){}[0]
+    abstract fun foreground(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/ForegroundScope.foreground|foreground(androidx.compose.ui.graphics.Color){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/HyphensScope { // androidx.compose.foundation.style/HyphensScope|null[0]
+    abstract fun hyphens(androidx.compose.ui.text.style/Hyphens) // androidx.compose.foundation.style/HyphensScope.hyphens|hyphens(androidx.compose.ui.text.style.Hyphens){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/LayerStyleScope : androidx.compose.foundation.style/AlphaScope, androidx.compose.foundation.style/ClipScope, androidx.compose.foundation.style/ColorFilterScope, androidx.compose.foundation.style/RotationScope, androidx.compose.foundation.style/ScaleScope, androidx.compose.foundation.style/TransformOriginScope, androidx.compose.foundation.style/TranslationScope, androidx.compose.foundation.style/ZIndexScope // androidx.compose.foundation.style/LayerStyleScope|null[0]
+
+abstract interface androidx.compose.foundation.style/LayoutStyleScope : androidx.compose.foundation.style/ContentPaddingScope, androidx.compose.foundation.style/ExternalPaddingScope, androidx.compose.foundation.style/MaxSizeScope, androidx.compose.foundation.style/MinSizeScope, androidx.compose.foundation.style/PositionScope, androidx.compose.foundation.style/SizeScope // androidx.compose.foundation.style/LayoutStyleScope|null[0]
+
+abstract interface androidx.compose.foundation.style/LetterSpacingScope { // androidx.compose.foundation.style/LetterSpacingScope|null[0]
+    abstract fun letterSpacing(androidx.compose.ui.unit/TextUnit) // androidx.compose.foundation.style/LetterSpacingScope.letterSpacing|letterSpacing(androidx.compose.ui.unit.TextUnit){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/LineBreakScope { // androidx.compose.foundation.style/LineBreakScope|null[0]
+    abstract fun lineBreak(androidx.compose.ui.text.style/LineBreak) // androidx.compose.foundation.style/LineBreakScope.lineBreak|lineBreak(androidx.compose.ui.text.style.LineBreak){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/LineHeightScope { // androidx.compose.foundation.style/LineHeightScope|null[0]
+    abstract fun lineHeight(androidx.compose.ui.unit/TextUnit) // androidx.compose.foundation.style/LineHeightScope.lineHeight|lineHeight(androidx.compose.ui.unit.TextUnit){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/MaxSizeScope { // androidx.compose.foundation.style/MaxSizeScope|null[0]
+    abstract fun maxHeight(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/MaxSizeScope.maxHeight|maxHeight(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun maxWidth(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/MaxSizeScope.maxWidth|maxWidth(androidx.compose.ui.unit.Dp){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/MinSizeScope { // androidx.compose.foundation.style/MinSizeScope|null[0]
+    abstract fun minHeight(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/MinSizeScope.minHeight|minHeight(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun minWidth(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/MinSizeScope.minWidth|minWidth(androidx.compose.ui.unit.Dp){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/PositionScope { // androidx.compose.foundation.style/PositionScope|null[0]
+    abstract fun bottom(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/PositionScope.bottom|bottom(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun left(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/PositionScope.left|left(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun right(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/PositionScope.right|right(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun top(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/PositionScope.top|top(androidx.compose.ui.unit.Dp){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/RotationScope { // androidx.compose.foundation.style/RotationScope|null[0]
+    abstract fun rotationX(kotlin/Float) // androidx.compose.foundation.style/RotationScope.rotationX|rotationX(kotlin.Float){}[0]
+    abstract fun rotationY(kotlin/Float) // androidx.compose.foundation.style/RotationScope.rotationY|rotationY(kotlin.Float){}[0]
+    abstract fun rotationZ(kotlin/Float) // androidx.compose.foundation.style/RotationScope.rotationZ|rotationZ(kotlin.Float){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ScaleScope { // androidx.compose.foundation.style/ScaleScope|null[0]
+    abstract fun scaleX(kotlin/Float) // androidx.compose.foundation.style/ScaleScope.scaleX|scaleX(kotlin.Float){}[0]
+    abstract fun scaleY(kotlin/Float) // androidx.compose.foundation.style/ScaleScope.scaleY|scaleY(kotlin.Float){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ShadowScope { // androidx.compose.foundation.style/ShadowScope|null[0]
+    abstract fun dropShadow(androidx.compose.ui.graphics.shadow/Shadow) // androidx.compose.foundation.style/ShadowScope.dropShadow|dropShadow(androidx.compose.ui.graphics.shadow.Shadow){}[0]
+    abstract fun dropShadow(kotlin/Array<out androidx.compose.ui.graphics.shadow/Shadow>...) // androidx.compose.foundation.style/ShadowScope.dropShadow|dropShadow(kotlin.Array<out|androidx.compose.ui.graphics.shadow.Shadow>...){}[0]
+    abstract fun innerShadow(androidx.compose.ui.graphics.shadow/Shadow) // androidx.compose.foundation.style/ShadowScope.innerShadow|innerShadow(androidx.compose.ui.graphics.shadow.Shadow){}[0]
+    abstract fun innerShadow(kotlin/Array<out androidx.compose.ui.graphics.shadow/Shadow>...) // androidx.compose.foundation.style/ShadowScope.innerShadow|innerShadow(kotlin.Array<out|androidx.compose.ui.graphics.shadow.Shadow>...){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ShapeScope { // androidx.compose.foundation.style/ShapeScope|null[0]
+    abstract fun shape(androidx.compose.ui.graphics/Shape) // androidx.compose.foundation.style/ShapeScope.shape|shape(androidx.compose.ui.graphics.Shape){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/SizeScope { // androidx.compose.foundation.style/SizeScope|null[0]
+    abstract fun height(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/SizeScope.height|height(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun height(kotlin/Float) // androidx.compose.foundation.style/SizeScope.height|height(kotlin.Float){}[0]
+    abstract fun width(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/SizeScope.width|width(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun width(kotlin/Float) // androidx.compose.foundation.style/SizeScope.width|width(kotlin.Float){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/StyleScope : androidx.compose.foundation.style/AnimateStyleScope, androidx.compose.foundation.style/CustomStyleScope, androidx.compose.foundation.style/DrawStyleScope, androidx.compose.foundation.style/LayerStyleScope, androidx.compose.foundation.style/LayoutStyleScope, androidx.compose.foundation.style/StyleStateScope, androidx.compose.foundation.style/TextStyleStyleScope // androidx.compose.foundation.style/StyleScope|null[0]
+
+abstract interface androidx.compose.foundation.style/StyleStateScope { // androidx.compose.foundation.style/StyleStateScope|null[0]
+    abstract val state // androidx.compose.foundation.style/StyleStateScope.state|{}state[0]
+        abstract fun <get-state>(): androidx.compose.foundation.style/StyleState // androidx.compose.foundation.style/StyleStateScope.state.<get-state>|<get-state>(){}[0]
+
+    abstract fun <#A1: kotlin/Any?> state(androidx.compose.foundation.style/StyleStateKey<#A1>, kotlin/Function0<kotlin/Unit>, kotlin/Function2<androidx.compose.foundation.style/StyleStateKey<#A1>, androidx.compose.foundation.style/StyleState, kotlin/Boolean>) // androidx.compose.foundation.style/StyleStateScope.state|state(androidx.compose.foundation.style.StyleStateKey<0:0>;kotlin.Function0<kotlin.Unit>;kotlin.Function2<androidx.compose.foundation.style.StyleStateKey<0:0>,androidx.compose.foundation.style.StyleState,kotlin.Boolean>){0§<kotlin.Any?>}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TextAlignScope { // androidx.compose.foundation.style/TextAlignScope|null[0]
+    abstract fun textAlign(androidx.compose.ui.text.style/TextAlign) // androidx.compose.foundation.style/TextAlignScope.textAlign|textAlign(androidx.compose.ui.text.style.TextAlign){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TextDecorationScope { // androidx.compose.foundation.style/TextDecorationScope|null[0]
+    abstract fun textDecoration(androidx.compose.ui.text.style/TextDecoration) // androidx.compose.foundation.style/TextDecorationScope.textDecoration|textDecoration(androidx.compose.ui.text.style.TextDecoration){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TextDirectionScope { // androidx.compose.foundation.style/TextDirectionScope|null[0]
+    abstract fun textDirection(androidx.compose.ui.text.style/TextDirection) // androidx.compose.foundation.style/TextDirectionScope.textDirection|textDirection(androidx.compose.ui.text.style.TextDirection){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TextIndentScope { // androidx.compose.foundation.style/TextIndentScope|null[0]
+    abstract fun textIndent(androidx.compose.ui.text.style/TextIndent) // androidx.compose.foundation.style/TextIndentScope.textIndent|textIndent(androidx.compose.ui.text.style.TextIndent){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TextMotionScope { // androidx.compose.foundation.style/TextMotionScope|null[0]
+    abstract fun textMotion(androidx.compose.ui.text.style/TextMotion) // androidx.compose.foundation.style/TextMotionScope.textMotion|textMotion(androidx.compose.ui.text.style.TextMotion){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TextStyleScope { // androidx.compose.foundation.style/TextStyleScope|null[0]
+    abstract fun textStyle(androidx.compose.ui.text/TextStyle) // androidx.compose.foundation.style/TextStyleScope.textStyle|textStyle(androidx.compose.ui.text.TextStyle){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TextStyleStyleScope : androidx.compose.foundation.style/BaselineShiftScope, androidx.compose.foundation.style/ContentColorScope, androidx.compose.foundation.style/FontFamilyScope, androidx.compose.foundation.style/FontSizeScope, androidx.compose.foundation.style/FontStyleScope, androidx.compose.foundation.style/FontSynthesisScope, androidx.compose.foundation.style/FontWeightScope, androidx.compose.foundation.style/HyphensScope, androidx.compose.foundation.style/LetterSpacingScope, androidx.compose.foundation.style/LineBreakScope, androidx.compose.foundation.style/LineHeightScope, androidx.compose.foundation.style/TextAlignScope, androidx.compose.foundation.style/TextDecorationScope, androidx.compose.foundation.style/TextDirectionScope, androidx.compose.foundation.style/TextIndentScope, androidx.compose.foundation.style/TextMotionScope, androidx.compose.foundation.style/TextStyleScope // androidx.compose.foundation.style/TextStyleStyleScope|null[0]
+
+abstract interface androidx.compose.foundation.style/TransformOriginScope { // androidx.compose.foundation.style/TransformOriginScope|null[0]
+    abstract fun transformOriginX(kotlin/Float) // androidx.compose.foundation.style/TransformOriginScope.transformOriginX|transformOriginX(kotlin.Float){}[0]
+    abstract fun transformOriginY(kotlin/Float) // androidx.compose.foundation.style/TransformOriginScope.transformOriginY|transformOriginY(kotlin.Float){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/TranslationScope { // androidx.compose.foundation.style/TranslationScope|null[0]
+    abstract fun translationX(kotlin/Float) // androidx.compose.foundation.style/TranslationScope.translationX|translationX(kotlin.Float){}[0]
+    abstract fun translationY(kotlin/Float) // androidx.compose.foundation.style/TranslationScope.translationY|translationY(kotlin.Float){}[0]
+}
+
+abstract interface androidx.compose.foundation.style/ZIndexScope { // androidx.compose.foundation.style/ZIndexScope|null[0]
+    abstract fun zIndex(kotlin/Float) // androidx.compose.foundation.style/ZIndexScope.zIndex|zIndex(kotlin.Float){}[0]
+}
+
 abstract interface androidx.compose.foundation.text.contextmenu.data/TextContextMenuSession { // androidx.compose.foundation.text.contextmenu.data/TextContextMenuSession|null[0]
     abstract fun close() // androidx.compose.foundation.text.contextmenu.data/TextContextMenuSession.close|close(){}[0]
 }
@@ -494,6 +690,11 @@ abstract interface androidx.compose.foundation.text.contextmenu.provider/TextCon
 
 abstract interface androidx.compose.foundation.text.contextmenu.provider/TextContextMenuProvider { // androidx.compose.foundation.text.contextmenu.provider/TextContextMenuProvider|null[0]
     abstract suspend fun showTextContextMenu(androidx.compose.foundation.text.contextmenu.provider/TextContextMenuDataProvider) // androidx.compose.foundation.text.contextmenu.provider/TextContextMenuProvider.showTextContextMenu|showTextContextMenu(androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider){}[0]
+}
+
+abstract interface androidx.compose.foundation.text.input/TextFieldTextStyles { // androidx.compose.foundation.text.input/TextFieldTextStyles|null[0]
+    abstract fun getParagraphStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/ParagraphStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getParagraphStyles|getParagraphStyles(kotlin.Int;kotlin.Int){}[0]
+    abstract fun getSpanStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString.Range<androidx.compose.ui.text/SpanStyle>> // androidx.compose.foundation.text.input/TextFieldTextStyles.getSpanStyles|getSpanStyles(kotlin.Int;kotlin.Int){}[0]
 }
 
 abstract interface androidx.compose.foundation.text/KeyboardActionScope { // androidx.compose.foundation.text/KeyboardActionScope|null[0]
@@ -687,6 +888,8 @@ sealed interface androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGri
         abstract fun <get-mainAxisItemSpacing>(): kotlin/Int // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.mainAxisItemSpacing.<get-mainAxisItemSpacing>|<get-mainAxisItemSpacing>(){}[0]
     abstract val orientation // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.orientation|{}orientation[0]
         abstract fun <get-orientation>(): androidx.compose.foundation.gestures/Orientation // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.orientation.<get-orientation>|<get-orientation>(){}[0]
+    abstract val reverseLayout // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.reverseLayout|{}reverseLayout[0]
+        abstract fun <get-reverseLayout>(): kotlin/Boolean // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.reverseLayout.<get-reverseLayout>|<get-reverseLayout>(){}[0]
     abstract val totalItemsCount // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.totalItemsCount|{}totalItemsCount[0]
         abstract fun <get-totalItemsCount>(): kotlin/Int // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.totalItemsCount.<get-totalItemsCount>|<get-totalItemsCount>(){}[0]
     abstract val viewportEndOffset // androidx.compose.foundation.lazy.staggeredgrid/LazyStaggeredGridLayoutInfo.viewportEndOffset|{}viewportEndOffset[0]
@@ -744,100 +947,6 @@ sealed interface androidx.compose.foundation.pager/PagerScope // androidx.compos
 
 sealed interface androidx.compose.foundation.relocation/BringIntoViewRequester { // androidx.compose.foundation.relocation/BringIntoViewRequester|null[0]
     abstract suspend fun bringIntoView(androidx.compose.ui.geometry/Rect? = ...) // androidx.compose.foundation.relocation/BringIntoViewRequester.bringIntoView|bringIntoView(androidx.compose.ui.geometry.Rect?){}[0]
-}
-
-sealed interface androidx.compose.foundation.style/StyleScope : androidx.compose.runtime/CompositionLocalAccessorScope, androidx.compose.ui.unit/Density { // androidx.compose.foundation.style/StyleScope|null[0]
-    abstract val state // androidx.compose.foundation.style/StyleScope.state|{}state[0]
-        abstract fun <get-state>(): androidx.compose.foundation.style/StyleState // androidx.compose.foundation.style/StyleScope.state.<get-state>|<get-state>(){}[0]
-
-    abstract fun <#A1: kotlin/Any?> state(androidx.compose.foundation.style/StyleStateKey<#A1>, androidx.compose.foundation.style/Style, kotlin/Function2<androidx.compose.foundation.style/StyleStateKey<#A1>, androidx.compose.foundation.style/StyleState, kotlin/Boolean>) // androidx.compose.foundation.style/StyleScope.state|state(androidx.compose.foundation.style.StyleStateKey<0:0>;androidx.compose.foundation.style.Style;kotlin.Function2<androidx.compose.foundation.style.StyleStateKey<0:0>,androidx.compose.foundation.style.StyleState,kotlin.Boolean>){0§<kotlin.Any?>}[0]
-    abstract fun alpha(kotlin/Float) // androidx.compose.foundation.style/StyleScope.alpha|alpha(kotlin.Float){}[0]
-    abstract fun animate(androidx.compose.animation.core/AnimationSpec<kotlin/Float>, androidx.compose.animation.core/AnimationSpec<kotlin/Float>, androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/StyleScope.animate|animate(androidx.compose.animation.core.AnimationSpec<kotlin.Float>;androidx.compose.animation.core.AnimationSpec<kotlin.Float>;androidx.compose.foundation.style.Style){}[0]
-    abstract fun animate(androidx.compose.animation.core/AnimationSpec<kotlin/Float>, androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/StyleScope.animate|animate(androidx.compose.animation.core.AnimationSpec<kotlin.Float>;androidx.compose.foundation.style.Style){}[0]
-    abstract fun animate(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/StyleScope.animate|animate(androidx.compose.foundation.style.Style){}[0]
-    abstract fun background(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/StyleScope.background|background(androidx.compose.ui.graphics.Brush){}[0]
-    abstract fun background(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/StyleScope.background|background(androidx.compose.ui.graphics.Color){}[0]
-    abstract fun baselineShift(androidx.compose.ui.text.style/BaselineShift) // androidx.compose.foundation.style/StyleScope.baselineShift|baselineShift(androidx.compose.ui.text.style.BaselineShift){}[0]
-    abstract fun border(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/StyleScope.border|border(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Brush){}[0]
-    abstract fun border(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/StyleScope.border|border(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Color){}[0]
-    abstract fun borderBrush(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/StyleScope.borderBrush|borderBrush(androidx.compose.ui.graphics.Brush){}[0]
-    abstract fun borderColor(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/StyleScope.borderColor|borderColor(androidx.compose.ui.graphics.Color){}[0]
-    abstract fun borderWidth(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.borderWidth|borderWidth(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun bottom(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.bottom|bottom(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun clip(kotlin/Boolean = ...) // androidx.compose.foundation.style/StyleScope.clip|clip(kotlin.Boolean){}[0]
-    abstract fun colorFilter(androidx.compose.ui.graphics/ColorFilter?) // androidx.compose.foundation.style/StyleScope.colorFilter|colorFilter(androidx.compose.ui.graphics.ColorFilter?){}[0]
-    abstract fun contentBrush(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/StyleScope.contentBrush|contentBrush(androidx.compose.ui.graphics.Brush){}[0]
-    abstract fun contentColor(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/StyleScope.contentColor|contentColor(androidx.compose.ui.graphics.Color){}[0]
-    abstract fun contentPadding(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPadding|contentPadding(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPadding|contentPadding(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPadding|contentPadding(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPaddingBottom(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPaddingBottom|contentPaddingBottom(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPaddingEnd(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPaddingEnd|contentPaddingEnd(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPaddingHorizontal(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPaddingHorizontal|contentPaddingHorizontal(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPaddingStart(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPaddingStart|contentPaddingStart(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPaddingTop(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPaddingTop|contentPaddingTop(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun contentPaddingVertical(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.contentPaddingVertical|contentPaddingVertical(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun dropShadow(androidx.compose.ui.graphics.shadow/Shadow) // androidx.compose.foundation.style/StyleScope.dropShadow|dropShadow(androidx.compose.ui.graphics.shadow.Shadow){}[0]
-    abstract fun dropShadow(kotlin/Array<out androidx.compose.ui.graphics.shadow/Shadow>...) // androidx.compose.foundation.style/StyleScope.dropShadow|dropShadow(kotlin.Array<out|androidx.compose.ui.graphics.shadow.Shadow>...){}[0]
-    abstract fun externalPadding(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPadding|externalPadding(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPadding|externalPadding(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPadding|externalPadding(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPaddingBottom(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPaddingBottom|externalPaddingBottom(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPaddingEnd(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPaddingEnd|externalPaddingEnd(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPaddingHorizontal(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPaddingHorizontal|externalPaddingHorizontal(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPaddingStart(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPaddingStart|externalPaddingStart(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPaddingTop(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPaddingTop|externalPaddingTop(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun externalPaddingVertical(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.externalPaddingVertical|externalPaddingVertical(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun fontFamily(androidx.compose.ui.text.font/FontFamily) // androidx.compose.foundation.style/StyleScope.fontFamily|fontFamily(androidx.compose.ui.text.font.FontFamily){}[0]
-    abstract fun fontSize(androidx.compose.ui.unit/TextUnit) // androidx.compose.foundation.style/StyleScope.fontSize|fontSize(androidx.compose.ui.unit.TextUnit){}[0]
-    abstract fun fontStyle(androidx.compose.ui.text.font/FontStyle) // androidx.compose.foundation.style/StyleScope.fontStyle|fontStyle(androidx.compose.ui.text.font.FontStyle){}[0]
-    abstract fun fontSynthesis(androidx.compose.ui.text.font/FontSynthesis) // androidx.compose.foundation.style/StyleScope.fontSynthesis|fontSynthesis(androidx.compose.ui.text.font.FontSynthesis){}[0]
-    abstract fun fontWeight(androidx.compose.ui.text.font/FontWeight) // androidx.compose.foundation.style/StyleScope.fontWeight|fontWeight(androidx.compose.ui.text.font.FontWeight){}[0]
-    abstract fun foreground(androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/StyleScope.foreground|foreground(androidx.compose.ui.graphics.Brush){}[0]
-    abstract fun foreground(androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/StyleScope.foreground|foreground(androidx.compose.ui.graphics.Color){}[0]
-    abstract fun height(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.height|height(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun height(kotlin/Float) // androidx.compose.foundation.style/StyleScope.height|height(kotlin.Float){}[0]
-    abstract fun hyphens(androidx.compose.ui.text.style/Hyphens) // androidx.compose.foundation.style/StyleScope.hyphens|hyphens(androidx.compose.ui.text.style.Hyphens){}[0]
-    abstract fun innerShadow(androidx.compose.ui.graphics.shadow/Shadow) // androidx.compose.foundation.style/StyleScope.innerShadow|innerShadow(androidx.compose.ui.graphics.shadow.Shadow){}[0]
-    abstract fun innerShadow(kotlin/Array<out androidx.compose.ui.graphics.shadow/Shadow>...) // androidx.compose.foundation.style/StyleScope.innerShadow|innerShadow(kotlin.Array<out|androidx.compose.ui.graphics.shadow.Shadow>...){}[0]
-    abstract fun left(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.left|left(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun letterSpacing(androidx.compose.ui.unit/TextUnit) // androidx.compose.foundation.style/StyleScope.letterSpacing|letterSpacing(androidx.compose.ui.unit.TextUnit){}[0]
-    abstract fun lineBreak(androidx.compose.ui.text.style/LineBreak) // androidx.compose.foundation.style/StyleScope.lineBreak|lineBreak(androidx.compose.ui.text.style.LineBreak){}[0]
-    abstract fun lineHeight(androidx.compose.ui.unit/TextUnit) // androidx.compose.foundation.style/StyleScope.lineHeight|lineHeight(androidx.compose.ui.unit.TextUnit){}[0]
-    abstract fun maxHeight(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.maxHeight|maxHeight(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun maxSize(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.maxSize|maxSize(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
-    abstract fun maxSize(androidx.compose.ui.unit/DpSize) // androidx.compose.foundation.style/StyleScope.maxSize|maxSize(androidx.compose.ui.unit.DpSize){}[0]
-    abstract fun maxWidth(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.maxWidth|maxWidth(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun minHeight(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.minHeight|minHeight(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun minSize(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.minSize|minSize(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
-    abstract fun minSize(androidx.compose.ui.unit/DpSize) // androidx.compose.foundation.style/StyleScope.minSize|minSize(androidx.compose.ui.unit.DpSize){}[0]
-    abstract fun minWidth(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.minWidth|minWidth(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun right(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.right|right(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun rotationX(kotlin/Float) // androidx.compose.foundation.style/StyleScope.rotationX|rotationX(kotlin.Float){}[0]
-    abstract fun rotationY(kotlin/Float) // androidx.compose.foundation.style/StyleScope.rotationY|rotationY(kotlin.Float){}[0]
-    abstract fun rotationZ(kotlin/Float) // androidx.compose.foundation.style/StyleScope.rotationZ|rotationZ(kotlin.Float){}[0]
-    abstract fun scale(kotlin/Float) // androidx.compose.foundation.style/StyleScope.scale|scale(kotlin.Float){}[0]
-    abstract fun scaleX(kotlin/Float) // androidx.compose.foundation.style/StyleScope.scaleX|scaleX(kotlin.Float){}[0]
-    abstract fun scaleY(kotlin/Float) // androidx.compose.foundation.style/StyleScope.scaleY|scaleY(kotlin.Float){}[0]
-    abstract fun shape(androidx.compose.ui.graphics/Shape) // androidx.compose.foundation.style/StyleScope.shape|shape(androidx.compose.ui.graphics.Shape){}[0]
-    abstract fun size(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.size|size(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun size(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.size|size(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
-    abstract fun size(androidx.compose.ui.unit/DpSize) // androidx.compose.foundation.style/StyleScope.size|size(androidx.compose.ui.unit.DpSize){}[0]
-    abstract fun textAlign(androidx.compose.ui.text.style/TextAlign) // androidx.compose.foundation.style/StyleScope.textAlign|textAlign(androidx.compose.ui.text.style.TextAlign){}[0]
-    abstract fun textDecoration(androidx.compose.ui.text.style/TextDecoration) // androidx.compose.foundation.style/StyleScope.textDecoration|textDecoration(androidx.compose.ui.text.style.TextDecoration){}[0]
-    abstract fun textDirection(androidx.compose.ui.text.style/TextDirection) // androidx.compose.foundation.style/StyleScope.textDirection|textDirection(androidx.compose.ui.text.style.TextDirection){}[0]
-    abstract fun textIndent(androidx.compose.ui.text.style/TextIndent) // androidx.compose.foundation.style/StyleScope.textIndent|textIndent(androidx.compose.ui.text.style.TextIndent){}[0]
-    abstract fun textMotion(androidx.compose.ui.text.style/TextMotion) // androidx.compose.foundation.style/StyleScope.textMotion|textMotion(androidx.compose.ui.text.style.TextMotion){}[0]
-    abstract fun textStyle(androidx.compose.ui.text/TextStyle) // androidx.compose.foundation.style/StyleScope.textStyle|textStyle(androidx.compose.ui.text.TextStyle){}[0]
-    abstract fun top(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.top|top(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun transformOrigin(androidx.compose.ui.graphics/TransformOrigin) // androidx.compose.foundation.style/StyleScope.transformOrigin|transformOrigin(androidx.compose.ui.graphics.TransformOrigin){}[0]
-    abstract fun translation(androidx.compose.ui.geometry/Offset) // androidx.compose.foundation.style/StyleScope.translation|translation(androidx.compose.ui.geometry.Offset){}[0]
-    abstract fun translation(kotlin/Float, kotlin/Float) // androidx.compose.foundation.style/StyleScope.translation|translation(kotlin.Float;kotlin.Float){}[0]
-    abstract fun translationX(kotlin/Float) // androidx.compose.foundation.style/StyleScope.translationX|translationX(kotlin.Float){}[0]
-    abstract fun translationY(kotlin/Float) // androidx.compose.foundation.style/StyleScope.translationY|translationY(kotlin.Float){}[0]
-    abstract fun width(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/StyleScope.width|width(androidx.compose.ui.unit.Dp){}[0]
-    abstract fun width(kotlin/Float) // androidx.compose.foundation.style/StyleScope.width|width(kotlin.Float){}[0]
-    abstract fun zIndex(kotlin/Float) // androidx.compose.foundation.style/StyleScope.zIndex|zIndex(kotlin.Float){}[0]
 }
 
 sealed interface androidx.compose.foundation.text.input/TextFieldLineLimits { // androidx.compose.foundation.text.input/TextFieldLineLimits|null[0]
@@ -1013,6 +1122,8 @@ final class <#A: kotlin/Any?> androidx.compose.foundation.lazy.layout/MutableInt
     final fun forEach(kotlin/Int, kotlin/Int, kotlin/Function1<androidx.compose.foundation.lazy.layout/IntervalList.Interval<#A>, kotlin/Unit>) // androidx.compose.foundation.lazy.layout/MutableIntervalList.forEach|forEach(kotlin.Int;kotlin.Int;kotlin.Function1<androidx.compose.foundation.lazy.layout.IntervalList.Interval<1:0>,kotlin.Unit>){}[0]
     final fun get(kotlin/Int): androidx.compose.foundation.lazy.layout/IntervalList.Interval<#A> // androidx.compose.foundation.lazy.layout/MutableIntervalList.get|get(kotlin.Int){}[0]
 }
+
+final class <#A: kotlin/Any?> androidx.compose.foundation.text.input/TrackedRange // androidx.compose.foundation.text.input/TrackedRange|null[0]
 
 final class androidx.compose.foundation.gestures/GestureCancellationException : kotlin.coroutines.cancellation/CancellationException { // androidx.compose.foundation.gestures/GestureCancellationException|null[0]
     constructor <init>(kotlin/String? = ...) // androidx.compose.foundation.gestures/GestureCancellationException.<init>|<init>(kotlin.String?){}[0]
@@ -1296,20 +1407,39 @@ final class androidx.compose.foundation.text.input/TextFieldBuffer : kotlin.text
         final fun <get-originalSelection>(): androidx.compose.ui.text/TextRange // androidx.compose.foundation.text.input/TextFieldBuffer.originalSelection.<get-originalSelection>|<get-originalSelection>(){}[0]
     final val originalText // androidx.compose.foundation.text.input/TextFieldBuffer.originalText|{}originalText[0]
         final fun <get-originalText>(): kotlin/CharSequence // androidx.compose.foundation.text.input/TextFieldBuffer.originalText.<get-originalText>|<get-originalText>(){}[0]
+    final val valid // androidx.compose.foundation.text.input/TextFieldBuffer.valid|@androidx.compose.foundation.text.input.TrackedRange<*>{}valid[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<get-valid>(): kotlin/Boolean // androidx.compose.foundation.text.input/TextFieldBuffer.valid.<get-valid>|<get-valid>@androidx.compose.foundation.text.input.TrackedRange<*>(){}[0]
 
+    final var expandPolicy // androidx.compose.foundation.text.input/TextFieldBuffer.expandPolicy|@androidx.compose.foundation.text.input.TrackedRange<*>{}expandPolicy[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<get-expandPolicy>(): androidx.compose.foundation.text.input/ExpandPolicy // androidx.compose.foundation.text.input/TextFieldBuffer.expandPolicy.<get-expandPolicy>|<get-expandPolicy>@androidx.compose.foundation.text.input.TrackedRange<*>(){}[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<set-expandPolicy>(androidx.compose.foundation.text.input/ExpandPolicy) // androidx.compose.foundation.text.input/TextFieldBuffer.expandPolicy.<set-expandPolicy>|<set-expandPolicy>@androidx.compose.foundation.text.input.TrackedRange<*>(androidx.compose.foundation.text.input.ExpandPolicy){}[0]
+    final var paragraphStyle // androidx.compose.foundation.text.input/TextFieldBuffer.paragraphStyle|@androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.ParagraphStyle>{}paragraphStyle[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/ParagraphStyle>).<get-paragraphStyle>(): androidx.compose.ui.text/ParagraphStyle // androidx.compose.foundation.text.input/TextFieldBuffer.paragraphStyle.<get-paragraphStyle>|<get-paragraphStyle>@androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.ParagraphStyle>(){}[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/ParagraphStyle>).<set-paragraphStyle>(androidx.compose.ui.text/ParagraphStyle) // androidx.compose.foundation.text.input/TextFieldBuffer.paragraphStyle.<set-paragraphStyle>|<set-paragraphStyle>@androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.ParagraphStyle>(androidx.compose.ui.text.ParagraphStyle){}[0]
     final var selection // androidx.compose.foundation.text.input/TextFieldBuffer.selection|{}selection[0]
         final fun <get-selection>(): androidx.compose.ui.text/TextRange // androidx.compose.foundation.text.input/TextFieldBuffer.selection.<get-selection>|<get-selection>(){}[0]
         final fun <set-selection>(androidx.compose.ui.text/TextRange) // androidx.compose.foundation.text.input/TextFieldBuffer.selection.<set-selection>|<set-selection>(androidx.compose.ui.text.TextRange){}[0]
+    final var spanStyle // androidx.compose.foundation.text.input/TextFieldBuffer.spanStyle|@androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>{}spanStyle[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/SpanStyle>).<get-spanStyle>(): androidx.compose.ui.text/SpanStyle // androidx.compose.foundation.text.input/TextFieldBuffer.spanStyle.<get-spanStyle>|<get-spanStyle>@androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>(){}[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/SpanStyle>).<set-spanStyle>(androidx.compose.ui.text/SpanStyle) // androidx.compose.foundation.text.input/TextFieldBuffer.spanStyle.<set-spanStyle>|<set-spanStyle>@androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>(androidx.compose.ui.text.SpanStyle){}[0]
+    final var textRange // androidx.compose.foundation.text.input/TextFieldBuffer.textRange|@androidx.compose.foundation.text.input.TrackedRange<*>{}textRange[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<get-textRange>(): androidx.compose.ui.text/TextRange // androidx.compose.foundation.text.input/TextFieldBuffer.textRange.<get-textRange>|<get-textRange>@androidx.compose.foundation.text.input.TrackedRange<*>(){}[0]
+        final fun (androidx.compose.foundation.text.input/TrackedRange<*>).<set-textRange>(androidx.compose.ui.text/TextRange) // androidx.compose.foundation.text.input/TextFieldBuffer.textRange.<set-textRange>|<set-textRange>@androidx.compose.foundation.text.input.TrackedRange<*>(androidx.compose.ui.text.TextRange){}[0]
 
+    final fun addStyle(androidx.compose.ui.text/ParagraphStyle, androidx.compose.ui.text/TextRange, androidx.compose.foundation.text.input/ExpandPolicy): androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/ParagraphStyle> // androidx.compose.foundation.text.input/TextFieldBuffer.addStyle|addStyle(androidx.compose.ui.text.ParagraphStyle;androidx.compose.ui.text.TextRange;androidx.compose.foundation.text.input.ExpandPolicy){}[0]
     final fun addStyle(androidx.compose.ui.text/ParagraphStyle, kotlin/Int, kotlin/Int) // androidx.compose.foundation.text.input/TextFieldBuffer.addStyle|addStyle(androidx.compose.ui.text.ParagraphStyle;kotlin.Int;kotlin.Int){}[0]
+    final fun addStyle(androidx.compose.ui.text/SpanStyle, androidx.compose.ui.text/TextRange, androidx.compose.foundation.text.input/ExpandPolicy): androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/SpanStyle> // androidx.compose.foundation.text.input/TextFieldBuffer.addStyle|addStyle(androidx.compose.ui.text.SpanStyle;androidx.compose.ui.text.TextRange;androidx.compose.foundation.text.input.ExpandPolicy){}[0]
     final fun addStyle(androidx.compose.ui.text/SpanStyle, kotlin/Int, kotlin/Int) // androidx.compose.foundation.text.input/TextFieldBuffer.addStyle|addStyle(androidx.compose.ui.text.SpanStyle;kotlin.Int;kotlin.Int){}[0]
     final fun append(kotlin/Char): kotlin.text/Appendable // androidx.compose.foundation.text.input/TextFieldBuffer.append|append(kotlin.Char){}[0]
     final fun append(kotlin/CharSequence?): kotlin.text/Appendable // androidx.compose.foundation.text.input/TextFieldBuffer.append|append(kotlin.CharSequence?){}[0]
     final fun append(kotlin/CharSequence?, kotlin/Int, kotlin/Int): kotlin.text/Appendable // androidx.compose.foundation.text.input/TextFieldBuffer.append|append(kotlin.CharSequence?;kotlin.Int;kotlin.Int){}[0]
     final fun asCharSequence(): kotlin/CharSequence // androidx.compose.foundation.text.input/TextFieldBuffer.asCharSequence|asCharSequence(){}[0]
     final fun charAt(kotlin/Int): kotlin/Char // androidx.compose.foundation.text.input/TextFieldBuffer.charAt|charAt(kotlin.Int){}[0]
+    final fun getParagraphStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/ParagraphStyle>> // androidx.compose.foundation.text.input/TextFieldBuffer.getParagraphStyles|getParagraphStyles(kotlin.Int;kotlin.Int){}[0]
+    final fun getSpanStyles(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.foundation.text.input/TrackedRange<androidx.compose.ui.text/SpanStyle>> // androidx.compose.foundation.text.input/TextFieldBuffer.getSpanStyles|getSpanStyles(kotlin.Int;kotlin.Int){}[0]
     final fun placeCursorAfterCharAt(kotlin/Int) // androidx.compose.foundation.text.input/TextFieldBuffer.placeCursorAfterCharAt|placeCursorAfterCharAt(kotlin.Int){}[0]
     final fun placeCursorBeforeCharAt(kotlin/Int) // androidx.compose.foundation.text.input/TextFieldBuffer.placeCursorBeforeCharAt|placeCursorBeforeCharAt(kotlin.Int){}[0]
+    final fun removeStyle(androidx.compose.foundation.text.input/TrackedRange<*>): kotlin/Boolean // androidx.compose.foundation.text.input/TextFieldBuffer.removeStyle|removeStyle(androidx.compose.foundation.text.input.TrackedRange<*>){}[0]
     final fun replace(kotlin/Int, kotlin/Int, kotlin/CharSequence) // androidx.compose.foundation.text.input/TextFieldBuffer.replace|replace(kotlin.Int;kotlin.Int;kotlin.CharSequence){}[0]
     final fun revertAllChanges() // androidx.compose.foundation.text.input/TextFieldBuffer.revertAllChanges|revertAllChanges(){}[0]
     final fun toString(): kotlin/String // androidx.compose.foundation.text.input/TextFieldBuffer.toString|toString(){}[0]
@@ -1332,6 +1462,8 @@ final class androidx.compose.foundation.text.input/TextFieldState { // androidx.
         final fun <get-selection>(): androidx.compose.ui.text/TextRange // androidx.compose.foundation.text.input/TextFieldState.selection.<get-selection>|<get-selection>(){}[0]
     final val text // androidx.compose.foundation.text.input/TextFieldState.text|{}text[0]
         final fun <get-text>(): kotlin/CharSequence // androidx.compose.foundation.text.input/TextFieldState.text.<get-text>|<get-text>(){}[0]
+    final val textStyles // androidx.compose.foundation.text.input/TextFieldState.textStyles|{}textStyles[0]
+        final fun <get-textStyles>(): androidx.compose.foundation.text.input/TextFieldTextStyles // androidx.compose.foundation.text.input/TextFieldState.textStyles.<get-textStyles>|<get-textStyles>(){}[0]
 
     final fun commitEdit(androidx.compose.foundation.text.input/TextFieldBuffer) // androidx.compose.foundation.text.input/TextFieldState.commitEdit|commitEdit(androidx.compose.foundation.text.input.TextFieldBuffer){}[0]
     final fun finishEditing() // androidx.compose.foundation.text.input/TextFieldState.finishEditing|finishEditing(){}[0]
@@ -1354,6 +1486,24 @@ final class androidx.compose.foundation.text.input/UndoState { // androidx.compo
     final fun clearHistory() // androidx.compose.foundation.text.input/UndoState.clearHistory|clearHistory(){}[0]
     final fun redo() // androidx.compose.foundation.text.input/UndoState.redo|redo(){}[0]
     final fun undo() // androidx.compose.foundation.text.input/UndoState.undo|undo(){}[0]
+}
+
+final class androidx.compose.foundation.text.selection/SelectionState { // androidx.compose.foundation.text.selection/SelectionState|null[0]
+    constructor <init>() // androidx.compose.foundation.text.selection/SelectionState.<init>|<init>(){}[0]
+
+    final val selectedTexts // androidx.compose.foundation.text.selection/SelectionState.selectedTexts|{}selectedTexts[0]
+        final fun <get-selectedTexts>(): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString> // androidx.compose.foundation.text.selection/SelectionState.selectedTexts.<get-selectedTexts>|<get-selectedTexts>(){}[0]
+
+    final fun clear() // androidx.compose.foundation.text.selection/SelectionState.clear|clear(){}[0]
+    final fun extendSelectionByWord() // androidx.compose.foundation.text.selection/SelectionState.extendSelectionByWord|extendSelectionByWord(){}[0]
+    final fun getSelectableTexts(): kotlin.collections/List<androidx.compose.ui.text/AnnotatedString> // androidx.compose.foundation.text.selection/SelectionState.getSelectableTexts|getSelectableTexts(){}[0]
+    final fun select(androidx.compose.ui.text/TextRange) // androidx.compose.foundation.text.selection/SelectionState.select|select(androidx.compose.ui.text.TextRange){}[0]
+    final fun selectAll() // androidx.compose.foundation.text.selection/SelectionState.selectAll|selectAll(){}[0]
+
+    final object Companion { // androidx.compose.foundation.text.selection/SelectionState.Companion|null[0]
+        final val Saver // androidx.compose.foundation.text.selection/SelectionState.Companion.Saver|{}Saver[0]
+            final fun <get-Saver>(): androidx.compose.runtime.saveable/Saver<androidx.compose.foundation.text.selection/SelectionState, kotlin/Any> // androidx.compose.foundation.text.selection/SelectionState.Companion.Saver.<get-Saver>|<get-Saver>(){}[0]
+    }
 }
 
 final class androidx.compose.foundation.text.selection/TextSelectionColors { // androidx.compose.foundation.text.selection/TextSelectionColors|null[0]
@@ -1538,6 +1688,23 @@ final value class androidx.compose.foundation.lazy.grid/GridItemSpan { // androi
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.lazy.grid/GridItemSpan.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.foundation.lazy.grid/GridItemSpan.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.compose.foundation.lazy.grid/GridItemSpan.toString|toString(){}[0]
+}
+
+final value class androidx.compose.foundation.text.input/ExpandPolicy { // androidx.compose.foundation.text.input/ExpandPolicy|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.text.input/ExpandPolicy.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.text.input/ExpandPolicy.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.text.input/ExpandPolicy.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.text.input/ExpandPolicy.Companion|null[0]
+        final val AtBoth // androidx.compose.foundation.text.input/ExpandPolicy.Companion.AtBoth|{}AtBoth[0]
+            final fun <get-AtBoth>(): androidx.compose.foundation.text.input/ExpandPolicy // androidx.compose.foundation.text.input/ExpandPolicy.Companion.AtBoth.<get-AtBoth>|<get-AtBoth>(){}[0]
+        final val AtEnd // androidx.compose.foundation.text.input/ExpandPolicy.Companion.AtEnd|{}AtEnd[0]
+            final fun <get-AtEnd>(): androidx.compose.foundation.text.input/ExpandPolicy // androidx.compose.foundation.text.input/ExpandPolicy.Companion.AtEnd.<get-AtEnd>|<get-AtEnd>(){}[0]
+        final val AtStart // androidx.compose.foundation.text.input/ExpandPolicy.Companion.AtStart|{}AtStart[0]
+            final fun <get-AtStart>(): androidx.compose.foundation.text.input/ExpandPolicy // androidx.compose.foundation.text.input/ExpandPolicy.Companion.AtStart.<get-AtStart>|<get-AtStart>(){}[0]
+        final val InsideOnly // androidx.compose.foundation.text.input/ExpandPolicy.Companion.InsideOnly|{}InsideOnly[0]
+            final fun <get-InsideOnly>(): androidx.compose.foundation.text.input/ExpandPolicy // androidx.compose.foundation.text.input/ExpandPolicy.Companion.InsideOnly.<get-InsideOnly>|<get-InsideOnly>(){}[0]
+    }
 }
 
 final value class androidx.compose.foundation.text.input/TextObfuscationMode { // androidx.compose.foundation.text.input/TextObfuscationMode|null[0]
@@ -1764,11 +1931,13 @@ final val androidx.compose.foundation.text.input/androidx_compose_foundation_tex
 final val androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState$stableprop // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState$stableprop|#static{}androidx_compose_foundation_text_input_TextFieldState$stableprop[0]
 final val androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState_Saver$stableprop // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState_Saver$stableprop|#static{}androidx_compose_foundation_text_input_TextFieldState_Saver$stableprop[0]
 final val androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextUndoManager_Companion_Saver$stableprop // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextUndoManager_Companion_Saver$stableprop|#static{}androidx_compose_foundation_text_input_TextUndoManager_Companion_Saver$stableprop[0]
+final val androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TrackedRange$stableprop // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TrackedRange$stableprop|#static{}androidx_compose_foundation_text_input_TrackedRange$stableprop[0]
 final val androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_UndoState$stableprop // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_UndoState$stableprop|#static{}androidx_compose_foundation_text_input_UndoState$stableprop[0]
 final val androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextAnnotatedStringNode_TextSubstitutionValue$stableprop // androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextAnnotatedStringNode_TextSubstitutionValue$stableprop|#static{}androidx_compose_foundation_text_modifiers_TextAnnotatedStringNode_TextSubstitutionValue$stableprop[0]
 final val androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextStringSimpleNode_TextSubstitutionValue$stableprop // androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextStringSimpleNode_TextSubstitutionValue$stableprop|#static{}androidx_compose_foundation_text_modifiers_TextStringSimpleNode_TextSubstitutionValue$stableprop[0]
 final val androidx.compose.foundation.text.selection/LocalTextSelectionColors // androidx.compose.foundation.text.selection/LocalTextSelectionColors|{}LocalTextSelectionColors[0]
     final fun <get-LocalTextSelectionColors>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.foundation.text.selection/TextSelectionColors> // androidx.compose.foundation.text.selection/LocalTextSelectionColors.<get-LocalTextSelectionColors>|<get-LocalTextSelectionColors>(){}[0]
+final val androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_SelectionState$stableprop // androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_SelectionState$stableprop|#static{}androidx_compose_foundation_text_selection_SelectionState$stableprop[0]
 final val androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_TextSelectionColors$stableprop // androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_TextSelectionColors$stableprop|#static{}androidx_compose_foundation_text_selection_TextSelectionColors$stableprop[0]
 final val androidx.compose.foundation.text/LocalAutofillHighlightBrush // androidx.compose.foundation.text/LocalAutofillHighlightBrush|{}LocalAutofillHighlightBrush[0]
     final fun <get-LocalAutofillHighlightBrush>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui.graphics/Brush> // androidx.compose.foundation.text/LocalAutofillHighlightBrush.<get-LocalAutofillHighlightBrush>|<get-LocalAutofillHighlightBrush>(){}[0]
@@ -1801,22 +1970,47 @@ final fun (androidx.compose.foundation.interaction/InteractionSource).androidx.c
 final fun (androidx.compose.foundation.interaction/InteractionSource).androidx.compose.foundation.interaction/collectIsFocusedAsState(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<kotlin/Boolean> // androidx.compose.foundation.interaction/collectIsFocusedAsState|collectIsFocusedAsState@androidx.compose.foundation.interaction.InteractionSource(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final fun (androidx.compose.foundation.interaction/InteractionSource).androidx.compose.foundation.interaction/collectIsHoveredAsState(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<kotlin/Boolean> // androidx.compose.foundation.interaction/collectIsHoveredAsState|collectIsHoveredAsState@androidx.compose.foundation.interaction.InteractionSource(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final fun (androidx.compose.foundation.interaction/InteractionSource).androidx.compose.foundation.interaction/collectIsPressedAsState(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<kotlin/Boolean> // androidx.compose.foundation.interaction/collectIsPressedAsState|collectIsPressedAsState@androidx.compose.foundation.interaction.InteractionSource(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun (androidx.compose.foundation.style/AnimateStyleScope).androidx.compose.foundation.style/animate(androidx.compose.animation.core/AnimationSpec<kotlin/Float>, kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/animate|animate@androidx.compose.foundation.style.AnimateStyleScope(androidx.compose.animation.core.AnimationSpec<kotlin.Float>;kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/AnimateStyleScope).androidx.compose.foundation.style/animate(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/animate|animate@androidx.compose.foundation.style.AnimateStyleScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/BorderScope).androidx.compose.foundation.style/border(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Brush) // androidx.compose.foundation.style/border|border@androidx.compose.foundation.style.BorderScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Brush){}[0]
+final fun (androidx.compose.foundation.style/BorderScope).androidx.compose.foundation.style/border(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Color) // androidx.compose.foundation.style/border|border@androidx.compose.foundation.style.BorderScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Color){}[0]
+final fun (androidx.compose.foundation.style/ContentPaddingScope).androidx.compose.foundation.style/contentPadding(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/contentPadding|contentPadding@androidx.compose.foundation.style.ContentPaddingScope(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ContentPaddingScope).androidx.compose.foundation.style/contentPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/contentPadding|contentPadding@androidx.compose.foundation.style.ContentPaddingScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ContentPaddingScope).androidx.compose.foundation.style/contentPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/contentPadding|contentPadding@androidx.compose.foundation.style.ContentPaddingScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ContentPaddingScope).androidx.compose.foundation.style/contentPaddingHorizontal(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/contentPaddingHorizontal|contentPaddingHorizontal@androidx.compose.foundation.style.ContentPaddingScope(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ContentPaddingScope).androidx.compose.foundation.style/contentPaddingVertical(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/contentPaddingVertical|contentPaddingVertical@androidx.compose.foundation.style.ContentPaddingScope(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ExternalPaddingScope).androidx.compose.foundation.style/externalPadding(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/externalPadding|externalPadding@androidx.compose.foundation.style.ExternalPaddingScope(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ExternalPaddingScope).androidx.compose.foundation.style/externalPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/externalPadding|externalPadding@androidx.compose.foundation.style.ExternalPaddingScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ExternalPaddingScope).androidx.compose.foundation.style/externalPadding(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/externalPadding|externalPadding@androidx.compose.foundation.style.ExternalPaddingScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ExternalPaddingScope).androidx.compose.foundation.style/externalPaddingHorizontal(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/externalPaddingHorizontal|externalPaddingHorizontal@androidx.compose.foundation.style.ExternalPaddingScope(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/ExternalPaddingScope).androidx.compose.foundation.style/externalPaddingVertical(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/externalPaddingVertical|externalPaddingVertical@androidx.compose.foundation.style.ExternalPaddingScope(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/MaxSizeScope).androidx.compose.foundation.style/maxSize(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/maxSize|maxSize@androidx.compose.foundation.style.MaxSizeScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/MaxSizeScope).androidx.compose.foundation.style/maxSize(androidx.compose.ui.unit/DpSize) // androidx.compose.foundation.style/maxSize|maxSize@androidx.compose.foundation.style.MaxSizeScope(androidx.compose.ui.unit.DpSize){}[0]
+final fun (androidx.compose.foundation.style/MinSizeScope).androidx.compose.foundation.style/minSize(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/minSize|minSize@androidx.compose.foundation.style.MinSizeScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/MinSizeScope).androidx.compose.foundation.style/minSize(androidx.compose.ui.unit/DpSize) // androidx.compose.foundation.style/minSize|minSize@androidx.compose.foundation.style.MinSizeScope(androidx.compose.ui.unit.DpSize){}[0]
+final fun (androidx.compose.foundation.style/RotationScope).androidx.compose.foundation.style/rotation(kotlin/Float, kotlin/Float, kotlin/Float) // androidx.compose.foundation.style/rotation|rotation@androidx.compose.foundation.style.RotationScope(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+final fun (androidx.compose.foundation.style/ScaleScope).androidx.compose.foundation.style/scale(kotlin/Float) // androidx.compose.foundation.style/scale|scale@androidx.compose.foundation.style.ScaleScope(kotlin.Float){}[0]
+final fun (androidx.compose.foundation.style/ScaleScope).androidx.compose.foundation.style/scale(kotlin/Float, kotlin/Float) // androidx.compose.foundation.style/scale|scale@androidx.compose.foundation.style.ScaleScope(kotlin.Float;kotlin.Float){}[0]
+final fun (androidx.compose.foundation.style/SizeScope).androidx.compose.foundation.style/fillHeight() // androidx.compose.foundation.style/fillHeight|fillHeight@androidx.compose.foundation.style.SizeScope(){}[0]
+final fun (androidx.compose.foundation.style/SizeScope).androidx.compose.foundation.style/fillSize() // androidx.compose.foundation.style/fillSize|fillSize@androidx.compose.foundation.style.SizeScope(){}[0]
+final fun (androidx.compose.foundation.style/SizeScope).androidx.compose.foundation.style/fillWidth() // androidx.compose.foundation.style/fillWidth|fillWidth@androidx.compose.foundation.style.SizeScope(){}[0]
+final fun (androidx.compose.foundation.style/SizeScope).androidx.compose.foundation.style/size(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/size|size@androidx.compose.foundation.style.SizeScope(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/SizeScope).androidx.compose.foundation.style/size(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.style/size|size@androidx.compose.foundation.style.SizeScope(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.foundation.style/SizeScope).androidx.compose.foundation.style/size(androidx.compose.ui.unit/DpSize) // androidx.compose.foundation.style/size|size@androidx.compose.foundation.style.SizeScope(androidx.compose.ui.unit.DpSize){}[0]
 final fun (androidx.compose.foundation.style/Style).androidx.compose.foundation.style/then(androidx.compose.foundation.style/Style): androidx.compose.foundation.style/Style // androidx.compose.foundation.style/then|then@androidx.compose.foundation.style.Style(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/apply(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/apply|apply@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/checked(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/checked|checked@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/contentPadding(androidx.compose.foundation.layout/PaddingValues) // androidx.compose.foundation.style/contentPadding|contentPadding@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.layout.PaddingValues){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/disabled(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/disabled|disabled@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/externalPadding(androidx.compose.foundation.layout/PaddingValues) // androidx.compose.foundation.style/externalPadding|externalPadding@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.layout.PaddingValues){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/fillHeight() // androidx.compose.foundation.style/fillHeight|fillHeight@androidx.compose.foundation.style.StyleScope(){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/fillSize() // androidx.compose.foundation.style/fillSize|fillSize@androidx.compose.foundation.style.StyleScope(){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/fillWidth() // androidx.compose.foundation.style/fillWidth|fillWidth@androidx.compose.foundation.style.StyleScope(){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/focused(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/focused|focused@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/hovered(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/hovered|hovered@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/pressed(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/pressed|pressed@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/selected(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/selected|selected@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/triStateToggleIndeterminate(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/triStateToggleIndeterminate|triStateToggleIndeterminate@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/triStateToggleOff(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/triStateToggleOff|triStateToggleOff@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
-final fun (androidx.compose.foundation.style/StyleScope).androidx.compose.foundation.style/triStateToggleOn(androidx.compose.foundation.style/Style) // androidx.compose.foundation.style/triStateToggleOn|triStateToggleOn@androidx.compose.foundation.style.StyleScope(androidx.compose.foundation.style.Style){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/checked(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/checked|checked@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/disabled(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/disabled|disabled@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/focused(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/focused|focused@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/hovered(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/hovered|hovered@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/pressed(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/pressed|pressed@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/selected(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/selected|selected@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/state(androidx.compose.foundation.style/StyleStateKey<kotlin/Boolean>, kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/state|state@androidx.compose.foundation.style.StyleStateScope(androidx.compose.foundation.style.StyleStateKey<kotlin.Boolean>;kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/triStateToggleIndeterminate(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/triStateToggleIndeterminate|triStateToggleIndeterminate@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/triStateToggleOff(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/triStateToggleOff|triStateToggleOff@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/StyleStateScope).androidx.compose.foundation.style/triStateToggleOn(kotlin/Function0<kotlin/Unit>) // androidx.compose.foundation.style/triStateToggleOn|triStateToggleOn@androidx.compose.foundation.style.StyleStateScope(kotlin.Function0<kotlin.Unit>){}[0]
+final fun (androidx.compose.foundation.style/TransformOriginScope).androidx.compose.foundation.style/transformOrigin(androidx.compose.ui.graphics/TransformOrigin) // androidx.compose.foundation.style/transformOrigin|transformOrigin@androidx.compose.foundation.style.TransformOriginScope(androidx.compose.ui.graphics.TransformOrigin){}[0]
+final fun (androidx.compose.foundation.style/TranslationScope).androidx.compose.foundation.style/translation(androidx.compose.ui.geometry/Offset) // androidx.compose.foundation.style/translation|translation@androidx.compose.foundation.style.TranslationScope(androidx.compose.ui.geometry.Offset){}[0]
+final fun (androidx.compose.foundation.style/TranslationScope).androidx.compose.foundation.style/translation(kotlin/Float, kotlin/Float) // androidx.compose.foundation.style/translation|translation@androidx.compose.foundation.style.TranslationScope(kotlin.Float;kotlin.Float){}[0]
 final fun (androidx.compose.foundation.text.input/InputTransformation).androidx.compose.foundation.text.input/allCaps(androidx.compose.ui.text.intl/Locale): androidx.compose.foundation.text.input/InputTransformation // androidx.compose.foundation.text.input/allCaps|allCaps@androidx.compose.foundation.text.input.InputTransformation(androidx.compose.ui.text.intl.Locale){}[0]
 final fun (androidx.compose.foundation.text.input/InputTransformation).androidx.compose.foundation.text.input/byValue(kotlin/Function2<kotlin/CharSequence, kotlin/CharSequence, kotlin/CharSequence>): androidx.compose.foundation.text.input/InputTransformation // androidx.compose.foundation.text.input/byValue|byValue@androidx.compose.foundation.text.input.InputTransformation(kotlin.Function2<kotlin.CharSequence,kotlin.CharSequence,kotlin.CharSequence>){}[0]
 final fun (androidx.compose.foundation.text.input/InputTransformation).androidx.compose.foundation.text.input/maxLength(kotlin/Int): androidx.compose.foundation.text.input/InputTransformation // androidx.compose.foundation.text.input/maxLength|maxLength@androidx.compose.foundation.text.input.InputTransformation(kotlin.Int){}[0]
@@ -1897,6 +2091,9 @@ final fun (androidx.compose.ui/Modifier).androidx.compose.foundation/scrollableA
 final fun (androidx.compose.ui/Modifier).androidx.compose.foundation/scrollableArea(androidx.compose.foundation.gestures/ScrollableState, androidx.compose.foundation.gestures/Orientation, kotlin/Boolean = ..., kotlin/Boolean = ..., androidx.compose.foundation.gestures/FlingBehavior? = ..., androidx.compose.foundation.interaction/MutableInteractionSource? = ..., androidx.compose.foundation.gestures/BringIntoViewSpec? = ...): androidx.compose.ui/Modifier // androidx.compose.foundation/scrollableArea|scrollableArea@androidx.compose.ui.Modifier(androidx.compose.foundation.gestures.ScrollableState;androidx.compose.foundation.gestures.Orientation;kotlin.Boolean;kotlin.Boolean;androidx.compose.foundation.gestures.FlingBehavior?;androidx.compose.foundation.interaction.MutableInteractionSource?;androidx.compose.foundation.gestures.BringIntoViewSpec?){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.foundation/verticalScroll(androidx.compose.foundation/ScrollState, androidx.compose.foundation/OverscrollEffect?, kotlin/Boolean = ..., androidx.compose.foundation.gestures/FlingBehavior? = ..., kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation/verticalScroll|verticalScroll@androidx.compose.ui.Modifier(androidx.compose.foundation.ScrollState;androidx.compose.foundation.OverscrollEffect?;kotlin.Boolean;androidx.compose.foundation.gestures.FlingBehavior?;kotlin.Boolean){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.foundation/verticalScroll(androidx.compose.foundation/ScrollState, kotlin/Boolean = ..., androidx.compose.foundation.gestures/FlingBehavior? = ..., kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation/verticalScroll|verticalScroll@androidx.compose.ui.Modifier(androidx.compose.foundation.ScrollState;kotlin.Boolean;androidx.compose.foundation.gestures.FlingBehavior?;kotlin.Boolean){}[0]
+final fun <#A: androidx.compose.foundation.style/ContentPaddingScope & androidx.compose.runtime/CompositionLocalAccessorScope> (#A).androidx.compose.foundation.style/contentPadding(androidx.compose.foundation.layout/PaddingValues) // androidx.compose.foundation.style/contentPadding|contentPadding@0:0(androidx.compose.foundation.layout.PaddingValues){0§<androidx.compose.foundation.style.ContentPaddingScope&androidx.compose.runtime.CompositionLocalAccessorScope>}[0]
+final fun <#A: androidx.compose.foundation.style/CustomStyleScope, #B: androidx.compose.foundation.style/CustomStyle<#A>> (#A).androidx.compose.foundation.style/apply(#B) // androidx.compose.foundation.style/apply|apply@0:0(0:1){0§<androidx.compose.foundation.style.CustomStyleScope>;1§<androidx.compose.foundation.style.CustomStyle<0:0>>}[0]
+final fun <#A: androidx.compose.foundation.style/ExternalPaddingScope & androidx.compose.runtime/CompositionLocalAccessorScope> (#A).androidx.compose.foundation.style/externalPadding(androidx.compose.foundation.layout/PaddingValues) // androidx.compose.foundation.style/externalPadding|externalPadding@0:0(androidx.compose.foundation.layout.PaddingValues){0§<androidx.compose.foundation.style.ExternalPaddingScope&androidx.compose.runtime.CompositionLocalAccessorScope>}[0]
 final fun <#A: kotlin/Any> androidx.compose.foundation.gestures/DraggableAnchors(kotlin/Function1<androidx.compose.foundation.gestures/DraggableAnchorsConfig<#A>, kotlin/Unit>): androidx.compose.foundation.gestures/DraggableAnchors<#A> // androidx.compose.foundation.gestures/DraggableAnchors|DraggableAnchors(kotlin.Function1<androidx.compose.foundation.gestures.DraggableAnchorsConfig<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
 final fun <#A: kotlin/Any?> (androidx.compose.ui/Modifier).androidx.compose.foundation.gestures/anchoredDraggable(androidx.compose.foundation.gestures/AnchoredDraggableState<#A>, androidx.compose.foundation.gestures/Orientation, kotlin/Boolean = ..., androidx.compose.foundation.interaction/MutableInteractionSource? = ..., androidx.compose.foundation/OverscrollEffect? = ..., androidx.compose.foundation.gestures/FlingBehavior? = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.gestures/anchoredDraggable|anchoredDraggable@androidx.compose.ui.Modifier(androidx.compose.foundation.gestures.AnchoredDraggableState<0:0>;androidx.compose.foundation.gestures.Orientation;kotlin.Boolean;androidx.compose.foundation.interaction.MutableInteractionSource?;androidx.compose.foundation.OverscrollEffect?;androidx.compose.foundation.gestures.FlingBehavior?){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (androidx.compose.ui/Modifier).androidx.compose.foundation.gestures/anchoredDraggable(androidx.compose.foundation.gestures/AnchoredDraggableState<#A>, androidx.compose.foundation.gestures/Orientation, kotlin/Boolean = ..., androidx.compose.foundation.interaction/MutableInteractionSource? = ..., androidx.compose.foundation/OverscrollEffect? = ..., kotlin/Boolean = ..., androidx.compose.foundation.gestures/FlingBehavior? = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.gestures/anchoredDraggable|anchoredDraggable@androidx.compose.ui.Modifier(androidx.compose.foundation.gestures.AnchoredDraggableState<0:0>;androidx.compose.foundation.gestures.Orientation;kotlin.Boolean;androidx.compose.foundation.interaction.MutableInteractionSource?;androidx.compose.foundation.OverscrollEffect?;kotlin.Boolean;androidx.compose.foundation.gestures.FlingBehavior?){0§<kotlin.Any?>}[0]
@@ -2075,14 +2272,18 @@ final fun androidx.compose.foundation.text.input/androidx_compose_foundation_tex
 final fun androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState$stableprop_getter|androidx_compose_foundation_text_input_TextFieldState$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState_Saver$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextFieldState_Saver$stableprop_getter|androidx_compose_foundation_text_input_TextFieldState_Saver$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextUndoManager_Companion_Saver$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TextUndoManager_Companion_Saver$stableprop_getter|androidx_compose_foundation_text_input_TextUndoManager_Companion_Saver$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TrackedRange$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_TrackedRange$stableprop_getter|androidx_compose_foundation_text_input_TrackedRange$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_UndoState$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.input/androidx_compose_foundation_text_input_UndoState$stableprop_getter|androidx_compose_foundation_text_input_UndoState$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.text.input/rememberTextFieldState(kotlin/String?, androidx.compose.ui.text/TextRange, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.foundation.text.input/TextFieldState // androidx.compose.foundation.text.input/rememberTextFieldState|rememberTextFieldState(kotlin.String?;androidx.compose.ui.text.TextRange;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.foundation.text.input/rememberTextFieldState(kotlin/String?, androidx.compose.ui.text/TextRange?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.foundation.text.input/TextFieldState // androidx.compose.foundation.text.input/rememberTextFieldState|rememberTextFieldState(kotlin.String?;androidx.compose.ui.text.TextRange?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextAnnotatedStringNode_TextSubstitutionValue$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextAnnotatedStringNode_TextSubstitutionValue$stableprop_getter|androidx_compose_foundation_text_modifiers_TextAnnotatedStringNode_TextSubstitutionValue$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextStringSimpleNode_TextSubstitutionValue$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.modifiers/androidx_compose_foundation_text_modifiers_TextStringSimpleNode_TextSubstitutionValue$stableprop_getter|androidx_compose_foundation_text_modifiers_TextStringSimpleNode_TextSubstitutionValue$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.text.selection/DisableSelection(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.foundation.text.selection/DisableSelection|DisableSelection(kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.text.selection/SelectionContainer(androidx.compose.foundation.text.selection/SelectionState, androidx.compose.ui/Modifier?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.text.selection/SelectionContainer|SelectionContainer(androidx.compose.foundation.text.selection.SelectionState;androidx.compose.ui.Modifier?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.foundation.text.selection/SelectionContainer(androidx.compose.ui/Modifier?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.text.selection/SelectionContainer|SelectionContainer(androidx.compose.ui.Modifier?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_SelectionState$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_SelectionState$stableprop_getter|androidx_compose_foundation_text_selection_SelectionState$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_TextSelectionColors$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.selection/androidx_compose_foundation_text_selection_TextSelectionColors$stableprop_getter|androidx_compose_foundation_text_selection_TextSelectionColors$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.text.selection/rememberSelectionState(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.text.selection/SelectionState // androidx.compose.foundation.text.selection/rememberSelectionState|rememberSelectionState(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final fun androidx.compose.foundation.text/BasicSecureTextField(androidx.compose.foundation.text.input/TextFieldState, androidx.compose.ui/Modifier?, kotlin/Boolean, androidx.compose.foundation.text.input/InputTransformation?, androidx.compose.ui.text/TextStyle?, androidx.compose.foundation.text/KeyboardOptions?, androidx.compose.foundation.text.input/KeyboardActionHandler?, kotlin/Function2<androidx.compose.ui.unit/Density, kotlin/Function0<androidx.compose.ui.text/TextLayoutResult?>, kotlin/Unit>?, androidx.compose.foundation.interaction/MutableInteractionSource?, androidx.compose.ui.graphics/Brush?, androidx.compose.foundation.text.input/TextFieldDecorator?, androidx.compose.foundation.text.input/TextObfuscationMode, kotlin/Char, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int, kotlin/Int) // androidx.compose.foundation.text/BasicSecureTextField|BasicSecureTextField(androidx.compose.foundation.text.input.TextFieldState;androidx.compose.ui.Modifier?;kotlin.Boolean;androidx.compose.foundation.text.input.InputTransformation?;androidx.compose.ui.text.TextStyle?;androidx.compose.foundation.text.KeyboardOptions?;androidx.compose.foundation.text.input.KeyboardActionHandler?;kotlin.Function2<androidx.compose.ui.unit.Density,kotlin.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>?;androidx.compose.foundation.interaction.MutableInteractionSource?;androidx.compose.ui.graphics.Brush?;androidx.compose.foundation.text.input.TextFieldDecorator?;androidx.compose.foundation.text.input.TextObfuscationMode;kotlin.Char;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.foundation.text/BasicSecureTextField(androidx.compose.foundation.text.input/TextFieldState, androidx.compose.ui/Modifier?, kotlin/Boolean, androidx.compose.foundation.text.input/InputTransformation?, androidx.compose.ui.text/TextStyle?, androidx.compose.foundation.text/KeyboardOptions?, androidx.compose.foundation.text.input/KeyboardActionHandler?, kotlin/Function2<androidx.compose.ui.unit/Density, kotlin/Function0<androidx.compose.ui.text/TextLayoutResult?>, kotlin/Unit>?, androidx.compose.foundation.interaction/MutableInteractionSource?, androidx.compose.ui.graphics/Brush?, androidx.compose.foundation.text.input/TextFieldDecorator?, androidx.compose.foundation.text.input/TextObfuscationMode?, kotlin/Char, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int, kotlin/Int) // androidx.compose.foundation.text/BasicSecureTextField|BasicSecureTextField(androidx.compose.foundation.text.input.TextFieldState;androidx.compose.ui.Modifier?;kotlin.Boolean;androidx.compose.foundation.text.input.InputTransformation?;androidx.compose.ui.text.TextStyle?;androidx.compose.foundation.text.KeyboardOptions?;androidx.compose.foundation.text.input.KeyboardActionHandler?;kotlin.Function2<androidx.compose.ui.unit.Density,kotlin.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>?;androidx.compose.foundation.interaction.MutableInteractionSource?;androidx.compose.ui.graphics.Brush?;androidx.compose.foundation.text.input.TextFieldDecorator?;androidx.compose.foundation.text.input.TextObfuscationMode?;kotlin.Char;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.foundation.text/BasicSecureTextField(androidx.compose.foundation.text.input/TextFieldState, androidx.compose.ui/Modifier?, kotlin/Boolean, kotlin/Boolean, androidx.compose.foundation.text.input/InputTransformation?, androidx.compose.ui.text/TextStyle?, androidx.compose.foundation.text/KeyboardOptions?, androidx.compose.foundation.text.input/KeyboardActionHandler?, kotlin/Function2<androidx.compose.ui.unit/Density, kotlin/Function0<androidx.compose.ui.text/TextLayoutResult?>, kotlin/Unit>?, androidx.compose.foundation.interaction/MutableInteractionSource?, androidx.compose.ui.graphics/Brush?, androidx.compose.foundation.text.input/TextFieldDecorator?, androidx.compose.foundation.text.input/TextObfuscationMode, kotlin/Char, androidx.compose.foundation/ScrollState?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int, kotlin/Int) // androidx.compose.foundation.text/BasicSecureTextField|BasicSecureTextField(androidx.compose.foundation.text.input.TextFieldState;androidx.compose.ui.Modifier?;kotlin.Boolean;kotlin.Boolean;androidx.compose.foundation.text.input.InputTransformation?;androidx.compose.ui.text.TextStyle?;androidx.compose.foundation.text.KeyboardOptions?;androidx.compose.foundation.text.input.KeyboardActionHandler?;kotlin.Function2<androidx.compose.ui.unit.Density,kotlin.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>?;androidx.compose.foundation.interaction.MutableInteractionSource?;androidx.compose.ui.graphics.Brush?;androidx.compose.foundation.text.input.TextFieldDecorator?;androidx.compose.foundation.text.input.TextObfuscationMode;kotlin.Char;androidx.compose.foundation.ScrollState?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int;kotlin.Int){}[0]

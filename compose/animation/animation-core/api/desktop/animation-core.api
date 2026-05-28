@@ -273,6 +273,29 @@ public final class androidx/compose/animation/core/DecayAnimationSpecKt {
 	public static final fun generateDecayAnimationSpec (Landroidx/compose/animation/core/FloatDecayAnimationSpec;)Landroidx/compose/animation/core/DecayAnimationSpec;
 }
 
+public final class androidx/compose/animation/core/DeferredTargetAnimation {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/TwoWayConverter;)V
+	public final fun getPendingTarget ()Ljava/lang/Object;
+	public final fun isIdle ()Z
+	public final fun updateTarget (Ljava/lang/Object;Lkotlinx/coroutines/CoroutineScope;Landroidx/compose/animation/core/FiniteAnimationSpec;)Ljava/lang/Object;
+	public static synthetic fun updateTarget$default (Landroidx/compose/animation/core/DeferredTargetAnimation;Ljava/lang/Object;Lkotlinx/coroutines/CoroutineScope;Landroidx/compose/animation/core/FiniteAnimationSpec;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/animation/core/DeferredTransition : androidx/compose/animation/core/Transition {
+	public static final field $stable I
+}
+
+public final class androidx/compose/animation/core/DeferredTransitionState : androidx/compose/animation/core/TransitionState {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun animateTo (Ljava/lang/Object;)V
+	public final fun defer (Ljava/lang/Object;)V
+	public fun getCurrentState ()Ljava/lang/Object;
+	public final fun getPendingTargetState ()Ljava/lang/Object;
+	public fun getTargetState ()Ljava/lang/Object;
+}
+
 public abstract interface class androidx/compose/animation/core/DurationBasedAnimationSpec : androidx/compose/animation/core/FiniteAnimationSpec {
 	public abstract fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;
 }
@@ -329,6 +352,9 @@ public abstract interface annotation class androidx/compose/animation/core/Exper
 }
 
 public abstract interface annotation class androidx/compose/animation/core/ExperimentalAnimationSpecApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/animation/core/ExperimentalDeferredTransitionApi : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class androidx/compose/animation/core/ExperimentalTransitionApi : java/lang/annotation/Annotation {
@@ -665,7 +691,7 @@ public final class androidx/compose/animation/core/TargetBasedAnimation : androi
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class androidx/compose/animation/core/Transition {
+public class androidx/compose/animation/core/Transition {
 	public static final field $stable I
 	public fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;)V
 	public synthetic fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -675,6 +701,7 @@ public final class androidx/compose/animation/core/Transition {
 	public final fun getCurrentState ()Ljava/lang/Object;
 	public final fun getLabel ()Ljava/lang/String;
 	public final fun getParentTransition ()Landroidx/compose/animation/core/Transition;
+	public final fun getPendingTargetState ()Ljava/lang/Object;
 	public final fun getPlayTimeNanos ()J
 	public final fun getSegment ()Landroidx/compose/animation/core/Transition$Segment;
 	public final fun getTargetState ()Ljava/lang/Object;
@@ -685,10 +712,13 @@ public final class androidx/compose/animation/core/Transition {
 	public final fun seek (Ljava/lang/Object;Ljava/lang/Object;J)V
 	public final fun setPlayTimeNanos (J)V
 	public fun toString ()Ljava/lang/String;
+	public final fun updatePendingTarget (Ljava/lang/Object;)V
 }
 
 public final class androidx/compose/animation/core/Transition$DeferredAnimation {
+	public final fun animate (Lkotlin/jvm/functions/Function1;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/State;
 	public final fun animate (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/State;
+	public static synthetic fun animate$default (Landroidx/compose/animation/core/Transition$DeferredAnimation;Lkotlin/jvm/functions/Function1;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/runtime/State;
 	public final fun getLabel ()Ljava/lang/String;
 	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
 }
@@ -725,6 +755,7 @@ public final class androidx/compose/animation/core/TransitionKt {
 	public static final fun createChildTransitionInternal (Landroidx/compose/animation/core/Transition;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/core/Transition;
 	public static final fun createDeferredAnimation (Landroidx/compose/animation/core/Transition;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition$DeferredAnimation;
 	public static final fun createTransitionAnimation (Landroidx/compose/animation/core/Transition;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/String;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+	public static final fun rememberTransition (Landroidx/compose/animation/core/DeferredTransitionState;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/DeferredTransition;
 	public static final fun rememberTransition (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
 	public static final fun updateTransition (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
 	public static final fun updateTransition (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;

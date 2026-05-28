@@ -237,6 +237,11 @@ public final class androidx/compose/ui/test/IdlingResource$DefaultImpls {
 	public static fun getDiagnosticMessageIfBusy (Landroidx/compose/ui/test/IdlingResource;)Ljava/lang/String;
 }
 
+public abstract interface class androidx/compose/ui/test/IdlingResourceOwner {
+	public abstract fun registerIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
+	public abstract fun unregisterIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
+}
+
 public abstract interface class androidx/compose/ui/test/IndirectPointerInjectionScope : androidx/compose/ui/unit/Density {
 	public abstract fun advanceEventTime (J)V
 	public static synthetic fun advanceEventTime$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;JILjava/lang/Object;)V
@@ -267,6 +272,7 @@ public abstract interface class androidx/compose/ui/test/IndirectPointerInjectio
 	public abstract fun up (I)V
 	public static synthetic fun up$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IILjava/lang/Object;)V
 	public fun updatePointerBy-Uv8p0NA (IJ)V
+	public fun updatePointerBy-k-4lQ0M (J)V
 	public abstract fun updatePointerTo-Uv8p0NA (IJ)V
 	public fun updatePointerTo-k-4lQ0M (J)V
 }
@@ -304,6 +310,7 @@ public final class androidx/compose/ui/test/IndirectPointerInjectionScope$Defaul
 	public static fun toSp-kPz2Gy4 (Landroidx/compose/ui/test/IndirectPointerInjectionScope;I)J
 	public static synthetic fun up$default (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IILjava/lang/Object;)V
 	public static fun updatePointerBy-Uv8p0NA (Landroidx/compose/ui/test/IndirectPointerInjectionScope;IJ)V
+	public static fun updatePointerBy-k-4lQ0M (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)V
 	public static fun updatePointerTo-k-4lQ0M (Landroidx/compose/ui/test/IndirectPointerInjectionScope;J)V
 }
 
@@ -729,6 +736,7 @@ public abstract interface class androidx/compose/ui/test/TouchInjectionScope : a
 	public abstract fun up (I)V
 	public static synthetic fun up$default (Landroidx/compose/ui/test/TouchInjectionScope;IILjava/lang/Object;)V
 	public fun updatePointerBy-Uv8p0NA (IJ)V
+	public fun updatePointerBy-k-4lQ0M (J)V
 	public abstract fun updatePointerTo-Uv8p0NA (IJ)V
 }
 
@@ -780,6 +788,7 @@ public final class androidx/compose/ui/test/TouchInjectionScope$DefaultImpls {
 	public static fun toSp-kPz2Gy4 (Landroidx/compose/ui/test/TouchInjectionScope;I)J
 	public static synthetic fun up$default (Landroidx/compose/ui/test/TouchInjectionScope;IILjava/lang/Object;)V
 	public static fun updatePointerBy-Uv8p0NA (Landroidx/compose/ui/test/TouchInjectionScope;IJ)V
+	public static fun updatePointerBy-k-4lQ0M (Landroidx/compose/ui/test/TouchInjectionScope;J)V
 }
 
 public final class androidx/compose/ui/test/TouchInjectionScopeKt {
