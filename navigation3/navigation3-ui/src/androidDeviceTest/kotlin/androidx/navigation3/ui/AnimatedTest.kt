@@ -56,6 +56,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.metadata
+import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -1340,6 +1341,30 @@ class AnimatedTest {
 
         composeTestRule.onNodeWithText(first).assertIsDisplayed()
         composeTestRule.onNodeWithText(second).assertIsDisplayed()
+    }
+
+    @Test
+    fun testLocalAnimatedContentScopeDoesNotThrowInOverlays() {
+        lateinit var backStack: MutableList<Any>
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second) }
+            NavDisplay(backStack = backStack, sceneStrategies = listOf(DialogSceneStrategy())) {
+                when (it) {
+                    first -> NavEntry(first) { Text("first") }
+                    second ->
+                        NavEntry(second, metadata = DialogSceneStrategy.dialog()) {
+                            LocalNavAnimatedContentScope.current
+                            Text("second")
+                        }
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("first").assertIsDisplayed()
+        composeTestRule.onNodeWithText("second").assertIsDisplayed()
     }
 }
 

@@ -27,8 +27,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -96,12 +97,12 @@ private class AnimatedBottomSheetSceneStrategy() : SceneStrategy<Any> {
             override val key = entry.contentKey
             override val entries = listOf(entry)
             override val previousEntries = entries.dropLast(1)
-            override val overlaidEntries = previousEntries.takeLast(1)
+            override val overlaidEntries = entries.dropLast(1)
 
             lateinit var sheetState: SheetState
 
             override val content: @Composable (() -> Unit) = {
-                sheetState = rememberModalBottomSheetState()
+                sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
                 val minHeight = LocalWindowInfo.current.containerSize.height * 0.2 // 50% height
                 ModalBottomSheet(
                     onDismissRequest = onBack,

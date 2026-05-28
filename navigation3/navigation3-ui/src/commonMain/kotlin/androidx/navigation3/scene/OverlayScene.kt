@@ -35,6 +35,8 @@ public interface OverlayScene<T : Any> : Scene<T> {
      * The [NavEntry]s that should be handled by another [Scene] that sits below this Scene.
      *
      * This *must* always be a non-empty list to correctly display entries below the overlay.
+     *
+     * In general the default value for this should be the same as [previousEntries].
      */
     public val overlaidEntries: List<NavEntry<T>>
 
