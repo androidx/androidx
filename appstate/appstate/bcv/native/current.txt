@@ -1,0 +1,40 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.appstate:appstate>
+final class androidx.appstate/AppState { // androidx.appstate/AppState|null[0]
+    constructor <init>() // androidx.appstate/AppState.<init>|<init>(){}[0]
+
+    final fun <#A1: kotlin/Any?> getState(androidx.appstate/AppStateKey<#A1>, #A1): androidx.compose.runtime/State<#A1> // androidx.appstate/AppState.getState|getState(androidx.appstate.AppStateKey<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> setState(androidx.appstate/AppStateKey<#A1>, #A1) // androidx.appstate/AppState.setState|setState(androidx.appstate.AppStateKey<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> updateState(androidx.appstate/AppStateKey<#A1>, #A1, kotlin/Function1<#A1, #A1>) // androidx.appstate/AppState.updateState|updateState(androidx.appstate.AppStateKey<0:0>;0:0;kotlin.Function1<0:0,0:0>){0§<kotlin.Any?>}[0]
+    final fun addAppStateListener(kotlin.coroutines/CoroutineContext = ..., kotlin/Function4<androidx.appstate/AppStateToken, kotlin.collections/Map<androidx.appstate/AppStateKey<*>, androidx.compose.runtime/State<*>>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>): androidx.appstate/AppStateToken // androidx.appstate/AppState.addAppStateListener|addAppStateListener(kotlin.coroutines.CoroutineContext;kotlin.Function4<androidx.appstate.AppStateToken,kotlin.collections.Map<androidx.appstate.AppStateKey<*>,androidx.compose.runtime.State<*>>,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
+    final fun removeAppStateListener(androidx.appstate/AppStateToken) // androidx.appstate/AppState.removeAppStateListener|removeAppStateListener(androidx.appstate.AppStateToken){}[0]
+}
+
+final class androidx.appstate/AppStateToken { // androidx.appstate/AppStateToken|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.appstate/AppStateToken.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.appstate/AppStateToken.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.appstate/AppStateToken.toString|toString(){}[0]
+}
+
+open class <#A: kotlin/Any?> androidx.appstate/AppStateKey { // androidx.appstate/AppStateKey|null[0]
+    constructor <init>(kotlin/Any? = ..., kotlin/Function1<androidx.appstate/AppState, kotlin/Boolean> = ...) // androidx.appstate/AppStateKey.<init>|<init>(kotlin.Any?;kotlin.Function1<androidx.appstate.AppState,kotlin.Boolean>){}[0]
+
+    final val autoClearKey // androidx.appstate/AppStateKey.autoClearKey|{}autoClearKey[0]
+        final fun <get-autoClearKey>(): kotlin/Any? // androidx.appstate/AppStateKey.autoClearKey.<get-autoClearKey>|<get-autoClearKey>(){}[0]
+    final val predicate // androidx.appstate/AppStateKey.predicate|{}predicate[0]
+        final fun <get-predicate>(): kotlin/Function1<androidx.appstate/AppState, kotlin/Boolean> // androidx.appstate/AppStateKey.predicate.<get-predicate>|<get-predicate>(){}[0]
+}
+
+final val androidx.appstate/androidx_appstate_AppState$stableprop // androidx.appstate/androidx_appstate_AppState$stableprop|#static{}androidx_appstate_AppState$stableprop[0]
+final val androidx.appstate/androidx_appstate_AppStateKey$stableprop // androidx.appstate/androidx_appstate_AppStateKey$stableprop|#static{}androidx_appstate_AppStateKey$stableprop[0]
+final val androidx.appstate/androidx_appstate_AppStateToken$stableprop // androidx.appstate/androidx_appstate_AppStateToken$stableprop|#static{}androidx_appstate_AppStateToken$stableprop[0]
+
+final fun androidx.appstate/androidx_appstate_AppState$stableprop_getter(): kotlin/Int // androidx.appstate/androidx_appstate_AppState$stableprop_getter|androidx_appstate_AppState$stableprop_getter(){}[0]
+final fun androidx.appstate/androidx_appstate_AppStateKey$stableprop_getter(): kotlin/Int // androidx.appstate/androidx_appstate_AppStateKey$stableprop_getter|androidx_appstate_AppStateKey$stableprop_getter(){}[0]
+final fun androidx.appstate/androidx_appstate_AppStateToken$stableprop_getter(): kotlin/Int // androidx.appstate/androidx_appstate_AppStateToken$stableprop_getter|androidx_appstate_AppStateToken$stableprop_getter(){}[0]

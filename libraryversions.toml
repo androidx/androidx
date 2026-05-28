@@ -7,6 +7,7 @@ ANNOTATION_KEEP_QUARANTINE = "1.0.0-alpha01"
 APPCOMPAT = "1.8.0-alpha01"
 APPFUNCTIONS = "1.0.0-alpha09"
 APPSEARCH = "1.2.0-alpha01"
+APPSTATE = "1.0.0-alpha01"
 ARCH_CORE = "2.3.0-alpha01"
 ASYNCLAYOUTINFLATER = "1.1.0"
 AUTOFILL = "1.4.0-alpha01"
@@ -194,6 +195,7 @@ ANNOTATION = { group = "androidx.annotation" }
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
 APPFUNCTIONS = { group = "androidx.appfunctions", atomicGroupVersion = "versions.APPFUNCTIONS" }
 APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
+APPSTATE = { group = "androidx.appstate", atomicGroupVersion = "versions.APPSTATE" }
 ARCH_CORE = { group = "androidx.arch.core", atomicGroupVersion = "versions.ARCH_CORE" }
 ASYNCLAYOUTINFLATER = { group = "androidx.asynclayoutinflater", atomicGroupVersion = "versions.ASYNCLAYOUTINFLATER" }
 AUTOFILL = { group = "androidx.autofill", atomicGroupVersion = "versions.AUTOFILL" }
