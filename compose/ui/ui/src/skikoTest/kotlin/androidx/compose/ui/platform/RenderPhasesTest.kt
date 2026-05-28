@@ -44,8 +44,8 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
@@ -524,7 +524,7 @@ class RenderPhasesTest {
                     key = Key.A,
                     type = KeyEventType.KeyDown,
                     codePoint = 0,
-                    modifiers = EmptyPointerKeyboardModifiers(),
+                    modifiers =  PointerKeyboardModifiers(),
                     nativeEvent = null
                 )
             )
