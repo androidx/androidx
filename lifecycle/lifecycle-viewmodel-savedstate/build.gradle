@@ -97,6 +97,12 @@ dependencies {
         commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.5") {
             because "prevents symbols duplication"
         }
+
+        // Fragment 1.2.0+ is the first version to use `SavedStateViewModelFactory` to handle
+        // saving and restoring state. This makes `LegacySavedStateHandleController` obsolete.
+        androidMainImplementation("androidx.fragment:fragment:1.2.0") {
+            because "SavedStateViewModelFactory replaces LegacySavedStateHandleController by default"
+        }
     }
 }
 
