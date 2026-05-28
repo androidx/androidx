@@ -87,7 +87,7 @@ private class WindowCompatImpl(private val window: Window) : WindowCompat {
     override var title: String
         get() = window.document.title
         set(value) {
-            window.document.title = title
+            window.document.title = value
         }
 
     override val popStateEvents: Flow<PopStateEvent> = callbackFlow {
