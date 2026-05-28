@@ -30,7 +30,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
@@ -184,9 +184,7 @@ private fun LayoutSpatialPopup(
     val transition = updateTransition(targetState = elevation, label = "restingLevelTransition")
     val context = LocalContext.current
     val compositionContext = rememberCompositionContext()
-    // TODO(b/474652577): Update from deprecated currentCompositeKey to currentCompositeKeyCode
-    //  once we update JXR Compose to Compile SDK 35
-    @Suppress("DEPRECATION") val localId = currentCompositeKeyHash
+    val localId = currentCompositeKeyHashCode
 
     BackHandler(enabled = properties.dismissOnBackPress) { onDismissRequest?.invoke() }
 
@@ -258,7 +256,7 @@ private val EmptyContent: @Composable () -> Unit = {}
  *   [PopupPositionProvider], anchor bounds, and Z-depth transition.
  */
 private class SpatialPopupRenderer(
-    private val localId: Int,
+    private val localId: Long,
     private val context: Context,
     private val parentView: View,
     private val compositionContext: CompositionContext,

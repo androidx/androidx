@@ -32,7 +32,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
@@ -193,9 +193,7 @@ private fun LayoutSpatialDialog(
     val parentEntity = findNearestParentEntity()
     val context = LocalContext.current
     val compositionContext = rememberCompositionContext()
-    // TODO(b/474652577): Update from deprecated currentCompositeKey to currentCompositeKeyCode
-    //  once we update JXR Compose to Compile SDK 35
-    @Suppress("DEPRECATION") val localId = currentCompositeKeyHash
+    val localId = currentCompositeKeyHashCode
 
     BackHandler {
         if (properties.dismissOnBackPress) {
@@ -264,7 +262,7 @@ private fun LayoutSpatialDialog(
  * and the [CorePanelEntity].
  */
 private class SpatialDialogRenderer(
-    private val localId: Int,
+    private val localId: Long,
     private val context: Context,
     private val session: Session,
     private val parentView: View,

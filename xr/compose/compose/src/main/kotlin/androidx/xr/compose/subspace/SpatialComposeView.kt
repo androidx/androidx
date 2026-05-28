@@ -54,7 +54,7 @@ internal fun spatialComposeView(
     parentView: View,
     context: Context,
     compositionContext: CompositionContext,
-    localId: Int,
+    localId: Long,
 ): ComposeView =
     ComposeView(context).apply {
         id = View.generateViewId()
