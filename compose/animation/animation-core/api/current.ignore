@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedSealed: androidx.compose.animation.core.Transition:
+    Source breaking change: Cannot add 'sealed' modifier to class androidx.compose.animation.core.Transition: Incompatible change

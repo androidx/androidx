@@ -1,0 +1,39 @@
+// Baseline format: 1.0
+AddedSealed: androidx.compose.animation.core.Transition:
+    Source breaking change: Cannot add 'sealed' modifier to class androidx.compose.animation.core.Transition: Incompatible change
+
+
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String):
+    Removed method androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S>,T,T,String) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String) parameter #0:
+    Removed parameter arg1 in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T initialState, T targetState, String childLabel) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String) parameter #1:
+    Removed parameter initialState in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T initialState, T targetState, String childLabel) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String) parameter #2:
+    Removed parameter targetState in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T initialState, T targetState, String childLabel) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String) parameter #3:
+    Removed parameter childLabel in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T initialState, T targetState, String childLabel) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S>,T,T,String,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T arg2, T arg3, String arg4, androidx.compose.runtime.Composer arg5, int arg6) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T arg2, T arg3, String arg4, androidx.compose.runtime.Composer arg5, int arg6) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T arg2, T arg3, String arg4, androidx.compose.runtime.Composer arg5, int arg6) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer, int) parameter #3:
+    Removed parameter arg4 in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T arg2, T arg3, String arg4, androidx.compose.runtime.Composer arg5, int arg6) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer, int) parameter #4:
+    Removed parameter arg5 in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T arg2, T arg3, String arg4, androidx.compose.runtime.Composer arg5, int arg6) from compatibility checked API surface
+BecameUnchecked: androidx.compose.animation.core.TransitionKt#createChildTransitionInternal(androidx.compose.animation.core.Transition<S>, T, T, String, androidx.compose.runtime.Composer, int) parameter #5:
+    Removed parameter arg6 in androidx.compose.animation.core.TransitionKt.createChildTransitionInternal(androidx.compose.animation.core.Transition<S> arg1, T arg2, T arg3, String arg4, androidx.compose.runtime.Composer arg5, int arg6) from compatibility checked API surface
+
+
+RemovedMethod: androidx.compose.animation.core.Transition#Transition(androidx.compose.animation.core.MutableTransitionState, String, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Binary breaking change: Removed constructor androidx.compose.animation.core.Transition(androidx.compose.animation.core.MutableTransitionState,String,int,kotlin.jvm.internal.DefaultConstructorMarker)
+RemovedMethod: androidx.compose.animation.core.Transition#Transition(androidx.compose.animation.core.MutableTransitionState<S>, String):
+    Binary breaking change: Removed constructor androidx.compose.animation.core.Transition(androidx.compose.animation.core.MutableTransitionState<S>,String)
+RemovedMethod: androidx.compose.animation.core.Transition#Transition(androidx.compose.animation.core.TransitionState, String, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Binary breaking change: Removed constructor androidx.compose.animation.core.Transition(androidx.compose.animation.core.TransitionState,String,int,kotlin.jvm.internal.DefaultConstructorMarker)
+RemovedMethod: androidx.compose.animation.core.Transition#Transition(androidx.compose.animation.core.TransitionState<S>, String):
+    Binary breaking change: Removed constructor androidx.compose.animation.core.Transition(androidx.compose.animation.core.TransitionState<S>,String)

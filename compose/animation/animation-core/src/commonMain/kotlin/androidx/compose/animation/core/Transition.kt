@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalAnimationApi::class)
+@file:OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
 
 package androidx.compose.animation.core
 
@@ -86,7 +86,7 @@ import kotlinx.coroutines.sync.withLock
  */
 @Composable
 public fun <T> updateTransition(targetState: T, label: String? = null): Transition<T> {
-    val transition = remember { Transition(targetState, label = label) }
+    val transition = remember { TransitionInstance(targetState, label = label) }
     transition.animateTo(targetState)
     DisposableEffect(transition) {
         onDispose {
@@ -111,6 +111,7 @@ public fun <T> updateTransition(targetState: T, label: String? = null): Transiti
  * transition proceeds to the new [targetState], triggering its automatic animations.
  *
  * @param initialState The initial state of the transition.
+ * @sample androidx.compose.animation.core.samples.DeferredTransitionSample
  */
 @ExperimentalDeferredTransitionApi
 public class DeferredTransitionState<S>(initialState: S) : TransitionState<S>() {
@@ -200,6 +201,7 @@ internal constructor(transitionState: DeferredTransitionState<S>, label: String?
  * @param label An optional label for the transition to be displayed in Android Studio's Animation
  *   Preview.
  * @return A [DeferredTransition] that will update whenever [transitionState] changes.
+ * @sample androidx.compose.animation.core.samples.DeferredTransitionSample
  */
 @ExperimentalDeferredTransitionApi
 @Composable
@@ -929,11 +931,10 @@ public fun <T> rememberTransition(
             // Tracked at b/392921611. Until this is fixed, we need to explicitly disable state
             // observation in remember.
             Snapshot.withoutReadObservation {
-                @OptIn(ExperimentalDeferredTransitionApi::class)
                 if (transitionState is DeferredTransitionState) {
                     DeferredTransition(transitionState, label)
                 } else {
-                    Transition(transitionState, label)
+                    TransitionInstance(transitionState, label)
                 }
             }
         }
@@ -961,7 +962,6 @@ public fun <T> rememberTransition(
         }
     } else {
         transition.animateTo(transitionState.targetState)
-        @OptIn(ExperimentalDeferredTransitionApi::class)
         if (transitionState is DeferredTransitionState) {
             transition.updatePendingTarget(transitionState.pendingTargetState)
         }
@@ -1028,29 +1028,12 @@ public fun <T> updateTransition(
  */
 // TODO: Support creating Transition outside of composition and support imperative use of Transition
 @Stable
-public open class Transition<S>
-internal constructor(
+public sealed class Transition<S>
+protected constructor(
     private val transitionState: TransitionState<S>,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val parentTransition: Transition<*>?,
     public val label: String? = null,
 ) {
-    @PublishedApi
-    internal constructor(
-        transitionState: TransitionState<S>,
-        label: String? = null,
-    ) : this(transitionState, null, label)
-
-    internal constructor(
-        initialState: S,
-        label: String?,
-    ) : this(MutableTransitionState(initialState), null, label)
-
-    @PublishedApi
-    internal constructor(
-        transitionState: MutableTransitionState<S>,
-        label: String? = null,
-    ) : this(transitionState as TransitionState<S>, null, label)
-
     /**
      * Current state of the transition. This will always be the initialState of the transition until
      * the transition is finished. Once the transition is finished, [currentState] will be set to
@@ -1070,7 +1053,7 @@ internal constructor(
      * Pending target state of the transition. This is the state that the transition is waiting to
      * animate to. It is non-null only when a deferred update is in progress.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalDeferredTransitionApi
     public var pendingTargetState: S? by mutableStateOf(null)
         private set
 
@@ -1250,7 +1233,7 @@ internal constructor(
     }
 
     // onTransitionStart and onTransitionEnd are symmetric. Both are called from onFrame
-    @OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
+    @OptIn(InternalAnimationApi::class)
     internal fun onTransitionEnd() {
         startTimeNanos = AnimationConstants.UnspecifiedTime
         if (
@@ -1278,7 +1261,7 @@ internal constructor(
      * the [Transition] will not resume normal animation runs.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
+    @OptIn(InternalAnimationApi::class)
     @JvmName("seek")
     public fun setPlaytimeAfterInitialAndTargetStateEstablished(
         initialState: S,
@@ -1926,6 +1909,32 @@ internal constructor(
     }
 }
 
+@PublishedApi
+@ExperimentalDeferredTransitionApi
+internal class TransitionInstance<S>(
+    transitionState: TransitionState<S>,
+    parentTransition: Transition<*>?,
+    label: String? = null,
+) : Transition<S>(transitionState, parentTransition, label) {
+
+    @PublishedApi
+    internal constructor(
+        transitionState: TransitionState<S>,
+        label: String? = null,
+    ) : this(transitionState, null, label)
+
+    internal constructor(
+        initialState: S,
+        label: String?,
+    ) : this(MutableTransitionState(initialState), null, label)
+
+    @PublishedApi
+    internal constructor(
+        transitionState: MutableTransitionState<S>,
+        label: String? = null,
+    ) : this(transitionState as TransitionState<S>, null, label)
+}
+
 // When a TransitionAnimation doesn't need to be reset
 private const val NoReset = -1f
 
@@ -1998,6 +2007,7 @@ public inline fun <S, T> Transition<S>.createChildTransition(
 }
 
 @PublishedApi
+@ExperimentalDeferredTransitionApi
 @Composable
 internal fun <S, T> Transition<S>.createChildTransitionInternal(
     initialState: T,
@@ -2006,7 +2016,11 @@ internal fun <S, T> Transition<S>.createChildTransitionInternal(
 ): Transition<T> {
     val transition =
         remember(this) {
-            Transition(MutableTransitionState(initialState), this, "${this.label} > $childLabel")
+            TransitionInstance(
+                MutableTransitionState(initialState),
+                this,
+                "${this.label} > $childLabel",
+            )
         }
 
     DisposableEffect(transition) {
