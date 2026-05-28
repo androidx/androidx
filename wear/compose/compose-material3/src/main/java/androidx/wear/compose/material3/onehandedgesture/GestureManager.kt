@@ -109,6 +109,29 @@ internal interface GestureManager {
      * @param view The [View] containing the gesturable content.
      */
     fun invalidateGestures(view: View)
+
+    /**
+     * Determines whether the specified gesture indicator should be displayed to the user.
+     *
+     * @param action The specific [GestureAction] to evaluate.
+     * @param key The unique identifier associated with this gesture instance.
+     * @param isOverlay True if the indicator draws outside the boundary of its associated UI
+     *   element (e.g., scroll indicator hints rendered adjacent to the track). False if the
+     *   indicator is completely contained within the element's layout bounds (e.g., button hints).
+     * @return True if the conditions are met to display the gesture indicator, false otherwise.
+     */
+    fun shouldShowGestureIndicator(action: GestureAction, key: String, isOverlay: Boolean): Boolean
+
+    /**
+     * Notifies the manager that a gesture indicator has been successfully displayed to the user.
+     *
+     * This acts as an acknowledgment callback and allows the manager to track presentation state
+     * and manage indicator display limits.
+     *
+     * @param action The specific [GestureAction] whose indicator was presented.
+     * @param key The unique identifier associated with the displayed gesture instance.
+     */
+    fun notifyIndicatorShown(action: GestureAction, key: String)
 }
 
 internal class GestureManagerImpl(
@@ -151,6 +174,18 @@ internal class GestureManagerImpl(
 
     override fun invalidateGestures(view: View) {
         gestureRegistries[view]?.invalidate()
+    }
+
+    override fun shouldShowGestureIndicator(
+        action: GestureAction,
+        key: String,
+        isOverlay: Boolean,
+    ): Boolean {
+        return gestureInputManager.shouldShowIndicator(key, toSdkGestureAction(action), isOverlay)
+    }
+
+    override fun notifyIndicatorShown(action: GestureAction, key: String) {
+        gestureInputManager.notifyIndicatorShown(key, toSdkGestureAction(action))
     }
 }
 
@@ -224,13 +259,11 @@ internal class GestureRegistry(
                         if (
                             gesture.priority == priority &&
                                 gesture.action == gestureAction &&
-                                isActive() &&
-                                gestureInputManager.shouldShowIndicator(gesture.key, sdkAction)
+                                isActive()
                         ) {
                             gesture.interactionSource?.emit(
                                 OneHandedGestureInteraction.Indicate(gesture.action, gesture.key)
                             )
-                            gestureInputManager.notifyIndicatorShown(gesture.key, sdkAction)
                         }
                     }
                 }
@@ -339,20 +372,6 @@ internal class GestureRegistry(
         }
     }
 
-    private fun toSdkGestureAction(gestureAction: GestureAction): Int {
-        return when (gestureAction) {
-            GestureAction.Dismiss -> GestureEvent.ACTION_DISMISS
-            else -> GestureEvent.ACTION_PRIMARY
-        }
-    }
-
-    private fun fromSdkGestureAction(sdkGestureAction: Int): GestureAction {
-        return when (sdkGestureAction) {
-            GestureEvent.ACTION_DISMISS -> GestureAction.Dismiss
-            else -> GestureAction.Primary
-        }
-    }
-
     /** Returns true if there are visible [action] gestures */
     private fun shouldListenToGesture(action: GestureAction): Boolean {
         return registeredGestures.fastFirstOrNull { (gesture, isActive) ->
@@ -394,7 +413,7 @@ internal interface SdkGestureInputManager {
 
     fun notifyGestureConsumed(key: String, sdkGestureAction: Int)
 
-    fun shouldShowIndicator(key: String, sdkGestureAction: Int): Boolean
+    fun shouldShowIndicator(key: String, sdkGestureAction: Int, isOverlay: Boolean): Boolean
 
     fun notifyIndicatorShown(key: String, sdkGestureAction: Int)
 }
@@ -457,10 +476,22 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
         }
     }
 
-    override fun shouldShowIndicator(key: String, sdkGestureAction: Int): Boolean =
-        gestureInputManager?.isActionSupported(sdkGestureAction) == true &&
-            gestureInputManager?.isActionEnabled(sdkGestureAction) == true &&
-            gestureInputManager?.shouldShowHint(key, sdkGestureAction) == true
+    override fun shouldShowIndicator(
+        key: String,
+        sdkGestureAction: Int,
+        isOverlay: Boolean,
+    ): Boolean {
+        val isEnabled =
+            gestureInputManager?.isActionSupported(sdkGestureAction) == true &&
+                gestureInputManager?.isActionEnabled(sdkGestureAction) == true
+        if (WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_0)) {
+            val flags = if (isOverlay) GestureInputManager.FLAG_HINT_STYLE_OVERLAY else 0
+            return isEnabled &&
+                gestureInputManager?.shouldShowHint(key, sdkGestureAction, flags) == true
+        } else {
+            return isEnabled && gestureInputManager?.shouldShowHint(key, sdkGestureAction) == true
+        }
+    }
 
     override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {
         if (gestureInputManager?.isActionSupported(sdkGestureAction) == true) {
@@ -480,6 +511,20 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
             }
         } catch (t: Throwable) {}
         gestureInputManagerAttemptedToBeCreated = true
+    }
+}
+
+private fun toSdkGestureAction(gestureAction: GestureAction): Int {
+    return when (gestureAction) {
+        GestureAction.Dismiss -> GestureEvent.ACTION_DISMISS
+        else -> GestureEvent.ACTION_PRIMARY
+    }
+}
+
+private fun fromSdkGestureAction(sdkGestureAction: Int): GestureAction {
+    return when (sdkGestureAction) {
+        GestureEvent.ACTION_DISMISS -> GestureAction.Dismiss
+        else -> GestureAction.Primary
     }
 }
 

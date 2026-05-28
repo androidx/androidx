@@ -758,22 +758,25 @@ class OneHandedGestureTest {
     @Test
     fun gesture_indicator_colors() {
         val tintColor = Color.Yellow
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
         val interactionSource = MutableInteractionSource()
         rule.verifyColors(
             interactionSource = interactionSource,
             gestureAction = GestureAction.Primary,
             expectedContentColor = tintColor,
         ) {
-            OneHandedGestureIndicator(
-                interactionSource = interactionSource,
-                gestureIndicatorTint = tintColor,
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "",
-                    modifier = Modifier.size(GestureIndicatorSize.Medium.size),
-                )
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                OneHandedGestureIndicator(
+                    interactionSource = interactionSource,
+                    gestureIndicatorTint = tintColor,
+                    modifier = Modifier.testTag(TEST_TAG),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "",
+                        modifier = Modifier.size(GestureIndicatorSize.Medium.size),
+                    )
+                }
             }
         }
     }
@@ -783,19 +786,31 @@ class OneHandedGestureTest {
         val tintColor = Color.Yellow
         val containerColor = Color.Blue
         val interactionSource = MutableInteractionSource()
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
         rule.verifyColors(
             interactionSource = interactionSource,
             gestureAction = GestureAction.Primary,
             expectedContentColor = tintColor,
             expectedContainerColor = containerColor,
         ) {
-            Box(modifier = Modifier.testTag(TEST_TAG)) {
-                OneHandedGestureScrollIndicator(
-                    interactionSource = interactionSource,
-                    gestureIndicatorTint = tintColor,
-                    gestureIndicatorBackgroundColor = containerColor,
-                    state = rememberTransformingLazyColumnState(),
-                )
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Box(modifier = Modifier.testTag(TEST_TAG)) {
+                    OneHandedGestureScrollIndicator(
+                        interactionSource = interactionSource,
+                        gestureIndicatorTint = tintColor,
+                        gestureIndicatorBackgroundColor = containerColor,
+                        state = rememberTransformingLazyColumnState(),
+                    )
+                    val interactionSource = remember { MutableInteractionSource() }
+                    Box(modifier = Modifier.testTag(TEST_TAG)) {
+                        OneHandedGestureScrollIndicator(
+                            interactionSource = interactionSource,
+                            gestureIndicatorTint = tintColor,
+                            gestureIndicatorBackgroundColor = containerColor,
+                            state = rememberTransformingLazyColumnState(),
+                        )
+                    }
+                }
             }
         }
     }
@@ -805,19 +820,22 @@ class OneHandedGestureTest {
         val tintColor = Color.Yellow
         val containerColor = Color.Blue
         val interactionSource = MutableInteractionSource()
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
         rule.verifyColors(
             interactionSource = interactionSource,
             gestureAction = GestureAction.Primary,
             expectedContentColor = tintColor,
             expectedContainerColor = containerColor,
         ) {
-            Box(modifier = Modifier.testTag(TEST_TAG)) {
-                OneHandedGestureHorizontalPageIndicator(
-                    interactionSource = interactionSource,
-                    gestureIndicatorTint = tintColor,
-                    gestureIndicatorBackgroundColor = containerColor,
-                    pagerState = rememberPagerState { 0 },
-                )
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Box(modifier = Modifier.testTag(TEST_TAG)) {
+                    OneHandedGestureHorizontalPageIndicator(
+                        interactionSource = interactionSource,
+                        gestureIndicatorTint = tintColor,
+                        gestureIndicatorBackgroundColor = containerColor,
+                        pagerState = rememberPagerState { 0 },
+                    )
+                }
             }
         }
     }
@@ -827,19 +845,22 @@ class OneHandedGestureTest {
         val tintColor = Color.Yellow
         val containerColor = Color.Blue
         val interactionSource = MutableInteractionSource()
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
         rule.verifyColors(
             interactionSource = interactionSource,
             gestureAction = GestureAction.Primary,
             expectedContentColor = tintColor,
             expectedContainerColor = containerColor,
         ) {
-            Box(modifier = Modifier.testTag(TEST_TAG)) {
-                OneHandedGestureVerticalPageIndicator(
-                    interactionSource = interactionSource,
-                    gestureIndicatorTint = tintColor,
-                    gestureIndicatorBackgroundColor = containerColor,
-                    pagerState = rememberPagerState { 0 },
-                )
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Box(modifier = Modifier.testTag(TEST_TAG)) {
+                    OneHandedGestureVerticalPageIndicator(
+                        interactionSource = interactionSource,
+                        gestureIndicatorTint = tintColor,
+                        gestureIndicatorBackgroundColor = containerColor,
+                        pagerState = rememberPagerState { 0 },
+                    )
+                }
             }
         }
     }
@@ -863,6 +884,7 @@ class OneHandedGestureTest {
         rule.mainClock.advanceTimeBy(INDICATOR_ANIMATION_START_DELAY_MILLIS)
 
         val image = onNodeWithTag(TEST_TAG).captureToImage()
+
         expectedContainerColor?.let { image.assertContainsColor(it) }
 
         image.assertContainsColor(expectedContentColor)
@@ -996,8 +1018,11 @@ class OneHandedGestureTest {
 
         override fun notifyGestureConsumed(key: String, sdkGestureAction: Int) {}
 
-        override fun shouldShowIndicator(key: String, sdkGestureAction: Int): Boolean =
-            showIndicator
+        override fun shouldShowIndicator(
+            key: String,
+            sdkGestureAction: Int,
+            isOverlay: Boolean,
+        ): Boolean = showIndicator
 
         override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {}
 

@@ -91,6 +91,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -181,7 +182,7 @@ public fun OneHandedGestureIndicator(
         }
     }
 
-    GestureInteractionObserver(interactionSource) { interaction ->
+    GestureInteractionObserver(interactionSource, false) { interaction ->
         activeInteraction = interaction
         // wait for UI-land to load proper AVD and update avdDuration
         val duration =
@@ -558,7 +559,8 @@ private fun GesturePageIndicator(
             }
         }
     }
-    GestureInteractionObserver(interactionSource) { interaction ->
+
+    GestureInteractionObserver(interactionSource, true) { interaction ->
         activeInteraction = interaction
         // wait for UI-land to load proper AVD and update avdDuration
         val duration =
@@ -695,7 +697,7 @@ private fun GestureScrollIndicator(
         )
     }
 
-    GestureInteractionObserver(interactionSource) { interaction ->
+    GestureInteractionObserver(interactionSource, true) { interaction ->
         activeInteraction = interaction
         // wait for UI-land to load proper AVD and update avdDuration
         val duration =
@@ -825,6 +827,7 @@ private fun GestureAction.rememberAnimatedImageVector(): AnimatedImageVector {
 @Composable
 private fun GestureInteractionObserver(
     interactionSource: InteractionSource,
+    shouldRestrictFrequency: Boolean,
     onIndicate: suspend CoroutineScope.(OneHandedGestureInteraction.Indicate) -> Unit,
 ) {
     // Use a Mutex to synchronize interaction processing. When the interactionSource changes or new
@@ -833,10 +836,23 @@ private fun GestureInteractionObserver(
     // occur where the old cleanup and new initialization overlap.
     // The Mutex ensures that cleanup must fully complete before the next interaction begins.
     val gestureMutex = remember { Mutex() }
-    LaunchedEffect(interactionSource) {
+    val gestureManager = LocalGestureManager.current
+    LaunchedEffect(interactionSource, gestureManager) {
         interactionSource.interactions
             .filterIsInstance<OneHandedGestureInteraction.Indicate>()
-            .collectLatest { interaction -> gestureMutex.withLock { onIndicate(interaction) } }
+            .filter { interaction ->
+                gestureManager.shouldShowGestureIndicator(
+                    interaction.action,
+                    interaction.key,
+                    shouldRestrictFrequency,
+                )
+            }
+            .collectLatest { interaction ->
+                gestureMutex.withLock {
+                    onIndicate(interaction)
+                    gestureManager.notifyIndicatorShown(interaction.action, interaction.key)
+                }
+            }
     }
 }
 
