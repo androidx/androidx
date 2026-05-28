@@ -107,6 +107,7 @@ class FaceTrackingActivity : ComponentActivity() {
                         )
                     }
                 },
+                context = applicationContext,
             )
         sessionHelper.tryCreateSession()
     }
