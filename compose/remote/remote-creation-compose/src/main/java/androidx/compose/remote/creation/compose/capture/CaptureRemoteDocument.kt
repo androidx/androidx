@@ -42,6 +42,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -146,6 +147,7 @@ public suspend fun captureSingleRemoteDocument(
         composition.setContent {
             CompositionLocalProvider(
                 LocalRemoteComposeCreationState provides creationState,
+                LocalInspectionMode provides creationDisplayInfo.isInspectionMode,
                 LocalDensity provides
                     Density(
                         creationDisplayInfo.density.density,
@@ -259,6 +261,7 @@ public fun captureRemoteDocument(
         composition.setContent {
             CompositionLocalProvider(
                 LocalRemoteComposeCreationState provides creationState,
+                LocalInspectionMode provides creationDisplayInfo.isInspectionMode,
                 LocalDensity provides
                     Density(
                         creationDisplayInfo.density.density,
@@ -309,10 +312,14 @@ public fun captureRemoteDocument(
     }
 }
 
-private fun CreationDisplayInfo.toRemote(fontScale: Float): RemoteCreationDisplayInfo =
+private fun CreationDisplayInfo.toRemote(
+    fontScale: Float,
+    isInspectionMode: Boolean = false,
+): RemoteCreationDisplayInfo =
     RemoteCreationDisplayInfo(
         width = this.width,
         height = this.height,
         densityDpi = this.densityDpi,
         fontScale = fontScale,
+        isInspectionMode = isInspectionMode,
     )

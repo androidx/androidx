@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.action
 
 import android.app.PendingIntent
+import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action as CreationAction
@@ -24,21 +25,38 @@ import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 
-/** Create a [PendingIntentAction] to send the [PendingIntent] when invoked. */
+/**
+ * Creates an [Action] that triggers a [PendingIntent].
+ *
+ * @param pendingIntent A lambda that returns the [PendingIntent] to trigger. The [Context] is
+ *   provided to the lambda to ensure it's available during serialization.
+ */
 @Composable
-public fun pendingIntentAction(pendingIntent: PendingIntent): Action =
-    PendingIntentAction(pendingIntent)
+public fun pendingIntentAction(pendingIntent: (Context) -> PendingIntent): Action {
+    if (LocalInspectionMode.current) {
+        // Use the dedicated empty action for IDE previews as a safe no-op.
+        return Action.Empty
+    }
+
+    // Using a lambda defers PendingIntent access until serialization, preventing potential
+    // crashes in environments like IDE previews where PendingIntent might not be available.
+    val context = LocalContext.current
+    return remember(context, pendingIntent) { PendingIntentAction { pendingIntent(context) } }
+}
 
 /** Send the [PendingIntent] when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-internal class PendingIntentAction(public val pendingIntent: PendingIntent) : RemoteAction() {
+internal class PendingIntentAction(public val pendingIntent: () -> PendingIntent) : RemoteAction() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val writerCallback = document.writerCallback
         if (writerCallback is WriterEvents) {
-            val index = writerCallback.storePendingIntent(pendingIntent)
+            val index = writerCallback.storePendingIntent(pendingIntent())
             val valueId = document.addInteger(index)
             return CreationHostAction(
                 ACTION_NAME,
