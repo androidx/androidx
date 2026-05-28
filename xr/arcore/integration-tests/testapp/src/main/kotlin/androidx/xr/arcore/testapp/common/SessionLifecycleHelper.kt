@@ -17,6 +17,7 @@
 package androidx.xr.arcore.testapp.common
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -61,6 +62,7 @@ class SessionLifecycleHelper(
     val onSessionAvailable: (Session) -> Unit = {},
     val onSessionCreateActionRequired: (SessionCreateResult) -> Unit = {},
     val onSessionCalibrationRequired: (RequiredCalibrationType) -> Unit = {},
+    val context: Context? = activity,
 ) {
 
     /** Accessed through the [onSessionAvailable] callback. */
@@ -134,7 +136,7 @@ class SessionLifecycleHelper(
     @Suppress("deprecation")
     internal fun tryCreateSession() {
         try {
-            when (val result = Session.create(context = activity)) {
+            when (val result = Session.create(context = context!!, lifecycleOwner = activity)) {
                 is SessionCreateSuccess -> {
                     session = result.session
                     try {
