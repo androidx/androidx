@@ -15,14 +15,14 @@
  */
 package androidx.leanback.widget;
 
+import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED;
+import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP;
 import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 import static androidx.recyclerview.widget.RecyclerView.NO_ID;
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
-import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED;
-import static androidx.leanback.widget.BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -2585,6 +2585,9 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (da == 0) {
             return 0;
         }
+        if (mSnapHelper != null) {
+            mSnapHelper.applyDragDistance(da);
+        }
         offsetChildrenPrimary(-da);
         if ((mFlag & PF_STAGE_MASK) == PF_STAGE_LAYOUT) {
             updateScrollLimits();
@@ -2651,12 +2654,16 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                     mSnapHelper = new SnapHelper();
                 }
                 mSnapHelper.attachToRecyclerView(mBaseGridView);
+                mSnapHelper.startDrag(this);
                 // Fling stops by another DRAGGING.
                 mSnapHelper.mInFling = false;
             }
         } else if (state == SCROLL_STATE_IDLE
                 && (mFlag & PF_IN_DRAGGING_AND_SETTLING) == PF_IN_DRAGGING_AND_SETTLING) {
             mFlag &= ~PF_IN_DRAGGING_AND_SETTLING;
+            if (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP) {
+                mFocusPosition = mSnapHelper.getAdjustedPositionInDragStop(this);
+            }
             dispatchChildSelected();
             dispatchChildSelectedAndPositioned();
             if (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP) {

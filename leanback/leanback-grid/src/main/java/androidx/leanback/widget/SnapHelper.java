@@ -15,6 +15,10 @@
  */
 package androidx.leanback.widget;
 
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
+
+import android.content.Context;
+import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
@@ -26,10 +30,20 @@ import org.jspecify.annotations.NonNull;
  * Class intended to support snapping for a {@link BaseGridView} during fling.
  */
 final class SnapHelper extends RecyclerView.OnFlingListener {
-
+    private static final int MINIMAL_DRAG_DISTANCE_DP = 16;
     BaseGridView mRecyclerView;
     private Scroller mGravityScroller;
     boolean mInFling;
+
+    /**
+     * 0 if no drag has occurred yet. 1 if drag was entirely positive (meaning scroll down or
+     * right). -1 if drag was entirely negative (meaning scroll up or left). 2 if drag reversed
+     * direction.
+     */
+    private int mDragStep = 0;
+
+    private int mDragScrollDistance = 0;
+    private int mDragFocusStart = NO_POSITION;
 
     @Override
     public boolean onFling(int velocityX, int velocityY) {
@@ -123,5 +137,76 @@ final class SnapHelper extends RecyclerView.OnFlingListener {
         int positionDelta = distance > 0 ? absolutePositionDelta : -absolutePositionDelta;
         return layoutManager.mGrid.getNextPositionOfSameSpan(layoutManager.mFocusPosition,
                 layoutManager.getItemCount(), positionDelta);
+    }
+
+    void startDrag(GridLayoutManager gridLayoutManager) {
+        mDragStep = 0;
+        mDragScrollDistance = 0;
+        mDragFocusStart = gridLayoutManager.mFocusPosition;
+    }
+
+    void applyDragDistance(int da) {
+        // We only count the scroll distance in dragging, not the following fling.
+        if (mInFling) {
+            return;
+        }
+        if (da > 0) {
+            if (mDragStep == 0) {
+                mDragStep = 1;
+                mDragScrollDistance = da;
+            } else if (mDragStep == 1) {
+                mDragScrollDistance += da;
+            } else {
+                mDragStep = 2;
+            }
+        } else if (da < 0) {
+            if (mDragStep == 0) {
+                mDragStep = -1;
+                mDragScrollDistance = -da;
+            } else if (mDragStep == -1) {
+                mDragScrollDistance += -da;
+            } else {
+                mDragStep = 2;
+            }
+        }
+    }
+
+    int getAdjustedPositionInDragStop(GridLayoutManager gridLayoutManager) {
+        int currentFocusPosition = gridLayoutManager.mFocusPosition;
+        // If fling is triggered, no adjustment of dragging is needed.  And fling already applied
+        // a minimal of 1 step.
+        if (mInFling) {
+            return currentFocusPosition;
+        }
+        // Check if mFocusPosition already changed in dragging.
+        if (currentFocusPosition != mDragFocusStart) {
+            return currentFocusPosition;
+        }
+        if (mDragFocusStart == NO_POSITION) {
+            return currentFocusPosition;
+        }
+        // Check if it only dragged in one direction.
+        if (mDragStep != 1 && mDragStep != -1) {
+            return currentFocusPosition;
+        }
+        // When user drags at least 2 * scaledTouchSlop, we will guarantee at least snap to next
+        // item. Note that one scaledTouchSlop is subtracted in RecyclerView.onTouchEvent(). So the
+        // actual movement is required to be 3 * scaledTouchSlop, which is by default 3 * 16 = 48
+        // pixels on a 1080P device.
+        Context context = mRecyclerView.getContext();
+        float scaledTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        float density = context.getResources().getDisplayMetrics().density;
+        float minimalDistance = Math.max(scaledTouchSlop * 2, MINIMAL_DRAG_DISTANCE_DP * density);
+        if (mDragScrollDistance > minimalDistance) {
+            int newPos =
+                    gridLayoutManager.mGrid.getNextPositionOfSameSpan(
+                            currentFocusPosition,
+                            gridLayoutManager.getItemCount(),
+                            mDragStep);
+            if (newPos != NO_POSITION) {
+                return newPos;
+            }
+        }
+        return currentFocusPosition;
     }
 }

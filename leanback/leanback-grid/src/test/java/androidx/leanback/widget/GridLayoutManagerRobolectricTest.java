@@ -24,6 +24,7 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -41,7 +42,6 @@ import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowSystemClock;
 
 import java.util.concurrent.TimeUnit;
-
 
 @RunWith(AndroidJUnit4.class)
 public class GridLayoutManagerRobolectricTest {
@@ -247,5 +247,95 @@ public class GridLayoutManagerRobolectricTest {
         assertTrue("onFling() should be called during the ACTION_UP phase", onFlingInvoked[0]);
         ShadowLooper.idleMainLooper();
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, gridView.getScrollState());
+    }
+
+    @Test
+    public void testDraggingOverThreshold_snap_toNext() {
+        VerticalGridView gridView = setupGridView(100, null);
+
+        GridLayoutManager layoutManager = (GridLayoutManager) gridView.getLayoutManager();
+        gridView.setFocusScrollStrategy(BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP);
+
+        ShadowLooper.idleMainLooper();
+        assertEquals(0, gridView.getSelectedPosition());
+
+        long downTime = SystemClock.uptimeMillis();
+        MotionEvent downEvent =
+                MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        gridView.dispatchTouchEvent(downEvent);
+
+        ShadowSystemClock.advanceBy(1000, TimeUnit.MILLISECONDS);
+        long moveTime = SystemClock.uptimeMillis();
+        assertEquals(16, ViewConfiguration.get(gridView.getContext()).getScaledTouchSlop());
+        float threshold = 48f;
+        // Drag 1 pixel over threshold, will trigger select next item.
+        float y = 500 - 1f - threshold;
+        MotionEvent moveEvent =
+                MotionEvent.obtain(downTime, moveTime, MotionEvent.ACTION_MOVE, 500, y, 0);
+        gridView.dispatchTouchEvent(moveEvent);
+        ShadowLooper.idleMainLooper();
+
+        // Verify that GridView indeed entered DRAGGING state
+        assertEquals(RecyclerView.SCROLL_STATE_DRAGGING, gridView.getScrollState());
+
+        ShadowSystemClock.advanceBy(1000, TimeUnit.MILLISECONDS);
+        long upTime = SystemClock.uptimeMillis();
+        MotionEvent upEvent =
+                MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, 500, y, 0);
+        gridView.dispatchTouchEvent(upEvent);
+
+        downEvent.recycle();
+        moveEvent.recycle();
+        upEvent.recycle();
+
+        ShadowLooper.idleMainLooper();
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, gridView.getScrollState());
+
+        assertEquals(1, gridView.getSelectedPosition());
+    }
+
+    @Test
+    public void testDraggingLessThanThreshold_snap_toCurrent() {
+        VerticalGridView gridView = setupGridView(100, null);
+
+        GridLayoutManager layoutManager = (GridLayoutManager) gridView.getLayoutManager();
+        gridView.setFocusScrollStrategy(BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP);
+
+        ShadowLooper.idleMainLooper();
+        assertEquals(0, gridView.getSelectedPosition());
+
+        long downTime = SystemClock.uptimeMillis();
+        MotionEvent downEvent =
+                MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        gridView.dispatchTouchEvent(downEvent);
+
+        ShadowSystemClock.advanceBy(1000, TimeUnit.MILLISECONDS);
+        long moveTime = SystemClock.uptimeMillis();
+        assertEquals(16, ViewConfiguration.get(gridView.getContext()).getScaledTouchSlop());
+        float threshold = 48f;
+        // Drag 1 pixel less than threshold, will stay in current selection.
+        float y = 500 - threshold + 1f;
+        MotionEvent moveEvent =
+                MotionEvent.obtain(downTime, moveTime, MotionEvent.ACTION_MOVE, 500, y, 0);
+        gridView.dispatchTouchEvent(moveEvent);
+        ShadowLooper.idleMainLooper();
+
+        // Verify that GridView indeed entered DRAGGING state
+        assertEquals(RecyclerView.SCROLL_STATE_DRAGGING, gridView.getScrollState());
+
+        ShadowSystemClock.advanceBy(1000, TimeUnit.MILLISECONDS);
+        long upTime = SystemClock.uptimeMillis();
+        MotionEvent upEvent =
+                MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, 500, y, 0);
+        gridView.dispatchTouchEvent(upEvent);
+
+        downEvent.recycle();
+        moveEvent.recycle();
+        upEvent.recycle();
+
+        ShadowLooper.idleMainLooper();
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, gridView.getScrollState());
+
+        assertEquals(0, gridView.getSelectedPosition());
     }
 }
