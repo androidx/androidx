@@ -54,7 +54,7 @@ public fun WearWidgetPreview(
         remember(widget, params, context) {
             runBlocking {
                 val widgetData = widget.provideWidgetData(context, params)
-                widgetData.captureRawContent(context, params).rcDocument
+                widgetData.captureRawContent(context, params, isInspectionMode = true).rcDocument
             }
         }
 
