@@ -32,6 +32,8 @@ dependencies {
     api(libs.kotlinStdlib)
 
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.guavaTestlib)
 }
 
 android {

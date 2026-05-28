@@ -1,1 +1,105 @@
 // Signature format: 4.0
+package androidx.a2ui.core.protocol {
+
+  public final class A2uiClientError implements androidx.a2ui.core.protocol.A2uiClientToServerMessage {
+    ctor @BytecodeOnly public A2uiClientError(String!, String!, String!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiClientError(String code, String surfaceId, String message, optional java.util.Map<java.lang.String,? extends java.lang.Object?> context);
+    method @InaccessibleFromKotlin public String getCode();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getContext();
+    method @InaccessibleFromKotlin public String getMessage();
+    method @InaccessibleFromKotlin public String getSurfaceId();
+    property public String code;
+    property public java.util.Map<java.lang.String,java.lang.Object?> context;
+    property public String message;
+    property public String surfaceId;
+  }
+
+  public sealed exhaustive interface A2uiClientToServerMessage {
+  }
+
+  public final class A2uiComponentPayload {
+    ctor public A2uiComponentPayload(String id, String type, java.util.Map<java.lang.String,? extends java.lang.Object?> properties);
+    method @InaccessibleFromKotlin public String getId();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getProperties();
+    method @InaccessibleFromKotlin public String getType();
+    property public String id;
+    property public java.util.Map<java.lang.String,java.lang.Object?> properties;
+    property public String type;
+  }
+
+  public final class A2uiCreateSurfaceMessage implements androidx.a2ui.core.protocol.A2uiServerToClientMessage {
+    ctor @BytecodeOnly public A2uiCreateSurfaceMessage(String!, String!, java.util.Map!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiCreateSurfaceMessage(String surfaceId, String catalogId, optional java.util.Map<java.lang.String,? extends java.lang.Object?> theme, optional boolean shouldSendDataModel);
+    method @InaccessibleFromKotlin public String getCatalogId();
+    method @InaccessibleFromKotlin public String getSurfaceId();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getTheme();
+    method @InaccessibleFromKotlin public boolean shouldSendDataModel();
+    property public String catalogId;
+    property public boolean shouldSendDataModel;
+    property public String surfaceId;
+    property public java.util.Map<java.lang.String,java.lang.Object?> theme;
+  }
+
+  public final class A2uiDeleteSurfaceMessage implements androidx.a2ui.core.protocol.A2uiServerToClientMessage {
+    ctor public A2uiDeleteSurfaceMessage(String surfaceId);
+    method @InaccessibleFromKotlin public String getSurfaceId();
+    property public String surfaceId;
+  }
+
+  public abstract sealed exhaustive class A2uiException extends java.lang.Exception {
+    method @InaccessibleFromKotlin public final String getCode();
+    method @InaccessibleFromKotlin public final java.util.Map<java.lang.String,java.lang.Object?> getContext();
+    property public final String code;
+    property public final java.util.Map<java.lang.String,java.lang.Object?> context;
+  }
+
+  public static final class A2uiException.A2uiRuntimeException extends androidx.a2ui.core.protocol.A2uiException {
+    ctor @BytecodeOnly public A2uiException.A2uiRuntimeException(String!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiException.A2uiRuntimeException(String message, optional java.util.Map<java.lang.String,? extends java.lang.Object?> context);
+  }
+
+  public static final class A2uiException.A2uiValidationException extends androidx.a2ui.core.protocol.A2uiException {
+    ctor public A2uiException.A2uiValidationException(String message, String path);
+  }
+
+  public sealed nonexhaustive interface A2uiServerToClientMessage {
+    method @InaccessibleFromKotlin public String getSurfaceId();
+    property public abstract String surfaceId;
+  }
+
+  public final class A2uiUpdateComponentsMessage implements androidx.a2ui.core.protocol.A2uiServerToClientMessage {
+    ctor public A2uiUpdateComponentsMessage(String surfaceId, java.util.List<androidx.a2ui.core.protocol.A2uiComponentPayload> components);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.core.protocol.A2uiComponentPayload> getComponents();
+    method @InaccessibleFromKotlin public String getSurfaceId();
+    property public java.util.List<androidx.a2ui.core.protocol.A2uiComponentPayload> components;
+    property public String surfaceId;
+  }
+
+  public final class A2uiUpdateDataModelMessage implements androidx.a2ui.core.protocol.A2uiServerToClientMessage {
+    ctor public A2uiUpdateDataModelMessage(String surfaceId, optional String path, optional Object? value);
+    ctor @BytecodeOnly public A2uiUpdateDataModelMessage(String!, String!, Object!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String getPath();
+    method @InaccessibleFromKotlin public String getSurfaceId();
+    method @InaccessibleFromKotlin public Object? getValue();
+    property public String path;
+    property public String surfaceId;
+    property public Object? value;
+  }
+
+  public final class A2uiUserAction implements androidx.a2ui.core.protocol.A2uiClientToServerMessage {
+    ctor @BytecodeOnly public A2uiUserAction(String!, String!, String!, long, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiUserAction(String type, String surfaceId, String componentId, long timestamp, optional java.util.Map<java.lang.String,? extends java.lang.Object?> context);
+    method @InaccessibleFromKotlin public String getComponentId();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getContext();
+    method @InaccessibleFromKotlin public String getSurfaceId();
+    method @InaccessibleFromKotlin public long getTimestamp();
+    method @InaccessibleFromKotlin public String getType();
+    property public String componentId;
+    property public java.util.Map<java.lang.String,java.lang.Object?> context;
+    property public String surfaceId;
+    property public long timestamp;
+    property public String type;
+  }
+
+}
+
