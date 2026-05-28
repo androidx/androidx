@@ -494,7 +494,9 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
          * @param id The remote ID.
          * @return A [RemoteString] referencing the ID.
          */
-        internal fun createForId(id: Int): RemoteString = MutableRemoteString(id)
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createForId(id: Int): RemoteString = MutableRemoteString(id)
 
         /**
          * Creates a named [RemoteString] with an initial value.

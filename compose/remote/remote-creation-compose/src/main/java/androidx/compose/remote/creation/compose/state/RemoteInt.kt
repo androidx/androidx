@@ -53,20 +53,6 @@ private const val OP_XOR = 0x100000000L + IntegerExpressionEvaluator.I_XOR
 private const val MAX_SAFE_LONG_ARRAY = 30
 
 /**
- * An inline value class representing a reference to a remote integer.
- *
- * @param v The integer value of the reference.
- */
-@Stable
-@JvmInline
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public value class RemoteIntReference(private val v: Int) {
-    public fun toInt(): Int {
-        return v
-    }
-}
-
-/**
  * Abstract base class for all remote integer representations.
  *
  * `RemoteInt` represents an integer value that can be a constant, a named variable, or a dynamic
@@ -482,7 +468,9 @@ internal constructor(
          * @param v The remote ID.
          * @return A [RemoteInt] referencing the ID.
          */
-        internal fun createForId(v: Long): RemoteInt {
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createForId(v: Long): RemoteInt {
             return RemoteIntExpression(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateIdKey(v.toInt()),
