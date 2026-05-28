@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 /** Common IOException mapped to a custom exception class in native code. */
+@Suppress("AcronymName")
 public actual open class IOException actual constructor(message: String?, cause: Throwable?) :
     Exception(message, cause) {
     actual constructor(message: String?) : this(message, null)

@@ -461,7 +461,7 @@ public actual abstract class RoomDatabase actual constructor() {
          */
         @JvmOverloads
         public actual fun fallbackToDestructiveMigrationFrom(
-            dropAllTables: Boolean,
+            @Suppress("KotlinDefaultParameterOrder") dropAllTables: Boolean,
             vararg startVersions: Int,
         ): Builder<T> = apply {
             for (startVersion in startVersions) {
@@ -660,6 +660,7 @@ public actual abstract class RoomDatabase actual constructor() {
          * @return An ordered list of [Migration] objects that should be run to migrate between the
          *   given versions. If a migration path cannot be found, returns `null`.
          */
+        @Suppress("NullableCollection")
         public actual fun findMigrationPath(start: Int, end: Int): List<Migration>? {
             return this.findMigrationPathCommon(start, end)
         }

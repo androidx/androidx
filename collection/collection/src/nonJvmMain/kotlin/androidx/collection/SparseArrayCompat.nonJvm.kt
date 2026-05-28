@@ -78,6 +78,7 @@ public actual open class SparseArrayCompat<E> public actual constructor(initialC
      * Gets the Object mapped from the specified [key], or [defaultValue] if no such mapping has
      * been made.
      */
+    @Suppress("KotlinOperator")
     public actual open fun get(key: Int, defaultValue: E): E = commonGet(key, defaultValue)
 
     /** Removes the mapping from the specified key, if there was any. */

@@ -30,4 +30,5 @@ import androidx.sqlite.SQLiteDriver
  * [SQLITE_OPEN_FULLMUTEX] flag. If the application is single threaded, then no additional
  * configuration is required.
  */
+@Suppress("TypealiasDefinition")
 public actual typealias BundledSQLiteDriver = androidx.sqlite.driver.NativeSQLiteDriver

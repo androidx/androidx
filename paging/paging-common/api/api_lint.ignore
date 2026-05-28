@@ -39,19 +39,11 @@ TypeParameterName: androidx.paging.DataSource#map(androidx.arch.core.util.Functi
     Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.paging.DataSource#map(kotlin.jvm.functions.Function1<Value,ToValue>):
     Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
-TypeParameterName: androidx.paging.DataSource#mapByPage(androidx.arch.core.util.Function<java.util.List<Value>,java.util.List<ToValue>>):
-    Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
-TypeParameterName: androidx.paging.DataSource#mapByPage(kotlin.jvm.functions.Function1<java.util.List<Value>,java.util.List<ToValue>>):
-    Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.paging.DataSource.Factory:
     Invalid type parameter names "Key", "Value". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.paging.DataSource.Factory#map(androidx.arch.core.util.Function<Value,ToValue>):
     Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.paging.DataSource.Factory#map(kotlin.jvm.functions.Function1<Value,ToValue>):
-    Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
-TypeParameterName: androidx.paging.DataSource.Factory#mapByPage(androidx.arch.core.util.Function<java.util.List<Value>,java.util.List<ToValue>>):
-    Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
-TypeParameterName: androidx.paging.DataSource.Factory#mapByPage(kotlin.jvm.functions.Function1<java.util.List<Value>,java.util.List<ToValue>>):
     Invalid type parameter name "ToValue". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.paging.InvalidatingPagingSourceFactory:
     Invalid type parameter names "Key", "Value". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

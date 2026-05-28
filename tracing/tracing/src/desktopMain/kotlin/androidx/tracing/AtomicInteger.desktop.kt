@@ -18,4 +18,5 @@ package androidx.tracing
 
 import java.util.concurrent.atomic.AtomicInteger
 
+@Suppress("TypealiasDefinition")
 public actual typealias AtomicInteger = AtomicInteger
