@@ -41,6 +41,7 @@ import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Implementation of the JNI API for communicating with the Impress Split Engine instance. */
@@ -216,7 +217,7 @@ public class ImpressApiImpl : ImpressApi {
                     }
 
                     override fun onCancelled(message: String) {
-                        continuation.cancel(Exception(message))
+                        continuation.cancel(CancellationException(message))
                     }
                 },
                 path,
@@ -255,7 +256,7 @@ public class ImpressApiImpl : ImpressApi {
                     }
 
                     override fun onCancelled(message: String) {
-                        continuation.cancel(Exception(message))
+                        continuation.cancel(CancellationException(message))
                     }
                 },
                 data,
@@ -297,7 +298,7 @@ public class ImpressApiImpl : ImpressApi {
                     }
 
                     override fun onCancelled(message: String) {
-                        continuation.cancel(Exception(message))
+                        continuation.cancel(CancellationException(message))
                     }
                 },
                 path,
@@ -338,7 +339,7 @@ public class ImpressApiImpl : ImpressApi {
                     }
 
                     override fun onCancelled(message: String) {
-                        continuation.cancel(Exception(message))
+                        continuation.cancel(CancellationException(message))
                     }
                 },
                 data,
@@ -454,7 +455,7 @@ public class ImpressApiImpl : ImpressApi {
                 }
 
                 override fun onCancelled(message: String) {
-                    continuation.cancel(Exception(message))
+                    continuation.cancel(CancellationException(message))
                 }
             },
         )
@@ -902,7 +903,7 @@ public class ImpressApiImpl : ImpressApi {
                     }
 
                     override fun onCancelled(message: String) {
-                        continuation.cancel(Exception(message))
+                        continuation.cancel(CancellationException(message))
                     }
                 },
                 path,
@@ -961,7 +962,7 @@ public class ImpressApiImpl : ImpressApi {
                     }
 
                     override fun onCancelled(message: String) {
-                        continuation.cancel(Exception(message))
+                        continuation.cancel(CancellationException(message))
                     }
                 },
                 isAlphaMapVersion,
@@ -1113,7 +1114,7 @@ public class ImpressApiImpl : ImpressApi {
                 }
 
                 override fun onCancelled(message: String) {
-                    continuation.cancel(Exception(message))
+                    continuation.cancel(CancellationException(message))
                 }
             },
             spec.lightingModel,
