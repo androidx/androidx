@@ -55,7 +55,7 @@ internal class UIKitComposeSceneLayer(
 
     private val layersViewController: ComposeLayersViewController,
     private val initialLayoutDirection: LayoutDirection,
-    private val onAccessibilityChanged: () -> Unit,
+    private val onFocusConditionsChanged: () -> Unit,
     configuration: ComposeContainerConfiguration,
     private var focusedViewsList: FocusedViewsList?,
     consumePointerInputOutside: Boolean = focusedViewsList != null,
@@ -70,7 +70,7 @@ internal class UIKitComposeSceneLayer(
         set(value) {
             if (field != value) {
                 field = value
-                onAccessibilityChanged()
+                onFocusConditionsChanged()
             }
         }
 
@@ -79,7 +79,7 @@ internal class UIKitComposeSceneLayer(
             if (field != value) {
                 field = value
                 mediator.isInterceptingOutsideEvents = value
-                onAccessibilityChanged()
+                onFocusConditionsChanged()
             }
         }
 
@@ -128,7 +128,7 @@ internal class UIKitComposeSceneLayer(
 
     val hasInvalidations by mediator::hasInvalidations
 
-    var isAccessibilityEnabled by mediator::isAccessibilityEnabled
+    var isFocusEnabled by mediator::isFocusEnabled
 
     override var density: Density
         get() = mediator.composeSceneDensity

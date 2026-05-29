@@ -52,6 +52,7 @@ import androidx.compose.ui.test.firstNodeOrNull
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.test.utils.hold
 import androidx.compose.ui.test.utils.up
+import androidx.compose.ui.test.waitForContextMenu
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
@@ -486,21 +487,5 @@ class TextFieldEditMenuTest {
                 .also { delay(100) }
                 .up()
         }
-    }
-
-    private fun UIKitInstrumentedTest.waitForContextMenu() {
-        val menuClassName = if (available(OS.Ios to OSVersion(16))) {
-            "_UIEditMenuContainerView"
-        } else {
-            "UICalloutBar"
-        }
-        waitForIdle()
-        waitUntil {
-            firstNodeOrNull { node ->
-                node.element?.let { it::class.simpleName } == menuClassName
-            } != null
-        }
-        // Additional delay to wait until toolbar animation ends
-        delay(500)
     }
 }

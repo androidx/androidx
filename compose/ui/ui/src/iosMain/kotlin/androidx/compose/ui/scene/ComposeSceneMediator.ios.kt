@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.hapticfeedback.CupertinoHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -67,6 +66,13 @@ import androidx.compose.ui.uikit.LocalUIView
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.uikit.toNanoSeconds
+import androidx.compose.ui.input.key.internal
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.input.pointer.isAltPressed
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.isMetaPressed
+import androidx.compose.ui.input.pointer.isShiftPressed
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntRect
@@ -99,6 +105,7 @@ import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
@@ -204,6 +211,8 @@ internal class ComposeSceneMediator(
         override var isActive by mutableStateOf(false)
     }
 
+    private val coroutineScope = CoroutineScope(coroutineContext)
+
     private val isActive get() = coroutineContext.isActive
 
     private val viewConfiguration: ViewConfiguration =
@@ -287,7 +296,12 @@ internal class ComposeSceneMediator(
         onCancelScroll = ::onCancelScroll,
         onHoverEvent = ::onHoverEvent,
         onKeyboardPresses = ::onKeyboardPresses,
-        ignoreTouchChanges = navigationEventInput::isBackGestureActive
+        ignoreTouchChanges = navigationEventInput::isBackGestureActive,
+        onRemoveSubview = {
+            CoroutineScope(coroutineContext).launch {
+                finishUnattachedKeysPresses()
+            }
+        }
     )
 
     val overlayView: UIView get() = _overlayView
@@ -297,6 +311,7 @@ internal class ComposeSceneMediator(
      * The view handles user touches that occur only over the interop views located on it.
      */
     private val _backgroundView = BackgroundInputView(
+        onMovedToWindow = ::focusOverlayViewIfNeeded,
         onLayoutSubviews = ::updateLayout,
         hitTestInteropView = ::hitTestInteropView,
         isPointInsideInteractionBounds = ::isPointInsideInteractionBounds,
@@ -351,7 +366,16 @@ internal class ComposeSceneMediator(
         )
     }
 
-    var isAccessibilityEnabled by semanticsOwnerListener::isEnabled
+    var isFocusEnabled: Boolean
+        get() = semanticsOwnerListener.isEnabled
+        set(value) {
+            semanticsOwnerListener.isEnabled = value
+            if (value) {
+                focusOverlayViewIfNeeded()
+            } else {
+                _overlayView.resignFirstResponder()
+            }
+        }
 
     private val keyboardManager by lazy {
         ComposeSceneKeyboardOffsetManager(
@@ -376,9 +400,8 @@ internal class ComposeSceneMediator(
             viewConfiguration = viewConfiguration,
             focusedViewsList = focusedViewsList,
             onInputStarted = { animateKeyboardOffsetChanges = true },
-            onKeyboardPresses = ::onKeyboardPresses,
             focusManager = { scene.focusManager },
-            coroutineContext = coroutineContext
+            coroutineContext = coroutineContext,
         ).also {
             KeyboardVisibilityListener.initialize()
         }
@@ -387,7 +410,7 @@ internal class ComposeSceneMediator(
     private val textInputServiceAdapter by lazy {
         UIKitTextInputServiceAdapter(
             textInputService,
-            CoroutineScope(coroutineContext)
+            coroutineScope
         )
     }
 
@@ -682,6 +705,32 @@ internal class ComposeSceneMediator(
         keyboardManager.stop()
     }
 
+    // The Overlay View needs to be focused to be able to handle keyboard actions.
+    // In general, the iOS system automatically reassigns the first responder focus to the overlay
+    // view when other views resign the first responder focus, except at the time of initial appearance.
+    private fun focusOverlayViewIfNeeded() {
+        if (!isFocusEnabled) {
+            return
+        }
+        val window = _overlayView.window ?: return
+        fun findFirstResponder(view: UIView): UIView? {
+            if (view.isFirstResponder) {
+                return view
+            }
+            for (subview in view.subviews) {
+                subview as UIView
+                val firstResponder = findFirstResponder(subview)
+                if (firstResponder != null) {
+                    return firstResponder
+                }
+            }
+            return null
+        }
+        if (findFirstResponder(window) == null) {
+            _overlayView.becomeFirstResponder()
+        }
+    }
+
     fun setKeyEventListener(
         onPreviewKeyEvent: ((KeyEvent) -> Boolean)?,
         onKeyEvent: ((KeyEvent) -> Boolean)?
@@ -701,12 +750,72 @@ internal class ComposeSceneMediator(
         }
     }
 
-    private fun onKeyboardEvent(keyEvent: KeyEvent): Boolean =
-        textInputService.onPreviewKeyEvent(keyEvent) // TODO: fix redundant call
+    private data class KeyIdentifier(
+        val key: Key,
+        val codePoint: Int,
+        val modifiers: PointerKeyboardModifiers,
+    ) {
+        var press: UIPress? = null // Should not be part of the identifier
+
+        val isAttachedToWindow: Boolean get() = (press?.responder as? UIView)?.window != null
+    }
+
+    private fun KeyEvent.keyIdentifier(): KeyIdentifier {
+        val internalEvent = internal
+        return KeyIdentifier(
+            key = internalEvent.key,
+            codePoint = internalEvent.codePoint,
+            modifiers = internalEvent.modifiers,
+        ).also {
+            it.press = internalEvent.nativeEvent as? UIPress
+        }
+    }
+
+    private val pressedKeysState = mutableListOf<KeyIdentifier>()
+
+    // iOS does not complete or cancels key events which are attached to a view that is not in
+    //  the window hierarchy.
+    private fun finishUnattachedKeysPresses() {
+        if (pressedKeysState.isEmpty()) {
+            return
+        }
+        pressedKeysState.filter { !it.isAttachedToWindow }.forEach { key ->
+            onKeyboardEvent(
+                KeyEvent(
+                    key = key.key,
+                    type = KeyEventType.KeyUp,
+                    codePoint = key.codePoint,
+                    isCtrlPressed = key.modifiers.isCtrlPressed,
+                    isMetaPressed = key.modifiers.isMetaPressed,
+                    isAltPressed = key.modifiers.isAltPressed,
+                    isShiftPressed = key.modifiers.isShiftPressed,
+                    nativeEvent = key.press,
+                )
+            )
+        }
+    }
+
+    private fun onKeyboardEvent(keyEvent: KeyEvent): Boolean {
+        val result = textInputService.onPreviewKeyEvent(keyEvent)
             || onPreviewKeyEvent(keyEvent)
             || scene.sendKeyEvent(keyEvent)
             || onKeyEvent(keyEvent)
             || navigationEventInput.onKeyEvent(keyEvent)
+
+        val identifier = keyEvent.keyIdentifier()
+        if (keyEvent.type == KeyEventType.KeyDown) {
+            pressedKeysState.add(identifier)
+        } else if (keyEvent.type == KeyEventType.KeyUp) {
+            if (pressedKeysState.contains(identifier)) {
+                pressedKeysState.removeAll { it == identifier }
+            } else {
+                // Dirty state - remove all events to prevent further errors
+                pressedKeysState.clear()
+            }
+        }
+
+        return result
+    }
 
     private inner class PlatformContextImpl : PlatformContext {
         override val windowInfo: WindowInfo get() = windowContext.windowInfo

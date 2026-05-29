@@ -47,12 +47,6 @@ import platform.UIKit.UITextWritingDirection
 
 internal interface TextEditingDelegate {
     var inputTraits: SkikoUITextInputTraits
-    
-    /**
-     * Callback to handle keyboard presses. The parameter is a [Set] of [UIPress] objects.
-     * Erasure happens due to K/N not supporting Obj-C lightweight generics.
-     */
-    var onKeyboardPresses: (Set<*>) -> Unit
 
     fun onResignFocus()
 

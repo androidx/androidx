@@ -514,6 +514,7 @@ internal class OverlayInputView(
     private var onHoverEvent: (position: DpOffset, event: UIEvent?, eventKind: TouchesEventKind) -> Unit,
     private var onKeyboardPresses: (Set<*>) -> Unit,
     ignoreTouchChanges: () -> Boolean,
+    private var onRemoveSubview: () -> Unit,
 ) : CMPScrollView(CGRectZero.readValue()) {
     /**
      * Gesture recognizer responsible for processing touches
@@ -576,6 +577,15 @@ internal class OverlayInputView(
         scrollsToTop = false
     }
 
+    override fun willRemoveSubview(subview: UIView) {
+        super.willRemoveSubview(subview)
+
+        // `willRemoveSubview` is called during the deinit operation of UIView.
+        // Employ safe calls to prevent access to `this` reference that has already been invalidated.
+        @Suppress("UNNECESSARY_SAFE_CALL")
+        this?.onRemoveSubview?.invoke()
+    }
+
     override fun canBecomeFirstResponder() = true
 
     override fun canBecomeFocused(): Boolean = false
@@ -588,6 +598,11 @@ internal class OverlayInputView(
     override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
         onKeyboardPresses(presses)
         super.pressesEnded(presses, withEvent)
+    }
+
+    override fun pressesCancelled(presses: Set<*>, withEvent: UIPressesEvent?) {
+        onKeyboardPresses(presses)
+        super.pressesCancelled(presses, withEvent)
     }
 
     private val trackedTouchesOutside: MutableSet<UITouch> = mutableSetOf()
@@ -716,6 +731,7 @@ internal class OverlayInputView(
         onOutsidePointerEvent = {}
         onTouchesEvent = { _, _, _ -> PointerEventResult() }
         onCancelAllTouches = {}
+        onRemoveSubview = {}
         trackedTouchesOutside.clear()
     }
 }
@@ -726,6 +742,7 @@ internal class OverlayInputView(
  * All other user input events should be handled by the [OverlayInputView] or with its help.
  */
 internal class BackgroundInputView(
+    private var onMovedToWindow: () -> Unit,
     private var onLayoutSubviews: () -> Unit,
     private var hitTestInteropView: (point: CValue<CGPoint>) -> UIView?,
     private var isPointInsideInteractionBounds: (CValue<CGPoint>) -> Boolean,
@@ -763,6 +780,9 @@ internal class BackgroundInputView(
     override fun didMoveToWindow() {
         super.didMoveToWindow()
 
+        window?.let {
+            onMovedToWindow()
+        }
         setNeedsLayout()
     }
 
@@ -800,6 +820,7 @@ internal class BackgroundInputView(
         removeGestureRecognizer(touchesGestureRecognizer)
         touchesGestureRecognizer.dispose()
 
+        onMovedToWindow = {}
         hitTestInteropView = { null }
         isPointInsideInteractionBounds = { false }
         onLayoutSubviews = {}

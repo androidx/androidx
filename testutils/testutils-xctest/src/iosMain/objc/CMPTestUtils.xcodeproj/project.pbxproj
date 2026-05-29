@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		999869392D479FAB0096554D /* HIDEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 999869362D479FAB0096554D /* HIDEvent.m */; };
 		9998693A2D479FAB0096554D /* UITouch+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = 999869382D479FAB0096554D /* UITouch+Test.m */; };
+		AB18693A2D479FAB0096554D /* UIPressesEvent+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = AB1869382D479FAB0096554D /* UIPressesEvent+Test.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +31,8 @@
 		999869362D479FAB0096554D /* HIDEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HIDEvent.m; sourceTree = "<group>"; };
 		999869372D479FAB0096554D /* UITouch+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UITouch+Test.h"; sourceTree = "<group>"; };
 		999869382D479FAB0096554D /* UITouch+Test.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UITouch+Test.m"; sourceTree = "<group>"; };
+		AB1869372D479FAB0096554D /* UIPressesEvent+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIPressesEvent+Test.h"; sourceTree = "<group>"; };
+		AB1869382D479FAB0096554D /* UIPressesEvent+Test.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIPressesEvent+Test.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +71,8 @@
 				999869362D479FAB0096554D /* HIDEvent.m */,
 				999869372D479FAB0096554D /* UITouch+Test.h */,
 				999869382D479FAB0096554D /* UITouch+Test.m */,
+				AB1869372D479FAB0096554D /* UIPressesEvent+Test.h */,
+				AB1869382D479FAB0096554D /* UIPressesEvent+Test.m */,
 			);
 			path = CMPTestUtils;
 			sourceTree = "<group>";
@@ -134,6 +139,7 @@
 			files = (
 				999869392D479FAB0096554D /* HIDEvent.m in Sources */,
 				9998693A2D479FAB0096554D /* UITouch+Test.m in Sources */,
+				AB18693A2D479FAB0096554D /* UIPressesEvent+Test.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,7 +272,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -278,7 +284,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

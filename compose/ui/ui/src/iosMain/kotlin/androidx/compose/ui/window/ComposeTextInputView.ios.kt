@@ -113,16 +113,6 @@ internal class ComposeTextInputView(
         input?.endFloatingCursor()
     }
 
-    override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesBegan(presses, withEvent)
-    }
-
-    override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesEnded(presses, withEvent)
-    }
-
     /**
      * A Boolean value that indicates whether the text-entry object has any text.
      * https://developer.apple.com/documentation/uikit/uikeyinput/1614457-hastext

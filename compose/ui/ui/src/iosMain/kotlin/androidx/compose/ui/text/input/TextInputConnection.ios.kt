@@ -51,7 +51,6 @@ internal abstract class TextInputConnection(
     protected val view: UIView,
     protected val coroutineScope: CoroutineScope,
     protected val focusedViewsList: FocusedViewsList?,
-    override var onKeyboardPresses: (Set<*>) -> Unit,
     private var focusManager: () -> ComposeSceneFocusManager?,
 ): TextEditingDelegate {
 

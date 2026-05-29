@@ -44,14 +44,12 @@ internal open class ComposeTextInputConnection(
     coroutineScope: CoroutineScope,
     viewConfiguration: ViewConfiguration,
     focusedViewsList: FocusedViewsList?,
-    onKeyboardPresses: (Set<*>) -> Unit,
     focusManager: () -> ComposeSceneFocusManager?
 ) : TextInputConnection(
     updateView,
     view,
     coroutineScope,
     focusedViewsList,
-    onKeyboardPresses,
     focusManager
 ), TextToolbar {
     // Fixes a problem where the menu is shown before the textInputView gets its final layout.

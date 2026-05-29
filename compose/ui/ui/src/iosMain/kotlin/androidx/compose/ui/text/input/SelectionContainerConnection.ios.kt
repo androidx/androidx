@@ -33,7 +33,6 @@ internal class SelectionContainerConnection(
     coroutineScope,
     viewConfiguration,
     null,
-    {},
     focusManager
 ) {
     override fun stop() {

@@ -53,14 +53,12 @@ internal class NativeTextInputConnection(
     view: UIView,
     coroutineScope: CoroutineScope,
     focusedViewsList: FocusedViewsList?,
-    onKeyboardPresses: (Set<*>) -> Unit,
     focusManager: () -> ComposeSceneFocusManager?
 ) : TextInputConnection(
     updateView,
     view,
     coroutineScope,
     focusedViewsList,
-    onKeyboardPresses,
     focusManager
 ), NativeTextEditingDelegate {
     private val scrollView by lazy { NativeTextInputScrollView() }

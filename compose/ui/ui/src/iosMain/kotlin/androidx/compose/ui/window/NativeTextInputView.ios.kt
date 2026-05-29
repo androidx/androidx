@@ -173,16 +173,6 @@ internal class NativeTextInputView
         input?.endFloatingCursor()
     }
 
-    override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesBegan(presses, withEvent)
-    }
-
-    override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesEnded(presses, withEvent)
-    }
-
     override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
         return if (input == null) {
             null

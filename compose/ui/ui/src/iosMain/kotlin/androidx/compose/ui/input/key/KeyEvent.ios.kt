@@ -24,6 +24,7 @@ import platform.UIKit.UIKeyModifierFlags
 import platform.UIKit.UIKeyModifierShift
 import platform.UIKit.UIPress
 import platform.UIKit.UIPressPhase.UIPressPhaseBegan
+import platform.UIKit.UIPressPhase.UIPressPhaseCancelled
 import platform.UIKit.UIPressPhase.UIPressPhaseEnded
 import platform.UIKit.UIPressTypeDownArrow
 import platform.UIKit.UIPressTypeLeftArrow
@@ -38,7 +39,7 @@ import platform.UIKit.UIPressTypeUpArrow
 internal fun UIPress.toComposeEvent(): KeyEvent {
     val keyEventType = when (phase) {
         UIPressPhaseBegan -> KeyEventType.KeyDown
-        UIPressPhaseEnded -> KeyEventType.KeyUp
+        UIPressPhaseEnded, UIPressPhaseCancelled -> KeyEventType.KeyUp
         else -> KeyEventType.Unknown
     }
 

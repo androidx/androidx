@@ -56,7 +56,7 @@ class ComposeSceneMediatorTest {
         mediator.layoutDirection = LayoutDirection.Rtl
         mediator.compositionLocalContext = null
         mediator.interactionBounds = IntRect.Zero
-        mediator.isAccessibilityEnabled = true
+        mediator.isFocusEnabled = true
         mediator.prepareAndGetSizeTransitionAnimation { onFrame -> onFrame(1.0f) }
         Unit
     }

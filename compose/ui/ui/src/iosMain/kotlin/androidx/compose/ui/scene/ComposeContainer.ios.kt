@@ -261,7 +261,7 @@ internal class ComposeContainer(
         architectureComponentsOwner.navigationEventDispatcher.addInput(navigationEventInput)
         lifecycleDelegate.windowScene = windowScene
         navigationEventInput.onDidMoveToWindow(view.window, view)
-        onAccessibilityChanged()
+        onFocusConditionsChanged()
     }
 
     fun disposeComposeScene() {
@@ -303,14 +303,14 @@ internal class ComposeContainer(
                 val layer = UIKitComposeSceneLayer(
                     onClosed = {
                         layersHolder.getLayersViewController().detach(it)
-                        onAccessibilityChanged()
+                        onFocusConditionsChanged()
                     },
                     createComposeSceneContext = { createComposeSceneContext(it, layersHolder) },
                     hostCompositionLocals = { ProvideContainerCompositionLocals(it) },
                     layersViewController = layersHolder.getLayersViewController(),
                     initialLayoutDirection = layoutDirection,
                     configuration = configuration,
-                    onAccessibilityChanged = ::onAccessibilityChanged,
+                    onFocusConditionsChanged = ::onFocusConditionsChanged,
                     focusedViewsList = if (focusable) focusedViewsList.childFocusedViewsList() else null,
                     consumePointerInputOutside = consumePointerInputOutside,
                     parentCoroutineContext = compositionContext.effectCoroutineContext,
@@ -319,7 +319,7 @@ internal class ComposeContainer(
                 )
 
                 layersHolder.getLayersViewController().attach(layer)
-                onAccessibilityChanged()
+                onFocusConditionsChanged()
 
                 return layer
             }
@@ -346,15 +346,15 @@ internal class ComposeContainer(
      * Enables or disables accessibility for each layer, as well as the root mediator, taking into
      * account layer order and ability to overlay underlying content.
      */
-    private fun onAccessibilityChanged() {
-        var isAccessibilityEnabled = true
+    private fun onFocusConditionsChanged() {
+        var isFocusEnabled = true
         layersHolder?.layersViewController?.withLayers {
             it.fastForEachReversed { layer ->
-                layer.isAccessibilityEnabled = isAccessibilityEnabled
-                isAccessibilityEnabled = isAccessibilityEnabled && !layer.focusable
+                layer.isFocusEnabled = isFocusEnabled
+                isFocusEnabled = isFocusEnabled && !layer.focusable
             }
         }
-        mediator?.isAccessibilityEnabled = isAccessibilityEnabled
+        mediator?.isFocusEnabled = isFocusEnabled
     }
 
     private val containingViewController: UIViewController get() {
