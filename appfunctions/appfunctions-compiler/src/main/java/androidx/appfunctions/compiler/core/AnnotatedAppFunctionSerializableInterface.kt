@@ -38,7 +38,7 @@ class AnnotatedAppFunctionSerializableInterface(override val classDeclaration: K
         return classDeclaration
             .getAllProperties()
             .map {
-                AppFunctionPropertyDeclaration(
+                AppFunctionPropertyDeclaration.create(
                     it,
                     isDescribedByKDoc,
                     // Property from interface is always required as there is no existing API

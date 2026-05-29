@@ -128,7 +128,7 @@ class AppFunctionMetadataCreatorHelper(
      *   interface types. The @AppFunctionSerializableInterface should only be considered as a
      *   supported type when processing schema definitions.
      * @param parameterDescriptionMap a mapping of the function's parameter names to their
-     *   descriptions.
+     *   descriptions from KDoc.
      * @return A list of [AppFunctionParameterMetadata].
      */
     fun buildParameterTypeMetadataList(
@@ -159,12 +159,22 @@ class AppFunctionMetadataCreatorHelper(
                         parameter.annotations,
                     )
 
+            val overrideInstruction =
+                parameter.annotations
+                    .findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+                    ?.requirePropertyValueOfType(
+                        IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                        String::class,
+                    )
+
             add(
                 AppFunctionParameterMetadata(
                     name = checkNotNull(parameter.name).asString(),
                     isRequired = !parameter.isEffectivelyOptional(),
                     dataType = dataTypeMetadata,
-                    description = parameterDescriptionMap[parameter.name?.asString()].orEmpty(),
+                    description =
+                        overrideInstruction
+                            ?: parameterDescriptionMap[parameter.name?.asString()].orEmpty(),
                 )
             )
         }
@@ -584,7 +594,7 @@ class AppFunctionMetadataCreatorHelper(
                             capabilitySuperType
                                 .getDeclaredProperties()
                                 .map {
-                                    AppFunctionPropertyDeclaration(
+                                    AppFunctionPropertyDeclaration.create(
                                         property = it,
                                         isDescribedByKDoc = false,
                                         // Property from interface is always required as there is

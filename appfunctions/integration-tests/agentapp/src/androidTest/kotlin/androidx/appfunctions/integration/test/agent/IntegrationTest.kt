@@ -186,7 +186,7 @@ class IntegrationTest {
                 it.appFunctions
             }
 
-        val aggregatedFunctionCount = 20
+        val aggregatedFunctionCount = 22
         val multiServiceFunctionCount = 6
         if (Build.VERSION.SDK_INT >= 37) {
             assertThat(appFunctions).hasSize(aggregatedFunctionCount + multiServiceFunctionCount)
@@ -267,6 +267,10 @@ class IntegrationTest {
                     "Returns the sum of the given two numbers.",
                 "androidx.appfunctions.integration.testapp.library.TestFunctions2#concat" to
                     "Concatenates the two given strings.",
+                "androidx.appfunctions.integration.testapp.library.TestFunctions2#functionWithInstruction" to
+                    "instruction for function",
+                "androidx.appfunctions.integration.testapp.library.TestFunctions2#functionWithInstructionWithoutKdoc" to
+                    "instruction for function without kdoc",
             )
         val expectedParamDescriptions =
             mapOf(
@@ -274,6 +278,10 @@ class IntegrationTest {
                     listOf("The first number.", "The second number."),
                 "androidx.appfunctions.integration.testapp.library.TestFunctions2#concat" to
                     listOf("The first string.", "The second string."),
+                "androidx.appfunctions.integration.testapp.library.TestFunctions2#functionWithInstruction" to
+                    listOf("instruction for param1", "This arg2 shouldn't be overridden"),
+                "androidx.appfunctions.integration.testapp.library.TestFunctions2#functionWithInstructionWithoutKdoc" to
+                    listOf("instruction for param1 without kdoc", ""),
             )
         val expectedResponseDescriptions =
             mapOf(
@@ -281,6 +289,10 @@ class IntegrationTest {
                     "The sum of the two numbers.",
                 "androidx.appfunctions.integration.testapp.library.TestFunctions2#concat" to
                     "The result of concatenating the two strings.",
+                "androidx.appfunctions.integration.testapp.library.TestFunctions2#functionWithInstruction" to
+                    "instruction for return",
+                "androidx.appfunctions.integration.testapp.library.TestFunctions2#functionWithInstructionWithoutKdoc" to
+                    "instruction for return without kdoc",
             )
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
@@ -314,7 +326,7 @@ class IntegrationTest {
                 "androidx.appfunction.integration.test.sharedschema.SetField<kotlin.String>" to
                     "Example parameterized AppFunctionSerializable.",
                 "androidx.appfunctions.integration.testapp.library.ExampleSerializable" to
-                    "AppFunctionSerializable in non-root library.",
+                    "Instruction for ExampleSerializable.",
                 "androidx.appfunctions.integration.testapp.library.GenericSerializable<kotlin.Int>" to
                     "Example parameterized AppFunctionSerializable in another package.",
             )
@@ -331,7 +343,7 @@ class IntegrationTest {
                 "androidx.appfunction.integration.test.sharedschema.SetField<kotlin.String>" to
                     mapOf("value" to "Value property of SetField."),
                 "androidx.appfunctions.integration.testapp.library.ExampleSerializable" to
-                    mapOf("intProperty" to "Int property of ExampleSerializable."),
+                    mapOf("intProperty" to "Instruction for intProperty."),
                 "androidx.appfunctions.integration.testapp.library.GenericSerializable<kotlin.Int>" to
                     mapOf("value" to "Value property of GenericSerializable."),
             )

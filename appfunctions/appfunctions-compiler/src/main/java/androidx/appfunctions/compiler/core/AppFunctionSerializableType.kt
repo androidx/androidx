@@ -182,7 +182,7 @@ interface AppFunctionSerializableType {
 
         return primaryConstructorProperties.mapNotNull { valueParameter ->
             allProperties[valueParameter.name?.asString()]?.let {
-                AppFunctionPropertyDeclaration(
+                AppFunctionPropertyDeclaration.create(
                     property = it,
                     isDescribedByKDoc = isDescribedByKDoc,
                     isRequired = !valueParameter.hasDefault,

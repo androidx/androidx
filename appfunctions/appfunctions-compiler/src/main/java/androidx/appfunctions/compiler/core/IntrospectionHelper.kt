@@ -43,6 +43,11 @@ object IntrospectionHelper {
         const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKDoc"
     }
 
+    object AppFunctionInstructionAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionInstruction")
+        const val PROPERTY_INSTRUCTION = "instruction"
+    }
+
     object AppFunctionEntryPointAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionEntryPoint")
         const val PROPERTY_SERVICE_NAME = "serviceName"
