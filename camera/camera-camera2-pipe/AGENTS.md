@@ -84,7 +84,7 @@ be done with utmost care, while considering and verifying all CameraPipe and ass
   `:camera:integration-tests:camera-testapp-core`.
 - **Language**: Use Kotlin for all new files. Prefer modern Kotlin idioms for readability.
 - **Formatting**: Format all `.kt` files using `ktfmt` before submitting. Use the following command:
-  `./gradlew :camera:camera-camera2-pipe:ktCheckFile --format --file <file>`
+  `./gradlew :ktCheckFile --format --file <file>`
 - **Public API**: CameraPipe's public APIs are restricted to `LIBRARY_GROUP`, but CameraPipe does
   follow the standard [AndroidX API guidelines](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/).
 - **Git Commits**: Do not make a git commit unless specifically requested. Use `git mv` when moving
