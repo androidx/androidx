@@ -67,6 +67,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.9.0")
 
     compileOnly(libs.androidExtensionsXr)
+
+    // Test dependencies
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":xr:testutils"))
+
+    androidTestUtil(libs.testOrchestrator)
 }
 
 // Making this APK available via Android Build so the QA team can
