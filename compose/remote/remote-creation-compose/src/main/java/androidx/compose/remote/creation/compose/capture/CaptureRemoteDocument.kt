@@ -57,12 +57,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 /**
@@ -287,6 +287,17 @@ public fun captureRemoteDocument(
                     .filter { it == Recomposer.State.Idle }
                     .mapLatest {
                         Snapshot.withMutableSnapshot {
+                            creationState.document =
+                                profile.create(
+                                    creationDisplayInfo.toCreationDisplayInfo(),
+                                    writerEvents,
+                                )
+                            creationState.animCache.clear()
+                            creationState.expressionCache.clear()
+                            creationState.intExpressionCache.clear()
+                            creationState.remoteVariableToId.clear()
+                            creationState.floatArrayCache.clear()
+                            creationState.longArrayCache.clear()
                             val recordingCanvas =
                                 RecordingCanvas(createBitmap(1, 1)).apply {
                                     setRemoteComposeCreationState(creationState)
@@ -303,7 +314,7 @@ public fun captureRemoteDocument(
                             creationState.document.encodeToByteArray()
                         }
                     }
-                    .take(1)
+                    .distinctUntilChanged { old, new -> old.contentEquals(new) }
             emitAll(documentFlow)
         }
     } finally {
