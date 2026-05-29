@@ -67,6 +67,9 @@ public class PdfRect(
     }
 }
 
+/** Maps a [PdfRect] to a [RectF]. */
+internal fun PdfRect.toRectF(): RectF = RectF(left, top, right, bottom)
+
 /** Calculates the center point of a [PdfRect]. */
 internal val PdfRect.centerPoint: PdfPoint
     get() {
