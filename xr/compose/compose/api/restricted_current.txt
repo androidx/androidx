@@ -1495,6 +1495,16 @@ package androidx.xr.compose.subspace.semantics {
     method public static androidx.xr.compose.subspace.layout.SubspaceModifier semantics(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit> properties);
   }
 
+  public final class SubspaceSemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,? extends java.lang.Object?>> kotlin.jvm.internal.markers.KMappedMarker androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver {
+    method public operator <T> boolean contains(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method public operator <T> T get(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method public <T> T getOrElse(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public <T> T? getOrElseNullable(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T?> defaultValue);
+    method public <T> T? getOrNull(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method public java.util.Iterator<java.util.Map.Entry<androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?>> iterator();
+    method public operator <T> void set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value);
+  }
+
   public interface SubspaceSemanticsPropertyReceiver {
     method public operator <T> void set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value);
   }
