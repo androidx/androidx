@@ -107,5 +107,6 @@
         android:label="Native Data"
         android:process=":nativeTest"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <meta-data android:name="com.google.android.ar.API_KEY" android:value="AIzaSyAHi4Mj26DDlgztTGPe_3hiSiXBxkgM4ww"/>
   </application>
 </manifest>
