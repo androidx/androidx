@@ -31,85 +31,60 @@ import kotlin.math.roundToInt
  */
 public interface SpatialAlignment {
     /**
-     * Provides the horizontal offset from the origin of the space to the origin of the content.
-     *
-     * @param width The content width in pixels.
-     * @param space The available space in pixels.
-     * @param layoutDirection LTR or RTL.
-     */
-    public fun horizontalOffset(width: Int, space: Int, layoutDirection: LayoutDirection): Int
-
-    /**
-     * Provides the vertical offset from the origin of the space to the origin of the content.
-     *
-     * @param height The content height in pixels.
-     * @param space The available space in pixels.
-     */
-    public fun verticalOffset(height: Int, space: Int): Int
-
-    /**
-     * Provides the depth offset from the origin of the space to the origin of the content.
-     *
-     * @param depth The content depth in pixels.
-     * @param space The available space in pixels.
-     */
-    public fun depthOffset(depth: Int, space: Int): Int
-
-    /**
      * Provides the origin-based position of the content in the available space.
      *
      * @param size The content size in pixels.
      * @param space The available space in pixels.
      * @param layoutDirection LTR or RTL.
      */
-    public fun position(
+    public fun align(
         size: IntVolumeSize,
         space: IntVolumeSize,
         layoutDirection: LayoutDirection,
     ): Vector3
 
     /**
-     * An interface to calculate the position of a box of a certain width inside an available width.
+     * An interface to calculate the alignment of a box of a certain size inside an available width.
      */
     public interface Horizontal {
         /**
-         * Provides the horizontal offset from the origin of the space to the origin of the content.
+         * Provides the horizontal alignment offset from the origin of the space to the origin of
+         * the content.
          *
-         * @param width The content width in pixels.
+         * @param size The content size in pixels.
          * @param space The available space in pixels.
          * @param layoutDirection LTR or RTL.
-         * @see [SpatialAlignment.horizontalOffset]
          */
-        public fun offset(width: Int, space: Int, layoutDirection: LayoutDirection): Int
+        public fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int
     }
 
     /**
-     * An interface to calculate the position of a box of a certain height inside an available
+     * An interface to calculate the alignment of a box of a certain size inside an available
      * height.
      */
     public interface Vertical {
         /**
-         * Provides the vertical offset from the origin of the space to the origin of the content.
+         * Provides the vertical alignment offset from the origin of the space to the origin of the
+         * content.
          *
-         * @param height The content height in pixels.
+         * @param size The content size in pixels.
          * @param space The available space in pixels.
-         * @see [SpatialAlignment.verticalOffset]
          */
-        public fun offset(height: Int, space: Int): Int
+        public fun align(size: Int, space: Int): Int
     }
 
     /**
-     * An interface to calculate the position of a box of a certain depth inside an available depth.
+     * An interface to calculate the alignment of a box of a certain size inside an available depth.
      */
     public interface Depth {
         /**
-         * Provides the depth offset from the origin of the space to the origin of the content.
+         * Provides the depth alignment offset from the origin of the space to the origin of the
+         * content.
          *
-         * @param depth The content depth in pixels.
+         * @param size The content size in pixels.
          * @param space The available space in pixels.
-         * @see [SpatialAlignment.depthOffset]
          */
-        public fun offset(depth: Int, space: Int): Int
+        public fun align(size: Int, space: Int): Int
     }
 
     public companion object {
@@ -205,22 +180,15 @@ public class SpatialBiasAlignment(
     @param:FloatRange(-1.0, 1.0) public val verticalBias: Float,
     @param:FloatRange(-1.0, 1.0) public val depthBias: Float,
 ) : SpatialAlignment {
-    override fun horizontalOffset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-        offset(horizontalBias, width, space, layoutDirection)
-
-    override fun verticalOffset(height: Int, space: Int): Int = offset(verticalBias, height, space)
-
-    override fun depthOffset(depth: Int, space: Int): Int = offset(depthBias, depth, space)
-
-    override fun position(
+    override fun align(
         size: IntVolumeSize,
         space: IntVolumeSize,
         layoutDirection: LayoutDirection,
     ): Vector3 =
         Vector3(
-            horizontalOffset(size.width, space.width, layoutDirection).toFloat(),
-            verticalOffset(size.height, space.height).toFloat(),
-            depthOffset(size.depth, space.depth).toFloat(),
+            calculateBiasOffset(horizontalBias, size.width, space.width, layoutDirection).toFloat(),
+            calculateBiasOffset(verticalBias, size.height, space.height).toFloat(),
+            calculateBiasOffset(depthBias, size.depth, space.depth).toFloat(),
         )
 
     public fun copy(
@@ -264,8 +232,8 @@ public class SpatialBiasAlignment(
      */
     public class Horizontal(@param:FloatRange(-1.0, 1.0) public val horizontalBias: Float) :
         SpatialAlignment.Horizontal {
-        override fun offset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-            offset(horizontalBias, width, space, layoutDirection)
+        override fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int =
+            calculateBiasOffset(horizontalBias, size, space, layoutDirection)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -295,7 +263,8 @@ public class SpatialBiasAlignment(
      */
     public class Vertical(@param:FloatRange(-1.0, 1.0) public val verticalBias: Float) :
         SpatialAlignment.Vertical {
-        override fun offset(height: Int, space: Int): Int = offset(verticalBias, height, space)
+        override fun align(size: Int, space: Int): Int =
+            calculateBiasOffset(verticalBias, size, space)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -324,7 +293,7 @@ public class SpatialBiasAlignment(
      */
     public class Depth(@param:FloatRange(-1.0, 1.0) public val depthBias: Float) :
         SpatialAlignment.Depth {
-        override fun offset(depth: Int, space: Int): Int = offset(depthBias, depth, space)
+        override fun align(size: Int, space: Int): Int = calculateBiasOffset(depthBias, size, space)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -347,10 +316,10 @@ public class SpatialBiasAlignment(
     }
 
     public companion object {
-        private fun offset(bias: Float, size: Int, space: Int): Int =
+        private fun calculateBiasOffset(bias: Float, size: Int, space: Int): Int =
             ((space - size) / 2.0f * bias).roundToInt()
 
-        private fun offset(
+        private fun calculateBiasOffset(
             bias: Float,
             size: Int,
             space: Int,
@@ -389,22 +358,20 @@ public class SpatialBiasAbsoluteAlignment(
     @param:FloatRange(-1.0, 1.0) public val verticalBias: Float,
     @param:FloatRange(-1.0, 1.0) public val depthBias: Float,
 ) : SpatialAlignment {
-    override fun horizontalOffset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-        offset(this@SpatialBiasAbsoluteAlignment.horizontalBias, width, space)
-
-    override fun verticalOffset(height: Int, space: Int): Int = offset(verticalBias, height, space)
-
-    override fun depthOffset(depth: Int, space: Int): Int = offset(depthBias, depth, space)
-
-    override fun position(
+    override fun align(
         size: IntVolumeSize,
         space: IntVolumeSize,
         layoutDirection: LayoutDirection,
     ): Vector3 =
         Vector3(
-            horizontalOffset(size.width, space.width, layoutDirection).toFloat(),
-            verticalOffset(size.height, space.height).toFloat(),
-            depthOffset(size.depth, space.depth).toFloat(),
+            calculateBiasOffset(
+                    this@SpatialBiasAbsoluteAlignment.horizontalBias,
+                    size.width,
+                    space.width,
+                )
+                .toFloat(),
+            calculateBiasOffset(verticalBias, size.height, space.height).toFloat(),
+            calculateBiasOffset(depthBias, size.depth, space.depth).toFloat(),
         )
 
     public fun copy(
@@ -449,8 +416,8 @@ public class SpatialBiasAbsoluteAlignment(
      */
     public class Horizontal(@param:FloatRange(-1.0, 1.0) public val horizontalBias: Float) :
         SpatialAlignment.Horizontal {
-        override fun offset(width: Int, space: Int, layoutDirection: LayoutDirection): Int =
-            offset(horizontalBias, width, space)
+        override fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int =
+            calculateBiasOffset(horizontalBias, size, space)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -474,7 +441,7 @@ public class SpatialBiasAbsoluteAlignment(
     }
 
     public companion object {
-        private fun offset(bias: Float, size: Int, space: Int): Int =
+        private fun calculateBiasOffset(bias: Float, size: Int, space: Int): Int =
             ((space - size) / 2.0f * bias).roundToInt()
     }
 }
