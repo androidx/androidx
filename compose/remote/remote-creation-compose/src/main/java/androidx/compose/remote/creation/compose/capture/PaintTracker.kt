@@ -18,8 +18,6 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.annotation.SuppressLint
-import android.graphics.Typeface
-import android.os.Build
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.toAndroidCap
@@ -33,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.toArgb
@@ -147,15 +146,15 @@ internal class PaintTracker {
             }
 
         val paintTypeface = newPaint.typeface
-        val targetTypefaceId = getTypefaceId(paintTypeface)
+        val targetTypefaceId = getTypefaceId(paintTypeface, creationState)
         val targetWeight =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                paintTypeface?.weight ?: 0
-            } else {
-                0
+            when (paintTypeface) {
+                RemoteTypeface.DefaultBold -> 700
+                is RemoteTypeface.Named -> paintTypeface.weight
+                else -> 400
             }
-
-        val targetIsItalic = paintTypeface?.isItalic ?: false
+        val targetIsItalic =
+            if (paintTypeface is RemoteTypeface.Named) paintTypeface.isItalic else false
         if (
             force ||
                 typefaceId != targetTypefaceId ||
@@ -268,25 +267,19 @@ internal class PaintTracker {
         }
     }
 
-    private fun getTypefaceId(paintTypeface: Typeface?): Int {
+    private fun getTypefaceId(
+        paintTypeface: RemoteTypeface?,
+        creationState: RemoteComposeCreationState,
+    ): Int {
         return when (paintTypeface) {
             null -> PaintBundle.FONT_TYPE_DEFAULT
-            Typeface.DEFAULT -> PaintBundle.FONT_TYPE_DEFAULT
-            Typeface.DEFAULT_BOLD -> PaintBundle.FONT_TYPE_DEFAULT
-            Typeface.SERIF -> PaintBundle.FONT_TYPE_SERIF
-            Typeface.SANS_SERIF -> PaintBundle.FONT_TYPE_SANS_SERIF
-            Typeface.MONOSPACE -> PaintBundle.FONT_TYPE_MONOSPACE
-            else -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    when (paintTypeface.systemFontFamilyName) {
-                        "serif" -> PaintBundle.FONT_TYPE_SERIF
-                        "sans-serif" -> PaintBundle.FONT_TYPE_SANS_SERIF
-                        "monospace" -> PaintBundle.FONT_TYPE_MONOSPACE
-                        else -> PaintBundle.FONT_TYPE_DEFAULT
-                    }
-                } else {
-                    PaintBundle.FONT_TYPE_DEFAULT
-                }
+            RemoteTypeface.Default -> PaintBundle.FONT_TYPE_DEFAULT
+            RemoteTypeface.DefaultBold -> PaintBundle.FONT_TYPE_DEFAULT
+            RemoteTypeface.Serif -> PaintBundle.FONT_TYPE_SERIF
+            RemoteTypeface.SansSerif -> PaintBundle.FONT_TYPE_SANS_SERIF
+            RemoteTypeface.Monospace -> PaintBundle.FONT_TYPE_MONOSPACE
+            is RemoteTypeface.Named -> {
+                creationState.document.addText(paintTypeface.name)
             }
         }
     }

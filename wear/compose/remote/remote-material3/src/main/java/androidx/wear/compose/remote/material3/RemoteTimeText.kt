@@ -17,7 +17,6 @@
 
 package androidx.wear.compose.remote.material3
 
-import android.graphics.Typeface
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -34,10 +33,12 @@ import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
+import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.toRemoteTypeface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.GenericFontFamily
 
 /**
  * A remote composable for displaying the time and surrounding text, designed to curve along the top
@@ -110,23 +111,10 @@ private fun RemoteDrawScope.drawTimeText(
     val width = width
     val height = height
 
-    val fontTypeface =
-        when (fontFamily) {
-            FontFamily.Default -> Typeface.DEFAULT
-            FontFamily.SansSerif -> Typeface.SANS_SERIF
-            FontFamily.Serif -> Typeface.SERIF
-            FontFamily.Monospace -> Typeface.MONOSPACE
-            else -> {
-                if (fontFamily != null && (fontFamily is GenericFontFamily)) {
-                    Typeface.create(fontFamily.name, Typeface.NORMAL)
-                }
-                null
-            }
-        }
-
     val textPaint = RemotePaint {
         textSize = fontSize
-        typeface = fontTypeface
+        val remoteFontFamily = RemoteFontFamily.fromComposeFontFamily(fontFamily)
+        typeface = remoteFontFamily?.toRemoteTypeface() ?: RemoteTypeface.Default
         color = textColor
     }
 

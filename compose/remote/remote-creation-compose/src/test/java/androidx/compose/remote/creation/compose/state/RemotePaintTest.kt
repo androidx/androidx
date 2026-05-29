@@ -16,6 +16,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -287,7 +288,7 @@ class RemotePaintTest {
         remotePaint.textSize = 22f.rf
         assertThat(compatPaint.textSize).isEqualTo(22f)
 
-        remotePaint.typeface = android.graphics.Typeface.SERIF
+        remotePaint.typeface = RemoteTypeface.Serif
         assertThat(compatPaint.typeface).isEqualTo(android.graphics.Typeface.SERIF)
     }
 }

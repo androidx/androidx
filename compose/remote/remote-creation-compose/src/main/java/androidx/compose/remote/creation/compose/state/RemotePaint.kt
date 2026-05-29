@@ -20,7 +20,6 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.BlendModeColorFilter as AndroidBlendModeColorFilter
 import android.graphics.ColorFilter as AndroidColorFilter
 import android.graphics.Paint as AndroidPaint
-import android.graphics.Typeface
 import android.graphics.fonts.FontVariationAxis
 import android.util.Log
 import androidx.annotation.ColorInt
@@ -34,6 +33,7 @@ import androidx.compose.remote.creation.compose.layout.toPaintingStyle
 import androidx.compose.remote.creation.compose.layout.toStrokeCap
 import androidx.compose.remote.creation.compose.layout.toStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
+import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
@@ -110,8 +110,8 @@ public sealed interface RemotePaint {
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var colorFilter: RemoteColorFilter?
 
-    /** The [Typeface] to use for drawing text. */
-    public var typeface: Typeface?
+    /** The [RemoteTypeface] to use for drawing text. */
+    public var typeface: RemoteTypeface?
 
     /** The [FontVariation.Settings] to use for drawing text. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -143,7 +143,7 @@ public class StandardRemotePaint() : RemotePaint {
     public override var shader: Shader? = null
     public override var pathEffect: PathEffect? = null
     public override var textSize: RemoteFloat = 12f.rf
-    public override var typeface: Typeface? = Typeface.DEFAULT
+    public override var typeface: RemoteTypeface? = RemoteTypeface.Default
     public override var color: RemoteColor = Color.Black.rc
     public override var colorFilter: RemoteColorFilter? = null
     public override var fontVariationSettings: FontVariation.Settings? = null
@@ -346,10 +346,10 @@ public open class CompatAndroidRemotePaint : AndroidPaint, RemotePaintConvertibl
                 this@CompatAndroidRemotePaint.textSize = value.constantValue
             }
 
-        override var typeface: Typeface?
-            get() = this@CompatAndroidRemotePaint.typeface
+        override var typeface: RemoteTypeface?
+            get() = RemoteTypeface.fromAndroidTypeface(this@CompatAndroidRemotePaint.typeface)
             set(value) {
-                this@CompatAndroidRemotePaint.typeface = value
+                this@CompatAndroidRemotePaint.typeface = value?.toAndroidTypeface()
             }
 
         override var fontVariationSettings: FontVariation.Settings?
@@ -472,10 +472,10 @@ public class AndroidRemotePaint(internal val frameworkPaint: android.graphics.Pa
             frameworkPaint.textSize = value.constantValue
         }
 
-    override var typeface: Typeface?
-        get() = frameworkPaint.typeface
+    override var typeface: RemoteTypeface?
+        get() = RemoteTypeface.fromAndroidTypeface(frameworkPaint.typeface)
         set(value) {
-            frameworkPaint.typeface = value
+            frameworkPaint.typeface = value?.toAndroidTypeface()
         }
 
     override var fontVariationSettings: FontVariation.Settings?
@@ -567,10 +567,10 @@ public class ComposeRemotePaint(internal val composePaint: Paint) : RemotePaint 
             composePaint.nativePaint.textSize = value.constantValue
         }
 
-    override var typeface: Typeface?
-        get() = composePaint.nativePaint.typeface
+    override var typeface: RemoteTypeface?
+        get() = RemoteTypeface.fromAndroidTypeface(composePaint.nativePaint.typeface)
         set(value) {
-            composePaint.nativePaint.typeface = value
+            composePaint.nativePaint.typeface = value?.toAndroidTypeface()
         }
 
     override var fontVariationSettings: FontVariation.Settings?
