@@ -69,6 +69,11 @@ public class Schedulers {
                 // (such as periodic work using AlarmManager). This code runs after runWorker()
                 // because it should happen in its own transaction.
 
+                if (workDatabase.workSpecDao().isWorkSpecScheduled(id.getWorkSpecId())) {
+                    // This work has already been rescheduled, and we don't want to cancel it.
+                    return;
+                }
+
                 // Cancel this work in other schedulers. For example, if this work was
                 // handled by GreedyScheduler, we should make sure JobScheduler is informed
                 // that it should remove this job and AlarmManager should remove all related alarms.
