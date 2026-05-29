@@ -1148,6 +1148,7 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                                 else -> null
                             }
                         },
+                    forceVisible = true,
                 ) {
                     // TODO: Should Transition.AnimatedVisibility have an end listener?
                     DisposableEffect(this) {
