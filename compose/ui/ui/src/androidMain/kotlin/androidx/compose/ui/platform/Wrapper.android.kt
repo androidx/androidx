@@ -123,6 +123,7 @@ private class WrappedComposition(val owner: AndroidComposeView, val original: Co
                 } else if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
                     original.setContent {
                         LaunchedEffect(owner) { owner.boundsUpdatesAccessibilityEventLoop() }
+                        LaunchedEffect(owner) { owner.boundsUpdatesContentCaptureEventLoop() }
                         composeViewContext.ProvideCompositionLocals(owner, content)
                     }
                 }
