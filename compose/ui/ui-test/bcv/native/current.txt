@@ -348,6 +348,17 @@ final class androidx.compose.ui.test/SemanticsSelector { // androidx.compose.ui.
     final fun map(kotlin.collections/Iterable<androidx.compose.ui.semantics/SemanticsNode>, kotlin/String): androidx.compose.ui.test/SelectionResult // androidx.compose.ui.test/SemanticsSelector.map|map(kotlin.collections.Iterable<androidx.compose.ui.semantics.SemanticsNode>;kotlin.String){}[0]
 }
 
+final class androidx.compose.ui.test/SwipeInfo { // androidx.compose.ui.test/SwipeInfo|null[0]
+    constructor <init>(androidx.compose.ui.geometry/Offset, androidx.compose.ui.geometry/Offset, kotlin/Float) // androidx.compose.ui.test/SwipeInfo.<init>|<init>(androidx.compose.ui.geometry.Offset;androidx.compose.ui.geometry.Offset;kotlin.Float){}[0]
+
+    final val end // androidx.compose.ui.test/SwipeInfo.end|{}end[0]
+        final fun <get-end>(): androidx.compose.ui.geometry/Offset // androidx.compose.ui.test/SwipeInfo.end.<get-end>|<get-end>(){}[0]
+    final val endVelocity // androidx.compose.ui.test/SwipeInfo.endVelocity|{}endVelocity[0]
+        final fun <get-endVelocity>(): kotlin/Float // androidx.compose.ui.test/SwipeInfo.endVelocity.<get-endVelocity>|<get-endVelocity>(){}[0]
+    final val start // androidx.compose.ui.test/SwipeInfo.start|{}start[0]
+        final fun <get-start>(): androidx.compose.ui.geometry/Offset // androidx.compose.ui.test/SwipeInfo.start.<get-start>|<get-start>(){}[0]
+}
+
 final class androidx.compose.ui.test/TestContext // androidx.compose.ui.test/TestContext|null[0]
 
 final class androidx.compose.ui.test/TestFailurePolicy { // androidx.compose.ui.test/TestFailurePolicy|null[0]
@@ -444,6 +455,7 @@ final val androidx.compose.ui.test/androidx_compose_ui_test_SemanticsNodeInterac
 final val androidx.compose.ui.test/androidx_compose_ui_test_SemanticsNodeInteractionCollection$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_SemanticsNodeInteractionCollection$stableprop|#static{}androidx_compose_ui_test_SemanticsNodeInteractionCollection$stableprop[0]
 final val androidx.compose.ui.test/androidx_compose_ui_test_SemanticsSelector$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_SemanticsSelector$stableprop|#static{}androidx_compose_ui_test_SemanticsSelector$stableprop[0]
 final val androidx.compose.ui.test/androidx_compose_ui_test_StateRestorationTester$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_StateRestorationTester$stableprop|#static{}androidx_compose_ui_test_StateRestorationTester$stableprop[0]
+final val androidx.compose.ui.test/androidx_compose_ui_test_SwipeInfo$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_SwipeInfo$stableprop|#static{}androidx_compose_ui_test_SwipeInfo$stableprop[0]
 final val androidx.compose.ui.test/androidx_compose_ui_test_TestContext$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_TestContext$stableprop|#static{}androidx_compose_ui_test_TestContext$stableprop[0]
 final val androidx.compose.ui.test/androidx_compose_ui_test_TestFailurePolicy$stableprop // androidx.compose.ui.test/androidx_compose_ui_test_TestFailurePolicy$stableprop|#static{}androidx_compose_ui_test_TestFailurePolicy$stableprop[0]
 final val androidx.compose.ui.test/bottom // androidx.compose.ui.test/bottom|@androidx.compose.ui.test.GestureScope{}bottom[0]
@@ -686,6 +698,7 @@ final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.tes
 final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.test/doubleClick(androidx.compose.ui.geometry/Offset = ..., kotlin/Long = ...) // androidx.compose.ui.test/doubleClick|doubleClick@androidx.compose.ui.test.TouchInjectionScope(androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
 final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.test/longClick(androidx.compose.ui.geometry/Offset = ..., kotlin/Long = ...) // androidx.compose.ui.test/longClick|longClick@androidx.compose.ui.test.TouchInjectionScope(androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
 final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.test/multiTouchSwipe(kotlin.collections/List<kotlin/Function1<kotlin/Long, androidx.compose.ui.geometry/Offset>>, kotlin/Long = ..., kotlin.collections/List<kotlin/Long> = ...) // androidx.compose.ui.test/multiTouchSwipe|multiTouchSwipe@androidx.compose.ui.test.TouchInjectionScope(kotlin.collections.List<kotlin.Function1<kotlin.Long,androidx.compose.ui.geometry.Offset>>;kotlin.Long;kotlin.collections.List<kotlin.Long>){}[0]
+final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.test/multiTouchSwipeWithVelocity(kotlin.collections/List<androidx.compose.ui.test/SwipeInfo>, kotlin/Long = ..., androidx.collection/LongList = ...) // androidx.compose.ui.test/multiTouchSwipeWithVelocity|multiTouchSwipeWithVelocity@androidx.compose.ui.test.TouchInjectionScope(kotlin.collections.List<androidx.compose.ui.test.SwipeInfo>;kotlin.Long;androidx.collection.LongList){}[0]
 final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.test/pinch(androidx.compose.ui.geometry/Offset, androidx.compose.ui.geometry/Offset, androidx.compose.ui.geometry/Offset, androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/pinch|pinch@androidx.compose.ui.test.TouchInjectionScope(androidx.compose.ui.geometry.Offset;androidx.compose.ui.geometry.Offset;androidx.compose.ui.geometry.Offset;androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
 final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.test/swipe(androidx.compose.ui.geometry/Offset, androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/swipe|swipe@androidx.compose.ui.test.TouchInjectionScope(androidx.compose.ui.geometry.Offset;androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
 final fun (androidx.compose.ui.test/TouchInjectionScope).androidx.compose.ui.test/swipe(kotlin/Function1<kotlin/Long, androidx.compose.ui.geometry/Offset>, kotlin/Long = ..., kotlin.collections/List<kotlin/Long> = ...) // androidx.compose.ui.test/swipe|swipe@androidx.compose.ui.test.TouchInjectionScope(kotlin.Function1<kotlin.Long,androidx.compose.ui.geometry.Offset>;kotlin.Long;kotlin.collections.List<kotlin.Long>){}[0]
@@ -726,6 +739,7 @@ final fun androidx.compose.ui.test/androidx_compose_ui_test_SemanticsNodeInterac
 final fun androidx.compose.ui.test/androidx_compose_ui_test_SemanticsNodeInteractionCollection$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_SemanticsNodeInteractionCollection$stableprop_getter|androidx_compose_ui_test_SemanticsNodeInteractionCollection$stableprop_getter(){}[0]
 final fun androidx.compose.ui.test/androidx_compose_ui_test_SemanticsSelector$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_SemanticsSelector$stableprop_getter|androidx_compose_ui_test_SemanticsSelector$stableprop_getter(){}[0]
 final fun androidx.compose.ui.test/androidx_compose_ui_test_StateRestorationTester$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_StateRestorationTester$stableprop_getter|androidx_compose_ui_test_StateRestorationTester$stableprop_getter(){}[0]
+final fun androidx.compose.ui.test/androidx_compose_ui_test_SwipeInfo$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_SwipeInfo$stableprop_getter|androidx_compose_ui_test_SwipeInfo$stableprop_getter(){}[0]
 final fun androidx.compose.ui.test/androidx_compose_ui_test_TestContext$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_TestContext$stableprop_getter|androidx_compose_ui_test_TestContext$stableprop_getter(){}[0]
 final fun androidx.compose.ui.test/androidx_compose_ui_test_TestFailurePolicy$stableprop_getter(): kotlin/Int // androidx.compose.ui.test/androidx_compose_ui_test_TestFailurePolicy$stableprop_getter|androidx_compose_ui_test_TestFailurePolicy$stableprop_getter(){}[0]
 final fun androidx.compose.ui.test/hasAnyAncestor(androidx.compose.ui.test/SemanticsMatcher): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/hasAnyAncestor|hasAnyAncestor(androidx.compose.ui.test.SemanticsMatcher){}[0]

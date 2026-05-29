@@ -923,6 +923,17 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public void setContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
   }
 
+  public final class SwipeInfo {
+    ctor @KotlinOnly public SwipeInfo(androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity);
+    ctor @BytecodeOnly public SwipeInfo(long, long, @FloatRange(from=0.0) float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getEnd-F1C5BW0();
+    method @InaccessibleFromKotlin public float getEndVelocity();
+    method @BytecodeOnly public long getStart-F1C5BW0();
+    property public androidx.compose.ui.geometry.Offset end;
+    property public float endVelocity;
+    property public androidx.compose.ui.geometry.Offset start;
+  }
+
   public final class TestContext {
     ctor @BytecodeOnly public TestContext(androidx.compose.ui.test.TestOwner!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
@@ -1041,6 +1052,8 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static void longClick-d-4ec7I$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, int, Object!);
     method public static void multiTouchSwipe(androidx.compose.ui.test.TouchInjectionScope, java.util.List<? extends kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset>> curves, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
     method @BytecodeOnly public static void multiTouchSwipe$default(androidx.compose.ui.test.TouchInjectionScope!, java.util.List!, long, java.util.List!, int, Object!);
+    method public static void multiTouchSwipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope, java.util.List<androidx.compose.ui.test.SwipeInfo> swipes, optional long durationMillis, optional androidx.collection.LongList keyTimes);
+    method @BytecodeOnly public static void multiTouchSwipeWithVelocity$default(androidx.compose.ui.test.TouchInjectionScope!, java.util.List!, long, androidx.collection.LongList!, int, Object!);
     method @KotlinOnly public static void pinch(androidx.compose.ui.test.TouchInjectionScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, optional long durationMillis);
     method @BytecodeOnly public static void pinch-_QUENCA(androidx.compose.ui.test.TouchInjectionScope, long, long, long, long, long);
     method @BytecodeOnly public static void pinch-_QUENCA$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, long, long, long, int, Object!);
@@ -1057,8 +1070,8 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static void swipeRight$default(androidx.compose.ui.test.TouchInjectionScope!, float, float, long, int, Object!);
     method public static void swipeUp(androidx.compose.ui.test.TouchInjectionScope, optional float startY, optional float endY, optional long durationMillis);
     method @BytecodeOnly public static void swipeUp$default(androidx.compose.ui.test.TouchInjectionScope!, float, float, long, int, Object!);
-    method @KotlinOnly public static void swipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, float endVelocity, optional long durationMillis);
-    method @BytecodeOnly public static void swipeWithVelocity-5iVPX68(androidx.compose.ui.test.TouchInjectionScope, long, long, float, long);
+    method @KotlinOnly public static void swipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity, optional long durationMillis);
+    method @BytecodeOnly public static void swipeWithVelocity-5iVPX68(androidx.compose.ui.test.TouchInjectionScope, long, long, @FloatRange(from=0.0) float, long);
     method @BytecodeOnly public static void swipeWithVelocity-5iVPX68$default(androidx.compose.ui.test.TouchInjectionScope!, long, long, float, long, int, Object!);
   }
 
