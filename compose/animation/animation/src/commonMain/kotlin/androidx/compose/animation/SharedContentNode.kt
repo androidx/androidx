@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
@@ -120,6 +121,59 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         get() = requireLayoutCoordinates()
 
     private var isPlaced: Boolean = false
+
+    /**
+     * Temporary variables used to pass data into [recordBlock] without allocating a closure. These
+     * are only non-null during the execution of `layer.record` in [drawContentWithOptionalDebug]
+     * and are reset to null immediately after. Do not use them elsewhere.
+     */
+    private var currentDrawScope: ContentDrawScope? = null
+    private var currentBoundsForDraw: Rect? = null
+
+    // Cache the lambda so it doesn't need to be reallocated multiple times
+    private val recordBlock: DrawScope.() -> Unit = {
+        sharedTransitionDebug {
+            "record layer at size: ${currentBoundsForDraw?.size} for key = ${sharedElement.key}"
+        }
+        currentDrawScope!!.drawContent()
+    }
+
+    private var currentPlaceable: Placeable? = null
+
+    // Cache the lambda so it doesn't need to be reallocated multiple times
+    private val approachPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+        isPlaced = true
+        boundsBeforeDetached = null
+
+        val placeable = currentPlaceable!!
+        val matchState = sharedElement.state
+        if (!sharedElementEntry.isEnabled) {
+            // Early return if the state isn't enabled.
+            placeable.place(0, 0)
+        } else if (matchState.matchIsOrHasBeenConfigured) {
+            val targetData =
+                requireNotNull(matchState.targetData) {
+                    "Match State is configured, but target data is null. State = $matchState"
+                }
+            val currentBounds =
+                requireNotNull(matchState.currentBounds) {
+                    "Match State is configured, but current bounds is null. State = $matchState"
+                }
+            if (sharedElement.scope.isTransitionActive) {
+                approachPlaceMatchInTransition(placeable, targetData, currentBounds)
+            } else {
+                // Match outlives transition. i.e. user didn't remove the not-visible shared
+                // element from
+                // the tree. In this case, the not visible shared element follows the visible
+                // shared
+                // element layout.
+                approachPlaceMatchBeyondTransition(placeable, currentBounds)
+            }
+        } else {
+            // Not matched yet, or active match not configured yet.
+            placeable.place(0, 0)
+        }
+    }
 
     private val rootCoords: LayoutCoordinates
         get() = sharedElement.scope.root
@@ -358,38 +412,8 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
             } else {
                 IntSize(placeable.width, placeable.height)
             }
-        return layout(w, h) {
-            isPlaced = true
-            boundsBeforeDetached = null
-
-            val matchState = sharedElement.state
-            if (!sharedElementEntry.isEnabled) {
-                // Early return if the state isn't enabled.
-                placeable.place(0, 0)
-            } else if (matchState.matchIsOrHasBeenConfigured) {
-                val targetData =
-                    requireNotNull(matchState.targetData) {
-                        "Match State is configured, but target data is null. State = $matchState"
-                    }
-                val currentBounds =
-                    requireNotNull(matchState.currentBounds) {
-                        "Match State is configured, but current bounds is null. State = $matchState"
-                    }
-                if (sharedElement.scope.isTransitionActive) {
-                    approachPlaceMatchInTransition(placeable, targetData, currentBounds)
-                } else {
-                    // Match outlives transition. i.e. user didn't remove the not-visible shared
-                    // element from
-                    // the tree. In this case, the not visible shared element follows the visible
-                    // shared
-                    // element layout.
-                    approachPlaceMatchBeyondTransition(placeable, currentBounds)
-                }
-            } else {
-                // Not matched yet, or active match not configured yet.
-                placeable.place(0, 0)
-            }
-        }
+        currentPlaceable = placeable
+        return layout(w, h, placementBlock = approachPlacementBlock)
     }
 
     override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
@@ -484,12 +508,11 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         if (visualDebugConfig != null && visualDebugConfig.isEnabled) {
             drawContentWithLookaheadAnimationDebug(layer, bounds, visualDebugConfig)
         } else if (layer != null) {
-            layer.record {
-                sharedTransitionDebug {
-                    "record layer at size: ${bounds?.size} for key = ${sharedElement.key}"
-                }
-                this@drawContentWithOptionalDebug.drawContent()
-            }
+            currentDrawScope = this
+            currentBoundsForDraw = bounds
+            layer.record(block = recordBlock)
+            currentDrawScope = null
+            currentBoundsForDraw = null
         } else {
             drawContent()
         }
