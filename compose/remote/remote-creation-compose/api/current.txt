@@ -872,7 +872,7 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getStrokeWidth();
     method @BytecodeOnly public int getStyle-TiuSbCo();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTextSize();
-    method @InaccessibleFromKotlin public android.graphics.Typeface? getTypeface();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTypeface? getTypeface();
     method @BytecodeOnly public void setBlendMode-s9anfk8(int);
     method @InaccessibleFromKotlin public void setColor(androidx.compose.remote.creation.compose.state.RemoteColor);
     method @BytecodeOnly public void setStrokeCap-BeK7IIE(int);
@@ -880,7 +880,7 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public void setStrokeWidth(androidx.compose.remote.creation.compose.state.RemoteFloat);
     method @BytecodeOnly public void setStyle-k9PVt8s(int);
     method @InaccessibleFromKotlin public void setTextSize(androidx.compose.remote.creation.compose.state.RemoteFloat);
-    method @InaccessibleFromKotlin public void setTypeface(android.graphics.Typeface?);
+    method @InaccessibleFromKotlin public void setTypeface(androidx.compose.remote.creation.compose.text.RemoteTypeface?);
     property public abstract androidx.compose.ui.graphics.BlendMode blendMode;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteColor color;
     property public abstract androidx.compose.ui.graphics.StrokeCap strokeCap;
@@ -888,7 +888,7 @@ package androidx.compose.remote.creation.compose.state {
     property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat strokeWidth;
     property public abstract androidx.compose.ui.graphics.PaintingStyle style;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat textSize;
-    property public abstract android.graphics.Typeface? typeface;
+    property public abstract androidx.compose.remote.creation.compose.text.RemoteTypeface? typeface;
     field public static final androidx.compose.remote.creation.compose.state.RemotePaint.Companion Companion;
   }
 
@@ -996,6 +996,10 @@ package androidx.compose.remote.creation.compose.text {
     field public static final androidx.compose.remote.creation.compose.text.RemoteFontFamily.Serif INSTANCE;
   }
 
+  public final class RemoteFontFamilyKt {
+    method public static androidx.compose.remote.creation.compose.text.RemoteTypeface toRemoteTypeface(androidx.compose.remote.creation.compose.text.RemoteFontFamily);
+  }
+
   public final class RemoteTextStyle {
     ctor @BytecodeOnly public RemoteTextStyle(androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.remote.creation.compose.text.RemoteFontFamily!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.ui.text.style.TextAlign!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.ui.text.style.TextDecoration!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.compose.remote.creation.compose.text.RemoteTextStyle copy(optional androidx.compose.remote.creation.compose.state.RemoteColor? color, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.remote.creation.compose.text.RemoteFontFamily? fontFamily, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? letterSpacing, optional androidx.compose.remote.creation.compose.state.RemoteColor? background, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? lineHeight, optional androidx.compose.ui.text.style.TextDecoration? textDecoration);
@@ -1036,6 +1040,73 @@ package androidx.compose.remote.creation.compose.text {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteBoolean is24HourFormat();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteBoolean is24HourFormat(androidx.compose.runtime.Composer?, int);
     field public static final androidx.compose.remote.creation.compose.text.RemoteTimeDefaults INSTANCE;
+  }
+
+  public sealed exhaustive interface RemoteTypeface {
+    method @InaccessibleFromKotlin public String getName();
+    method public android.graphics.Typeface toAndroidTypeface();
+    property public abstract String name;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion Companion;
+  }
+
+  public static final class RemoteTypeface.Companion {
+    method public androidx.compose.remote.creation.compose.text.RemoteTypeface create(String? fontName, optional androidx.compose.remote.creation.compose.text.RemoteTypeface.Style style);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteTypeface! create$default(androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion!, String!, androidx.compose.remote.creation.compose.text.RemoteTypeface.Style!, int, Object!);
+    method public androidx.compose.remote.creation.compose.text.RemoteTypeface fromAndroidTypeface(android.graphics.Typeface? typeface);
+  }
+
+  public static final class RemoteTypeface.Default implements androidx.compose.remote.creation.compose.text.RemoteTypeface {
+    method @InaccessibleFromKotlin public String getName();
+    method public android.graphics.Typeface toAndroidTypeface();
+    property public String name;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Default INSTANCE;
+  }
+
+  public static final class RemoteTypeface.DefaultBold implements androidx.compose.remote.creation.compose.text.RemoteTypeface {
+    method @InaccessibleFromKotlin public String getName();
+    method public android.graphics.Typeface toAndroidTypeface();
+    property public String name;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.DefaultBold INSTANCE;
+  }
+
+  public static final class RemoteTypeface.Monospace implements androidx.compose.remote.creation.compose.text.RemoteTypeface {
+    method @InaccessibleFromKotlin public String getName();
+    method public android.graphics.Typeface toAndroidTypeface();
+    property public String name;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Monospace INSTANCE;
+  }
+
+  public static final class RemoteTypeface.Named implements androidx.compose.remote.creation.compose.text.RemoteTypeface {
+    ctor public RemoteTypeface.Named(String fontName, optional int weight, optional boolean isItalic);
+    ctor @BytecodeOnly public RemoteTypeface.Named(String!, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public int getWeight();
+    method @InaccessibleFromKotlin public boolean isItalic();
+    method public android.graphics.Typeface toAndroidTypeface();
+    property public boolean isItalic;
+    property public String name;
+    property public int weight;
+  }
+
+  public static final class RemoteTypeface.SansSerif implements androidx.compose.remote.creation.compose.text.RemoteTypeface {
+    method @InaccessibleFromKotlin public String getName();
+    method public android.graphics.Typeface toAndroidTypeface();
+    property public String name;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.SansSerif INSTANCE;
+  }
+
+  public static final class RemoteTypeface.Serif implements androidx.compose.remote.creation.compose.text.RemoteTypeface {
+    method @InaccessibleFromKotlin public String getName();
+    method public android.graphics.Typeface toAndroidTypeface();
+    property public String name;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Serif INSTANCE;
+  }
+
+  public enum RemoteTypeface.Style {
+    enum_constant public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Style Bold;
+    enum_constant public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Style BoldItalic;
+    enum_constant public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Style Italic;
+    enum_constant public static final androidx.compose.remote.creation.compose.text.RemoteTypeface.Style Normal;
   }
 
 }

@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.layout
 
 import android.content.Context
-import android.graphics.Typeface
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -28,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.vector.Builder
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
@@ -70,21 +70,18 @@ class RemoteCanvasScreenshotTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val paintNull = RemotePaint {
-                // TODO(/b502907551) - switch to a RemoteTypeface
-                typeface = Typeface.create("roboto-flex", Typeface.NORMAL)
+                typeface = RemoteTypeface.Named("RobotoFlex")
                 color = Color.White.rc
                 textSize = 30f.rf
             }
             val paintW100 = RemotePaint {
-                // TODO(/b502907551) - switch to a RemoteTypeface
-                typeface = Typeface.create("roboto-flex", Typeface.NORMAL)
+                typeface = RemoteTypeface.Named("RobotoFlex")
                 color = Color.White.rc
                 textSize = 30f.rf
                 fontVariationSettings = FontVariation.Settings(FontVariation.weight(100))
             }
             val paintW900 = RemotePaint {
-                // TODO(/b502907551) - switch to a RemoteTypeface
-                typeface = Typeface.create("roboto-flex", Typeface.NORMAL)
+                typeface = RemoteTypeface.Named("RobotoFlex")
                 color = Color.White.rc
                 textSize = 30f.rf
                 fontVariationSettings = FontVariation.Settings(FontVariation.weight(900))
@@ -96,6 +93,52 @@ class RemoteCanvasScreenshotTest {
                 drawText(text, 10f.rf, 40f.rf, paintNull)
                 drawText(text, 10f.rf, 90f.rf, paintW100)
                 drawText(text, 10f.rf, 140f.rf, paintW900)
+            }
+        }
+    }
+
+    @Test
+    fun remoteCanvas_drawText_typefaceStyles() {
+        val width = 300
+        val height = 250
+        remoteComposeTestRule.runScreenshotTest(
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    width,
+                    height,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
+            playComposableWrapper = ComposableWrappers.blackBackground,
+        ) {
+            val paintNormal = RemotePaint {
+                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Normal)
+                color = Color.White.rc
+                textSize = 30f.rf
+            }
+            val paintBold = RemotePaint {
+                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Bold)
+                color = Color.White.rc
+                textSize = 30f.rf
+            }
+            val paintItalic = RemotePaint {
+                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Italic)
+                color = Color.White.rc
+                textSize = 30f.rf
+            }
+            val paintBoldItalic = RemotePaint {
+                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.BoldItalic)
+                color = Color.White.rc
+                textSize = 30f.rf
+            }
+
+            val text = "Hello Style!".rs
+
+            RemoteCanvas(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
+                drawText(text, 10f.rf, 40f.rf, paintNormal)
+                drawText(text, 10f.rf, 90f.rf, paintBold)
+                drawText(text, 10f.rf, 140f.rf, paintItalic)
+                drawText(text, 10f.rf, 190f.rf, paintBoldItalic)
             }
         }
     }

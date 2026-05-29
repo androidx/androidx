@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Typeface
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
@@ -28,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -192,7 +192,7 @@ class PaintTrackerTest {
 
     @Test
     fun testTypefaceSync() {
-        val paint = RemotePaint { typeface = Typeface.MONOSPACE }
+        val paint = RemotePaint { typeface = RemoteTypeface.Monospace }
         val bundle = PaintBundle()
         tracker.updateWithPaint(paint, bundle, recordingCanvas)
 
@@ -200,6 +200,25 @@ class PaintTrackerTest {
         bundle.applyPaintChange(paintContext, changes)
 
         assertThat(changes.mFontType).isEqualTo(3) // FONT_TYPE_MONOSPACE
+    }
+
+    @Test
+    fun testNamedTypefaceSync() {
+        val paint = RemotePaint {
+            typeface = RemoteTypeface.Named("RobotoFlex", weight = 700, isItalic = true)
+        }
+        val bundle = PaintBundle()
+        val typefaceId = creationState.document.addText("RobotoFlex")
+        remoteContext.loadText(typefaceId, "RobotoFlex")
+
+        tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.mFontString).isEqualTo("RobotoFlex")
+        assertThat(changes.mWeight).isEqualTo(700)
+        assertThat(changes.mItalic).isTrue()
     }
 
     @Test
@@ -331,6 +350,9 @@ class PaintTrackerTest {
         var mFontAxisTags: Array<out String>? = null
         var mFontAxisValues: FloatArray? = null
         var fontVariationAxesSet = false
+        var mFontString: String? = null
+        var mWeight: Int = -1
+        var mItalic: Boolean = false
 
         override fun setColor(color: Int) {
             this.mColor = color
@@ -365,11 +387,17 @@ class PaintTrackerTest {
 
         override fun setTypeFace(fontType: Int, weight: Int, italic: Boolean) {
             this.mFontType = fontType
+            this.mWeight = weight
+            this.mItalic = italic
         }
 
         override fun setTextSize(size: Float) {}
 
-        override fun setTypeFace(fontString: String, weight: Int, italic: Boolean) {}
+        override fun setTypeFace(fontString: String, weight: Int, italic: Boolean) {
+            this.mFontString = fontString
+            this.mWeight = weight
+            this.mItalic = italic
+        }
 
         override fun setFallbackTypeFace(fontType: Int, weight: Int, italic: Boolean) {}
 

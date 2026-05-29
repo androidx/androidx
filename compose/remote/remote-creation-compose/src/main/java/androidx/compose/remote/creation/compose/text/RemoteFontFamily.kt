@@ -74,3 +74,17 @@ public sealed class RemoteFontFamily(public val name: String, private val fontFa
         }
     }
 }
+
+/** Converts this [RemoteFontFamily] into a [RemoteTypeface]. */
+public fun RemoteFontFamily.toRemoteTypeface(): RemoteTypeface {
+    return when (this) {
+        RemoteFontFamily.Default -> RemoteTypeface.Default
+        RemoteFontFamily.SansSerif -> RemoteTypeface.SansSerif
+        RemoteFontFamily.Serif -> RemoteTypeface.Serif
+        RemoteFontFamily.Monospace -> RemoteTypeface.Monospace
+        RemoteFontFamily.Cursive -> RemoteTypeface.Named("cursive", weight = 400, isItalic = false)
+        is RemoteFontFamily.Named -> {
+            RemoteTypeface.Named(name, weight = 400, isItalic = false)
+        }
+    }
+}
