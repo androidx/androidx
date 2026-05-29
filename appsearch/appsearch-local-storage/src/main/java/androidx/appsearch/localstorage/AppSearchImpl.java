@@ -465,16 +465,6 @@ public final class AppSearchImpl implements Closeable {
                             .addGetVmLatencyMillis(initializeResultProto.getGetVmLatencyMs());
                     AppSearchLoggerHelper.copyNativeStats(
                             initializeResultProto.getInitializeStats(), initStatsBuilder);
-                    if (isVmEnabled()) {
-                        // TODO(b/415387509): Add an actual atom field to capture this value.
-                        // Hack to propagate the failure cause early
-                        // Store value in IcuDataStatus because that field doesn't matter in
-                        // platform. Add 100 to separate from the range of possible values that
-                        // would otherwise be set in this field.
-                        initStatsBuilder.setNativeInitializeIcuDataStatusCode(
-                                100 + initializeResultProto.getInitializeStats()
-                                        .getFailureStage().getNumber());
-                    }
                 }
                 checkSuccess(initializeResultProto.getStatus());
                 if (hasDatabaseStateChangedAfterInit(initializeResultProto)) {
