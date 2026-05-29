@@ -982,7 +982,7 @@ package androidx.xr.compose.subspace.layout {
   }
 
   public interface SpatialAlignment {
-    method public int depthOffset(int depth, int space);
+    method public androidx.xr.runtime.math.Vector3 align(androidx.xr.compose.unit.IntVolumeSize size, androidx.xr.compose.unit.IntVolumeSize space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SpatialAlignment.Depth getBack();
     method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SpatialAlignment.Vertical getBottom();
     method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SpatialAlignment getBottomCenter();
@@ -1001,9 +1001,6 @@ package androidx.xr.compose.subspace.layout {
     method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SpatialAlignment getTopCenter();
     method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SpatialAlignment getTopEnd();
     method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SpatialAlignment getTopStart();
-    method public int horizontalOffset(int width, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public androidx.xr.runtime.math.Vector3 position(androidx.xr.compose.unit.IntVolumeSize size, androidx.xr.compose.unit.IntVolumeSize space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int verticalOffset(int height, int space);
     field public static final androidx.xr.compose.subspace.layout.SpatialAlignment.Companion Companion;
   }
 
@@ -1047,15 +1044,15 @@ package androidx.xr.compose.subspace.layout {
   }
 
   public static interface SpatialAlignment.Depth {
-    method public int offset(int depth, int space);
+    method public int align(int size, int space);
   }
 
   public static interface SpatialAlignment.Horizontal {
-    method public int offset(int width, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public int align(int size, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
   }
 
   public static interface SpatialAlignment.Vertical {
-    method public int offset(int height, int space);
+    method public int align(int size, int space);
   }
 
   public final class SpatialArrangement {
@@ -1123,15 +1120,12 @@ package androidx.xr.compose.subspace.layout {
 
   public final class SpatialBiasAbsoluteAlignment implements androidx.xr.compose.subspace.layout.SpatialAlignment {
     ctor public SpatialBiasAbsoluteAlignment(@FloatRange(from=-1.0, to=1.0) float horizontalBias, @FloatRange(from=-1.0, to=1.0) float verticalBias, @FloatRange(from=-1.0, to=1.0) float depthBias);
+    method public androidx.xr.runtime.math.Vector3 align(androidx.xr.compose.unit.IntVolumeSize size, androidx.xr.compose.unit.IntVolumeSize space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment copy(optional float horizontalBias, optional float verticalBias, optional float depthBias);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment! copy$default(androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment!, float, float, float, int, Object!);
-    method public int depthOffset(int depth, int space);
     method @InaccessibleFromKotlin public float getDepthBias();
     method @InaccessibleFromKotlin public float getHorizontalBias();
     method @InaccessibleFromKotlin public float getVerticalBias();
-    method public int horizontalOffset(int width, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public androidx.xr.runtime.math.Vector3 position(androidx.xr.compose.unit.IntVolumeSize size, androidx.xr.compose.unit.IntVolumeSize space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int verticalOffset(int height, int space);
     property public float depthBias;
     property public float horizontalBias;
     property public float verticalBias;
@@ -1143,24 +1137,21 @@ package androidx.xr.compose.subspace.layout {
 
   public static final class SpatialBiasAbsoluteAlignment.Horizontal implements androidx.xr.compose.subspace.layout.SpatialAlignment.Horizontal {
     ctor public SpatialBiasAbsoluteAlignment.Horizontal(@FloatRange(from=-1.0, to=1.0) float horizontalBias);
+    method public int align(int size, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment.Horizontal copy(optional float bias);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment.Horizontal! copy$default(androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment.Horizontal!, float, int, Object!);
     method @InaccessibleFromKotlin public float getHorizontalBias();
-    method public int offset(int width, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     property public float horizontalBias;
   }
 
   public final class SpatialBiasAlignment implements androidx.xr.compose.subspace.layout.SpatialAlignment {
     ctor public SpatialBiasAlignment(@FloatRange(from=-1.0, to=1.0) float horizontalBias, @FloatRange(from=-1.0, to=1.0) float verticalBias, @FloatRange(from=-1.0, to=1.0) float depthBias);
+    method public androidx.xr.runtime.math.Vector3 align(androidx.xr.compose.unit.IntVolumeSize size, androidx.xr.compose.unit.IntVolumeSize space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public androidx.xr.compose.subspace.layout.SpatialBiasAlignment copy(optional float horizontalBias, optional float verticalBias, optional float depthBias);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialBiasAlignment! copy$default(androidx.xr.compose.subspace.layout.SpatialBiasAlignment!, float, float, float, int, Object!);
-    method public int depthOffset(int depth, int space);
     method @InaccessibleFromKotlin public float getDepthBias();
     method @InaccessibleFromKotlin public float getHorizontalBias();
     method @InaccessibleFromKotlin public float getVerticalBias();
-    method public int horizontalOffset(int width, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public androidx.xr.runtime.math.Vector3 position(androidx.xr.compose.unit.IntVolumeSize size, androidx.xr.compose.unit.IntVolumeSize space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public int verticalOffset(int height, int space);
     property public float depthBias;
     property public float horizontalBias;
     property public float verticalBias;
@@ -1172,28 +1163,28 @@ package androidx.xr.compose.subspace.layout {
 
   public static final class SpatialBiasAlignment.Depth implements androidx.xr.compose.subspace.layout.SpatialAlignment.Depth {
     ctor public SpatialBiasAlignment.Depth(@FloatRange(from=-1.0, to=1.0) float depthBias);
+    method public int align(int size, int space);
     method public androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Depth copy(optional float bias);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Depth! copy$default(androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Depth!, float, int, Object!);
     method @InaccessibleFromKotlin public float getDepthBias();
-    method public int offset(int depth, int space);
     property public float depthBias;
   }
 
   public static final class SpatialBiasAlignment.Horizontal implements androidx.xr.compose.subspace.layout.SpatialAlignment.Horizontal {
     ctor public SpatialBiasAlignment.Horizontal(@FloatRange(from=-1.0, to=1.0) float horizontalBias);
+    method public int align(int size, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Horizontal copy(optional float bias);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Horizontal! copy$default(androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Horizontal!, float, int, Object!);
     method @InaccessibleFromKotlin public float getHorizontalBias();
-    method public int offset(int width, int space, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     property public float horizontalBias;
   }
 
   public static final class SpatialBiasAlignment.Vertical implements androidx.xr.compose.subspace.layout.SpatialAlignment.Vertical {
     ctor public SpatialBiasAlignment.Vertical(@FloatRange(from=-1.0, to=1.0) float verticalBias);
+    method public int align(int size, int space);
     method public androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Vertical copy(optional float bias);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Vertical! copy$default(androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Vertical!, float, int, Object!);
     method @InaccessibleFromKotlin public float getVerticalBias();
-    method public int offset(int height, int space);
     property public float verticalBias;
   }
 

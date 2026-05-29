@@ -376,8 +376,8 @@ public object SpatialArrangement {
             occupied,
             totalSize,
             layoutDirection ->
-            SpatialAlignment.CenterHorizontally.offset(
-                width = occupied,
+            SpatialAlignment.CenterHorizontally.align(
+                size = occupied,
                 space = totalSize,
                 layoutDirection = layoutDirection,
             )
@@ -395,8 +395,8 @@ public object SpatialArrangement {
             occupied,
             totalSize,
             layoutDirection ->
-            spatialAlignment.offset(
-                width = occupied,
+            spatialAlignment.align(
+                size = occupied,
                 space = totalSize,
                 layoutDirection = layoutDirection,
             )
@@ -414,7 +414,7 @@ public object SpatialArrangement {
             occupied,
             totalSize,
             _ ->
-            spatialAlignment.offset(height = occupied, space = totalSize)
+            spatialAlignment.align(size = occupied, space = totalSize)
         }
 
     /**
@@ -428,8 +428,8 @@ public object SpatialArrangement {
             occupied,
             totalSize,
             layoutDirection ->
-            spatialAlignment.offset(
-                width = occupied,
+            spatialAlignment.align(
+                size = occupied,
                 space = totalSize,
                 layoutDirection = layoutDirection,
             )
@@ -444,7 +444,7 @@ public object SpatialArrangement {
     public fun aligned(spatialAlignment: SpatialAlignment.Vertical): Vertical =
         SpacedAligned(space = 0.dp, rtlMirror = false, axisMultiplier = -1) { occupied, totalSize, _
             ->
-            spatialAlignment.offset(height = occupied, space = totalSize)
+            spatialAlignment.align(size = occupied, space = totalSize)
         }
 
     /** Used to specify arrangement which doesn't change with layout direction. */
@@ -602,8 +602,8 @@ public object SpatialArrangement {
                 occupied,
                 totalSize,
                 layoutDirection ->
-                spatialAlignment.offset(
-                    width = occupied,
+                spatialAlignment.align(
+                    size = occupied,
                     space = totalSize,
                     layoutDirection = layoutDirection,
                 )
@@ -622,7 +622,7 @@ public object SpatialArrangement {
                 occupied,
                 totalSize,
                 layoutDirection ->
-                spatialAlignment.offset(width = occupied, space = totalSize, layoutDirection)
+                spatialAlignment.align(size = occupied, space = totalSize, layoutDirection)
             }
         }
     }

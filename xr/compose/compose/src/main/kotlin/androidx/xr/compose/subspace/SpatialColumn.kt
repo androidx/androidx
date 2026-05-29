@@ -213,11 +213,14 @@ internal class SpatialColumnMeasurePolicy(
         containerSize: IntVolumeSize,
         layoutDirection: LayoutDirection,
     ): Int {
-        // Each child will have its main-axis offset adjusted, based on extra space available and
-        // the provided alignment. `mainAxisOffset` represents the top edge of the content in the
-        // container space.
-        return (alignment.verticalOffset(contentSize.height, containerSize.height) +
-                containerSize.height / 2.0)
+        return (alignment
+                .align(
+                    size = IntVolumeSize(0, contentSize.height, 0),
+                    space = IntVolumeSize(0, containerSize.height, 0),
+                    layoutDirection = layoutDirection,
+                )
+                .y
+                .toInt() + containerSize.height / 2.0)
             .fastRoundToInt()
     }
 

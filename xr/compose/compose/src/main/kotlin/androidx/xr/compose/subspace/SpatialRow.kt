@@ -214,14 +214,14 @@ internal class SpatialRowMeasurePolicy(
         containerSize: IntVolumeSize,
         layoutDirection: LayoutDirection,
     ): Int {
-        // Each child will have its main-axis offset adjusted, based on extra space available and
-        // the provided alignment. `mainAxisOffset` represents the left edge of the content
-        // in the container space.
-        return (alignment.horizontalOffset(
-                contentSize.width,
-                containerSize.width,
-                layoutDirection,
-            ) - containerSize.width / 2.0)
+        return (alignment
+                .align(
+                    size = IntVolumeSize(contentSize.width, 0, 0),
+                    space = IntVolumeSize(containerSize.width, 0, 0),
+                    layoutDirection = layoutDirection,
+                )
+                .x
+                .toInt() - containerSize.width / 2.0)
             .fastRoundToInt()
     }
 

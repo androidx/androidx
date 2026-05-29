@@ -507,24 +507,33 @@ internal class ResolvedMeasurable(val measurable: SubspaceMeasurable) {
         parentSpatialAlignment: SpatialAlignment,
         layoutDirection: LayoutDirection,
     ): Int =
-        alignment.horizontalSpatialAlignment?.offset(width, space, layoutDirection)
-            ?: parentSpatialAlignment.horizontalOffset(width, space, layoutDirection)
+        alignment.horizontalSpatialAlignment?.align(width, space, layoutDirection)
+            ?: parentSpatialAlignment
+                .align(IntVolumeSize(width, 0, 0), IntVolumeSize(space, 0, 0), layoutDirection)
+                .x
+                .toInt()
 
     /**
      * Calculates the vertical offset, considering local alignment override or falling back to
      * parent alignment.
      */
     fun verticalOffset(height: Int, space: Int, parentSpatialAlignment: SpatialAlignment): Int =
-        alignment.verticalSpatialAlignment?.offset(height, space)
-            ?: parentSpatialAlignment.verticalOffset(height, space)
+        alignment.verticalSpatialAlignment?.align(height, space)
+            ?: parentSpatialAlignment
+                .align(IntVolumeSize(0, height, 0), IntVolumeSize(0, space, 0), LayoutDirection.Ltr)
+                .y
+                .toInt()
 
     /**
      * Calculates the depth offset, considering local alignment override or falling back to parent
      * alignment.
      */
     fun depthOffset(depth: Int, space: Int, parentSpatialAlignment: SpatialAlignment): Int =
-        alignment.depthSpatialAlignment?.offset(depth, space)
-            ?: parentSpatialAlignment.depthOffset(depth, space)
+        alignment.depthSpatialAlignment?.align(depth, space)
+            ?: parentSpatialAlignment
+                .align(IntVolumeSize(0, 0, depth), IntVolumeSize(0, 0, space), LayoutDirection.Ltr)
+                .z
+                .toInt()
 
     override fun toString(): String {
         return measurable.toString()

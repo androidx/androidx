@@ -164,7 +164,7 @@ internal class SpatialBoxMeasurePolicy(
                 val childSpatialAlignment =
                     SpatialBoxParentData(alignment).also { measurable.adjustParams(it) }.alignment
                 placeable.place(
-                    Pose(childSpatialAlignment.position(placeable.size(), space, layoutDirection))
+                    Pose(childSpatialAlignment.align(placeable.size(), space, layoutDirection))
                 )
             }
         }
