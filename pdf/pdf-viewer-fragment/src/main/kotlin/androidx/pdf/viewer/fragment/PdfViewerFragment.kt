@@ -58,6 +58,7 @@ import androidx.pdf.content.ExternalLink
 import androidx.pdf.event.PdfTrackingEvent
 import androidx.pdf.event.RequestFailureEvent
 import androidx.pdf.models.FormEditInfo
+import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.selection.Selection
 import androidx.pdf.util.AnnotationUtils
 import androidx.pdf.util.Uris
@@ -273,6 +274,19 @@ public open class PdfViewerFragment constructor() : Fragment() {
      *   [androidx.pdf.viewer.fragment.PdfViewerFragment].
      */
     @ExperimentalPdfApi public open fun onPdfViewCreated(pdfView: PdfView) {}
+
+    /**
+     * Sets the [OcrProvider] used for recognizing text in image-based PDF content.
+     *
+     * @param ocrProvider the [OcrProvider] to use for text recognition
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun setOcrProvider(ocrProvider: OcrProvider?) {
+        documentViewModel.ocrProvider = ocrProvider
+        if (::_pdfView.isInitialized) {
+            _pdfView.setOcrProvider(ocrProvider)
+        }
+    }
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     protected open val documentViewModel: PdfDocumentViewModel by viewModels {
@@ -582,6 +596,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
         _pdfView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             toolboxGestureEventProcessor.processEvent(ScrollTo(scrollY))
         }
+        _pdfView.setOcrProvider(documentViewModel.ocrProvider)
         _pdfView.requestFailedListener =
             object : PdfView.EventListener {
                 override fun onEvent(event: PdfTrackingEvent) {
