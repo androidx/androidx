@@ -77,6 +77,11 @@
             android:exported="true"
             android:label="Camera Activity">
         </activity>
+        <activity
+            android:name="androidx.xr.projected.testapp.battery.BatteryActivity"
+            android:exported="true"
+            android:label="Battery Activity">
+        </activity>
     </application>
 
     <uses-feature android:name="android.hardware.camera" />
