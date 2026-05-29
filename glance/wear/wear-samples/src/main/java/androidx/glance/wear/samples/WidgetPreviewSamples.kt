@@ -16,14 +16,13 @@
 
 package androidx.glance.wear.samples
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,8 +36,8 @@ import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.tooling.preview.SquircleAllWidgetPreviewParams
 import androidx.glance.wear.tooling.preview.WearWidgetPreview
+import androidx.wear.compose.remote.material3.RemoteText
 
-@SuppressLint("RestrictedApiAndroidX")
 private class HelloPreviewWidget : GlanceWearWidget() {
     override suspend fun provideWidgetData(
         context: Context,
@@ -56,7 +55,7 @@ private class HelloPreviewWidget : GlanceWearWidget() {
                 modifier = RemoteModifier.fillMaxSize(),
                 contentAlignment = RemoteAlignment.Center,
             ) {
-                RemoteText(text, color = Color.Black.rc)
+                RemoteText(text.rs, color = Color.Black.rc)
             }
         }
     }
