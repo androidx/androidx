@@ -1571,10 +1571,24 @@ internal class NavControllerImpl(
         var b: SavedState? = null
         val navigatorNames = ArrayList<String>()
         val navigatorState = savedState()
+        navigatorStateToRestore?.read {
+            if (contains(KEY_NAVIGATOR_STATE_NAMES)) {
+                val names = getStringList(KEY_NAVIGATOR_STATE_NAMES)
+                for (name in names) {
+                    if (contains(name)) {
+                        val state = getSavedState(name)
+                        navigatorNames.add(name)
+                        navigatorState.write { putSavedState(name, state) }
+                    }
+                }
+            }
+        }
         for ((name, value) in _navigatorProvider.navigators) {
             val savedState = value.onSaveState()
             if (savedState != null) {
-                navigatorNames.add(name)
+                if (!navigatorNames.contains(name)) {
+                    navigatorNames.add(name)
+                }
                 navigatorState.write { putSavedState(name, savedState) }
             }
         }
@@ -1593,6 +1607,11 @@ internal class NavControllerImpl(
                 backStack.add(NavBackStackEntryState(backStackEntry).writeToState())
             }
             b.write { putSavedStateList(KEY_BACK_STACK, backStack) }
+        } else if (backStackToRestore != null) {
+            if (b == null) {
+                b = savedState()
+            }
+            b.write { putSavedStateList(KEY_BACK_STACK, backStackToRestore!!.toList()) }
         }
         if (backStackMap.isNotEmpty()) {
             if (b == null) {
