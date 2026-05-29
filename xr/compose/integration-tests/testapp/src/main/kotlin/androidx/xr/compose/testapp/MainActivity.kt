@@ -73,6 +73,7 @@ import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.accessibility.AccessibilityActivity
+import androidx.xr.compose.testapp.anchorable.AnchorableActivity
 import androidx.xr.compose.testapp.animation.Animation
 import androidx.xr.compose.testapp.curvedlayout.CurvedLayout
 import androidx.xr.compose.testapp.depthstacking.DepthStacking
@@ -307,6 +308,9 @@ class MainActivity : ComponentActivity() {
                             },
                             TestCase(getString(R.string.rotatetolookatuser_test_case)) {
                                 startTest<RotateToLookAtUserActivity>()
+                            },
+                            TestCase(getString(R.string.anchorable_test_case)) {
+                                startTest<AnchorableActivity>()
                             },
                         ),
                     "Layout" to
