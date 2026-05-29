@@ -1,0 +1,62 @@
+// Signature format: 4.0
+package androidx.core.locationbutton.compose {
+
+  public final class LocationButtonDefaults {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long getBackgroundColor(androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getClickablePadding();
+    method @BytecodeOnly public float getCornerRadius-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long getIconTint(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly public float getPressedCornerRadius-D9Ej5fM();
+    method @BytecodeOnly public long getStrokeColor-0d7_KjU();
+    method @BytecodeOnly public float getStrokeWidth-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long getTextColor(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly public int getTextType-zT2bSlM();
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color backgroundColor;
+    property public androidx.compose.foundation.layout.PaddingValues clickablePadding;
+    property public androidx.compose.ui.unit.Dp cornerRadius;
+    property public static int defaultCompositionOrder;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color iconTint;
+    property public androidx.compose.ui.unit.Dp pressedCornerRadius;
+    property public androidx.compose.ui.graphics.Color strokeColor;
+    property public androidx.compose.ui.unit.Dp strokeWidth;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color textColor;
+    property public androidx.core.locationbutton.compose.LocationButtonTextType textType;
+    field public static final androidx.core.locationbutton.compose.LocationButtonDefaults INSTANCE;
+    field public static final int defaultCompositionOrder = 1; // 0x1
+  }
+
+  public final class LocationButtonKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void LocationButton(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color strokeColor, optional androidx.compose.ui.unit.Dp strokeWidth, optional androidx.compose.ui.unit.Dp cornerRadius, optional androidx.compose.ui.unit.Dp pressedCornerRadius, optional androidx.compose.ui.graphics.Color iconTint, optional androidx.core.locationbutton.compose.LocationButtonTextType textType, optional androidx.compose.ui.graphics.Color textColor, optional androidx.compose.foundation.layout.PaddingValues clickablePadding, optional int compositionOrder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onRequestPermissions, optional kotlin.jvm.functions.Function1<java.lang.Throwable,kotlin.Unit>? onError, kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit> onPermissionResult);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void LocationButton-fwrhjtE(androidx.compose.ui.Modifier?, long, long, float, float, float, long, int, long, androidx.compose.foundation.layout.PaddingValues?, int, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super java.lang.Throwable!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super java.lang.Boolean!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
+  }
+
+  @kotlin.jvm.JvmInline public final value class LocationButtonTextType {
+    method @BytecodeOnly public static androidx.core.locationbutton.compose.LocationButtonTextType! box-impl(int);
+    method @InaccessibleFromKotlin public int getValue();
+    method @BytecodeOnly public int unbox-impl();
+    property public int value;
+    field public static final androidx.core.locationbutton.compose.LocationButtonTextType.Companion Companion;
+  }
+
+  public static final class LocationButtonTextType.Companion {
+    method @BytecodeOnly public int getNearMyPreciseLocation-zT2bSlM();
+    method @BytecodeOnly public int getNearYourPreciseLocation-zT2bSlM();
+    method @BytecodeOnly public int getNone-zT2bSlM();
+    method @BytecodeOnly public int getPreciseLocation-zT2bSlM();
+    method @BytecodeOnly public int getSharePreciseLocation-zT2bSlM();
+    method @BytecodeOnly public int getUsePreciseLocation-zT2bSlM();
+    property public androidx.core.locationbutton.compose.LocationButtonTextType NearMyPreciseLocation;
+    property public androidx.core.locationbutton.compose.LocationButtonTextType NearYourPreciseLocation;
+    property public androidx.core.locationbutton.compose.LocationButtonTextType None;
+    property public androidx.core.locationbutton.compose.LocationButtonTextType PreciseLocation;
+    property public androidx.core.locationbutton.compose.LocationButtonTextType SharePreciseLocation;
+    property public androidx.core.locationbutton.compose.LocationButtonTextType UsePreciseLocation;
+  }
+
+  public final class RemoteLocationButtonKt {
+    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public static androidx.compose.runtime.ProvidableCompositionLocal<android.app.permissionui.LocationButtonProvider?> getLocalLocationButtonProvider();
+    property @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public static androidx.compose.runtime.ProvidableCompositionLocal<android.app.permissionui.LocationButtonProvider?> LocalLocationButtonProvider;
+  }
+
+}
+
