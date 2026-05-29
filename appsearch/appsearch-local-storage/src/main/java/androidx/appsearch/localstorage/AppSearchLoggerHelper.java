@@ -118,6 +118,18 @@ public final class AppSearchLoggerHelper {
                         fromNativeStats.getInitializeIcuDataStatus().getCode().getNumber())
                 .setNativeNumFailedReindexedDocuments(
                         fromNativeStats.getNumFailedReindexedDocuments())
+                .setNativeFailureStageCode(fromNativeStats.getFailureStage())
+                .setNativeIcuSegmenterCreationStatusCode(
+                        fromNativeStats.getIcuSegmenterCreationStatus().getCode().getNumber())
+                .setNativeIcuNormalizerCreationStatusCode(
+                        fromNativeStats.getIcuNormalizerCreationStatus().getCode().getNumber())
+                .setNativeLastPersistType(fromNativeStats.getLastPersistToDiskType())
+                .addNativeAfterLastPersistFullCallTypes(
+                        fromNativeStats.getAfterLastFlushFullCallTypesList())
+                .addNativeAfterLastPersistRecoveryProofCallTypes(
+                        fromNativeStats.getAfterLastFlushRecoveryProofCallTypesList())
+                .addNativeAfterLastPersistLiteCallTypes(
+                        fromNativeStats.getAfterLastFlushLiteCallTypesList())
                 .setNativeSchemaProtoByteSize(fromNativeStats.getSchemaProtoByteSize());
     }
 

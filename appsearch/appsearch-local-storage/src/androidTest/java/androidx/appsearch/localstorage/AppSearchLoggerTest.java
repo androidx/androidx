@@ -40,8 +40,10 @@ import androidx.appsearch.testutil.SimpleTestLogger;
 
 import com.google.android.icing.proto.DeleteStatsProto;
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.IcingApiCallType;
 import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.OptimizeStatsProto;
+import com.google.android.icing.proto.PersistType;
 import com.google.android.icing.proto.PutDocumentStatsProto;
 import com.google.android.icing.proto.PutResultProto;
 import com.google.android.icing.proto.QueryStatsProto;
@@ -124,7 +126,22 @@ public class AppSearchLoggerTest {
                 InitializeStatsProto.RecoveryCause.DEPENDENCIES_CHANGED_VALUE;
         StatusProto.Code initializeIcuDataStatusCode = StatusProto.Code.OK;
         int nativeNumFailedReindexedDocuments = 18;
+        InitializeStatsProto.FailureStage.Code nativeFailureStageCode =
+                InitializeStatsProto.FailureStage.Code.BASE_DIRECTORY_CREATION;
+        StatusProto.Code nativeIcuSegmenterCreationStatusCode = StatusProto.Code.ABORTED;
+        StatusProto.Code nativeIcuNormalizerCreationStatusCode = StatusProto.Code.UNAVAILABLE;
+        PersistType.Code nativeLastPersistType = PersistType.Code.RECOVERY_PROOF;
+        List<IcingApiCallType.Code> nativeAfterLastPersistFullCallTypes =
+                ImmutableList.of(IcingApiCallType.Code.DELETE, IcingApiCallType.Code.PUT);
+        List<IcingApiCallType.Code> nativeAfterLastPersistRecoveryProofCallTypes =
+                ImmutableList.of(IcingApiCallType.Code.BATCH_PUT);
+        List<IcingApiCallType.Code> nativeAfterLastPersistLiteCallTypes =
+                ImmutableList.of(
+                        IcingApiCallType.Code.INITIALIZE,
+                        IcingApiCallType.Code.OPTIMIZE,
+                        IcingApiCallType.Code.REPORT_USAGE);
         long nativeSchemaProtoByteSize = 19;
+
         InitializeStatsProto.Builder nativeInitBuilder = InitializeStatsProto.newBuilder()
                 .setLatencyMs(nativeLatencyMillis)
                 .setDocumentStoreRecoveryCause(InitializeStatsProto.RecoveryCause.forNumber(
@@ -154,6 +171,16 @@ public class AppSearchLoggerTest {
                 .setInitializeIcuDataStatus(StatusProto.newBuilder()
                         .setCode(initializeIcuDataStatusCode))
                 .setNumFailedReindexedDocuments(nativeNumFailedReindexedDocuments)
+                .setFailureStage(nativeFailureStageCode)
+                .setIcuSegmenterCreationStatus(
+                        StatusProto.newBuilder().setCode(nativeIcuSegmenterCreationStatusCode))
+                .setIcuNormalizerCreationStatus(
+                        StatusProto.newBuilder().setCode(nativeIcuNormalizerCreationStatusCode))
+                .setLastPersistToDiskType(nativeLastPersistType)
+                .addAllAfterLastFlushFullCallTypes(nativeAfterLastPersistFullCallTypes)
+                .addAllAfterLastFlushRecoveryProofCallTypes(
+                        nativeAfterLastPersistRecoveryProofCallTypes)
+                .addAllAfterLastFlushLiteCallTypes(nativeAfterLastPersistLiteCallTypes)
                 .setSchemaProtoByteSize(nativeSchemaProtoByteSize);
         InitializeStats.Builder initBuilder = new InitializeStats.Builder();
 
@@ -188,6 +215,18 @@ public class AppSearchLoggerTest {
                 .isEqualTo(initializeIcuDataStatusCode.getNumber());
         assertThat(iStats.getNativeNumFailedReindexedDocuments())
                 .isEqualTo(nativeNumFailedReindexedDocuments);
+        assertThat(iStats.getNativeFailureStageCode()).isEqualTo(nativeFailureStageCode);
+        assertThat(iStats.getNativeIcuSegmenterCreationStatusCode())
+                .isEqualTo(nativeIcuSegmenterCreationStatusCode.getNumber());
+        assertThat(iStats.getNativeIcuNormalizerCreationStatusCode())
+                .isEqualTo(nativeIcuNormalizerCreationStatusCode.getNumber());
+        assertThat(iStats.getNativeLastPersistType()).isEqualTo(nativeLastPersistType);
+        assertThat(iStats.getNativeAfterLastPersistFullCallTypes())
+                .containsExactlyElementsIn(nativeAfterLastPersistFullCallTypes);
+        assertThat(iStats.getNativeAfterLastPersistRecoveryProofCallTypes())
+                .containsExactlyElementsIn(nativeAfterLastPersistRecoveryProofCallTypes);
+        assertThat(iStats.getNativeAfterLastPersistLiteCallTypes())
+                .containsExactlyElementsIn(nativeAfterLastPersistLiteCallTypes);
         assertThat(iStats.getNativeSchemaProtoByteSize()).isEqualTo(nativeSchemaProtoByteSize);
     }
 
