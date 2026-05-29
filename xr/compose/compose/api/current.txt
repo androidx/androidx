@@ -1433,6 +1433,19 @@ package androidx.xr.compose.subspace.semantics {
     method public static androidx.xr.compose.subspace.layout.SubspaceModifier semantics(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit> properties);
   }
 
+  public interface SubspaceSemanticsPropertyReceiver {
+    method public operator <T> void set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value);
+  }
+
+  public final class SubspaceSemanticsPropertyReceiverKt {
+    method @InaccessibleFromKotlin public static String getContentDescription(androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver);
+    method @InaccessibleFromKotlin public static String getTestTag(androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver);
+    method @InaccessibleFromKotlin public static void setContentDescription(androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver, String);
+    method @InaccessibleFromKotlin public static void setTestTag(androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver, String);
+    property public static String androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver.contentDescription;
+    property public static String androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver.testTag;
+  }
+
   public final class TestTagKt {
     method public static androidx.xr.compose.subspace.layout.SubspaceModifier testTag(androidx.xr.compose.subspace.layout.SubspaceModifier, String tag);
   }
