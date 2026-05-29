@@ -18,6 +18,7 @@ package androidx.work
 
 import android.content.Context
 import android.os.Build
+import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.impl.Processor
@@ -40,6 +41,8 @@ import androidx.work.worker.TestWorker
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -142,7 +145,7 @@ class SchedulersTest {
     }
 
     @Test
-    fun interruptionReschedules() {
+    fun interruptionReschedules() = runBlocking {
         val schedulers = mutableListOf<Scheduler>()
         val wm =
             WorkManagerImpl(
@@ -154,30 +157,29 @@ class SchedulersTest {
                 env.processor,
                 trackers,
             )
-        val scheduledSpecs = mutableListOf<WorkSpec>()
-        val cancelledIds = mutableListOf<String>()
+        // Add a scheduler that actually launches the work where we can get the start stop token
         val launcher = WorkLauncherImpl(env.processor, env.taskExecutor)
         val scheduler =
             object : Scheduler {
                 val tokens = StartStopTokens.create()
 
                 override fun schedule(vararg workSpecs: WorkSpec) {
-                    scheduledSpecs.addAll(workSpecs)
                     workSpecs.forEach {
                         if (it.runAttemptCount == 0) launcher.startWork(tokens.tokenFor(it))
                     }
                 }
 
-                override fun cancel(workSpecId: String) {
-                    cancelledIds.add(workSpecId)
-                }
+                override fun cancel(workSpecId: String) {}
 
                 override fun hasLimitedSchedulingSlots() = false
             }
 
         schedulers.add(scheduler)
+        schedulers.add(unlimitedSlotsScheduler)
+        schedulers.add(limitedSlotsScheduler)
+
         val request = OneTimeWorkRequest.from(StopAwareWorker::class.java)
-        wm.enqueue(request)
+        wm.enqueue(request).await()
         val reenqueuedLatch = CountDownLatch(1)
         var running = false
         env.taskExecutor.mainThreadExecutor.execute {
@@ -196,10 +198,67 @@ class SchedulersTest {
             }
         }
         assertThat(reenqueuedLatch.await(5, TimeUnit.SECONDS)).isTrue()
-        assertThat(cancelledIds).containsExactly(request.stringId)
-        val workSpec = scheduledSpecs.last()
-        assertThat(workSpec.id).isEqualTo(request.stringId)
-        assertThat(workSpec.runAttemptCount).isEqualTo(1)
+        assertThat(limitedSlotsScheduler.scheduledWork).containsExactly(request.stringId)
+        assertThat(unlimitedSlotsScheduler.scheduledWork).containsExactly(request.stringId)
+        val workInfo = wm.getWorkInfoById(request.id).await()!!
+        assertThat(workInfo.runAttemptCount).isEqualTo(1)
+    }
+
+    @Test
+    fun interruptionReschedules_multipleStoppedWork() = runBlocking {
+        // This test exists as scheduling is a global work-agnostic operation so it is possible for
+        // work to be scheduled as part of a different work being stopped. We need to make sure
+        // that the stopping/cancellation logic does not accidentally remove the work that was just
+        // rescheduled as part of handling another work stopping.
+
+        val schedulers = mutableListOf<Scheduler>()
+        val wm =
+            WorkManagerImpl(
+                context,
+                configuration,
+                env.taskExecutor,
+                env.db,
+                schedulers,
+                env.processor,
+                trackers,
+            )
+        // Add a scheduler that actually launches the work where we can get the start stop token
+        val launcher = WorkLauncherImpl(env.processor, env.taskExecutor)
+        val scheduler =
+            object : Scheduler {
+                val tokens = StartStopTokens.create()
+
+                override fun schedule(vararg workSpecs: WorkSpec) {
+                    workSpecs.forEach {
+                        if (it.runAttemptCount == 0) launcher.startWork(tokens.tokenFor(it))
+                    }
+                }
+
+                override fun cancel(workSpecId: String) {}
+
+                override fun hasLimitedSchedulingSlots() = false
+            }
+
+        schedulers.add(scheduler)
+        schedulers.add(unlimitedSlotsScheduler)
+        schedulers.add(limitedSlotsScheduler)
+
+        val request1 = OneTimeWorkRequest.from(StopAwareWorker::class.java)
+        val request2 = OneTimeWorkRequest.from(StopAwareWorker::class.java)
+        wm.enqueue(request1).await()
+        wm.enqueue(request2).await()
+
+        val workInfos = wm.getWorkInfosFlow(WorkQuery.fromIds(listOf(request1.id, request2.id)))
+        workInfos.first { infos -> infos.all { info -> info.state == WorkInfo.State.RUNNING } }
+        launcher.stopWork(scheduler.tokens.remove(request1.stringId).first())
+        launcher.stopWork(scheduler.tokens.remove(request2.stringId).first())
+        workInfos.first { infos -> infos.all { info -> info.state == WorkInfo.State.ENQUEUED } }
+
+        assertThat(limitedSlotsScheduler.scheduledWork)
+            .containsExactly(request1.stringId, request2.stringId)
+        assertThat(unlimitedSlotsScheduler.scheduledWork)
+            .containsExactly(request1.stringId, request2.stringId)
+        assertThat(workInfos.first().all { it.runAttemptCount == 1 }).isTrue()
     }
 
     @Test
