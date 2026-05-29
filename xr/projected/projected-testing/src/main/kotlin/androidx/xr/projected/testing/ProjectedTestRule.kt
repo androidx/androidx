@@ -72,10 +72,6 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowVirtualDeviceManager
 import org.robolectric.util.ReflectionHelpers
-import org.robolectric.util.reflector.Accessor
-import org.robolectric.util.reflector.ForType
-import org.robolectric.util.reflector.Reflector.reflector
-import org.robolectric.util.reflector.Static
 
 /**
  * Test rule for the Projected clients.
@@ -563,19 +559,13 @@ public class ProjectedTestRule : TestRule {
             )
         }
 
-        /** Accessor interface for [AudioDeviceInfo]'s internals. */
-        @ForType(AudioDeviceInfo::class)
-        private interface AudioDeviceInfoReflector {
-
-            @get:Static
-            @get:Accessor("EXT_TO_INT_DEVICE_MAPPING")
-            val extToIntDeviceMapping: SparseIntArray
-        }
-
         private fun externalToInternalType(externalType: Int): Int {
-            return reflector(AudioDeviceInfoReflector::class.java)
-                .extToIntDeviceMapping
-                .get(externalType)
+            val mapping =
+                ReflectionHelpers.getStaticField<SparseIntArray>(
+                    AudioDeviceInfo::class.java,
+                    "EXT_TO_INT_DEVICE_MAPPING",
+                )
+            return mapping.get(externalType)
         }
     }
 }
