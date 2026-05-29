@@ -27,6 +27,7 @@ dependencies {
     docs(project(":appsearch:appsearch-platform-storage"))
     docs(project(":appsearch:appsearch-play-services-storage"))
     docs(project(":appsearch:appsearch-local-storage"))
+    kmpDocs(project(":appstate:appstate"))
     docs(project(":arch:core:core-common"))
     docs(project(":arch:core:core-runtime"))
     docs(project(":arch:core:core-testing"))
