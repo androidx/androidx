@@ -17,6 +17,7 @@
 package androidx.appfunctions.integration.testapp.library
 
 import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionInstruction
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionStringValueConstraint
@@ -48,13 +49,31 @@ class TestFunctions2 {
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
     ): Int = 10
+
+    /** @param arg2 This arg2 shouldn't be overridden */
+    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionInstruction("instruction for function")
+    fun functionWithInstruction(
+        appFunctionContext: AppFunctionContext,
+        @AppFunctionInstruction("instruction for param1") param1: String,
+        arg2: String,
+    ): @AppFunctionInstruction("instruction for return") String = param1 + arg2
+
+    @AppFunction
+    @AppFunctionInstruction("instruction for function without kdoc")
+    fun functionWithInstructionWithoutKdoc(
+        appFunctionContext: AppFunctionContext,
+        @AppFunctionInstruction("instruction for param1 without kdoc") param1: String,
+        arg2: String,
+    ): @AppFunctionInstruction("instruction for return without kdoc") String = param1 + arg2
 }
 
 /** AppFunctionSerializable in non-root library. */
+@AppFunctionInstruction("Instruction for ExampleSerializable.")
 @AppFunctionSerializable(isDescribedByKDoc = true)
 class ExampleSerializable(
     /** Int property of ExampleSerializable. */
-    val intProperty: Int
+    @AppFunctionInstruction("Instruction for intProperty.") val intProperty: Int
 )
 
 /** Example parameterized AppFunctionSerializable in another package. */

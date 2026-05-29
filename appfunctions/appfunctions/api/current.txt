@@ -118,6 +118,12 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionFunctionNotFoundException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.CLASS}) public @interface AppFunctionInstruction {
+    ctor @KotlinOnly public AppFunctionInstruction(String instruction);
+    method @InaccessibleFromKotlin public abstract String instruction();
+    property public abstract String instruction;
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionIntValueConstraint {
     ctor @KotlinOnly public AppFunctionIntValueConstraint(optional int[] enumValues);
     method @InaccessibleFromKotlin public abstract int[] enumValues() default {};

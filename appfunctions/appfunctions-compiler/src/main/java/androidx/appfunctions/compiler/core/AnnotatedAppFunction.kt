@@ -128,14 +128,15 @@ data class AnnotatedAppFunction(
 
         val appFunctionAnnotationProperties =
             metadataCreatorHelper.computeAppFunctionAnnotationProperties(appFunctionDeclaration)
-        val functionDescription = getFunctionDescription(appFunctionAnnotationProperties)
+        val rawKDoc = getRawKDoc(appFunctionAnnotationProperties)
+
         val parameterTypeMetadataList =
             metadataCreatorHelper.buildParameterTypeMetadataList(
                 parameters = appFunctionDeclaration.parameters,
                 resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
                 sharedDataTypeMap = sharedDataTypeMap,
                 seenDataTypeQualifiers = seenDataTypeQualifiers,
-                parameterDescriptionMap = getParamDescriptionsFromKDoc(functionDescription),
+                parameterDescriptionMap = getParamDescriptionsFromKDoc(rawKDoc),
             )
         val responseTypeMetadata =
             metadataCreatorHelper.buildResponseTypeMetadata(
@@ -145,6 +146,7 @@ data class AnnotatedAppFunction(
                 seenDataTypeQualifiers = seenDataTypeQualifiers,
                 functionAnnotations = appFunctionDeclaration.annotations,
             )
+
         val deprecationMetadata = appFunctionDeclaration.getDeprecationMetadata()
 
         return CompileTimeAppFunctionMetadata(
@@ -155,10 +157,10 @@ data class AnnotatedAppFunction(
             response =
                 AppFunctionResponseMetadata(
                     valueType = responseTypeMetadata,
-                    description = getResponseDescriptionFromKDoc(functionDescription),
+                    description = getResponseDescription(rawKDoc),
                 ),
             components = AppFunctionComponentsMetadata(dataTypes = sharedDataTypeMap),
-            description = sanitizeKDoc(functionDescription),
+            description = getFunctionDescription(rawKDoc),
             deprecation = deprecationMetadata,
         )
     }
@@ -300,7 +302,7 @@ data class AnnotatedAppFunction(
         return findRootAppFunctionSchemaInterface(superClassFunction)
     }
 
-    private fun getFunctionDescription(
+    private fun getRawKDoc(
         appFunctionAnnotationProperties:
             AppFunctionMetadataCreatorHelper.AppFunctionAnnotationProperties
     ): String {
@@ -309,6 +311,35 @@ data class AnnotatedAppFunction(
         } else {
             ""
         }
+    }
+
+    private fun getFunctionDescription(rawKDoc: String): String {
+        val instruction =
+            appFunctionDeclaration.annotations
+                .findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+                ?.requirePropertyValueOfType(
+                    IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                    String::class,
+                )
+        if (instruction != null) {
+            return instruction
+        }
+        return sanitizeKDoc(rawKDoc)
+    }
+
+    private fun getResponseDescription(rawKDoc: String): String {
+        val returnInstruction =
+            appFunctionDeclaration.returnType
+                ?.annotations
+                ?.findAnnotation(IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME)
+                ?.requirePropertyValueOfType(
+                    IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                    String::class,
+                )
+        if (returnInstruction != null) {
+            return returnInstruction
+        }
+        return getResponseDescriptionFromKDoc(rawKDoc)
     }
 
     private fun KSDeclaration.getDeprecationMetadata(): AppFunctionDeprecationMetadata? {

@@ -96,6 +96,16 @@ class AnnotatedParameterizedAppFunctionSerializable(
     }
 
     override fun getDescription(sharedDataTypeDescriptionMap: Map<String, String>): String {
+        val instructionAnnotation =
+            classDeclaration.annotations.findAnnotation(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.CLASS_NAME
+            )
+        if (instructionAnnotation != null) {
+            return instructionAnnotation.requirePropertyValueOfType(
+                IntrospectionHelper.AppFunctionInstructionAnnotation.PROPERTY_INSTRUCTION,
+                String::class,
+            )
+        }
         return docString.ifEmpty {
             sharedDataTypeDescriptionMap[unparameterizedJvmQualifiedName] ?: ""
         }
