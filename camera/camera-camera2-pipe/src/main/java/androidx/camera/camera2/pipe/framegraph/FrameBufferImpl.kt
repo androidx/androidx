@@ -171,11 +171,11 @@ internal class FrameBufferImpl(
 
     override fun removeFirstFrameReferenceAndAcquire(
         predicate: (FrameReference) -> Boolean
-    ): Frame? = removeAndAcquire(frameQueue.iterator(), predicate)
+    ): Frame? = removeAndAcquire(predicate, reversed = false)
 
     override fun removeLastFrameReferenceAndAcquire(
         predicate: (FrameReference) -> Boolean
-    ): Frame? = removeAndAcquire(frameQueue.asReversed().iterator(), predicate)
+    ): Frame? = removeAndAcquire(predicate, reversed = true)
 
     override fun removeAllFrameReferencesAndAcquire(
         predicate: (FrameReference) -> Boolean
@@ -247,17 +247,24 @@ internal class FrameBufferImpl(
         frameGraphBuffers.detach(this)
     }
 
-    @GuardedBy("lock")
     private fun removeAndAcquire(
-        iterator: MutableIterator<BufferEntry>,
         predicate: (FrameReference) -> Boolean,
+        reversed: Boolean = false,
     ): Frame? {
-        while (iterator.hasNext()) {
-            val bufferEntry = iterator.next()
-            if (predicate(bufferEntry.frameReference)) {
-                iterator.remove()
+        synchronized(lock) {
+            if (closed) return null
+
+            val indexToRemove =
+                if (reversed) {
+                    frameQueue.indexOfLast { predicate(it.frameReference) }
+                } else {
+                    frameQueue.indexOfFirst { predicate(it.frameReference) }
+                }
+
+            if (indexToRemove != -1) {
+                val bufferEntry = frameQueue.removeAt(indexToRemove)
                 _size.value = frameQueue.size
-                return (bufferEntry as? BufferEntry.WithFrame)?.let { it.frame }
+                return (bufferEntry as? BufferEntry.WithFrame)?.frame
             }
         }
         return null
