@@ -66,6 +66,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(project(":compose:remote:remote-testing"))
+    testImplementation(project(":compose:remote:remote-core-testutils"))
+    testImplementation(project(":compose:remote:remote-player-view"))
     testImplementation(libs.testParameterInjector)
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.testRules)
