@@ -31,6 +31,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.arcore.Anchor
+import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
@@ -44,10 +46,12 @@ import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import org.junit.Ignore
 import org.junit.Rule
@@ -354,5 +358,42 @@ class CoreEntityTest {
         testEntity.contentDescription = ""
 
         assertThat(coreEntity.contentDescription).isNull()
+    }
+
+    @Test
+    fun updatePoseFromLayout_whenIsAnchoredToExternalSpaceIsTrue_doesNotUpdatePose() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = session, name = "TestEntity")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+
+        val anchorResult = Anchor.create(session, Pose.Identity)
+        val success = assertIs<AnchorCreateSuccess>(anchorResult)
+        val anchorSpace = AnchorSpace.create(session, anchor = success.anchor)
+        testEntity.parent = anchorSpace
+
+        val customPose = Pose(Vector3(1f, 2f, 3f))
+        testEntity.setPose(customPose)
+
+        coreEntity.updatePoseFromLayout()
+
+        // Pose remains customPose because updatePoseFromLayout returned early when anchored to
+        // AnchorSpace.
+        assertThat(testEntity.getPose()).isEqualTo(customPose)
+    }
+
+    @Test
+    fun updatePoseFromLayout_whenIsAnchoredToExternalSpaceIsFalse_updatesPoseFromLayout() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = session, name = "TestEntity")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+
+        val customPose = Pose(Vector3(1f, 2f, 3f))
+        testEntity.setPose(customPose)
+
+        coreEntity.updatePoseFromLayout()
+
+        // Pose is updated from layout (Pose.Identity) because entity is not anchored to
+        // AnchorSpace.
+        assertThat(testEntity.getPose()).isEqualTo(Pose.Identity)
     }
 }

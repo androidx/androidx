@@ -147,6 +147,11 @@ public sealed interface MovePolicy {
          * orientations or semantics are provided (i.e., the sets are empty), the element is
          * permitted to anchor to any detected plane.
          *
+         * Note: Once a composable is anchored to an external plane using this policy, it is
+         * reparented outside the normal Compose hierarchy. As a result, conventional layout pose
+         * calculations and pose-based modifiers (such as `rotate` or `gravityAligned`) are not
+         * currently compatible with the anchored composable.
+         *
          * @param anchorPlaneOrientations The set of [PlaneOrientation]s (e.g., Horizontal,
          *   Vertical) that the element is permitted to anchor to. Defaults to an empty set, which
          *   allows all orientations.

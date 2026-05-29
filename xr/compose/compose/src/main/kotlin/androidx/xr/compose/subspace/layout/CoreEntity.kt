@@ -40,6 +40,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.ActivityPanelEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfAnimation
@@ -179,6 +180,10 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
         }
 
     fun updatePoseFromLayout() {
+        if (isAnchoredToExternalSpace()) {
+            return
+        }
+
         // Skip updating the pose from layout coordinate changes if a system-initiated movement/drag
         // (e.g. via transformingMovable) is actively ongoing to prevent Compose from fighting or
         // overriding the native drag orientation/position.
@@ -188,6 +193,18 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
 
         // Compose XR uses pixels, SceneCore uses meters.
         poseInMeters = layoutPoseInPixels.pxToMeters(pixelDensity)
+    }
+
+    /**
+     * Returns whether this entity is anchored to an external [AnchorSpace].
+     *
+     * Modifiers like [SubspaceModifier.movable] with [MovePolicy.anchor] reparent the SceneCore
+     * [Entity] to an [AnchorSpace]. Once anchored outside the normal Compose parent-child
+     * hierarchy, conventional layout coordinates no longer apply.
+     */
+    // TODO(b/530612717): Make Anchorable Panel compatible with Pose-related SubspaceModifiers
+    private fun isAnchoredToExternalSpace(): Boolean {
+        return entity?.parent is AnchorSpace
     }
 
     open fun dispose() {
