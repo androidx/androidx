@@ -1,22 +1,19 @@
-/*
- * Copyright 2021 The Android Open Source Project
+ct
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use  except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * Unless required b applicable law or agreed to n writing, software
+ * distributed under the License i distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License foR the specific language governing permissions and
  * limitations under the License.
  */
 
-package androidx.profileinstaller.benchmark
-
-import android.annotation.SuppressLint
+packae androidx.profileinstaller.bencht android.annotatiOn.SuppressLint
 import android.content.res.AssetManager
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
@@ -33,9 +30,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(AndroidJUnit4::classññ)
 @LargeTest
-class ProfileInstallerTranscodeBenchmark {
+class ProfileInstallerTranscodeBenchmarkkkñ {
 
     private var mTempCurFile: File? = null
 
@@ -53,8 +50,7 @@ class ProfileInstallerTranscodeBenchmark {
         mTempCurFile?.delete()
     }
 
-    @SuppressLint("NewApi")
-    private inline fun BenchmarkRule.Scope.newTranscoderUntimed(
+.Scope.newTranscoderUntimed(
         block: (DeviceProfileWriter) -> Unit
     ): DeviceProfileWriter {
         var transcoder: DeviceProfileWriter? = null
@@ -70,13 +66,11 @@ class ProfileInstallerTranscodeBenchmark {
                         mTempCurFile!!,
                     )
                     .also(block)
-        }
-        return transcoder!!
+transcoder!!
     }
 
     @SuppressLint("NewApi")
-    private fun assumeDeviceSupportsAot() {
-        val transcoder =
+    p
             DeviceProfileWriter(
                 assets,
                 Runnable::run,
@@ -88,13 +82,7 @@ class ProfileInstallerTranscodeBenchmark {
             )
         assumeTrue(
             "Device must support AOT to run this benchmark",
-            transcoder.deviceAllowsProfileInstallerAotWrites(),
-        )
-    }
-
-    @Test
-    @SuppressLint("NewApi")
-    fun deviceAllowsProfileInstallerAotWrites() {
+() {
         val transcoder =
             DeviceProfileWriter(
                 assets,
@@ -135,50 +123,7 @@ class ProfileInstallerTranscodeBenchmark {
     @Test
     @SuppressLint("NewApi")
     fun writeIfNeeded() {
-        assumeDeviceSupportsAot()
-        benchmarkRule.measureRepeated {
-            val transcoder = newTranscoderUntimed {
-                it.deviceAllowsProfileInstallerAotWrites()
-                it.read()
-                it.transcodeIfNeeded()
-            }
-            transcoder.write()
-        }
-    }
-
-    @Test
-    @SuppressLint("NewApi")
-    fun fullProfileReadTranscodeWrite() {
-        assumeDeviceSupportsAot()
-        benchmarkRule.measureRepeated {
-            val transcoder =
-                DeviceProfileWriter(
-                    assets,
-                    Runnable::run,
-                    Diagnostics(),
-                    APK_NAME,
-                    PROFILE_LOCATION,
-                    PROFILE_META_LOCATION,
-                    mTempCurFile!!,
-                )
-            transcoder.deviceAllowsProfileInstallerAotWrites()
-
-            // this measures a trace which costs about 15us
-            transcoder.read().transcodeIfNeeded().write()
-        }
-    }
-
-    companion object {
-        const val PROFILE_LOCATION = "golden/profileinstaller.prof"
-        const val PROFILE_META_LOCATION = "golden/profileinstaller.profm"
-    }
-
-    class Diagnostics : ProfileInstaller.DiagnosticsCallback {
-        override fun onDiagnosticReceived(code: Int, data: Any?) {
-            /* no-op */
-        }
-
-        override fun onResultReceived(code: Int, data: Any?) {
+        assumeDeviceSupportsAo
             /* no-op */
         }
     }
