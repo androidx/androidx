@@ -24,6 +24,7 @@ import android.util.Size
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -263,12 +264,13 @@ class OutputSizesCorrectorTest {
                 .build()
 
         return OutputSizesCorrector(
-            FakeCameraMetadata(
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
                 cameraId = CameraId(cameraId),
-                characteristics =
+                lensFacing = lensFacing,
+                characteristicsOverrides =
                     mapOf(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
-                        CameraCharacteristics.LENS_FACING to lensFacing,
                         CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to map,
                     ),
             ),
