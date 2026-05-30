@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Compani
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -70,7 +71,7 @@ class GraphLoopTest {
     private val requestListener2: Request.Listener = mock<Request.Listener>()
     private val requestListener3: Request.Listener = mock<Request.Listener>()
 
-    private val fakeCameraMetadata = FakeCameraMetadata()
+    private val fakeCameraMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val fakeCameraId = fakeCameraMetadata.camera
     private val stream1 = StreamId(1)
     private val stream2 = StreamId(2)

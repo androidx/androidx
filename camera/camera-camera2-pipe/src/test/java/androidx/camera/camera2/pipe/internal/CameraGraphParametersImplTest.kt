@@ -46,6 +46,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,6 +66,9 @@ class CameraGraphParametersImplTest {
     private var parameters =
         CameraGraphParametersImpl(GraphSessionLock(), FakeGraphProcessor(), testScope)
 
+    private val cameraMetadata =
+        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = CameraId("0"))
+
     private val graphProcessor =
         GraphProcessorImpl(
             FakeThreads.fromTestScope(testScope),
@@ -74,9 +78,7 @@ class CameraGraphParametersImplTest {
             arrayListOf(FakeRequestListener()),
             Camera2Quirks(
                 metadataProvider =
-                    FakeCamera2MetadataProvider(
-                        mapOf(CameraId("0") to FakeCameraMetadata(cameraId = CameraId("0")))
-                    ),
+                    FakeCamera2MetadataProvider(mapOf(cameraMetadata.camera to cameraMetadata)),
                 strictMode = StrictMode(false),
             ),
         )

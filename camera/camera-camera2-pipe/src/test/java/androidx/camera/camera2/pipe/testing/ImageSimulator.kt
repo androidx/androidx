@@ -32,7 +32,8 @@ internal class ImageSimulator(
     private val fakeImageReaders = FakeImageReaders(fakeSurfaces)
     private val fakeImageSources = FakeImageSources(fakeImageReaders)
 
-    val cameraMetadata = defaultCameraMetadata ?: FakeCameraMetadata()
+    val cameraMetadata =
+        defaultCameraMetadata ?: FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     val graphConfig = CameraGraph.Config(camera = cameraMetadata.camera, streams = streamConfigs)
 
     val streamGraph = StreamGraphImpl(cameraMetadata, graphConfig, fakeImageSources, mock())

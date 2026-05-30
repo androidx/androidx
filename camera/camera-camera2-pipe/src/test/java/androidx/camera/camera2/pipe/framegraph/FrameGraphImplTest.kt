@@ -18,8 +18,6 @@ package androidx.camera.camera2.pipe.framegraph
 
 import android.content.Context
 import android.graphics.Rect
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.hardware.camera2.CaptureRequest
 import android.util.Size
 import androidx.camera.camera2.pipe.AfMode
@@ -39,6 +37,7 @@ import androidx.camera.camera2.pipe.testing.CameraPipeSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
 import androidx.camera.camera2.pipe.testing.FrameGraphSimulator
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
@@ -58,10 +57,7 @@ import org.junit.runner.RunWith
 class FrameGraphImplTest {
     private val testScope = TestScope()
     private val context = ApplicationProvider.getApplicationContext() as Context
-    private val metadata =
-        FakeCameraMetadata(
-            mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
-        )
+    private val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val streamConfig1 =
         CameraStream.Config.create(
             Size(640, 480),
