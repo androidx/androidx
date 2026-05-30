@@ -24,6 +24,7 @@ import android.util.Size
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.testing.impl.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -92,13 +93,14 @@ class CamcorderProfileResolutionQuirkTest {
             .thenReturn(supportedSizes)
         Mockito.`when`(mockMap.getOutputSizes(ArgumentMatchers.anyInt())).thenReturn(supportedSizes)
 
-        return FakeCameraMetadata(
-            characteristics =
+        return FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            lensFacing = CameraCharacteristics.LENS_FACING_BACK,
+            characteristicsOverrides =
                 mapOf(
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
-                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap,
-                )
+                ),
         )
     }
 }

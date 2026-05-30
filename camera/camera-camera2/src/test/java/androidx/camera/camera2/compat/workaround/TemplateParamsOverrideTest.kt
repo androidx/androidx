@@ -32,6 +32,7 @@ import androidx.camera.camera2.compat.quirk.CaptureIntentPreviewQuirk
 import androidx.camera.camera2.compat.quirk.ImageCaptureFailedForVideoSnapshotQuirk
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.Quirk
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
@@ -100,11 +101,11 @@ class TemplateParamsOverrideTest(
     fun setup() {
         cameraQuirks =
             CameraQuirks(
-                FakeCameraMetadata(),
+                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
                 StreamConfigurationMapCompat(
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
-                        FakeCameraMetadata(),
+                        FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
                         StreamConfigurationMapBuilder.newBuilder().build(),
                     ),
                 ),

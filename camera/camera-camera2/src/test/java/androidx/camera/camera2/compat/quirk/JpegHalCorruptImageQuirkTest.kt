@@ -19,6 +19,7 @@ package androidx.camera.camera2.compat.quirk
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,11 +55,11 @@ class JpegHalCorruptImageQuirkTest(
 
         val cameraQuirks =
             CameraQuirks(
-                    FakeCameraMetadata(),
+                    FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
                     StreamConfigurationMapCompat(
                         StreamConfigurationMapBuilder.newBuilder().build(),
                         OutputSizesCorrector(
-                            FakeCameraMetadata(),
+                            FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
                             StreamConfigurationMapBuilder.newBuilder().build(),
                         ),
                     ),

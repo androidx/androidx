@@ -21,6 +21,7 @@ import android.util.Range
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk
 import com.google.common.truth.Truth.assertThat
@@ -108,13 +109,16 @@ class AeFpsRangeLegacyQuirkTest {
         val streamConfigurationMap = StreamConfigurationMapBuilder.newBuilder().build()
 
         val metadata =
-            FakeCameraMetadata(
-                mapOf(
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
-                    CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to
-                        availableFpsRanges,
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap,
-                )
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
+                        CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to
+                            availableFpsRanges,
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
+                            streamConfigurationMap,
+                    ),
             )
         return CameraQuirks(
                 metadata,

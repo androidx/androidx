@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.Quirks
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -60,8 +61,9 @@ class AfRegionFlipHorizontallyQuirkTest(
         shadowCharacteristics.set(CameraCharacteristics.LENS_FACING, lensFacing)
 
         val cameraMetadata =
-            FakeCameraMetadata(
-                characteristics = mapOf(CameraCharacteristics.LENS_FACING to lensFacing)
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = lensFacing,
             )
 
         return CameraQuirks(
