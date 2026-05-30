@@ -70,6 +70,7 @@ import androidx.camera.camera2.pipe.testing.CameraPipeSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LensFacing
 import androidx.camera.core.CameraX
@@ -5114,7 +5115,11 @@ class SupportedSurfaceCombinationTest {
 
         // set up FakeCafakeCameraMetadatameraMetadata
         fakeCameraMetadata =
-            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristicsMap)
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = cameraId,
+                characteristicsOverrides = characteristicsMap,
+            )
 
         val cameraManager =
             ApplicationProvider.getApplicationContext<Context>()

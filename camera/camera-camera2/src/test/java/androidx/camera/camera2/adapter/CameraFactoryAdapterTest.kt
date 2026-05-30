@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -250,13 +251,12 @@ class CameraFactoryAdapterTest {
             } else {
                 intArrayOf()
             }
-        return FakeCameraMetadata(
+        return FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = CameraId(cameraId),
-            characteristics =
+            lensFacing = lensFacing,
+            characteristicsOverrides =
                 mapOf(
-                    CameraCharacteristics.LENS_FACING to lensFacing,
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                        CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                     CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to capabilities,
                     CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 10, 10),
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to

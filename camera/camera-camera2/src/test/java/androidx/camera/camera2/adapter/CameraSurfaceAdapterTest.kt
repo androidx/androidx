@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.testing.CameraPipeSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.InitializationException
 import androidx.camera.core.impl.CameraUpdateException
 import androidx.test.core.app.ApplicationProvider
@@ -173,9 +174,10 @@ class CameraSurfaceAdapterTest {
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap,
             )
-        return FakeCameraMetadata(
+        return FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = CameraId(cameraIdString),
-            characteristics = characteristicsMap,
+            characteristicsOverrides = characteristicsMap,
         )
     }
 
@@ -192,7 +194,12 @@ class CameraSurfaceAdapterTest {
                 emptySet(),
                 mapOf(
                     FakeCameraBackend.FAKE_CAMERA_BACKEND_ID to
-                        listOf(FakeCameraMetadata(cameraId = failingId))
+                        listOf(
+                            FakeCameraMetadata.fromTemplate(
+                                HighEndDeviceTemplate,
+                                cameraId = failingId,
+                            )
+                        )
                 ),
             ),
     ) : CameraDevices by underlyingFake {
