@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT
@@ -59,9 +60,10 @@ import org.robolectric.util.ReflectionHelpers
 @Config(sdk = [Config.ALL_SDKS])
 class CameraCoordinatorAdapterTest {
     private val cameraMetadata0 =
-        FakeCameraMetadata(
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = CameraId("0"),
-            characteristics =
+            characteristicsOverrides =
                 mapOf(
                     CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
                         intArrayOf(
@@ -70,9 +72,10 @@ class CameraCoordinatorAdapterTest {
                 ),
         )
     private val cameraMetadata1 =
-        FakeCameraMetadata(
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = CameraId("1"),
-            characteristics =
+            characteristicsOverrides =
                 mapOf(
                     CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
                         intArrayOf(
@@ -81,7 +84,13 @@ class CameraCoordinatorAdapterTest {
                 ),
         )
 
-    private val cameraMetadata2 = FakeCameraMetadata(cameraId = CameraId("2"))
+    private val cameraMetadata2 =
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            cameraId = CameraId("2"),
+            characteristicsOverrides =
+                mapOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to intArrayOf()),
+        )
 
     private val cameraDevices =
         FakeCameraDevices(
