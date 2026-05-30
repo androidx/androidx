@@ -17,7 +17,6 @@
 package androidx.camera.camera2.impl
 
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
 import android.hardware.camera2.CaptureRequest
@@ -60,6 +59,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.camera2.testing.FakeCameraGraphSession
 import androidx.camera.camera2.testing.FakeCameraProperties
@@ -240,9 +240,7 @@ class CapturePipelineTest {
             template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
         )
     private val fakeCameraProperties =
-        FakeCameraProperties(
-            FakeCameraMetadata(mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true))
-        )
+        FakeCameraProperties(FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate))
     private val cameraStateAdapter = CameraStateAdapter()
     private val fakeUseCaseCameraContext =
         UseCaseCameraContext(

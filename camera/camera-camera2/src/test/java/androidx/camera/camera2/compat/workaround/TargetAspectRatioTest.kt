@@ -23,6 +23,7 @@ import android.util.Range
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -192,9 +193,10 @@ class TargetAspectRatioTest(val config: TestConfig) {
         val map = StreamConfigurationMapBuilder.newBuilder().build()
 
         val cameraMetadata =
-            FakeCameraMetadata(
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
                 cameraId = CameraId(BACK_CAMERA_ID),
-                characteristics =
+                characteristicsOverrides =
                     mapOf(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to config.hardwareLevel,
                         CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to map,

@@ -42,6 +42,7 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.imagecapture.CameraCapturePipeline
@@ -64,7 +65,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     private var sessionConfigAdapter = SessionConfigAdapter(emptyList())
     private var cameraGraph = FakeCameraGraph()
     private val cameraStateAdapter = CameraStateAdapter()
-    private val cameraMetadata = FakeCameraMetadata()
+    private val cameraMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val cameraQuirks =
         CameraQuirks(
             cameraMetadata,

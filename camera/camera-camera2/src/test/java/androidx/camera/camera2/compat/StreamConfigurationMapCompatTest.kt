@@ -21,6 +21,7 @@ import android.graphics.SurfaceTexture
 import android.util.Size
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
@@ -58,7 +59,10 @@ class StreamConfigurationMapCompatTest {
         streamConfigurationMapCompat =
             StreamConfigurationMapCompat(
                 builder.build(),
-                OutputSizesCorrector(FakeCameraMetadata(), builder.build()),
+                OutputSizesCorrector(
+                    FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+                    builder.build(),
+                ),
             )
     }
 
@@ -103,7 +107,10 @@ class StreamConfigurationMapCompatTest {
         val compat =
             StreamConfigurationMapCompat(
                 builder.build(),
-                OutputSizesCorrector(FakeCameraMetadata(), builder.build()),
+                OutputSizesCorrector(
+                    FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+                    builder.build(),
+                ),
             )
 
         // b/361590210: check the workaround for NullPointerException issue (on API 23+) of

@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.testing.CameraPipeSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator.createCameraQuirks
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
@@ -60,8 +61,9 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = 35)
 class FeatureCombinationQueryImplTest {
     private val cameraMetadata =
-        FakeCameraMetadata(
-            characteristics =
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            characteristicsOverrides =
                 buildMap {
                     if (Build.VERSION.SDK_INT >= 33) {
                         put(
@@ -75,7 +77,7 @@ class FeatureCombinationQueryImplTest {
                             ),
                         )
                     }
-                }
+                },
         )
 
     private val cameraPipe =

@@ -31,6 +31,7 @@ import androidx.camera.camera2.internal.HLG10_SDR_CONSTRAINED
 import androidx.camera.camera2.internal.HLG10_UNCONSTRAINED
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.DynamicRange
 import com.google.common.truth.Truth
 import org.junit.Assert
@@ -187,7 +188,8 @@ class DynamicRangeProfilesCompatTest {
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun producesNullDynamicRangeProfilesFromNullCharacteristics() {
-        val cameraMetadata = FakeCameraMetadata(cameraId = cameraId)
+        val cameraMetadata =
+            FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
 
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
@@ -199,10 +201,11 @@ class DynamicRangeProfilesCompatTest {
     @Test
     fun canProduceDynamicRangesCompatFromCharacteristics() {
         val cameraMetadata =
-            FakeCameraMetadata(
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
                 cameraId = cameraId,
-                characteristics =
-                    mutableMapOf(
+                characteristicsOverrides =
+                    mapOf(
                         CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
                             HLG10_CONSTRAINED
                     ),
@@ -217,7 +220,8 @@ class DynamicRangeProfilesCompatTest {
 
     @Test
     fun alwaysSupportsOnlySdrWithoutDynamicRangeProfilesInCharacteristics() {
-        val cameraMetadata = FakeCameraMetadata(cameraId = cameraId)
+        val cameraMetadata =
+            FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
 
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
@@ -240,7 +244,11 @@ class DynamicRangeProfilesCompatTest {
                 DOLBY_VISION_8B_UNCONSTRAINED
         }
         val cameraMetadata =
-            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = cameraId,
+                characteristicsOverrides = characteristics,
+            )
 
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
@@ -272,7 +280,11 @@ class DynamicRangeProfilesCompatTest {
                 HLG10_CONSTRAINED
         }
         val cameraMetadata =
-            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = cameraId,
+                characteristicsOverrides = characteristics,
+            )
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
 
@@ -288,7 +300,11 @@ class DynamicRangeProfilesCompatTest {
                 HLG10_CONSTRAINED
         }
         val cameraMetadata =
-            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = cameraId,
+                characteristicsOverrides = characteristics,
+            )
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
 
@@ -321,7 +337,11 @@ class DynamicRangeProfilesCompatTest {
             mockDynamicRangeProfiles
 
         val cameraMetadata =
-            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = cameraId,
+                characteristicsOverrides = characteristics,
+            )
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
 
