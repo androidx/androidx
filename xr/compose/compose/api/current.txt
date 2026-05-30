@@ -38,8 +38,6 @@ package androidx.xr.compose.platform {
   public sealed nonexhaustive interface SpatialConfiguration {
     method @InaccessibleFromKotlin public androidx.xr.compose.unit.DpVolumeSize getBounds();
     method @InaccessibleFromKotlin public boolean hasXrSpatialFeature();
-    method @Deprecated public void requestFullSpaceMode();
-    method @Deprecated public void requestHomeSpaceMode();
     property public abstract androidx.xr.compose.unit.DpVolumeSize bounds;
     property public abstract boolean hasXrSpatialFeature;
     field public static final androidx.xr.compose.platform.SpatialConfiguration.Companion Companion;
