@@ -50,14 +50,16 @@ class CameraMetadataTest {
     @Test
     fun cameraMetadataIsNotEqual() {
         val metadata1 =
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+                metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
             )
         val metadata2 =
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+                metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         assertThat(metadata1).isNotEqualTo(metadata2)
@@ -66,16 +68,17 @@ class CameraMetadataTest {
     @Test
     fun canRetrieveCameraCharacteristicsOrCameraMetadataViaInterface() {
         val metadata =
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+                metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         assertThat(metadata[FakeMetadata.TEST_KEY]).isNotNull()
         assertThat(metadata[FakeMetadata.TEST_KEY_ABSENT]).isNull()
 
         assertThat(metadata[CameraCharacteristics.LENS_FACING]).isNotNull()
-        assertThat(metadata[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]).isNull()
+        assertThat(metadata[CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES]).isNull()
     }
 
     @Test
@@ -187,9 +190,10 @@ class FrameMetadataTest {
 @Config(sdk = [Config.ALL_SDKS])
 class MetadataTransformTest {
     private val metadata =
-        FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-            mapOf(FakeMetadata.TEST_KEY to 42),
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            metadataOverrides = mapOf(FakeMetadata.TEST_KEY to 42),
         )
 
     private val requestMetadata =
