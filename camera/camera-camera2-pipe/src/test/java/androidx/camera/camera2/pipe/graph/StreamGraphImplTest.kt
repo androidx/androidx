@@ -17,8 +17,6 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.content.Context
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraBackendFactory
@@ -46,6 +44,7 @@ import androidx.camera.camera2.pipe.testing.FakeImageReaders
 import androidx.camera.camera2.pipe.testing.FakeImageSources
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -65,10 +64,7 @@ internal class StreamGraphImplTest {
     private val testScope = TestScope()
 
     private val context = ApplicationProvider.getApplicationContext() as Context
-    private val metadata =
-        FakeCameraMetadata(
-            mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
-        )
+    private val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val config = FakeGraphConfigs
     private val fakeGraphProcessor = FakeGraphProcessor()
 

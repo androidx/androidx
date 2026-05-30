@@ -34,22 +34,16 @@ internal object FakeGraphConfigs {
     private val camera2 = CameraId("TestCamera-2")
 
     val fakeMetadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-            ),
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = camera1,
+            lensFacing = CameraCharacteristics.LENS_FACING_BACK,
         )
     val fakeMetadata2 =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT,
-            ),
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
             cameraId = camera2,
+            lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
         )
     val fakeCameraBackend =
         FakeCameraBackend(
