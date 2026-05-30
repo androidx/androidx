@@ -25,6 +25,7 @@ import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIM
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.Quirks
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -72,7 +73,11 @@ class QuickSuccessiveImageCaptureFailsRepeatingRequestQuirkTest(
             Shadow.extract<ShadowCameraCharacteristics>(cameraCharacteristics)
         characteristicsMap.forEach { entry -> shadowCharacteristics.set(entry.key, entry.value) }
 
-        val cameraMetadata = FakeCameraMetadata(characteristicsMap)
+        val cameraMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides = characteristicsMap,
+            )
 
         return CameraQuirks(
                 cameraMetadata,

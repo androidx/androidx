@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P
@@ -229,6 +230,10 @@ class EncoderProfilesProviderFallbackTest {
 
         val characteristics =
             mapOf(LENS_FACING to lensFacing, SCALER_STREAM_CONFIGURATION_MAP to mockMap)
-        return FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
+        return FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            cameraId = cameraId,
+            characteristicsOverrides = characteristics,
+        )
     }
 }
