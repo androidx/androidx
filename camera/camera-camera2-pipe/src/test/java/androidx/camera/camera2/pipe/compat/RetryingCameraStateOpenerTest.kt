@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISABLED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISCONNECTED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_IN_USE
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_LIMIT_EXCEEDED
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_OPEN_TIMEOUT
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_SERVICE
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_DO_NOT_DISTURB_ENABLED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_ILLEGAL_ARGUMENT_EXCEPTION
@@ -48,6 +49,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -166,7 +169,10 @@ class RetryingCameraStateOpenerTest {
                 cameraId: CameraId
             ): CameraAvailabilityMonitor.Session {
                 return object : CameraAvailabilityMonitor.Session {
-                    override suspend fun awaitAvailableCamera(timeout: Duration): Boolean {
+                    override suspend fun awaitAvailableCamera(
+                        timeout: Duration,
+                        cancelled: Deferred<Unit>,
+                    ): Boolean {
                         delay(timeout)
                         fakeTimeSource.currentTimestamp += timeout
                         return true
@@ -957,5 +963,33 @@ class RetryingCameraStateOpenerTest {
         // The first retry should be hidden. Therefore the number of onGraphError() calls should be
         // exactly 1.
         assertThat(fakeCameraErrorListener.numberOfErrorCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun retryingCameraStateOpenerAbortsCameraRetries() = runTest {
+        whenever(fakeDevicePolicyManager.camerasDisabled).thenReturn(false)
+        cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED)
+        val cameraOpenAborted = CompletableDeferred<Unit>()
+        val result = async {
+            retryingCameraStateOpener.openCameraWithRetry(
+                cameraId0,
+                cameraDeviceCloser,
+                cameraOpenAborted = cameraOpenAborted,
+            )
+        }
+
+        // Advance time to start the camera open (retries).
+        advanceTimeBy(1_000)
+
+        // Now abort the camera open, which can happen if a superseding request is received.
+        cameraOpenAborted.complete(Unit)
+
+        // Advance time by a little bit but before the total timeout expires (10 seconds), and see
+        // if the camera open attempt is aborted.
+        advanceTimeBy(500)
+
+        val openResult = result.getCompleted()
+        assertThat(openResult.cameraState).isNull()
+        assertThat(openResult.errorCode).isEqualTo(ERROR_CAMERA_OPEN_TIMEOUT)
     }
 }
