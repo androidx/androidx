@@ -44,6 +44,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -56,9 +57,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withTimeoutOrNull
 
 private val defaultCameraRetryTimeout = 10.seconds
 private val activeResumeCameraRetryTimeout = 30.minutes
@@ -81,7 +82,7 @@ internal interface CameraAvailabilityMonitor {
     suspend fun startMonitoring(cameraId: CameraId): Session
 
     interface Session : AutoCloseable {
-        suspend fun awaitAvailableCamera(timeout: Duration): Boolean
+        suspend fun awaitAvailableCamera(timeout: Duration, cancelled: Deferred<Unit>): Boolean
     }
 }
 
@@ -90,6 +91,7 @@ internal interface RetryingCameraStateOpener {
         cameraId: CameraId,
         camera2DeviceCloser: Camera2DeviceCloser,
         isForegroundObserver: (Unit) -> Boolean = { _ -> true },
+        cameraOpenAborted: Deferred<Unit> = CompletableDeferred(),
     ): OpenCameraResult
 
     fun openAndAwaitCameraWithRetry(
@@ -159,6 +161,7 @@ constructor(
         awaitClose { manager.unregisterAvailabilityCallback(availabilityCallback) }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun startMonitoring(cameraId: CameraId): CameraAvailabilityMonitor.Session {
 
         return object : CameraAvailabilityMonitor.Session {
@@ -179,10 +182,17 @@ constructor(
                 }
             }
 
-            override suspend fun awaitAvailableCamera(timeout: Duration): Boolean {
+            override suspend fun awaitAvailableCamera(
+                timeout: Duration,
+                cancelled: Deferred<Unit>,
+            ): Boolean {
                 val listener = CompletableDeferred<Unit>()
                 listeners.add(listener)
-                val success = withTimeoutOrNull(timeout) { listener.await() } != null
+                val success = select {
+                    listener.onAwait { true }
+                    cancelled.onJoin { false }
+                    onTimeout(timeout) { false }
+                }
                 listeners.remove(listener)
                 return success
             }
@@ -417,12 +427,17 @@ constructor(
         cameraId: CameraId,
         camera2DeviceCloser: Camera2DeviceCloser,
         isForegroundObserver: (Unit) -> Boolean,
+        cameraOpenAborted: Deferred<Unit>,
     ): OpenCameraResult {
         val requestTimestamp = Timestamps.now(timeSource)
         var attempts = 0
 
         cameraAvailabilityMonitor.startMonitoring(cameraId).use {
             while (true) {
+                if (cameraOpenAborted.isCompleted) {
+                    return OpenCameraResult(errorCode = CameraError.ERROR_CAMERA_OPEN_TIMEOUT)
+                }
+
                 attempts++
 
                 val result =
@@ -476,6 +491,9 @@ constructor(
                         return result
                     }
 
+                    if (cameraOpenAborted.isCompleted) {
+                        return OpenCameraResult(errorCode = CameraError.ERROR_CAMERA_OPEN_TIMEOUT)
+                    }
                     // Listen to availability - if we are notified that the cameraId is available
                     // then retry immediately.
                     if (
@@ -484,7 +502,8 @@ constructor(
                                 getRetryDelay(
                                     elapsed,
                                     shouldActivateActiveResume(isForeground, errorCode),
-                                )
+                                ),
+                            cameraOpenAborted,
                         )
                     ) {
                         Log.debug { "Timeout expired, retrying camera open for camera $cameraId" }
@@ -615,6 +634,9 @@ constructor(
                     // [2]
                     // https://developer.android.com/reference/android/hardware/camera2/CameraManager#openCamera(java.lang.String,%20java.util.concurrent.Executor,%20android.hardware.camera2.CameraDevice.StateCallback)
                     attempts <= 1
+
+                CameraError.ERROR_CAMERA_OPENER -> false
+                CameraError.ERROR_CAMERA_OPEN_TIMEOUT -> false
 
                 else -> {
                     Log.error { "Unexpected CameraError: $this" }

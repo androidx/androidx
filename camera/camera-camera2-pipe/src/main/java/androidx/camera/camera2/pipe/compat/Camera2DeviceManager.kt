@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.compat
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
@@ -184,11 +185,13 @@ constructor(
     private val camera2DeviceCloser: Camera2DeviceCloser,
     private val camera2ErrorProcessor: Camera2ErrorProcessor,
     private val camera2SystemState: Camera2SystemState,
+    val flags: CameraPipe.Flags,
     val threads: Threads,
 ) : Camera2DeviceManager {
     private val scope = threads.cameraPipeScope
 
-    private val queue = PruningProcessingQueue(prune = ::prune) { process(it) }.processIn(scope)
+    private val queue =
+        PruningProcessingQueue(prune = ::prune, process = ::process).processIn(scope)
     private val activeCameras: MutableSet<ActiveCamera> = mutableSetOf()
 
     // PendingRequestOpen stores the context information for the pending RequestOpens to be
@@ -264,7 +267,10 @@ constructor(
     }
 
     @VisibleForTesting
-    internal fun prune(requests: MutableList<CameraRequest>) {
+    internal fun prune(
+        requests: MutableList<CameraRequest>,
+        currentRequest: CameraRequest?,
+    ): Boolean {
         // Step 1: Prioritize RequestClose - place them at the front of the queue.
         val requestCloses = requests.filter { it is RequestClose }
         requests.removeAll(requestCloses)
@@ -355,6 +361,48 @@ constructor(
             }
         }
         requests.removeIndices(prunedIndices).forEach { it.onRemoved() }
+
+        // Step 4: Determine whether we cancel the current request.
+        if (currentRequest == null) {
+            return false
+        }
+        return when (currentRequest) {
+            is RequestOpen -> {
+                val cameraId = currentRequest.virtualCamera.cameraId
+                val allCameraIds = (currentRequest.sharedCameraIds + cameraId).toSet()
+                requests.any {
+                    when (it) {
+                        is RequestCloseAll -> true
+                        is RequestCloseById -> allCameraIds.contains(it.activeCameraId)
+                        is RequestOpen -> {
+                            // Here the logic mirrors that of processRequestOpen when we determine
+                            // which camera needs to be closed. If serving a latter open request
+                            // would result in the closure of the camera being opened, we can abort
+                            // the current open attempt.
+                            //
+                            // When a "singular" camera is requested by a latter request, we can
+                            // abort the attempt if we're not opening the same camera, concurrent or
+                            // not. If concurrent, we can gracefully go from multiple cameras to one
+                            // camera.
+                            //
+                            // When a "concurrent" camera is requested by a latter request, we abort
+                            // the attempt only when the camera "union" (all cameras needed) is
+                            // different.
+                            if (it.sharedCameraIds.isEmpty()) {
+                                cameraId != it.virtualCamera.cameraId
+                            } else {
+                                val allCameraIds2 =
+                                    (it.sharedCameraIds + it.virtualCamera.cameraId).toSet()
+                                allCameraIds != allCameraIds2
+                            }
+                        }
+
+                        else -> false
+                    }
+                }
+            }
+            else -> false
+        }
     }
 
     private fun CameraRequest.onRemoved() {
@@ -363,16 +411,16 @@ constructor(
         }
     }
 
-    private suspend fun process(request: CameraRequest) {
+    private suspend fun process(request: CameraRequest, requestAborted: Deferred<Unit>) {
         when (request) {
-            is RequestOpen -> processRequestOpen(request)
+            is RequestOpen -> processRequestOpen(request, requestAborted)
             is RequestClose -> processRequestClose(request)
             is RequestCloseById -> processRequestCloseById(request)
             is RequestCloseAll -> processRequestCloseAll(request)
         }
     }
 
-    private suspend fun processRequestOpen(request: RequestOpen) {
+    private suspend fun processRequestOpen(request: RequestOpen, requestAborted: Deferred<Unit>) {
         val cameraIdToOpen = request.virtualCamera.cameraId
         Log.debug { "PruningCamera2DeviceManager#processRequestOpen($cameraIdToOpen)" }
 
@@ -402,7 +450,7 @@ constructor(
 
         // Step 2: Open the camera if not opened already.
         camera2ErrorProcessor.setActiveVirtualCamera(cameraIdToOpen, request.virtualCamera)
-        val result = retrieveActiveCamera(cameraIdToOpen, request)
+        val result = retrieveActiveCamera(cameraIdToOpen, request, requestAborted)
         if (result is RetrieveActiveCameraResult.Error) {
             if (result.lastCameraError != null) {
                 Log.error {
@@ -505,6 +553,7 @@ constructor(
     private suspend fun retrieveActiveCamera(
         cameraId: CameraId,
         requestOpen: RequestOpen,
+        requestAborted: Deferred<Unit>,
     ): RetrieveActiveCameraResult {
         var realCamera: ActiveCamera? = null
         var realCameraToken: Token? = null
@@ -530,11 +579,14 @@ constructor(
             }
         }
         if (realCamera == null) {
+            // Now open the camera with retries. If camera open is aborted before it finishes, any
+            // in-progress camera open continues but there would be no more retries.
             val openResult =
                 openCameraWithRetry(
                     cameraId,
                     requestOpen.sharedCameraIds,
                     requestOpen.isForegroundObserver,
+                    requestAborted,
                     scope,
                 )
             when (openResult) {
@@ -570,6 +622,7 @@ constructor(
         cameraId: CameraId,
         sharedCameraIds: List<CameraId>,
         isForegroundObserver: (Unit) -> Boolean,
+        cameraOpenAborted: Deferred<Unit>,
         scope: CoroutineScope,
     ): OpenVirtualCameraResult {
         Log.debug { "Opening $cameraId with retries..." }
@@ -582,6 +635,7 @@ constructor(
                 cameraId,
                 camera2DeviceCloser,
                 isForegroundObserver,
+                cameraOpenAborted,
             )
         if (result.cameraState == null) {
             camera2SystemState.onCameraClosed(cameraId)

@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -62,7 +63,8 @@ class PruningProcessingQueueTest {
                 PruningProcessingQueue<Int>(
                     capacity = 2,
                     onUnprocessedElements = unprocessElementHandler,
-                ) {}
+                ) { _, _ ->
+                }
 
             assertThat(processingQueue.tryEmit(1)).isTrue()
             assertThat(processingQueue.tryEmit(2)).isTrue()
@@ -75,10 +77,13 @@ class PruningProcessingQueueTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
                         capacity = 2,
-                        prune = { pruningCalls.add(it.toList()) },
+                        prune = { elements, _ ->
+                            pruningCalls.add(elements.toList())
+                            false
+                        },
                         onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it)
+                    ) { element, _ ->
+                        processingCalls.add(element)
                     }
                     .processIn(processingScope)
 
@@ -102,7 +107,7 @@ class PruningProcessingQueueTest {
         testScope.runTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
-                        prune = { elements ->
+                        prune = { elements, _ ->
                             pruningCalls.add(elements.toList())
 
                             // Prune algorithm: A number supersedes all preceding numbers that are
@@ -117,10 +122,11 @@ class PruningProcessingQueueTest {
                                     }
                                 }
                             }
+                            false
                         },
                         onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it)
+                    ) { element, _ ->
+                        processingCalls.add(element)
                     }
                     .processIn(processingScope)
 
@@ -150,10 +156,13 @@ class PruningProcessingQueueTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
                         capacity = 2,
-                        prune = { pruningCalls.add(it.toList()) },
+                        prune = { elements, _ ->
+                            pruningCalls.add(elements.toList())
+                            false
+                        },
                         onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it)
+                    ) { element, _ ->
+                        processingCalls.add(element)
                     }
                     .processIn(processingScope)
 
@@ -188,9 +197,13 @@ class PruningProcessingQueueTest {
         testScope.runTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
-                    prune = { pruningCalls.add(it.toList()) },
+                    prune = { elements, _ ->
+                        pruningCalls.add(elements.toList())
+                        false
+                    },
                     onUnprocessedElements = unprocessElementHandler,
-                ) {}
+                ) { _, _ ->
+                }
 
             processingQueue.tryEmit(1)
             processingQueue.tryEmit(2)
@@ -208,10 +221,13 @@ class PruningProcessingQueueTest {
         testScope.runTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
-                        prune = { pruningCalls.add(it.toList()) },
+                        prune = { elements, _ ->
+                            pruningCalls.add(elements.toList())
+                            false
+                        },
                         onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it)
+                    ) { element, _ ->
+                        processingCalls.add(element)
                     }
                     .processIn(processingScope)
 
@@ -239,10 +255,13 @@ class PruningProcessingQueueTest {
         testScope.runTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
-                        prune = { pruningCalls.add(it.toList()) },
+                        prune = { elements, _ ->
+                            pruningCalls.add(elements.toList())
+                            false
+                        },
                         onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it)
+                    ) { element, _ ->
+                        processingCalls.add(element)
                         delay(100.milliseconds)
                     }
                     .processIn(processingScope)
@@ -284,10 +303,13 @@ class PruningProcessingQueueTest {
         testScope.runTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
-                        prune = { pruningCalls.add(it.toList()) },
+                        prune = { elements, _ ->
+                            pruningCalls.add(elements.toList())
+                            false
+                        },
                         onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it)
+                    ) { element, _ ->
+                        processingCalls.add(element)
                         delay(100.milliseconds)
                         throw RuntimeException("Test")
                     }
@@ -312,10 +334,13 @@ class PruningProcessingQueueTest {
         testScope.runTest {
             val processingQueue =
                 PruningProcessingQueue<Int>(
-                        prune = { pruningCalls.add(it.toList()) },
+                        prune = { elements, _ ->
+                            pruningCalls.add(elements.toList())
+                            false
+                        },
                         onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it)
+                    ) { element, _ ->
+                        processingCalls.add(element)
                     }
                     .processIn(processingScope)
 
@@ -329,5 +354,39 @@ class PruningProcessingQueueTest {
 
             assertThat(pruningCalls).containsExactly(listOf(1, 1), listOf(1, 1, 1))
             assertThat(processingCalls).containsExactly(1, 1, 1, 1, 1)
+        }
+
+    @Test
+    fun elementsCanBeAborted() =
+        testScope.runTest {
+            val processingQueue =
+                PruningProcessingQueue<Int>(
+                        prune = { elements, currentElement ->
+                            if (currentElement == null) {
+                                false
+                            } else {
+                                elements.any { it > currentElement }
+                            }
+                        },
+                        onUnprocessedElements = unprocessElementHandler,
+                    ) { element, elementAborted ->
+                        withTimeoutOrNull(100.milliseconds) { elementAborted.await() }
+                            ?: processingCalls.add(element)
+                    }
+                    .processIn(processingScope)
+
+            processingQueue.emitChecked(1)
+            advanceTimeBy(50.milliseconds)
+
+            processingQueue.emitChecked(2)
+            advanceTimeBy(50.milliseconds)
+
+            processingQueue.emitChecked(3)
+            advanceTimeBy(50.milliseconds)
+
+            processingQueue.emitChecked(4)
+            advanceUntilIdle()
+
+            assertThat(processingCalls).containsExactly(4)
         }
 }

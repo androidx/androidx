@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.core
 
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -74,9 +75,9 @@ import kotlinx.coroutines.supervisorScope
  */
 internal class PruningProcessingQueue<T>(
     val capacity: Int = Channel.UNLIMITED,
-    private val prune: (MutableList<T>) -> Unit = {},
+    private val prune: (MutableList<T>, T?) -> Boolean = { _, _ -> false },
     private val onUnprocessedElements: (List<T>) -> Unit = {},
-    private val process: suspend (T) -> Unit,
+    private val process: suspend (T, Deferred<Unit>) -> Unit,
 ) {
     private val started = atomic(false)
     private val channel = Channel<T>(capacity = capacity, onUndeliveredElement = { queue.add(it) })
@@ -102,6 +103,8 @@ internal class PruningProcessingQueue<T>(
     }
 
     private suspend fun processingLoop() = supervisorScope {
+        var currentElement: T? = null
+        var currentElementAborted: CompletableDeferred<Unit>? = null
         var processDeferred: Deferred<Unit>? = null
         var exitCause: Throwable? = null
         while (isActive) {
@@ -130,10 +133,16 @@ internal class PruningProcessingQueue<T>(
                             nextResult = channel.tryReceive()
                         }
                         Log.debug { "PruningProcessingQueue: Pruning $queue" }
-                        prune(queue)
+                        if (prune(queue, currentElement)) {
+                            currentElementAborted?.complete(Unit)
+                        }
                     }
 
-                    processDeferred?.onAwait { processDeferred = null }
+                    processDeferred?.onAwait {
+                        currentElement = null
+                        currentElementAborted = null
+                        processDeferred = null
+                    }
                 }
             } catch (cancellationException: CancellationException) {
                 Log.debug { "PruningProcessingQueue: Scope cancelled" }
@@ -146,16 +155,19 @@ internal class PruningProcessingQueue<T>(
 
             if (queue.isEmpty() || processDeferred != null) continue
 
-            val elementToProcess = queue.removeFirst()
+            val element = queue.removeFirst()
+            val elementAborted = CompletableDeferred<Unit>()
             val deferred = async {
-                Log.debug { "PruningProcessingQueue: Processing $elementToProcess" }
-                process(elementToProcess)
+                Log.debug { "PruningProcessingQueue: Processing $element" }
+                process(element, elementAborted)
             }
             if (deferred.isCancelled) {
                 // If the Job is already cancelled, the CoroutineScope may have been cancelled.
-                Log.info { "Unable to process $elementToProcess due to Job cancellation" }
+                Log.info { "Unable to process $currentElement due to Job cancellation" }
                 break
             }
+            currentElement = element
+            currentElementAborted = elementAborted
             processDeferred = deferred
         }
 
