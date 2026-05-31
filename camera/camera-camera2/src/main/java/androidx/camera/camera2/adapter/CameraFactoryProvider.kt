@@ -109,6 +109,7 @@ public class CameraFactoryProvider(
                                 sharedInteropCallbacks.sessionStateCallback,
                                 openRetryMaxTimeout,
                             ),
+                        flags = CameraPipe.Flags(cameraOpenAbortEnabled = true),
                     )
                 )
             Camera2Logger.debug {
