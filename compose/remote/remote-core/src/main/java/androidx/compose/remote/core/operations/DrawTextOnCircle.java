@@ -50,12 +50,34 @@ public class DrawTextOnCircle extends PaintOperation implements VariableSupport,
     public enum Alignment {
         START,
         CENTER,
-        END,
+        END;
+
+        /** Cached values array to avoid allocations. */
+        private static final Alignment[] VALUES = Alignment.values();
+
+        /** Maps an integer to Alignment safely. */
+        public static @NonNull Alignment fromInt(int value) {
+            if (value < 0 || value >= VALUES.length) {
+                return START;
+            }
+            return VALUES[value];
+        }
     }
 
     public enum Placement {
         OUTSIDE,
-        INSIDE,
+        INSIDE;
+
+        /** Cached values array to avoid allocations. */
+        private static final Placement[] VALUES = Placement.values();
+
+        /** Maps an integer to Placement safely. */
+        public static @NonNull Placement fromInt(int value) {
+            if (value < 0 || value >= VALUES.length) {
+                return OUTSIDE;
+            }
+            return VALUES[value];
+        }
     }
 
     public DrawTextOnCircle(
@@ -118,8 +140,8 @@ public class DrawTextOnCircle extends PaintOperation implements VariableSupport,
         float radius = buffer.readNanId();
         float startAngle = buffer.readNanId();
         float warpRadiusOffset = buffer.readNanId();
-        Alignment alignment = Alignment.values()[buffer.readByte()];
-        Placement placement = Placement.values()[buffer.readByte()];
+        Alignment alignment = Alignment.fromInt(buffer.readByte());
+        Placement placement = Placement.fromInt(buffer.readByte());
 
         operations.add(
                 new DrawTextOnCircle(
