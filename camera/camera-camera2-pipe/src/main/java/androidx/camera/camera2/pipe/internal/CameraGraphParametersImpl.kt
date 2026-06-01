@@ -78,7 +78,6 @@ internal constructor(
     }
 
     public override fun setAll(newParameters: Map<Any, Any?>) {
-        val listenersToPurge = mutableSetOf<ParameterUpdateListener>()
         val invokeUpdate =
             synchronized(lock) {
                 var modified = false
@@ -86,38 +85,13 @@ internal constructor(
                     val isModified = modify(parameters, key, value)
                     if (isModified) {
                         modified = true
-                        purgeListenersForKey(key, listenersToPurge)
                     }
                 }
                 shouldApplyUpdate(modified)
             }
-        for (listener in listenersToPurge) {
-            listener.onUpdateSkipped(null)
-        }
         if (invokeUpdate) {
             applyUpdate()
         }
-    }
-
-    @GuardedBy("lock")
-    private fun purgeListenersForKey(
-        key: Any,
-        listenersToPurge: MutableSet<ParameterUpdateListener>,
-    ): Boolean {
-        var removed = false
-        val iterator = listeners.listIterator()
-        while (iterator.hasNext()) {
-            val currentListener = iterator.next()
-            if (currentListener.key == key) {
-                listenersToPurge.add(currentListener.clientListener)
-                iterator.remove()
-                removed = true
-                if (listenerMap[key] == currentListener) {
-                    listenerMap.remove(key)
-                }
-            }
-        }
-        return removed
     }
 
     @GuardedBy("lock")
@@ -140,34 +114,38 @@ internal constructor(
         value: T?,
         listener: ParameterUpdateListener,
     ) {
-        val wrappedListener =
-            ParameterUpdateRequestListener(key, listener) { self ->
-                removeAndPurgePriors(key, self)
-            }
-        var oldListenerToPurge: ParameterUpdateListener? = null
-        synchronized(lock) {
-            modify(parameters, key, value)
-            listeners.add(wrappedListener)
-            val oldWrappedListener = listenerMap.put(key, wrappedListener)
-            if (oldWrappedListener != null) {
-                check(oldWrappedListener is ParameterUpdateRequestListener) {
-                    "Parameter listener of type $oldWrappedListener is not supported!"
+        var skipListener = false
+        val invokeUpdate =
+            synchronized(lock) {
+                if (parameters.containsKey(key) && parameters[key] == value) {
+                    skipListener = true
+                    false
+                } else {
+                    val wrappedListener = ParameterUpdateRequestListener(key, listener, this)
+                    modify(parameters, key, value)
+                    listeners.add(wrappedListener)
+                    listenerMap[key] = wrappedListener
+                    shouldApplyUpdate(modified = true)
                 }
-                listeners.remove(oldWrappedListener)
-                oldListenerToPurge = oldWrappedListener.clientListener
             }
-            shouldApplyUpdate(modified = true)
+        if (skipListener) {
+            listener.onUpdateSkipped(null)
+        } else if (invokeUpdate) {
+            applyUpdate()
         }
-        oldListenerToPurge?.onUpdateSkipped(null)
-        applyUpdate()
     }
 
-    private fun removeAndPurgePriors(
+    // A listener is purged (meaning it receives an onUpdateSkipped callback and is removed) only
+    // when it is superseded by a newer apply() call for the same parameter key before it ever gets
+    // a chance to be sent to the camera framework.
+    //
+    // This avoids premature updates to the listener collection and prevents accidental listener
+    // removal when apply() and other lifecycle methods are called in rapid succession.
+    internal fun removeAndPurgePriors(
         key: CaptureRequest.Key<*>,
         listener: ParameterUpdateRequestListener,
     ) {
-        val listenersToPurge = mutableSetOf<ParameterUpdateListener>()
-        var removed = false
+        val listenersToPurge = mutableSetOf<ParameterUpdateRequestListener>()
         synchronized(lock) {
             val iterator = listeners.listIterator()
             while (iterator.hasNext()) {
@@ -176,7 +154,6 @@ internal constructor(
                 // listenerMap.
                 if (currentListener == listener) {
                     iterator.remove()
-                    removed = true
                     if (listenerMap[key] == listener) {
                         listenerMap.remove(key)
                     }
@@ -184,43 +161,26 @@ internal constructor(
                 }
                 // Only remove the listener with matching Key.
                 if (currentListener.key == key) {
-                    listenersToPurge.add(currentListener.clientListener)
+                    listenersToPurge.add(currentListener)
                     iterator.remove()
-                    removed = true
                 }
-            }
-            if (removed) {
-                dirty = true
             }
         }
         for (priorListener in listenersToPurge) {
-            priorListener.onUpdateSkipped(null)
-        }
-        if (removed) {
-            applyUpdate()
+            priorListener.trySkip()
         }
     }
 
     public override fun clear() {
-        val listenersToPurge = mutableSetOf<ParameterUpdateListener>()
         val invokeUpdate =
             synchronized(lock) {
                 if (parameters.isNotEmpty()) {
                     parameters.clear()
-                    for (listener in listeners) {
-                        listenersToPurge.add(listener.clientListener)
-                    }
-                    listeners.clear()
-                    listenerMap.clear()
                     shouldApplyUpdate(modified = true)
                 } else {
                     false
                 }
             }
-
-        for (listener in listenersToPurge) {
-            listener.onUpdateSkipped(null)
-        }
 
         if (invokeUpdate) {
             applyUpdate()
@@ -237,7 +197,6 @@ internal constructor(
 
     public override fun removeAll(keys: Set<*>): Boolean {
         var modified = false
-        val listenersToPurge = mutableSetOf<ParameterUpdateListener>()
         val invokeUpdate =
             synchronized(lock) {
                 for (key in keys) {
@@ -245,7 +204,6 @@ internal constructor(
                     if (parameters.containsKey(key)) {
                         parameters.remove(key)
                         modified = true
-                        purgeListenersForKey(key, listenersToPurge)
                     }
                     if (key !is CaptureRequest.Key<*> && key !is Metadata.Key<*>) {
                         warn {
@@ -255,9 +213,6 @@ internal constructor(
                 }
                 shouldApplyUpdate(modified)
             }
-        for (listener in listenersToPurge) {
-            listener.onUpdateSkipped(null)
-        }
         if (invokeUpdate) {
             applyUpdate()
         }
@@ -302,17 +257,23 @@ internal constructor(
 internal class ParameterUpdateRequestListener(
     val key: CaptureRequest.Key<*>,
     val clientListener: ParameterUpdateListener,
-    private val removeAndPurge: (ParameterUpdateRequestListener) -> Unit,
+    private val cameraGraphParameters: CameraGraphParametersImpl,
 ) : Request.Listener by NoOpRequestListener {
-    private val firstCaptureStarted = AtomicBoolean(false)
-    private val firstCaptureCompleted = AtomicBoolean(false)
+    private val started = AtomicBoolean(false)
+    private val completed = AtomicBoolean(false)
+
+    internal fun trySkip() {
+        if (!started.get() && completed.compareAndSet(false, true)) {
+            clientListener.onUpdateSkipped(null)
+        }
+    }
 
     override fun onStarted(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         timestamp: CameraTimestamp,
     ) {
-        if (firstCaptureStarted.compareAndSet(false, true)) {
+        if (started.compareAndSet(false, true)) {
             clientListener.onUpdateStarted(requestMetadata, frameNumber, timestamp)
         }
     }
@@ -322,26 +283,26 @@ internal class ParameterUpdateRequestListener(
         frameNumber: FrameNumber,
         result: FrameInfo,
     ) {
-        if (firstCaptureCompleted.compareAndSet(false, true)) {
+        if (completed.compareAndSet(false, true)) {
             clientListener.onUpdateCompleted(requestMetadata, frameNumber, result)
-            removeAndPurge(this)
+            cameraGraphParameters.removeAndPurgePriors(key, this)
         }
     }
 
     override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
-        if (!firstCaptureStarted.get()) {
+        if (!started.get()) {
             clientListener.onUpdateRequestCreated(requestMetadata)
         }
     }
 
     override fun onRequestSequenceSubmitted(requestMetadata: RequestMetadata) {
-        if (!firstCaptureStarted.get()) {
+        if (!started.get()) {
             clientListener.onUpdateRequestSubmitted(requestMetadata)
         }
     }
 
     override fun onAborted(request: Request) {
-        if (!firstCaptureCompleted.get()) {
+        if (!started.get() && completed.compareAndSet(false, true)) {
             clientListener.onUpdateSkipped(null)
         }
     }
@@ -351,7 +312,7 @@ internal class ParameterUpdateRequestListener(
         frameNumber: FrameNumber,
         requestFailure: RequestFailure,
     ) {
-        if (!firstCaptureCompleted.get()) {
+        if (!started.get() && completed.compareAndSet(false, true)) {
             clientListener.onUpdateSkipped(requestFailure)
         }
     }
