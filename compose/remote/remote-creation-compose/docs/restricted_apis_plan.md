@@ -39,9 +39,9 @@ The following API reviews and cleanups are currently in progress:
     - `HostAction` class and `HostAction.Type` enum: Used for triggering named actions on the host.
     - `ValueChange` overloads for `RemoteDp`: Restricted factory functions.
   - **Proposed CL Split**:
-    - [ ] **CL 1**: Redesign `Action` to avoid `toRemoteAction()` on public interface.
-    - [ ] **CL 2**: Review `HostAction` and related types.
-    - [ ] **CL 3**: Review `ValueChange` factory functions and overloads.
+    - [x] **CL 1**: Redesign `Action` to avoid `toRemoteAction()` on public interface.
+    - [x] **CL 2**: Review `HostAction` and related types.
+    - [x] **CL 3**: Review `ValueChange` factory functions and overloads.
 
 - [ ] **Batch 2: `androidx.compose.remote.creation.compose.layout` (Part 1: Arrangements & Alignments)**
   - [ ] Review `RemoteArrangement` (25 occurrences) and `RemoteAlignment` (restricted implementation classes and conversion methods).
@@ -111,7 +111,6 @@ The following API reviews and cleanups are currently in progress:
 - [ ] **Batch 13: Others**
   - [ ] Review `ExperimentalRemoteCreationComposeApi`
   - [ ] Review `RemoteComposeCreationComposeFlags`
-  - [ ] Review `DocumentStats`
 
 - [ ] **Batch 14: `androidx.compose.remote.creation.compose.capture`**
   - [ ] Review `RemoteComposeCreationState`
