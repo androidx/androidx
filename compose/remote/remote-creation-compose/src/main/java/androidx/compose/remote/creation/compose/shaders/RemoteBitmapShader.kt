@@ -95,12 +95,12 @@ public data class RemoteBitmapBrush(
         val finalScaleY: RemoteFloat
         when (contentScale) {
             ContentScale.Fit -> {
-                val scale = scaleX.lt(scaleY).select(scaleX, scaleY)
+                val scale = scaleX.isLessThan(scaleY).select(scaleX, scaleY)
                 finalScaleX = scale
                 finalScaleY = scale
             }
             ContentScale.Crop -> {
-                val scale = scaleX.gt(scaleY).select(scaleX, scaleY)
+                val scale = scaleX.isGreaterThan(scaleY).select(scaleX, scaleY)
                 finalScaleX = scale
                 finalScaleY = scale
             }
@@ -117,8 +117,8 @@ public data class RemoteBitmapBrush(
                 finalScaleY = scaleY
             }
             ContentScale.Inside -> {
-                val minScale = scaleX.lt(scaleY).select(scaleX, scaleY)
-                val scale = minScale.lt(1.rf).select(minScale, 1.rf)
+                val minScale = scaleX.isLessThan(scaleY).select(scaleX, scaleY)
+                val scale = minScale.isLessThan(1.rf).select(minScale, 1.rf)
                 finalScaleX = scale
                 finalScaleY = scale
             }
