@@ -148,7 +148,7 @@ public object RemoteIconButtonDefaults {
      */
     public fun iconSizeFor(buttonSize: RemoteDp): RemoteDp =
         buttonSize.value
-            .isGreaterThan(LargeButtonSize.value)
+            .gt(LargeButtonSize.value)
             .select(
                 ifTrue = LargeIconSize.value,
                 ifFalse = max(SmallIconSize.value, buttonSize.value / 2f.rf),

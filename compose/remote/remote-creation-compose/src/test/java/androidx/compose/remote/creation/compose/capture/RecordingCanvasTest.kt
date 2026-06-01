@@ -259,7 +259,7 @@ class RecordingCanvasTest {
     @Test
     fun testCommonSubexpressionElimination_Select_InTree() {
         val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val cond = x.isLessThan(RemoteFloat(5f))
+        val cond = x lt RemoteFloat(5f)
         val sub = cond.select(RemoteFloat(100f), RemoteFloat(200f))
 
         val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)

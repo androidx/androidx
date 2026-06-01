@@ -99,7 +99,7 @@ private object NonLinearRemoteFontScaleConverter : RemoteFontScaleConverter {
     override fun convertSpToDp(textUnit: RemoteTextUnit, fontScale: RemoteFloat): RemoteFloat {
         val sp = textUnit.value
         // Android framework threshold for applying non-linear curves
-        val isSmallScale = fontScale.isLessThan(1.03f.rf)
+        val isSmallScale = fontScale.lt(1.03f.rf)
 
         return isSmallScale.select(
             sp * fontScale, // Linear fallback
@@ -125,7 +125,7 @@ private object NonLinearRemoteFontScaleConverter : RemoteFontScaleConverter {
         table: List<Pair<Float, (RemoteFloat) -> RemoteFloat>>,
     ): RemoteFloat {
         return table.foldRight(0f.rf) { (threshold, calculation), acc ->
-            x.isLessThan(threshold.rf).select(calculation(x), acc)
+            x.lt(threshold.rf).select(calculation(x), acc)
         }
     }
 
