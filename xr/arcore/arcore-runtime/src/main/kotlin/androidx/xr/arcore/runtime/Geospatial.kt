@@ -132,6 +132,9 @@ public interface Geospatial {
 
     public val state: State
 
+    /** The current [GeospatialPose] of the device/camera. */
+    public val geospatialPose: GeospatialPose
+
     /**
      * Converts the input [GeospatialPose] to a [Pose] in the same position.
      *

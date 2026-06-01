@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore
 
+import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAuthorizedException
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
@@ -67,7 +68,8 @@ internal constructor(
         }
     }
 
-    private val _state = MutableStateFlow(State(GeospatialTrackingState.NOT_RUNNING, owner = this))
+    private val _state =
+        MutableStateFlow(State(GeospatialTrackingState.NOT_RUNNING, GeospatialPose(), owner = this))
 
     public val state: StateFlow<State> = _state.asStateFlow()
 
@@ -280,7 +282,11 @@ internal constructor(
 
     override suspend fun update() {
         _state.emit(
-            State(runtimeStateToGeospatialTrackingState(runtimeGeospatial.state), owner = this)
+            State(
+                runtimeStateToGeospatialTrackingState(runtimeGeospatial.state),
+                runtimeGeospatial.geospatialPose,
+                owner = this,
+            )
         )
     }
 
@@ -391,16 +397,20 @@ internal constructor(
     public class State
     internal constructor(
         public val geospatialTrackingState: GeospatialTrackingState,
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val geospatialPose: GeospatialPose,
         public val owner: Geospatial,
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is State) return false
-            return geospatialTrackingState == other.geospatialTrackingState && owner == other.owner
+            return geospatialTrackingState == other.geospatialTrackingState &&
+                geospatialPose == other.geospatialPose &&
+                owner == other.owner
         }
 
         override fun hashCode(): Int {
             var result = geospatialTrackingState.hashCode()
+            result = 31 * result + geospatialPose.hashCode()
             result = 31 * result + owner.hashCode()
             return result
         }

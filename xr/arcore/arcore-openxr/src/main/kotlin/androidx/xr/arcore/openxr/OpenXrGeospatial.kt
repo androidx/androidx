@@ -42,6 +42,9 @@ internal class OpenXrGeospatial(
     override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
         private set
 
+    override var geospatialPose: GeospatialPose = GeospatialPose()
+        private set
+
     override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         val xrTime = timeSource.getXrTime(timeSource.markNow())
         val result = nativeLocatePoseFromGeospatialPose(xrTime, geospatialPose)
@@ -116,6 +119,11 @@ internal class OpenXrGeospatial(
      */
     override fun update(xrTime: Long) {
         state = nativeGetGeospatialState(xrTime) ?: Geospatial.State.NOT_RUNNING
+        if (state == Geospatial.State.RUNNING) {
+            nativeCreateGeospatialPoseFromPose(xrTime, Pose())?.geospatialPose?.let {
+                geospatialPose = it
+            }
+        }
     }
 
     private fun checkNativeAnchorIsValid(nativeAnchor: Long) {

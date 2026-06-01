@@ -28,7 +28,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -46,7 +48,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.ArDevice
+import androidx.xr.arcore.CreateGeospatialPoseFromPoseInternalError
+import androidx.xr.arcore.CreateGeospatialPoseFromPoseNotTracking
+import androidx.xr.arcore.CreateGeospatialPoseFromPoseResult
 import androidx.xr.arcore.CreateGeospatialPoseFromPoseSuccess
+import androidx.xr.arcore.CreatePoseFromGeospatialPoseInternalError
+import androidx.xr.arcore.CreatePoseFromGeospatialPoseNotTracking
+import androidx.xr.arcore.CreatePoseFromGeospatialPoseResult
 import androidx.xr.arcore.CreatePoseFromGeospatialPoseSuccess
 import androidx.xr.arcore.Geospatial
 import androidx.xr.arcore.TrackingState
@@ -63,6 +71,10 @@ import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.GeospatialPose
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
 import kotlinx.coroutines.launch
 
 @OptIn(PreviewSpatialApi::class)
@@ -75,6 +87,14 @@ class LowPowerGeospatialActivity : ComponentActivity() {
 
     private fun GeospatialMode.getTargetModeName(): String {
         return if (this == GeospatialMode.INERTIAL) "INERTIAL" else "SPATIAL"
+    }
+
+    private fun GeospatialMode.getTargetModeTitle(): String {
+        return if (this == GeospatialMode.INERTIAL) {
+            "LOW_POWER (INERTIAL)\n[Tap glasses to switch]"
+        } else {
+            "HIGH_ACCURACY (SPATIAL)\n[Tap glasses to switch]"
+        }
     }
 
     private var sessionInstance by mutableStateOf<Session?>(null)
@@ -198,7 +218,7 @@ class LowPowerGeospatialActivity : ComponentActivity() {
     private fun GeospatialDashboard(geospatial: Geospatial, arDevice: ArDevice) {
         val geospatialState by geospatial.state.collectAsState()
         val arDeviceState by arDevice.state.collectAsState()
-        val localizationStatusResult =
+        val geoPoseResult =
             remember(arDeviceState.devicePose, geospatialState.geospatialTrackingState) {
                 if (
                     geospatialState.geospatialTrackingState ==
@@ -214,74 +234,46 @@ class LowPowerGeospatialActivity : ComponentActivity() {
                     null
                 }
             }
+
+        val deviceGeoPoseState = geospatialState.geospatialPose
+        val deviceGeoPose =
+            deviceGeoPoseState ?: (geoPoseResult as? CreateGeospatialPoseFromPoseSuccess)?.pose
+
+        val localPoseResult =
+            remember(deviceGeoPoseState, geospatialState.geospatialTrackingState) {
+                if (
+                    geospatialState.geospatialTrackingState ==
+                        Geospatial.GeospatialTrackingState.RUNNING
+                ) {
+                    try {
+                        geospatial.createPoseFromGeospatialPose(deviceGeoPoseState)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error creating pose from geospatial pose", e)
+                        null
+                    }
+                } else {
+                    null
+                }
+            }
+
         Box(
             modifier =
                 Modifier.fillMaxSize()
                     .background(GlimmerTheme.colors.surface)
                     .clickable { toggleGeospatialMode() }
-                    .padding(top = 72.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
+                    .padding(top = 56.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
         ) {
-            Column(
-                modifier = Modifier.align(Alignment.TopStart),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                val geospatialTrackingMessage = geospatialState.getGeospatialStateMessage()
-                val deviceTrackingMessage = arDeviceState.trackingState.getTrackingStateMessage()
-                val translation = arDeviceState.devicePose.translation
-                val rotation = arDeviceState.devicePose.rotation
-                Text(
-                    "Mode: ${targetModeState.getTargetModeName()} (Tap/Click to switch)",
-                    color = GlimmerTheme.colors.primary,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text("Geospatial Tracking: $geospatialTrackingMessage", fontSize = 16.sp)
-                Text("Device Tracking: $deviceTrackingMessage", fontSize = 16.sp)
-                Text(
-                    "Local XYZ: ${"%.3f".format(translation.x)}, ${"%.3f".format(translation.y)}, ${"%.3f".format(translation.z)}",
-                    fontSize = 16.sp,
-                )
-                Text(getOrientationDescription(rotation), fontSize = 16.sp)
-                val localizationResult = localizationStatusResult
-                if (localizationResult !is CreateGeospatialPoseFromPoseSuccess) {
-                    Text("Lat/Lon: N/A", fontSize = 16.sp)
-                    Text("Alt: N/A", fontSize = 16.sp)
-                    Text("Acc(H/V/Y): N/A", fontSize = 16.sp)
-                    Text("EUS Quat: N/A", fontSize = 16.sp)
-                    Text("RT delta XYZ: N/A", fontSize = 16.sp)
-                    return@Column
-                }
-                val geospatialPose = localizationResult.pose
-                val horizontalAccuracy = localizationResult.horizontalAccuracy
-                val verticalAccuracy = localizationResult.verticalAccuracy
-                val yawAccuracy = localizationResult.orientationYawAccuracy
-                val eastUpSouthQuaternion = geospatialPose.eastUpSouthQuaternion
-                Text(
-                    "Lat/Lon: ${"%.6f".format(geospatialPose.latitude)}, ${"%.6f".format(geospatialPose.longitude)}",
-                    fontSize = 16.sp,
-                )
-                Text("Alt: ${"%.1f".format(geospatialPose.altitude)} m", fontSize = 16.sp)
-                Text(
-                    "Acc(H/V/Y): ${"%.1f".format(horizontalAccuracy)}m / ${"%.1f".format(verticalAccuracy)}m / ${"%.1f".format(yawAccuracy)}°",
-                    fontSize = 16.sp,
-                )
-                Text(
-                    "EUS Quat: ${"%.2f".format(eastUpSouthQuaternion.x)}, ${"%.2f".format(eastUpSouthQuaternion.y)}, ${"%.2f".format(eastUpSouthQuaternion.z)}, ${"%.2f".format(eastUpSouthQuaternion.w)}",
-                    fontSize = 16.sp,
-                )
-                val nonGeospatialResult =
-                    remember(geospatialPose) {
-                        geospatial.createPoseFromGeospatialPose(geospatialPose)
-                    }
-                val runtimeDeltaText =
-                    if (nonGeospatialResult is CreatePoseFromGeospatialPoseSuccess) {
-                        val originalTranslation = arDeviceState.devicePose.translation
-                        val runtimeTranslation = nonGeospatialResult.pose.translation
-                        "RT delta XYZ: ${"%.3f".format(runtimeTranslation.x - originalTranslation.x)}, ${"%.3f".format(runtimeTranslation.y - originalTranslation.y)}, ${"%.3f".format(runtimeTranslation.z - originalTranslation.z)}"
-                    } else {
-                        "RT delta XYZ: N/A"
-                    }
-                Text(runtimeDeltaText, fontSize = 16.sp)
+            Column(modifier = Modifier.align(Alignment.TopStart)) {
+                DashboardHeader(geospatialState, arDeviceState)
+                LocalTrackingSection(arDeviceState)
+                GeospatialTrackingSection(deviceGeoPose, geoPoseResult, arDeviceState)
+
+                Spacer(modifier = Modifier.height(8.dp))
+                HudTitleText("— CONVERSION VALUES —")
+
+                val deviceLocalPose = arDeviceState.devicePose
+                HudDataText(calculateLocalConversionText(localPoseResult, deviceLocalPose))
+                HudDataText(calculateGeoConversionText(geoPoseResult, deviceGeoPoseState))
             }
             Button(onClick = { finish() }, modifier = Modifier.align(Alignment.TopEnd)) {
                 Icon(
@@ -292,25 +284,206 @@ class LowPowerGeospatialActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    private fun DashboardHeader(
+        geospatialState: Geospatial.State?,
+        arDeviceState: ArDevice.State?,
+    ) {
+        val geoStr = geospatialState.getGeospatialStateMessage()
+        val devStr = arDeviceState?.trackingState.getTrackingStateMessage()
+        HudModeTitleText(
+            text = targetModeState.getTargetModeTitle(),
+            modifier = Modifier.padding(end = 72.dp),
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        HudDataText(
+            text = "Geo: $geoStr | Device: $devStr",
+            modifier = Modifier.padding(end = 72.dp),
+        )
+    }
+
+    @Composable
+    private fun LocalTrackingSection(arDeviceState: ArDevice.State?) {
+        val t = arDeviceState?.devicePose?.translation ?: return
+        val rot = arDeviceState.devicePose.rotation
+        HudDataText("Local XYZ: ${t.toFormattedString()}")
+        HudDataText("Local Quat: ${rot.toFormattedString()}")
+    }
+
+    @Composable
+    private fun GeospatialTrackingSection(
+        dispGeoPose: GeospatialPose?,
+        locResult: CreateGeospatialPoseFromPoseResult?,
+        arDeviceState: ArDevice.State?,
+    ) {
+        if (dispGeoPose != null) {
+            HudDataText(dispGeoPose.toFormattedString())
+        } else {
+            HudDataText("Lat/Lon: N/A | Alt: N/A")
+        }
+
+        if (locResult is CreateGeospatialPoseFromPoseSuccess) {
+            HudDataText(locResult.toAccuracyString())
+        } else {
+            HudDataText("Acc(H/V/Yaw): N/A")
+        }
+
+        if (dispGeoPose != null) {
+            val eusStr = dispGeoPose.eastUpSouthQuaternion.toFormattedString()
+            HudDataText("EUS Quat: $eusStr")
+        } else {
+            HudDataText("EUS Quat: N/A")
+        }
+
+        if (arDeviceState != null) {
+            val orientStr = getOrientationDescription(arDeviceState.devicePose.rotation)
+            HudDataText("Orientation: $orientStr")
+        }
+    }
+
+    @Composable
+    private fun HudTitleText(text: String, modifier: Modifier = Modifier) {
+        Text(
+            text = text,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            lineHeight = 22.sp,
+            modifier = modifier,
+        )
+    }
+
+    @Composable
+    private fun HudModeTitleText(text: String, modifier: Modifier = Modifier) {
+        Text(
+            text = text,
+            color = GlimmerTheme.colors.primary,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            lineHeight = 22.sp,
+            modifier = modifier,
+        )
+    }
+
+    @Composable
+    private fun HudDataText(text: String, modifier: Modifier = Modifier) {
+        Text(text = text, fontSize = 16.sp, lineHeight = 20.sp, modifier = modifier)
+    }
+
+    private fun Vector3.toFormattedString(): String = "%.3f, %.3f, %.3f".format(x, y, z)
+
+    private fun Quaternion.toFormattedString(): String = "%.3f, %.3f, %.3f, %.3f".format(x, y, z, w)
+
+    private fun GeospatialPose.toFormattedString(): String =
+        "Lat/Lon: %.6f, %.6f | Alt: %.1fm".format(latitude, longitude, altitude)
+
+    private fun CreateGeospatialPoseFromPoseSuccess.toAccuracyString(): String =
+        "Acc(H/V/Yaw): %.1fm / %.1fm / %.1f°"
+            .format(horizontalAccuracy, verticalAccuracy, orientationYawAccuracy)
+
+    private fun calculateLocalConversionText(
+        localPoseResult: CreatePoseFromGeospatialPoseResult?,
+        deviceLocalPose: Pose,
+    ): String {
+        return when (localPoseResult) {
+            is CreatePoseFromGeospatialPoseSuccess -> {
+                val convPose = localPoseResult.pose
+                val diffM =
+                    getTranslationDiffMeters(convPose.translation, deviceLocalPose.translation)
+                val poseStatus = if (diffM <= 0.05f) "✅" else "❌"
+
+                val diffDeg = getAngleDiffDegrees(convPose.rotation, deviceLocalPose.rotation)
+                val rotStatus = if (diffDeg <= 2.0f) "✅" else "❌"
+                "Local: Pose $poseStatus(${"%.3f".format(diffM)}m) | Rot $rotStatus(${"%.1f".format(diffDeg)}°)"
+            }
+            is CreatePoseFromGeospatialPoseNotTracking -> "Local: ERROR (Not tracking)"
+            is CreatePoseFromGeospatialPoseInternalError ->
+                "Local: ERROR (${localPoseResult.error})"
+            else -> "Local: N/A"
+        }
+    }
+
+    private fun calculateGeoConversionText(
+        geoPoseResult: CreateGeospatialPoseFromPoseResult?,
+        deviceGeoPoseState: GeospatialPose?,
+    ): String {
+        return when (geoPoseResult) {
+            is CreateGeospatialPoseFromPoseSuccess -> {
+                if (deviceGeoPoseState != null) {
+                    val convGeo = geoPoseResult.pose
+                    // Note on Microdegrees (µ°):
+                    // 1 degree of latitude is approximately 111.3 kilometers on Earth.
+                    // Therefore, 1 microdegree (1 degree / 1_000_000) is approximately 11.13
+                    // centimeters (~4.4 inches).
+                    // We use microdegrees because raw degree differences at sub-meter scale (e.g.,
+                    // 0.0000005°)
+                    // would be lost or unreadable in standard formatting. Microdegrees allow us to
+                    // cleanly verify
+                    // sub-centimeter round-trip conversion precision using simple floating-point
+                    // values.
+                    val diffLatMicro =
+                        kotlin.math.abs(convGeo.latitude - deviceGeoPoseState.latitude) *
+                            1_000_000.0
+                    val diffLonMicro =
+                        kotlin.math.abs(convGeo.longitude - deviceGeoPoseState.longitude) *
+                            1_000_000.0
+                    val latLonStatus =
+                        if (diffLatMicro <= 10.0 && diffLonMicro <= 10.0) "✅" else "❌"
+
+                    val diffAltM = kotlin.math.abs(convGeo.altitude - deviceGeoPoseState.altitude)
+                    val altStatus = if (diffAltM <= 0.05) "✅" else "❌"
+
+                    val diffDeg =
+                        getAngleDiffDegrees(
+                            convGeo.eastUpSouthQuaternion,
+                            deviceGeoPoseState.eastUpSouthQuaternion,
+                        )
+                    val rotStatus = if (diffDeg <= 2.0f) "✅" else "❌"
+                    "Geo LatLong: $latLonStatus(${"%.2f".format(diffLatMicro)}µ°, ${"%.2f".format(diffLonMicro)}µ°)\nGeo Alt/Rot: Alt $altStatus(${"%.2f".format(diffAltM)}m) | Rot $rotStatus(${"%.1f".format(diffDeg)}°)"
+                } else {
+                    "Geo LatLong: N/A (System GeoPose null)\nGeo Alt/Rot: N/A"
+                }
+            }
+            is CreateGeospatialPoseFromPoseNotTracking ->
+                "Geo LatLong: ERROR (Not tracking)\nGeo Alt/Rot: ERROR (Not tracking)"
+            is CreateGeospatialPoseFromPoseInternalError ->
+                "Geo LatLong: ERROR (${geoPoseResult.error})\nGeo Alt/Rot: ERROR (${geoPoseResult.error})"
+            else -> "Geo LatLong: N/A (Not running)\nGeo Alt/Rot: N/A (Not running)"
+        }
+    }
+
+    private fun getAngleDiffDegrees(q1: Quaternion, q2: Quaternion): Float {
+        val dot = q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w
+        val absDot = kotlin.math.abs(dot).coerceIn(0f, 1f)
+        return (2.0 * kotlin.math.acos(absDot.toDouble()) * (180.0 / kotlin.math.PI)).toFloat()
+    }
+
+    private fun getTranslationDiffMeters(t1: Vector3, t2: Vector3): Float {
+        val dx = t1.x - t2.x
+        val dy = t1.y - t2.y
+        val dz = t1.z - t2.z
+        return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+    }
+
     private fun TrackingState?.getTrackingStateMessage(): String {
         return when (this) {
             TrackingState.TRACKING -> "TRACKING"
             TrackingState.PAUSED -> "PAUSED"
             TrackingState.STOPPED -> "STOPPED"
             TrackingState.TRACKING_DEGRADED -> "DEGRADED"
-            else -> "Unknown"
+            else -> "UNKNOWN"
         }
     }
 
     private fun Geospatial.State?.getGeospatialStateMessage(): String {
         return when (this?.geospatialTrackingState) {
-            Geospatial.GeospatialTrackingState.RUNNING -> "Running (Tracking)"
-            Geospatial.GeospatialTrackingState.NOT_RUNNING -> "Not Running"
-            Geospatial.GeospatialTrackingState.ERROR_INTERNAL -> "Internal Error"
-            Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED -> "Not Authorized"
-            Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED -> "Resource Exhausted"
-            Geospatial.GeospatialTrackingState.PAUSED -> "Paused"
-            else -> "Checking..."
+            Geospatial.GeospatialTrackingState.RUNNING -> "RUNNING"
+            Geospatial.GeospatialTrackingState.NOT_RUNNING -> "NOT_RUNNING"
+            Geospatial.GeospatialTrackingState.ERROR_INTERNAL -> "ERROR_INTERNAL"
+            Geospatial.GeospatialTrackingState.ERROR_NOT_AUTHORIZED -> "ERROR_NOT_AUTHORIZED"
+            Geospatial.GeospatialTrackingState.ERROR_RESOURCE_EXHAUSTED ->
+                "ERROR_RESOURCE_EXHAUSTED"
+            Geospatial.GeospatialTrackingState.PAUSED -> "PAUSED"
+            else -> "UNKNOWN"
         }
     }
 }

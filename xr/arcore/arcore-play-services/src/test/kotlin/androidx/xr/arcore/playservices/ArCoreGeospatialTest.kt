@@ -103,6 +103,7 @@ class ArCoreGeospatialTest {
     private fun setupGeospatialTracking() {
         whenever(mockArCoreEarth.earthState).thenReturn(ARCore1xEarth.EarthState.ENABLED)
         whenever(mockArCoreEarth.trackingState).thenReturn(ARCore1xTrackingState.TRACKING)
+        whenever(mockArCoreEarth.cameraGeospatialPose).thenReturn(mockArCoreGeospatialPose)
         underTest.update(mockSession)
         check(underTest.state == Geospatial.State.RUNNING)
     }
@@ -175,6 +176,23 @@ class ArCoreGeospatialTest {
         underTest.update(mockSession)
 
         assertThat(underTest.state).isEqualTo(Geospatial.State.ERROR_RESOURCE_EXHAUSTED)
+    }
+
+    @Test
+    fun update_whenTracking_setsGeospatialPose() {
+        setupGeospatialTracking()
+
+        assertThat(underTest.geospatialPose).isEqualTo(GEOSPATIAL_POSE)
+    }
+
+    @Test
+    fun update_whenNotTracking_doesNotUpdateGeospatialPose() {
+        setupGeospatialTracking() // sets geospatialPose to GEOSPATIAL_POSE
+
+        whenever(mockArCoreEarth.trackingState).thenReturn(ARCore1xTrackingState.PAUSED)
+        underTest.update(mockSession)
+
+        assertThat(underTest.geospatialPose).isEqualTo(GEOSPATIAL_POSE)
     }
 
     // --- createPoseFromGeospatialPose Tests ---
