@@ -1,40 +1,238 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta05)" variant="all" version="9.0.0-beta05">
+<issues format="6" by="lint 9.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha05)" variant="all" version="9.3.0-alpha05">
 
     <issue
-        id="WrongConstant"
-        message="Must be one of: State.UNANCHORED, State.ANCHORED, State.TIMED_OUT, State.ERROR"
-        errorLine1="            RtAnchorEntity.State.UNANCHORED -> State.UNANCHORED"
-        errorLine2="                                 ~~~~~~~~~~">
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
         <location
-            file="src/main/java/androidx/xr/scenecore/AnchorEntity.kt"/>
+            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
     </issue>
 
     <issue
-        id="WrongConstant"
-        message="Must be one of: State.UNANCHORED, State.ANCHORED, State.TIMED_OUT, State.ERROR"
-        errorLine1="            RtAnchorEntity.State.ANCHORED -> State.ANCHORED"
-        errorLine2="                                 ~~~~~~~~">
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
         <location
-            file="src/main/java/androidx/xr/scenecore/AnchorEntity.kt"/>
+            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
     </issue>
 
     <issue
-        id="WrongConstant"
-        message="Must be one of: State.UNANCHORED, State.ANCHORED, State.TIMED_OUT, State.ERROR"
-        errorLine1="            RtAnchorEntity.State.TIMED_OUT -> State.TIMEDOUT"
-        errorLine2="                                 ~~~~~~~~~">
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
         <location
-            file="src/main/java/androidx/xr/scenecore/AnchorEntity.kt"/>
+            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
     </issue>
 
     <issue
-        id="WrongConstant"
-        message="Must be one of: State.UNANCHORED, State.ANCHORED, State.TIMED_OUT, State.ERROR"
-        errorLine1="            RtAnchorEntity.State.ERROR -> State.ERROR"
-        errorLine2="                                 ~~~~~">
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
         <location
-            file="src/main/java/androidx/xr/scenecore/AnchorEntity.kt"/>
+            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/testrule/TestRuleScenePoseTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(testDispatcher) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/xr/scenecore/testrule/TestRuleScenePoseTest.kt"/>
     </issue>
 
 </issues>

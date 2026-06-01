@@ -92,6 +92,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     ScreenshotTestSdkSuppressAnnotationEnforcer.ISSUE,
                     ExperimentalCompanionWithNonExperimentalElementsDetector.ISSUE,
                     MissingRobolectricSdkConfigDetector.ISSUE,
+                    KotlinRunTestReturnResultDetector.RUN_TEST_RESULT_UNUSED_ISSUE,
                 )
             }
     }

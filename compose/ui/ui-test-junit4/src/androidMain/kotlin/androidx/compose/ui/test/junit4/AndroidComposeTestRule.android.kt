@@ -444,7 +444,7 @@ private constructor(
         return object : Statement() {
             override fun evaluate() {
                 try {
-                    environment.runTest {
+                    return environment.runTest {
                         activityRule.apply(testWithDisposal, description).evaluate()
                     }
                 } finally {

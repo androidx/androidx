@@ -47,17 +47,17 @@ class JvmCompositionTests {
     // Test taken from the bug report; reformatted to conform to lint rules.
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun avoidsDeadlockInRecomposerComposerDispose() {
-        val thread = thread {
-            while (!Thread.interrupted()) {
-                // -> synchronized(stateLock) -> recordComposerModificationsLocked
-                // -> composition.recordModificationsOf -> synchronized(lock)
-                Snapshot.sendApplyNotifications()
+    fun avoidsDeadlockInRecomposerComposerDispose() =
+        runTest(UnconfinedTestDispatcher()) {
+            val thread = thread {
+                while (!Thread.interrupted()) {
+                    // -> synchronized(stateLock) -> recordComposerModificationsLocked
+                    // -> composition.recordModificationsOf -> synchronized(lock)
+                    Snapshot.sendApplyNotifications()
+                }
             }
-        }
 
-        for (i in 1..1000) {
-            runTest(UnconfinedTestDispatcher()) {
+            for (i in 1..1000) {
                 localRecomposerTest {
                     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE") var value by mutableStateOf(0)
                     val snapshotObserver = SnapshotStateObserver {}
@@ -73,10 +73,9 @@ class JvmCompositionTests {
                     snapshotObserver.stop()
                 }
             }
-        }
 
-        thread.interrupt()
-    }
+            thread.interrupt()
+        }
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
