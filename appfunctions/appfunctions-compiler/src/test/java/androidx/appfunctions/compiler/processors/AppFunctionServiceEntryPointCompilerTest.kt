@@ -62,6 +62,31 @@ class AppFunctionServiceEntryPointCompilerTest {
     }
 
     @Test
+    fun testExtensionAppFunctionEntryPoint_generatesServiceClass() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/ExtensionEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "MyExtensionService.kt",
+            goldenFileName = "entrypoints/MyExtensionService.KT",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "\$ExtensionEntryPoint_AppFunctionInventory.kt",
+            goldenFileName = "inventory/\$ExtensionEntryPoint_AppFunctionInventory.KT",
+        )
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "my_extension_service.xml",
+            goldenFileName = "entrypoints/my_extension_service.xml",
+        )
+    }
+
+    @Test
     fun testMissingSuperClass_hasCompileError() {
         val report =
             compilationTestHelper.compileAll(
@@ -71,7 +96,9 @@ class AppFunctionServiceEntryPointCompilerTest {
 
         compilationTestHelper.assertErrorWithMessage(
             report,
-            "Class must extend androidx.appfunctions.AppFunctionService",
+            "lass must extend either " +
+                "androidx.appfunctions.AppFunctionService or " +
+                "androidx.appfunctions.ExtensionsAppFunctionService",
         )
     }
 

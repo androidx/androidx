@@ -18,6 +18,7 @@ package androidx.appfunctions.compiler.core
 
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceEntryPointAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.ExtensionsAppFunctionServiceClass
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
@@ -99,9 +100,16 @@ class AnnotatedAppFunctionServiceEntryPoint(
                 it.declaration.qualifiedName?.asString() ==
                     AppFunctionServiceClass.CLASS_NAME.canonicalName
             }
-        if (!isAppFunctionService) {
+        val isExtensionAppFunctionService =
+            serviceDeclaration.getAllSuperTypes().any {
+                it.declaration.qualifiedName?.asString() ==
+                    ExtensionsAppFunctionServiceClass.CLASS_NAME.canonicalName
+            }
+        if (!isAppFunctionService && !isExtensionAppFunctionService) {
             throw ProcessingException(
-                "Class must extend ${AppFunctionServiceClass.CLASS_NAME.canonicalName}",
+                "Class must extend either " +
+                    "${AppFunctionServiceClass.CLASS_NAME.canonicalName} or " +
+                    ExtensionsAppFunctionServiceClass.CLASS_NAME.canonicalName,
                 serviceDeclaration,
             )
         }

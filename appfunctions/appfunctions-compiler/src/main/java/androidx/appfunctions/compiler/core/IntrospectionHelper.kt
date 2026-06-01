@@ -207,6 +207,10 @@ object IntrospectionHelper {
         }
     }
 
+    object ExtensionsAppFunctionServiceClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExtensionsAppFunctionService")
+    }
+
     object AppFunctionExecutionDispatcherClass {
         val CLASS_NAME =
             ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionExecutionDispatcher")
