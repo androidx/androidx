@@ -155,10 +155,28 @@ public abstract class AppFunctionService :
      * reported as [androidx.appfunctions.AppFunctionAppUnknownException].
      *
      * ### Cancellation
+     *
      * The agent app can cancel the execution of an app function at any time. When this happens, the
-     * coroutine executing this `executeFunction` will be cancelled. Implementations should handle
-     * the [kotlinx.coroutines.CancellationException] appropriately, for example, by ceasing any
-     * ongoing work and releasing resources.
+     * coroutine executing this `executeFunction` will be canceled. Therefore, the implementation is
+     * recommended to handle coroutine cancellation gradefully.
+     *
+     * For example:
+     * ```kotlin
+     * override suspend fun executeFunction(
+     *     request: ExecuteAppFunctionRequest
+     * ): ExecuteAppFunctionResponse {
+     *     return withContext(backgroundDispatcher) {
+     *         // Perform CPU-intensive work cooperatively
+     *         val data = request.functionParameters.getStringList("myData") ?: emptyList()
+     *         val results = mutableListOf<String>()
+     *         for (item in data) {
+     *             ensureActive()
+     *             // Process item...
+     *         }
+     *         ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY)
+     *     }
+     * }
+     * ```
      *
      * @param request The function execution request.
      */

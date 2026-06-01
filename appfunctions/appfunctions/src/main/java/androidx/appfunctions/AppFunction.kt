@@ -62,9 +62,39 @@ import androidx.annotation.RestrictTo
  *
  * ### Thread Management
  *
- * **IMPORTANT:** By default, functions annotated with `@AppFunction` are executed on the main
- * thread. For operations that may take a significant amount of time, it is crucial to use a
- * coroutine dispatcher that runs on a background thread.
+ * IMPORTANT: By default functions annotated with @AppFunction are executed on the main thread.
+ * declare the function as a suspend function and switch threads if the implementation performs
+ * blocking operations.
+ *
+ * ### Cancellation Handling
+ *
+ * If the system or the calling application cancels the execution of an AppFunction, the coroutine
+ * running the function will be canceled. Therefore, the implementation is recommended to handle
+ * coroutine cancellation gradefully.
+ *
+ * To make a CPU-intensive loop cooperative with cancellation, periodically call
+ * [kotlinx.coroutines.ensureActive] within the loop. This is a lightweight check that throws a
+ * [kotlinx.coroutines.CancellationException] if the execution has been canceled.
+ *
+ * For example:
+ * ```kotlin
+ * @AppFunction
+ * suspend fun processLargeData(
+ *     context: AppFunctionContext,
+ *     data: List<String>
+ * ): List<Result> {
+ *     // Switch to a background dispatcher for CPU-intensive work
+ *     return withContext(backgroundDispatcher) {
+ *         val results = mutableListOf<Result>()
+ *         for (item in data) {
+ *             // Periodically check for cancellation
+ *             ensureActive()
+ *             results.add(heavyProcessing(item))
+ *         }
+ *         results
+ *     }
+ * }
+ * ```
  *
  * ### Error Handling
  *
