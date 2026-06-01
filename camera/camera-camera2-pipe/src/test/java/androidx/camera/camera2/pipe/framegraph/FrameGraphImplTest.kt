@@ -23,6 +23,7 @@ import android.util.Size
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.FrameBuffers.tryPeekFirst
 import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
@@ -64,7 +65,7 @@ class FrameGraphImplTest {
             StreamFormat.YUV_420_888,
             imageSourceConfig = androidx.camera.camera2.pipe.ImageSourceConfig(capacity = 10),
         )
-    private val streamConfig2 = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
+    private val streamConfig2 = CameraStream.Config.create(Size(1080, 720), StreamFormat.PRIVATE)
 
     private val streamConfig3 =
         CameraStream.Config.create(
@@ -740,6 +741,46 @@ class FrameGraphImplTest {
             firstImage?.close()
             lastImage?.close()
             buffer.close()
+        }
+
+    @Test
+    fun multiple_captureWith_doesNotExhaustUnrelatedStream() =
+        testScope.runTest {
+            initialize(this)
+
+            val streamId1 = frameGraph.streams[streamConfig1]!!.id
+            val streamId3 = frameGraph.streams[streamConfig3]!!.id
+
+            val buffer1 = frameGraph.captureWith(setOf(streamId1), capacity = 10)
+            val buffer3 = frameGraph.captureWith(setOf(streamId3), capacity = 2)
+            advanceUntilIdle()
+
+            // Buffer1 has size=10, and it contains stream1 which has size 10. Buffer3 has size=2,
+            // and it contains stream3, which has size=2.
+            //
+            // We simulate 8 frames.
+            // If each frame in buffer1 accidentally holds reference to images from stream3, then
+            // the first two images from stream3 will not be released until the first two Frames
+            // from buffer1 are evicted. It will lead to new images being dropped from stream3.
+            //
+            // If that's not the case then this loop should run without any error.
+            repeat(8) {
+                val simulatedFrame = frameGraph.simulateNextFrame()
+                advanceUntilIdle()
+                simulatedFrame.simulateImages()
+                advanceUntilIdle()
+
+                val frame = buffer3.tryPeekFirst()!!
+                advanceUntilIdle()
+                val image = frame.getImage(streamId3)!!
+
+                image.close()
+                frame.close()
+                advanceUntilIdle()
+            }
+
+            buffer1.close()
+            buffer3.close()
         }
 
     companion object {
