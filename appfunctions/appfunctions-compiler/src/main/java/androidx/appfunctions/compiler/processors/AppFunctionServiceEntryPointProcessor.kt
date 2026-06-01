@@ -80,6 +80,7 @@ class AppFunctionServiceEntryPointProcessor(
 ) : SymbolProcessor {
     private var isProcessed = false
 
+    // TODO(b/463909015): Generate IDs for each AppFunction.
     override fun process(resolver: Resolver): List<KSAnnotated> {
         if (isProcessed) return emptyList()
         isProcessed = true
@@ -119,7 +120,6 @@ class AppFunctionServiceEntryPointProcessor(
         )
     }
 
-    // TODO(b/463909015): Generate IDs for each AppFunction.
     private fun generateAppFunctionService(
         serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint
     ) {
