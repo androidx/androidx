@@ -15,6 +15,23 @@ This plan outlines the strategy to review and clean up all restricted APIs in th
 
 We will tackle the cleanup in batches, grouped by package.
 
+### In-Progress API Cleanups & CLs
+
+The following API reviews and cleanups are currently in progress:
+
+- **[CL 4003513](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003513)**: Removed `RemoteInt/Float.toRemoteString(before, after, flags)` to clean up leaky APIs.
+- **[CL 4003413](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003413)**: Exposed `RemoteEnum` and `RemoteStateLayout` as public APIs.
+- **[CL 4034886](https://android-review.googlesource.com/c/platform/frameworks/support/+/4034886)**: Exposed `fontVariationSettings` in `RemotePaint`.
+- **[CL 4076652](https://android-review.googlesource.com/c/platform/frameworks/support/+/4076652)**: Exposed the `RemotePath.Builder` API.
+- **[CL 4092671](https://android-review.googlesource.com/c/platform/frameworks/support/+/4092671)**: Exposed the capture `Flow` API and made the non-deprecated `captureSingleRemoteDocument` public.
+- **[CL 4094960](https://android-review.googlesource.com/c/platform/frameworks/support/+/4094960)**: Refactored logical and bitwise operator parameters in `RemoteState`.
+- **[CL 4097154](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097154)**: Renamed `RemoteBoolean` comparison operators.
+- **[CL 4097153](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097153)**: Renamed `RemoteFloat` comparison operators.
+- **[CL 4097233](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097233)**: Renamed `RemoteBoolean` logical operators.
+
+---
+
+
 - [ ] **Batch 1: `androidx.compose.remote.creation.compose.action`**
   - **Focus**: Actions and input events.
   - **Key APIs to Review**:
@@ -46,16 +63,16 @@ We will tackle the cleanup in batches, grouped by package.
   - [ ] Review `RemoteTextStyle` (3 occurrences)
 
 - [ ] **Batch 6: `androidx.compose.remote.creation.compose.state` (Part 1: Primitives)**
-  - [ ] Review `RemoteBoolean`
-  - [ ] Review `RemoteInt`
-  - [ ] Review `RemoteFloat`
+  - [x] Review `RemoteBoolean` ([CL 4097154](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097154) and [CL 4097233](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097233))
+  - [x] Review `RemoteInt` ([CL 4003513](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003513) and [CL 4094960](https://android-review.googlesource.com/c/platform/frameworks/support/+/4094960))
+  - [x] Review `RemoteFloat` ([CL 4003513](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003513) and [CL 4097153](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097153))
   - [ ] Review `RemoteLong`
   - [ ] Review `RemoteString`
-  - [ ] Cluster operations into related groups (arithmetic, comparison, conversion, etc.)
+  - [x] Cluster operations into related groups (arithmetic, comparison, conversion, etc.)
 
 - [ ] **Batch 7: `androidx.compose.remote.creation.compose.state` (Part 2: Complex Types)**
   - [ ] Review `RemoteColor` (10 occurrences)
-  - [ ] Review `RemotePaint` (5 occurrences)
+  - [x] Review `RemotePaint` - Expose `fontVariationSettings` ([CL 4034886](https://android-review.googlesource.com/c/platform/frameworks/support/+/4034886))
   - [ ] Review `RemoteBitmap` (7 occurrences)
   - [ ] Review `RemoteBitmapFont` (2 occurrences)
   - [ ] Review `RemoteColorFilter` (3 occurrences)
@@ -64,15 +81,15 @@ We will tackle the cleanup in batches, grouped by package.
   - [ ] Compare and fix mapping to Compose naming for graphics types.
 
 - [ ] **Batch 8: `androidx.compose.remote.creation.compose.state` (Part 3: Helpers)**
-  - [ ] Review `RemoteFloatOperations` (16 occurrences)
-  - [ ] Review `RemoteEnum` (6 occurrences)
+  - [x] Review `RemoteFloatOperations` / logical and bitwise operators ([CL 4094960](https://android-review.googlesource.com/c/platform/frameworks/support/+/4094960))
+  - [x] Review `RemoteEnum` and `RemoteStateLayout` ([CL 4003413](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003413))
   - [ ] Review `RemoteMatrix3x3` (3 occurrences)
   - [ ] Review `RemoteStateScope` and investigate if it should be `internal`.
 
 - [ ] **Batch 9: `androidx.compose.remote.creation.compose.vector`**
   - [ ] Review `RemoteVector` (1 occurrence)
   - [ ] Review `RemoteVectorPainter` (1 occurrence)
-  - [ ] Review `RemotePathNode` (1 occurrence)
+  - [x] Review `RemotePathNode` / `RemotePath.Builder` ([CL 4076652](https://android-review.googlesource.com/c/platform/frameworks/support/+/4076652))
   - [ ] Focus on vector graphics support.
 
 - [ ] **Batch 10: `androidx.compose.remote.creation.compose.shapes`**
@@ -100,7 +117,7 @@ We will tackle the cleanup in batches, grouped by package.
   - [ ] Review `RemoteComposeCreationState`
   - [ ] Review `LocalRemoteComposeCreationState`
   - [ ] Review `RecordingCanvas`
-  - [ ] Address `Flow<>` capture (requires bigger changes). Tackle this batch last.
+  - [x] Address `Flow<>` capture and make `captureSingleRemoteDocument` public ([CL 4092671](https://android-review.googlesource.com/c/platform/frameworks/support/+/4092671))
 
 ## Out of Scope
 
