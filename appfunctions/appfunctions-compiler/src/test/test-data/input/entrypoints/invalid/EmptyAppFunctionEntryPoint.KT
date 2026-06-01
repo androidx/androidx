@@ -1,9 +1,9 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionService
-import androidx.appfunctions.AppFunctionEntryPoint
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-@AppFunctionEntryPoint("MySimpleService", "app_functions_v2.xml")
+@AppFunctionServiceEntryPoint("MySimpleService", "app_functions_v2.xml")
 abstract class EmptyAppFunctionEntryPoint: AppFunctionService() {
 
 }

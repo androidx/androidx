@@ -22,7 +22,7 @@ import java.io.File
 import org.junit.Before
 import org.junit.Test
 
-class AppFunctionEntryPointCompilerTest {
+class AppFunctionServiceEntryPointCompilerTest {
     private lateinit var compilationTestHelper: CompilationTestHelper
 
     @Before
@@ -85,7 +85,7 @@ class AppFunctionEntryPointCompilerTest {
 
         compilationTestHelper.assertErrorWithMessage(
             report,
-            "The class being annotated with AppFunctionEntryPoint should be an abstract class",
+            "The class being annotated with AppFunctionServiceEntryPoint should be an abstract class",
         )
     }
 

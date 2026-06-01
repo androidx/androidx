@@ -23,12 +23,12 @@ import androidx.appfunctions.compiler.core.SymbolNotReadyException
 import androidx.appfunctions.compiler.core.logException
 import androidx.appfunctions.compiler.processors.AppFunctionAggregateProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionComponentRegistryProcessor
-import androidx.appfunctions.compiler.processors.AppFunctionEntryPointProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionIdProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionInvokerProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionSchemaInventoryProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionSerializableProcessor
+import androidx.appfunctions.compiler.processors.AppFunctionServiceEntryPointProcessor
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -106,7 +106,7 @@ class AppFunctionCompiler(
             val schemaInventoryProcessor =
                 AppFunctionSchemaInventoryProcessor(environment.codeGenerator, options)
             val entryPointProcessor =
-                AppFunctionEntryPointProcessor(environment.codeGenerator, environment.logger)
+                AppFunctionServiceEntryPointProcessor(environment.codeGenerator, environment.logger)
             return AppFunctionCompiler(
                 listOf(
                     functionRegistryProcessor,

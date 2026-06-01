@@ -217,6 +217,14 @@ package androidx.appfunctions {
     method public final void onExecuteFunction(android.app.appfunctions.ExecuteAppFunctionRequest request, String callingPackage, android.content.pm.SigningInfo signingInfo, android.os.CancellationSignal cancellationSignal, android.os.OutcomeReceiver<android.app.appfunctions.ExecuteAppFunctionResponse,android.app.appfunctions.AppFunctionException> callback);
   }
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionServiceEntryPoint {
+    ctor @KotlinOnly public AppFunctionServiceEntryPoint(String serviceName, String appFunctionXmlFileName);
+    method @InaccessibleFromKotlin public abstract String appFunctionXmlFileName();
+    method @InaccessibleFromKotlin public abstract String serviceName();
+    property public abstract String appFunctionXmlFileName;
+    property public abstract String serviceName;
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
     ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues);
     method @InaccessibleFromKotlin public abstract String[] enumValues() default {};
