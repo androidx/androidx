@@ -64,11 +64,29 @@ public class TestEmbeddedPhotoPickerSession(
 
     private val _selectedUris: MutableList<Uri> =
         synchronizedList(featureInfo.preSelectedUris.toMutableList())
+
+    /** The list of URIs that are currently selected in this session. */
     public val selectedUris: List<Uri>
         get() = _selectedUris
 
+    /** Boolean flag indicating whether this session has been closed or not. */
     @Volatile
     public var isClosed: Boolean = false
+        private set
+
+    /** The view that represents the embedded photo picker. */
+    public val view: View
+        get() = _view
+
+    /** The last configuration received by this session via [notifyConfigurationChanged]. */
+    @Volatile
+    public var lastConfiguration: Configuration? = null
+        private set
+
+    /** The last expanded state received by this session via [notifyPhotoPickerExpanded]. */
+    @Volatile
+    @Suppress("AutoBoxing")
+    public var lastExpandedState: Boolean? = null
         private set
 
     private val _view: View
@@ -104,11 +122,13 @@ public class TestEmbeddedPhotoPickerSession(
     }
 
     override fun notifyConfigurationChanged(configuration: Configuration) {
+        lastConfiguration = configuration
         _view.dispatchConfigurationChanged(configuration)
     }
 
-    /* NoOp for test implementation. */
-    override fun notifyPhotoPickerExpanded(isExpanded: Boolean) {}
+    override fun notifyPhotoPickerExpanded(isExpanded: Boolean) {
+        lastExpandedState = isExpanded
+    }
 
     override fun notifyResized(width: Int, height: Int) {
         _host.relayout(width, height)

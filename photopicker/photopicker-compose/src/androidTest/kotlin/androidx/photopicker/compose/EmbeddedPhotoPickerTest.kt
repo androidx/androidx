@@ -16,12 +16,16 @@
 
 package androidx.photopicker.compose
 
+import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider
 import androidx.photopicker.testing.TestEmbeddedPhotoPickerSession
@@ -46,7 +50,8 @@ class EmbeddedPhotoPickerTest {
     private val TestEmbeddedPhotoPickerProvider.lastTestSession: TestEmbeddedPhotoPickerSession
         get() = sessions.last() as TestEmbeddedPhotoPickerSession
 
-    @get:Rule val composeTestRule = createComposeRule(effectContext = StandardTestDispatcher())
+    private val testDispatcher = StandardTestDispatcher()
+    @get:Rule val composeTestRule = createComposeRule(effectContext = testDispatcher)
 
     @Before
     fun setUp() {
@@ -58,77 +63,210 @@ class EmbeddedPhotoPickerTest {
 
     @Test
     @ExperimentalPhotoPickerComposeApi
-    fun testEmbeddedPhotoPickerProvidesSurfaceHostTokenToState() = runTest {
-        val testProvider = TestEmbeddedPhotoPickerProvider.get()
-        lateinit var state: EmbeddedPhotoPickerState
+    fun testEmbeddedPhotoPickerProvidesSurfaceHostTokenToState() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
+            lateinit var state: EmbeddedPhotoPickerState
 
-        composeTestRule.setContent {
-            state = rememberEmbeddedPhotoPickerState()
-            EmbeddedPhotoPicker(state = state, provider = testProvider)
+            composeTestRule.setContent {
+                state = rememberEmbeddedPhotoPickerState()
+                EmbeddedPhotoPicker(state = state, provider = testProvider)
+            }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                state.surfaceHostToken != null
+            }
+            assertThat(state.surfaceHostToken).isNotNull()
         }
-
-        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) { state.surfaceHostToken != null }
-        assertThat(state.surfaceHostToken).isNotNull()
-    }
 
     @Test
     @ExperimentalPhotoPickerComposeApi
-    fun testEmbeddedPhotoPickerProvidesSurfaceSizeToState() = runTest {
-        val testProvider = TestEmbeddedPhotoPickerProvider.get()
-        lateinit var state: EmbeddedPhotoPickerStateImpl
+    fun testEmbeddedPhotoPickerProvidesSurfaceSizeToState() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
+            lateinit var state: EmbeddedPhotoPickerStateImpl
 
-        composeTestRule.setContent {
-            state = rememberEmbeddedPhotoPickerState() as EmbeddedPhotoPickerStateImpl
-            EmbeddedPhotoPicker(state = state, provider = testProvider)
-        }
+            composeTestRule.setContent {
+                state = rememberEmbeddedPhotoPickerState() as EmbeddedPhotoPickerStateImpl
+                EmbeddedPhotoPicker(state = state, provider = testProvider)
+            }
 
-        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
-            state.surfaceSize != IntSize.Zero
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                state.surfaceSize != IntSize.Zero
+            }
+            assertThat(state.surfaceSize).isNotEqualTo(IntSize.Zero)
         }
-        assertThat(state.surfaceSize).isNotEqualTo(IntSize.Zero)
-    }
 
     @Test
     @ExperimentalPhotoPickerComposeApi
-    fun testEmbeddedPhotoPickerOpensSession() = runTest {
-        val testProvider = TestEmbeddedPhotoPickerProvider.get()
+    fun testEmbeddedPhotoPickerOpensSession() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
-        composeTestRule.setContent {
-            EmbeddedPhotoPicker(state = rememberEmbeddedPhotoPickerState(), provider = testProvider)
-        }
-
-        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
-            testProvider.sessions.isNotEmpty()
-        }
-        val session = testProvider.lastTestSession
-        assertThat(session).isNotNull()
-    }
-
-    @Test
-    @ExperimentalPhotoPickerComposeApi
-    fun testEmbeddedPhotoPickerClosesSessionOnDisposal() = runTest {
-        val testProvider = TestEmbeddedPhotoPickerProvider.get()
-        var showPicker by mutableStateOf(true)
-
-        composeTestRule.setContent {
-            if (showPicker) {
+            composeTestRule.setContent {
                 EmbeddedPhotoPicker(
                     state = rememberEmbeddedPhotoPickerState(),
                     provider = testProvider,
                 )
             }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                testProvider.sessions.isNotEmpty()
+            }
+            val session = testProvider.lastTestSession
+            assertThat(session).isNotNull()
         }
 
-        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
-            testProvider.sessions.isNotEmpty()
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerClosesSessionOnDisposal() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
+            var showPicker by mutableStateOf(true)
+
+            composeTestRule.setContent {
+                if (showPicker) {
+                    EmbeddedPhotoPicker(
+                        state = rememberEmbeddedPhotoPickerState(),
+                        provider = testProvider,
+                    )
+                }
+            }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                testProvider.sessions.isNotEmpty()
+            }
+            val session = testProvider.lastTestSession
+
+            assertThat(session.isClosed).isFalse()
+
+            composeTestRule.runOnUiThread { showPicker = false }
+            composeTestRule.waitForIdle()
+
+            assertThat(session.isClosed).isTrue()
         }
-        val session = testProvider.lastTestSession
 
-        assertThat(session.isClosed).isFalse()
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerResizingSync() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
-        composeTestRule.runOnUiThread { showPicker = false }
-        composeTestRule.waitForIdle()
+            val initialSize = IntSize(200, 400)
+            val targetSize = IntSize(500, 800)
+            var containerSize by mutableStateOf(initialSize)
 
-        assertThat(session.isClosed).isTrue()
+            composeTestRule.setContent {
+                SizingContainer(width = containerSize.width, height = containerSize.height) {
+                    EmbeddedPhotoPicker(
+                        state = rememberEmbeddedPhotoPickerState(),
+                        provider = testProvider,
+                    )
+                }
+            }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                testProvider.sessions.isNotEmpty()
+            }
+            val session = testProvider.lastTestSession
+
+            composeTestRule.runOnUiThread { containerSize = targetSize }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                session.view.width == containerSize.width &&
+                    session.view.height == containerSize.height
+            }
+        }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerConfigurationChangePropagation() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
+
+            lateinit var state: EmbeddedPhotoPickerState
+
+            composeTestRule.setContent {
+                state = rememberEmbeddedPhotoPickerState()
+                EmbeddedPhotoPicker(state = state, provider = testProvider)
+            }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                testProvider.sessions.isNotEmpty()
+            }
+            val session = testProvider.lastTestSession
+
+            val newConfig =
+                Configuration().apply {
+                    orientation = Configuration.ORIENTATION_LANDSCAPE
+                    screenLayout = Configuration.SCREENLAYOUT_LAYOUTDIR_RTL
+                }
+
+            state.notifyConfigurationChanged(newConfig)
+
+            // Configuration.equals() is quite strict and checks incidental fields modified
+            // internally. So we use specific fields (orientation and screenLayout) which are
+            // reliable in integration tests.
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                session.lastConfiguration?.orientation == newConfig.orientation &&
+                    session.lastConfiguration?.screenLayout == newConfig.screenLayout
+            }
+        }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerProgrammaticExpansionSync() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
+
+            lateinit var state: EmbeddedPhotoPickerState
+
+            composeTestRule.setContent {
+                state = rememberEmbeddedPhotoPickerState(initialExpandedValue = false)
+                EmbeddedPhotoPicker(state = state, provider = testProvider)
+            }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                testProvider.sessions.isNotEmpty()
+            }
+            val session = testProvider.lastTestSession
+
+            state.isExpanded = true
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                session.lastExpandedState == true
+            }
+            assertThat(state.isExpanded).isTrue()
+
+            state.isExpanded = false
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                session.lastExpandedState == false
+            }
+            assertThat(state.isExpanded).isFalse()
+        }
+}
+
+/**
+ * A layout container that measures and constraints its child to an exact pixel size.
+ *
+ * This is used to test the resizing flow of [EmbeddedPhotoPicker]. Standard Compose sizing
+ * modifiers (e.g. Modifier.size(dp)) define dimensions in density-independent pixels (Dp), which
+ * Compose converts to physical pixels at runtime. This conversion is subject to floating-point
+ * rounding errors and varies by device density, making exact assertions on the pixel values
+ * received by [EmbeddedPhotoPickerState.notifyResized] fragile.
+ *
+ * By using this helper layout, we bypass Dp-to-Pixel conversion and force the child to be measured
+ * with exact pixel constraints, allowing device-independent and stable pixel size assertions.
+ */
+@Composable
+private fun SizingContainer(width: Int, height: Int, content: @Composable () -> Unit) {
+    Layout(content = content) { measurables, _ ->
+        // If the content composable is empty, layout a zero-sized block to avoid crashes.
+        if (measurables.isEmpty()) {
+            layout(width, height) {}
+        } else {
+            val placeable = measurables.first().measure(Constraints.fixed(width, height))
+            layout(width, height) { placeable.placeRelative(0, 0) }
+        }
     }
 }
