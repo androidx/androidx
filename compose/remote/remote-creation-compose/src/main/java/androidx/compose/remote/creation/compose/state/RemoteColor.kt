@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
 
 /**
@@ -586,6 +587,64 @@ public val Color.rc: RemoteColor
     get() {
         return RemoteColor(this)
     }
+
+/**
+ * Composites this color on top of [background] using the Porter-Duff 'source over' mode.
+ *
+ * @param background The background [RemoteColor].
+ * @return A new [RemoteColor] representing this color composited on top of [background].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteColor.compositeOver(background: RemoteColor): RemoteColor {
+    // Both colors are constant
+    val fg = this.constantValueOrNull
+    val bg = background.constantValueOrNull
+    if (fg != null && bg != null) {
+        return RemoteColor(fg.compositeOver(bg))
+    }
+
+    // Both alphas are constant
+    val constBgA = background.alpha.constantValueOrNull
+    val constFgA = this.alpha.constantValueOrNull
+    if (constBgA != null && constFgA != null) {
+        val aVal = constFgA + constBgA * (1f - constFgA)
+        if (aVal == 0f) {
+            return RemoteColor.rgb(red = 0.rf, green = 0.rf, blue = 0.rf, alpha = 0.rf)
+        } else {
+            val foregroundFraction = constFgA / aVal
+            val r = lerp(background.red, this.red, foregroundFraction.rf)
+            val g = lerp(background.green, this.green, foregroundFraction.rf)
+            val b = lerp(background.blue, this.blue, foregroundFraction.rf)
+            return RemoteColor.rgb(red = r, green = g, blue = b, alpha = aVal.rf)
+        }
+    }
+
+    // Opaque background
+    if (constBgA == 1f) {
+        val r = lerp(background.red, this.red, this.alpha)
+        val g = lerp(background.green, this.green, this.alpha)
+        val b = lerp(background.blue, this.blue, this.alpha)
+        return RemoteColor.rgb(red = r, green = g, blue = b, alpha = 1.rf)
+    }
+
+    val a = this.alpha + (background.alpha * (1.rf - this.alpha))
+    val r = compositeComponent(this.red, background.red, this.alpha, background.alpha, a)
+    val g = compositeComponent(this.green, background.green, this.alpha, background.alpha, a)
+    val b = compositeComponent(this.blue, background.blue, this.alpha, background.alpha, a)
+    return RemoteColor.rgb(red = r, green = g, blue = b, alpha = a)
+}
+
+private fun compositeComponent(
+    fgC: RemoteFloat,
+    bgC: RemoteFloat,
+    fgA: RemoteFloat,
+    bgA: RemoteFloat,
+    a: RemoteFloat,
+): RemoteFloat {
+    val isZero = a eq 0.rf
+    val numerator = (fgC * fgA) + ((bgC * bgA) * (1.rf - fgA))
+    return isZero.select(ifTrue = 0.rf, ifFalse = numerator / a)
+}
 
 /** Extension function to pack a [Color] into a Long for protocol use. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
