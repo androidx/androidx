@@ -42,6 +42,13 @@
             android:label="Projected Geospatial Dashboard">
         </activity>
         <activity
+            android:name=".LowPowerGeospatialActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected"
+            android:label="Modern UI Projected Geospatial">
+        </activity>
+        <activity
             android:name=".tiltgesture.TiltGestureTrackingActivity"
             android:configChanges="uiMode"
             android:label="TiltGesture testcase"
