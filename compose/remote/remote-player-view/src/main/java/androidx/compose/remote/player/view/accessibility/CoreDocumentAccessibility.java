@@ -113,7 +113,9 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
         }
 
         return componentStream(root)
-                .filter(op -> op.getComponentId() == id).findFirst().orElse(null);
+                .filter(op -> op.getComponentId() == id)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -164,6 +166,10 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
                 needsRepaint = false;
                 return false;
             }
+        } catch (Exception e) {
+            // Document-driven actions must not crash the host on the a11y rail.
+            android.util.Log.e("RemoteCompose", "a11y performAction failed", e);
+            return false;
         } finally {
             if (needsRepaint) {
                 mDocument.needsRepaint();
@@ -286,8 +292,9 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
 
     static @NonNull Stream<@NonNull ModifierOperation> modifiersStream(
             @NonNull Component component) {
-        return component.mList.stream().filter(it -> it instanceof ComponentModifiers).flatMap(
-                it -> ((ComponentModifiers) it).getModifiersList().stream());
+        return component.mList.stream()
+                .filter(it -> it instanceof ComponentModifiers)
+                .flatMap(it -> ((ComponentModifiers) it).getModifiersList().stream());
     }
 
     static boolean isInteresting(@NonNull Component component) {
@@ -314,7 +321,8 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
             return false;
         }
 
-        return ((LayoutComponent) component).getComponentModifiers().getModifiersList()
-                .stream().anyMatch(CoreDocumentAccessibility::isModifierWithSemantics);
+        return ((LayoutComponent) component)
+                .getComponentModifiers().getModifiersList().stream()
+                        .anyMatch(CoreDocumentAccessibility::isModifierWithSemantics);
     }
 }

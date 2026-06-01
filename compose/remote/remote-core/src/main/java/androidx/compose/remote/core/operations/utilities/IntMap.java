@@ -125,7 +125,7 @@ public class IntMap<T> {
 
     @Nullable
     private T insert(int key, @NonNull T value) {
-        int index = hash(key) % mKeys.length;
+        int index = getIndex(key);
         while (mKeys[index] != NOT_PRESENT && mKeys[index] != key) {
             index = (index + 1) % mKeys.length;
         }
@@ -141,7 +141,7 @@ public class IntMap<T> {
     }
 
     private int findKey(int key) {
-        int index = hash(key) % mKeys.length;
+        int index = getIndex(key);
         while (mKeys[index] != NOT_PRESENT) {
             if (mKeys[index] == key) {
                 return index;
@@ -153,6 +153,10 @@ public class IntMap<T> {
 
     private int hash(int key) {
         return key;
+    }
+
+    private int getIndex(int key) {
+        return (hash(key) & 0x7FFFFFFF) % mKeys.length;
     }
 
     private void resize() {
@@ -182,7 +186,7 @@ public class IntMap<T> {
      */
     @Nullable
     public T remove(int key) {
-        int index = hash(key) % mKeys.length;
+        int index = getIndex(key);
         int initialIndex = index;
 
         while (mKeys[index] != NOT_PRESENT) {

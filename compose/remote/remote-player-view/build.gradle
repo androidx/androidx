@@ -35,6 +35,9 @@ android {
     defaultConfig {
         minSdk { version = release(26) }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
