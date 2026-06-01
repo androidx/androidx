@@ -110,7 +110,7 @@ internal class FrameBufferImpl(
             return
         }
 
-        val acquiredFrame = frameReference.tryAcquire()
+        val acquiredFrame = frameReference.tryAcquire(streams)
 
         val entryToAdd: BufferEntry =
             if (acquiredFrame != null) {
