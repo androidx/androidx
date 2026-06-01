@@ -62,6 +62,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OpenComposeView
 import androidx.compose.ui.background
@@ -440,7 +442,11 @@ class AndroidPointerInputTest {
             androidComposeView.dispatchTouchEvent(upBottomBoxEvent)
 
             // Assert
-            assertThat(pointerEventsLog).hasSize(8)
+            // moveBottomBoxEvent (non-moving Move) is processed instead of skipped due to
+            // isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+            @OptIn(ExperimentalComposeUiApi::class)
+            val hasExtraMove = ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+            assertThat(pointerEventsLog).hasSize(if (hasExtraMove) 9 else 8)
 
             for (pointerEvent in pointerEventsLog) {
                 assertThat(pointerEvent.internalPointerEvent).isNotNull()
@@ -453,9 +459,16 @@ class AndroidPointerInputTest {
             assertThat(pointerEventsLog[3].type).isEqualTo(PointerEventType.Move)
             assertThat(pointerEventsLog[4].type).isEqualTo(PointerEventType.Move)
 
-            assertThat(pointerEventsLog[5].type).isEqualTo(PointerEventType.Release)
-            assertThat(pointerEventsLog[6].type).isEqualTo(PointerEventType.Release)
-            assertThat(pointerEventsLog[7].type).isEqualTo(PointerEventType.Release)
+            if (hasExtraMove) {
+                assertThat(pointerEventsLog[5].type).isEqualTo(PointerEventType.Move)
+                assertThat(pointerEventsLog[6].type).isEqualTo(PointerEventType.Move)
+                assertThat(pointerEventsLog[7].type).isEqualTo(PointerEventType.Release)
+                assertThat(pointerEventsLog[8].type).isEqualTo(PointerEventType.Release)
+            } else {
+                assertThat(pointerEventsLog[5].type).isEqualTo(PointerEventType.Release)
+                assertThat(pointerEventsLog[6].type).isEqualTo(PointerEventType.Release)
+                assertThat(pointerEventsLog[7].type).isEqualTo(PointerEventType.Release)
+            }
         }
     }
 
@@ -3770,6 +3783,7 @@ class AndroidPointerInputTest {
      *
      * Should NOT trigger any additional events (like an extra press or exit)!
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun mouseEventsAndPointerIds_completeMouseEventCycle_pointerIdsShouldMatchAcrossAllEvents() {
         // --> Arrange
@@ -3785,6 +3799,7 @@ class AndroidPointerInputTest {
         // mouse. These events happen between the normal press and release events.
         var unknownCount = 0
         var upCount = 0
+        var moveCount = 0
 
         // We want to assert that each updated pointer id matches the original pointer id that
         // starts the sequence of MotionEvents.
@@ -3831,6 +3846,9 @@ class AndroidPointerInputTest {
                                         PointerEventType.Unknown -> {
                                             ++unknownCount
                                         }
+                                        PointerEventType.Move -> {
+                                            ++moveCount
+                                        }
                                         else -> {
                                             eventsThatShouldNotTrigger = true
                                         }
@@ -3854,6 +3872,7 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(0)
             assertThat(unknownCount).isEqualTo(0)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3875,6 +3894,7 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(1)
             assertThat(unknownCount).isEqualTo(0)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3892,6 +3912,7 @@ class AndroidPointerInputTest {
             // mouse. These events happen between the normal press and release events.
             assertThat(unknownCount).isEqualTo(1)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3908,6 +3929,7 @@ class AndroidPointerInputTest {
             // mouse. These events happen between the normal press and release events.
             assertThat(unknownCount).isEqualTo(2)
             assertThat(upCount).isEqualTo(0)
+            assertThat(moveCount).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3926,6 +3948,9 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(1)
             assertThat(unknownCount).isEqualTo(2)
             assertThat(upCount).isEqualTo(1)
+            val expectedMoves =
+                if (ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled) 1 else 0
+            assertThat(moveCount).isEqualTo(expectedMoves)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
@@ -3944,6 +3969,9 @@ class AndroidPointerInputTest {
             assertThat(downCount).isEqualTo(1)
             assertThat(unknownCount).isEqualTo(2)
             assertThat(upCount).isEqualTo(1)
+            val expectedMoves =
+                if (ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled) 1 else 0
+            assertThat(moveCount).isEqualTo(expectedMoves)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()

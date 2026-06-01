@@ -52,6 +52,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
@@ -147,6 +149,11 @@ class ClickableTest {
 
     private val dispatcher = StandardTestDispatcher()
     @get:Rule val rule = createComposeRule(dispatcher)
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun expectedCount(enabled: Int, disabled: Int) =
+        if (ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled) enabled
+        else disabled
 
     private val InstanceOf =
         Correspondence.from<Any, KClass<*>>(
@@ -2252,7 +2259,7 @@ class ClickableTest {
             assertEquals(1, originalPointerInputLambdaExecutionCount)
             // With these events, we enable the dynamic pointer input
             assertEquals(1, originalPointerInputPressCounter)
-            assertEquals(0, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), originalPointerInputMoveCounter)
             assertEquals(1, originalPointerInputReleaseCounter)
 
             assertEquals(0, dynamicPointerInputPressCounter)
@@ -2270,7 +2277,7 @@ class ClickableTest {
             // previously existing pointer input lambda will be restarted.
             assertEquals(2, originalPointerInputLambdaExecutionCount)
             assertEquals(2, originalPointerInputPressCounter)
-            assertEquals(0, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), originalPointerInputMoveCounter)
             assertEquals(1, originalPointerInputReleaseCounter)
 
             assertEquals(1, dynamicPointerInputPressCounter)
@@ -2286,7 +2293,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertEquals(2, originalPointerInputLambdaExecutionCount)
             assertEquals(2, originalPointerInputPressCounter)
-            assertEquals(1, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), originalPointerInputMoveCounter)
             assertEquals(1, originalPointerInputReleaseCounter)
 
             assertEquals(1, dynamicPointerInputPressCounter)
@@ -2302,7 +2309,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertEquals(2, originalPointerInputLambdaExecutionCount)
             assertEquals(2, originalPointerInputPressCounter)
-            assertEquals(1, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), originalPointerInputMoveCounter)
             assertEquals(2, originalPointerInputReleaseCounter)
 
             assertEquals(1, dynamicPointerInputPressCounter)
@@ -2322,11 +2329,11 @@ class ClickableTest {
             // previously existing pointer input lambda will be restarted.
             assertEquals(3, originalPointerInputLambdaExecutionCount)
             assertEquals(3, originalPointerInputPressCounter)
-            assertEquals(1, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(3, 1), originalPointerInputMoveCounter)
             assertEquals(3, originalPointerInputReleaseCounter)
 
             assertEquals(2, dynamicPointerInputPressCounter)
-            assertEquals(1, dynamicPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), dynamicPointerInputMoveCounter)
             assertEquals(2, dynamicPointerInputReleaseCounter)
 
             assertEquals(1, dynamicPointerInput2PressCounter)
@@ -2417,12 +2424,12 @@ class ClickableTest {
 
             assertEquals(1, firstPointerInputLambdaExecutionCount)
             assertEquals(1, firstPointerInputPressCounter)
-            assertEquals(0, firstPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), firstPointerInputMoveCounter)
             assertEquals(1, firstPointerInputReleaseCounter)
 
             assertEquals(1, secondPointerInputLambdaExecutionCount)
             assertEquals(1, secondPointerInputPressCounter)
-            assertEquals(0, secondPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), secondPointerInputMoveCounter)
             assertEquals(1, secondPointerInputReleaseCounter)
         }
 
@@ -2434,12 +2441,12 @@ class ClickableTest {
 
             assertEquals(1, firstPointerInputLambdaExecutionCount)
             assertEquals(1, firstPointerInputPressCounter)
-            assertEquals(0, firstPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), firstPointerInputMoveCounter)
             assertEquals(1, firstPointerInputReleaseCounter)
 
             assertEquals(1, secondPointerInputLambdaExecutionCount)
             assertEquals(1, secondPointerInputPressCounter)
-            assertEquals(0, secondPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), secondPointerInputMoveCounter)
             assertEquals(1, secondPointerInputReleaseCounter)
         }
 
@@ -2450,12 +2457,12 @@ class ClickableTest {
 
             assertEquals(1, firstPointerInputLambdaExecutionCount)
             assertEquals(2, firstPointerInputPressCounter)
-            assertEquals(0, firstPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), firstPointerInputMoveCounter)
             assertEquals(1, firstPointerInputReleaseCounter)
 
             assertEquals(1, secondPointerInputLambdaExecutionCount)
             assertEquals(2, secondPointerInputPressCounter)
-            assertEquals(0, secondPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), secondPointerInputMoveCounter)
             assertEquals(1, secondPointerInputReleaseCounter)
         }
 
@@ -2466,12 +2473,12 @@ class ClickableTest {
 
             assertEquals(1, firstPointerInputLambdaExecutionCount)
             assertEquals(2, firstPointerInputPressCounter)
-            assertEquals(1, firstPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), firstPointerInputMoveCounter)
             assertEquals(1, firstPointerInputReleaseCounter)
 
             assertEquals(1, secondPointerInputLambdaExecutionCount)
             assertEquals(2, secondPointerInputPressCounter)
-            assertEquals(1, secondPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), secondPointerInputMoveCounter)
             assertEquals(1, secondPointerInputReleaseCounter)
         }
 
@@ -2482,12 +2489,12 @@ class ClickableTest {
 
             assertEquals(1, firstPointerInputLambdaExecutionCount)
             assertEquals(2, firstPointerInputPressCounter)
-            assertEquals(1, firstPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), firstPointerInputMoveCounter)
             assertEquals(2, firstPointerInputReleaseCounter)
 
             assertEquals(1, secondPointerInputLambdaExecutionCount)
             assertEquals(2, secondPointerInputPressCounter)
-            assertEquals(1, secondPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), secondPointerInputMoveCounter)
             assertEquals(2, secondPointerInputReleaseCounter)
         }
 
@@ -2499,12 +2506,12 @@ class ClickableTest {
 
             assertEquals(1, firstPointerInputLambdaExecutionCount)
             assertEquals(2, firstPointerInputPressCounter)
-            assertEquals(1, firstPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), firstPointerInputMoveCounter)
             assertEquals(2, firstPointerInputReleaseCounter)
 
             assertEquals(1, secondPointerInputLambdaExecutionCount)
             assertEquals(2, secondPointerInputPressCounter)
-            assertEquals(1, secondPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), secondPointerInputMoveCounter)
             assertEquals(2, secondPointerInputReleaseCounter)
         }
     }
@@ -2584,7 +2591,7 @@ class ClickableTest {
             assertEquals(1, originalPointerInputLambdaExecutionCount)
             // With these events, we enable the dynamic pointer input
             assertEquals(1, originalPointerInputPressCounter)
-            assertEquals(0, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), originalPointerInputMoveCounter)
             assertEquals(1, originalPointerInputReleaseCounter)
 
             assertEquals(0, dynamicPointerInputPressCounter)
@@ -2601,7 +2608,7 @@ class ClickableTest {
             // previously existing pointer input lambda will be restarted.
             assertEquals(2, originalPointerInputLambdaExecutionCount)
             assertEquals(2, originalPointerInputPressCounter)
-            assertEquals(0, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(1, 0), originalPointerInputMoveCounter)
             assertEquals(1, originalPointerInputReleaseCounter)
 
             assertEquals(1, dynamicPointerInputPressCounter)
@@ -2616,7 +2623,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertEquals(2, originalPointerInputLambdaExecutionCount)
             assertEquals(2, originalPointerInputPressCounter)
-            assertEquals(1, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), originalPointerInputMoveCounter)
             assertEquals(1, originalPointerInputReleaseCounter)
 
             assertEquals(1, dynamicPointerInputPressCounter)
@@ -2631,7 +2638,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertEquals(2, originalPointerInputLambdaExecutionCount)
             assertEquals(2, originalPointerInputPressCounter)
-            assertEquals(1, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), originalPointerInputMoveCounter)
             assertEquals(2, originalPointerInputReleaseCounter)
 
             assertEquals(1, dynamicPointerInputPressCounter)
@@ -2650,11 +2657,11 @@ class ClickableTest {
             // not directly a pointer input.
             assertEquals(2, originalPointerInputLambdaExecutionCount)
             assertEquals(3, originalPointerInputPressCounter)
-            assertEquals(1, originalPointerInputMoveCounter)
+            assertEquals(expectedCount(3, 1), originalPointerInputMoveCounter)
             assertEquals(3, originalPointerInputReleaseCounter)
 
             assertEquals(2, dynamicPointerInputPressCounter)
-            assertEquals(1, dynamicPointerInputMoveCounter)
+            assertEquals(expectedCount(2, 1), dynamicPointerInputMoveCounter)
             assertEquals(2, dynamicPointerInputReleaseCounter)
 
             assertEquals(1, dynamicClickableCounter)
@@ -2841,7 +2848,7 @@ class ClickableTest {
 
         rule.runOnIdle {
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(expectedCount(4, 3), originalPointerInputEventCounter)
             assertEquals(1, dynamicPressCounter)
             assertEquals(1, dynamicReleaseCounter)
         }
@@ -2850,7 +2857,7 @@ class ClickableTest {
 
         rule.runOnIdle {
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(4, originalPointerInputEventCounter)
+            assertEquals(expectedCount(5, 4), originalPointerInputEventCounter)
             assertEquals(1, dynamicPressCounter)
             assertEquals(1, dynamicReleaseCounter)
         }
@@ -2986,7 +2993,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertTrue(activateDynamicPointerInput)
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(expectedCount(4, 3), originalPointerInputEventCounter)
             assertEquals(1, dynamicPressCounter)
             assertEquals(1, dynamicReleaseCounter)
         }
@@ -2996,7 +3003,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertTrue(activateDynamicPointerInput)
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(4, originalPointerInputEventCounter)
+            assertEquals(expectedCount(5, 4), originalPointerInputEventCounter)
             assertEquals(1, dynamicPressCounter)
             assertEquals(1, dynamicReleaseCounter)
         }
@@ -3048,7 +3055,10 @@ class ClickableTest {
         rule.runOnIdle {
             assertTrue(activateDynamicPointerInput)
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(3, originalPointerInputEventCounter) // Enter, Press, Release
+            assertEquals(
+                expectedCount(4, 3),
+                originalPointerInputEventCounter,
+            ) // Enter, Press, Release, Hover Move
             assertEquals(0, dynamicPressCounter)
             assertEquals(0, dynamicReleaseCounter)
         }
@@ -3060,8 +3070,11 @@ class ClickableTest {
             assertEquals(1, originalPointerInputLambdaExecutionCount)
             // Because the mouse is still within the box area, Compose doesn't need to trigger an
             // Exit. Instead, it just triggers two events (Press and Release) which is why the
-            // total is only 5.
-            assertEquals(5, originalPointerInputEventCounter) // Press, Release
+            // total is only 7.
+            assertEquals(
+                expectedCount(7, 5),
+                originalPointerInputEventCounter,
+            ) // Press, Release, Hover Move
             assertEquals(1, dynamicPressCounter)
             assertEquals(1, dynamicReleaseCounter)
         }
@@ -3120,7 +3133,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertTrue(activateDynamicPointerInput)
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(expectedCount(4, 3), originalPointerInputEventCounter)
             assertEquals(0, dynamicPressCounter)
             assertEquals(0, dynamicReleaseCounter)
         }
@@ -3130,7 +3143,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertTrue(activateDynamicPointerInput)
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(expectedCount(4, 3), originalPointerInputEventCounter)
             assertEquals(1, dynamicPressCounter)
             assertEquals(1, dynamicReleaseCounter)
         }
@@ -3203,7 +3216,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertTrue(activateDynamicPointerInput)
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(expectedCount(4, 3), originalPointerInputEventCounter)
             assertEquals(0, dynamicPressCounter)
             assertEquals(0, dynamicReleaseCounter)
         }
@@ -3213,7 +3226,7 @@ class ClickableTest {
         rule.runOnIdle {
             assertFalse(activateDynamicPointerInput)
             assertEquals(1, originalPointerInputLambdaExecutionCount)
-            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(expectedCount(4, 3), originalPointerInputEventCounter)
             assertEquals(1, dynamicPressCounter)
             assertEquals(1, dynamicReleaseCounter)
         }

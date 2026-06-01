@@ -22,6 +22,7 @@ import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_MOVE
+import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import androidx.collection.LongSparseArray
@@ -67,17 +68,21 @@ internal fun PointerInputEvent(
     id: Int,
     uptime: Long,
     position: Offset,
-    down: Boolean,
+    action: Int = ACTION_DOWN,
 ): PointerInputEvent {
+    val down = action != ACTION_UP
     return PointerInputEvent(
         uptime,
         listOf(PointerInputEventData(id, uptime, position, down)),
-        MotionEventDouble,
+        getMotionEventForAction(action),
     )
 }
 
-internal fun PointerInputEvent(uptime: Long, pointers: List<PointerInputEventData>) =
-    PointerInputEvent(uptime, pointers, MotionEventDouble)
+internal fun PointerInputEvent(
+    uptime: Long,
+    pointers: List<PointerInputEventData>,
+    action: Int = ACTION_DOWN,
+) = PointerInputEvent(uptime, pointers, getMotionEventForAction(action))
 
 internal fun catchThrowable(lambda: () -> Unit): Throwable? {
     var exception: Throwable? = null
@@ -95,13 +100,28 @@ internal fun catchThrowable(lambda: () -> Unit): Throwable? {
  * To be used to construct types that require a MotionEvent but where no details of the MotionEvent
  * are actually needed.
  */
-internal val MotionEventDouble = MotionEvent.obtain(0L, 0L, ACTION_DOWN, 0f, 0f, 0)
+internal val MotionEventDown = MotionEvent.obtain(0L, 0L, ACTION_DOWN, 0f, 0f, 0)
+
+/**
+ * To be used to construct types that require a MotionEvent but where only the ACTION_MOVE type is
+ * needed.
+ */
+internal val MotionEventMove = MotionEvent.obtain(0L, 0L, ACTION_MOVE, 0f, 0f, 0)
 
 /**
  * To be used to construct types that require a MotionEvent but where only the ACTION_UP type is
  * needed.
  */
 internal val MotionEventUp = MotionEvent.obtain(0L, 0L, ACTION_UP, 0f, 0f, 0)
+
+internal fun getMotionEventForAction(action: Int): MotionEvent {
+    return when (action) {
+        ACTION_DOWN -> MotionEventDown
+        ACTION_UP -> MotionEventUp
+        ACTION_MOVE -> MotionEventMove
+        else -> throw IllegalArgumentException("Invalid action: $action")
+    }
+}
 
 /**
  * To be used to construct types that require a MotionEvent but where we only care if the event is a
@@ -245,8 +265,14 @@ internal fun PointerEvent.deepCopy() =
 
 internal fun pointerEventOf(
     vararg changes: PointerInputChange,
-    motionEvent: MotionEvent = MotionEventDouble,
+    motionEvent: MotionEvent = MotionEventDown,
 ) = PointerEvent(changes.toList(), InternalPointerEvent(changes.toLongSparseArray(), motionEvent))
+
+internal fun pointerMoveEventOf(vararg changes: PointerInputChange) =
+    PointerEvent(
+        changes.toList(),
+        InternalPointerEvent(changes.toLongSparseArray(), MotionEventMove),
+    )
 
 fun Array<out PointerInputChange>.toLongSparseArray(): LongSparseArray<PointerInputChange> {
     val returnArray = LongSparseArray<PointerInputChange>(this.count())
@@ -377,8 +403,10 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
     val event =
         if (changes.any { it.changedToUpIgnoreConsumed() }) {
             MotionEventUp
+        } else if (changes.any { it.changedToDownIgnoreConsumed() }) {
+            MotionEventDown
         } else {
-            MotionEventDouble
+            MotionEventMove
         }
 
     val pointers =

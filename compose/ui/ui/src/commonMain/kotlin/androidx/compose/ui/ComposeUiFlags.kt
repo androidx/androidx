@@ -146,4 +146,15 @@ object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
+
+    /**
+     * This flag controls whether the fix for velocity tracker usage in Draggable and related
+     * classes is enabled to a) properly track velocity per pointer and b) make sure to also take
+     * the pointer events into account that don't move at the beginning of the gesture in order to
+     * increase the stability of the computed velocity.
+     */
+    // TODO: Remove this flag once it has soaked (b/501080937)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = true
 }

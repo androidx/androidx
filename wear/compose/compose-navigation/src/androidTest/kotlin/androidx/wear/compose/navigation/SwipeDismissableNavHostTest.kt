@@ -39,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -185,9 +184,7 @@ class SwipeDismissableNavHostTest {
     @ExperimentalTestApi
     @Test
     fun displays_previous_screen_during_swipe_gesture() {
-        rule.setContentWithBackPressedDispatcher {
-            WithTouchSlop(0f) { SwipeDismissWithNavigation() }
-        }
+        rule.setContentWithBackPressedDispatcher { SwipeDismissWithNavigation() }
 
         // Click to move to next destination.
         rule.onNodeWithText(START).performClick()
