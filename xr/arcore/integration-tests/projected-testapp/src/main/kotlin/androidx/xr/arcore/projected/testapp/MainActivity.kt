@@ -81,6 +81,11 @@ class MainActivity : ComponentActivity() {
                         isProjected = true,
                         this@MainActivity,
                     )
+                    TestActivityRow(
+                        "Low Power Geospatial test",
+                        LowPowerGeospatialActivity::class.java,
+                        this@MainActivity,
+                    )
                 }
             }
         }
@@ -140,24 +145,22 @@ class MainActivity : ComponentActivity() {
                         Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     )
 
-                    if (isProjected) {
-                        val projectedContext =
-                            try {
-                                ProjectedContext.createProjectedDeviceContext(context)
-                            } catch (e: IllegalStateException) {
-
-                                return@Button
-                            }
-
-                        startActivity(
-                            intent,
-                            ProjectedContext.createProjectedActivityOptions(projectedContext)
-                                .toBundle(),
-                        )
-                    } else {
-
+                    if (!isProjected) {
                         startActivity(intent)
+                        return@Button
                     }
+
+                    val projectedContext =
+                        try {
+                            ProjectedContext.createProjectedDeviceContext(context)
+                        } catch (e: IllegalStateException) {
+                            return@Button
+                        }
+
+                    startActivity(
+                        intent,
+                        ProjectedContext.createProjectedActivityOptions(projectedContext).toBundle(),
+                    )
                 }
             ) {
                 Text("Run", fontSize = 18.sp)
