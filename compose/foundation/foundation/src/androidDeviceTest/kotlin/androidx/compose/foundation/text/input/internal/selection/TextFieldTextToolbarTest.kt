@@ -56,6 +56,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.AndroidClipboard
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
@@ -1053,7 +1054,7 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Rect
     }
 }
 
-internal class FakeClipboard(private var clipEntry: ClipEntry?) : Clipboard {
+internal class FakeClipboard(private var clipEntry: ClipEntry?) : AndroidClipboard {
 
     constructor(text: String? = null) : this(text?.let { AnnotatedString(it).toClipEntry() })
 
@@ -1073,19 +1074,12 @@ internal class FakeClipboard(private var clipEntry: ClipEntry?) : Clipboard {
         this@FakeClipboard.clipEntry = clipEntry
     }
 
-    val clipboardManager: ClipboardManager =
+    override val clipboardManager: ClipboardManager =
         mock<ClipboardManager> {
             on { primaryClip } doAnswer { clipEntry?.clipData }
             on { hasPrimaryClip() } doAnswer { clipEntry != null }
             on { primaryClipDescription } doAnswer { clipEntry?.clipMetadata?.clipDescription }
         }
-
-    // The new extension field [nativeClipboardManager] still delegates to this property.
-    // Therefore, this deprecated field shall be used in tests to mock the backing
-    // native ClipboardManager.
-    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
-    override val nativeClipboard: ClipboardManager
-        get() = clipboardManager
 }
 
 /**

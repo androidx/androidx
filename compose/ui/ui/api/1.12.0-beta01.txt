@@ -3977,6 +3977,12 @@ package androidx.compose.ui.platform {
     method @BytecodeOnly public static long calculateRecommendedTimeoutMillis$default(androidx.compose.ui.platform.AccessibilityManager!, long, boolean, boolean, boolean, int, Object!);
   }
 
+  @VisibleForTesting public interface AndroidClipboard extends androidx.compose.ui.platform.Clipboard {
+    method @InaccessibleFromKotlin public android.content.ClipboardManager getClipboardManager();
+    property public abstract android.content.ClipboardManager clipboardManager;
+    property @Deprecated public default android.content.ClipboardManager nativeClipboard;
+  }
+
   public final class AndroidClipboardManager_androidKt {
     method public static androidx.compose.ui.platform.ClipEntry toClipEntry(android.content.ClipData);
     method public static androidx.compose.ui.platform.ClipMetadata toClipMetadata(android.content.ClipDescription);

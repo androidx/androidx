@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedInterface: androidx.compose.ui.platform.AndroidClipboard:
+    Added class androidx.compose.ui.platform.AndroidClipboard

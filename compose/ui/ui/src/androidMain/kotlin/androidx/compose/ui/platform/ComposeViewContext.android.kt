@@ -217,11 +217,11 @@ private constructor(
         }
 
     /** [Clipboard] provided by [LocalClipboard] */
-    internal val clipboard: AndroidClipboard =
+    internal val clipboard: Clipboard =
         if (matchesContext) {
             composeViewContext!!.clipboard
         } else {
-            AndroidClipboard(clipboardManager)
+            AndroidClipboardImpl(clipboardManager)
         }
 
     /** [Font.ResourceLoader] provided by [LocalFontLoader] */
