@@ -69,7 +69,12 @@ internal class Controller3AUpdate3ATest {
         val graphProcessor2 = FakeGraphProcessor()
         val graphState3A2 = GraphState3A()
         val controller3A =
-            Controller3A(graphProcessor2, FakeCameraMetadata(), graphState3A2, listener3A)
+            Controller3A(
+                graphProcessor2,
+                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+                graphState3A2,
+                listener3A,
+            )
         val result = controller3A.update3A(afMode = AfMode.OFF)
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
         assertThat(graphState3A2.current.afMode).isEqualTo(AfMode.OFF)
