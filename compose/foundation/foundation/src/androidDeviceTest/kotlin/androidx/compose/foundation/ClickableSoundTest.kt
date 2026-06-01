@@ -37,13 +37,13 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performIndirectPointerInput
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.sendIndirectPointerInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -170,7 +170,7 @@ class ClickableSoundTest {
 
             // Inject indirect directional motion down/up events in a single block with time
             // progression
-            rule.performIndirectPointerInput(
+            rule.sendIndirectPointerInput(
                 IndirectPointerEventPrimaryDirectionalMotionAxis.X,
                 IntSize(3082, 616),
             ) {

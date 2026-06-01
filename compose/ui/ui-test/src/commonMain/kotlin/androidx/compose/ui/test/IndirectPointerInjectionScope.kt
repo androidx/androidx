@@ -154,9 +154,9 @@ interface IndirectPointerInjectionScope : Density {
      *
      * If no pointers are down yet, this will start a new Indirect pointer input gesture. If a
      * gesture is already in progress, this event is sent at the same timestamp as the last event.
-     * If the given pointer is already down, @throws [IllegalArgumentException].
      *
      * @param position The position of the down event, in the input device's coordinate system.
+     * @throws IllegalArgumentException if the given pointer id is already down.
      */
     fun down(position: Offset) {
         down(0, position)
@@ -167,13 +167,12 @@ interface IndirectPointerInjectionScope : Density {
      * the position of the pointer with the given [pointerId] updated to [position]. The [position]
      * is NOT in the node's local coordinate system (see [inputDeviceSize]).
      *
-     * If the pointer is not yet down, @throws [IllegalArgumentException].
-     *
      * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param position The new position of the pointer, in the indirect pointer input device's
      *   coordinate system
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun moveTo(pointerId: Int, position: Offset, delayMillis: Long = eventPeriodMillis) {
         updatePointerTo(pointerId, position)
@@ -185,12 +184,11 @@ interface IndirectPointerInjectionScope : Density {
      * the position of the default pointer updated to [position]. The [position] is NOT in the
      * node's local coordinate system (see [inputDeviceSize]).
      *
-     * If the default pointer is not yet down, @throws [IllegalArgumentException].
-     *
      * @param position The new position of the pointer, in the indirect pointer input device's
      *   coordinate system
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun moveTo(position: Offset, delayMillis: Long = eventPeriodMillis) {
         moveTo(0, position, delayMillis)
@@ -202,11 +200,10 @@ interface IndirectPointerInjectionScope : Density {
      * can be sent with [move]. The [position] is NOT in the node's local coordinate system (see
      * [inputDeviceSize]).
      *
-     * If the pointer is not yet down, @throws [IllegalArgumentException].
-     *
      * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param position The new position of the pointer, in the indirect pointer input device's
      *   coordinate system
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun updatePointerTo(pointerId: Int, position: Offset)
 
@@ -216,10 +213,9 @@ interface IndirectPointerInjectionScope : Density {
      * can be sent with [move]. The [position] is NOT in the node's local coordinate system (see
      * [inputDeviceSize]).
      *
-     * If the pointer is not yet down, @throws [IllegalArgumentException].
-     *
      * @param position The new position of the pointer, in the indirect pointer input device's
      *   coordinate system
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun updatePointerTo(position: Offset) {
         updatePointerTo(0, position)
@@ -229,14 +225,13 @@ interface IndirectPointerInjectionScope : Density {
      * Sends a move event [delayMillis] after the last sent event on nodes in the focus path, with
      * the position of the pointer with the given [pointerId] moved by the given [delta].
      *
-     * If the pointer is not yet down, @throws [IllegalArgumentException].
-     *
      * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param delta The position for this move event, relative to the current position of the
      *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
      *   x-position, and subtract 10.px from the pointer's y-position.
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun moveBy(pointerId: Int, delta: Offset, delayMillis: Long = eventPeriodMillis) {
         updatePointerBy(pointerId, delta)
@@ -248,13 +243,12 @@ interface IndirectPointerInjectionScope : Density {
      * the position of the default pointer moved by the given [delta]. The default pointer has
      * `pointerId = 0`.
      *
-     * If the pointer is not yet down, @throws [IllegalArgumentException].
-     *
      * @param delta The position for this move event, relative to the current position of the
      *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
      *   x-position, and subtract 10.px from the pointer's y-position.
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun moveBy(delta: Offset, delayMillis: Long = eventPeriodMillis) {
         moveBy(0, delta, delayMillis)
@@ -264,12 +258,11 @@ interface IndirectPointerInjectionScope : Density {
      * Updates the position of the pointer with the given [pointerId] by the given [delta], but does
      * not send a move event. The move event can be sent with [move].
      *
-     * If the pointer is not yet down, @throws [IllegalArgumentException].
-     *
      * @param pointerId The id of the pointer to move, as supplied in [down]
      * @param delta The position for this move event, relative to the last sent position of the
      *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
      *   x-position, and subtract 10.px from the pointer's y-position.
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun updatePointerBy(pointerId: Int, delta: Offset) {
         // Ignore currentPosition of null here, let updatePointerTo generate the error
@@ -290,11 +283,10 @@ interface IndirectPointerInjectionScope : Density {
      * Updates the position of the default pointer by the given [delta], but does not send a move
      * event. The move event can be sent with [move]. The default pointer is `pointerId = 0`.
      *
-     * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
-     *
      * @param delta The position for this move event, relative to the last sent position of the
      *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
      *   x-position, and subtract 10.px from the pointer's y-position.
+     * @throws IllegalArgumentException if the pointer id is not yet down.
      */
     fun updatePointerBy(delta: Offset) {
         updatePointerBy(0, delta)
