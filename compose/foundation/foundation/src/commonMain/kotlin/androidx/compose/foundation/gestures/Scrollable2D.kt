@@ -31,20 +31,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.UserInput
-import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.invalidateSemantics
-import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.scrollBy
-import androidx.compose.ui.semantics.scrollByOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.util.fastAny
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -143,27 +132,23 @@ private class Scrollable2DElement(
 @OptIn(ExperimentalFoundationApi::class)
 internal class Scrollable2DNode(
     state: Scrollable2DState,
-    private var overscrollEffect: OverscrollEffect?,
-    private var flingBehavior: FlingBehavior?,
+    overscrollEffect: OverscrollEffect?,
+    flingBehavior: FlingBehavior?,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
 ) :
-    DragGestureNode(
-        canDrag = CanDragCalculation,
+    AbstractScrollableNode(
+        overscrollEffect = overscrollEffect,
+        flingBehavior = flingBehavior,
         enabled = enabled,
         interactionSource = interactionSource,
         orientation = null,
-    ),
-    SemanticsModifierNode {
+    ) {
 
-    override val shouldAutoInvalidate: Boolean = false
+    // Placeholder fling behavior, we'll initialize it when the density is available.
+    override val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(UnityDensity))
 
-    private val nestedScrollDispatcher = NestedScrollDispatcher()
-
-    // Place holder fling behavior, we'll initialize it when the density is available.
-    private val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(UnityDensity))
-
-    private val scrollingLogic =
+    override val scrollLogic =
         ScrollingLogic2D(
             scrollableState = state,
             overscrollEffect = overscrollEffect,
@@ -172,38 +157,32 @@ internal class Scrollable2DNode(
             isScrollableNodeAttached = { isAttached },
         )
 
-    private val nestedScrollConnection =
-        ScrollableNestedScrollConnection(enabled = enabled, scrollingLogic = scrollingLogic)
-
-    private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
-    private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
+    override val nestedScrollConnection =
+        ScrollableNestedScrollConnection(enabled = enabled, scrollingLogic = scrollLogic)
 
     init {
-        /** Nested scrolling */
-        delegate(nestedScrollModifierNode(nestedScrollConnection, nestedScrollDispatcher))
+        // Must be called here because in AbstractScrollableNode.init nestedScrollConnection hasn't
+        // been created yet
+        initializeNestedScrollingDelegation()
     }
+
+    override fun createMouseWheelScrollingLogic() = null
+
+    override fun createTrackpadScrollingLogic() = null
 
     override suspend fun drag(
         forEachDelta: suspend ((dragDelta: DragEvent.DragDelta) -> Unit) -> Unit
     ) {
-        with(scrollingLogic) {
+        with(scrollLogic) {
             scroll(scrollPriority = MutatePriority.UserInput) {
                 forEachDelta { scrollByWithOverscroll(it.delta, source = UserInput) }
             }
         }
     }
 
-    override fun onDragStarted(startedPosition: Offset) {}
-
     override fun onDragStopped(event: DragEvent.DragStopped) {
         if (isClearNestedScrollCoroutineScopeFixEnabled && !isAttached) return
-        nestedScrollDispatcher.coroutineScope.launch {
-            scrollingLogic.onScrollStopped(event.velocity)
-        }
-    }
-
-    override fun startDragImmediately(): Boolean {
-        return scrollingLogic.shouldScrollImmediately()
+        nestedScrollDispatcher.coroutineScope.launch { scrollLogic.onScrollStopped(event.velocity) }
     }
 
     fun update(
@@ -213,23 +192,21 @@ internal class Scrollable2DNode(
         flingBehavior: FlingBehavior?,
         interactionSource: MutableInteractionSource?,
     ) {
-        var shouldInvalidateSemantics = false
-        if (this.enabled != enabled) { // enabled changed
-            nestedScrollConnection.enabled = enabled
-            shouldInvalidateSemantics = true
-        }
+        update(
+            enabled = enabled,
+            overscrollEffect = overscrollEffect,
+            flingBehavior = flingBehavior,
+        )
+
         // a new fling behavior was set, change the resolved one.
         val resolvedFlingBehavior = flingBehavior ?: defaultFlingBehavior
-
         val resetPointerInputHandling =
-            scrollingLogic.update(
+            scrollLogic.update(
                 scrollableState = state,
                 overscrollEffect = overscrollEffect,
                 flingBehavior = resolvedFlingBehavior,
                 nestedScrollDispatcher = nestedScrollDispatcher,
             )
-        this.overscrollEffect = overscrollEffect
-        this.flingBehavior = flingBehavior
 
         // update DragGestureNode
         update(
@@ -238,60 +215,10 @@ internal class Scrollable2DNode(
             interactionSource = interactionSource,
             shouldResetPointerInputHandling = resetPointerInputHandling,
         )
-
-        if (shouldInvalidateSemantics) {
-            clearScrollSemanticsActions()
-            invalidateSemantics()
-        }
     }
 
-    override fun onAttach() {
-        updateDefaultFlingBehavior()
-    }
-
-    private fun updateDefaultFlingBehavior() {
-        if (!isAttached) return
-        val density = requireDensity()
-        defaultFlingBehavior.updateDensity(density)
-    }
-
-    override fun onDensityChange() {
-        onCancelPointerInput()
-        updateDefaultFlingBehavior()
-    }
-
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize,
-    ) {
-        if (pointerEvent.changes.fastAny { canDrag.invoke(it.type) }) {
-            super.onPointerEvent(pointerEvent, pass, bounds)
-        }
-    }
-
-    override fun SemanticsPropertyReceiver.applySemantics() {
-        if (enabled && (scrollByAction == null || scrollByOffsetAction == null)) {
-            setScrollSemanticsActions()
-        }
-
-        scrollByAction?.let { scrollBy(action = it) }
-
-        scrollByOffsetAction?.let { scrollByOffset(action = it) }
-    }
-
-    private fun setScrollSemanticsActions() {
-        scrollByAction = { x, y ->
-            coroutineScope.launch { scrollingLogic.semanticsScrollBy(Offset(x, y)) }
-            true
-        }
-
-        scrollByOffsetAction = { offset -> scrollingLogic.semanticsScrollBy(offset) }
-    }
-
-    private fun clearScrollSemanticsActions() {
-        scrollByAction = null
-        scrollByOffsetAction = null
+    override suspend fun semanticsScrollBy(offset: Offset): Offset {
+        return scrollLogic.semanticsScrollBy(offset)
     }
 }
 
@@ -299,7 +226,7 @@ internal class Scrollable2DNode(
  * Holds all scrolling related logic: controls nested scrolling, flinging, overscroll and delta
  * dispatching.
  */
-private class ScrollingLogic2D(
+internal class ScrollingLogic2D(
     var scrollableState: Scrollable2DState,
     private var overscrollEffect: OverscrollEffect?,
     private var flingBehavior: FlingBehavior,
@@ -406,12 +333,12 @@ private class ScrollingLogic2D(
          * magnitude
          */
         fun Float.toDecomposedOffset() =
-            if (available.angle.isNaN()) {
+            if (available.angleRad.isNaN()) {
                 Offset(0f, this)
             } else {
                 Offset(
-                    x = abs(cos(available.angle) * this) * sign(available.x),
-                    y = abs(sin(available.angle) * this) * sign(available.y),
+                    x = abs(cos(available.angleRad) * this) * sign(available.x),
+                    y = abs(sin(available.angleRad) * this) * sign(available.y),
                 )
             }
 
@@ -420,12 +347,12 @@ private class ScrollingLogic2D(
          * magnitude
          */
         fun Float.toDecomposedVelocity() =
-            if (available.angle.isNaN()) {
+            if (available.angleRad.isNaN()) {
                 Velocity(0f, this)
             } else {
                 Velocity(
-                    x = abs(cos(available.angle) * this) * sign(available.x),
-                    y = abs(sin(available.angle) * this) * sign(available.y),
+                    x = abs(cos(available.angleRad) * this) * sign(available.x),
+                    y = abs(sin(available.angleRad) * this) * sign(available.y),
                 )
             }
 
@@ -465,13 +392,13 @@ private class ScrollingLogic2D(
         return result
     }
 
-    fun shouldScrollImmediately(): Boolean {
+    override fun shouldScrollImmediately(): Boolean {
         return scrollableState.isScrollInProgress || overscrollEffect?.isInProgress ?: false
     }
 
     /** Opens a scrolling session with nested scrolling and overscroll support. */
-    suspend fun scroll(
-        scrollPriority: MutatePriority = MutatePriority.Default,
+    override suspend fun scroll(
+        scrollPriority: MutatePriority,
         block: suspend NestedScrollScope.() -> Unit,
     ) {
         scrollableState.scroll(scrollPriority) {
@@ -518,5 +445,5 @@ private suspend fun ScrollingLogic2D.semanticsScrollBy(offset: Offset): Offset {
 
 private val Velocity.magnitude
     get() = sqrt(x.pow(2) + y.pow(2))
-private val Velocity.angle
+private val Velocity.angleRad
     get() = atan2(x = x, y = y)
