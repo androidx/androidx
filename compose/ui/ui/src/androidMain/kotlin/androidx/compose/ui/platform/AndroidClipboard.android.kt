@@ -17,16 +17,43 @@
 package androidx.compose.ui.platform
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 
 /**
  * Returns an [android.content.ClipboardManager] that exposes the full functionality of platform
  * clipboard.
  */
 val Clipboard.nativeClipboardManager: android.content.ClipboardManager
-    @Suppress("DEPRECATION") get() = nativeClipboard
+    get() {
+        require(this is AndroidClipboard) {
+            "Extracting native reference is only supported from androidx.compose.ui.platform.AndroidClipboard instances but received ${this::class.qualifiedName}"
+        }
+        return clipboardManager
+    }
 
-internal class AndroidClipboard
-internal constructor(private val androidClipboardManager: AndroidClipboardManager) : Clipboard {
+/**
+ * Android-specific implementation of the [Clipboard] interface that provides access to the
+ * underlying [android.content.ClipboardManager].
+ */
+@VisibleForTesting
+interface AndroidClipboard : Clipboard {
+    /**
+     * Returns an [android.content.ClipboardManager] that exposes the full functionality of platform
+     * clipboard.
+     */
+    val clipboardManager: android.content.ClipboardManager
+
+    @Deprecated(
+        message = "Use [nativeClipboardManager] extension instead",
+        replaceWith = ReplaceWith("nativeClipboardManager"),
+    )
+    override val nativeClipboard: android.content.ClipboardManager
+        get() = clipboardManager
+}
+
+internal class AndroidClipboardImpl
+internal constructor(private val androidClipboardManager: AndroidClipboardManager) :
+    AndroidClipboard {
 
     internal constructor(context: Context) : this(AndroidClipboardManager(context))
 
@@ -38,13 +65,6 @@ internal constructor(private val androidClipboardManager: AndroidClipboardManage
         androidClipboardManager.setClip(clipEntry)
     }
 
-    // The new extension field [nativeClipboardManager] still delegates to this property.
-    // Therefore, this deprecated field shall be used in tests to mock the backing
-    // native ClipboardManager.
-    @Deprecated(
-        message = "Use [nativeClipboardManager] extension instead",
-        replaceWith = ReplaceWith("nativeClipboardManager"),
-    )
-    override val nativeClipboard: android.content.ClipboardManager
+    override val clipboardManager: android.content.ClipboardManager
         get() = androidClipboardManager.nativeClipboard
 }
