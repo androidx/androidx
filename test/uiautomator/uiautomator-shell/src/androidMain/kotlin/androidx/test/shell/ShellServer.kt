@@ -102,11 +102,15 @@ private constructor(
                     .use { iStream -> iStream.bufferedReader().readLine() }
                     .trim()
                     .toInt()
-            } catch (e: NumberFormatException) {
+            } catch (throwable: Throwable) {
+                // executeShellCommand creates a ParcelFileDescriptor using createPipe().
+                // However, that method can throw an exception, in which case the underlying
+                // ParcelFileDescriptor can end up being `null`. This in turn, triggers an NPE.
+                // Given the try block is well scoped, let's catch all exceptions instead.
                 throw IllegalStateException(
                     "The shell server did not start correctly. " +
                         "Check logcat with tag `NativeShellServer` for details.",
-                    e,
+                    throwable,
                 )
             }
     }
