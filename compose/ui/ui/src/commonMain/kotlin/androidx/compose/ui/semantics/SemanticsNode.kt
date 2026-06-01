@@ -97,14 +97,6 @@ internal constructor(
     internal val isFake: Boolean
         get() = fakeNodeParent != null
 
-    internal val isUnmergedLeafNode
-        get() =
-            !isFake &&
-                replacedChildren.isEmpty() &&
-                layoutNode.findClosestParentNode {
-                    it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
-                } == null
-
     /** The [LayoutInfo] that this is associated with. */
     val layoutInfo: LayoutInfo
         get() = layoutNode

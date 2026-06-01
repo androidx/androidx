@@ -127,7 +127,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -256,6 +259,29 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                     testTag = tag
                     text = AnnotatedString("Example text")
                 }
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.isScreenReaderFocusable).isTrue() }
+    }
+
+    @Test
+    fun testPopulateAccessibilityNodeInfoProperties_screenReaderFocusable_speakableTextWithLinks() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            BasicText(
+                text =
+                    buildAnnotatedString {
+                        append("Text with")
+                        val link = LinkAnnotation.Url("url")
+                        withLink(link) { append("link") }
+                    },
+                modifier = Modifier.testTag(tag),
             )
         }
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()

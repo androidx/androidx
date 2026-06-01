@@ -106,6 +106,7 @@ import androidx.compose.ui.semantics.SemanticsProperties.IsSensitiveData
 import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.semantics.getAllUncoveredSemanticsNodesToIntObjectMap
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.isAccessibilityIgnoredLink
@@ -3434,7 +3435,18 @@ private fun setTraversalValues(
     }
 }
 
+/** Determines if the node should explicitly map to the merging on accessibility side */
 private fun isScreenReaderFocusable(node: SemanticsNode, resources: Resources): Boolean {
+    if (node.isHidden) return false
+
+    // If the node explicitly merges its descendants, we map it directly to the merging
+    // algorithm on the accessibility side.
+    if (node.unmergedConfig.isMergingSemanticsOfDescendants) return true
+
+    // Otherwise, we instruct the accessibility service to focus on the node iff:
+    // 1. It is not part of a higher-level merging container (which would take focus itself).
+    // 2. It is a leaf node.
+    // 3. It has explicit text, content description, or state to announce.
     val nodeContentDescriptionOrNull =
         node.unmergedConfig.getOrNull(SemanticsProperties.ContentDescription)?.firstOrNull()
     val isSpeakingNode =
@@ -3443,10 +3455,27 @@ private fun isScreenReaderFocusable(node: SemanticsNode, resources: Resources): 
             getInfoStateDescriptionOrNull(node, resources) != null ||
             getInfoIsCheckable(node)
 
-    return !node.isHidden &&
-        (node.unmergedConfig.isMergingSemanticsOfDescendants ||
-            node.isUnmergedLeafNode && isSpeakingNode)
+    return isSpeakingNode && node.isUnmergedLeafNode
 }
+
+private val SemanticsNode.isUnmergedLeafNode: Boolean
+    get() {
+        if (isFake) return false
+        // To be considered a leaf, this node must either have no children at all, or contain only
+        // accessibility-ignored children (such as inline hyperlinks). Links are a special case
+        // because we expose them to accessibility services via URLSpans rather than separate
+        // virtual nodes.
+        replacedChildren.fastForEach { child ->
+            if (!child.isAccessibilityIgnoredLink) {
+                return false
+            }
+        }
+        val hasMergingParent =
+            layoutNode.findClosestParentNode {
+                it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
+            } != null
+        return !hasMergingParent
+    }
 
 private fun getInfoText(node: SemanticsNode): AnnotatedString? {
     val editableTextToAssign = node.unmergedConfig.getOrNull(SemanticsProperties.EditableText)
