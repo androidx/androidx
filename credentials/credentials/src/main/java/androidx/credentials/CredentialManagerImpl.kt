@@ -36,6 +36,7 @@ import androidx.credentials.exceptions.publickeycredential.SignalCredentialSecur
 import androidx.credentials.exceptions.publickeycredential.SignalCredentialStateException
 import androidx.credentials.exceptions.publickeycredential.SignalCredentialStateProviderConfigurationException
 import androidx.credentials.internal.FormFactorHelper
+import androidx.credentials.internal.MutableContextTracker
 import java.util.concurrent.Executor
 
 /**
@@ -124,10 +125,12 @@ internal class CredentialManagerImpl internal constructor(private val context: C
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
+        val wrappedCallback =
+            MutableContextTracker.wrapCallback(context, cancellationSignal, callback)
         val provider: CredentialProvider? =
             CredentialProviderFactory(context).getBestAvailableProvider(request)
         if (provider == null) {
-            callback.onError(
+            wrappedCallback.onError(
                 GetCredentialProviderConfigurationException(
                     "getCredentialAsync no provider dependencies found - please ensure " +
                         "the desired provider dependencies are added"
@@ -135,7 +138,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
             )
             return
         }
-        provider.onGetCredential(context, request, cancellationSignal, executor, callback)
+        provider.onGetCredential(context, request, cancellationSignal, executor, wrappedCallback)
     }
 
     /**
@@ -167,11 +170,13 @@ internal class CredentialManagerImpl internal constructor(private val context: C
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
+        val wrappedCallback =
+            MutableContextTracker.wrapCallback(context, cancellationSignal, callback)
         val provider: CredentialProvider? =
             CredentialProviderFactory(context)
                 .getBestAvailableProvider(shouldFallbackToPreU = false)
         if (provider == null) {
-            callback.onError(
+            wrappedCallback.onError(
                 GetCredentialProviderConfigurationException("No Credential Manager provider found")
             )
             return
@@ -181,7 +186,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
             pendingGetCredentialHandle,
             cancellationSignal,
             executor,
-            callback,
+            wrappedCallback,
         )
     }
 
@@ -243,10 +248,12 @@ internal class CredentialManagerImpl internal constructor(private val context: C
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     ) {
+        val wrappedCallback =
+            MutableContextTracker.wrapCallback(context, cancellationSignal, callback)
         val provider: CredentialProvider? =
             CredentialProviderFactory(this.context).getBestAvailableProvider(request)
         if (provider == null) {
-            callback.onError(
+            wrappedCallback.onError(
                 CreateCredentialProviderConfigurationException(
                     "createCredentialAsync no provider dependencies found - please ensure the " +
                         "desired provider dependencies are added"
@@ -257,7 +264,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
 
         // Check if this is a Wearable device, creation is not supported.
         if (FormFactorHelper.isWear(context)) {
-            callback.onError(
+            wrappedCallback.onError(
                 CreateCredentialUnsupportedException(
                     "createCredential is not supported on this device"
                 )
@@ -265,7 +272,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
             return
         }
 
-        provider.onCreateCredential(context, request, cancellationSignal, executor, callback)
+        provider.onCreateCredential(context, request, cancellationSignal, executor, wrappedCallback)
     }
 
     /**
