@@ -48,8 +48,8 @@ object IntrospectionHelper {
         const val PROPERTY_INSTRUCTION = "instruction"
     }
 
-    object AppFunctionEntryPointAnnotation {
-        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionEntryPoint")
+    object AppFunctionServiceEntryPointAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionServiceEntryPoint")
         const val PROPERTY_SERVICE_NAME = "serviceName"
         const val PROPERTY_APP_FUNCTION_XML_FILE_NAME = "appFunctionXmlFileName"
     }

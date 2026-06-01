@@ -18,8 +18,8 @@ package androidx.appfunctions.compiler.processors
 
 import androidx.annotation.VisibleForTesting
 import androidx.appfunctions.compiler.AppFunctionCompiler
-import androidx.appfunctions.compiler.core.AnnotatedAppFunctionEntryPoint
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctionServiceEntryPoint
 import androidx.appfunctions.compiler.core.AppFunctionInventoryCodeBuilder
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.AppFunctionXmlGenerator
@@ -52,10 +52,10 @@ import com.squareup.kotlinpoet.buildCodeBlock
 /**
  * The processor to generate the AppFunctionService subclass for an AppFunction entry point.
  *
- * For each class annotated with `@AppFunctionEntryPoint`, a corresponding subclass extending it
- * will be generated under the same package. For example,
+ * For each class annotated with `@AppFunctionServiceEntryPoint`, a corresponding subclass extending
+ * it will be generated under the same package. For example,
  * ```
- * @AppFunctionEntryPoint(serviceName = "MyService")
+ * @AppFunctionServiceEntryPoint(serviceName = "MyService")
  * abstract class MyBaseService : AppFunctionService() {
  *   @AppFunction
  *   suspend fun doSomething() { ... }
@@ -74,7 +74,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  * }
  * ```
  */
-class AppFunctionEntryPointProcessor(
+class AppFunctionServiceEntryPointProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) : SymbolProcessor {
@@ -91,11 +91,12 @@ class AppFunctionEntryPointProcessor(
             )
         val descriptionMap = appFunctionSymbolResolver.getAppFunctionSerializablesDescriptionMap()
 
-        val entryPoints = appFunctionSymbolResolver.resolveAnnotatedAppFunctionEntryPoints()
-        for (entryPoint in entryPoints) {
+        val serviceEntryPoints =
+            appFunctionSymbolResolver.resolveAnnotatedAppFunctionServiceEntryPoints()
+        for (serviceEntryPoint in serviceEntryPoints) {
             try {
-                generateAppFunctionService(entryPoint)
-                generateXml(entryPoint, resolvedAnnotatedSerializableProxies, descriptionMap)
+                generateAppFunctionService(serviceEntryPoint)
+                generateXml(serviceEntryPoint, resolvedAnnotatedSerializableProxies, descriptionMap)
             } catch (e: ProcessingException) {
                 logger.logException(e)
             }
@@ -104,24 +105,26 @@ class AppFunctionEntryPointProcessor(
     }
 
     private fun generateXml(
-        entryPoint: AnnotatedAppFunctionEntryPoint,
+        serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint,
         resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
         descriptionMap: Map<String, String>,
     ) {
         val generator = AppFunctionXmlGenerator(codeGenerator, logger)
         generator.generateXml(
-            entryPoint = entryPoint,
+            serviceEntryPoint = serviceEntryPoint,
             resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
             appFunctionSerializablesDescriptionMap = descriptionMap,
             packageName = XML_PACKAGE_NAME,
-            fileName = entryPoint.appFunctionXmlFileName,
+            fileName = serviceEntryPoint.appFunctionXmlFileName,
         )
     }
 
     // TODO(b/463909015): Generate IDs for each AppFunction.
-    private fun generateAppFunctionService(entryPoint: AnnotatedAppFunctionEntryPoint) {
-        val serviceDeclaration = entryPoint.serviceDeclaration
-        val serviceName = entryPoint.serviceName
+    private fun generateAppFunctionService(
+        serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint
+    ) {
+        val serviceDeclaration = serviceEntryPoint.serviceDeclaration
+        val serviceName = serviceEntryPoint.serviceName
         val packageName = serviceDeclaration.packageName.asString()
         val originalClassName = ClassName(packageName, serviceDeclaration.simpleName.asString())
 
@@ -129,8 +132,8 @@ class AppFunctionEntryPointProcessor(
             TypeSpec.classBuilder(serviceName)
                 .superclass(originalClassName)
                 .addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
-                .addFunction(buildExecuteFunction(entryPoint))
-                .addFunction(buildResolveInventory(entryPoint))
+                .addFunction(buildExecuteFunction(serviceEntryPoint))
+                .addFunction(buildResolveInventory(serviceEntryPoint))
 
         val fileSpec =
             FileSpec.builder(packageName, serviceName).addType(serviceClassBuilder.build()).build()
@@ -148,7 +151,9 @@ class AppFunctionEntryPointProcessor(
             .use { fileSpec.writeTo(it) }
     }
 
-    private fun buildExecuteFunction(entryPoint: AnnotatedAppFunctionEntryPoint): FunSpec {
+    private fun buildExecuteFunction(
+        serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint
+    ): FunSpec {
         return FunSpec.builder(AppFunctionServiceClass.ExecuteFunctionMethod.METHOD_NAME)
             .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
             .addParameter(
@@ -156,16 +161,18 @@ class AppFunctionEntryPointProcessor(
                 ExecuteAppFunctionRequestClass.CLASS_NAME,
             )
             .returns(ExecuteAppFunctionResponseClass.CLASS_NAME)
-            .addCode(buildExecuteFunctionBody(entryPoint))
+            .addCode(buildExecuteFunctionBody(serviceEntryPoint))
             .build()
     }
 
-    private fun buildResolveInventory(entryPoint: AnnotatedAppFunctionEntryPoint): FunSpec {
+    private fun buildResolveInventory(
+        serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint
+    ): FunSpec {
         val generatedInventoryTypeName =
             ClassName(
-                entryPoint.serviceDeclaration.packageName.asString(),
+                serviceEntryPoint.serviceDeclaration.packageName.asString(),
                 AppFunctionInventoryCodeBuilder.getAppFunctionInventoryClassName(
-                    entryPoint.serviceDeclaration.simpleName.asString()
+                    serviceEntryPoint.serviceDeclaration.simpleName.asString()
                 ),
             )
         return FunSpec.builder(
@@ -177,7 +184,9 @@ class AppFunctionEntryPointProcessor(
             .build()
     }
 
-    private fun buildExecuteFunctionBody(entryPoint: AnnotatedAppFunctionEntryPoint): CodeBlock {
+    private fun buildExecuteFunctionBody(
+        serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint
+    ): CodeBlock {
         return buildCodeBlock {
             beginControlFlow(
                 """
@@ -192,9 +201,10 @@ class AppFunctionEntryPointProcessor(
                 AppFunctionInventoryProviderInterface.ResolveInventoryMethod.METHOD_NAME,
             )
             beginControlFlow("when (request.functionIdentifier)")
-            for (appFunction in entryPoint.appFunctions) {
+            for (appFunction in serviceEntryPoint.appFunctions) {
                 val function = appFunction.appFunctionDeclaration
-                val identifier = appFunction.getAppFunctionIdentifier(entryPoint.serviceDeclaration)
+                val identifier =
+                    appFunction.getAppFunctionIdentifier(serviceEntryPoint.serviceDeclaration)
                 beginControlFlow("%S ->", identifier)
                 add("this.%N(\n", function.simpleName.asString())
                 indent()
@@ -220,7 +230,10 @@ class AppFunctionEntryPointProcessor(
     @VisibleForTesting
     class Provider : SymbolProcessorProvider {
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-            return AppFunctionEntryPointProcessor(environment.codeGenerator, environment.logger)
+            return AppFunctionServiceEntryPointProcessor(
+                environment.codeGenerator,
+                environment.logger,
+            )
         }
     }
 

@@ -38,8 +38,8 @@ class AppFunctionXmlGenerator(
     /**
      * Generates an XML file containing the AppFunction metadata.
      *
-     * @param entryPoint The [AnnotatedAppFunctionEntryPoint] containing the app functions to be
-     *   included in the XML.
+     * @param serviceEntryPoint The [AnnotatedAppFunctionServiceEntryPoint] containing the app
+     *   functions to be included in the XML.
      * @param resolvedAnnotatedSerializableProxies A collection of resolved annotated serializable
      *   proxies.
      * @param appFunctionSerializablesDescriptionMap A map containing descriptions of AppFunction
@@ -50,7 +50,7 @@ class AppFunctionXmlGenerator(
      *   standard KSP output.
      */
     fun generateXml(
-        entryPoint: AnnotatedAppFunctionEntryPoint,
+        serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint,
         resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
         appFunctionSerializablesDescriptionMap: Map<String, String>,
         packageName: String,
@@ -58,9 +58,9 @@ class AppFunctionXmlGenerator(
         outputLocation: String? = null,
     ) {
         val appFunctionMetadataList =
-            entryPoint.appFunctions.map {
+            serviceEntryPoint.appFunctions.map {
                 it.createAppFunctionMetadata(
-                    enclosingClass = entryPoint.serviceDeclaration,
+                    enclosingClass = serviceEntryPoint.serviceDeclaration,
                     resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
                     sharedDataTypeDescriptionMap = appFunctionSerializablesDescriptionMap,
                 )
@@ -70,7 +70,7 @@ class AppFunctionXmlGenerator(
             dependencies =
                 Dependencies(
                     aggregating = true,
-                    sources = entryPoint.getSourceFiles().toTypedArray(),
+                    sources = serviceEntryPoint.getSourceFiles().toTypedArray(),
                 ),
             packageName = packageName,
             fileName = fileName,
@@ -78,7 +78,7 @@ class AppFunctionXmlGenerator(
             // components that would override the database document when being indexed since
             // multiservice is supported in Android 17 and there could be multiple top-level
             // components from the same app.
-            componentId = entryPoint.serviceDeclaration.ensureQualifiedName(),
+            componentId = serviceEntryPoint.serviceDeclaration.ensureQualifiedName(),
             outputLocation = outputLocation,
         )
     }

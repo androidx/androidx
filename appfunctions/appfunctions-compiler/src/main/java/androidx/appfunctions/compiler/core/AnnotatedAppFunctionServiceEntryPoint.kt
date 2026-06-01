@@ -16,45 +16,47 @@
 
 package androidx.appfunctions.compiler.core
 
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionEntryPointAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceClass
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceEntryPointAnnotation
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 
-/** Represents a class annotated with @AppFunctionEntryPoint. */
-class AnnotatedAppFunctionEntryPoint(
+/** Represents a class annotated with @AppFunctionServiceEntryPoint. */
+class AnnotatedAppFunctionServiceEntryPoint(
     val serviceDeclaration: KSClassDeclaration,
     val appFunctions: List<AnnotatedAppFunction>,
 ) {
-    private val appFunctionEntryPointAnnotation by lazy {
-        serviceDeclaration.annotations.findAnnotation(AppFunctionEntryPointAnnotation.CLASS_NAME)
+    private val appFunctionServiceEntryPointAnnotation by lazy {
+        serviceDeclaration.annotations.findAnnotation(
+            AppFunctionServiceEntryPointAnnotation.CLASS_NAME
+        )
             ?: throw ProcessingException(
-                "Class not annotated with @AppFunctionEntryPoint",
+                "Class not annotated with @AppFunctionServiceEntryPoint",
                 serviceDeclaration,
             )
     }
 
     /** The name of the service class. */
     val serviceName: String by lazy {
-        appFunctionEntryPointAnnotation.requirePropertyValueOfType(
-            AppFunctionEntryPointAnnotation.PROPERTY_SERVICE_NAME,
+        appFunctionServiceEntryPointAnnotation.requirePropertyValueOfType(
+            AppFunctionServiceEntryPointAnnotation.PROPERTY_SERVICE_NAME,
             String::class,
         )
     }
 
     /** The name of the app function XML file. */
     val appFunctionXmlFileName: String by lazy {
-        appFunctionEntryPointAnnotation.requirePropertyValueOfType(
-            AppFunctionEntryPointAnnotation.PROPERTY_APP_FUNCTION_XML_FILE_NAME,
+        appFunctionServiceEntryPointAnnotation.requirePropertyValueOfType(
+            AppFunctionServiceEntryPointAnnotation.PROPERTY_APP_FUNCTION_XML_FILE_NAME,
             String::class,
         )
     }
 
     /** Validates the app function entry point. */
-    fun validate(): AnnotatedAppFunctionEntryPoint {
+    fun validate(): AnnotatedAppFunctionServiceEntryPoint {
         validateAnnotation()
         validateSuperClass()
         validateIsAbstract()
@@ -81,11 +83,11 @@ class AnnotatedAppFunctionEntryPoint(
     private fun validateAnnotation() {
         val entryPointAnnotation =
             serviceDeclaration.annotations.findAnnotation(
-                AppFunctionEntryPointAnnotation.CLASS_NAME
+                AppFunctionServiceEntryPointAnnotation.CLASS_NAME
             )
         if (entryPointAnnotation == null) {
             throw ProcessingException(
-                "Class must be annotated with @AppFunctionEntryPoint",
+                "Class must be annotated with @AppFunctionServiceEntryPoint",
                 serviceDeclaration,
             )
         }
@@ -108,7 +110,7 @@ class AnnotatedAppFunctionEntryPoint(
     private fun validateIsAbstract() {
         if (Modifier.ABSTRACT !in serviceDeclaration.modifiers) {
             throw ProcessingException(
-                "The class being annotated with AppFunctionEntryPoint should be an abstract class",
+                "The class being annotated with AppFunctionServiceEntryPoint should be an abstract class",
                 serviceDeclaration,
             )
         }

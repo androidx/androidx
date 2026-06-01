@@ -60,7 +60,7 @@ class AppFunctionInventoryProcessor(private val codeGenerator: CodeGenerator) : 
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
         val appFunctionClasses = appFunctionSymbolResolver.resolveAnnotatedAppFunctions()
         val appFunctionEntryPoints =
-            appFunctionSymbolResolver.resolveAnnotatedAppFunctionEntryPoints()
+            appFunctionSymbolResolver.resolveAnnotatedAppFunctionServiceEntryPoints()
         val resolvedAnnotatedSerializableProxies =
             ResolvedAnnotatedSerializableProxies(
                 appFunctionSymbolResolver.resolveAllAnnotatedSerializableProxiesFromModule()
