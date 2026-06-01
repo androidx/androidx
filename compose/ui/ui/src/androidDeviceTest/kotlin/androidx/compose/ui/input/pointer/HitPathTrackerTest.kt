@@ -23,6 +23,8 @@ import android.view.MotionEvent.ACTION_HOVER_EXIT
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.RetainedValuesStore
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -785,32 +787,32 @@ class HitPathTrackerTest {
 
         assertThat(log1[0].pointerInputNode).isEqualTo(pif1)
         PointerEventSubject.assertThat(log1[0].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(expectedChange))
+            .isStructurallyEqualTo(pointerMoveEventOf(expectedChange))
         assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[1].pointerInputNode).isEqualTo(pif2)
         PointerEventSubject.assertThat(log1[1].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedChange))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedChange))
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[2].pointerInputNode).isEqualTo(pif3)
         PointerEventSubject.assertThat(log1[2].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedChange))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedChange))
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[3].pointerInputNode).isEqualTo(pif3)
         PointerEventSubject.assertThat(log1[3].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedChange))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedChange))
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log1[4].pointerInputNode).isEqualTo(pif2)
         PointerEventSubject.assertThat(log1[4].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedChange))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedChange))
         assertThat(log1[4].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log1[5].pointerInputNode).isEqualTo(pif1)
         PointerEventSubject.assertThat(log1[5].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedChange))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedChange))
         assertThat(log1[5].pass).isEqualTo(PointerEventPass.Main)
 
         PointerInputChangeSubject.assertThat(internalPointerEvent.changes.valueAt(0))
@@ -891,42 +893,42 @@ class HitPathTrackerTest {
 
         assertThat(log1[0].pointerInputNode).isEqualTo(pif1)
         PointerEventSubject.assertThat(log1[0].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(expectedEvent1))
+            .isStructurallyEqualTo(pointerMoveEventOf(expectedEvent1))
         assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[1].pointerInputNode).isEqualTo(pif2)
         PointerEventSubject.assertThat(log1[1].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedEvent1))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedEvent1))
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[2].pointerInputNode).isEqualTo(pif2)
         PointerEventSubject.assertThat(log1[2].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedEvent1))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedEvent1))
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log1[3].pointerInputNode).isEqualTo(pif1)
         PointerEventSubject.assertThat(log1[3].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedEvent1))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedEvent1))
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log2[0].pointerInputNode).isEqualTo(pif3)
         PointerEventSubject.assertThat(log2[0].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(expectedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(expectedEvent2))
         assertThat(log2[0].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log2[1].pointerInputNode).isEqualTo(pif4)
         PointerEventSubject.assertThat(log2[1].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedEvent2))
         assertThat(log2[1].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log2[2].pointerInputNode).isEqualTo(pif4)
         PointerEventSubject.assertThat(log2[2].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedEvent2))
         assertThat(log2[2].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log2[3].pointerInputNode).isEqualTo(pif3)
         PointerEventSubject.assertThat(log2[3].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedExpectedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedExpectedEvent2))
         assertThat(log2[3].pass).isEqualTo(PointerEventPass.Main)
 
         assertEquals(2, internalPointerEvent.changes.size())
@@ -1008,32 +1010,32 @@ class HitPathTrackerTest {
 
         assertThat(log1[0].pointerInputNode).isEqualTo(parent)
         PointerEventSubject.assertThat(log1[0].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(expectedEvent1, expectedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(expectedEvent1, expectedEvent2))
         assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[1].pointerInputNode).isEqualTo(child1)
         PointerEventSubject.assertThat(log1[1].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent1))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedEvent1))
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[2].pointerInputNode).isEqualTo(child1)
         PointerEventSubject.assertThat(log1[2].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent1))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedEvent1))
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log1[3].pointerInputNode).isEqualTo(child2)
         PointerEventSubject.assertThat(log1[3].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedEvent2))
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[4].pointerInputNode).isEqualTo(child2)
         PointerEventSubject.assertThat(log1[4].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedEvent2))
         assertThat(log1[4].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log1[5].pointerInputNode).isEqualTo(parent)
         PointerEventSubject.assertThat(log1[5].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent1, consumedEvent2))
+            .isStructurallyEqualTo(pointerMoveEventOf(consumedEvent1, consumedEvent2))
         assertThat(log1[5].pass).isEqualTo(PointerEventPass.Main)
 
         assertEquals(2, internalPointerEvent.changes.size())
@@ -1092,22 +1094,30 @@ class HitPathTrackerTest {
 
         assertThat(log1[0].pointerInputNode).isEqualTo(child1)
         PointerEventSubject.assertThat(log1[0].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(expectedEvent1, expectedEvent2))
+            .isStructurallyEqualTo(
+                pointerEventOf(expectedEvent1, expectedEvent2, motionEvent = MotionEventMove)
+            )
         assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[1].pointerInputNode).isEqualTo(child2)
         PointerEventSubject.assertThat(log1[1].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent1, consumedEvent2))
+            .isStructurallyEqualTo(
+                pointerEventOf(consumedEvent1, consumedEvent2, motionEvent = MotionEventMove)
+            )
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
 
         assertThat(log1[2].pointerInputNode).isEqualTo(child2)
         PointerEventSubject.assertThat(log1[2].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent1, consumedEvent2))
+            .isStructurallyEqualTo(
+                pointerEventOf(consumedEvent1, consumedEvent2, motionEvent = MotionEventMove)
+            )
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Main)
 
         assertThat(log1[3].pointerInputNode).isEqualTo(child1)
         PointerEventSubject.assertThat(log1[3].pointerEvent)
-            .isStructurallyEqualTo(pointerEventOf(consumedEvent1, consumedEvent2))
+            .isStructurallyEqualTo(
+                pointerEventOf(consumedEvent1, consumedEvent2, motionEvent = MotionEventMove)
+            )
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
 
         assertEquals(2, internalPointerEvent.changes.size())
@@ -2911,6 +2921,58 @@ class HitPathTrackerTest {
         )
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun dispatchChanges_dispatchUnchangedPosition_flagEnabled() {
+        val previousFlagValue = ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+        try {
+            ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled = true
+
+            val parentLayoutNode = layoutNode
+
+            // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer
+            // input).
+            layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+            val pif = PointerInputNodeMock(coordinator = layoutNode.outerCoordinator)
+            hitPathTracker.addHitPath(PointerId(13), listOf(pif))
+
+            val down = down(13, 1, 0f, 0f)
+            val move = down.moveTo(2, 0f, 0f)
+
+            assertThat(hitPathTracker.dispatchChanges(internalPointerEventOf(down))).isTrue()
+            assertThat(hitPathTracker.dispatchChanges(internalPointerEventOf(move))).isTrue()
+        } finally {
+            ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled = previousFlagValue
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun dispatchChanges_dispatchUnchangedPosition_flagDisabled() {
+        val previousFlagValue = ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+        try {
+            ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled = false
+
+            val parentLayoutNode = layoutNode
+
+            // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer
+            // input).
+            layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+            val pif = PointerInputNodeMock(coordinator = layoutNode.outerCoordinator)
+            hitPathTracker.addHitPath(PointerId(13), listOf(pif))
+
+            val down = down(13, 1, 0f, 0f)
+            val move = down.moveTo(2, 0f, 0f)
+
+            assertThat(hitPathTracker.dispatchChanges(internalPointerEventOf(down))).isTrue()
+            assertThat(hitPathTracker.dispatchChanges(internalPointerEventOf(move))).isFalse()
+        } finally {
+            ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled = previousFlagValue
+        }
+    }
+
     private fun dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
         removalPass: PointerEventPass
     ) {
@@ -2959,6 +3021,7 @@ class HitPathTrackerTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun addHitPath_hoverMove_noChange() {
         val log = mutableListOf<LogEntry>()
@@ -3009,8 +3072,13 @@ class HitPathTrackerTest {
 
         assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
 
-        // When the same position is sent, it should ignore the change.
-        assertThat(log).hasSize(0)
+        // When the same position is sent, it should ignore the change, but only if
+        // isTriggerMoveEventsWhenLocationHasNotChangedEnabled isn't enabled
+        if (ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled) {
+            assertThat(log).isNotEmpty()
+        } else {
+            assertThat(log).isEmpty()
+        }
     }
 
     private fun assertHoverEvent(

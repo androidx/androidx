@@ -2567,6 +2567,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     // TODO(shepshapard): Test this method.
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
         if (hoverExitReceived) {
             // Go ahead and send ACTION_HOVER_EXIT if this isn't an ACTION_DOWN for the same
@@ -2585,7 +2586,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             return false // Bad MotionEvent. Don't handle it.
         }
 
-        if (motionEvent.actionMasked == ACTION_MOVE && !isPositionChanged(motionEvent)) {
+        if (
+            motionEvent.actionMasked == ACTION_MOVE &&
+                !isPositionChanged(motionEvent) &&
+                !ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+        ) {
             // There was no movement from previous MotionEvent, so we don't need to dispatch this.
             // This could be a scroll event or some other non-touch event that results in an
             // ACTION_MOVE without any movement.

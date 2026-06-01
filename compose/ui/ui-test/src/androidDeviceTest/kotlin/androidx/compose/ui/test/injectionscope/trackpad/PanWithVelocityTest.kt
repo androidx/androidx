@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -79,6 +81,7 @@ class PanWithVelocityTest(private val config: TestConfig) {
     private val recorder = TrackpadPanInputRecorder()
 
     @Test
+    @OptIn(ExperimentalComposeUiApi::class)
     fun panWithVelocity() {
         rule.setContent {
             Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
@@ -107,11 +110,22 @@ class PanWithVelocityTest(private val config: TestConfig) {
                 val computedVelocity: Velocity
 
                 if (Build.VERSION.SDK_INT >= 34) {
+                    val hasExtraMove =
+                        ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
                     assertThat(events.map { it.position }.toSet()).containsExactly(boxCenter)
                     assertThat(events[1].eventType).isEqualTo(PointerEventType.PanStart)
-                    assertThat(events.subList(2, events.size - 1).map { it.eventType }.toSet())
-                        .containsExactly(PointerEventType.PanMove)
-                    assertThat(events.last().eventType).isEqualTo(PointerEventType.PanEnd)
+
+                    if (hasExtraMove) {
+                        assertThat(events.subList(2, events.size - 2).map { it.eventType }.toSet())
+                            .containsExactly(PointerEventType.PanMove)
+                        assertThat(events[events.size - 2].eventType)
+                            .isEqualTo(PointerEventType.PanEnd)
+                        assertThat(events.last().eventType).isEqualTo(PointerEventType.Move)
+                    } else {
+                        assertThat(events.subList(2, events.size - 1).map { it.eventType }.toSet())
+                            .containsExactly(PointerEventType.PanMove)
+                        assertThat(events.last().eventType).isEqualTo(PointerEventType.PanEnd)
+                    }
 
                     computedVelocity = -panVelocityTracker.calculateVelocity()
                 } else {

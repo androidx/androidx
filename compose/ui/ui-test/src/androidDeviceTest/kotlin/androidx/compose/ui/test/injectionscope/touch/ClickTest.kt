@@ -17,9 +17,12 @@
 package androidx.compose.ui.test.injectionscope.touch
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
@@ -96,13 +99,20 @@ class ClickTest(private val config: TestConfig) {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun SinglePointerInputRecorder.assertIsClick(position: Offset) {
-        assertThat(events).hasSize(2)
+        val hasExtraMove = ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled
+        assertThat(events).hasSize(if (hasExtraMove) 3 else 2)
         val t0 = events[0].timestamp
         val id = events[0].id
 
         events[0].verify(t0 + 0, id, true, position, Touch, Press)
-        events[1].verify(t0 + eventPeriodMillis, id, false, position, Touch, Release)
+        if (hasExtraMove) {
+            events[1].verify(t0 + eventPeriodMillis, id, true, position, Touch, Move)
+            events[2].verify(t0 + eventPeriodMillis, id, false, position, Touch, Release)
+        } else {
+            events[1].verify(t0 + eventPeriodMillis, id, false, position, Touch, Release)
+        }
     }
 
     private fun ComposeTestRule.click(tag: String) {

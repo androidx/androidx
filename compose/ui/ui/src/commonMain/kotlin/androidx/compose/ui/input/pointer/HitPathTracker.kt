@@ -22,6 +22,7 @@ import androidx.collection.MutableObjectList
 import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.util.PointerIdArray
@@ -156,6 +157,7 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
      * @param internalPointerEvent The change to dispatch.
      * @return whether this event was dispatched to a [PointerInputFilter]
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     fun dispatchChanges(
         internalPointerEvent: InternalPointerEvent,
         isInBounds: Boolean = true,
@@ -479,6 +481,7 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
      *
      * @see clearCache
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun buildCache(
         changes: LongSparseArray<PointerInputChange>,
         parentCoordinates: LayoutCoordinates,
@@ -601,9 +604,12 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
         }
 
         val changed =
-            childChanged ||
-                event.type != PointerEventType.Move ||
-                hasPositionChanged(pointerEvent, event)
+            // Fixes Draggable Velocity Tracker
+            ComposeUiFlags.isTriggerMoveEventsWhenLocationHasNotChangedEnabled ||
+                // Older way optimizes not triggering move events when location hasn't changed
+                (childChanged ||
+                    event.type != PointerEventType.Move ||
+                    hasPositionChanged(pointerEvent, event))
         pointerEvent = event
         return changed
     }
