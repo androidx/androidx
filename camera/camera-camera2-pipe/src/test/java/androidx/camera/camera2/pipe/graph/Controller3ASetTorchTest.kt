@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
@@ -45,7 +46,12 @@ internal class Controller3ASetTorchTest {
     private val graphProcessor = graphTestContext.graphProcessor
     private val listener3A = Listener3A()
     private val controller3A =
-        Controller3A(graphProcessor, FakeCameraMetadata(), graphState3A, listener3A)
+        Controller3A(
+            graphProcessor,
+            FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+            graphState3A,
+            listener3A,
+        )
 
     @After
     fun teardown() {
@@ -57,7 +63,12 @@ internal class Controller3ASetTorchTest {
         val graphProcessor2 = FakeGraphProcessor()
         val graphState3A2 = GraphState3A()
         val controller3A =
-            Controller3A(graphProcessor2, FakeCameraMetadata(), graphState3A2, listener3A)
+            Controller3A(
+                graphProcessor2,
+                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+                graphState3A2,
+                listener3A,
+            )
         val result = controller3A.setTorchOn()
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
         assertThat(graphState3A2.current.flashMode).isEqualTo(FlashMode.TORCH)
@@ -68,7 +79,12 @@ internal class Controller3ASetTorchTest {
         val graphProcessor2 = FakeGraphProcessor()
         val graphState3A2 = GraphState3A()
         val controller3A =
-            Controller3A(graphProcessor2, FakeCameraMetadata(), graphState3A2, listener3A)
+            Controller3A(
+                graphProcessor2,
+                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
+                graphState3A2,
+                listener3A,
+            )
         val result = controller3A.setTorchOff()
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
         assertThat(graphState3A2.current.flashMode).isEqualTo(FlashMode.OFF)

@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.Converge3ABehavior
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isCapture
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isRepeating
@@ -232,11 +233,13 @@ internal class Controller3AConverge3ATest {
     @Test
     fun testConverge3AWithUnsupportedAutoFocusTrigger() = runTest {
         val fakeMetadataNoAf =
-            FakeCameraMetadata(
-                mapOf(
-                    CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
-                )
+            FakeCameraMetadata.fromTemplate(
+                template = EmulatorDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                            intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                    ),
             )
         val controller3A = Controller3A(graphProcessor, fakeMetadataNoAf, graphState3A, listener3A)
 
