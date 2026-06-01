@@ -43,6 +43,7 @@ import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -56,7 +57,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.ALL_SDKS])
 internal class Camera2CaptureSequenceTest {
     private val cameraId: CameraId = CameraId("1")
-    private val fakeMetadata = FakeCameraMetadata(cameraId = cameraId)
+    private val fakeMetadata =
+        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
     private val captureSession: CameraCaptureSession = mock()
     private val captureRequest: CaptureRequest = mock()
     private val listener: FakeRequestListener = FakeRequestListener()

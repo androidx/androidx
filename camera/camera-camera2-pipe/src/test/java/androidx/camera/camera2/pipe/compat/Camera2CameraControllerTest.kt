@@ -46,6 +46,7 @@ import androidx.camera.camera2.pipe.testing.FakeImageReaders
 import androidx.camera.camera2.pipe.testing.FakeImageSources
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.seconds
@@ -93,7 +94,8 @@ class Camera2CameraControllerTest {
     private val fakeCaptureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory = mock()
     private val fakeCamera2DeviceManager = FakeCamera2DeviceManager()
     private val fakeCameraSurfaceManager = CameraSurfaceManager()
-    private val fakeCameraMetadata = FakeCameraMetadata(cameraId = cameraId)
+    private val fakeCameraMetadata =
+        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
     private val fakeCamera2Quirks =
         Camera2Quirks(
             FakeCamera2MetadataProvider(mapOf(cameraId to fakeCameraMetadata)),

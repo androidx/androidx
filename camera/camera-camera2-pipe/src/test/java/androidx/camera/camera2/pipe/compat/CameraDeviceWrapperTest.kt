@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +44,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.ALL_SDKS])
 class CameraDeviceWrapperTest {
     private val cameraId = CameraId("0")
-    private val cameraMetadata = FakeCameraMetadata(cameraId = cameraId)
+    private val cameraMetadata =
+        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
     private val cameraDevice: CameraDevice = mock()
     private val cameraErrorListener: CameraErrorListener = mock()
     private val testScope = TestScope()
