@@ -278,9 +278,7 @@ class StaticListPagingSourceTest {
         source: PagingSource<Int, Int> = StaticListPagingSource(DATA),
         pager: TestPager<Int, Int> = TestPager(CONFIG, source),
         block: suspend (pagingSource: PagingSource<Int, Int>, pager: TestPager<Int, Int>) -> Unit,
-    ) {
-        runTest { block(source, pager) }
-    }
+    ) = runTest { block(source, pager) }
 
     private fun List<Int>.asPage(): LoadResult.Page<Int, Int> {
         val indexStart = firstOrNull()

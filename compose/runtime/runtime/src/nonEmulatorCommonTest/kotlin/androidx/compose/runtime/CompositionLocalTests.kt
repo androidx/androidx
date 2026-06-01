@@ -865,6 +865,7 @@ class CompositionLocalTests {
         }
     }
 
+    @Test
     fun staticLocalUpdateInvalidatesCorrectly_startProvides() = compositionTest {
         val SomeValue = staticCompositionLocalOf { 0 }
         val LocalValue = staticCompositionLocalOf<Boolean> { error("Not provided") }

@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -2614,10 +2615,10 @@ class PagingDataPresenterTest {
         }
 
     @Test
-    fun refreshInterrupted_pageStoreResets() {
+    fun refreshInterrupted_pageStoreResets(): TestResult {
         Dispatchers.setMain(UnconfinedTestDispatcher())
 
-        testScope.runTest {
+        return testScope.runTest {
             var refreshCount = 0
             var exceptionDetected = false
             val pager =

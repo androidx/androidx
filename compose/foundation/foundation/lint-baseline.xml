@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.3.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha01)" variant="all" version="9.3.0-alpha01">
+<issues format="6" by="lint 9.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha05)" variant="all" version="9.3.0-alpha05">
 
     <issue
         id="NewApi"
@@ -17,6 +17,537 @@
         errorLine2="        ~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runComposeUiTest(StandardTestDispatcher()) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/CommonTextFieldKeyEventTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello\nworld&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello\n\nworld&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;e\u0301f&quot;) { // e + combining acute accent + f"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = emojiText, useEmojiCompat = true) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello  world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello  world\nhi&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hi\nhello world\nhi&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hi\nhello world\nhi&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hi\nhello world\nhi&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hi\nhello world\nhi&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world\nhi world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world\nhi world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world\nhi world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world\nhi&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;hello world&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;1\n2\n3\n4\n5&quot;, modifier = Modifier.requiredSize(27.dp)) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;, singleLine = true) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;, singleLine = true) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;, singleLine = true) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;, singleLine = true) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;, singleLine = true) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;, singleLine = true) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        keysSequenceTest(initText = &quot;text&quot;) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/HardwareKeyboardTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/LinkStateInteractionSourceObserverTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerContextMenuTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runBtf1ClickContextMenuItemTest("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/TextFieldContextMenuTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/textfield/TextFieldContextMenuTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(UnconfinedTestDispatcher()) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/TextFieldLayoutStateCacheTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(UnconfinedTestDispatcher()) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/TextFieldLayoutStateCacheTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="            runTest {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(singleLine = true, clipboard = { clipboard }) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/selection/TextFieldTextContextMenuToolbarTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest(singleLine = true, clipboard = { clipboard }) {"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/selection/TextFieldTextContextMenuToolbarTest.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        kotlinx.coroutines.test.runTest {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/input/internal/TextInputServiceAndroidCursorAnchorInfoTest.kt"/>
     </issue>
 
     <issue
@@ -903,15 +1434,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="            val pinnedItems ="
-        errorLine2="            ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="return type List&lt;Integer> of calculateCrossAxisCellSizes: replace with IntList"
         errorLine1="    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List&lt;Int>"
         errorLine2="                                                                               ~~~~~~~~~">
@@ -926,24 +1448,6 @@
         errorLine2="   ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method measureLazyGrid has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method calculateExtraItems has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
     </issue>
 
     <issue
@@ -1034,141 +1538,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of calculateLazyLayoutPinnedIndices: replace with IntList"
-        errorLine1="): List&lt;Int> {"
-        errorLine2="   ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val pinnedItems = mutableListOf&lt;Int>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="            val pinnedItems ="
-        errorLine2="            ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyList.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method measureLazyList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method createItemsAfterList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method createItemsBeforeList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method measureStaggeredGrid has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor LazyStaggeredGridMeasureContext has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    val pinnedItems: List&lt;Int>,"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    val pinnedItems: List&lt;Int>,"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of getPinnedItems: replace with IntList"
-        errorLine1="    val pinnedItems: List&lt;Int>,"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="            val pinnedItems ="
-        errorLine2="            ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasurePolicy.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method measurePager has parameter pinnedPages with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedPages: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method createPagesAfterList has parameter pinnedPages with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedPages: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method createPagesBeforeList has parameter pinnedPages with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedPages: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable pinnedPages with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="            val pinnedPages ="
-        errorLine2="            ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasurePolicy.kt"/>
     </issue>
 
 </issues>

@@ -29,6 +29,15 @@
     </issue>
 
     <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runComposeUiTest {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/platform/WindowInfoTest.kt"/>
+    </issue>
+
+    <issue
         id="LambdaStructuralEquality"
         message="Checking lambdas for structural equality, instead of checking for referential equality"
         errorLine1="        if (callback != other.callback) return false"

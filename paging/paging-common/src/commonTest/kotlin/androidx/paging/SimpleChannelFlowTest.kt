@@ -44,8 +44,11 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 
+// TODO: When re-enabling web targets, the KotlinRunTestResultUnused suppression MUST be removed
+//  for correct execution of the tests on web.
 @OptIn(ExperimentalCoroutinesApi::class)
 @IgnoreWebTarget // b/395933428
+@Suppress("KotlinRunTestResultUnused")
 class SimpleChannelFlowTest {
     val testScope = TestScope(UnconfinedTestDispatcher())
 

@@ -111,67 +111,56 @@ class SuspendAnimationTest {
     }
 
     @Test
-    fun animateToTest() {
-        runTest {
-            val from = Offset(666f, 321f)
-            val to = Offset(919f, 864f)
-            val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
-                TwoWayConverter(
-                    convertToVector = { AnimationVector2D(it.x, it.y) },
-                    convertFromVector = { Offset(it.v1, it.v2) },
-                )
-            val anim =
-                TargetBasedAnimation(
-                    tween(500),
-                    offsetToVector,
-                    initialValue = from,
-                    targetValue = to,
-                )
-            val clock = TestFrameClock()
-            val interval = 50
-            val animationState =
-                AnimationState(
-                    initialValue = from,
-                    typeConverter = offsetToVector,
-                    lastFrameTimeNanos = 0,
-                )
-            withContext(clock) {
-                // Put in a bunch of frames 50 milliseconds apart
-                for (frameTimeMillis in 100..1000 step interval) {
-                    clock.frame(frameTimeMillis * 1_000_000L)
-                }
-                // The first frame should start at 100ms
-                var playTimeMillis = 0L
-                animationState.animateTo(
-                    to,
-                    animationSpec = tween(500),
-                    sequentialAnimation = true,
-                ) {
-                    assertTrue(animationState.isRunning)
-                    assertTrue(isRunning)
-                    val expectedValue = anim.getValueFromMillis(playTimeMillis)
-                    assertEquals(expectedValue.x, value.x, 0.001f)
-                    assertEquals(expectedValue.y, value.y, 0.001f)
-                    if (playTimeMillis == 0L) {
-                        // First invocation to block when starting from last frame is always
-                        // playtime = 0
-                        playTimeMillis = 100L
-                    } else {
-                        playTimeMillis += interval
-                    }
-
-                    if (playTimeMillis == 300L) {
-                        // Prematurely cancel the animation and check corresponding states
-                        cancelAnimation()
-                        assertFalse(animationState.isRunning)
-                        assertFalse(isRunning)
-                    }
-                }
-
-                // Check that no more frames happened after cancel()
-                assertEquals(playTimeMillis, 300L)
-                assertFalse(animationState.isRunning)
+    fun animateToTest() = runTest {
+        val from = Offset(666f, 321f)
+        val to = Offset(919f, 864f)
+        val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
+            TwoWayConverter(
+                convertToVector = { AnimationVector2D(it.x, it.y) },
+                convertFromVector = { Offset(it.v1, it.v2) },
+            )
+        val anim =
+            TargetBasedAnimation(tween(500), offsetToVector, initialValue = from, targetValue = to)
+        val clock = TestFrameClock()
+        val interval = 50
+        val animationState =
+            AnimationState(
+                initialValue = from,
+                typeConverter = offsetToVector,
+                lastFrameTimeNanos = 0,
+            )
+        withContext(clock) {
+            // Put in a bunch of frames 50 milliseconds apart
+            for (frameTimeMillis in 100..1000 step interval) {
+                clock.frame(frameTimeMillis * 1_000_000L)
             }
+            // The first frame should start at 100ms
+            var playTimeMillis = 0L
+            animationState.animateTo(to, animationSpec = tween(500), sequentialAnimation = true) {
+                assertTrue(animationState.isRunning)
+                assertTrue(isRunning)
+                val expectedValue = anim.getValueFromMillis(playTimeMillis)
+                assertEquals(expectedValue.x, value.x, 0.001f)
+                assertEquals(expectedValue.y, value.y, 0.001f)
+                if (playTimeMillis == 0L) {
+                    // First invocation to block when starting from last frame is always
+                    // playtime = 0
+                    playTimeMillis = 100L
+                } else {
+                    playTimeMillis += interval
+                }
+
+                if (playTimeMillis == 300L) {
+                    // Prematurely cancel the animation and check corresponding states
+                    cancelAnimation()
+                    assertFalse(animationState.isRunning)
+                    assertFalse(isRunning)
+                }
+            }
+
+            // Check that no more frames happened after cancel()
+            assertEquals(playTimeMillis, 300L)
+            assertFalse(animationState.isRunning)
         }
     }
 

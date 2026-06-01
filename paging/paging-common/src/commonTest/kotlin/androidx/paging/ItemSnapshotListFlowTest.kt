@@ -40,8 +40,11 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
+// TODO: When re-enabling web targets, the KotlinRunTestResultUnused suppression MUST be removed
+//  for correct execution of the tests on web.
 @OptIn(ExperimentalCoroutinesApi::class)
 @IgnoreJsTarget // b/492171983: High volume of coroutines causing Karma ping timeouts.
+@Suppress("KotlinRunTestResultUnused")
 class ItemSnapshotListFlowTest {
 
     private val dispatcher = UnconfinedTestDispatcher()

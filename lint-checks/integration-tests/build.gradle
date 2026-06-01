@@ -33,6 +33,8 @@ dependencies {
     implementation("androidx.core:core:1.17.0")
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinTestJunit)
+    implementation(libs.kotlinCoroutinesTest)
 }
 
 androidx {

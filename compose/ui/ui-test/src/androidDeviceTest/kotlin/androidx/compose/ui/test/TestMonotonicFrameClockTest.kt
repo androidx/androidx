@@ -394,27 +394,25 @@ class TestMonotonicFrameClockTest {
     }
 
     @Test
-    fun performTraversalsThrows_resumesFrameCoroutines_unconfinedDispatcher() {
+    fun performTraversalsThrows_resumesFrameCoroutines_unconfinedDispatcher() =
         test_performTraversalsThrows_resumesFrameCoroutines(UnconfinedTestDispatcher())
-    }
 
     @Test
-    fun performTraversalsThrows_resumesFrameCoroutines_standardDispatcher() {
+    fun performTraversalsThrows_resumesFrameCoroutines_standardDispatcher() =
         test_performTraversalsThrows_resumesFrameCoroutines(StandardTestDispatcher())
-    }
 
     @Test
-    fun performTraversalsThrows_reportedOnFrameExceptions_unconfinedDispatcher() {
-        var frame1Resumed = false
-        var internalError1: Throwable? = null
-        var internalError2: Throwable? = null
-        // Don't set the parent, this job will get cancelled.
-        val clockJob = Job()
-        val traversalFailure = RuntimeException("traversal failed")
-        val frameFailure1 = RuntimeException("frame 1 callback failed")
-        val frameFailure2 = RuntimeException("frame 2 callback failed")
-
+    fun performTraversalsThrows_reportedOnFrameExceptions_unconfinedDispatcher() =
         runTest(UnconfinedTestDispatcher()) {
+            var frame1Resumed = false
+            var internalError1: Throwable? = null
+            var internalError2: Throwable? = null
+            // Don't set the parent, this job will get cancelled.
+            val clockJob = Job()
+            val traversalFailure = RuntimeException("traversal failed")
+            val frameFailure1 = RuntimeException("frame 1 callback failed")
+            val frameFailure2 = RuntimeException("frame 2 callback failed")
+
             // Need to override the exception handler installed by runTest so it won't fail the
             // test unnecessarily.
             val clockScope =
@@ -443,30 +441,29 @@ class TestMonotonicFrameClockTest {
                         assertFailsWith<RuntimeException> { withFrameNanos { throw frameFailure2 } }
                 }
             }
+
+            // Siblings should still resume successfully.
+            assertThat(frame1Resumed).isTrue()
+
+            // But failed coroutines should include both exceptions.
+            assertThat(internalError1).isSameInstanceAs(frameFailure1)
+            assertThat(internalError1!!.suppressedExceptions).contains(traversalFailure)
+            assertThat(internalError2).isSameInstanceAs(frameFailure2)
+            assertThat(internalError2!!.suppressedExceptions).contains(traversalFailure)
         }
-
-        // Siblings should still resume successfully.
-        assertThat(frame1Resumed).isTrue()
-
-        // But failed coroutines should include both exceptions.
-        assertThat(internalError1).isSameInstanceAs(frameFailure1)
-        assertThat(internalError1!!.suppressedExceptions).contains(traversalFailure)
-        assertThat(internalError2).isSameInstanceAs(frameFailure2)
-        assertThat(internalError2!!.suppressedExceptions).contains(traversalFailure)
-    }
 
     @Test
-    fun performTraversalsThrows_reportedOnFrameExceptions_standardDispatcher() {
-        var frame1Resumed = false
-        var internalError1: Throwable? = null
-        var internalError2: Throwable? = null
-        // Don't set the parent, this job will get cancelled.
-        val clockJob = Job()
-        val traversalFailure = RuntimeException("traversal failed")
-        val frameFailure1 = RuntimeException("frame 1 callback failed")
-        val frameFailure2 = RuntimeException("frame 2 callback failed")
-
+    fun performTraversalsThrows_reportedOnFrameExceptions_standardDispatcher() =
         runTest(StandardTestDispatcher()) {
+            var frame1Resumed = false
+            var internalError1: Throwable? = null
+            var internalError2: Throwable? = null
+            // Don't set the parent, this job will get cancelled.
+            val clockJob = Job()
+            val traversalFailure = RuntimeException("traversal failed")
+            val frameFailure1 = RuntimeException("frame 1 callback failed")
+            val frameFailure2 = RuntimeException("frame 2 callback failed")
+
             // Need to override the exception handler installed by runTest so it won't fail the
             // test unnecessarily.
             val clockScope =
@@ -495,18 +492,17 @@ class TestMonotonicFrameClockTest {
                         assertFailsWith<RuntimeException> { withFrameNanos { throw frameFailure2 } }
                 }
             }
+
+            // Siblings should still resume successfully.
+            assertThat(frame1Resumed).isTrue()
+
+            // Contrary to the unconfined dispatcher case, exceptions here won't have been
+            // dispatched until after the frame finishes, so the test clock won't have added the
+            // suppressed exceptions. However, in that case, they won't have a chance to fail the
+            // test before the test clock exception anyway, so it's fine.
+            assertThat(internalError1).isSameInstanceAs(frameFailure1)
+            assertThat(internalError2).isSameInstanceAs(frameFailure2)
         }
-
-        // Siblings should still resume successfully.
-        assertThat(frame1Resumed).isTrue()
-
-        // Contrary to the unconfined dispatcher case, exceptions here won't have been dispatched
-        // until after the frame finishes, so the test clock won't have added the suppressed
-        // exceptions. However, in that case, they won't have a chance to fail the test before the
-        // test clock exception anyway, so it's fine.
-        assertThat(internalError1).isSameInstanceAs(frameFailure1)
-        assertThat(internalError2).isSameInstanceAs(frameFailure2)
-    }
 
     private fun test_performTraversalsThrows_cancelsClockScope(dispatcher: TestDispatcher) {
         val traversalFailure = RuntimeException("traversal failure")
@@ -530,13 +526,13 @@ class TestMonotonicFrameClockTest {
         assertThat(testFailure).isSameInstanceAs(traversalFailure)
     }
 
-    private fun test_performTraversalsThrows_resumesFrameCoroutines(dispatcher: TestDispatcher) {
-        var frame1Resumed = false
-        var frame2Resumed = false
-        // Don't set the parent, this job will get cancelled.
-        val clockJob = Job()
-
+    private fun test_performTraversalsThrows_resumesFrameCoroutines(dispatcher: TestDispatcher) =
         runTest(dispatcher) {
+            var frame1Resumed = false
+            var frame2Resumed = false
+            // Don't set the parent, this job will get cancelled.
+            val clockJob = Job()
+
             // Need to override the exception handler installed by runTest so it won't fail the
             // test unnecessarily.
             val clockScope =
@@ -562,11 +558,10 @@ class TestMonotonicFrameClockTest {
                     frame2Resumed = true
                 }
             }
-        }
 
-        assertThat(frame1Resumed).isTrue()
-        assertThat(frame2Resumed).isTrue()
-    }
+            assertThat(frame1Resumed).isTrue()
+            assertThat(frame2Resumed).isTrue()
+        }
 
     private suspend fun CoroutineScope.withTestClockContext(
         onPerformTraversals: (Long) -> Unit = {},

@@ -4557,7 +4557,7 @@ class CompositionTests {
     */
 
     @Test
-    fun testCompositionAndRecomposerDeadlock() {
+    fun testCompositionAndRecomposerDeadlock() =
         runTest(timeout = 10.seconds) {
             withGlobalSnapshotManager {
                 repeat(100) {
@@ -4594,7 +4594,6 @@ class CompositionTests {
                 }
             }
         }
-    }
 
     @Test
     fun earlyComposableUnitReturn() = compositionTest {

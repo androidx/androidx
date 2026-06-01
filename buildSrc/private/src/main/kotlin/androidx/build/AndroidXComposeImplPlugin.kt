@@ -28,7 +28,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileCollection
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.CompilerPluginConfig
 import org.jetbrains.kotlin.gradle.plugin.KotlinBaseApiPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
@@ -66,6 +68,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
         private fun Project.configureAndroidCommonOptions(lint: Lint) {
             val isPublished = androidXExtension.shouldPublish.get()
             val type = androidXExtension.type.get()
+            val isKmp = project.extensions.findByType<KotlinMultiplatformExtension>() != null
 
             lint.apply {
                 // These lint checks are normally a warning (or lower), but we ignore (in
@@ -124,6 +127,12 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     disable.add("ComposableLambdaInMeasurePolicy")
                     // Disable lint rule for feature flag development outside shipped libraries
                     disable.add("FeatureFlagSetup")
+                }
+
+                // Kotlin `runTest` return result inspections only matter for Kotlin/JS.
+                // Disable the inspection if the module isn't a KMP project.
+                if (!isKmp) {
+                    disable.add("KotlinRunTestResultUnused")
                 }
             }
 

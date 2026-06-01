@@ -27,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -40,27 +41,27 @@ class StaticListPagingSourceFactoryTest {
     private val CONFIG = PagingConfig(pageSize = 3, initialLoadSize = 5)
 
     @Test
-    fun emptyFlow() {
+    fun emptyFlow(): TestResult {
         val factory: PagingSourceFactory<Int, Int> =
             flowOf<List<Int>>().asPagingSourceFactory(testScope)
         val pagingSource = factory()
         val pager = TestPager(CONFIG, pagingSource)
 
-        runTest {
+        return runTest {
             val result = pager.refresh() as Page
             assertThat(result.data.isEmpty()).isTrue()
         }
     }
 
     @Test
-    fun simpleCollect_singleGen() {
+    fun simpleCollect_singleGen(): TestResult {
         val flow = flowOf(List(20) { it })
 
         val factory: PagingSourceFactory<Int, Int> = flow.asPagingSourceFactory(testScope)
         val pagingSource = factory()
         val pager = TestPager(CONFIG, pagingSource)
 
-        runTest {
+        return runTest {
             val result = pager.refresh() as Page
             assertThat(result.data).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4))
         }

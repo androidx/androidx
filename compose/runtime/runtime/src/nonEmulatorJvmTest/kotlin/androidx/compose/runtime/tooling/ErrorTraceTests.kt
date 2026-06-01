@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastMap
+import androidx.compose.runtime.wrapRunTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -376,7 +377,7 @@ class ErrorTraceTests {
         }
 
     @Test
-    fun nodeReuse_gapBuffer() {
+    fun nodeReuse_gapBuffer() =
         exceptionTest(
             listOf(
                 "NodeWithCallbacks(ErrorTraceComposables.kt:121)",
@@ -395,10 +396,9 @@ class ErrorTraceTests {
             state = true
             advance()
         }
-    }
 
     @Test
-    fun nodeReuse_linkBuffer() {
+    fun nodeReuse_linkBuffer() =
         // The LinkComposer returns a different StackTrace from the GapComposer. The GapComposer
         // will ignore the ReusableComposeNode because it is an incomplete group. The LinkComposer
         // doesn't have the same filtering constraints or knowledge about what percentage of slots
@@ -426,7 +426,6 @@ class ErrorTraceTests {
             state = true
             advance()
         }
-    }
 
     @Test
     fun nodeDeactivate() =
@@ -734,7 +733,7 @@ class ErrorTraceTests {
 
     @Suppress("VisibleForTests")
     @Test
-    fun setContentNoSourceInformation() {
+    fun setContentNoSourceInformation() =
         exceptionTest(
             stackTraceMode = ComposeStackTraceMode.SourceInformation,
             expectedTrace = null,
@@ -765,7 +764,6 @@ class ErrorTraceTests {
                 advance()
             },
         )
-    }
 }
 
 private fun throwTestException(): Nothing = throw TestComposeException()
@@ -780,9 +778,12 @@ private fun exceptionTest(
     groupKeyTrace: List<String>,
     composerToUse: ComposerToUse = ComposerToUse.Both,
     block: suspend CompositionTestScope.() -> Unit,
-) {
+) = wrapRunTest {
     exceptionTest(ComposeStackTraceMode.SourceInformation, sourceTrace, composerToUse, block)
+        .awaitCompletion()
+
     exceptionTest(ComposeStackTraceMode.GroupKeys, groupKeyTrace, composerToUse, block)
+        .awaitCompletion()
 }
 
 private fun exceptionTest(
@@ -790,41 +791,45 @@ private fun exceptionTest(
     expectedTrace: List<String>?,
     composerToUse: ComposerToUse = ComposerToUse.Both,
     block: suspend CompositionTestScope.() -> Unit,
-) {
+) = wrapRunTest {
     try {
         Composer.setDiagnosticStackTraceMode(stackTraceMode)
 
         if (composerToUse == ComposerToUse.Both || composerToUse == ComposerToUse.Gap) {
-            assertTrace(expectedTrace?.substituteComposerImpl("GapComposer")) {
-                compositionTest(ComposerToUse.Gap, block = block)
-            }
+            assertTrace(
+                expectedTrace?.substituteComposerImpl("GapComposer"),
+                captureTrace { compositionTest(ComposerToUse.Gap, block = block).awaitCompletion() },
+            )
         }
 
         if (composerToUse == ComposerToUse.Both || composerToUse == ComposerToUse.Link) {
-            assertTrace(expectedTrace?.substituteComposerImpl("LinkComposer")) {
-                compositionTest(ComposerToUse.Link, block = block)
-            }
+            assertTrace(
+                expectedTrace?.substituteComposerImpl("LinkComposer"),
+                captureTrace {
+                    compositionTest(ComposerToUse.Link, block = block).awaitCompletion()
+                },
+            )
         }
     } finally {
         Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
     }
 }
 
+private inline fun captureTrace(block: () -> Unit): TestComposeException {
+    try {
+        block()
+    } catch (e: TestComposeException) {
+        return e
+    }
+
+    error("Composition exception was not caught or not thrown")
+}
+
 private fun List<String>.substituteComposerImpl(composerImplName: String) = fastMap {
     it.replace(COMPOSER_NAME, composerImplName)
 }
 
-private fun assertTrace(expected: List<String>?, block: () -> Unit) {
-    var exception: TestComposeException? = null
-    try {
-        block()
-    } catch (e: TestComposeException) {
-        exception = e
-    } catch (t: Throwable) {
-        throw AssertionError("Expected an instance of TestComposeException, got ${t.javaClass}", t)
-    }
-    exception = exception ?: error("Composition exception was not caught or not thrown")
-
+private fun assertTrace(expected: List<String>?, exception: TestComposeException) {
     val composeTrace =
         exception.suppressedExceptions.firstOrNull { it is DiagnosticComposeException }
     if (expected == null && composeTrace == null) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha10)" variant="all" version="9.0.0-alpha10">
+<issues format="6" by="lint 9.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha05)" variant="all" version="9.3.0-alpha05">
 
     <issue
         id="ExperimentalCompanionElement"
@@ -341,6 +341,33 @@
         errorLine2="                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/ParcelableUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {}"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/KotlinRunTestReturnResultKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        propagatedUtilityFun()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/KotlinRunTestReturnResultKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="KotlinRunTestResultUnused"
+        message="Result of runTest is ignored."
+        errorLine1="        runTest {}"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/KotlinRunTestReturnResultKotlin.kt"/>
     </issue>
 
     <issue

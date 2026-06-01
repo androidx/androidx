@@ -39,6 +39,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.TestResult
 
 @Stable
 class MovableContentTests {
@@ -1830,10 +1831,10 @@ class MovableContentTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun movableContentInvalidatedWhileDeleted_linkComposer() {
+    fun movableContentInvalidatedWhileDeleted_linkComposer(): TestResult {
         val clock = ManualClock()
 
-        compositionTest(clock = clock, composerToUse = ComposerToUse.Link) {
+        return compositionTest(clock = clock, composerToUse = ComposerToUse.Link) {
             var value by mutableStateOf(true)
             var targetScope: RecomposeScope? = null
             val movableContent = movableContentOf { key: Int ->
@@ -1876,10 +1877,10 @@ class MovableContentTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun movableContentInvalidatedWhileDeleted_gapComposer() {
+    fun movableContentInvalidatedWhileDeleted_gapComposer(): TestResult {
         val clock = ManualClock()
 
-        compositionTest(clock = clock, composerToUse = ComposerToUse.Gap) {
+        return compositionTest(clock = clock, composerToUse = ComposerToUse.Gap) {
             var value by mutableStateOf(true)
             var targetScope: RecomposeScope? = null
             val movableContent = movableContentOf { key: Int ->
