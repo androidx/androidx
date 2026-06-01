@@ -30,6 +30,8 @@ import android.widget.photopicker.EmbeddedPhotoPickerSession
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
+import androidx.annotation.RestrictTo
+import java.util.Collections.synchronizedList
 
 /**
  * A test implementation of [EmbeddedPhotoPickerSession] that sets up & behaves similarly to the
@@ -47,17 +49,27 @@ import androidx.annotation.RequiresExtension
  * @property featureInfo
  * @property clientCallback
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
-internal class TestEmbeddedPhotoPickerSession(
+public class TestEmbeddedPhotoPickerSession(
     context: Context,
     private val hostToken: IBinder,
     private val displayId: Int,
     private val width: Int,
     private val height: Int,
-    private val featureInfo: EmbeddedPhotoPickerFeatureInfo,
+    featureInfo: EmbeddedPhotoPickerFeatureInfo,
     private val clientCallback: EmbeddedPhotoPickerClient,
 ) : EmbeddedPhotoPickerSession {
+
+    private val _selectedUris: MutableList<Uri> =
+        synchronizedList(featureInfo.preSelectedUris.toMutableList())
+    public val selectedUris: List<Uri>
+        get() = _selectedUris
+
+    @Volatile
+    public var isClosed: Boolean = false
+        private set
 
     private val _view: View
     private val _host: SurfaceControlViewHost
@@ -75,14 +87,19 @@ internal class TestEmbeddedPhotoPickerSession(
     /*
      * [SurfaceControlViewHost] has issues if not closed on the MainThread, so this will
      * throw an error if not called from the main thread.
+     *
+     * NotCloseable is suppressed because this class implements the close() method from the
+     * EmbeddedPhotoPickerSession interface, which itself does not implement AutoCloseable.
      */
     @MainThread
+    @Suppress("NotCloseable")
     override fun close() {
 
         if (Looper.getMainLooper().getThread() != Thread.currentThread()) {
             throw IllegalStateException("Cannot invoke close on a background thread")
         }
 
+        isClosed = true
         _host.release()
     }
 
@@ -100,14 +117,10 @@ internal class TestEmbeddedPhotoPickerSession(
     /* NoOp for test implementation. */
     override fun notifyVisibilityChanged(isVisible: Boolean) {}
 
-    /*
-     * NoOp for test implementation.
-     *
-     * Note: We could call the client here via [EmbeddedPhotoPickerClient#onUriPermissionRevoked],
-     * however the actual PhotoPicker session implementation does not make this call, so this is
-     * intentionally excluded to mirror the same behavior.
-     */
-    override fun requestRevokeUriPermission(uris: List<Uri>) {}
+    override fun requestRevokeUriPermission(uris: List<Uri>) {
+        _selectedUris.removeAll(uris)
+        clientCallback.onUriPermissionRevoked(uris)
+    }
 
     /**
      * Creates the [SurfaceControlViewHost] which owns the
@@ -133,5 +146,36 @@ internal class TestEmbeddedPhotoPickerSession(
                 "The displayId provided to openSession did not result in a valid display."
             }
         return SurfaceControlViewHost(context, display, hostToken)
+    }
+
+    /** Test only API to direct the [EmbeddedPhotoPickerSession] to throw an error to the client. */
+    public fun notifySessionError(throwable: Throwable) {
+        clientCallback.onSessionError(throwable)
+    }
+
+    /**
+     * Test only API to direct the [EmbeddedPhotoPickerSession] to emit the provided list of [Uri]
+     * as selected by the user.
+     */
+    public fun selectUris(uris: List<Uri>) {
+        _selectedUris.addAll(uris)
+        clientCallback.onUriPermissionGranted(uris)
+    }
+
+    /**
+     * Test only API to direct the [EmbeddedPhotoPickerSession] to emit the provided list of [Uri]
+     * as deselected by the user.
+     */
+    public fun deselectUris(uris: List<Uri>) {
+        _selectedUris.removeAll(uris)
+        clientCallback.onUriPermissionRevoked(uris)
+    }
+
+    /**
+     * Test only API to direct the [EmbeddedPhotoPickerSession] to emit the user has completed
+     * selection media.
+     */
+    public fun notifySelectionComplete() {
+        clientCallback.onSelectionComplete()
     }
 }

@@ -22,6 +22,7 @@ import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import androidx.annotation.RequiresExtension
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider
+import androidx.photopicker.testing.TestEmbeddedPhotoPickerSession
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -40,6 +41,9 @@ import org.junit.runner.RunWith
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class EmbeddedPhotoPickerStateImplTest {
+    private val WAIT_TIMEOUT_DURATION_MILLIS = 5_000L
+    private val TestEmbeddedPhotoPickerProvider.lastTestSession: TestEmbeddedPhotoPickerSession
+        get() = sessions.last() as TestEmbeddedPhotoPickerSession
 
     @get:Rule val composeTestRule = createComposeRule(effectContext = StandardTestDispatcher())
 
@@ -59,10 +63,12 @@ class EmbeddedPhotoPickerStateImplTest {
             )
         }
 
-        composeTestRule.waitUntil(5_000L, { testProvider.sessions.isNotEmpty() })
-        val session = testProvider.sessions.first()
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
         val throwable = RuntimeException("Test")
-        testProvider.notifySessionError(session, throwable)
+        session.notifySessionError(throwable)
 
         val error = deferredError.await()
         assertThat(error).isNotNull()
@@ -85,21 +91,23 @@ class EmbeddedPhotoPickerStateImplTest {
             )
         }
 
-        composeTestRule.waitUntil(5_000L, { testProvider.sessions.isNotEmpty() })
-        val session = testProvider.sessions.first()
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
 
         assertThat(grantedUris).isEmpty()
 
-        val uri_1 = Uri.fromParts("content", "1234", null)
-        val uri_2 = Uri.fromParts("content", "4567", null)
-        val uri_3 = Uri.fromParts("content", "8900", null)
-        val uri_4 = Uri.fromParts("content", "9999", null)
+        val uri1 = Uri.fromParts("content", "1234", null)
+        val uri2 = Uri.fromParts("content", "4567", null)
+        val uri3 = Uri.fromParts("content", "8900", null)
+        val uri4 = Uri.fromParts("content", "9999", null)
 
-        testProvider.notifySelectedUris(session, listOf(uri_1, uri_2))
-        assertThat(grantedUris).containsExactly(uri_1, uri_2)
+        session.selectUris(listOf(uri1, uri2))
+        assertThat(grantedUris).containsExactly(uri1, uri2)
 
-        testProvider.notifySelectedUris(session, listOf(uri_3, uri_4))
-        assertThat(grantedUris).containsExactly(uri_1, uri_2, uri_3, uri_4)
+        session.selectUris(listOf(uri3, uri4))
+        assertThat(grantedUris).containsExactly(uri1, uri2, uri3, uri4)
     }
 
     @Test
@@ -119,14 +127,16 @@ class EmbeddedPhotoPickerStateImplTest {
             )
         }
 
-        composeTestRule.waitUntil(5_000L, { testProvider.sessions.isNotEmpty() })
-        val session = testProvider.sessions.first()
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
         assertThat(deselectedUris).isEmpty()
 
-        val uri_1 = Uri.fromParts("content", "1234", null)
+        val uri1 = Uri.fromParts("content", "1234", null)
 
-        testProvider.notifyDeselectedUris(session, listOf(uri_1))
-        assertThat(deselectedUris).containsExactly(uri_1)
+        session.deselectUris(listOf(uri1))
+        assertThat(deselectedUris).containsExactly(uri1)
     }
 
     @Test
@@ -145,9 +155,11 @@ class EmbeddedPhotoPickerStateImplTest {
             )
         }
 
-        composeTestRule.waitUntil(5_000L, { testProvider.sessions.isNotEmpty() })
-        val session = testProvider.sessions.first()
-        testProvider.notifySelectionComplete(session)
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
+        session.notifySelectionComplete()
         assertThat(deferredSelectionComplete.await()).isTrue()
     }
 
@@ -168,5 +180,61 @@ class EmbeddedPhotoPickerStateImplTest {
                 )
             }
         }
+    }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerStateImplOpensWithPreselectedUris() = runTest {
+        val testProvider = TestEmbeddedPhotoPickerProvider.get()
+        val initialMediaSelection = Uri.parse("content://media/picker/1")
+        val preSelectedMedia = Uri.parse("content://media/picker/2")
+        val featureInfo =
+            EmbeddedPhotoPickerFeatureInfo.Builder()
+                .setPreSelectedUris(listOf(preSelectedMedia))
+                .build()
+
+        composeTestRule.setContent {
+            val state =
+                rememberEmbeddedPhotoPickerState(
+                    initialMediaSelection = setOf(initialMediaSelection)
+                )
+            EmbeddedPhotoPicker(
+                state = state,
+                provider = testProvider,
+                embeddedPhotoPickerFeatureInfo = featureInfo,
+            )
+        }
+
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
+
+        assertThat(session.selectedUris).containsExactly(initialMediaSelection, preSelectedMedia)
+    }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerStateImplProgrammaticDeselection() = runTest {
+        val testProvider = TestEmbeddedPhotoPickerProvider.get()
+        val uri1 = Uri.parse("content://media/picker/1")
+
+        lateinit var state: EmbeddedPhotoPickerState
+
+        composeTestRule.setContent {
+            state = rememberEmbeddedPhotoPickerState(initialMediaSelection = setOf(uri1))
+            EmbeddedPhotoPicker(state = state, provider = testProvider)
+        }
+
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
+
+        state.deselectUri(uri1)
+
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) { state.selectedMedia.isEmpty() }
+        assertThat(state.selectedMedia).isEmpty()
+        assertThat(session.selectedUris).isEmpty()
     }
 }

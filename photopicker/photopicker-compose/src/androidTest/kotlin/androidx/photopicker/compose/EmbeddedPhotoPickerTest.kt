@@ -18,9 +18,13 @@ package androidx.photopicker.compose
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider
+import androidx.photopicker.testing.TestEmbeddedPhotoPickerSession
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -28,6 +32,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,16 +42,23 @@ import org.junit.runner.RunWith
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 class EmbeddedPhotoPickerTest {
+    private val WAIT_TIMEOUT_DURATION_MILLIS = 5_000L
+    private val TestEmbeddedPhotoPickerProvider.lastTestSession: TestEmbeddedPhotoPickerSession
+        get() = sessions.last() as TestEmbeddedPhotoPickerSession
 
     @get:Rule val composeTestRule = createComposeRule(effectContext = StandardTestDispatcher())
 
-    @Test
-    @ExperimentalPhotoPickerComposeApi
-    fun testEmbeddedPhotoPickerProvidesSurfaceHostTokenToState() = runTest {
+    @Before
+    fun setUp() {
         assumeFalse(
             "Test fails on cuttlefish b/460511933",
             Build.MODEL.contains("Cuttlefish", ignoreCase = true),
         )
+    }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerProvidesSurfaceHostTokenToState() = runTest {
         val testProvider = TestEmbeddedPhotoPickerProvider.get()
         lateinit var state: EmbeddedPhotoPickerState
 
@@ -55,17 +67,13 @@ class EmbeddedPhotoPickerTest {
             EmbeddedPhotoPicker(state = state, provider = testProvider)
         }
 
-        composeTestRule.waitUntil(5_000L, { state.surfaceHostToken != null })
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) { state.surfaceHostToken != null }
         assertThat(state.surfaceHostToken).isNotNull()
     }
 
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProvidesSurfaceSizeToState() = runTest {
-        assumeFalse(
-            "Test fails on cuttlefish b/460511933",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
-        )
         val testProvider = TestEmbeddedPhotoPickerProvider.get()
         lateinit var state: EmbeddedPhotoPickerStateImpl
 
@@ -74,25 +82,53 @@ class EmbeddedPhotoPickerTest {
             EmbeddedPhotoPicker(state = state, provider = testProvider)
         }
 
-        composeTestRule.waitUntil(5_000L, { state.surfaceSize != IntSize.Zero })
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            state.surfaceSize != IntSize.Zero
+        }
         assertThat(state.surfaceSize).isNotEqualTo(IntSize.Zero)
     }
 
     @Test
     @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerOpensSession() = runTest {
-        assumeFalse(
-            "Test fails on cuttlefish b/460511933",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
-        )
         val testProvider = TestEmbeddedPhotoPickerProvider.get()
 
         composeTestRule.setContent {
             EmbeddedPhotoPicker(state = rememberEmbeddedPhotoPickerState(), provider = testProvider)
         }
 
-        composeTestRule.waitUntil(5_000L, { testProvider.sessions.isNotEmpty() })
-        val session = testProvider.sessions.first()
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
         assertThat(session).isNotNull()
+    }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerClosesSessionOnDisposal() = runTest {
+        val testProvider = TestEmbeddedPhotoPickerProvider.get()
+        var showPicker by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            if (showPicker) {
+                EmbeddedPhotoPicker(
+                    state = rememberEmbeddedPhotoPickerState(),
+                    provider = testProvider,
+                )
+            }
+        }
+
+        composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+            testProvider.sessions.isNotEmpty()
+        }
+        val session = testProvider.lastTestSession
+
+        assertThat(session.isClosed).isFalse()
+
+        composeTestRule.runOnUiThread { showPicker = false }
+        composeTestRule.waitForIdle()
+
+        assertThat(session.isClosed).isTrue()
     }
 }
