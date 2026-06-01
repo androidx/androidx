@@ -415,6 +415,8 @@ class XrResourcesManagerTest {
     private class StubRuntimeGeospatial : RuntimeGeospatial {
         override var state = RuntimeGeospatial.State.NOT_RUNNING
 
+        override val geospatialPose: GeospatialPose = GeospatialPose()
+
         override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose = Pose()
 
         override fun createGeospatialPoseFromPose(

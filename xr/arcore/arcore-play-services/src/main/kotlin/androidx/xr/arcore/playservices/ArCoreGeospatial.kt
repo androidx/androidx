@@ -70,6 +70,9 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
     public override var state: Geospatial.State = Geospatial.State.NOT_RUNNING
         private set
 
+    public override var geospatialPose: GeospatialPose = GeospatialPose()
+        private set
+
     public override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         validateGeospatialTracking()
 
@@ -243,7 +246,6 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
 
     public fun update(session: Session) {
         this.arCoreEarth = session.earth
-
         when (arCoreEarth?.earthState) {
             null -> {
                 state = Geospatial.State.NOT_RUNNING
@@ -265,6 +267,14 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
             ARCore1xEarth.EarthState.ERROR_RESOURCE_EXHAUSTED -> {
                 state = Geospatial.State.ERROR_RESOURCE_EXHAUSTED
             }
+        }
+
+        if (
+            state == Geospatial.State.RUNNING &&
+                arCoreEarth?.trackingState == ARCore1xTrackingState.TRACKING
+        ) {
+            geospatialPose =
+                checkNotNull(arCoreEarth).cameraGeospatialPose.toRuntimeGeospatialPose()
         }
     }
 

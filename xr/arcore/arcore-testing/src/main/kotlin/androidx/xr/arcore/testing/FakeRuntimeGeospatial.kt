@@ -61,6 +61,8 @@ public class FakeRuntimeGeospatial(
     override var state: RuntimeGeospatial.State = RuntimeGeospatial.State.NOT_RUNNING
 ) : RuntimeGeospatial {
 
+    override var geospatialPose: GeospatialPose = GeospatialPose()
+
     public var nextGeospatialPoseResult: GeospatialPoseResult? = null
 
     public var nextPose: Pose? = null
