@@ -419,6 +419,8 @@ internal class RootNodeOwner(
         layoutDirection: LayoutDirection,
         override val coroutineContext: CoroutineContext,
     ) : Owner {
+
+        private val onPointerUpdateCallback = inputHandler::onPointerUpdate
         private val platformFocusOwner = object : PlatformFocusOwner {
             override fun requestOwnerFocus(
                 focusDirection: FocusDirection?,
@@ -584,7 +586,7 @@ internal class RootNodeOwner(
                 measureAndLayoutDelegate.hasPendingOnPositionedCallbacks
             ) {
                 trace("RootNodeOwner:measureAndLayout") {
-                    val resend = if (sendPointerUpdate) inputHandler::onPointerUpdate else null
+                    val resend = if (sendPointerUpdate) onPointerUpdateCallback else null
                     val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
                     if (rootNodeResized) {
                         snapshotInvalidationTracker.requestDraw()

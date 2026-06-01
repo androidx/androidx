@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -79,7 +80,7 @@ internal class FocusedViewsList {
             parent = null
             it.rootList().onListHierarchyChanged(delayMillis = 0)
         }
-        children.forEach { it.disposeChild() }
+        children.fastForEach { it.disposeChild() }
 
         resignedViews += activeViews
         activeViews = emptyList()
@@ -118,7 +119,7 @@ internal class FocusedViewsList {
             it.resignFirstResponder()
         }
         resignedViews = emptyList()
-        children.forEach { it.resignScheduledViews() }
+        children.fastForEach { it.resignScheduledViews() }
     }
 
     private fun rootList(): FocusedViewsList {

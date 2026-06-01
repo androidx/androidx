@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import androidx.collection.IntIntPair
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.uikit.utils.CMPMetalDrawablesHandler
 import androidx.compose.ui.util.trace
@@ -265,7 +266,7 @@ internal class LegacyMetalRedrawer(
 
             autoreleasepool {
                 val (width, height) = metalLayer.drawableSize.useContents {
-                    width.roundToInt() to height.roundToInt()
+                    IntIntPair(width.roundToInt(), height.roundToInt())
                 }
 
                 if (width <= 0 || height <= 0) {

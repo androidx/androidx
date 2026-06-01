@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.platform.accessibility
 
+import androidx.collection.IntSet
+import androidx.collection.mutableIntSetOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.Strings
@@ -355,9 +357,9 @@ internal val SemanticsNode.canScroll: Boolean
 private val UIAccessibilityScrollDirection.isHorizontal get() =
     this == UIAccessibilityScrollDirectionRight || this == UIAccessibilityScrollDirectionLeft
 
-internal val SemanticsNode.allScrollableParentNodeIds: Set<Int> get() {
+internal val SemanticsNode.allScrollableParentNodeIds: IntSet get() {
     var iterator: SemanticsNode? = this
-    val result = mutableSetOf<Int>()
+    val result = mutableIntSetOf()
 
     while (iterator != null) {
         if (iterator.canScroll) {

@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastJoinToString
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.InteropWrappingView
 import androidx.compose.ui.viewinterop.NativeAccessibilityViewSemanticsKey
 import androidx.compose.ui.window.DisplayLinkListener
@@ -570,7 +572,7 @@ private class AccessibilityElement(
 
     init {
         setAccessibilityElements(children + nodeSemanticsElements())
-        children.forEach { it.setAccessibilityContainer(this) }
+        children.fastForEach { it.setAccessibilityContainer(this) }
         if (available(OS.Ios to OSVersion(major = 17))) {
             setAutomationElements(children + nodeSemanticsElements())
         }
@@ -596,7 +598,7 @@ private class AccessibilityElement(
         if (available(OS.Ios to OSVersion(major = 17))) {
             setAutomationElements(children + nodeSemanticsElements())
         }
-        children.forEach { it.setAccessibilityContainer(this) }
+        children.fastForEach { it.setAccessibilityContainer(this) }
         this.cachedProperties.clear()
     }
 
@@ -1544,11 +1546,12 @@ internal class AccessibilityMediator(
 
             fun makeSemanticsNode(children: List<AccessibilityElement>): AccessibilityElement {
                 val isLiveRegion = node.unmergedConfig.contains(SemanticsProperties.LiveRegion)
-                val (oldLabel, oldValue) = if (isLiveRegion) {
+                var oldLabel: String?  = null
+                var oldValue: String? = null
+                if (isLiveRegion) {
                     val element = accessibilityElementsMap[node.semanticsKey]
-                    element?.accessibilityLabel() to element?.accessibilityValue()
-                } else {
-                    Pair(null, null)
+                    oldLabel = element?.accessibilityLabel()
+                    oldValue = element?.accessibilityValue()
                 }
 
                 val element = createOrUpdateAccessibilityElement(
@@ -1569,7 +1572,7 @@ internal class AccessibilityMediator(
                     if ((newLabel != null || newValue != null) &&
                         (oldLabel != newLabel || oldValue != newValue)
                     ) {
-                        val announcement = listOfNotNull(newLabel, newValue).joinToString(", ")
+                        val announcement = listOfNotNull(newLabel, newValue).fastJoinToString(", ")
                         lastLiveRegionAnnouncement = AccessibilityNotification(
                             UIAccessibilityAnnouncementNotification,
                             message = announcement
@@ -1597,13 +1600,13 @@ internal class AccessibilityMediator(
                 beforeChildren.sortWith(BeyondBoundsComparator(node.isRTL))
                 afterChildren.sortWith(BeyondBoundsComparator(node.isRTL))
 
-                val visibleElements = sortedChildren.map {
+                val visibleElements = sortedChildren.fastMap {
                     traverseChildren(it, isBeyondBounds = isBeyondBounds, flatten = flattenChildren, container = node)
                 }
-                val beforeElements = beforeChildren.map {
+                val beforeElements = beforeChildren.fastMap {
                     traverseChildren(it, isBeyondBounds = true, flatten = flattenChildren, container = node)
                 }
-                val afterElements = afterChildren.map {
+                val afterElements = afterChildren.fastMap {
                     traverseChildren(it, isBeyondBounds = true, flatten = flattenChildren, container = node)
                 }
 
@@ -1825,7 +1828,7 @@ internal class AccessibilityMediator(
             ?.let { findChildAccessibilityElement(it) }
             ?.let { return it }
 
-        semanticsNode.children.forEach { child ->
+        semanticsNode.children.fastForEach { child ->
             findAccessibilityElementInSemanticsHierarchy(semanticsNode = child)?.let { return it }
         }
 

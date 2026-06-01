@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import androidx.collection.IntIntPair
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.uikit.utils.CMPMetalLayer
 import androidx.compose.ui.uikit.utils.CMPDrawable
@@ -359,7 +360,7 @@ internal class SurfaceMetalRedrawer(
                 lastRenderTimestamp = maxOf(targetTimestamp, lastRenderTimestamp)
 
                 val (width, height) = metalLayer.drawableSize.useContents {
-                    width.roundToInt() to height.roundToInt()
+                    IntIntPair(width.roundToInt(), height.roundToInt())
                 }
 
                 if (width <= 0 || height <= 0) {
