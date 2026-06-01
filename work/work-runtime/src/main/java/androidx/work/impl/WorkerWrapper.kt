@@ -576,7 +576,8 @@ public class WorkerWrapper internal constructor(builder: Builder) {
     }
 
     private fun createWorkDescription(tags: List<String>) =
-        "Work [ id=$workSpecId, tags={ ${tags.joinToString(",")} } ]"
+        "Work [ id=$workSpecId, class=${workSpec.workerClassName}, " +
+            "tags={ ${tags.joinToString(",")} } ]"
 
     /** Builder class for [WorkerWrapper] */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

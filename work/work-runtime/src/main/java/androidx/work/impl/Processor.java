@@ -434,7 +434,9 @@ public class Processor implements ForegroundProcessor {
             @Nullable WorkerWrapper wrapper, int stopReason) {
         if (wrapper != null) {
             wrapper.interrupt(stopReason);
-            Logger.get().debug(TAG, "WorkerWrapper interrupted for " + id);
+            Logger.get().debug(TAG, "WorkerWrapper interrupted for " + id + " ("
+                    + wrapper.getWorkSpec().workerClassName + ")"
+                    + ", reason: " + stopReason);
             return true;
         } else {
             Logger.get().debug(TAG, "WorkerWrapper could not be found for " + id);

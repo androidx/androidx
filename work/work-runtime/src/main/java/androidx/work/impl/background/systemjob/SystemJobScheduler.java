@@ -190,7 +190,8 @@ public class SystemJobScheduler implements Scheduler {
         JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
         Logger.get().debug(
                 TAG,
-                "Scheduling work ID " + workSpec.id + "Job ID " + jobId);
+                "Scheduling work ID " + workSpec.id + " (" + workSpec.workerClassName
+                        + "), Job ID " + jobId);
         try {
             int result = mJobScheduler.schedule(jobInfo);
             if (result == JobScheduler.RESULT_FAILURE) {
@@ -233,6 +234,8 @@ public class SystemJobScheduler implements Scheduler {
         List<Integer> jobIds = getPendingJobIds(mContext, mJobScheduler, workSpecId);
         if (jobIds != null && !jobIds.isEmpty()) {
             for (int jobId : jobIds) {
+                Logger.get().debug(TAG, "Cancelling work ID " + workSpecId
+                        + ", Job ID " + jobId);
                 cancelJobById(mJobScheduler, jobId);
             }
 
