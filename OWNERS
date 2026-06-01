@@ -18,6 +18,8 @@ sindhujasubr@google.com
 # docs
 per-file docs-tip-of-tree/build.gradle = set noparent
 per-file docs-tip-of-tree/build.gradle = asfalcone@google.com, juliamcclellan@google.com, aurimas@google.com, omarismail@google.com
+# automated docs updates
+per-file *docs-public/build.gradle = androidx-jetpad@google.com
 # settings.gradle
 per-file *settings.gradle = set noparent
 per-file *settings.gradle = aurimas@google.com, omarismail@google.com, asfalcone@google.com
