@@ -265,10 +265,10 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
                     threshold *= 10f
                 }
 
-                val isNegative = this.isLessThan(0f.rf)
+                val isNegative = this lt 0f.rf
                 val absValue = isNegative.select(-this, this)
 
-                return (absValue.isLessThan(threshold.rf)).select(
+                return (absValue lt threshold.rf).select(
                     toRemoteStringOptions(padWidth, after, flagsPadded),
                     unpadded,
                 )
@@ -594,13 +594,13 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is equal to the value of this
+     * Returns a [RemoteBoolean] that evaluates to `true` if [b] is equal to the value of this
      * [RemoteFloat] or `false` otherwise.
      */
-    public fun isEqualTo(other: RemoteFloat): RemoteBoolean =
+    public infix fun eq(b: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
-            other,
+            b,
             OperationKey.CompareEQ,
             { a, b ->
                 floatArrayOf(
@@ -617,18 +617,14 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a == b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isEqualTo instead", ReplaceWith("isEqualTo(other)"))
-    public infix fun eq(other: RemoteFloat): RemoteBoolean = isEqualTo(other)
-
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to the value of
-     * this [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if [b] is not equal to the value of this
+     * [RemoteFloat] or `false` otherwise.
      */
-    public fun isNotEqualTo(other: RemoteFloat): RemoteBoolean =
+    public infix fun ne(b: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
-            other,
+            b,
             OperationKey.CompareNE,
             { a, b ->
                 floatArrayOf(
@@ -645,18 +641,14 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a != b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isNotEqualTo instead", ReplaceWith("isNotEqualTo(other)"))
-    public infix fun ne(other: RemoteFloat): RemoteBoolean = isNotEqualTo(other)
-
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than the value of this
+     * Returns a [RemoteBoolean] that evaluates to `true` if [b] is less than the value of this
      * [RemoteFloat] or `false` otherwise.
      */
-    public fun isLessThan(other: RemoteFloat): RemoteBoolean =
+    public infix fun lt(b: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
-            other,
+            b,
             OperationKey.CompareLT,
             { a, b ->
                 floatArrayOf(
@@ -672,18 +664,14 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a < b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isLessThan instead", ReplaceWith("isLessThan(other)"))
-    public infix fun lt(other: RemoteFloat): RemoteBoolean = isLessThan(other)
-
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than or equal to the
-     * value of this [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if [b] is less than or equal to the value
+     * of this [RemoteFloat] or `false` otherwise.
      */
-    public fun isLessThanOrEqual(other: RemoteFloat): RemoteBoolean =
+    public infix fun le(b: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
-            other,
+            b,
             OperationKey.CompareLE,
             { a, b ->
                 floatArrayOf(
@@ -699,18 +687,14 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a <= b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isLessThanOrEqual instead", ReplaceWith("isLessThanOrEqual(other)"))
-    public infix fun le(other: RemoteFloat): RemoteBoolean = isLessThanOrEqual(other)
-
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than the value of
-     * this [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if [b] is greater than the value of this
+     * [RemoteFloat] or `false` otherwise.
      */
-    public fun isGreaterThan(other: RemoteFloat): RemoteBoolean =
+    public infix fun gt(b: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
-            other,
+            b,
             OperationKey.CompareGT,
             { a, b ->
                 floatArrayOf(
@@ -726,18 +710,14 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             a > b
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isGreaterThan instead", ReplaceWith("isGreaterThan(other)"))
-    public infix fun gt(other: RemoteFloat): RemoteBoolean = isGreaterThan(other)
-
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than or equal to the
+     * Returns a [RemoteBoolean] that evaluates to `true` if [b] is greater than or equal to the
      * value of this [RemoteFloat] or `false` otherwise.
      */
-    public fun isGreaterThanOrEqual(other: RemoteFloat): RemoteBoolean =
+    public infix fun ge(b: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
-            other,
+            b,
             OperationKey.CompareGE,
             { a, b ->
                 floatArrayOf(
@@ -752,10 +732,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         ) { a, b ->
             a >= b
         }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated("Use isGreaterThanOrEqual instead", ReplaceWith("isGreaterThanOrEqual(other)"))
-    public infix fun ge(other: RemoteFloat): RemoteBoolean = isGreaterThanOrEqual(other)
 
     public companion object {
         internal val DefaultDecimalFormat = android.icu.text.DecimalFormat()

@@ -51,8 +51,8 @@ public constructor(
         var bottomStart = bottomStart.toPx(size, density)
 
         val minDimension = size.minDimension
-        val shouldScaleStart = (topStart + bottomStart).isGreaterThan(minDimension)
-        val shouldScaleEnd = (topEnd + bottomEnd).isGreaterThan(minDimension)
+        val shouldScaleStart = (topStart + bottomStart).gt(minDimension)
+        val shouldScaleEnd = (topEnd + bottomEnd).gt(minDimension)
         val scaleStart = minDimension / (topStart + bottomStart)
         val scaleEnd = minDimension / (topEnd + bottomEnd)
 
