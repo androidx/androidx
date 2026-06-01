@@ -637,43 +637,53 @@ internal constructor(
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] shifted left by the
-     * value of [v].
+     * value of [other].
+     *
+     * This is designed to align with the standard Kotlin [Int.shl] infix function.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public infix fun shl(v: RemoteInt): RemoteInt =
-        binaryOp(this, v, OperationKey.Shl, OP_SHL) { a, b -> a shl b }
+    public infix fun shl(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, OperationKey.Shl, OP_SHL) { a, b -> a shl b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] shifted right by the
-     * value of [v].
+     * value of [other].
+     *
+     * This is designed to align with the standard Kotlin [Int.shr] infix function.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public infix fun shr(v: RemoteInt): RemoteInt =
-        binaryOp(this, v, OperationKey.Shr, OP_SHR) { a, b -> a shr b }
+    public infix fun shr(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, OperationKey.Shr, OP_SHR) { a, b -> a shr b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] logic or with the value
-     * of [v].
+     * of [other].
+     *
+     * This is designed to align with the standard Kotlin [Int.or] infix function.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public infix fun or(v: RemoteInt): RemoteInt =
-        binaryOp(this, v, OperationKey.Or, OP_OR) { a, b -> a or b }
+    public infix fun or(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, OperationKey.Or, OP_OR) { a, b -> a or b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] logic and with the
-     * value of [v].
+     * value of [other].
+     *
+     * This is designed to align with the standard Kotlin [Int.and] infix function.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public infix fun and(v: RemoteInt): RemoteInt =
-        binaryOp(this, v, OperationKey.And, OP_AND) { a, b -> a and b }
+    public infix fun and(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, OperationKey.And, OP_AND) { a, b -> a and b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] logic xor with the
-     * value of [v].
+     * value of [other].
+     *
+     * This is designed to align with the standard Kotlin [Int.xor] infix function.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public infix fun xor(v: RemoteInt): RemoteInt =
-        binaryOp(this, v, OperationKey.Xor, OP_XOR) { a, b -> a xor b }
+    public infix fun xor(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, OperationKey.Xor, OP_XOR) { a, b -> a xor b }
 }
 
 /**
