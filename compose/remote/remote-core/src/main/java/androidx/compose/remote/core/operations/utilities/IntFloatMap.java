@@ -92,7 +92,7 @@ public class IntFloatMap {
     }
 
     private float insert(int key, float value) {
-        int index = hash(key) % mKeys.length;
+        int index = getIndex(key);
         while (mKeys[index] != NOT_PRESENT && mKeys[index] != key) {
             index = (index + 1) % mKeys.length;
         }
@@ -108,7 +108,7 @@ public class IntFloatMap {
     }
 
     private int findKey(int key) {
-        int index = hash(key) % mKeys.length;
+        int index = getIndex(key);
         while (mKeys[index] != NOT_PRESENT) {
             if (mKeys[index] == key) {
                 return index;
@@ -120,6 +120,10 @@ public class IntFloatMap {
 
     private int hash(int key) {
         return key;
+    }
+
+    private int getIndex(int key) {
+        return (hash(key) & 0x7FFFFFFF) % mKeys.length;
     }
 
     private void resize() {

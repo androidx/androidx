@@ -174,53 +174,67 @@ public class AndroidxRemoteComposeTouchHelper<N, C, S> extends ExploreByTouchHel
     @Override
     public void onPopulateNodeForVirtualView(
             int virtualViewId, @NonNull AccessibilityNodeInfoCompat node) {
-        Component component = mRemoteDocA11y.findComponentById(virtualViewId);
-
-        Mode mergeMode = mRemoteDocA11y.mergeMode(component);
-
-        // default to enabled
-        node.setEnabled(true);
-
-        if (mergeMode == Mode.MERGE) {
-            List<Integer> childViews =
-                    mRemoteDocA11y.semanticallyRelevantChildComponents(component, true);
-
-            for (Integer childView : childViews) {
-                onPopulateNodeForVirtualView(childView, node);
+        try {
+            Component component = mRemoteDocA11y.findComponentById(virtualViewId);
+            if (component == null) {
+                return;
             }
-        }
 
-        List<AccessibilitySemantics> semantics =
-                mRemoteDocA11y.semanticModifiersForComponent(component);
-        Integer semanticParentId = mChildToParentMapping.get(virtualViewId);
-        mApplier.applyComponent(mRemoteDocA11y, node, component, semantics, semanticParentId);
+            Mode mergeMode = mRemoteDocA11y.mergeMode(component);
 
-        if (mergeMode == Mode.SET) {
-            List<Integer> childViews =
-                    mRemoteDocA11y.semanticallyRelevantChildComponents(component, false);
+            // default to enabled
+            node.setEnabled(true);
 
-            // declare children so parent is known
-            childViews.forEach((id) -> mChildToParentMapping.put(id, virtualViewId));
+            if (mergeMode == Mode.MERGE) {
+                List<Integer> childViews =
+                        mRemoteDocA11y.semanticallyRelevantChildComponents(component, true);
 
-            mApplier.addChildren(node, childViews);
+                for (Integer childView : childViews) {
+                    onPopulateNodeForVirtualView(childView, node);
+                }
+            }
+
+            List<AccessibilitySemantics> semantics =
+                    mRemoteDocA11y.semanticModifiersForComponent(component);
+            Integer semanticParentId = mChildToParentMapping.get(virtualViewId);
+            mApplier.applyComponent(mRemoteDocA11y, node, component, semantics, semanticParentId);
+
+            if (mergeMode == Mode.SET) {
+                List<Integer> childViews =
+                        mRemoteDocA11y.semanticallyRelevantChildComponents(component, false);
+
+                // declare children so parent is known
+                childViews.forEach((id) -> mChildToParentMapping.put(id, virtualViewId));
+
+                mApplier.addChildren(node, childViews);
+            }
+        } catch (Exception e) {
+            // Hostile document content must not crash the host via the a11y delegate
+            android.util.Log.e("RemoteCompose", "onPopulateNodeForVirtualView failed", e);
         }
     }
 
     @Override
     protected boolean onPerformActionForVirtualView(
             int virtualViewId, int action, @Nullable Bundle arguments) {
-        Component component = mRemoteDocA11y.findComponentById(virtualViewId);
+        try {
+            Component component = mRemoteDocA11y.findComponentById(virtualViewId);
 
-        if (component != null) {
-            boolean performed = mRemoteDocA11y.performAction(component, action, arguments);
+            if (component != null) {
+                boolean performed = mRemoteDocA11y.performAction(component, action, arguments);
 
-            if (performed) {
-                mHost.invalidate();
-                invalidateRoot();
+                if (performed) {
+                    mHost.invalidate();
+                    invalidateRoot();
+                }
+
+                return performed;
+            } else {
+                return false;
             }
-
-            return performed;
-        } else {
+        } catch (Exception e) {
+            // Hostile document content must not crash the host via the a11y delegate
+            android.util.Log.e("RemoteCompose", "onPerformActionForVirtualView failed", e);
             return false;
         }
     }
