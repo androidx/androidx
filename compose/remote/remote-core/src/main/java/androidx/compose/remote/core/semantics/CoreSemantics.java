@@ -45,6 +45,15 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
     public @NonNull Mode mMode = Mode.SET;
     public boolean mClickable = false;
 
+    private static final Mode[] MODE_VALUES = Mode.values();
+
+    private static @NonNull Mode modeFromInt(int value) {
+        if (value < 0 || value >= MODE_VALUES.length) {
+            return Mode.SET;
+        }
+        return MODE_VALUES[value];
+    }
+
     public CoreSemantics() {}
 
     public CoreSemantics(
@@ -60,7 +69,7 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
         mTextId = textId;
         mStateDescriptionId = stateDescriptionId;
         mEnabled = enabled;
-        mMode = Mode.values()[mode];
+        mMode = modeFromInt(mode);
         mClickable = clickable;
     }
 
@@ -130,7 +139,7 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
         mRole = Role.fromInt(buffer.readByte());
         mTextId = buffer.declareId();
         mStateDescriptionId = buffer.declareId();
-        mMode = Mode.values()[buffer.readByte()];
+        mMode = modeFromInt(buffer.readByte());
         mEnabled = buffer.readBoolean();
         mClickable = buffer.readBoolean();
     }

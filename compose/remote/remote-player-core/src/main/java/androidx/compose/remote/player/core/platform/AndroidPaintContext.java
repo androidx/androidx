@@ -92,6 +92,15 @@ import java.util.Objects;
 @RestrictTo(LIBRARY_GROUP)
 public class AndroidPaintContext extends PaintContext {
     private static final String SYSTEM_FONTS_PATH = "/system/fonts/";
+
+    private static final Shader.TileMode[] TILE_MODES = Shader.TileMode.values();
+
+    private static Shader.@NonNull TileMode tileModeFromInt(int value) {
+        if (value < 0 || value >= TILE_MODES.length) {
+            return Shader.TileMode.CLAMP;
+        }
+        return TILE_MODES[value];
+    }
     Paint mPaint = new Paint();
     List<Paint> mPaintList = new ArrayList<>();
     Canvas mCanvas;
@@ -1119,8 +1128,8 @@ public class AndroidPaintContext extends PaintContext {
                     shader =
                             new BitmapShader(
                                     bitmap,
-                                    Shader.TileMode.values()[tileX],
-                                    Shader.TileMode.values()[tileY]);
+                                    tileModeFromInt(tileX),
+                                    tileModeFromInt(tileY));
 
                     if (Build.VERSION.SDK_INT // REMOVE IN PLATFORM
                             >= Build.VERSION_CODES.TIRAMISU) { // REMOVE IN PLATFORM
