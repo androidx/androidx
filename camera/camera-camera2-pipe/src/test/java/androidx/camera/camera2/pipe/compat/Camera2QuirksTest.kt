@@ -22,6 +22,7 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.StrictMode
+import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
 import androidx.camera.camera2.pipe.testing.FakeCamera2MetadataProvider
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -37,14 +38,13 @@ class Camera2QuirksTest {
     private val fakeCameraId: CameraId = RobolectricCameras.create()
 
     private val fakeCameraMetadata =
-        FakeCameraMetadata(
-            characteristics =
+        FakeCameraMetadata.fromTemplate(
+            template = EmulatorDeviceTemplate,
+            characteristicsOverrides =
                 mapOf(
-                    Pair(
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-                        INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                    )
-                )
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                        INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                ),
         )
 
     private val metadataProvider =

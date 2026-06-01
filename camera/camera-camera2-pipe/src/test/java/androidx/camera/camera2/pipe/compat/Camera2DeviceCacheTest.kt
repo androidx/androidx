@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.testing.FakeCamera2MetadataProvider
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompatFactory
@@ -101,31 +102,22 @@ class Camera2DeviceCacheTest {
         FakeCamera2MetadataProvider(
             mapOf(
                 cameraId0 to
-                    FakeCameraMetadata(
-                        characteristics =
-                            mapOf(
-                                CameraCharacteristics.LENS_FACING to
-                                    CameraCharacteristics.LENS_FACING_BACK
-                            ),
+                    FakeCameraMetadata.fromTemplate(
+                        template = HighEndDeviceTemplate,
                         cameraId = cameraId0,
+                        lensFacing = CameraCharacteristics.LENS_FACING_BACK,
                     ),
                 cameraId1 to
-                    FakeCameraMetadata(
-                        characteristics =
-                            mapOf(
-                                CameraCharacteristics.LENS_FACING to
-                                    CameraCharacteristics.LENS_FACING_FRONT
-                            ),
+                    FakeCameraMetadata.fromTemplate(
+                        template = HighEndDeviceTemplate,
                         cameraId = cameraId1,
+                        lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
                     ),
                 cameraId2 to
-                    FakeCameraMetadata(
-                        characteristics =
-                            mapOf(
-                                CameraCharacteristics.LENS_FACING to
-                                    CameraCharacteristics.LENS_FACING_EXTERNAL
-                            ),
+                    FakeCameraMetadata.fromTemplate(
+                        template = HighEndDeviceTemplate,
                         cameraId = cameraId2,
+                        lensFacing = CameraCharacteristics.LENS_FACING_EXTERNAL,
                     ),
             )
         )
