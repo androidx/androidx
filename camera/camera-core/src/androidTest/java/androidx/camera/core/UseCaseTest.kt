@@ -35,7 +35,9 @@ import androidx.camera.core.featuregroup.GroupableFeature.Companion.IMAGE_ULTRA_
 import androidx.camera.core.featuregroup.GroupableFeature.Companion.PREVIEW_STABILIZATION
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -207,6 +209,22 @@ class UseCaseTest {
         assertThat(mergedConfig.inputFormat).isEqualTo(useCaseImageFormat)
         val imageOutputConfig = mergedConfig as ImageOutputConfig
         assertThat(imageOutputConfig.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
+    fun mergeConfigs_withHighSpeedSessionType_removesMaxResolution() {
+        val cameraInfo = FakeCameraInfoInternal()
+        val useCase = FakeUseCase()
+
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder()
+                .setSessionType(SESSION_TYPE_HIGH_SPEED)
+                .setMaxResolution(Size(1280, 720))
+                .useCaseConfig
+
+        val mergedConfig = useCase.mergeConfigs(cameraInfo, null, useCaseConfig)
+
+        assertThat(mergedConfig.containsOption(OPTION_MAX_RESOLUTION)).isFalse()
     }
 
     @Test
