@@ -16,77 +16,61 @@
 package androidx.compose.remote.player.view
 
 import androidx.compose.remote.core.Limits
+import androidx.compose.remote.testing.LimitsRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class RemoteComposePlayerLimitsTest {
 
+    /**
+     * Rule to automatically save and restore static [Limits] values. Even though it appears unused
+     * in the test methods, it is active for every test and ensures that modifications to static
+     * [Limits] fields (made via the player) are cleaned up after each test.
+     */
+    @get:Rule val limitsRule = LimitsRule()
+
     @Test
     fun testSetMaxOpCount() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val player = RemoteComposePlayer(context)
-        val original = Limits.MAX_OP_COUNT
-        try {
-            player.setMaxOpCount(5000)
-            assertEquals(5000, Limits.MAX_OP_COUNT)
-        } finally {
-            Limits.MAX_OP_COUNT = original
-        }
+        player.setMaxOpCount(5000)
+        assertEquals(5000, Limits.MAX_OP_COUNT)
     }
 
     @Test
     fun testSetMaxImageDimension() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val player = RemoteComposePlayer(context)
-        val original = Limits.MAX_IMAGE_DIMENSION
-        try {
-            player.setMaxImageDimension(1000)
-            assertEquals(1000, Limits.MAX_IMAGE_DIMENSION)
-        } finally {
-            Limits.MAX_IMAGE_DIMENSION = original
-        }
+        player.setMaxImageDimension(1000)
+        assertEquals(1000, Limits.MAX_IMAGE_DIMENSION)
     }
 
     @Test
     fun testSetMaxBitmapMemory() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val player = RemoteComposePlayer(context)
-        val original = Limits.MAX_BITMAP_MEMORY
-        try {
-            player.setMaxBitmapMemory(10 * 1024 * 1024)
-            assertEquals(10 * 1024 * 1024, Limits.MAX_BITMAP_MEMORY)
-        } finally {
-            Limits.MAX_BITMAP_MEMORY = original
-        }
+        player.setMaxBitmapMemory(10 * 1024 * 1024)
+        assertEquals(10 * 1024 * 1024, Limits.MAX_BITMAP_MEMORY)
     }
 
     @Test
     fun testSetMaxFps() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val player = RemoteComposePlayer(context)
-        val original = Limits.MAX_FPS
-        try {
-            player.setMaxFps(144)
-            assertEquals(144, Limits.MAX_FPS)
-        } finally {
-            Limits.MAX_FPS = original
-        }
+        player.setMaxFps(144)
+        assertEquals(144, Limits.MAX_FPS)
     }
 
     @Test
     fun testSetDefaultMaxFps() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val player = RemoteComposePlayer(context)
-        val original = Limits.DEFAULT_MAX_FPS
-        try {
-            player.setDefaultMaxFps(30)
-            assertEquals(30, Limits.DEFAULT_MAX_FPS)
-        } finally {
-            Limits.DEFAULT_MAX_FPS = original
-        }
+        player.setDefaultMaxFps(30)
+        assertEquals(30, Limits.DEFAULT_MAX_FPS)
     }
 }

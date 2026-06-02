@@ -17,6 +17,7 @@ package androidx.compose.remote.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import androidx.compose.remote.core.operations.BitmapData;
 
@@ -73,6 +74,37 @@ public class LimitsTest {
             BitmapData.read(buffer2, new ArrayList<>()); // Should not throw
         } finally {
             Limits.MAX_IMAGE_DIMENSION = original;
+        }
+    }
+
+    @Test
+    public void testImageUrlsDisabledByDefault_fails() {
+        boolean originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS;
+        try {
+            Limits.ENABLE_IMAGE_URLS = false;
+
+            WireBuffer buffer = new WireBuffer();
+            byte[] urlBytes = "http://example.com/test.png".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            BitmapData.apply(
+                    buffer,
+                    1, // imageId
+                    (short) BitmapData.TYPE_PNG,
+                    (short) 10, // width
+                    (short) BitmapData.ENCODING_URL,
+                    (short) 10, // height
+                    urlBytes
+            );
+            buffer.setIndex(0);
+            buffer.readByte(); // consume OP_CODE
+
+            RuntimeException e = assertThrows(
+                    RuntimeException.class,
+                    () -> {
+                        BitmapData.read(buffer, new ArrayList<>());
+                    });
+            assertTrue(e.getMessage().contains("URL image not supported"));
+        } finally {
+            Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls;
         }
     }
 }

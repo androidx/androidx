@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.state
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
@@ -31,6 +30,7 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteBitmap
 import androidx.compose.remote.player.core.state.RemoteDomains
+import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -54,25 +54,18 @@ import org.robolectric.annotation.Config
 class RemoteStateCreationTest {
 
     @get:Rule val remoteCaptureRule = RemoteCaptureTestRule()
+    @get:Rule val limitsRule = LimitsRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private var originalEnableImageUrls: Boolean = false
-    private var originalEnableImageFiles: Boolean = false
 
     @Before
     fun setup() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS
-        originalEnableImageFiles = Limits.ENABLE_IMAGE_FILES
-        Limits.ENABLE_IMAGE_URLS = true
-        Limits.ENABLE_IMAGE_FILES = true
     }
 
     @After
     fun cleanup() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
-        Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls
-        Limits.ENABLE_IMAGE_FILES = originalEnableImageFiles
     }
 
     @Test
@@ -167,6 +160,8 @@ class RemoteStateCreationTest {
 
     @Test
     fun rememberNamedRemoteBitmap_FromUrl_isRendered() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap =
@@ -183,6 +178,8 @@ class RemoteStateCreationTest {
 
     @Test
     fun rememberNamedRemoteBitmap_FromImageBitmap_isRendered() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap =

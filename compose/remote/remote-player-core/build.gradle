@@ -47,4 +47,5 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":compose:remote:remote-core-testutils"))
 }

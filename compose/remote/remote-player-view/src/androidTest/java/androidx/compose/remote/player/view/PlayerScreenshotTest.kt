@@ -21,7 +21,6 @@ import android.view.Gravity
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.CoreText
@@ -30,6 +29,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.view.TestUtils.createDocument
+import androidx.compose.remote.testing.LimitsRule
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.captureToBitmap
 import androidx.test.espresso.matcher.ViewMatchers
@@ -59,6 +59,8 @@ class PlayerScreenshotTest {
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
+    @get:Rule val limitsRule = LimitsRule().enableImageUrls(true).enableImageFiles(true)
+
     private lateinit var playerView: RemoteComposePlayer
 
     private val contentUriBitmapLoader =
@@ -72,16 +74,8 @@ class PlayerScreenshotTest {
             }
         }
 
-    private var originalEnableImageUrls: Boolean = false
-    private var originalEnableImageFiles: Boolean = false
-
     @Before
     fun setUp() {
-        originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS
-        originalEnableImageFiles = Limits.ENABLE_IMAGE_FILES
-        Limits.ENABLE_IMAGE_URLS = true
-        Limits.ENABLE_IMAGE_FILES = true
-
         activityScenarioRule.scenario.onActivity {
             val frameLayout = FrameLayout(it)
             frameLayout.layoutParams =
@@ -102,8 +96,6 @@ class PlayerScreenshotTest {
     @After
     fun tearDown() {
         RemoteComposeTestContentProvider.bitmapBytes = null
-        Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls
-        Limits.ENABLE_IMAGE_FILES = originalEnableImageFiles
     }
 
     @Test
