@@ -153,6 +153,8 @@ abstract interface androidx.compose.material3/DateRangePickerState { // androidx
 }
 
 abstract interface androidx.compose.material3/DropdownMenuPopupPositionProvider : androidx.compose.ui.window/PopupPositionProvider { // androidx.compose.material3/DropdownMenuPopupPositionProvider|null[0]
+    abstract val transformOrigin // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOrigin|{}transformOrigin[0]
+        abstract fun <get-transformOrigin>(): androidx.compose.ui.graphics/TransformOrigin // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOrigin.<get-transformOrigin>|<get-transformOrigin>(){}[0]
     abstract val transformOriginState // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOriginState|{}transformOriginState[0]
         abstract fun <get-transformOriginState>(): androidx.compose.runtime/MutableState<androidx.compose.ui.graphics/TransformOrigin> // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOriginState.<get-transformOriginState>|<get-transformOriginState>(){}[0]
 }
@@ -160,6 +162,17 @@ abstract interface androidx.compose.material3/DropdownMenuPopupPositionProvider 
 abstract interface androidx.compose.material3/FloatingActionButtonMenuScope { // androidx.compose.material3/FloatingActionButtonMenuScope|null[0]
     abstract val horizontalAlignment // androidx.compose.material3/FloatingActionButtonMenuScope.horizontalAlignment|{}horizontalAlignment[0]
         abstract fun <get-horizontalAlignment>(): androidx.compose.ui/Alignment.Horizontal // androidx.compose.material3/FloatingActionButtonMenuScope.horizontalAlignment.<get-horizontalAlignment>|<get-horizontalAlignment>(){}[0]
+}
+
+abstract interface androidx.compose.material3/MenuPositionScope { // androidx.compose.material3/MenuPositionScope|null[0]
+    abstract val anchorBounds // androidx.compose.material3/MenuPositionScope.anchorBounds|{}anchorBounds[0]
+        abstract fun <get-anchorBounds>(): androidx.compose.ui.unit/IntRect // androidx.compose.material3/MenuPositionScope.anchorBounds.<get-anchorBounds>|<get-anchorBounds>(){}[0]
+    abstract val layoutDirection // androidx.compose.material3/MenuPositionScope.layoutDirection|{}layoutDirection[0]
+        abstract fun <get-layoutDirection>(): androidx.compose.ui.unit/LayoutDirection // androidx.compose.material3/MenuPositionScope.layoutDirection.<get-layoutDirection>|<get-layoutDirection>(){}[0]
+    abstract val menuSize // androidx.compose.material3/MenuPositionScope.menuSize|{}menuSize[0]
+        abstract fun <get-menuSize>(): androidx.compose.ui.unit/IntSize // androidx.compose.material3/MenuPositionScope.menuSize.<get-menuSize>|<get-menuSize>(){}[0]
+    abstract val windowSize // androidx.compose.material3/MenuPositionScope.windowSize|{}windowSize[0]
+        abstract fun <get-windowSize>(): androidx.compose.ui.unit/IntSize // androidx.compose.material3/MenuPositionScope.windowSize.<get-windowSize>|<get-windowSize>(){}[0]
 }
 
 abstract interface androidx.compose.material3/MotionScheme { // androidx.compose.material3/MotionScheme|null[0]
@@ -311,32 +324,6 @@ sealed interface androidx.compose.material3/AppBarScope { // androidx.compose.ma
     abstract fun clickableItem(kotlin/Function0<kotlin/Unit>, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, kotlin/String, kotlin/Boolean = ...) // androidx.compose.material3/AppBarScope.clickableItem|clickableItem(kotlin.Function0<kotlin.Unit>;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;kotlin.String;kotlin.Boolean){}[0]
     abstract fun customItem(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, kotlin/Function3<androidx.compose.material3/AppBarMenuState, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) // androidx.compose.material3/AppBarScope.customItem|customItem(kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;kotlin.Function3<androidx.compose.material3.AppBarMenuState,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
     abstract fun toggleableItem(kotlin/Boolean, kotlin/Function1<kotlin/Boolean, kotlin/Unit>, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, kotlin/String, kotlin/Boolean = ...) // androidx.compose.material3/AppBarScope.toggleableItem|toggleableItem(kotlin.Boolean;kotlin.Function1<kotlin.Boolean,kotlin.Unit>;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;kotlin.String;kotlin.Boolean){}[0]
-}
-
-sealed interface androidx.compose.material3/MenuAnchorPosition { // androidx.compose.material3/MenuAnchorPosition|null[0]
-    final class Custom : androidx.compose.material3/MenuAnchorPosition { // androidx.compose.material3/MenuAnchorPosition.Custom|null[0]
-        constructor <init>(kotlin/Function3<androidx.compose.ui.unit/IntRect, androidx.compose.ui.unit/IntSize, androidx.compose.ui.unit/IntSize, androidx.collection/IntList>, kotlin/Function3<androidx.compose.ui.unit/IntRect, androidx.compose.ui.unit/IntSize, androidx.compose.ui.unit/IntSize, androidx.collection/IntList>) // androidx.compose.material3/MenuAnchorPosition.Custom.<init>|<init>(kotlin.Function3<androidx.compose.ui.unit.IntRect,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.collection.IntList>;kotlin.Function3<androidx.compose.ui.unit.IntRect,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.collection.IntList>){}[0]
-
-        final val xCandidates // androidx.compose.material3/MenuAnchorPosition.Custom.xCandidates|{}xCandidates[0]
-            final fun <get-xCandidates>(): kotlin/Function3<androidx.compose.ui.unit/IntRect, androidx.compose.ui.unit/IntSize, androidx.compose.ui.unit/IntSize, androidx.collection/IntList> // androidx.compose.material3/MenuAnchorPosition.Custom.xCandidates.<get-xCandidates>|<get-xCandidates>(){}[0]
-        final val yCandidates // androidx.compose.material3/MenuAnchorPosition.Custom.yCandidates|{}yCandidates[0]
-            final fun <get-yCandidates>(): kotlin/Function3<androidx.compose.ui.unit/IntRect, androidx.compose.ui.unit/IntSize, androidx.compose.ui.unit/IntSize, androidx.collection/IntList> // androidx.compose.material3/MenuAnchorPosition.Custom.yCandidates.<get-yCandidates>|<get-yCandidates>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/MenuAnchorPosition.Custom.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // androidx.compose.material3/MenuAnchorPosition.Custom.hashCode|hashCode(){}[0]
-    }
-
-    final object Above : androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Above|null[0]
-
-    final object Below : androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Below|null[0]
-
-    final object End : androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.End|null[0]
-
-    final object Left : androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Left|null[0]
-
-    final object Right : androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Right|null[0]
-
-    final object Start : androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Start|null[0]
 }
 
 sealed interface androidx.compose.material3/TooltipScope { // androidx.compose.material3/TooltipScope|null[0]
@@ -999,6 +986,25 @@ final class androidx.compose.material3/ListItemColors { // androidx.compose.mate
     final fun overlineContentColor(kotlin/Boolean, kotlin/Boolean, kotlin/Boolean): androidx.compose.ui.graphics/Color // androidx.compose.material3/ListItemColors.overlineContentColor|overlineContentColor(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
     final fun supportingContentColor(kotlin/Boolean, kotlin/Boolean, kotlin/Boolean): androidx.compose.ui.graphics/Color // androidx.compose.material3/ListItemColors.supportingContentColor|supportingContentColor(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
     final fun trailingContentColor(kotlin/Boolean, kotlin/Boolean, kotlin/Boolean): androidx.compose.ui.graphics/Color // androidx.compose.material3/ListItemColors.trailingContentColor|trailingContentColor(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
+}
+
+final class androidx.compose.material3/MenuAnchorPosition { // androidx.compose.material3/MenuAnchorPosition|null[0]
+    final object Companion { // androidx.compose.material3/MenuAnchorPosition.Companion|null[0]
+        final val Above // androidx.compose.material3/MenuAnchorPosition.Companion.Above|{}Above[0]
+            final fun <get-Above>(): androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Companion.Above.<get-Above>|<get-Above>(){}[0]
+        final val Below // androidx.compose.material3/MenuAnchorPosition.Companion.Below|{}Below[0]
+            final fun <get-Below>(): androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Companion.Below.<get-Below>|<get-Below>(){}[0]
+        final val End // androidx.compose.material3/MenuAnchorPosition.Companion.End|{}End[0]
+            final fun <get-End>(): androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Companion.End.<get-End>|<get-End>(){}[0]
+        final val Left // androidx.compose.material3/MenuAnchorPosition.Companion.Left|{}Left[0]
+            final fun <get-Left>(): androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Companion.Left.<get-Left>|<get-Left>(){}[0]
+        final val Right // androidx.compose.material3/MenuAnchorPosition.Companion.Right|{}Right[0]
+            final fun <get-Right>(): androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Companion.Right.<get-Right>|<get-Right>(){}[0]
+        final val Start // androidx.compose.material3/MenuAnchorPosition.Companion.Start|{}Start[0]
+            final fun <get-Start>(): androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Companion.Start.<get-Start>|<get-Start>(){}[0]
+
+        final fun Custom(kotlin/Function1<androidx.compose.material3/MenuPositionScope, androidx.collection/IntList>, kotlin/Function1<androidx.compose.material3/MenuPositionScope, androidx.collection/IntList>): androidx.compose.material3/MenuAnchorPosition // androidx.compose.material3/MenuAnchorPosition.Companion.Custom|Custom(kotlin.Function1<androidx.compose.material3.MenuPositionScope,androidx.collection.IntList>;kotlin.Function1<androidx.compose.material3.MenuPositionScope,androidx.collection.IntList>){}[0]
+    }
 }
 
 final class androidx.compose.material3/MenuGroupShapes { // androidx.compose.material3/MenuGroupShapes|null[0]
@@ -3403,13 +3409,7 @@ final val androidx.compose.material3/androidx_compose_material3_LoadingIndicator
 final val androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop|#static{}androidx_compose_material3_MaterialShapes$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop|#static{}androidx_compose_material3_MaterialTheme$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop|#static{}androidx_compose_material3_MaterialTheme_Values$stableprop[0]
-final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Above$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Above$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition_Above$stableprop[0]
-final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Below$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Below$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition_Below$stableprop[0]
-final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Custom$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Custom$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition_Custom$stableprop[0]
-final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_End$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_End$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition_End$stableprop[0]
-final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Left$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Left$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition_Left$stableprop[0]
-final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Right$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Right$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition_Right$stableprop[0]
-final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Start$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Start$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition_Start$stableprop[0]
+final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop // androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop|#static{}androidx_compose_material3_MenuDefaults$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop // androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop|#static{}androidx_compose_material3_MenuGroupShapes$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MenuItemColors$stableprop // androidx.compose.material3/androidx_compose_material3_MenuItemColors$stableprop|#static{}androidx_compose_material3_MenuItemColors$stableprop[0]
@@ -3865,13 +3865,7 @@ final fun androidx.compose.material3/androidx_compose_material3_LoadingIndicator
 final fun androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop_getter|androidx_compose_material3_MaterialShapes$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop_getter|androidx_compose_material3_MaterialTheme$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop_getter|androidx_compose_material3_MaterialTheme_Values$stableprop_getter(){}[0]
-final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Above$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Above$stableprop_getter|androidx_compose_material3_MenuAnchorPosition_Above$stableprop_getter(){}[0]
-final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Below$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Below$stableprop_getter|androidx_compose_material3_MenuAnchorPosition_Below$stableprop_getter(){}[0]
-final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Custom$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Custom$stableprop_getter|androidx_compose_material3_MenuAnchorPosition_Custom$stableprop_getter(){}[0]
-final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_End$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_End$stableprop_getter|androidx_compose_material3_MenuAnchorPosition_End$stableprop_getter(){}[0]
-final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Left$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Left$stableprop_getter|androidx_compose_material3_MenuAnchorPosition_Left$stableprop_getter(){}[0]
-final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Right$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Right$stableprop_getter|androidx_compose_material3_MenuAnchorPosition_Right$stableprop_getter(){}[0]
-final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Start$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition_Start$stableprop_getter|androidx_compose_material3_MenuAnchorPosition_Start$stableprop_getter(){}[0]
+final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop_getter|androidx_compose_material3_MenuAnchorPosition$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop_getter|androidx_compose_material3_MenuDefaults$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop_getter|androidx_compose_material3_MenuGroupShapes$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MenuItemColors$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuItemColors$stableprop_getter|androidx_compose_material3_MenuItemColors$stableprop_getter(){}[0]

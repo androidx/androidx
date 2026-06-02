@@ -32,13 +32,11 @@ import androidx.compose.material3.tokens.ShapeTokens
 import androidx.compose.material3.tokens.StandardMenuTokens
 import androidx.compose.material3.tokens.VibrantMenuTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -498,17 +496,13 @@ object MenuDefaults {
         dropdownMenuAnchorPosition: MenuAnchorPosition,
         offset: DpOffset = DpOffset(0.dp, 0.dp),
     ): DropdownMenuPopupPositionProvider {
-        val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
         return remember(dropdownMenuAnchorPosition, offset, density) {
             DropdownMenuPositionProvider(
-                transformOriginState = transformOriginState,
                 dropdownMenuAnchorPosition = dropdownMenuAnchorPosition,
                 contentOffset = offset,
                 density = density,
-            ) { parentBounds, menuBounds ->
-                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
-            }
+            )
         }
     }
 
