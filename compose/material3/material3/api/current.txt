@@ -1316,8 +1316,9 @@ package androidx.compose.material3 {
   }
 
   public interface DropdownMenuPopupPositionProvider extends androidx.compose.ui.window.PopupPositionProvider {
-    method @InaccessibleFromKotlin public androidx.compose.runtime.MutableState<androidx.compose.ui.graphics.TransformOrigin> getTransformOriginState();
-    property public abstract androidx.compose.runtime.MutableState<androidx.compose.ui.graphics.TransformOrigin> transformOriginState;
+    method @BytecodeOnly public long getTransformOrigin-SzJe1aQ();
+    method @BytecodeOnly public androidx.compose.runtime.MutableState! getTransformOriginState();
+    property public abstract androidx.compose.ui.graphics.TransformOrigin transformOrigin;
   }
 
   public final class DynamicTonalPaletteKt {
@@ -2411,39 +2412,24 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void MaterialTheme(androidx.compose.material3.ColorScheme?, androidx.compose.material3.Shapes?, androidx.compose.material3.Typography?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @androidx.compose.runtime.Stable public sealed exhaustive interface MenuAnchorPosition {
+  @androidx.compose.runtime.Immutable public final class MenuAnchorPosition {
+    field public static final androidx.compose.material3.MenuAnchorPosition.Companion Companion;
   }
 
-  public static final class MenuAnchorPosition.Above implements androidx.compose.material3.MenuAnchorPosition {
-    field public static final androidx.compose.material3.MenuAnchorPosition.Above INSTANCE;
-  }
-
-  public static final class MenuAnchorPosition.Below implements androidx.compose.material3.MenuAnchorPosition {
-    field public static final androidx.compose.material3.MenuAnchorPosition.Below INSTANCE;
-  }
-
-  @androidx.compose.runtime.Immutable public static final class MenuAnchorPosition.Custom implements androidx.compose.material3.MenuAnchorPosition {
-    ctor public MenuAnchorPosition.Custom(kotlin.jvm.functions.Function3<? super androidx.compose.ui.unit.IntRect,? super androidx.compose.ui.unit.IntSize,? super androidx.compose.ui.unit.IntSize,? extends androidx.collection.IntList> xCandidates, kotlin.jvm.functions.Function3<? super androidx.compose.ui.unit.IntRect,? super androidx.compose.ui.unit.IntSize,? super androidx.compose.ui.unit.IntSize,? extends androidx.collection.IntList> yCandidates);
-    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function3<androidx.compose.ui.unit.IntRect,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.collection.IntList> getXCandidates();
-    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function3<androidx.compose.ui.unit.IntRect,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.collection.IntList> getYCandidates();
-    property public kotlin.jvm.functions.Function3<androidx.compose.ui.unit.IntRect,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.collection.IntList> xCandidates;
-    property public kotlin.jvm.functions.Function3<androidx.compose.ui.unit.IntRect,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.collection.IntList> yCandidates;
-  }
-
-  public static final class MenuAnchorPosition.End implements androidx.compose.material3.MenuAnchorPosition {
-    field public static final androidx.compose.material3.MenuAnchorPosition.End INSTANCE;
-  }
-
-  public static final class MenuAnchorPosition.Left implements androidx.compose.material3.MenuAnchorPosition {
-    field public static final androidx.compose.material3.MenuAnchorPosition.Left INSTANCE;
-  }
-
-  public static final class MenuAnchorPosition.Right implements androidx.compose.material3.MenuAnchorPosition {
-    field public static final androidx.compose.material3.MenuAnchorPosition.Right INSTANCE;
-  }
-
-  public static final class MenuAnchorPosition.Start implements androidx.compose.material3.MenuAnchorPosition {
-    field public static final androidx.compose.material3.MenuAnchorPosition.Start INSTANCE;
+  public static final class MenuAnchorPosition.Companion {
+    method public androidx.compose.material3.MenuAnchorPosition Custom(kotlin.jvm.functions.Function1<? super androidx.compose.material3.MenuPositionScope,? extends androidx.collection.IntList> xCandidates, kotlin.jvm.functions.Function1<? super androidx.compose.material3.MenuPositionScope,? extends androidx.collection.IntList> yCandidates);
+    method @InaccessibleFromKotlin public androidx.compose.material3.MenuAnchorPosition getAbove();
+    method @InaccessibleFromKotlin public androidx.compose.material3.MenuAnchorPosition getBelow();
+    method @InaccessibleFromKotlin public androidx.compose.material3.MenuAnchorPosition getEnd();
+    method @InaccessibleFromKotlin public androidx.compose.material3.MenuAnchorPosition getLeft();
+    method @InaccessibleFromKotlin public androidx.compose.material3.MenuAnchorPosition getRight();
+    method @InaccessibleFromKotlin public androidx.compose.material3.MenuAnchorPosition getStart();
+    property public androidx.compose.material3.MenuAnchorPosition Above;
+    property public androidx.compose.material3.MenuAnchorPosition Below;
+    property public androidx.compose.material3.MenuAnchorPosition End;
+    property public androidx.compose.material3.MenuAnchorPosition Left;
+    property public androidx.compose.material3.MenuAnchorPosition Right;
+    property public androidx.compose.material3.MenuAnchorPosition Start;
   }
 
   public final class MenuDefaults {
@@ -2603,6 +2589,17 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void DropdownMenuItem(kotlin.jvm.functions.Function0<kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.ui.graphics.Shape, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, boolean, androidx.compose.material3.MenuItemColors?, androidx.compose.foundation.layout.Arrangement.Horizontal?, androidx.compose.foundation.layout.PaddingValues?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void DropdownMenuPopup(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.DropdownMenuPopupPositionProvider popupPositionProvider, optional androidx.compose.ui.unit.DpOffset offset, optional androidx.compose.ui.window.PopupProperties properties, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void DropdownMenuPopup-x0xb5LI(boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.compose.material3.DropdownMenuPopupPositionProvider?, long, androidx.compose.ui.window.PopupProperties?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.ColumnScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public interface MenuPositionScope {
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.IntRect getAnchorBounds();
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @BytecodeOnly public long getMenuSize-YbymL2g();
+    method @BytecodeOnly public long getWindowSize-YbymL2g();
+    property public abstract androidx.compose.ui.unit.IntRect anchorBounds;
+    property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
+    property public abstract androidx.compose.ui.unit.IntSize menuSize;
+    property public abstract androidx.compose.ui.unit.IntSize windowSize;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class ModalBottomSheetDefaults {

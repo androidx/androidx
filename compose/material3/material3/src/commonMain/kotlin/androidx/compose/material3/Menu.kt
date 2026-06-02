@@ -51,6 +51,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.internal.MenuPosition
+import androidx.compose.material3.internal.MenuPosition.bottomToAnchorBottom
+import androidx.compose.material3.internal.MenuPosition.bottomToAnchorTop
+import androidx.compose.material3.internal.MenuPosition.bottomToWindowBottom
+import androidx.compose.material3.internal.MenuPosition.centerToAnchorTop
+import androidx.compose.material3.internal.MenuPosition.endToAnchorEnd
+import androidx.compose.material3.internal.MenuPosition.endToAnchorStart
+import androidx.compose.material3.internal.MenuPosition.leftToWindowLeft
+import androidx.compose.material3.internal.MenuPosition.rightToWindowRight
+import androidx.compose.material3.internal.MenuPosition.startToAnchorEnd
+import androidx.compose.material3.internal.MenuPosition.startToAnchorStart
+import androidx.compose.material3.internal.MenuPosition.topToAnchorBottom
+import androidx.compose.material3.internal.MenuPosition.topToAnchorTop
+import androidx.compose.material3.internal.MenuPosition.topToWindowTop
 import androidx.compose.material3.internal.rememberAnimatedShape
 import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -246,7 +260,7 @@ fun DropdownMenuPopup(
                 DropdownMenuPopupContent(
                     modifier = modifier,
                     expandedState = expandedState,
-                    transformOriginState = popupPositionProvider.transformOriginState,
+                    transformOrigin = { popupPositionProvider.transformOrigin },
                     content = content,
                 )
             },
@@ -1375,71 +1389,312 @@ class MenuGroupShapes(val shape: Shape, val inactiveShape: Shape) {
 }
 
 /**
- * Interface that determines the position of a menu relative to its anchor.
+ * Provides context for calculating candidate menu positioning coordinates relative to window
+ * bounds.
+ */
+interface MenuPositionScope {
+    /** The bounds of the anchor relative to window layout bounds. */
+    val anchorBounds: IntRect
+    /** The overall size of the hosting window. */
+    val windowSize: IntSize
+    /** The calculated dimensions of the menu popup. */
+    val menuSize: IntSize
+    /** The current active layout direction (LTR or RTL). */
+    val layoutDirection: LayoutDirection
+}
+
+internal class MenuPositionScopeImpl(
+    override val anchorBounds: IntRect,
+    override val windowSize: IntSize,
+    override val menuSize: IntSize,
+    override val layoutDirection: LayoutDirection,
+) : MenuPositionScope
+
+/**
+ * Class that determines the position of a menu relative to its anchor.
  *
  * This allows selecting between standard positioning strategies (such as [Above], [Below], [Start],
  * [End], [Left], [Right]) or providing a [Custom] implementation for complex positioning logic.
  */
-@Stable
-sealed interface MenuAnchorPosition {
-    /** Positions the menu vertically above the anchor. */
-    object Above : MenuAnchorPosition
+@Immutable
+class MenuAnchorPosition
+private constructor(
+    internal val xCandidates: MenuPositionScope.() -> IntList,
+    internal val yCandidates: MenuPositionScope.() -> IntList,
+) {
+    companion object {
+        /**
+         * Position the menu above its anchor.
+         *
+         * The menu's bottom edge is aligned with the anchor's top edge by default. If there is
+         * insufficient space, alternative positions (such as below the anchor) will be attempted.
+         */
+        val Above =
+            MenuAnchorPosition(
+                xCandidates = {
+                    MenuPosition.xValuesFromCandidates(
+                        listOf(
+                            startToAnchorStart,
+                            endToAnchorEnd,
+                            if (anchorBounds.center.x < windowSize.width / 2) {
+                                leftToWindowLeft
+                            } else {
+                                rightToWindowRight
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.width,
+                        layoutDirection,
+                    )
+                },
+                yCandidates = {
+                    MenuPosition.yValuesFromCandidates(
+                        listOf(
+                            bottomToAnchorTop,
+                            topToAnchorBottom,
+                            centerToAnchorTop,
+                            if (anchorBounds.center.y < windowSize.height / 2) {
+                                topToWindowTop
+                            } else {
+                                bottomToWindowBottom
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.height,
+                    )
+                },
+            )
 
-    /** Positions the menu vertically below the anchor. */
-    object Below : MenuAnchorPosition
+        /**
+         * Position the menu below its anchor.
+         *
+         * The menu's top edge is aligned with the anchor's bottom edge by default. If there is
+         * insufficient space, alternative positions (such as above the anchor) will be attempted.
+         */
+        val Below =
+            MenuAnchorPosition(
+                xCandidates = {
+                    MenuPosition.xValuesFromCandidates(
+                        listOf(
+                            startToAnchorStart,
+                            endToAnchorEnd,
+                            if (anchorBounds.center.x < windowSize.width / 2) {
+                                leftToWindowLeft
+                            } else {
+                                rightToWindowRight
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.width,
+                        layoutDirection,
+                    )
+                },
+                yCandidates = {
+                    MenuPosition.yValuesFromCandidates(
+                        listOf(
+                            topToAnchorBottom,
+                            bottomToAnchorTop,
+                            centerToAnchorTop,
+                            if (anchorBounds.center.y < windowSize.height / 2) {
+                                topToWindowTop
+                            } else {
+                                bottomToWindowBottom
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.height,
+                    )
+                },
+            )
 
-    /** Positions the menu to the absolute left of the anchor. */
-    object Left : MenuAnchorPosition
+        /**
+         * Position the menu to the left of its anchor.
+         *
+         * This strategy positions the menu on the left side regardless of the layout direction.
+         */
+        val Left =
+            MenuAnchorPosition(
+                xCandidates = {
+                    MenuPosition.xValuesFromCandidates(
+                        listOf(
+                            endToAnchorStart,
+                            startToAnchorEnd,
+                            if (anchorBounds.center.x < windowSize.width / 2) {
+                                leftToWindowLeft
+                            } else {
+                                rightToWindowRight
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.width,
+                        layoutDirection,
+                    )
+                },
+                yCandidates = {
+                    MenuPosition.yValuesFromCandidates(
+                        listOf(
+                            topToAnchorTop,
+                            bottomToAnchorBottom,
+                            if (anchorBounds.center.y < windowSize.height / 2) {
+                                topToWindowTop
+                            } else {
+                                bottomToWindowBottom
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.height,
+                    )
+                },
+            )
 
-    /** Positions the menu to the absolute right of the anchor. */
-    object Right : MenuAnchorPosition
+        /**
+         * Position the menu to the right of its anchor.
+         *
+         * This strategy positions the menu on the right side regardless of the layout direction.
+         */
+        val Right =
+            MenuAnchorPosition(
+                xCandidates = {
+                    MenuPosition.xValuesFromCandidates(
+                        listOf(
+                            startToAnchorEnd,
+                            endToAnchorStart,
+                            if (anchorBounds.center.x < windowSize.width / 2) {
+                                leftToWindowLeft
+                            } else {
+                                rightToWindowRight
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.width,
+                        layoutDirection,
+                    )
+                },
+                yCandidates = {
+                    MenuPosition.yValuesFromCandidates(
+                        listOf(
+                            topToAnchorTop,
+                            bottomToAnchorBottom,
+                            if (anchorBounds.center.y < windowSize.height / 2) {
+                                topToWindowTop
+                            } else {
+                                bottomToWindowBottom
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.height,
+                    )
+                },
+            )
 
-    /** Positions the menu at the start of the anchor, adhering to the layout direction. */
-    object Start : MenuAnchorPosition
+        /**
+         * Position the menu to the start of its anchor.
+         *
+         * In LTR layouts, this positions the menu on the left side of the anchor. In RTL layouts,
+         * this positions the menu on the right side of the anchor.
+         */
+        val Start =
+            MenuAnchorPosition(
+                xCandidates = {
+                    MenuPosition.xValuesFromCandidates(
+                        listOf(
+                            endToAnchorStart,
+                            startToAnchorEnd,
+                            if (anchorBounds.center.x < windowSize.width / 2) {
+                                leftToWindowLeft
+                            } else {
+                                rightToWindowRight
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.width,
+                        layoutDirection,
+                    )
+                },
+                yCandidates = {
+                    MenuPosition.yValuesFromCandidates(
+                        listOf(
+                            topToAnchorTop,
+                            bottomToAnchorBottom,
+                            if (anchorBounds.center.y < windowSize.height / 2) {
+                                topToWindowTop
+                            } else {
+                                bottomToWindowBottom
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.height,
+                    )
+                },
+            )
 
-    /** Positions the menu at the end of the anchor, adhering to the layout direction. */
-    object End : MenuAnchorPosition
+        /**
+         * Position the menu to the end of its anchor.
+         *
+         * In LTR layouts, this positions the menu on the right side of the anchor. In RTL layouts,
+         * this positions the menu on the left side of the anchor.
+         */
+        val End =
+            MenuAnchorPosition(
+                xCandidates = {
+                    MenuPosition.xValuesFromCandidates(
+                        listOf(
+                            startToAnchorEnd,
+                            endToAnchorStart,
+                            if (anchorBounds.center.x < windowSize.width / 2) {
+                                leftToWindowLeft
+                            } else {
+                                rightToWindowRight
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.width,
+                        layoutDirection,
+                    )
+                },
+                yCandidates = {
+                    MenuPosition.yValuesFromCandidates(
+                        listOf(
+                            topToAnchorTop,
+                            bottomToAnchorBottom,
+                            if (anchorBounds.center.y < windowSize.height / 2) {
+                                topToWindowTop
+                            } else {
+                                bottomToWindowBottom
+                            },
+                        ),
+                        anchorBounds,
+                        windowSize,
+                        menuSize.height,
+                    )
+                },
+            )
 
-    /**
-     * A custom positioning strategy
-     *
-     * This allows for dynamic positioning logic that can adapt to the anchor's location on screen,
-     * the available window space, and the size of the menu content.
-     *
-     * Please adjust [xCandidates] and [yCandidates] to the current [LayoutDirection] if needed.
-     *
-     * @property xCandidates A lambda that calculates a list of preferred X (horizontal)
-     *   coordinates. The system will iterate through these candidates to find the best fit within
-     *   the window bounds. The lambda receives: `anchorBounds`: The position and size of the anchor
-     *   element in window coordinates. `windowSize`: The total available size of the window/screen.
-     *   `menuSize`: The measured size of the menu content.
-     * @property yCandidates A lambda that calculates a list of preferred Y (vertical) coordinates.
-     *   The system will iterate through these candidates to find the best fit within the window
-     *   bounds. The lambda receives: `anchorBounds`: The position and size of the anchor element in
-     *   window coordinates. `windowSize`: The total available size of the window/screen.
-     *   `menuSize`: The measured size of the menu content.
-     */
-    @Immutable
-    class Custom(
-        val xCandidates: (anchorBounds: IntRect, windowSize: IntSize, menuSize: IntSize) -> IntList,
-        val yCandidates: (anchorBounds: IntRect, windowSize: IntSize, menuSize: IntSize) -> IntList,
-    ) : MenuAnchorPosition {
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is Custom) return false
-
-            if (xCandidates !== other.xCandidates) return false
-            if (yCandidates !== other.yCandidates) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = xCandidates.hashCode()
-            result = 31 * result + yCandidates.hashCode()
-            return result
-        }
+        /**
+         * Create a custom positioning strategy by providing lambda functions for calculating
+         * candidate positions for the x and y axes. Note that candidate positioning coordinates are
+         * calculated relative to the window bounds.
+         *
+         * @param xCandidates Lambda that determines the list of candidate x coordinates for the
+         *   menu relative to the window bounds.
+         * @param yCandidates Lambda that determines the list of candidate y coordinates for the
+         *   menu relative to the window bounds.
+         */
+        fun Custom(
+            xCandidates: MenuPositionScope.() -> IntList,
+            yCandidates: MenuPositionScope.() -> IntList,
+        ) = MenuAnchorPosition(xCandidates, yCandidates)
     }
 }
 
@@ -1448,7 +1703,17 @@ sealed interface MenuAnchorPosition {
  * implementation.
  */
 interface DropdownMenuPopupPositionProvider : PopupPositionProvider {
+    /** State holding the calculated [TransformOrigin] of the dropdown menu popup. */
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     val transformOriginState: MutableState<TransformOrigin>
+
+    /**
+     * The calculated [TransformOrigin] of the dropdown menu popup relative to its anchor.
+     *
+     * This origin is used to animate (e.g. scale) the menu from the correct point relative to where
+     * the menu is positioned.
+     */
+    val transformOrigin: TransformOrigin
 }
 
 /**
@@ -1467,7 +1732,7 @@ internal expect fun DropdownMenuPopupImpl(
 internal fun DropdownMenuContent(
     modifier: Modifier,
     expandedState: MutableTransitionState<Boolean>,
-    transformOriginState: MutableState<TransformOrigin>,
+    transformOrigin: () -> TransformOrigin,
     scrollState: ScrollState,
     shape: Shape,
     containerColor: Color,
@@ -1504,7 +1769,7 @@ internal fun DropdownMenuContent(
                 this.alpha =
                     if (!isInspecting) alpha
                     else if (expandedState.targetState) ExpandedAlphaTarget else ClosedAlphaTarget
-                transformOrigin = transformOriginState.value
+                this.transformOrigin = transformOrigin()
             },
         shape = shape,
         color = containerColor,
@@ -1527,7 +1792,7 @@ internal fun DropdownMenuContent(
 internal fun DropdownMenuPopupContent(
     modifier: Modifier,
     expandedState: MutableTransitionState<Boolean>,
-    transformOriginState: MutableState<TransformOrigin>,
+    transformOrigin: () -> TransformOrigin,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     // Menu open/close animation.
@@ -1556,7 +1821,7 @@ internal fun DropdownMenuPopupContent(
                 this.alpha =
                     if (!isInspecting) alpha
                     else if (expandedState.targetState) ExpandedAlphaTarget else ClosedAlphaTarget
-                transformOrigin = transformOriginState.value
+                this.transformOrigin = transformOrigin()
             },
         content = content,
     )
