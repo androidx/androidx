@@ -66,6 +66,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(sdk = [Config.ALL_SDKS])
@@ -573,6 +574,261 @@ class FrameBufferImplTest {
             assertThat(frameBuffer.removeAllFrameReferencesAndAcquire(undefinedFrameIdFilter))
                 .isEmpty()
             assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
+    fun removeFirst_withoutPredicate_removesFirstReferenceAndAcquires() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef1.close()
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val frame = frameBuffer.removeFirst(predicate = null)
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+
+            assertThat(frame!!.isClosed()).isFalse()
+            assertThat(frame.frameNumber).isEqualTo(frameRef1.frameNumber)
+            frame.close()
+        }
+
+    @Test
+    fun removeFirst_withPredicate_removesFirstMatchingFrame_updatesSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            val frameIdFilter: (FrameReference) -> Boolean = {
+                it.frameId.value == frameRef2.frameId.value
+            }
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef1.close()
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val removed = frameBuffer.removeFirst(frameIdFilter)
+
+            assertThat(removed!!.frameNumber).isEqualTo(frameRef2.frameNumber)
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+
+            removed.close()
+        }
+
+    @Test
+    fun removeFirst_emptyBuffer_returnsNull() =
+        testScope.runTest {
+            assertThat(frameBuffer.removeFirst(predicate = null)).isNull()
+            assertThat(frameBuffer.removeFirst(frameInfoDoneFilter)).isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun removeFirst_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeFirst(predicate = null)).isNull()
+            assertThat(frameBuffer.removeFirst(frameInfoDoneFilter)).isNull()
+        }
+
+    @Test
+    fun removeFirst_noMatches_returnsNull() =
+        testScope.runTest {
+            val undefinedFrameIdFilter: (FrameReference) -> Boolean = { it.frameId.value == -1L }
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+
+            assertThat(frameBuffer.removeFirst(undefinedFrameIdFilter)).isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
+    fun removeFirst_whenBufferIsClosed_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            advanceUntilIdle()
+            frameBuffer.close()
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.removeFirst(predicate = null)).isNull()
+            assertThat(frameBuffer.removeFirst(frameInfoDoneFilter)).isNull()
+        }
+
+    @Test
+    fun removeLast_withoutPredicate_removesLastReferenceAndAcquires() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef1.close()
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val frame = frameBuffer.removeLast(predicate = null)
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+
+            assertThat(frame!!.isClosed()).isFalse()
+            assertThat(frame.frameNumber).isEqualTo(frameRef2.frameNumber)
+            frame.close()
+        }
+
+    @Test
+    fun removeLast_withPredicate_removesLastMatchingFrame_updatesSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            val frameIdFilter: (FrameReference) -> Boolean = {
+                it.frameId.value == frameRef1.frameId.value
+            }
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef1.close()
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val removed = frameBuffer.removeLast(frameIdFilter)
+
+            assertThat(removed!!.frameNumber).isEqualTo(frameRef1.frameNumber)
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+
+            removed.close()
+        }
+
+    @Test
+    fun removeLast_emptyBuffer_returnsNull() =
+        testScope.runTest {
+            assertThat(frameBuffer.removeLast(predicate = null)).isNull()
+            assertThat(frameBuffer.removeLast(frameInfoDoneFilter)).isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun removeLast_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeLast(predicate = null)).isNull()
+            assertThat(frameBuffer.removeLast(frameInfoDoneFilter)).isNull()
+        }
+
+    @Test
+    fun removeLast_noMatches_returnsNull() =
+        testScope.runTest {
+            val undefinedFrameIdFilter: (FrameReference) -> Boolean = { it.frameId.value == -1L }
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+
+            assertThat(frameBuffer.removeLast(undefinedFrameIdFilter)).isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
+    fun removeLast_whenBufferIsClosed_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            advanceUntilIdle()
+            frameBuffer.close()
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.removeLast(predicate = null)).isNull()
+            assertThat(frameBuffer.removeLast(frameInfoDoneFilter)).isNull()
+        }
+
+    @Test
+    fun removeAll_withoutPredicate_removesAllReferencesAndAcquires() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val frames = frameBuffer.removeAll(predicate = null)
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+
+            assertThat(frames.map { it.frameNumber })
+                .containsExactly(frameRef1.frameNumber, frameRef2.frameNumber)
+                .inOrder()
+            assertThat(frames[0].isClosed()).isFalse()
+            assertThat(frames[1].isClosed()).isFalse()
+            frames.forEach { it.close() }
+        }
+
+    @Test
+    fun removeAll_withPredicate_removesAllMatchingFrames_updatesSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val removed = frameBuffer.removeAll(frameInfoDoneFilter)
+
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+            assertThat(removed.size).isEqualTo(2)
+
+            removed.forEach { it.close() }
+        }
+
+    @Test
+    fun removeAll_emptyBuffer_returnsEmptyList() =
+        testScope.runTest {
+            assertThat(frameBuffer.removeAll(predicate = null)).isEmpty()
+            assertThat(frameBuffer.removeAll(frameInfoDoneFilter)).isEmpty()
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun removeAll_zeroCapacityBuffer_returnsEmptyList() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeAll(predicate = null)).isEmpty()
+            assertThat(frameBuffer.removeAll(frameInfoDoneFilter)).isEmpty()
+        }
+
+    @Test
+    fun removeAll_noMatches_returnsEmptyList() =
+        testScope.runTest {
+            val undefinedFrameIdFilter: (FrameReference) -> Boolean = { it.frameId.value == -1L }
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+
+            assertThat(frameBuffer.removeAll(undefinedFrameIdFilter)).isEmpty()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
+    fun removeAll_whenBufferIsClosed_returnsEmptyList() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            advanceUntilIdle()
+            frameBuffer.close()
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.removeAll(predicate = null)).isEmpty()
+            assertThat(frameBuffer.removeAll(frameInfoDoneFilter)).isEmpty()
         }
 
     @Test
