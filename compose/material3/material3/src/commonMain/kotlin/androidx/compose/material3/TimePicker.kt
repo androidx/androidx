@@ -2348,7 +2348,16 @@ private fun SupportingText(
         else TimeInputTokens.TimeFieldSupportingTextColor.value
 
     Text(
-        modifier = modifier.padding(top = SupportLabelTop).clearAndSetSemantics {},
+        modifier =
+            modifier
+                .padding(top = SupportLabelTop)
+                .then(
+                    if (isValid) {
+                        Modifier.clearAndSetSemantics {}
+                    } else {
+                        Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+                    }
+                ),
         text = text,
         color = color,
         minLines = 2,

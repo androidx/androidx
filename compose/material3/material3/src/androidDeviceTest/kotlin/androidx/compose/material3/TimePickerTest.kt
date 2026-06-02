@@ -28,6 +28,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -70,6 +71,7 @@ import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
@@ -200,6 +202,29 @@ class TimePickerTest {
 
         // Does not switch to minutes automatically in a11y/keyboard mode.
         rule.onNodeWithText("09").assertIsSelected()
+    }
+
+    @Test
+    fun timeInput_invalidHour_showsErrorAndTriggersLiveRegion() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 30, is24Hour = true)
+
+        lateinit var expectedErrorText: String
+        lateinit var hourTextFieldDescription: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            expectedErrorText = getString(Strings.TimePicker24HourError)
+            hourTextFieldDescription = getString(Strings.TimePickerHourTextField)
+            TimeInput(state = state)
+        }
+
+        rule.onNodeWithContentDescription(hourTextFieldDescription).performTextReplacement("25")
+
+        rule.waitForIdle()
+
+        rule
+            .onNodeWithText(expectedErrorText)
+            .assertExists()
+            .assert(expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
     }
 
     @Test
