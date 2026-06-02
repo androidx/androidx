@@ -36,6 +36,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.kruth.assertThat
+import androidx.navigation3.first
+import androidx.navigation3.fourth
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -46,6 +48,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
+import androidx.navigation3.second
+import androidx.navigation3.third
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
@@ -354,7 +358,7 @@ class NavDisplayTest {
                         entry(first) { Text(first) }
                         entry(second) { Text(second) }
                         entry(third) { Text(third) }
-                        entry(forth) { Text(forth) }
+                        entry(fourth) { Text(fourth) }
                     },
             )
         }
@@ -370,10 +374,10 @@ class NavDisplayTest {
         composeTestRule.waitForIdle()
         assertThat(composeTestRule.onNodeWithText(third).isDisplayed()).isTrue()
 
-        composeTestRule.runOnIdle { backStack3.add(forth) }
+        composeTestRule.runOnIdle { backStack3.add(fourth) }
 
-        assertThat(backStack3).containsExactly(third, forth)
-        assertThat(composeTestRule.onNodeWithText(forth).isDisplayed()).isTrue()
+        assertThat(backStack3).containsExactly(third, fourth)
+        assertThat(composeTestRule.onNodeWithText(fourth).isDisplayed()).isTrue()
     }
 
     @Test
@@ -459,7 +463,7 @@ class NavDisplayTest {
     fun testPopAddInCenterInSameFrame() {
         lateinit var backStack: MutableList<Any>
         composeTestRule.setContent {
-            backStack = remember { mutableStateListOf(first, third, forth) }
+            backStack = remember { mutableStateListOf(first, third, fourth) }
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
@@ -468,14 +472,14 @@ class NavDisplayTest {
                     first -> NavEntry(first) { Text(first) }
                     second -> NavEntry(second) { Text(second) }
                     third -> NavEntry(third) { Text(third) }
-                    forth -> NavEntry(forth) { Text(forth) }
+                    fourth -> NavEntry(fourth) { Text(fourth) }
                     else -> error("Invalid key passed")
                 }
             }
         }
-        assertThat(backStack).containsExactly(first, third, forth)
+        assertThat(backStack).containsExactly(first, third, fourth)
 
-        assertThat(composeTestRule.onNodeWithText(forth).isDisplayed()).isTrue()
+        assertThat(composeTestRule.onNodeWithText(fourth).isDisplayed()).isTrue()
 
         composeTestRule.runOnIdle {
             backStack.add(1, second)
@@ -841,11 +845,6 @@ class NavDisplayTest {
             .containsExactly(first)
     }
 }
-
-private const val first = "first"
-private const val second = "second"
-private const val third = "third"
-private const val forth = "forth"
 
 @Serializable object First : NavKey
 
