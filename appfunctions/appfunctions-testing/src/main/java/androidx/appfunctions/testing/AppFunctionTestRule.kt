@@ -160,11 +160,11 @@ public class AppFunctionTestRule(private val context: Context) : TestRule {
     override fun apply(base: Statement?, description: Description?): Statement =
         object : Statement() {
             override fun evaluate() {
-                base?.evaluate()
                 // Robolectric platform doesn't set these properties, we have checks for certain
                 // AppSearch features that are only available if the sdk extensions for T are above
                 // 13.
                 ShadowSystemProperties.override(T_EXTENSION_PROPERTY_STRING, "13")
+                base?.evaluate()
             }
         }
 
