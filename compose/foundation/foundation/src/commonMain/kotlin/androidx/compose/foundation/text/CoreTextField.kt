@@ -24,6 +24,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
@@ -538,6 +539,7 @@ internal fun CoreTextField(
             .then(semanticsModifier)
             .onGloballyPositioned @DontMemoize { state.layoutResult?.decorationBoxCoordinates = it }
             .addContextMenuComponents(manager, coroutineScope)
+            .textFieldOverlay(state, imeOptions, interactionSource)
 
     val showHandleAndMagnifier =
         enabled && state.hasFocus && state.isInTouchMode && windowInfo.isWindowFocused
@@ -1242,3 +1244,15 @@ private fun Modifier.addContextMenuComponents(
     if (ComposeFoundationFlags.isNewContextMenuEnabled)
         addBasicTextFieldTextContextMenuComponents(textFieldSelectionManager, coroutineScope)
     else this
+
+/**
+ * A modifier that can be used to determine the location and state of the text field. It is used on
+ * multiplatform, where knowledge of the text field's state and location is required in order to
+ * support platform-dependent features such as VoiceOver or Autofill (password autofill, one-time
+ * codes, etc.).
+ */
+internal expect fun Modifier.textFieldOverlay(
+    state: LegacyTextFieldState,
+    imeOptions: ImeOptions,
+    interactionSource: InteractionSource?,
+): Modifier

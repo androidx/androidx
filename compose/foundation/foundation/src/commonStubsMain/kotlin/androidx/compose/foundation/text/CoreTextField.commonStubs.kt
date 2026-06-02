@@ -17,8 +17,10 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.implementedInJetBrainsFork
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -34,4 +36,16 @@ internal actual fun Modifier.textFieldDraw(
     state: LegacyTextFieldState,
     value: TextFieldValue,
     offsetMapping: OffsetMapping,
+): Modifier = implementedInJetBrainsFork()
+
+/**
+ * A modifier that can be used to determine the location and state of the text field. It is used on
+ * multiplatform, where knowledge of the text field's state and location is required in order to
+ * support platform-dependent features such as VoiceOver or Autofill (password autofill, one-time
+ * codes, etc.).
+ */
+internal actual fun Modifier.textFieldOverlay(
+    state: LegacyTextFieldState,
+    imeOptions: ImeOptions,
+    interactionSource: InteractionSource?,
 ): Modifier = implementedInJetBrainsFork()

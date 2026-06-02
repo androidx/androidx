@@ -17,25 +17,8 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TextFieldValue
-
-internal actual fun Modifier.textFieldCursor(
-    state: LegacyTextFieldState,
-    value: TextFieldValue,
-    offsetMapping: OffsetMapping,
-    cursorBrush: Brush,
-    showCursor: Boolean,
-): Modifier = cursor(state, value, offsetMapping, cursorBrush, showCursor)
-
-internal actual fun Modifier.textFieldDraw(
-    state: LegacyTextFieldState,
-    value: TextFieldValue,
-    offsetMapping: OffsetMapping,
-): Modifier = defaultTextFieldDraw(state, value, offsetMapping)
 
 /**
  * A modifier that can be used to determine the location and state of the text field. It is used on
@@ -44,7 +27,7 @@ internal actual fun Modifier.textFieldDraw(
  * codes, etc.).
  */
 internal actual fun Modifier.textFieldOverlay(
-    state: LegacyTextFieldState,
-    imeOptions: ImeOptions,
-    interactionSource: InteractionSource?,
+    state: TextFieldState,
+    keyboardOptions: KeyboardOptions,
+    interactionSource: InteractionSource,
 ): Modifier = this
