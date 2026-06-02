@@ -65,6 +65,7 @@ androidXMultiplatform {
 
         androidDeviceTest.dependencies {
             implementation(project(":compose:test-utils"))
+            implementation(project(":appcompat:appcompat"))
             implementation(project(":internal-testutils-fonts"))
             implementation(project(":test:screenshot:screenshot"))
             implementation(project(":internal-testutils-runtime"))

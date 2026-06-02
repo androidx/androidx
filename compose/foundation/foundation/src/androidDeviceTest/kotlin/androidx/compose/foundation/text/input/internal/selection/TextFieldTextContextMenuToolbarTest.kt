@@ -50,6 +50,7 @@ import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.foundation.text.input.selectAll
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.isSelectionHandle
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,8 +67,10 @@ import androidx.compose.ui.platform.nativeClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
+import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
@@ -89,6 +92,8 @@ import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
@@ -96,6 +101,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest as coroutineRunTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -594,6 +600,21 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
         assertTextToolbarShown()
     }
 
+    @Ignore("b/520540939")
+    @Test
+    fun toolbar_showsLocalizedStrings_whenLocaleChanges() =
+        runTest(singleLine = true, overrideLocales = true) {
+            requestTextFieldFocus()
+            setSelectionViaSemanticsShowingToolbar(0 to 5)
+
+            assertTextToolbarHasItem(COPY)
+
+            localeList = LocaleList(Locale("es"))
+            rule.waitForIdle()
+
+            assertTextToolbarHasItem("Copiar")
+        }
+
     private fun runTest(
         textFieldState: TextFieldState = TextFieldState("Hello"),
         singleLine: Boolean = false,
@@ -601,6 +622,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
         clipboard: suspend () -> Clipboard = { FakeClipboard() },
         modifier: Modifier = Modifier,
         inputTransformation: InputTransformation? = null,
+        overrideLocales: Boolean = false,
         block: suspend TestScope.() -> Unit,
     ) = coroutineRunTest {
         TestScope(
@@ -610,6 +632,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
                 clipboard = clipboard(),
                 modifier = modifier,
                 filter = inputTransformation,
+                overrideLocales = overrideLocales,
             )
             .block()
     }
@@ -621,53 +644,64 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
         private val clipboard: Clipboard,
         private val modifier: Modifier,
         private val filter: InputTransformation?,
+        private val overrideLocales: Boolean,
     ) {
         var textFieldState by mutableStateOf(initialTextFieldState)
         var showTextField by mutableStateOf(true)
         var enabled by mutableStateOf(true)
+        var localeList by mutableStateOf(LocaleList(Locale("en")))
 
         val boxFocusRequester = FocusRequester()
 
         private lateinit var view: View
-        lateinit var spyTextActionModeCallback: SpyTextActionModeCallback
+        val spyTextActionModeCallback = SpyTextActionModeCallback()
 
         init {
             rule.setTextFieldTestContent {
                 view = LocalView.current
-                spyTextActionModeCallback = SpyTextActionModeCallback()
-                ProvidePlatformTextContextMenuToolbar(
-                    callbackInjector = { spyTextActionModeCallback.apply { delegate = it } }
-                ) {
-                    CompositionLocalProvider(LocalClipboard provides clipboard) {
-                        Column {
-                            Box(
-                                modifier =
-                                    Modifier.focusRequester(boxFocusRequester)
-                                        .focusable()
-                                        .size(100.dp)
-                            )
-                            if (showTextField) {
-                                BasicTextField(
-                                    state = textFieldState,
-                                    modifier = modifier.width(100.dp).testTag(TAG),
-                                    textStyle =
-                                        TextStyle(
-                                            fontFamily = TEST_FONT_FAMILY,
-                                            fontSize = fontSize,
-                                        ),
-                                    enabled = enabled,
-                                    lineLimits =
-                                        if (singleLine) {
-                                            TextFieldLineLimits.SingleLine
-                                        } else {
-                                            TextFieldLineLimits.Default
-                                        },
-                                    inputTransformation = filter,
-                                    readOnly = readOnly,
+                val content: @Composable () -> Unit = {
+                    ProvidePlatformTextContextMenuToolbar(
+                        callbackInjector = { spyTextActionModeCallback.apply { delegate = it } }
+                    ) {
+                        CompositionLocalProvider(LocalClipboard provides clipboard) {
+                            Column {
+                                Box(
+                                    modifier =
+                                        Modifier.focusRequester(boxFocusRequester)
+                                            .focusable()
+                                            .size(100.dp)
                                 )
+                                if (showTextField) {
+                                    BasicTextField(
+                                        state = textFieldState,
+                                        modifier = modifier.width(100.dp).testTag(TAG),
+                                        textStyle =
+                                            TextStyle(
+                                                fontFamily = TEST_FONT_FAMILY,
+                                                fontSize = fontSize,
+                                            ),
+                                        enabled = enabled,
+                                        lineLimits =
+                                            if (singleLine) {
+                                                TextFieldLineLimits.SingleLine
+                                            } else {
+                                                TextFieldLineLimits.Default
+                                            },
+                                        inputTransformation = filter,
+                                        readOnly = readOnly,
+                                    )
+                                }
                             }
                         }
                     }
+                }
+
+                if (overrideLocales) {
+                    DeviceConfigurationOverride(DeviceConfigurationOverride.Locales(localeList)) {
+                        content()
+                    }
+                } else {
+                    content()
                 }
             }
         }
