@@ -1,12 +1,18 @@
 ---
 name: ios-instrumented-tests
-description: This skill should be used when the user asks about "running iOS tests", "iOS instrumented tests", "how to run ios tests", "launch specific ios test" and these tests are located in the "compose/ui/ui/src/uikitInstrumentedTest" directory.
-version: 1.0.0
+description: This skill should be used when the user asks about "running iOS tests", "iOS instrumented tests", "how to run ios tests", "launch specific ios test", "add new ios instrumented test" and these tests are located in the "compose/ui/ui/src/uikitInstrumentedTest" directory.
+version: 1.0.1
 ---
 
 iOS Instrumented tests are designed to run XCTests written on Kotlin using the iOS Simulator as an environment.
 
-# iOS Instrumented Tests — Compose Multiplatform Core
+# Key Test Source Locations
+(from the repository root)
+`compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/Configuration.kt` - location of the configuration file which determines which tests to run.
+`compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/test` - Test environment and utilities to configure tests
+`testutils/testutils-xctest/` - Contains a Kotlin wrapper that allows converting Kotlin tests to XCTests as well as an Objective-C project that provides API for low-level touches and other input gesture simulation.
+
+# Running iOS Instrumented Tests
 
 Perform steps exactly in the following order:
 
@@ -32,8 +38,18 @@ cd compose/ui/ui/src/uikitInstrumentedTest/launcher
 xcodebuild test -scheme Launcher -project Launcher.xcodeproj -destination 'platform=iOS Simulator,id=<Simulator ID>'
 ```
 
-# Key Test Source Locations
-(from the repository root)
-`compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/Configuration.kt` - location of the configuration file which determines which tests to run.
-`compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/test` - Test environment and utilities to configure tests
-`testutils/testutils-xctest/` - Contains a Kotlin wrapper that allows converting Kotlin tests to XCTests as well as an Objective-C project that provides API for low-level touches and other input gesture simulation.
+# Creating iOS Instrumented Tests
+
+The main class that creates environment to run tests is `compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/test/UIKitInstrumentedTest.kt`
+
+When writing a new test or updating an existing one, prefer using the helpers from the following places:
+- `compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/test/AccessibilityTestNode.kt`
+- `compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/test/UIKitInstrumentedTest.kt`
+- `compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/test`
+
+In the test code avoid using the API from the "testutils-xctest" project directly.
+If there is no corresponding API wrapper in the `compose/ui/ui/src/uikitInstrumentedTest/kotlin/androidx/compose/ui/test`, add it.
+
+## When a test is created or updated
+
+After the test is created or updated, run it using the steps from the "Running iOS Instrumented Tests".
