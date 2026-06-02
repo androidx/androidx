@@ -114,8 +114,6 @@ public sealed interface RemotePaint {
     public var typeface: RemoteTypeface?
 
     /** The [FontVariation.Settings] to use for drawing text. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var fontVariationSettings: FontVariation.Settings?
 
     public companion object {

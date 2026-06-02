@@ -867,6 +867,7 @@ package androidx.compose.remote.creation.compose.state {
   public sealed nonexhaustive interface RemotePaint {
     method @BytecodeOnly public int getBlendMode-0nO6VwU();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getColor();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings? getFontVariationSettings();
     method @BytecodeOnly public int getStrokeCap-KaPHkGw();
     method @BytecodeOnly public int getStrokeJoin-LxFBmk8();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getStrokeWidth();
@@ -875,6 +876,7 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTypeface? getTypeface();
     method @BytecodeOnly public void setBlendMode-s9anfk8(int);
     method @InaccessibleFromKotlin public void setColor(androidx.compose.remote.creation.compose.state.RemoteColor);
+    method @InaccessibleFromKotlin public void setFontVariationSettings(androidx.compose.ui.text.font.FontVariation.Settings?);
     method @BytecodeOnly public void setStrokeCap-BeK7IIE(int);
     method @BytecodeOnly public void setStrokeJoin-Ww9F2mQ(int);
     method @InaccessibleFromKotlin public void setStrokeWidth(androidx.compose.remote.creation.compose.state.RemoteFloat);
@@ -883,6 +885,7 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public void setTypeface(androidx.compose.remote.creation.compose.text.RemoteTypeface?);
     property public abstract androidx.compose.ui.graphics.BlendMode blendMode;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteColor color;
+    property public abstract androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings;
     property public abstract androidx.compose.ui.graphics.StrokeCap strokeCap;
     property public abstract androidx.compose.ui.graphics.StrokeJoin strokeJoin;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat strokeWidth;
