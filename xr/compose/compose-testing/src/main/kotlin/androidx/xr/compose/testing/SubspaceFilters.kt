@@ -42,7 +42,7 @@ public fun hasContentDescription(
             "${SemanticsProperties.ContentDescription.name} contains '$value' " +
                 "(ignoreCase: $ignoreCase)"
         ) {
-            it.semanticsConfiguration.getOrNull(SemanticsProperties.ContentDescription)?.any { item
+            it.semanticsConfiguration?.getOrNull(SemanticsProperties.ContentDescription)?.any { item
                 ->
                 item.contains(value, ignoreCase)
             } ?: false
@@ -51,7 +51,7 @@ public fun hasContentDescription(
         SubspaceSemanticsMatcher(
             "${SemanticsProperties.ContentDescription.name} = '$value' (ignoreCase: $ignoreCase)"
         ) {
-            it.semanticsConfiguration.getOrNull(SemanticsProperties.ContentDescription)?.any { item
+            it.semanticsConfiguration?.getOrNull(SemanticsProperties.ContentDescription)?.any { item
                 ->
                 item.equals(value, ignoreCase)
             } ?: false

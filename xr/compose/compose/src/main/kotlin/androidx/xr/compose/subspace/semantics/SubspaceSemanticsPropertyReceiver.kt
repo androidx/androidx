@@ -48,6 +48,18 @@ public var SubspaceSemanticsPropertyReceiver.contentDescription: String
         this[SemanticsProperties.ContentDescription] = listOf(value)
     }
 
+/**
+ * Creates an internal implementation of [SubspaceSemanticsPropertyReceiver] that delegates property
+ * assignments to the provided [delegate] [SemanticsPropertyReceiver].
+ *
+ * @param delegate The underlying Compose UI [SemanticsPropertyReceiver] to store property key/value
+ *   pairs.
+ * @return A new instance of [SubspaceSemanticsPropertyReceiver].
+ */
+internal fun createSubspaceSemanticsPropertyReceiver(
+    delegate: SemanticsPropertyReceiver
+): SubspaceSemanticsPropertyReceiver = SubspaceSemanticsPropertyReceiverImpl(delegate)
+
 internal class SubspaceSemanticsPropertyReceiverImpl(
     private val delegate: SemanticsPropertyReceiver
 ) : SubspaceSemanticsPropertyReceiver {

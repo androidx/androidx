@@ -63,6 +63,7 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
+import androidx.xr.compose.subspace.semantics.contentDescription
 import androidx.xr.compose.subspace.semantics.semantics
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.common.AnotherActivity

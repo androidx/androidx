@@ -72,6 +72,20 @@ package androidx.xr.compose.testing {
 
   public final class SubspaceSemanticsMatcher {
     ctor public SubspaceSemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.node.SubspaceSemanticsInfo,java.lang.Boolean> matcher);
+    method public infix androidx.xr.compose.testing.SubspaceSemanticsMatcher and(androidx.xr.compose.testing.SubspaceSemanticsMatcher other);
+    method @InaccessibleFromKotlin public String getDescription();
+    method public boolean matches(androidx.xr.compose.subspace.node.SubspaceSemanticsInfo node);
+    method public boolean matchesAny(Iterable<? extends androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> nodes);
+    method public operator androidx.xr.compose.testing.SubspaceSemanticsMatcher not();
+    method public infix androidx.xr.compose.testing.SubspaceSemanticsMatcher or(androidx.xr.compose.testing.SubspaceSemanticsMatcher other);
+    property public String description;
+    field public static final androidx.xr.compose.testing.SubspaceSemanticsMatcher.Companion Companion;
+  }
+
+  public static final class SubspaceSemanticsMatcher.Companion {
+    method public <T> androidx.xr.compose.testing.SubspaceSemanticsMatcher expectValue(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T expectedValue);
+    method public <T> androidx.xr.compose.testing.SubspaceSemanticsMatcher keyIsDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method public <T> androidx.xr.compose.testing.SubspaceSemanticsMatcher keyNotDefined(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
   }
 
   public final class SubspaceSemanticsNodeInteraction {

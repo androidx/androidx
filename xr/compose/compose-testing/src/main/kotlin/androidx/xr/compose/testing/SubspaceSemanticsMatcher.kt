@@ -32,64 +32,133 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
  * @param matcher The predicate function that evaluates a given [SubspaceSemanticsInfo].
  * @sample androidx.xr.compose.testing.samples.subspacePanelRenderedAndInteractive
  * @sample androidx.xr.compose.testing.samples.subspaceNodeMatcherProperties
+ * @sample androidx.xr.compose.testing.samples.advancedSubspaceSemanticsMatchers
  */
 public class SubspaceSemanticsMatcher(
-    internal val description: String,
+    public val description: String,
     private val matcher: (SubspaceSemanticsInfo) -> Boolean,
 ) {
 
-    internal companion object {
+    public companion object {
         /**
          * Builds a predicate that tests whether the value of the given [key] is equal to
          * [expectedValue].
+         *
+         * **Nullability & Edge Cases:** If the [key] is not present in a node's semantics
+         * configuration, the comparison evaluates whether `null == expectedValue`. Therefore,
+         * passing `null` as the [expectedValue] successfully matches nodes where the key is
+         * entirely omitted, as well as nodes where the key is present but has a value of `null`.
+         *
+         * @param key The [SemanticsPropertyKey] to look up in the node's configuration.
+         * @param expectedValue The expected property value to verify against.
+         * @return A [SubspaceSemanticsMatcher] for the specified key-value condition.
+         * @sample androidx.xr.compose.testing.samples.advancedSubspaceSemanticsMatchers
          */
-        internal fun <T> expectValue(
+        public fun <T> expectValue(
             key: SemanticsPropertyKey<T>,
             expectedValue: T,
         ): SubspaceSemanticsMatcher {
             return SubspaceSemanticsMatcher("${key.name} = '$expectedValue'") {
-                it.semanticsConfiguration.getOrElseNullable(key) { null } == expectedValue
+                it.semanticsConfiguration?.getOrElseNullable(key) { null } == expectedValue
             }
         }
 
-        /** Builds a predicate that tests whether the given [key] is defined in semantics. */
-        internal fun <T> keyIsDefined(key: SemanticsPropertyKey<T>): SubspaceSemanticsMatcher {
+        /**
+         * Builds a predicate that tests whether the given [key] is defined in semantics.
+         *
+         * **Edge Cases:** This check simply verifies the pre-existence of the [key] mapping in the
+         * node's configuration regardless of its underlying assigned value.
+         *
+         * @param key The [SemanticsPropertyKey] to inspect.
+         * @return A [SubspaceSemanticsMatcher] verifying the presence of the key.
+         * @sample androidx.xr.compose.testing.samples.advancedSubspaceSemanticsMatchers
+         */
+        public fun <T> keyIsDefined(key: SemanticsPropertyKey<T>): SubspaceSemanticsMatcher {
             return SubspaceSemanticsMatcher("${key.name} is defined") {
-                key in it.semanticsConfiguration
+                it.semanticsConfiguration?.contains(key) ?: false
             }
         }
 
-        /** Builds a predicate that tests whether the given [key] is NOT defined in semantics. */
-        internal fun <T> keyNotDefined(key: SemanticsPropertyKey<T>): SubspaceSemanticsMatcher {
+        /**
+         * Builds a predicate that tests whether the given [key] is NOT defined in semantics.
+         *
+         * **Edge Cases:** This check validates that the [key] mapping is completely absent from the
+         * node's configuration.
+         *
+         * @param key The [SemanticsPropertyKey] to inspect.
+         * @return A [SubspaceSemanticsMatcher] verifying the absence of the key.
+         * @sample androidx.xr.compose.testing.samples.advancedSubspaceSemanticsMatchers
+         */
+        public fun <T> keyNotDefined(key: SemanticsPropertyKey<T>): SubspaceSemanticsMatcher {
             return SubspaceSemanticsMatcher("${key.name} is NOT defined") {
-                key !in it.semanticsConfiguration
+                it.semanticsConfiguration?.let { key !in it } ?: true
             }
         }
     }
 
-    /** Returns whether the given node is matched by this matcher. */
-    internal fun matches(node: SubspaceSemanticsInfo): Boolean {
+    /**
+     * Returns whether the given [node] is matched by this matcher.
+     *
+     * @param node The target [SubspaceSemanticsInfo] to evaluate.
+     * @return `true` if the [node] satisfies the predicate; `false` otherwise.
+     */
+    public fun matches(node: SubspaceSemanticsInfo): Boolean {
         return matcher(node)
     }
 
-    /** Returns whether at least one of the given nodes is matched by this matcher. */
-    internal fun matchesAny(nodes: Iterable<SubspaceSemanticsInfo>): Boolean {
+    /**
+     * Returns whether at least one of the given [nodes] is matched by this matcher.
+     *
+     * **Edge Cases:** If the provided [nodes] iterable is empty, this evaluation returns `false`.
+     *
+     * @param nodes An iterable collection of [SubspaceSemanticsInfo] instances to evaluate.
+     * @return `true` if at least one node satisfies the predicate; `false` otherwise.
+     */
+    public fun matchesAny(nodes: Iterable<SubspaceSemanticsInfo>): Boolean {
         return nodes.any(matcher)
     }
 
-    internal infix fun and(other: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
+    /**
+     * Combines this matcher with [other] using a short-circuiting logical AND.
+     *
+     * The resulting matcher evaluates to `true` only if both this and the [other] matcher succeed
+     * on a given node.
+     *
+     * @param other The second [SubspaceSemanticsMatcher] to satisfy.
+     * @return A combined [SubspaceSemanticsMatcher].
+     * @sample androidx.xr.compose.testing.samples.advancedSubspaceSemanticsMatchers
+     */
+    public infix fun and(other: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
         return SubspaceSemanticsMatcher("($description) && (${other.description})") {
             matcher(it) && other.matches(it)
         }
     }
 
-    internal infix fun or(other: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
+    /**
+     * Combines this matcher with [other] using a short-circuiting logical OR.
+     *
+     * The resulting matcher evaluates to `true` if either this or the [other] matcher succeeds on a
+     * given node.
+     *
+     * @param other The alternative [SubspaceSemanticsMatcher] to satisfy.
+     * @return A combined [SubspaceSemanticsMatcher].
+     * @sample androidx.xr.compose.testing.samples.advancedSubspaceSemanticsMatchers
+     */
+    public infix fun or(other: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
         return SubspaceSemanticsMatcher("($description) || (${other.description})") {
             matcher(it) || other.matches(it)
         }
     }
 
-    internal operator fun not(): SubspaceSemanticsMatcher {
+    /**
+     * Inverts the evaluation logic of this matcher using a logical NOT.
+     *
+     * Evaluates to `true` if the underlying matcher evaluates to `false`.
+     *
+     * @return A negated [SubspaceSemanticsMatcher].
+     * @sample androidx.xr.compose.testing.samples.advancedSubspaceSemanticsMatchers
+     */
+    public operator fun not(): SubspaceSemanticsMatcher {
         return SubspaceSemanticsMatcher("NOT ($description)") { !matcher(it) }
     }
 }

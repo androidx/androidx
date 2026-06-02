@@ -17,6 +17,7 @@
 package androidx.xr.compose.subspace.node
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.platform.AndroidComposeSpatialElement
@@ -38,6 +39,7 @@ import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.scenecore.Entity
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -264,5 +266,41 @@ class SubspaceLayoutNodeTest {
         node.measurableLayout.measure(constraints = VolumeConstraints())
 
         assertThat(remeasuredSize).isEqualTo(IntVolumeSize(10, 20, 30))
+    }
+
+    @Test
+    fun modifier_updateWithSameTag_preservesSemanticsCache() {
+        val owner = createOwner()
+        val node = SubspaceLayoutNode()
+        owner.root.insertAt(0, node)
+        node.modifier = SubspaceModifier.testTag("tagA")
+
+        val cachedConfig1 = assertNotNull(node.measurableLayout.semanticsConfiguration)
+
+        assertThat(cachedConfig1[SemanticsProperties.TestTag]).isEqualTo("tagA")
+
+        // Reassigning a new modifier element with the exact same tag value.
+        node.modifier = SubspaceModifier.testTag("tagA")
+        val cachedConfig2 = node.measurableLayout.semanticsConfiguration
+
+        assertThat(cachedConfig1).isEqualTo(cachedConfig2)
+    }
+
+    @Test
+    fun modifier_updateWithDifferentTag_invalidatesSemanticsCache() {
+        val owner = createOwner()
+        val node = SubspaceLayoutNode()
+        owner.root.insertAt(0, node)
+        node.modifier = SubspaceModifier.testTag("tagA")
+
+        val cachedConfig1 = assertNotNull(node.measurableLayout.semanticsConfiguration)
+
+        assertThat(cachedConfig1[SemanticsProperties.TestTag]).isEqualTo("tagA")
+
+        // Reassigning a new modifier element with a different tag value.
+        node.modifier = SubspaceModifier.testTag("tagB")
+        val cachedConfig2 = assertNotNull(node.measurableLayout.semanticsConfiguration)
+
+        assertThat(cachedConfig2[SemanticsProperties.TestTag]).isEqualTo("tagB")
     }
 }

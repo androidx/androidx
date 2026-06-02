@@ -19,6 +19,7 @@ package androidx.xr.compose.testing.samples
 import androidx.annotation.Sampled
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -28,9 +29,11 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
+import androidx.xr.compose.testing.SubspaceSemanticsMatcher
 import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
+import androidx.xr.compose.testing.onSubspaceNode
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 
 @Sampled
@@ -75,4 +78,19 @@ public fun subspaceNodeMatcherProperties() {
         .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
         .assertWidthIsEqualTo(100.toDp())
         .assertHeightIsEqualTo(100.toDp())
+}
+
+@Sampled
+public fun advancedSubspaceSemanticsMatchers() {
+    // Construct custom semantics matchers using factory methods
+    val hasTestTag =
+        SubspaceSemanticsMatcher.expectValue(SemanticsProperties.TestTag, "customPanel")
+    val hasContentDescription =
+        SubspaceSemanticsMatcher.keyIsDefined(SemanticsProperties.ContentDescription)
+
+    // Combine matchers using infix functions and logical operators
+    val complexMatcher = hasTestTag and hasContentDescription
+
+    // Use the combined matcher to locate and assert existence of the spatial node
+    composeTestRule.onSubspaceNode(complexMatcher).assertExists()
 }

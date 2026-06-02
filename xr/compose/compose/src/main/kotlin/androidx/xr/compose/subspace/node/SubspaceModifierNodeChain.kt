@@ -309,6 +309,10 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
                 )
             }
         }
+
+        if (SubspaceNodes.Semantics in selfKindSet) {
+            subspaceLayoutNode.measurableLayout.invalidateSemantics()
+        }
     }
 
     private fun syncAggregateChildKindSet() {

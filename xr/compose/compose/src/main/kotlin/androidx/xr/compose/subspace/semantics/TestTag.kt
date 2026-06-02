@@ -16,8 +16,6 @@
 
 package androidx.xr.compose.subspace.semantics
 
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.testTag
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
@@ -25,7 +23,8 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
 /**
  * Applies a tag to allow modified element to be found in tests.
  *
- * This is a convenience method for a [semantics] that sets [SemanticsPropertyReceiver.testTag].
+ * This is a convenience method for a [semantics] that sets
+ * [SubspaceSemanticsPropertyReceiver.testTag].
  *
  * @param tag String used to identify the modified element in tests.
  */
@@ -53,7 +52,7 @@ private class TestTagElement(private val tag: String) : SubspaceModifierNodeElem
 
 private class TestTagNode(public var tag: String) :
     SubspaceModifier.Node(), SubspaceSemanticsModifierNode {
-    override fun SemanticsPropertyReceiver.applySemantics() {
+    override fun SubspaceSemanticsPropertyReceiver.applySemantics() {
         testTag = tag
     }
 }
