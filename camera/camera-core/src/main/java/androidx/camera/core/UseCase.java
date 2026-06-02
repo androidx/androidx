@@ -26,7 +26,9 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELE
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+import static androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
@@ -263,6 +265,15 @@ public abstract class UseCase {
             if (resolutionSelector.getResolutionStrategy() != null) {
                 mergedConfig.removeOption(OPTION_MAX_RESOLUTION);
             }
+        }
+
+        // Removes the default max resolution setting if session type is high speed. The resolution
+        // limit for high-speed sessions is only subject to specific camera2 APIs.
+        if (mergedConfig.containsOption(OPTION_MAX_RESOLUTION)
+                && mergedConfig.containsOption(OPTION_SESSION_TYPE)
+                && Objects.equals(mergedConfig.retrieveOption(OPTION_SESSION_TYPE),
+                SESSION_TYPE_HIGH_SPEED)) {
+            mergedConfig.removeOption(OPTION_MAX_RESOLUTION);
         }
 
         // If any options need special handling, this is the place to do it. For now we'll just copy
