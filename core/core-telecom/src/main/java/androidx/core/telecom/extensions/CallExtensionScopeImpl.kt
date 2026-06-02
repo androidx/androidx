@@ -504,7 +504,7 @@ internal class CallExtensionScopeImpl(
             )
             val capability =
                 extensions.voipCapabilities.firstOrNull {
-                    it.featureId == remoteExtensionImpl.extensionCapability.featureId
+                    it?.featureId == remoteExtensionImpl.extensionCapability.featureId
                 }
             if (capability == null) {
                 Log.d(TAG, "initializeExtensions: no VOIP capability, skipping...")
