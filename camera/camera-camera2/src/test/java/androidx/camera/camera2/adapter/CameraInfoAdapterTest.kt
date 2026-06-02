@@ -43,6 +43,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
@@ -86,7 +87,7 @@ class CameraInfoAdapterTest {
     val dispatcherRule = MainDispatcherRule(MoreExecutors.directExecutor().asCoroutineDispatcher())
 
     private val defaultCameraId = "0"
-    private val defaultCameraCharacteristics =
+    private val defaultCameraCharacteristics: Map<CameraCharacteristics.Key<*>, Any?> =
         mapOf(
             CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
             CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(1.0f),
@@ -96,18 +97,24 @@ class CameraInfoAdapterTest {
             CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to SizeF(10f, 10f),
         )
     private val defaultCameraProperties =
-        FakeCameraProperties(FakeCameraMetadata(characteristics = defaultCameraCharacteristics))
+        FakeCameraProperties(
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides = defaultCameraCharacteristics,
+            )
+        )
 
     private val telephotoCameraId = "2"
 
     // Only SENSOR_INFO_PHYSICAL_SIZE has been made less wider and everything else kept the same
     private val telephotoCameraProperties =
         FakeCameraProperties(
-            FakeCameraMetadata(
-                characteristics =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides =
                     defaultCameraCharacteristics.toMutableMap().apply {
                         put(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, SizeF(1f, 10f))
-                    }
+                    },
             )
         )
 
@@ -116,11 +123,12 @@ class CameraInfoAdapterTest {
     // Only SENSOR_INFO_PHYSICAL_SIZE has been made wider and everything else kept the same
     private val ultraWideCameraProperties =
         FakeCameraProperties(
-            FakeCameraMetadata(
-                characteristics =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides =
                     defaultCameraCharacteristics.toMutableMap().apply {
                         put(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, SizeF(100f, 10f))
-                    }
+                    },
             )
         )
 
@@ -205,12 +213,13 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
                                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-                                )
+                                ),
                         )
                     )
             )
@@ -224,13 +233,7 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
-                                mapOf(
-                                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
-                                )
-                        )
+                        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate)
                     )
             )
         assertThat(cameraInfo.implementationType).isEqualTo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2)
@@ -242,8 +245,9 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
@@ -252,7 +256,7 @@ class CameraInfoAdapterTest {
                                             CONTROL_VIDEO_STABILIZATION_MODE_ON,
                                             CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION,
                                         )
-                                )
+                                ),
                         )
                     )
             )
@@ -272,8 +276,9 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
@@ -281,7 +286,7 @@ class CameraInfoAdapterTest {
                                             CONTROL_VIDEO_STABILIZATION_MODE_OFF,
                                             CONTROL_VIDEO_STABILIZATION_MODE_ON,
                                         )
-                                )
+                                ),
                         )
                     )
             )
@@ -295,8 +300,9 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
@@ -304,7 +310,7 @@ class CameraInfoAdapterTest {
                                             CONTROL_VIDEO_STABILIZATION_MODE_OFF,
                                             CONTROL_VIDEO_STABILIZATION_MODE_ON,
                                         )
-                                )
+                                ),
                         )
                     )
             )
@@ -318,13 +324,14 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
                                         intArrayOf(CONTROL_VIDEO_STABILIZATION_MODE_OFF)
-                                )
+                                ),
                         )
                     )
             )
@@ -340,13 +347,14 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
                                         HLG10_UNCONSTRAINED
-                                )
+                                ),
                         )
                     )
             )
@@ -377,13 +385,14 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
                                         DOLBY_VISION_10B_UNCONSTRAINED
-                                )
+                                ),
                         )
                     )
             )
@@ -404,13 +413,14 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
                                         HLG10_UNCONSTRAINED
-                                )
+                                ),
                         )
                     )
             )
@@ -428,13 +438,14 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
                                         HLG10_UNCONSTRAINED
-                                )
+                                ),
                         )
                     )
             )
@@ -553,11 +564,12 @@ class CameraInfoAdapterTest {
     fun intrinsicZoomRatioIsUnknown_whenNoLensFacingInfo() {
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata(
-                    characteristics =
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    characteristicsOverrides =
                         defaultCameraCharacteristics.toMutableMap().apply {
-                            remove(CameraCharacteristics.LENS_FACING)
-                        }
+                            put(CameraCharacteristics.LENS_FACING, null)
+                        },
                 )
             )
         val cameraInfo: CameraInfoInternal =
@@ -583,11 +595,12 @@ class CameraInfoAdapterTest {
     fun intrinsicZoomRatioIsUnknown_whenNoLensFocalLengthInfo() {
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata(
-                    characteristics =
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    characteristicsOverrides =
                         defaultCameraCharacteristics.toMutableMap().apply {
-                            remove(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-                        }
+                            put(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS, null)
+                        },
                 )
             )
         val cameraInfo: CameraInfoInternal =
@@ -613,11 +626,12 @@ class CameraInfoAdapterTest {
     fun intrinsicZoomRatioIsUnknown_whenNoSensorOrientationInfo() {
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata(
-                    characteristics =
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    characteristicsOverrides =
                         defaultCameraCharacteristics.toMutableMap().apply {
-                            remove(CameraCharacteristics.SENSOR_ORIENTATION)
-                        }
+                            put(CameraCharacteristics.SENSOR_ORIENTATION, null)
+                        },
                 )
             )
         val cameraInfo: CameraInfoInternal =
@@ -643,11 +657,12 @@ class CameraInfoAdapterTest {
     fun intrinsicZoomRatioIsUnknown_whenNoSensorPixelArraySizeInfo() {
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata(
-                    characteristics =
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    characteristicsOverrides =
                         defaultCameraCharacteristics.toMutableMap().apply {
-                            remove(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
-                        }
+                            put(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE, null)
+                        },
                 )
             )
         val cameraInfo: CameraInfoInternal =
@@ -673,11 +688,12 @@ class CameraInfoAdapterTest {
     fun intrinsicZoomRatioIsUnknown_whenNoSensorActiveArraySizeInfo() {
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata(
-                    characteristics =
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    characteristicsOverrides =
                         defaultCameraCharacteristics.toMutableMap().apply {
-                            remove(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
-                        }
+                            put(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE, null)
+                        },
                 )
             )
         val cameraInfo: CameraInfoInternal =
@@ -703,11 +719,12 @@ class CameraInfoAdapterTest {
     fun intrinsicZoomRatioIsUnknown_whenNoSensorPhysicalSizeInfo() {
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata(
-                    characteristics =
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    characteristicsOverrides =
                         defaultCameraCharacteristics.toMutableMap().apply {
-                            remove(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
-                        }
+                            put(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, null)
+                        },
                 )
             )
         val cameraInfo: CameraInfoInternal =
@@ -741,8 +758,8 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics = mapOf(),
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
                             extensionMetadata =
                                 extensions.associateWith {
                                     FakeCameraExtensionMetadata(
@@ -765,8 +782,8 @@ class CameraInfoAdapterTest {
             createCameraInfoAdapter(
                 cameraProperties =
                     FakeCameraProperties(
-                        FakeCameraMetadata(
-                            characteristics = mapOf(),
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
                             extensionMetadata =
                                 extensions.associateWith {
                                     FakeCameraExtensionMetadata(
@@ -809,14 +826,15 @@ class CameraInfoAdapterTest {
                 cameraProperties =
                     CameraPipeCameraProperties(
                         CameraConfig(CameraId(defaultCameraId)),
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
                                         intArrayOf(
                                             CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
                                         )
-                                )
+                                ),
                         ),
                     )
             )
@@ -832,12 +850,13 @@ class CameraInfoAdapterTest {
                 cameraProperties =
                     CameraPipeCameraProperties(
                         CameraConfig(CameraId(defaultCameraId)),
-                        FakeCameraMetadata(
-                            characteristics =
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
                                         intArrayOf(CONTROL_AE_MODE_OFF)
-                                )
+                                ),
                         ),
                     )
             )

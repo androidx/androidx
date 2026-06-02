@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import com.google.common.truth.Truth.assertThat
@@ -52,7 +53,15 @@ class ZoomCompatTest {
 
     @Test
     fun canProvideZoomCompat_whenGettingActiveArraySizeReturnsNull() {
-        assertThat(ZoomCompat.Bindings.provideZoomCompat(FakeCameraProperties()))
+        val fakeCameraProperties =
+            FakeCameraProperties(
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to null),
+                )
+            )
+        assertThat(ZoomCompat.Bindings.provideZoomCompat(fakeCameraProperties))
             .isInstanceOf(NoOpZoomCompat::class.java)
     }
 
@@ -61,9 +70,10 @@ class ZoomCompatTest {
     fun reset_CropRegionZoomCompat_removeParameters() {
         val fakeRequestControl = FakeUseCaseCameraRequestControl()
         val fakeCameraMetadata =
-            FakeCameraMetadata(
-                characteristics =
-                    mapOf(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 10, 10))
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 10, 10)),
             )
         val zoomCompat = CropRegionZoomCompat(FakeCameraProperties(fakeCameraMetadata))
         zoomCompat.resetAsync(fakeRequestControl)
@@ -155,7 +165,6 @@ class ZoomCompatTest {
             }
 
             override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
-                println("throwingCameraMetadata get: key = $key")
                 if (
                     Build.VERSION.SDK_INT >= 30 &&
                         key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
