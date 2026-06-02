@@ -44,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -51,7 +52,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.scale
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.spatial.NotFound
@@ -701,7 +701,7 @@ class RectListIntegrationTest {
             }
         }
 
-        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 40.dp, 40.dp)
+        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 30.dp, 30.dp)
         rule.onNodeWithTag("inner").assertRectDp(5.dp, 5.dp, 25.dp, 25.dp)
     }
 

@@ -34,6 +34,7 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -55,6 +56,7 @@ import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -4309,8 +4311,6 @@ fun androidx.test.rule.ActivityTestRule<*>.waitAndScreenShot(
     return dest
 }
 
-fun Modifier.background(color: Color) = drawBehind { drawRect(color) }
-
 fun Modifier.background(model: SquareModel, isInner: Boolean) = drawBehind {
     drawRect(if (isInner) model.innerColor else model.outerColor)
 }
@@ -4332,32 +4332,6 @@ class LayoutAndDrawModifier(val color: Color) : LayoutModifier, DrawModifier {
 
     override fun ContentDrawScope.draw() {
         drawRect(color)
-    }
-}
-
-fun Modifier.scale(scale: Float) =
-    then(LayoutScale(scale)).graphicsLayer(scaleX = scale, scaleY = scale)
-
-class LayoutScale(val scale: Float) : LayoutModifier {
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureResult {
-        val placeable =
-            measurable.measure(
-                Constraints(
-                    minWidth = (constraints.minWidth / scale).roundToInt(),
-                    minHeight = (constraints.minHeight / scale).roundToInt(),
-                    maxWidth = (constraints.maxWidth / scale).roundToInt(),
-                    maxHeight = (constraints.maxHeight / scale).roundToInt(),
-                )
-            )
-        return layout(
-            (placeable.width * scale).roundToInt(),
-            (placeable.height * scale).roundToInt(),
-        ) {
-            placeable.placeRelative(0, 0)
-        }
     }
 }
 
