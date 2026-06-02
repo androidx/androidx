@@ -87,19 +87,20 @@ class CpuEventCounterBenchmark {
     @Test
     fun perIterationCost() =
         CpuEventCounter().use { counter ->
-            counter.resetEvents(
+            val events =
                 listOf(
                     CpuEventCounter.Event.CpuCycles,
                     CpuEventCounter.Event.L1IMisses,
                     CpuEventCounter.Event.Instructions,
                 )
-            )
+            counter.resetEvents(events)
             var out = 0L
             benchmarkRule.measureRepeated {
                 counter.reset()
                 counter.start()
                 counter.stop()
                 counter.read(values)
+                counter.validateValues(values, events)?.let { throw it }
                 out += values.getValue(CpuEventCounter.Event.CpuCycles)
                 out += values.getValue(CpuEventCounter.Event.L1IMisses)
                 out += values.getValue(CpuEventCounter.Event.Instructions)

@@ -35,8 +35,9 @@ constructor(
             listOf(
                 TimeCapture(),
                 CpuEventCounterCapture(
-                    MicrobenchmarkPhase.cpuEventCounter,
-                    Arguments.cpuEventCounterMask,
+                    cpuEventCounter = MicrobenchmarkPhase.cpuEventCounter,
+                    mask = Arguments.cpuEventCounterMask,
+                    validateMeasurements = true,
                 ),
             )
         } else {

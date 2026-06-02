@@ -139,11 +139,17 @@ internal class AllocationCountCapture : MetricCapture(names = listOf("allocation
 internal class CpuEventCounterCapture(
     private val cpuEventCounter: CpuEventCounter,
     private val events: List<CpuEventCounter.Event>,
+    private val validateMeasurements: Boolean = true,
 ) : MetricCapture(events.map { it.outputName }) {
     constructor(
         cpuEventCounter: CpuEventCounter,
         mask: Int,
-    ) : this(cpuEventCounter, CpuEventCounter.Event.values().filter { it.flag.and(mask) != 0 })
+        validateMeasurements: Boolean = true,
+    ) : this(
+        cpuEventCounter,
+        CpuEventCounter.Event.values().filter { it.flag.and(mask) != 0 },
+        validateMeasurements,
+    )
 
     private val values = CpuEventCounter.Values()
     private val flags = events.getFlags()
@@ -157,6 +163,9 @@ internal class CpuEventCounterCapture(
     override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
         cpuEventCounter.stop()
         cpuEventCounter.read(values)
+        if (validateMeasurements) {
+            cpuEventCounter.validateValues(values, events)?.let { throw it }
+        }
         events.forEachIndexed { index, event -> output[offset + index] = values.getValue(event) }
     }
 

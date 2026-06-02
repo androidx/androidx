@@ -100,8 +100,9 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
                         arrayOf(
                             TimeCapture(),
                             CpuEventCounterCapture(
-                                MicrobenchmarkPhase.cpuEventCounter,
-                                Arguments.cpuEventCounterMask,
+                                cpuEventCounter = MicrobenchmarkPhase.cpuEventCounter,
+                                mask = Arguments.cpuEventCounterMask,
+                                validateMeasurements = true,
                             ),
                         )
                     } else {

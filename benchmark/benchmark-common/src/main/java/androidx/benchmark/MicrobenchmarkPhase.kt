@@ -244,7 +244,14 @@ internal class MicrobenchmarkPhase(
                     if (collectCpuEventInstructions) {
                         arrayOf(
                             TimeCapture(),
-                            CpuEventCounterCapture(cpuEventCounter, listOf(Event.Instructions)),
+                            CpuEventCounterCapture(
+                                cpuEventCounter = cpuEventCounter,
+                                events = listOf(Event.Instructions),
+                                // Disables validation checks during warmup as extremely short runs
+                                // or framework estimation loops may naturally record 0
+                                // instructions.
+                                validateMeasurements = false,
+                            ),
                         )
                     } else {
                         arrayOf(TimeCapture())
