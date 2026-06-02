@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.state
 
@@ -32,7 +31,6 @@ import kotlin.enums.enumEntries
  *
  * [RemoteInt] internally stores its state as a [RemoteInt], using the Enum ordinal.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteEnum<T : Enum<T>>(
     internal val intValue: RemoteInt,
     internal val enumEntries: EnumEntries<T>,
@@ -140,7 +138,6 @@ public open class RemoteEnum<T : Enum<T>>(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
          * Creates a [RemoteEnum] from a literal constant.
@@ -187,11 +184,10 @@ public open class RemoteEnum<T : Enum<T>>(
 }
 
 /** A mutable implementation of [RemoteEnum]. */
+public class MutableRemoteEnum<T : Enum<T>>
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MutableRemoteEnum<T : Enum<T>>(
-    public val remoteInt: MutableRemoteInt,
-    enumEntries: EnumEntries<T>,
-) : RemoteEnum<T>(remoteInt, enumEntries), MutableRemoteState<T> {
+public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntries<T>) :
+    RemoteEnum<T>(remoteInt, enumEntries), MutableRemoteState<T> {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val asEncodedMutable: MutableRemoteInt

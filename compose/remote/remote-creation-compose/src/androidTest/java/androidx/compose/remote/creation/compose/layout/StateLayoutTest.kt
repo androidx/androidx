@@ -125,7 +125,7 @@ class StateLayoutTest {
         content: @Composable @RemoteComposable (LayoutState) -> Unit,
     ) {
         RemoteStateLayout(
-            state = currentState,
+            currentState = currentState,
             modifier = RemoteModifier.fillMaxSize().background(Color.LightGray.rc),
         ) { layoutState ->
             RemoteColumn(

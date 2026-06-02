@@ -131,7 +131,8 @@ fun SwitchWidget(value: MutableRemoteEnum<SwitchState>) {
         contentAlignment = RemoteAlignment.CenterStart,
     ) {
         val modifierSize = RemoteModifier.size(60.rdp, 36.rdp)
-        RemoteStateLayout(modifier = RemoteModifier.wrapContentSize(), state = value) { state ->
+        RemoteStateLayout(modifier = RemoteModifier.wrapContentSize(), currentState = value) { state
+            ->
             RemoteBox {
                 when (state) {
                     Off -> SwitchWidgetOffState(modifier = modifierSize)

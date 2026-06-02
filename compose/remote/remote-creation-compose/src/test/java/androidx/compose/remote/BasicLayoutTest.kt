@@ -639,8 +639,10 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             ) {
                 val checked = rememberMutableRemoteEnum<Checked>(Checked.Off)
 
-                RemoteStateLayout(state = checked, modifier = RemoteModifier.fillMaxSize()) { state
-                    ->
+                RemoteStateLayout(
+                    currentState = checked,
+                    modifier = RemoteModifier.fillMaxSize(),
+                ) { state ->
                     when (state) {
                         Checked.Off ->
                             RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red))
@@ -689,8 +691,10 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             ) {
                 val checked = rememberMutableRemoteEnum(Checked.On)
 
-                RemoteStateLayout(state = checked, modifier = RemoteModifier.fillMaxSize()) { state
-                    ->
+                RemoteStateLayout(
+                    currentState = checked,
+                    modifier = RemoteModifier.fillMaxSize(),
+                ) { state ->
                     when (state) {
                         Checked.Off ->
                             RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red))
@@ -741,7 +745,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 val checked = rememberMutableRemoteEnum(Checked.On).withGlobalScope()
 
                 RemoteStateLayout(
-                    state = checked,
+                    currentState = checked,
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .onTouchDown(valueChange(checked, RemoteEnum(Checked.Off)))

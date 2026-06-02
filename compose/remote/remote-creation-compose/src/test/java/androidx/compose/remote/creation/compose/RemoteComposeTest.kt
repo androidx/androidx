@@ -164,7 +164,9 @@ class RemoteComposeTest {
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 val checked = rememberMutableRemoteEnum(ToggleState.On)
-                RemoteStateLayout(state = checked) { state -> RemoteText(text = "State $state".rs) }
+                RemoteStateLayout(currentState = checked) { state ->
+                    RemoteText(text = "State $state".rs)
+                }
             }
 
         assertNotNull(document)

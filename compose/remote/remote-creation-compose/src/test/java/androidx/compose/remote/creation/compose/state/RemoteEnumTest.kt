@@ -61,6 +61,20 @@ class RemoteEnumTest {
     }
 
     @Test
+    fun toRemoteInt() {
+        val b0 = RemoteEnum(Checked.Off)
+        val b1 = RemoteEnum(Checked.On)
+        val i0 = b0.toRemoteInt { 10.ri }
+        val i1 = b1.toRemoteInt { 20.ri }
+        val i0Id = i0.getIdForCreationState(creationState)
+        val i1Id = i1.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(i0Id)).isEqualTo(10)
+        assertThat(context.getInteger(i1Id)).isEqualTo(20)
+    }
+
+    @Test
     fun toRemoteString() {
         val b0 = RemoteEnum(Checked.Off)
         val b1 = RemoteEnum(Checked.On)
