@@ -161,7 +161,7 @@ class ComposeLayoutInspector(
     override fun onDispose() {
         disposed = true
         recompositionHandler.dispose()
-        cachedNodes.clear()
+        _cachedNodes.clear()
     }
 
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
