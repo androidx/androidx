@@ -139,7 +139,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertNotEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -5232,7 +5231,6 @@ class SharedTransitionTest {
         assertEquals(false, scope?.isTransitionActive)
     }
 
-    @Ignore("b/501503494")
     @Test
     fun testDetachingSharedElementAndReattachingInNewPositionBeforeAnimating() {
         var showMatch by mutableStateOf(false)
