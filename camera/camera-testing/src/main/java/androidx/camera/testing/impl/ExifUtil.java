@@ -99,7 +99,8 @@ public class ExifUtil {
         if (image.getFormat() == ImageFormat.JPEG) {
             ImageProxy.PlaneProxy[] planes = image.getPlanes();
             ByteBuffer buffer = planes[0].getBuffer();
-            byte[] data = new byte[buffer.capacity()];
+            buffer.rewind();
+            byte[] data = new byte[buffer.remaining()];
             buffer.get(data);
             try {
                 return Exif.createFromInputStream(new ByteArrayInputStream(data));

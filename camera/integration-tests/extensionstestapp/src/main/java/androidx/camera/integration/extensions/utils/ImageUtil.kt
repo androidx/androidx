@@ -35,8 +35,8 @@ object ImageUtil {
         }
         val planes = image.planes
         val buffer = planes[0].buffer
-        val data = ByteArray(buffer.capacity())
         buffer.rewind()
+        val data = ByteArray(buffer.remaining())
         buffer[data]
         return data
     }

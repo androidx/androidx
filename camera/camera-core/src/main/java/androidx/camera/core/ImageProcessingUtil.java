@@ -436,7 +436,7 @@ public final class ImageProcessingUtil {
                 (rotationDegrees % 180 == 0) ? imageProxy.getHeight() : imageProxy.getWidth();
 
         ByteBuffer position1ChildByteBuffer = nativeNewDirectByteBuffer(
-                nv21UVDelegatedBuffer, 1, nv21UVDelegatedBuffer.capacity());
+                nv21UVDelegatedBuffer, 1, nv21UVDelegatedBuffer.limit() - 1);
 
         int result = nativeRotateYUV(
                 imageProxy.getPlanes()[0].getBuffer(),
