@@ -59,9 +59,9 @@ public object RemoteTimeDefaults {
         val hours24String: RemoteString = RemoteFloat(FLOAT_TIME_IN_HR).toRemoteString(twoDigits)
         val currentHour = RemoteFloat(FLOAT_TIME_IN_HR)
         val hour12: RemoteFloat =
-            ((currentHour % 12f).eq(0.rf)).select(RemoteFloat(12f), currentHour % 12f)
+            ((currentHour % 12f).isEqualTo(0.rf)).select(RemoteFloat(12f), currentHour % 12f)
         val hours12String: RemoteString = hour12.toRemoteString(twoDigits)
-        val amPm: RemoteString = (currentHour.lt(12.rf)).select(" AM".rs, " PM".rs)
+        val amPm: RemoteString = (currentHour.isLessThan(12.rf)).select(" AM".rs, " PM".rs)
 
         val time24 = hours24String + ":" + mins
         val time12 = hours12String + ":" + mins + amPm

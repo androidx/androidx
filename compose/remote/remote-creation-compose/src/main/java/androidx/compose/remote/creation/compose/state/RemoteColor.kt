@@ -641,7 +641,7 @@ private fun compositeComponent(
     bgA: RemoteFloat,
     a: RemoteFloat,
 ): RemoteFloat {
-    val isZero = a eq 0.rf
+    val isZero = a.isEqualTo(0.rf)
     val numerator = (fgC * fgA) + ((bgC * bgA) * (1.rf - fgA))
     return isZero.select(ifTrue = 0.rf, ifFalse = numerator / a)
 }

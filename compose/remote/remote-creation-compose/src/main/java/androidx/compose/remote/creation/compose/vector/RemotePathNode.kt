@@ -434,8 +434,8 @@ internal fun Char.addPathNodes(
                     horizontalEllipseRadius = array[start],
                     verticalEllipseRadius = array[start + 1],
                     theta = array[start + 2],
-                    isMoreThanHalf = array[start + 3].ne(0.0f.rf),
-                    isPositiveArc = array[start + 4].ne(0.0f.rf),
+                    isMoreThanHalf = array[start + 3].isNotEqualTo(0.0f.rf),
+                    isPositiveArc = array[start + 4].isNotEqualTo(0.0f.rf),
                     arcStartDx = array[start + 5],
                     arcStartDy = array[start + 6],
                 )
@@ -446,8 +446,8 @@ internal fun Char.addPathNodes(
                     horizontalEllipseRadius = array[start],
                     verticalEllipseRadius = array[start + 1],
                     theta = array[start + 2],
-                    isMoreThanHalf = array[start + 3].ne(0.0f.rf),
-                    isPositiveArc = array[start + 4].ne(0.0f.rf),
+                    isMoreThanHalf = array[start + 3].isNotEqualTo(0.0f.rf),
+                    isPositiveArc = array[start + 4].isNotEqualTo(0.0f.rf),
                     arcStartX = array[start + 5],
                     arcStartY = array[start + 6],
                 )
