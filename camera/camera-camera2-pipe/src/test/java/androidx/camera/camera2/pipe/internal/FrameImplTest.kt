@@ -723,6 +723,33 @@ class FrameImplTest {
             .isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
     }
 
+    @Test
+    fun internalAndExternalForksKeepImagesAlive() {
+        // Fork one of each type
+        val externalFrame = sharedOutputFrame.tryAcquire()!!
+        val internalFrame = sharedOutputFrame.tryAcquireForInternalUse(streamFilter = null)!!
+
+        distributeAllOutputs()
+
+        // Close the base frame
+        sharedOutputFrame.close()
+
+        // Image is alive because both forks are holding references
+        assertThat(stream1Image.isClosed).isFalse()
+
+        // Close the external frame
+        externalFrame.close()
+
+        // Image is STILL alive because the internal fork is holding it
+        assertThat(stream1Image.isClosed).isFalse()
+
+        // Close the final internal frame
+        internalFrame.close()
+
+        // Now the base image is finally closed
+        assertThat(stream1Image.isClosed).isTrue()
+    }
+
     @After
     fun cleanup() {
         fakeSurfaces.close()
