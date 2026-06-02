@@ -44,15 +44,17 @@ import kotlinx.coroutines.launch
  */
 public abstract class GlanceWearWidgetService : LifecycleService() {
 
+    // Restrict lifecycle methods from being overridden since clients shouldn't rely on the
+    // lifecycle of the service. If this is changed in the future, the lifecycle methods should be
+    // annotated with @CallSuper.
     @SuppressLint("RestrictedApiAndroidX")
     @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
-    override fun onCreate() {
+    final override fun onCreate() {
         super.onCreate()
         // We need this flag to be false (meaning empty axis won't be send and default normal weight
         // would be used, for the 1.6 renderer and the player that has a bug in it.
         RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis =
             RendererVersion.fromPlHostPackage(this) > RendererVersion(1, 6, 0)
-        // TODO: b/483999057 - Add CallSuper annotation to lifecycle methods.
         if (!isRobolectricBuild()) {
             updateServiceMapping()
         }
@@ -91,6 +93,19 @@ public abstract class GlanceWearWidgetService : LifecycleService() {
 
             else -> null
         }
+    }
+
+    // Restrict lifecycle methods from being overridden since clients shouldn't rely on the
+    // lifecycle of the service. If this is changed in the future, the lifecycle methods should be
+    // annotated with @CallSuper.
+    final override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int =
+        super.onStartCommand(intent, flags, startId)
+
+    // Restrict lifecycle methods from being overridden since clients shouldn't rely on the
+    // lifecycle of the service. If this is changed in the future, the lifecycle methods should be
+    // annotated with @CallSuper.
+    final override fun onDestroy() {
+        super.onDestroy()
     }
 
     private fun updateServiceMapping() {
