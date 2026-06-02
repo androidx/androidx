@@ -136,7 +136,7 @@ package androidx.browser.browseractions {
 
 package androidx.browser.customtabs {
 
-  @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public final class ContentActionSelectedData {
+  public final class ContentActionSelectedData {
     method public static androidx.browser.customtabs.ContentActionSelectedData? fromIntent(android.content.Intent?);
     method public int getClickedContentTargetType();
     method public String? getImageAltText();
@@ -150,7 +150,7 @@ package androidx.browser.customtabs {
     method public int getTriggeredActionId();
   }
 
-  @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public final class CustomContentAction {
+  public final class CustomContentAction {
     method public static androidx.browser.customtabs.CustomContentAction fromBundle(android.os.Bundle);
     method public int getId();
     method public String getLabel();
@@ -158,7 +158,7 @@ package androidx.browser.customtabs {
     method public int getTargetType();
   }
 
-  @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final class CustomContentAction.Builder {
+  public static final class CustomContentAction.Builder {
     ctor public CustomContentAction.Builder(@IntRange(from=0) int, String, android.app.PendingIntent, int);
     method public androidx.browser.customtabs.CustomContentAction build();
   }
@@ -240,7 +240,7 @@ package androidx.browser.customtabs {
     method public static int getActivitySideSheetRoundedCornersPosition(android.content.Intent);
     method public static int getCloseButtonPosition(android.content.Intent);
     method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, int);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static java.util.List<androidx.browser.customtabs.CustomContentAction!> getCustomContentActions(android.content.Intent);
+    method public static java.util.List<androidx.browser.customtabs.CustomContentAction!> getCustomContentActions(android.content.Intent);
     method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityHeightPx(android.content.Intent);
     method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityWidthPx(android.content.Intent);
     method public static int getMaxToolbarItems();
@@ -279,8 +279,8 @@ package androidx.browser.customtabs {
     field public static final int COLOR_SCHEME_DARK = 2; // 0x2
     field public static final int COLOR_SCHEME_LIGHT = 1; // 0x1
     field public static final int COLOR_SCHEME_SYSTEM = 0; // 0x0
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final int CONTENT_TARGET_TYPE_IMAGE = 1; // 0x1
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final int CONTENT_TARGET_TYPE_LINK = 2; // 0x2
+    field public static final int CONTENT_TARGET_TYPE_IMAGE = 1; // 0x1
+    field public static final int CONTENT_TARGET_TYPE_LINK = 2; // 0x2
     field public static final String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
     field public static final String EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR = "androidx.browser.customtabs.extra.ACTIVITY_HEIGHT_RESIZE_BEHAVIOR";
     field public static final String EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_BREAKPOINT_DP";
@@ -288,19 +288,19 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION";
     field public static final String EXTRA_ACTIVITY_SIDE_SHEET_POSITION = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_POSITION";
     field public static final String EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CLICKED_CONTENT_TARGET_TYPE = "androidx.browser.customtabs.extra.CLICKED_CONTENT_TARGET_TYPE";
+    field public static final String EXTRA_CLICKED_CONTENT_TARGET_TYPE = "androidx.browser.customtabs.extra.CLICKED_CONTENT_TARGET_TYPE";
     field public static final String EXTRA_CLOSE_BUTTON_ENABLED = "androidx.browser.customtabs.extra.CLOSE_BUTTON_ENABLED";
     field public static final String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
     field public static final String EXTRA_CLOSE_BUTTON_POSITION = "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
     field public static final String EXTRA_COLOR_SCHEME = "androidx.browser.customtabs.extra.COLOR_SCHEME";
     field public static final String EXTRA_COLOR_SCHEME_PARAMS = "androidx.browser.customtabs.extra.COLOR_SCHEME_PARAMS";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_IMAGE_ALT_TEXT = "androidx.browser.customtabs.extra.CONTEXT_IMAGE_ALT_TEXT";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_IMAGE_DATA_URI = "androidx.browser.customtabs.extra.CONTEXT_IMAGE_DATA_URI";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_IMAGE_URL = "androidx.browser.customtabs.extra.CONTEXT_IMAGE_URL";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_LINK_TEXT = "androidx.browser.customtabs.extra.CONTEXT_LINK_TEXT";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_LINK_URL = "androidx.browser.customtabs.extra.CONTEXT_LINK_URL";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CONTEXT_PAGE_TITLE = "androidx.browser.customtabs.extra.CONTEXT_PAGE_TITLE";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_CUSTOM_CONTENT_ACTIONS = "androidx.browser.customtabs.extra.CUSTOM_CONTENT_ACTIONS";
+    field public static final String EXTRA_CONTEXT_IMAGE_ALT_TEXT = "androidx.browser.customtabs.extra.CONTEXT_IMAGE_ALT_TEXT";
+    field public static final String EXTRA_CONTEXT_IMAGE_DATA_URI = "androidx.browser.customtabs.extra.CONTEXT_IMAGE_DATA_URI";
+    field public static final String EXTRA_CONTEXT_IMAGE_URL = "androidx.browser.customtabs.extra.CONTEXT_IMAGE_URL";
+    field public static final String EXTRA_CONTEXT_LINK_TEXT = "androidx.browser.customtabs.extra.CONTEXT_LINK_TEXT";
+    field public static final String EXTRA_CONTEXT_LINK_URL = "androidx.browser.customtabs.extra.CONTEXT_LINK_URL";
+    field public static final String EXTRA_CONTEXT_PAGE_TITLE = "androidx.browser.customtabs.extra.CONTEXT_PAGE_TITLE";
+    field public static final String EXTRA_CUSTOM_CONTENT_ACTIONS = "androidx.browser.customtabs.extra.CUSTOM_CONTENT_ACTIONS";
     field @Deprecated public static final String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";
     field public static final String EXTRA_DISABLE_BACKGROUND_INTERACTION = "androidx.browser.customtabs.extra.DISABLE_BACKGROUND_INTERACTION";
     field public static final String EXTRA_DISABLE_BOOKMARKS_BUTTON = "org.chromium.chrome.browser.customtabs.EXTRA_DISABLE_STAR_BUTTON";
@@ -332,7 +332,7 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_TOOLBAR_CORNER_RADIUS_DP = "androidx.browser.customtabs.extra.TOOLBAR_CORNER_RADIUS_DP";
     field public static final String EXTRA_TOOLBAR_ITEMS = "android.support.customtabs.extra.TOOLBAR_ITEMS";
     field public static final String EXTRA_TRANSLATE_LANGUAGE_TAG = "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE_TAG";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public static final String EXTRA_TRIGGERED_CUSTOM_CONTENT_ACTION_ID = "androidx.browser.customtabs.extra.TRIGGERED_CUSTOM_CONTENT_ACTION_ID";
+    field public static final String EXTRA_TRIGGERED_CUSTOM_CONTENT_ACTION_ID = "androidx.browser.customtabs.extra.TRIGGERED_CUSTOM_CONTENT_ACTION_ID";
     field public static final String KEY_DESCRIPTION = "android.support.customtabs.customaction.DESCRIPTION";
     field public static final String KEY_ICON = "android.support.customtabs.customaction.ICON";
     field public static final String KEY_ID = "android.support.customtabs.customaction.ID";
@@ -354,7 +354,7 @@ package androidx.browser.customtabs {
   public static final class CustomTabsIntent.Builder {
     ctor public CustomTabsIntent.Builder();
     ctor public CustomTabsIntent.Builder(androidx.browser.customtabs.CustomTabsSession?);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalCustomContentAction public androidx.browser.customtabs.CustomTabsIntent.Builder addCustomContentAction(androidx.browser.customtabs.CustomContentAction);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder addCustomContentAction(androidx.browser.customtabs.CustomContentAction);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder addDefaultShareMenuItem();
     method public androidx.browser.customtabs.CustomTabsIntent.Builder addMenuItem(String, android.app.PendingIntent);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder addToolbarItem(int, android.graphics.Bitmap, String, android.app.PendingIntent) throws java.lang.IllegalStateException;
@@ -489,9 +489,6 @@ package androidx.browser.customtabs {
     method public default void onGreatestScrollPercentageIncreased(@IntRange(from=1, to=100) int, android.os.Bundle);
     method public default void onSessionEnded(boolean, android.os.Bundle);
     method public default void onVerticalScrollEvent(boolean, android.os.Bundle);
-  }
-
-  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomContentAction {
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalInitialNavigationCanLeaveBrowser {

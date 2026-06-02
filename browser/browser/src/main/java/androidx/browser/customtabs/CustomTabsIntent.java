@@ -700,7 +700,6 @@ public final class CustomTabsIntent {
      * An action with this target type may be shown by the browser when the user interacts
      * with an image element on the web page.
      */
-    @ExperimentalCustomContentAction
     public static final int CONTENT_TARGET_TYPE_IMAGE = 1;
 
     /**
@@ -709,7 +708,6 @@ public final class CustomTabsIntent {
      * An action with this target type may be shown by the browser when the user interacts
      * with a link (hyperlink) element on the web page.
      */
-    @ExperimentalCustomContentAction
     public static final int CONTENT_TARGET_TYPE_LINK = 2;
 
     /**
@@ -718,7 +716,6 @@ public final class CustomTabsIntent {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @IntDef({CONTENT_TARGET_TYPE_IMAGE, CONTENT_TARGET_TYPE_LINK})
     @Retention(RetentionPolicy.SOURCE)
-    @ExperimentalCustomContentAction
     public @interface ContentTargetType {
     }
 
@@ -728,7 +725,6 @@ public final class CustomTabsIntent {
      * The client application adds this via
      * {@link Builder#addCustomContentAction(CustomContentAction)}.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CUSTOM_CONTENT_ACTIONS =
             "androidx.browser.customtabs.extra.CUSTOM_CONTENT_ACTIONS";
 
@@ -739,7 +735,6 @@ public final class CustomTabsIntent {
      * should use this ID to determine which custom action was invoked. The action id cannot be set
      * to negative numbers.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_TRIGGERED_CUSTOM_CONTENT_ACTION_ID =
             "androidx.browser.customtabs.extra.TRIGGERED_CUSTOM_CONTENT_ACTION_ID";
 
@@ -749,7 +744,6 @@ public final class CustomTabsIntent {
      * {@link ContentTargetType} (e.g., {@link #CONTENT_TARGET_TYPE_IMAGE} or
      * {@link #CONTENT_TARGET_TYPE_LINK}) of the web content element that was interacted with.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CLICKED_CONTENT_TARGET_TYPE =
             "androidx.browser.customtabs.extra.CLICKED_CONTENT_TARGET_TYPE";
 
@@ -757,7 +751,6 @@ public final class CustomTabsIntent {
      * Extra added to the custom content action {@link PendingIntent} by the browser.
      * If the action was triggered on an image, this extra may contain the URL of that image.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CONTEXT_IMAGE_URL =
             "androidx.browser.customtabs.extra.CONTEXT_IMAGE_URL";
 
@@ -765,7 +758,6 @@ public final class CustomTabsIntent {
      * Extra added to the custom content action {@link PendingIntent} by the browser.
      * This extra may contain the title of the current web page.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CONTEXT_PAGE_TITLE =
             "androidx.browser.customtabs.extra.CONTEXT_PAGE_TITLE";
 
@@ -773,7 +765,6 @@ public final class CustomTabsIntent {
      * Extra added to the custom content action {@link PendingIntent} by the browser.
      * If the action was triggered on an image, this extra may contain the byte data of that image.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CONTEXT_IMAGE_DATA_URI =
             "androidx.browser.customtabs.extra.CONTEXT_IMAGE_DATA_URI";
 
@@ -782,7 +773,6 @@ public final class CustomTabsIntent {
      * If the action was triggered on an image, this extra may contain the URL of the page
      * displaying that image.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CONTEXT_LINK_URL =
             "androidx.browser.customtabs.extra.CONTEXT_LINK_URL";
 
@@ -791,7 +781,6 @@ public final class CustomTabsIntent {
      * If the action was triggered on an image, this extra may contain the alt text of the
      * clicked image, if available.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CONTEXT_IMAGE_ALT_TEXT =
             "androidx.browser.customtabs.extra.CONTEXT_IMAGE_ALT_TEXT";
 
@@ -799,7 +788,6 @@ public final class CustomTabsIntent {
      * Extra added to the custom content action {@link PendingIntent} by the browser.
      * If the action was triggered on a link, this extra may contain the visible text if available.
      */
-    @ExperimentalCustomContentAction
     public static final String EXTRA_CONTEXT_LINK_TEXT =
             "androidx.browser.customtabs.extra.CONTEXT_LINK_TEXT";
 
@@ -1698,7 +1686,6 @@ public final class CustomTabsIntent {
          * @return This Builder.
          * @throws IllegalArgumentException if an action with the same ID has already been added.
          */
-        @ExperimentalCustomContentAction
         public @NonNull Builder addCustomContentAction(@NonNull CustomContentAction action) {
             if (mCustomContentActionBundles == null) {
                 mCustomContentActionBundles = new ArrayList<>();
@@ -2132,7 +2119,6 @@ public final class CustomTabsIntent {
      * @return A {@link List} of {@link CustomContentAction}s. Returns an empty list if
      * no actions were set or if the extra is malformed or missing. The list is unmodifiable.
      */
-    @ExperimentalCustomContentAction
     public static @NonNull List<CustomContentAction> getCustomContentActions(
             @NonNull Intent intent) {
         ArrayList<Bundle> bundles = IntentCompat.getParcelableArrayListExtra(

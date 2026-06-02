@@ -35,7 +35,6 @@ import org.jspecify.annotations.Nullable;
  * the type of content interacted with, the ID of the triggered action, and potentially
  * details about the specific element (like an image or link).
  */
-@ExperimentalCustomContentAction
 public final class ContentActionSelectedData {
 
     private final Intent mIntent;
