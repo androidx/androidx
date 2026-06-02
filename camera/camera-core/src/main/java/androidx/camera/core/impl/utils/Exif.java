@@ -127,7 +127,7 @@ public final class Exif {
         // Rewind to make sure it is at the beginning of the buffer
         buffer.rewind();
 
-        byte[] data = new byte[buffer.capacity()];
+        byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
         InputStream inputStream = new ByteArrayInputStream(data);
         return Exif.createFromInputStream(inputStream);

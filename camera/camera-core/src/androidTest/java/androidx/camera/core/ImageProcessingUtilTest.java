@@ -173,7 +173,7 @@ public class ImageProcessingUtilTest {
         assertThat(imageProxy).isNotNull();
         ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
         byteBuffer.rewind();
-        byte[] outputBytes = new byte[byteBuffer.capacity()];
+        byte[] outputBytes = new byte[byteBuffer.remaining()];
         byteBuffer.get(outputBytes);
 
         // Assert: the color and the dimension of the restored image.
@@ -196,7 +196,7 @@ public class ImageProcessingUtilTest {
         assertThat(imageProxy).isNotNull();
         ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
         byteBuffer.rewind();
-        byte[] outputBytes = new byte[byteBuffer.capacity()];
+        byte[] outputBytes = new byte[byteBuffer.remaining()];
         byteBuffer.get(outputBytes);
 
         // Assert: the color and the dimension of the restored image.
@@ -219,7 +219,7 @@ public class ImageProcessingUtilTest {
         assertThat(imageProxy).isNotNull();
         ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
         byteBuffer.rewind();
-        byte[] outputBytes = new byte[byteBuffer.capacity()];
+        byte[] outputBytes = new byte[byteBuffer.remaining()];
         byteBuffer.get(outputBytes);
 
         // Assert: the format is JPEG and can decode,  the size is correct, the rotation in Exif
@@ -587,7 +587,7 @@ public class ImageProcessingUtilTest {
         // Ignore row stride here, we don't need to be efficient, so we'll fill the padding also.
         buffer.rewind();
         while (buffer.hasRemaining()) {
-            int nextPosition = Math.min(buffer.capacity(), buffer.position() + pixelStride);
+            int nextPosition = Math.min(buffer.limit(), buffer.position() + pixelStride);
             buffer.put(value);
             buffer.position(nextPosition);
         }

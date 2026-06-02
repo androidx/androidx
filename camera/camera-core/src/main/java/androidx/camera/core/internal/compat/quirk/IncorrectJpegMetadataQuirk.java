@@ -63,8 +63,8 @@ public final class IncorrectJpegMetadataQuirk implements Quirk {
      */
     public byte @NonNull [] jpegImageToJpegByteArray(@NonNull ImageProxy imageProxy) {
         ByteBuffer byteBuffer = imageProxy.getPlanes()[0].getBuffer();
-        byte[] bytes = new byte[byteBuffer.capacity()];
         byteBuffer.rewind();
+        byte[] bytes = new byte[byteBuffer.remaining()];
         byteBuffer.get(bytes);
 
         int copyStartPos = 0;
