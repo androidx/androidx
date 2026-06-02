@@ -37,7 +37,9 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.kruth.assertThat
+import androidx.navigation3.first
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.second
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventDispatcher
@@ -312,6 +314,3 @@ class NavDisplayPredictiveBackTest {
         composeTestRule.mainClock.autoAdvance = true
     }
 }
-
-private const val first = "first"
-private const val second = "second"

@@ -32,13 +32,11 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,11 +56,18 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
+import androidx.navigation3.BlueBox
+import androidx.navigation3.GreenBox
+import androidx.navigation3.RedBox
+import androidx.navigation3.first
+import androidx.navigation3.fourth
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.metadata
 import androidx.navigation3.scene.usecases.ListDetailScene
 import androidx.navigation3.scene.usecases.rememberListDetailSceneStrategy
+import androidx.navigation3.second
+import androidx.navigation3.third
 import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
 import androidx.navigationevent.NavigationEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -707,7 +712,7 @@ class NavDisplayScreenshotTest {
                     first -> NavEntry(first) {}
                     second -> NavEntry(second) {}
                     third -> NavEntry(third) { RedBox(third) }
-                    forth -> NavEntry(forth) { BlueBox(forth) }
+                    fourth -> NavEntry(fourth) { BlueBox(fourth) }
                     else -> error("Invalid key passed")
                 }
             }
@@ -716,9 +721,9 @@ class NavDisplayScreenshotTest {
         composeTestRule.waitForIdle()
         assertThat(composeTestRule.onNodeWithText(third).isDisplayed()).isTrue()
 
-        composeTestRule.runOnIdle { backStack.add(forth) }
-        assertThat(composeTestRule.onNodeWithText(forth).isDisplayed()).isTrue()
-        assertThat(backStack).containsExactly(first, second, third, forth).inOrder()
+        composeTestRule.runOnIdle { backStack.add(fourth) }
+        assertThat(composeTestRule.onNodeWithText(fourth).isDisplayed()).isTrue()
+        assertThat(backStack).containsExactly(first, second, third, fourth).inOrder()
 
         composeTestRule.mainClock.autoAdvance = false
         composeTestRule.runOnIdle {
@@ -773,13 +778,13 @@ class NavDisplayScreenshotTest {
                                 BasicText(third, Modifier.size(50.dp))
                             }
                         }
-                    forth ->
-                        NavEntry(forth) {
+                    fourth ->
+                        NavEntry(fourth) {
                             Box(
                                 Modifier.fillMaxSize().background(Color.Green),
                                 contentAlignment = Alignment.TopEnd,
                             ) {
-                                BasicText(forth, Modifier.size(50.dp))
+                                BasicText(fourth, Modifier.size(50.dp))
                             }
                         }
                     else -> error("Invalid key passed")
@@ -794,14 +799,14 @@ class NavDisplayScreenshotTest {
         composeTestRule.runOnIdle {
             backStack.removeAt(2)
             backStack.removeAt(1)
-            backStack.add(forth)
+            backStack.add(fourth)
         }
 
         composeTestRule.mainClock.advanceTimeByFrame()
         composeTestRule.mainClock.advanceTimeByFrame()
-        assertThat(composeTestRule.onNodeWithText(forth).isDisplayed()).isTrue()
+        assertThat(composeTestRule.onNodeWithText(fourth).isDisplayed()).isTrue()
 
-        // forth screen should be on top with "forth" text visible
+        // fourth screen should be on top with "fourth" text visible
         composeTestRule
             .onNodeWithTag(navHostTag)
             .captureToImage()
@@ -1276,38 +1281,3 @@ class NavDisplayScreenshotTest {
             )
     }
 }
-
-@Composable
-fun BlueBox(text: String) {
-    Box(
-        Modifier.fillMaxSize().background(Color(0.2f, 0.2f, 1.0f, 1.0f)).border(10.dp, Color.Blue),
-        contentAlignment = Alignment.Center,
-    ) {
-        BasicText(text, Modifier.size(50.dp))
-    }
-}
-
-@Composable
-fun RedBox(text: String) {
-    Box(
-        Modifier.fillMaxSize().background(Color(1.0f, 0.3f, 0.3f, 1.0f)).border(10.dp, Color.Red),
-        contentAlignment = Alignment.Center,
-    ) {
-        BasicText(text, Modifier.size(50.dp))
-    }
-}
-
-@Composable
-fun GreenBox(text: String) {
-    Box(
-        Modifier.fillMaxSize().background(Color(0.2f, 0.9f, 0.7f, 1.0f)).border(10.dp, Color.Green),
-        contentAlignment = Alignment.Center,
-    ) {
-        BasicText(text, Modifier.size(50.dp))
-    }
-}
-
-private const val first = "first"
-private const val second = "second"
-private const val third = "third"
-private const val forth = "forth"
