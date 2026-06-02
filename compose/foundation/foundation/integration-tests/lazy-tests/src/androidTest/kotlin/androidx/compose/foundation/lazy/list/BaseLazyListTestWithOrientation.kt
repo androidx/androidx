@@ -32,8 +32,6 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyList
@@ -54,13 +52,6 @@ import kotlinx.coroutines.runBlocking
 
 open class BaseLazyListTestWithOrientation(private val orientation: Orientation) :
     BaseLazyLayoutTestWithOrientation(orientation) {
-
-    fun Modifier.fillMaxCrossAxis() =
-        if (vertical) {
-            this.fillMaxWidth()
-        } else {
-            this.fillMaxHeight()
-        }
 
     fun LazyItemScope.fillParentMaxMainAxis() =
         if (vertical) {
