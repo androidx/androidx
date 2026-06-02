@@ -605,10 +605,9 @@ internal class ComposeWindow(
         if (isMouseEvent(event)) {
             keyboardModeState = KeyboardModeState.Hardware
 
-            // validate event before sending it further - see
-            // https://youtrack.jetbrains.com/issue/CMP-8430/Sequence-of-Move-PointerInputEvents-cancel-out-press-PointerInputEvent-under-certain-conditions
-
-            var isValidEvent = true
+            // Track active mouse buttons. Used as a fallback for unreliable
+            // `buttons` in wheel events (see CMP-9900) and to reset state on
+            // `dragend` in Safari (see CMP-10102).
             when (eventType) {
                 PointerEventType.Press -> {
                     actualActivePointerButtons = event.composeButtons
@@ -616,12 +615,7 @@ internal class ComposeWindow(
                 PointerEventType.Release -> {
                     actualActivePointerButtons = null
                 }
-                PointerEventType.Move -> {
-                    isValidEvent = actualActivePointerButtons == null || actualActivePointerButtons == event.composeButtons
-                }
             }
-
-            if (!isValidEvent) return
 
             scene.sendPointerEvent(
                 eventType = eventType,
