@@ -16,7 +16,7 @@
 
 package androidx.xr.compose.subspace.node
 
-import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.xr.compose.subspace.semantics.SubspaceSemanticsConfiguration
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.Component
@@ -48,8 +48,7 @@ public sealed interface SubspaceSemanticsInfo {
      *
      * This includes all properties attached as modifiers to the current layout node.
      */
-    public val semanticsConfiguration: SemanticsConfiguration
-
+    public val semanticsConfiguration: SubspaceSemanticsConfiguration?
     /** The children of this node in the semantics tree. */
     public val childrenInfo: List<SubspaceSemanticsInfo>
 

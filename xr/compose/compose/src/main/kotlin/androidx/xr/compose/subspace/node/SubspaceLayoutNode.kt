@@ -40,6 +40,8 @@ import androidx.xr.compose.subspace.layout.SubspacePlaceable
 import androidx.xr.compose.subspace.layout.SubspaceRootMeasurePolicy
 import androidx.xr.compose.subspace.layout.applyCoreEntityNodes
 import androidx.xr.compose.subspace.layout.requireCoordinator
+import androidx.xr.compose.subspace.semantics.SubspaceSemanticsConfiguration
+import androidx.xr.compose.subspace.semantics.createSubspaceSemanticsPropertyReceiver
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
@@ -358,7 +360,7 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
 
         val contentDescription =
             measurableLayout.semanticsConfiguration
-                .getOrNull(SemanticsProperties.ContentDescription)
+                ?.getOrNull(SemanticsProperties.ContentDescription)
                 ?.firstOrNull()
         coreEntity?.contentDescription = contentDescription
 
@@ -377,9 +379,8 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
     internal fun replace() = outerCoordinator?.replace() ?: measurableLayout.replace()
 
     override fun toString(): String {
-        return measurableLayout.semanticsConfiguration.getOrElse(SemanticsProperties.TestTag) {
-            super.toString()
-        }
+        return measurableLayout.semanticsConfiguration?.getOrNull(SemanticsProperties.TestTag)
+            ?: super.toString()
     }
 
     /**
@@ -475,18 +476,36 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         override val size: IntVolumeSize
             get() = IntVolumeSize(measuredWidth, measuredHeight, measuredDepth)
 
+        private var _semanticsConfiguration: SubspaceSemanticsConfiguration? = null
+
+        internal fun invalidateSemantics() {
+            _semanticsConfiguration = null
+        }
+
         /**
          * The semantics configuration of this node.
          *
          * This includes all properties attached as modifiers to the current layout node.
          */
-        override val semanticsConfiguration: SemanticsConfiguration
-            get() =
-                SemanticsConfiguration().apply {
-                    nodes.forEachOf(SubspaceNodes.Semantics) { semanticsModifierNode ->
-                        with(semanticsModifierNode) { applySemantics() }
-                    }
+        override val semanticsConfiguration: SubspaceSemanticsConfiguration?
+            get() {
+                var config = _semanticsConfiguration
+
+                if (config == null) {
+                    config =
+                        SubspaceSemanticsConfiguration(
+                            SemanticsConfiguration().apply {
+                                val receiver = createSubspaceSemanticsPropertyReceiver(this)
+                                nodes.forEachOf(SubspaceNodes.Semantics) { semanticsModifierNode ->
+                                    with(semanticsModifierNode) { receiver.applySemantics() }
+                                }
+                            }
+                        )
+                    _semanticsConfiguration = config
                 }
+
+                return config
+            }
 
         override fun measure(constraints: VolumeConstraints): SubspacePlaceable {
             layoutState = LayoutState.Measuring

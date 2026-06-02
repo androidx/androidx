@@ -44,8 +44,8 @@ class SubspaceSemanticsPropertyReceiverTest {
     @Test
     fun testTag_assignValue_setsOnDelegate() {
         val config: SemanticsConfiguration = SemanticsConfiguration()
-        val receiver: SubspaceSemanticsPropertyReceiverImpl =
-            SubspaceSemanticsPropertyReceiverImpl(delegate = config)
+        val receiver: SubspaceSemanticsPropertyReceiver =
+            createSubspaceSemanticsPropertyReceiver(delegate = config)
 
         receiver.testTag = "testTagValue"
 
@@ -55,8 +55,8 @@ class SubspaceSemanticsPropertyReceiverTest {
     @Test
     fun contentDescription_assignValue_setsOnDelegate() {
         val config: SemanticsConfiguration = SemanticsConfiguration()
-        val receiver: SubspaceSemanticsPropertyReceiverImpl =
-            SubspaceSemanticsPropertyReceiverImpl(delegate = config)
+        val receiver: SubspaceSemanticsPropertyReceiver =
+            createSubspaceSemanticsPropertyReceiver(delegate = config)
 
         receiver.contentDescription = "contentDescriptionValue"
 
@@ -67,8 +67,8 @@ class SubspaceSemanticsPropertyReceiverTest {
     @Test
     fun testTag_getValue_throwsException() {
         val config: SemanticsConfiguration = SemanticsConfiguration()
-        val receiver: SubspaceSemanticsPropertyReceiverImpl =
-            SubspaceSemanticsPropertyReceiverImpl(delegate = config)
+        val receiver: SubspaceSemanticsPropertyReceiver =
+            createSubspaceSemanticsPropertyReceiver(delegate = config)
 
         val exception: UnsupportedOperationException =
             assertFailsWith<UnsupportedOperationException> {
@@ -81,8 +81,8 @@ class SubspaceSemanticsPropertyReceiverTest {
     @Test
     fun contentDescription_getValue_throwsException() {
         val config: SemanticsConfiguration = SemanticsConfiguration()
-        val receiver: SubspaceSemanticsPropertyReceiverImpl =
-            SubspaceSemanticsPropertyReceiverImpl(delegate = config)
+        val receiver: SubspaceSemanticsPropertyReceiver =
+            createSubspaceSemanticsPropertyReceiver(delegate = config)
 
         val exception: UnsupportedOperationException =
             assertFailsWith<UnsupportedOperationException> {

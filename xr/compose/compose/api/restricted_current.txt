@@ -1463,7 +1463,7 @@ package androidx.xr.compose.subspace.node {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPoseInRoot();
     method @InaccessibleFromKotlin public default float getScale();
-    method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsConfiguration getSemanticsConfiguration();
+    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.semantics.SubspaceSemanticsConfiguration? getSemanticsConfiguration();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getSemanticsEntity();
     method @InaccessibleFromKotlin public int getSemanticsId();
     method @InaccessibleFromKotlin public androidx.xr.compose.unit.IntVolumeSize getSize();
@@ -1475,14 +1475,14 @@ package androidx.xr.compose.subspace.node {
     property public abstract androidx.xr.runtime.math.Pose pose;
     property public abstract androidx.xr.runtime.math.Pose poseInRoot;
     property public default float scale;
-    property public abstract androidx.compose.ui.semantics.SemanticsConfiguration semanticsConfiguration;
+    property public abstract androidx.xr.compose.subspace.semantics.SubspaceSemanticsConfiguration? semanticsConfiguration;
     property public abstract androidx.xr.scenecore.Entity? semanticsEntity;
     property public abstract int semanticsId;
     property public abstract androidx.xr.compose.unit.IntVolumeSize size;
   }
 
   public interface SubspaceSemanticsModifierNode {
-    method public void applySemantics(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public void applySemantics(androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver);
   }
 
 }
@@ -1490,7 +1490,9 @@ package androidx.xr.compose.subspace.node {
 package androidx.xr.compose.subspace.semantics {
 
   public final class SemanticsModifierKt {
-    method public static androidx.xr.compose.subspace.layout.SubspaceModifier semantics(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit> properties);
+    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! semantics(androidx.xr.compose.subspace.layout.SubspaceModifier!, kotlin.jvm.functions.Function1!);
+    method @KotlinOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier semantics(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver,kotlin.Unit> properties);
+    method @InaccessibleFromKotlin public static androidx.xr.compose.subspace.layout.SubspaceModifier semanticsSubspace(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver,kotlin.Unit> properties);
   }
 
   public final class SubspaceSemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,? extends java.lang.Object?>> kotlin.jvm.internal.markers.KMappedMarker androidx.xr.compose.subspace.semantics.SubspaceSemanticsPropertyReceiver {
