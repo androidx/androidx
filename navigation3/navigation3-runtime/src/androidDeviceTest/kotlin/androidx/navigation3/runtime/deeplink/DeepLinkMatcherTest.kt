@@ -20,9 +20,6 @@ import androidx.kruth.assertThat
 import kotlin.test.Test
 
 class DeepLinkMatcherTest {
-
-    object TestKey
-
     class TestDeepLinkMatcher(filters: List<Filter<*>> = emptyList()) :
         DeepLinkMatcher<TestKey>(filters) {
         override fun matchRequest(request: DeepLinkRequest): MatchResult<TestKey>? {
