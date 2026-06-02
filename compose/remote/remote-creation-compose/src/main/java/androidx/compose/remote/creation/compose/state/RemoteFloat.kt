@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY3
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY32
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY4
@@ -162,72 +161,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     }
 
     /**
-     * Returns a [RemoteString] that converts the result of this [RemoteFloat] with specified
-     * formatting.
-     *
-     * @param before The number of digits to show before the decimal point.
-     * @param after The number of digits to show after the decimal point (defaults to 2).
-     * @param flags Formatting flags for the string conversion (defaults to
-     *   [TextFromFloat.PAD_AFTER_ZERO]).
-     * @return A [RemoteString] representing the formatted float.
-     */
-    public fun toRemoteString(
-        before: Int,
-        after: Int = 2,
-        flags: Int = PAD_AFTER_ZERO,
-    ): RemoteString {
-        constantValueOrNull?.let {
-            return RemoteString(floatToString(it, before, after, flags))
-        }
-        return MutableRemoteString(
-            constantValueOrNull = null,
-            cacheKey =
-                RemoteOperationCacheKey.create(
-                    OperationKey.ToRemoteString,
-                    this,
-                    before,
-                    after,
-                    flags,
-                ),
-            lazyRemoteString =
-                object : LazyRemoteString {
-                    override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-                        return creationState.document.createTextFromFloat(
-                            asNan(getIdForCreationState(creationState)),
-                            before,
-                            after,
-                            flags,
-                        )
-                    }
-
-                    override fun computeRequiredCodePointSet(
-                        creationState: RemoteComposeCreationState
-                    ): Set<String>? {
-                        val preFlags = flags and 12
-                        val afterFlags = flags and 3
-                        if (after == 0) {
-                            if (before == 1 || preFlags != PAD_PRE_SPACE) {
-                                return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
-                            } else {
-                                return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", " ")
-                            }
-                        }
-
-                        // If flags is non-zero then we may pad with a space.
-                        if (
-                            (before == 1 && after == 1) ||
-                                (preFlags != PAD_PRE_SPACE && afterFlags != PAD_AFTER_SPACE)
-                        ) {
-                            return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".")
-                        } else {
-                            return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", " ")
-                        }
-                    }
-                },
-        )
-    }
-
-    /**
      * Returns a [RemoteString] that evaluates to the result of this [RemoteFloat] formatted
      * according to the provided [android.icu.text.DecimalFormat].
      *
@@ -240,7 +173,6 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
      *   options like separators, grouping, and padding width.
      * @return A [RemoteString] representing the formatted float.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteString(
         format: android.icu.text.DecimalFormat = DefaultDecimalFormat
     ): RemoteString {

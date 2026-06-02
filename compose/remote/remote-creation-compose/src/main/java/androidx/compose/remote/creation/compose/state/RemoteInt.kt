@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -157,47 +156,6 @@ internal constructor(
     }
 
     /**
-     * Converts this RemoteInt to a RemoteString. The conversion includes formatting options such as
-     * the number of digits to display and padding flags.
-     *
-     * @param before The number of digits to display.
-     * @param flags The flags that control how the number is formatted. See [TextFromFloat].
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun toRemoteString(before: Int, flags: Int = TextFromFloat.PAD_PRE_SPACE): RemoteString {
-        constantValueOrNull?.let {
-            return RemoteString(floatToString(it.toFloat(), before, 0, flags))
-        }
-
-        return MutableRemoteString(
-            constantValueOrNull = null,
-            cacheKey =
-                RemoteOperationCacheKey.create(OperationKey.ToRemoteString, this, before, flags),
-            object : LazyRemoteString {
-                override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-                    return creationState.document.createTextFromFloat(
-                        getFloatIdForCreationState(creationState),
-                        before,
-                        0,
-                        flags,
-                    )
-                }
-
-                override fun computeRequiredCodePointSet(
-                    creationState: RemoteComposeCreationState
-                ): Set<String>? {
-                    val preFlags = flags and 12
-                    if (before == 1 || preFlags != TextFromFloat.PAD_PRE_SPACE) {
-                        return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
-                    } else {
-                        return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", " ")
-                    }
-                }
-            },
-        )
-    }
-
-    /**
      * Converts this [RemoteInt] to a [RemoteString] using the specified [format].
      *
      * This method maps the localized ICU [android.icu.text.DecimalFormat] configuration (including
@@ -209,7 +167,6 @@ internal constructor(
      *   to [DefaultIntegerFormat].
      * @return A [RemoteString] representing the formatted integer value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteString(
         format: android.icu.text.DecimalFormat = DefaultIntegerFormat
     ): RemoteString {
@@ -226,7 +183,6 @@ internal constructor(
      * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
      * @return A [RemoteString] representing the formatted float.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteString(format: DecimalFormat): RemoteString {
         return toRemoteFloat().toRemoteString(format)
     }
