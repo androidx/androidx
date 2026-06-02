@@ -16,26 +16,13 @@
 
 package androidx.compose.ui.test
 
-import android.content.res.Configuration
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.platform.ComposeView
 
 class ConfigChangeActivity : AppCompatActivity() {
 
     fun setDarkMode(isDark: Boolean) {
         val mode = if (isDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         runOnUiThread { delegate.apply { localNightMode = mode } }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        // propagate config changes to the compose hierarchy, see b/352336694
-        val composeView =
-            window.decorView.findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
-                as? ComposeView
-        composeView?.dispatchConfigurationChanged(newConfig)
     }
 }
