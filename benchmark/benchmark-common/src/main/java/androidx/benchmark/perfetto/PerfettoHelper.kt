@@ -271,6 +271,13 @@ class PerfettoHelper(
             listOf(Shell.ProcessPid(pid = pid, processName = perfettoProcessName)),
             waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
             waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
+            onFailure = {
+                throw IllegalStateException(
+                    "Unable to stop Benchmark Perfetto instance after" +
+                        " ${PERFETTO_KILL_WAIT_COUNT * PERFETTO_KILL_WAIT_TIME_MS / 1_000}" +
+                        " seconds. Please report a bug with logcat."
+                )
+            },
         )
         perfettoPid = null
     }
@@ -423,7 +430,7 @@ class PerfettoHelper(
         // Max wait count for checking if perfetto is stopped successfully
         // Note: this is increased due to frequency of data source timeouts seen in b/323601788,
         //  total kill wait must be much larger than PerfettoConfig data_source_stop_timeout_ms
-        private const val PERFETTO_KILL_WAIT_COUNT = 50
+        private const val PERFETTO_KILL_WAIT_COUNT = 300
 
         // Similar to above, but shorter to reduce delays from long-running tracing when
         // benchmarking.
