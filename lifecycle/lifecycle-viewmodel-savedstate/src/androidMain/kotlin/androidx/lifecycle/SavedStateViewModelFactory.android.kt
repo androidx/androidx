@@ -40,9 +40,7 @@ import kotlin.reflect.KClass
  * constructor that receives [SavedStateHandle] only. [androidx.lifecycle.AndroidViewModel] is only
  * supported if you pass a non-null [Application] instance.
  */
-@Suppress("HiddenSuperclass")
-public actual class SavedStateViewModelFactory :
-    ViewModelProvider.OnRequeryFactory, ViewModelProvider.Factory {
+public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
     private var application: Application? = null
     private val factory: ViewModelProvider.Factory
     private var defaultArgs: Bundle? = null
@@ -199,22 +197,14 @@ public actual class SavedStateViewModelFactory :
             return if (application != null) factory.create(modelClass)
             else instance.create(modelClass)
         val controller =
-            LegacySavedStateHandleController.create(
-                savedStateRegistry!!,
-                lifecycle,
-                key,
-                defaultArgs,
-            )
+            SavedStateHandleController(key, savedStateRegistry!!, lifecycle, defaultArgs)
         val viewModel: T =
             if (isAndroidViewModel && application != null) {
                 newInstance(modelClass, constructor, application!!, controller.handle)
             } else {
                 newInstance(modelClass, constructor, controller.handle)
             }
-        viewModel.addCloseable(
-            LegacySavedStateHandleController.TAG_SAVED_STATE_HANDLE_CONTROLLER,
-            controller,
-        )
+        viewModel.addCloseable(SavedStateHandleController.TAG, controller)
         return viewModel
     }
 
@@ -226,26 +216,13 @@ public actual class SavedStateViewModelFactory :
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         // ViewModelProvider calls correct create that support same modelClass with different keys
         // If a developer manually calls this method, there is no "key" in picture, so factory
-        // simply uses classname internally as as key.
+        // simply uses classname internally as key.
         val canonicalName =
             modelClass.canonicalName
                 ?: throw IllegalArgumentException(
                     "Local and anonymous classes can not be ViewModels"
                 )
         return create(canonicalName, modelClass)
-    }
-
-    /**  */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun onRequery(viewModel: ViewModel) {
-        // needed only for legacy path
-        if (lifecycle != null) {
-            LegacySavedStateHandleController.attachHandleIfNeeded(
-                viewModel,
-                savedStateRegistry!!,
-                lifecycle!!,
-            )
-        }
     }
 }
 

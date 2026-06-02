@@ -16,9 +16,6 @@
 package androidx.lifecycle
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
-import androidx.lifecycle.LegacySavedStateHandleController.TAG_SAVED_STATE_HANDLE_CONTROLLER
-import androidx.lifecycle.LegacySavedStateHandleController.attachHandleIfNeeded
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedStateRegistry
@@ -41,10 +38,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 @Deprecated(
     "Use `viewModelFactory` or implement `ViewModelProvider.Factory`, combined with `CreationExtras.createSavedStateHandle()`."
 )
-@Suppress("HiddenSuperclass")
-public abstract class AbstractSavedStateViewModelFactory :
-    ViewModelProvider.OnRequeryFactory, ViewModelProvider.Factory {
-
+public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Factory {
     private var savedStateRegistry: SavedStateRegistry? = null
     private var lifecycle: Lifecycle? = null
     private var defaultArgs: Bundle? = null
@@ -97,14 +91,9 @@ public abstract class AbstractSavedStateViewModelFactory :
 
     private fun <T : ViewModel> create(key: String, modelClass: Class<T>): T {
         val controller =
-            LegacySavedStateHandleController.create(
-                savedStateRegistry!!,
-                lifecycle!!,
-                key,
-                defaultArgs,
-            )
+            SavedStateHandleController(key, savedStateRegistry!!, lifecycle!!, defaultArgs)
         val viewModel = create(key, modelClass, controller.handle)
-        viewModel.addCloseable(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
+        viewModel.addCloseable(SavedStateHandleController.TAG, controller)
         return viewModel
     }
 
@@ -120,7 +109,7 @@ public abstract class AbstractSavedStateViewModelFactory :
     public override fun <T : ViewModel> create(modelClass: Class<T>): T {
         // ViewModelProvider calls correct create that support same modelClass with different keys
         // If a developer manually calls this method, there is no "key" in picture, so factory
-        // simply uses classname internally as as key.
+        // simply uses classname internally as key.
         val canonicalName =
             modelClass.canonicalName
                 ?: throw IllegalArgumentException(
@@ -149,12 +138,4 @@ public abstract class AbstractSavedStateViewModelFactory :
         modelClass: Class<T>,
         handle: SavedStateHandle,
     ): T
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun onRequery(viewModel: ViewModel) {
-        // is need only for legacy path
-        if (savedStateRegistry != null) {
-            attachHandleIfNeeded(viewModel, savedStateRegistry!!, lifecycle!!)
-        }
-    }
 }
