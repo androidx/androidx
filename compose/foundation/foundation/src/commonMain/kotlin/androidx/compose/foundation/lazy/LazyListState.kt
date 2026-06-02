@@ -234,7 +234,7 @@ constructor(
         @FrequentlyChangingValue get() = scrollPosition.scrollOffset
 
     /** Backing state for [layoutInfo] */
-    private val layoutInfoState = mutableStateOf(EmptyLazyListMeasureResult, neverEqualPolicy())
+    internal val layoutInfoState = mutableStateOf(EmptyLazyListMeasureResult, neverEqualPolicy())
 
     /**
      * The object of [LazyListLayoutInfo] calculated during the last layout pass. For example, you
@@ -750,6 +750,7 @@ private val EmptyLazyListMeasureResult =
         coroutineScope = CoroutineScope(EmptyCoroutineContext),
         density = Density(1f),
         childConstraints = Constraints(),
+        stickingItemsCombinedSize = 0,
     )
 
 private const val NumberOfItemsToTeleport = 100
