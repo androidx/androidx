@@ -53,7 +53,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -197,7 +196,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         .background(Color.Black.copy(alpha = 0.25f))
                         .padding(16.dp)
             ) {
-                Button(onClick = { videoPlayingState.value = false }) { Text("Close") }
+                Button(onClick = { releaseMediaPlayer() }) { Text("Close") }
             }
 
             Subspace(allowUnboundedSubspace = true) { VideoOptionsContent(session) }
@@ -406,7 +405,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                     Column(modifier = Modifier.padding(24.dp)) {
                                         Button(
                                             onClick = {
-                                                videoPlayingState.value = false
+                                                releaseMediaPlayer()
                                                 menuState.value = VideoMenuState.HOME
                                             }
                                         ) {
@@ -414,7 +413,13 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                         }
 
                                         Button(
-                                            onClick = { videoPlayingState.value = !videoPlaying }
+                                            onClick = {
+                                                if (videoPlaying) {
+                                                    releaseMediaPlayer()
+                                                } else {
+                                                    videoPlayingState.value = true
+                                                }
+                                            }
                                         ) {
                                             if (videoPlaying) {
                                                 Text("Stop Video")
@@ -434,7 +439,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                     ) {
                                         Button(
                                             onClick = {
-                                                videoPlayingState.value = false
+                                                releaseMediaPlayer()
                                                 menuState.value = VideoMenuState.HOME
                                             }
                                         ) {
@@ -442,7 +447,13 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                         }
 
                                         Button(
-                                            onClick = { videoPlayingState.value = !videoPlaying }
+                                            onClick = {
+                                                if (videoPlaying) {
+                                                    releaseMediaPlayer()
+                                                } else {
+                                                    videoPlayingState.value = true
+                                                }
+                                            }
                                         ) {
                                             if (videoPlaying) {
                                                 Text("Stop Video")
@@ -738,8 +749,6 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
         SpatialPanel(
             modifier = SubspaceModifier.width(600.dp).height(600.dp).transformingMovable()
         ) {
-            DisposableEffect(Unit) { onDispose { exoPlayer?.release() } }
-
             AndroidExternalSurface {
                 onSurface { surface, _, _ ->
                     val player = ExoPlayer.Builder(this@SpatialComposeVideoPlayer).build()
@@ -749,6 +758,13 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     player.repeatMode = Player.REPEAT_MODE_ONE
                     player.playWhenReady = true
                     player.prepare()
+
+                    surface.onDestroyed {
+                        player.release()
+                        if (exoPlayer === player) {
+                            exoPlayer = null
+                        }
+                    }
                 }
             }
         }
@@ -801,7 +817,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         }
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    Button(onClick = { videoPlayingState.value = false }) { Text("End Video") }
+                    Button(onClick = { releaseMediaPlayer() }) { Text("End Video") }
                 }
             }
         }
@@ -937,7 +953,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     alignment = SpatialAlignment.TopEnd,
                 ) {
                     SpatialPanel(SubspaceModifier.offset(z = 30.dp)) {
-                        Button(onClick = { videoPlayingState.value = false }) { Text("Close") }
+                        Button(onClick = { releaseMediaPlayer() }) { Text("Close") }
                     }
                 }
             }
