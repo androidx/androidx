@@ -28,6 +28,7 @@ import androidx.compose.ui.test.utils.beginModifierKeyPress
 import androidx.compose.ui.test.utils.beginPress
 import androidx.compose.ui.test.utils.center
 import androidx.compose.ui.test.utils.getTouchesEvent
+import androidx.compose.ui.test.utils.hold
 import androidx.compose.ui.test.utils.mouseDown
 import androidx.compose.ui.test.utils.moveToLocationOnWindow
 import androidx.compose.ui.test.utils.release
@@ -485,6 +486,17 @@ internal class UIKitInstrumentedTest(
     }
 
     /**
+     * Simulates a long press gesture for a given AccessibilityTestNode.
+     */
+    fun AccessibilityTestNode.longPress(duration: Duration = 0.5.seconds) {
+        val frame = frame ?: error("Internal error. Frame is missing.")
+        val touch = touchDown(frame.center())
+        touch.hold()
+        Companion.delay(duration.inWholeMilliseconds)
+        touch.up()
+    }
+
+    /**
      * Simulates a trackpad click gesture for a given AccessibilityTestNode.
      */
     fun AccessibilityTestNode.click() {
@@ -554,6 +566,20 @@ internal class UIKitInstrumentedTest(
      */
     fun UITouch.dragBy(dx: Dp = 0.dp, dy: Dp = 0.dp, duration: Duration = 0.5.seconds): UITouch {
         return dragBy(DpOffset(dx, dy), duration)
+    }
+
+    /**
+     * Simulates a drag gesture on the screen, moving the touch from its current location by specified x and y offsets
+     * over a given duration.
+     *
+     * @param x The horizontal destination point. The default value does not change the current horizontal offset.
+     * @param y The vertical destination point. The default value does not change the current vertical offset.
+     * @param duration The duration of the drag gesture, specified as a Duration. Defaults to 0.5 seconds.
+     * @return The same UITouch instance after completing the drag gesture.
+     */
+    fun UITouch.dragTo(x: Dp? = null, y: Dp? = null, duration: Duration = 0.5.seconds): UITouch {
+        val location = locationInView(null).toDpOffset()
+        return dragTo(DpOffset(x ?: location.x, y ?: location.y), duration)
     }
 }
 
@@ -724,7 +750,7 @@ internal fun UIKitInstrumentedTest.waitForContextMenu() {
         "UICalloutBar"
     }
     waitForIdle()
-    waitUntil {
+    waitUntil("Waiting for context menu to appear") {
         firstNodeOrNull { node ->
             node.element?.let { it::class.simpleName } == menuClassName
         } != null

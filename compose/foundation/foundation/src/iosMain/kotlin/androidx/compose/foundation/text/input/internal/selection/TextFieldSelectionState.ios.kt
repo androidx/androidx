@@ -275,8 +275,9 @@ private class UIKitTextFieldTextDragObserver(
 ) : TextDragObserver {
     private var dragBeginPosition: Offset = Offset.Unspecified
     private var dragTotalDistance: Offset = Offset.Zero
+    private var selectionAtLongPressStart: TextRange? = null
 
-    private fun onDragStop() {
+    private fun onDragStop(showContextMenu: Boolean) {
         // Only execute clear-up if drag was actually ongoing.
         if (dragBeginPosition.isSpecified) {
             textFieldSelectionState.clearHandleDragging()
@@ -284,16 +285,23 @@ private class UIKitTextFieldTextDragObserver(
             dragTotalDistance = Offset.Zero
             textFieldSelectionState.directDragGestureInitiator = InputType.None
             textFieldSelectionState.clearHandleDragging()
+
+            val isSelectionUnchanged =
+                textFieldSelectionState.textFieldState.visualText.selection == selectionAtLongPressStart
+            if (showContextMenu && isSelectionUnchanged) {
+                textFieldSelectionState.updateTextToolbarState(Cursor)
+            }
         }
+        selectionAtLongPressStart = null
     }
 
     override fun onDown(point: Offset) = Unit
 
     override fun onUp() = Unit
 
-    override fun onStop() = onDragStop()
+    override fun onStop() = onDragStop(showContextMenu = true)
 
-    override fun onCancel() = onDragStop()
+    override fun onCancel() = onDragStop(showContextMenu = false)
 
     override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
         if (!textFieldSelectionState.enabled) return
@@ -305,8 +313,10 @@ private class UIKitTextFieldTextDragObserver(
 
         if (selectionAdjustment != SelectionAdjustment.None) {
             textFieldSelectionState.doRepeatingTapSelection(startPoint, selectionAdjustment)
+            selectionAtLongPressStart = null
         } else {
             textFieldSelectionState.moveCaretByLongPress(startPoint)
+            selectionAtLongPressStart = textFieldSelectionState.textFieldState.visualText.selection
         }
     }
 
