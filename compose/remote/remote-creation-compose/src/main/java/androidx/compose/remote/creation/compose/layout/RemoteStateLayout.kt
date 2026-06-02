@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.layout
 
 import android.annotation.SuppressLint
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
@@ -76,57 +74,73 @@ internal fun <T> StateLayout(
 }
 
 /**
- * A layout that displays content based on the current value of a [RemoteEnum] state.
+ * A layout that manages and displays multiple states defined by a [RemoteEnum].
  *
- * @param state The [RemoteEnum] state that determines which content to display.
- * @param modifier The [RemoteModifier] to be applied to the layout.
- * @param content The composable content to be displayed for each enum state.
+ * This component ensures that all possible states defined in the [RemoteEnum] are composed, while
+ * the underlying remote rendering system handles the visibility and transitions between them based
+ * on the [currentState].
+ *
+ * @param currentState The state machine governing the available states and the current active
+ *   state.
+ * @param modifier The [RemoteModifier] to be applied to this layout.
+ * @param content A composable lambda that defines the UI for each state [T].
  */
 @RemoteComposable
 @Composable
 public fun <T : Enum<T>> RemoteStateLayout(
-    state: RemoteEnum<T>,
+    currentState: RemoteEnum<T>,
     modifier: RemoteModifier = RemoteModifier,
     content: @Composable (T) -> Unit,
 ) {
-    val stateMachine = remember { RemoteStateMachine(state.intValue, state.enumEntries) }
+    val stateMachine = remember {
+        RemoteStateMachine(currentState.intValue, currentState.enumEntries)
+    }
     StateLayout(stateMachine, modifier, content)
 }
 
 /**
- * A layout that displays content based on the current value of a [RemoteBoolean] state.
+ * A layout that manages and displays two states defined by a [RemoteBoolean].
  *
- * @param state The [RemoteBoolean] state that determines which content to display.
- * @param modifier The [RemoteModifier] to be applied to the layout.
- * @param content The composable content to be displayed for the boolean state.
+ * This component ensures that both possible states are composed, while the underlying remote
+ * rendering system handles the visibility and transitions between them based on the [currentState].
+ *
+ * @param currentState The state machine governing the available states and the current active
+ *   state.
+ * @param modifier The [RemoteModifier] to be applied to this layout.
+ * @param content A composable lambda that defines the UI for each state [Boolean].
  */
 @RemoteComposable
 @Composable
 public fun RemoteStateLayout(
-    state: RemoteBoolean,
+    currentState: RemoteBoolean,
     modifier: RemoteModifier = RemoteModifier,
     content: @Composable (Boolean) -> Unit,
 ) {
-    val stateMachine = remember { RemoteStateMachine(state.intValue, listOf(false, true)) }
+    val stateMachine = remember { RemoteStateMachine(currentState.intValue, listOf(false, true)) }
     StateLayout(stateMachine, modifier, content)
 }
 
 /**
- * A layout that displays content based on the current value of a [RemoteInt] state.
+ * A layout that manages and displays multiple states defined by a [RemoteInt].
  *
- * @param state The [RemoteInt] state that determines which content to display.
- * @param states The set of possible integer states.
- * @param modifier The [RemoteModifier] to be applied to the layout.
- * @param content The composable content to be displayed for each integer state.
+ * This component ensures that all possible states defined in [states] are composed, while the
+ * underlying remote rendering system handles the visibility and transitions between them based on
+ * the [RemoteStateMachine.currentState].
+ *
+ * @param currentState The state machine governing the available states and the current active
+ *   state.
+ * @param states The list of integer states that this layout can display.
+ * @param modifier The [RemoteModifier] to be applied to this layout.
+ * @param content A composable lambda that defines the UI for each state [Int].
  */
 @RemoteComposable
 @Composable
 public fun RemoteStateLayout(
-    state: RemoteInt,
+    currentState: RemoteInt,
     vararg states: Int,
     modifier: RemoteModifier = RemoteModifier,
     content: @Composable (Int) -> Unit,
 ) {
-    val stateMachine = remember { RemoteStateMachine(state, states.sorted()) }
+    val stateMachine = remember { RemoteStateMachine(currentState, states.sorted()) }
     StateLayout(stateMachine, modifier, content)
 }

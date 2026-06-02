@@ -290,6 +290,15 @@ package androidx.compose.remote.creation.compose.layout {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteSpacer(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.runtime.Composer?, int, int);
   }
 
+  public final class RemoteStateLayoutKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteStateLayout(androidx.compose.remote.creation.compose.state.RemoteBoolean currentState, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteStateLayout(androidx.compose.remote.creation.compose.state.RemoteBoolean, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, kotlin.jvm.functions.Function3<? super java.lang.Boolean!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static <T extends java.lang.Enum<T>> void RemoteStateLayout(androidx.compose.remote.creation.compose.state.RemoteEnum<T> currentState, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, kotlin.jvm.functions.Function1<T,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static <T extends java.lang.Enum<T>> void RemoteStateLayout(androidx.compose.remote.creation.compose.state.RemoteEnum<T>, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, kotlin.jvm.functions.Function3<? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteStateLayout(androidx.compose.remote.creation.compose.state.RemoteInt currentState, int... states, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, kotlin.jvm.functions.Function1<java.lang.Integer,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteStateLayout(androidx.compose.remote.creation.compose.state.RemoteInt, int[], androidx.compose.remote.creation.compose.modifier.RemoteModifier?, kotlin.jvm.functions.Function3<? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
   public final class RemoteTextKt {
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText(androidx.compose.remote.creation.compose.state.RemoteString text, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor? color, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.remote.creation.compose.text.RemoteFontFamily? fontFamily, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxLines, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle style, optional androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText-yT6CtNU(androidx.compose.remote.creation.compose.state.RemoteString, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.remote.creation.compose.text.RemoteFontFamily?, androidx.compose.ui.text.style.TextAlign?, int, int, androidx.compose.remote.creation.compose.text.RemoteTextStyle?, androidx.compose.ui.text.font.FontVariation.Settings?, androidx.compose.runtime.Composer?, int, int, int);
@@ -592,6 +601,16 @@ package androidx.compose.remote.creation.compose.state {
     method public operator androidx.compose.remote.creation.compose.state.MutableRemoteBoolean invoke(boolean initialValue);
   }
 
+  public final class MutableRemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.RemoteEnum<T> implements androidx.compose.remote.creation.compose.state.MutableRemoteState<T> {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.MutableRemoteInt getRemoteInt();
+    property public androidx.compose.remote.creation.compose.state.MutableRemoteInt remoteInt;
+    field public static final androidx.compose.remote.creation.compose.state.MutableRemoteEnum.Companion Companion;
+  }
+
+  public static final class MutableRemoteEnum.Companion {
+    method @KotlinOnly public inline operator <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.MutableRemoteEnum<T> invoke(T initialValue);
+  }
+
   public final class MutableRemoteFloat extends androidx.compose.remote.creation.compose.state.RemoteFloat implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Float> {
     method @InaccessibleFromKotlin public Float? getConstantValueOrNull();
     property public Float? constantValueOrNull;
@@ -753,6 +772,30 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteDp rememberNamedRemoteDp(String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, kotlin.jvm.functions.Function0<androidx.compose.remote.creation.compose.state.RemoteDp!>, androidx.compose.runtime.Composer?, int, int);
     property public static androidx.compose.remote.creation.compose.state.RemoteDp int.rdp;
     property public static androidx.compose.remote.creation.compose.state.RemoteDp float.rdp;
+  }
+
+  public class RemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.BaseRemoteState<T> {
+    ctor public RemoteEnum(androidx.compose.remote.creation.compose.state.RemoteInt intValue, kotlin.enums.EnumEntries<T> enumEntries);
+    method @InaccessibleFromKotlin public T? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteInt getOrdinal();
+    method public final androidx.compose.remote.creation.compose.state.RemoteInt toRemoteInt(kotlin.jvm.functions.Function1<? super T,? extends androidx.compose.remote.creation.compose.state.RemoteInt> mapping);
+    method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(optional kotlin.jvm.functions.Function1<? super T,? extends androidx.compose.remote.creation.compose.state.RemoteString> mapping);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteString! toRemoteString$default(androidx.compose.remote.creation.compose.state.RemoteEnum!, kotlin.jvm.functions.Function1!, int, Object!);
+    property public T? constantValueOrNull;
+    property public final androidx.compose.remote.creation.compose.state.RemoteInt ordinal;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteEnum.Companion Companion;
+  }
+
+  public static final class RemoteEnum.Companion {
+    method @KotlinOnly public inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> createNamedRemoteEnum(String name, T defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @KotlinOnly public inline operator <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> invoke(T value);
+  }
+
+  public final class RemoteEnumKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.MutableRemoteEnum<T> rememberMutableRemoteEnum(T initialValue);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> rememberNamedRemoteEnum(String name, T initialValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static <T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> rememberNamedRemoteEnum(String name, T initialValue, kotlin.enums.EnumEntries<T> enumEntries, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static <T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> rememberNamedRemoteEnum(String, T, kotlin.enums.EnumEntries<T>, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
   }
 
   @androidx.compose.runtime.Stable public abstract class RemoteFloat extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Float> {

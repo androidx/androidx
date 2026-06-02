@@ -91,7 +91,7 @@ fun RemoteStateLayoutSimpleDemo() {
         RemoteDemo(update = { player -> player.setUserLocalInt(stateId, selectedState) }) {
             val remoteState = rememberNamedRemoteInt(stateId, states[0])
 
-            RemoteStateLayout(state = remoteState, states = states) { state ->
+            RemoteStateLayout(currentState = remoteState, states = states) { state ->
                 val color =
                     when (state) {
                         0 -> Color.Red

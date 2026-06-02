@@ -126,7 +126,7 @@ private fun RemoteBoxAlignmentsDemoContent(alignments: List<Pair<Int, RemoteAlig
 
     RemoteStateLayout(
         modifier = RemoteModifier.wrapContentSize(),
-        state = currentState,
+        currentState = currentState,
         states = alignments.map { it.first }.toIntArray(),
     ) { state ->
         RemoteBox(
