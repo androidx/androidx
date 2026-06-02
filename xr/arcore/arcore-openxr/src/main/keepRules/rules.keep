@@ -13,6 +13,12 @@
 -if class androidx.xr.arcore.AugmentedImage
 -keep class androidx.xr.arcore.openxr.AugmentedImageState { *; }
 
+-if class androidx.xr.arcore.AugmentedImage
+-keep class androidx.xr.arcore.openxr.OpenXrAugmentedImageDatabase { *; }
+
+-if class androidx.xr.arcore.AugmentedImage
+-keep class androidx.xr.arcore.openxr.OpenXrAugmentedImageDatabase$OpenXrAugmentedImageDatabaseEntry { *; }
+
 -if class androidx.xr.arcore.AugmentedObject
 -keep class androidx.xr.arcore.openxr.AugmentedObjectState { *; }
 

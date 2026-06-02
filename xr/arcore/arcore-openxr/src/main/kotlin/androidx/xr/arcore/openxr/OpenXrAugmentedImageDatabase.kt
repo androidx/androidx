@@ -28,7 +28,7 @@ import androidx.xr.runtime.AugmentedImageDatabaseEntry
  * @property entries the list of images included in the database
  */
 internal class OpenXrAugmentedImageDatabase(
-    internal val entries: List<OpenXrAugmentedImageDatabaseEntry> = emptyList()
+    @JvmField internal val entries: List<OpenXrAugmentedImageDatabaseEntry> = emptyList()
 ) {
     /**
      * Wraps a native
@@ -44,12 +44,12 @@ internal class OpenXrAugmentedImageDatabase(
      * @property widthInMeters the physical width of the image in meters
      */
     internal data class OpenXrAugmentedImageDatabaseEntry(
-        val mode: Int,
-        val width: Int,
-        val height: Int,
-        val bufferSize: Int,
-        val buffer: ByteArray,
-        val widthInMeters: Float,
+        @JvmField val mode: Int,
+        @JvmField val width: Int,
+        @JvmField val height: Int,
+        @JvmField val bufferSize: Int,
+        @JvmField val buffer: ByteArray,
+        @JvmField val widthInMeters: Float,
     )
 
     internal companion object {
