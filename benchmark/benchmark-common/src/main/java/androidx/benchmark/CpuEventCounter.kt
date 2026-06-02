@@ -41,9 +41,6 @@ class CpuEventCounter : Closeable {
     internal var currentEventFlags = 0
         private set
 
-    /** updated in sync with currentEventFlags, tracks those that should never be zero */
-    private var validateFlags = 0
-
     fun resetEvents(events: List<Event>) {
         resetEvents(events.getFlags())
     }
@@ -53,7 +50,6 @@ class CpuEventCounter : Closeable {
             // set up the flags
             CpuCounterJni.resetEvents(profilerPtr, eventFlags)
             currentEventFlags = eventFlags
-            validateFlags = currentEventFlags.and(Event.CpuCycles.flag.or(Event.Instructions.flag))
         } else {
             // fast path when re-using same flags
             reset()
@@ -74,24 +70,48 @@ class CpuEventCounter : Closeable {
 
     fun stop() = CpuCounterJni.stop(profilerPtr)
 
+    /**
+     * Read the values from the native profiler implementation and write them into [outValues]. Does
+     * not throw.
+     *
+     * @param outValues The object to write the output into
+     */
     fun read(outValues: Values) {
         check(profilerPtr != 0L) { "Error: attempted to read counters after close" }
         check(hasReset) { "Error: attempted to read counters without reset" }
         CpuCounterJni.read(profilerPtr, outValues.longArray)
+    }
+
+    /**
+     * Validates captured CPU counter values.
+     *
+     * Returns an [IllegalStateException] if both [Event.Instructions] and [Event.CpuCycles] are
+     * requested but both measure 0. This indicates a hardware capture failure (e.g., from SELinux
+     * or permission limits).
+     *
+     * @param values captured counter values
+     * @param events performance events requested for capture
+     * @return validation exception if verification fails, or null if successful
+     */
+    fun validateValues(values: Values, events: List<Event>): IllegalStateException? {
+        val eventFlags = events.getFlags()
+        val validateFlags = eventFlags.and(Event.CpuCycles.flag.or(Event.Instructions.flag))
         if (validateFlags != 0) {
             val hasInstructionError =
                 validateFlags.and(Event.Instructions.flag) != 0 &&
-                    outValues.getValue(Event.Instructions) == 0L
+                    values.getValue(Event.Instructions) == 0L
             val hasCpuCyclesError =
                 validateFlags.and(Event.CpuCycles.flag) != 0 &&
-                    outValues.getValue(Event.CpuCycles) == 0L
-            check(!hasInstructionError && !hasCpuCyclesError) {
-                val events = Event.entries.filter { it.flag.and(currentEventFlags) != 0 }
-                "Observed 0 for instructions/cpuCycles, capture appeared to fail, values=[" +
-                    events.joinToString(",") { it.outputName + "=" + outValues.getValue(it) } +
-                    "]"
+                    values.getValue(Event.CpuCycles) == 0L
+            if (hasInstructionError && hasCpuCyclesError) {
+                val valuesString =
+                    events.joinToString(",") { "${it.outputName}=${values.getValue(it)}" }
+                return IllegalStateException(
+                    "Observed 0 for instructions/cpuCycles, capture appeared to fail, values=[$valuesString]"
+                )
             }
         }
+        return null
     }
 
     enum class Event(val id: Int) {
