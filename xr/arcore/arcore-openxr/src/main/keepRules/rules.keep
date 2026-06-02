@@ -70,6 +70,12 @@
 -if class androidx.xr.arcore.Plane
 -keep class androidx.xr.arcore.openxr.PlaneStateKt { *; }
 
+-if class androidx.xr.arcore.QrCode
+-keep class androidx.xr.arcore.openxr.OpenXrQrCode { *; }
+
+-if class androidx.xr.arcore.QrCode
+-keep class androidx.xr.arcore.openxr.QrCodeState { *; }
+
 -if class androidx.xr.arcore.RenderViewpoint
 -keep class androidx.xr.arcore.openxr.OpenXrRenderViewpoint { *; }
 

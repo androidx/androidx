@@ -29,7 +29,8 @@ import androidx.xr.runtime.math.Pose
  * @property extents the extents of the QR
  * @property trackingState the [TrackingState] of the QR
  */
-internal class OpenXrQrCode internal constructor(internal val qrCodeId: Long) : QrCode, Updatable {
+internal class OpenXrQrCode internal constructor(@JvmField internal val qrCodeId: Long) :
+    QrCode, Updatable {
     override var centerPose: Pose = Pose()
         private set
 

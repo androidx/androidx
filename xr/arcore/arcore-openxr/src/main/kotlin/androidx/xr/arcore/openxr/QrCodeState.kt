@@ -32,8 +32,8 @@ import androidx.xr.runtime.math.Pose
  * @property data The content of the detected QR code.
  */
 internal data class QrCodeState(
-    val trackingState: TrackingState = TrackingState.PAUSED,
-    val centerPose: Pose = Pose(),
-    val extents: FloatSize2d = FloatSize2d(),
-    val data: String = "",
+    @JvmField val trackingState: TrackingState = TrackingState.PAUSED,
+    @JvmField val centerPose: Pose = Pose(),
+    @JvmField val extents: FloatSize2d = FloatSize2d(),
+    @JvmField val data: String = "",
 )
