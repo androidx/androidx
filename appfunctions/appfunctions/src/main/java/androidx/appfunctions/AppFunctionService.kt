@@ -31,7 +31,10 @@ import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecute
 import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
 import androidx.appfunctions.internal.Dispatchers
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,7 +60,8 @@ import kotlinx.coroutines.withContext
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 public abstract class AppFunctionService :
     PlatformAppFunctionService(), AppFunctionInventoryProvider {
-    private val workerCoroutineScope = CoroutineScope(Dispatchers.Worker)
+    private lateinit var workerExecutor: ExecutorService
+    private lateinit var workerCoroutineScope: CoroutineScope
 
     /**
      * Implements [AppFunctionService.onExecuteFunction] and delegates the execution to
@@ -186,12 +190,24 @@ public abstract class AppFunctionService :
     ): ExecuteAppFunctionResponse
 
     /**
+     * Implementing class can override this method to perform setup but should always call the
+     * superclass implementation.
+     */
+    @CallSuper
+    override fun onCreate() {
+        super.onCreate()
+        workerExecutor = Executors.newSingleThreadExecutor()
+        workerCoroutineScope = CoroutineScope(workerExecutor.asCoroutineDispatcher())
+    }
+
+    /**
      * Implementing class can override this method to perform cleanup but should always call the
      * superclass implementation.
      */
     @CallSuper
     override fun onDestroy() {
-        super.onDestroy()
         workerCoroutineScope.cancel()
+        workerExecutor.shutdown()
+        super.onDestroy()
     }
 }
