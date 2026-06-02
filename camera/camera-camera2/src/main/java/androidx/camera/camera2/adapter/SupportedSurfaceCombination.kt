@@ -1098,6 +1098,16 @@ public class SupportedSurfaceCombination(
         featureSettings: FeatureSettings,
         forceUniqueMaxFpsFiltering: Boolean = false,
     ): Map<UseCaseConfig<*>, List<Size>> {
+        if (featureSettings.isHighSpeedOn) {
+            // High-speed sessions require all streams to adopt the exact same size. Independent
+            // filtering relies on strict descending area ordering. Differences in sorting order
+            // between use cases in newUseCaseConfigsSupportedSizeMap (e.g., due to aspect-ratio
+            // preferences) can cause a size to be filtered in one use case but kept in another,
+            // resulting in an empty size intersection when resolving common supported sizes later
+            // in getSuggestedStreamSpecifications.
+            return newUseCaseConfigsSupportedSizeMap
+        }
+
         val filteredUseCaseConfigToSupportedSizesMap = mutableMapOf<UseCaseConfig<*>, List<Size>>()
         for (useCaseConfig in newUseCaseConfigsSupportedSizeMap.keys) {
             val reducedSizeList = mutableListOf<Size>()
