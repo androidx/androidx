@@ -18,6 +18,7 @@ package androidx.compose.ui.layout
 
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -26,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo

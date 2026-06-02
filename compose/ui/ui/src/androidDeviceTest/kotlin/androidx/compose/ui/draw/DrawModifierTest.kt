@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.IndicationNodeFactory
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Box
@@ -39,7 +40,6 @@ import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.background
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode

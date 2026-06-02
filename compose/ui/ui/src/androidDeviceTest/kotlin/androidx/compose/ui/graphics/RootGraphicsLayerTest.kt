@@ -17,13 +17,13 @@
 package androidx.compose.ui.graphics
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.background
 import androidx.compose.ui.layout.assertCenterPixelColor
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.testTag
