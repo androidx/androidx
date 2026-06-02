@@ -362,13 +362,10 @@ internal class NativeTextInputConnection(
     // If not specified, iOS would use the default system tint color
     private var selectionTintColor: Color? = null
     private fun setupTintColor() {
-        textInputView.let {
-            val uiColor = selectionTintColor?.toUIColor()
-            it.setTintColor(uiColor)
-        }
+        textInputView.setTintColor(selectionTintColor?.toUIColor())
     }
 
-    fun updateNativeTextInputEditMenuState(
+    override fun setAvailableEditMenuActions(
         copy: (() -> Unit)?,
         paste: (() -> Unit)?,
         cut: (() -> Unit)?,

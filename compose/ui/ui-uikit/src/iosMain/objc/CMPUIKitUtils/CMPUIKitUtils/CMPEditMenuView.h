@@ -34,6 +34,11 @@
                  selectAll:(void (^)(void))selectAllBlock
              customActions:(NSArray<CMPEditMenuCustomAction *> *)customActions;
 
+- (void)updateAvailableSystemActions:(void (^)(void))copyBlock
+                                 cut:(void (^)(void))cutBlock
+                               paste:(void (^)(void))pasteBlock
+                           selectAll:(void (^)(void))selectAllBlock;
+
 - (void)hideEditMenu;
 
 - (NSTimeInterval)editMenuDelay;

@@ -496,15 +496,18 @@ private fun notifyAboutContextMenuItems(
 @Composable
 private fun startObservingSelectionChanges(
     context: UIKitNativeTextInputContext,
-    selectionProvider: () -> TextRange,
-    onSelectionChanged: () -> Unit
+    itemsStateProvider: () -> ContextMenuItemsState,
 ) {
-    LaunchedEffect(selectionProvider) {
-        snapshotFlow { if (context.usingNativeTextInput()) selectionProvider() else null }
-            .filterNotNull()
-            .collect {
-                onSelectionChanged()
-            }
+    LaunchedEffect(itemsStateProvider) {
+        snapshotFlow { itemsStateProvider() }.collect {
+            context.updateNativeTextInputEditMenuState(
+                copy = it.copy,
+                paste = it.paste,
+                cut = it.cut,
+                selectAll = it.selectAll,
+                customActions = it.customActions
+            )
+        }
     }
 }
 
@@ -521,24 +524,40 @@ private fun startNotifyingAboutContextMenuItems(
     manager: TextFieldSelectionManager,
     nativeTextInputContext: UIKitNativeTextInputContext,
 ) {
+    LaunchedEffect(manager) {
+        manager.updateClipboardEntry()
+    }
+    val scope = rememberCoroutineScope()
     startObservingSelectionChanges(
         nativeTextInputContext,
-        selectionProvider = { manager.value.selection },
-        onSelectionChanged = {
-            nativeTextInputContext.updateNativeTextInputEditMenuState(
-                copy = if (manager.isCopyAllowed()) ({ manager.copy(cancelSelection = false) }) else null,
-                paste = if (manager.canShowPasteMenuItem()) ({ manager.paste() }) else null,
-                cut = if (manager.canShowCutMenuItem()) ({ manager.cut() }) else null,
-                selectAll = if (manager.canShowSelectAllMenuItem()) ({ manager.selectAll() }) else null,
+        itemsStateProvider = {
+            fun editBlock(isEnabled: Boolean, action: () -> Unit): (() -> Unit)? {
+                return if (isEnabled) {
+                    {
+                        action()
+                        scope.launch {
+                            manager.updateClipboardEntry()
+                        }
+                    }
+                } else {
+                    null
+                }
+            }
+            ContextMenuItemsState(
+                copy = editBlock(manager.isCopyAllowed()) { manager.copy(cancelSelection = false) },
+                paste = editBlock(manager.canShowPasteMenuItem()) { manager.paste() },
+                cut = editBlock(manager.canShowCutMenuItem()) { manager.cut() },
+                selectAll = editBlock(manager.canShowSelectAllMenuItem()) { manager.selectAll() },
                 customActions = emptyList()
             )
-        })
+        }
+    )
 }
 
 /**
  * Starts notifying the native iOS input system about the available context menu items (isNewContextMenu = false) in [BasicTextField] (with [TextFieldState] argument)
  *
- * @param selectionState The current state of the text field selection, including selection bounds
+ * @param state The current state of the text field selection, including selection bounds
  * and related actions.
  * @param nativeTextInputContext The UIKitNativeTextInputContext instance used to update the edit menu state
  * with actions.
@@ -546,30 +565,35 @@ private fun startNotifyingAboutContextMenuItems(
 @OptIn(InternalComposeUiApi::class)
 @Composable
 private fun startNotifyingAboutContextMenuItems(
-    selectionState: TextFieldSelectionState,
+    state: TextFieldSelectionState,
     nativeTextInputContext: UIKitNativeTextInputContext,
 ) {
+    LaunchedEffect(state) {
+        state.updateClipboardEntry()
+    }
     // this should be the same scope as at the root of BasicTextField
     val coroutineScope = rememberCoroutineScope()
     startObservingSelectionChanges(
         nativeTextInputContext,
-        selectionProvider = { selectionState.textFieldState.visualText.selection },
-        onSelectionChanged = {
-            val copyBlock: () -> Unit =
-                { coroutineScope.launch { selectionState.copy(cancelSelection = false) } }
-            val pasteBlock: () -> Unit = { coroutineScope.launch { selectionState.paste() } }
-            val cutBlock: () -> Unit = { coroutineScope.launch { selectionState.cut() } }
-            val selectAllBlock: () -> Unit = {
-                coroutineScope.launch {
-                    selectionState.selectAll()
+        itemsStateProvider = {
+            fun editBlock(isEnabled: Boolean, action: suspend () -> Unit): (() -> Unit)? {
+                return if (isEnabled) {
+                    {
+                        coroutineScope.launch {
+                            action()
+                            state.updateClipboardEntry()
+                        }
+                    }
+                } else {
+                    null
                 }
             }
 
-            nativeTextInputContext.updateNativeTextInputEditMenuState(
-                copy = if (selectionState.canShowCopyMenuItem()) (copyBlock) else null,
-                paste = if (selectionState.canShowPasteMenuItem()) (pasteBlock) else null,
-                cut = if (selectionState.canShowCutMenuItem()) (cutBlock) else null,
-                selectAll = if (selectionState.canShowSelectAllMenuItem()) (selectAllBlock) else null,
+            ContextMenuItemsState(
+                copy = editBlock(state.canShowCopyMenuItem()) { state.copy(cancelSelection = false) },
+                paste = editBlock(state.canShowPasteMenuItem()) { state.paste() },
+                cut = editBlock(state.canShowCutMenuItem()) { state.cut() },
+                selectAll = editBlock(state.canShowSelectAllMenuItem()) { state.selectAll() },
                 customActions = emptyList()
             )
         }

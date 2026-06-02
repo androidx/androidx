@@ -63,11 +63,18 @@
 
 @property (weak, nonatomic, nullable) UIView *rootView;
 
+// Used for context menu
 @property (copy, nonatomic, nullable) void (^copyBlock)(void);
 @property (copy, nonatomic, nullable) void (^cutBlock)(void);
 @property (copy, nonatomic, nullable) void (^pasteBlock)(void);
 @property (copy, nonatomic, nullable) void (^selectAllBlock)(void);
 @property (copy, nonatomic, nullable) NSArray<CMPEditMenuCustomAction *> *customActions;
+
+// Used for hotkeys
+@property (copy, nonatomic, nullable) void (^systemCopyBlock)(void);
+@property (copy, nonatomic, nullable) void (^systemCutBlock)(void);
+@property (copy, nonatomic, nullable) void (^systemPasteBlock)(void);
+@property (copy, nonatomic, nullable) void (^systemSelectAllBlock)(void);
 
 @property (strong, nonatomic, nullable) dispatch_block_t showContextMenuBlock;
 @property (strong, nonatomic, nullable) dispatch_block_t presentInteractionBlock;
@@ -139,6 +146,16 @@ id _editInteraction;
             [self scheduleShowMenuController];
         }
     }
+}
+
+- (void)updateAvailableSystemActions:(void (^)(void))copyBlock
+                                 cut:(void (^)(void))cutBlock
+                               paste:(void (^)(void))pasteBlock
+                           selectAll:(void (^)(void))selectAllBlock {
+    self.systemCopyBlock = copyBlock;
+    self.systemCutBlock = cutBlock;
+    self.systemPasteBlock = pasteBlock;
+    self.systemSelectAllBlock = selectAllBlock;
 }
 
 - (void)didMoveToWindow {
@@ -286,6 +303,12 @@ id _editInteraction;
         [self cancelShowMenuController];
         [[UIMenuController sharedMenuController] hideMenu];
     }
+
+    self.copyBlock = nil;
+    self.cutBlock = nil;
+    self.pasteBlock = nil;
+    self.selectAllBlock = nil;
+    self.customActions = @[];
 }
 
 - (BOOL)contextMenuItemsChangedCopy:(void (^)(void))copyBlock
@@ -302,16 +325,16 @@ id _editInteraction;
 
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
     if (@selector(copy:) == action) {
-        return self.copyBlock != nil;
+        return self.copyBlock != nil || self.systemCopyBlock != nil;
     }
     if (@selector(paste:) == action) {
-        return self.pasteBlock != nil;
+        return self.pasteBlock != nil || self.systemPasteBlock != nil;
     }
     if (@selector(cut:) == action) {
-        return self.cutBlock != nil;
+        return self.cutBlock != nil || self.systemCutBlock != nil;
     }
     if (@selector(selectAll:) == action) {
-        return self.selectAllBlock != nil;
+        return self.selectAllBlock != nil || self.systemSelectAllBlock != nil;
     }
 
     if (@selector(customAction0:) == action) return self.customActions.count > 0;
@@ -331,24 +354,32 @@ id _editInteraction;
 - (void)copy:(id)sender {
     if (self.copyBlock != nil) {
         self.copyBlock();
+    } else if (self.systemCopyBlock != nil) {
+        self.systemCopyBlock();
     }
 }
 
 - (void)paste:(id)sender {
     if (self.pasteBlock != nil) {
         self.pasteBlock();
+    } else if (self.systemPasteBlock != nil) {
+        self.systemPasteBlock();
     }
 }
 
 - (void)cut:(id)sender {
     if (self.cutBlock != nil) {
         self.cutBlock();
+    } else if (self.systemCutBlock != nil) {
+        self.systemCutBlock();
     }
 }
 
 - (void)selectAll:(id)sender {
     if (self.selectAllBlock != nil) {
         self.selectAllBlock();
+    } else if (self.systemSelectAllBlock != nil) {
+        self.systemSelectAllBlock();
     }
 }
 
@@ -437,6 +468,14 @@ willPresentMenuForConfiguration:(UIEditMenuConfiguration *)configuration
     NSArray *allActions = [suggestedActions arrayByAddingObjectsFromArray:[self makeCustomMenuElements]];
     
     return [UIMenu menuWithTitle:@"" children:allActions];
+}
+
+- (UIView *)inputView {
+    return nil;
+}
+
+- (UIView *)inputAccessoryView {
+    return nil;
 }
 
 @end

@@ -43,6 +43,9 @@ import androidx.compose.foundation.text.input.internal.selection.TextToolbarStat
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.awaitSelectionGestures
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -341,8 +344,8 @@ private class UIKitTextFieldTextDragObserver(
 }
 
 internal actual class ClipboardPasteState actual constructor(private val clipboard: Clipboard) {
-    private var _hasClip = false
-    private var _hasText = false
+    private var _hasClip by mutableStateOf(false)
+    private var _hasText by mutableStateOf(false)
 
     actual val hasText: Boolean get() = _hasText
     actual val hasClip: Boolean get() = _hasClip
@@ -372,6 +375,7 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
                     coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                         onClick()
                         close()
+                        state.updateClipboardEntry()
                     }
                 })
         )
