@@ -91,6 +91,16 @@ class ExtensionSessionConfigTest {
     }
 
     @Test
+    fun dsl_buildsCorrectExtensionSessionConfig() {
+        val config =
+            extensionSessionConfig(ExtensionMode.BOKEH, extensionsManager) {
+                isAutoRotationEnabled = true
+            }
+
+        assertThat(config.isAutoRotationEnabled).isTrue()
+    }
+
+    @Test
     fun constructor_isAutoRotationEnabledPassedToSuper() {
         val config =
             ExtensionSessionConfig(

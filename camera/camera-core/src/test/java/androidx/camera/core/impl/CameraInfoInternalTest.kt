@@ -69,9 +69,7 @@ internal class CameraInfoInternalTest {
             }
         val supportedFrameRateRanges =
             cameraInfo.getSupportedFrameRateRanges(
-                object : SessionConfig() {
-                    override val requireNonEmptyUseCases: Boolean = false
-                }
+                SessionConfig(emptyList(), requireNonEmptyUseCases = false)
             )
         assertThat(supportedFrameRateRanges)
             .containsExactlyElementsIn(cameraInfo.supportedFrameRateRanges)
@@ -89,10 +87,11 @@ internal class CameraInfoInternalTest {
             }
         val supportedFrameRateRanges =
             cameraInfo.getSupportedFrameRateRanges(
-                object : SessionConfig() {
-                    override val sessionType: Int = SESSION_TYPE_HIGH_SPEED
-                    override val requireNonEmptyUseCases: Boolean = false
-                }
+                SessionConfig(
+                    emptyList(),
+                    sessionType = SESSION_TYPE_HIGH_SPEED,
+                    requireNonEmptyUseCases = false,
+                )
             )
         assertThat(supportedFrameRateRanges).containsExactly(FPS_120_120, FPS_240_240)
     }

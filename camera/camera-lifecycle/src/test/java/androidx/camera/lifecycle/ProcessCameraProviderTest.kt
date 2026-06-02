@@ -339,10 +339,15 @@ class ProcessCameraProviderTest {
     }
 
     private class CustomSessionConfig(
-        override val cameraFilter: CameraFilter,
-        override val requireNonEmptyUseCases: Boolean = false,
+        cameraFilter: CameraFilter,
+        requireNonEmptyUseCases: Boolean = false,
         useCases: List<UseCase> = emptyList(),
-    ) : SessionConfig(useCases) {}
+    ) :
+        SessionConfig(
+            useCases,
+            cameraFilter = cameraFilter,
+            requireNonEmptyUseCases = requireNonEmptyUseCases,
+        ) {}
 
     companion object {
         private const val CAMERA_ID_0 = "0"

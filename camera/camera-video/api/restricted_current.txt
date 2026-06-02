@@ -73,12 +73,11 @@ package androidx.camera.video {
   }
 
   public final class HighSpeedVideoSessionConfig extends androidx.camera.core.SessionConfig {
-    ctor @BytecodeOnly public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture!, androidx.camera.core.Preview!, android.util.Range!, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture!, androidx.camera.core.Preview!, android.util.Range!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview, optional android.util.Range<java.lang.Integer> frameRateRange);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview, optional android.util.Range<java.lang.Integer> frameRateRange, optional boolean isSlowMotionEnabled);
-    ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview, optional android.util.Range<java.lang.Integer> frameRateRange, optional boolean isSlowMotionEnabled, optional boolean isAutoRotationEnabled);
     method @InaccessibleFromKotlin public androidx.camera.core.Preview? getPreview();
     method @InaccessibleFromKotlin public androidx.camera.video.VideoCapture<? extends java.lang.Object?> getVideoCapture();
     method @InaccessibleFromKotlin public boolean isSlowMotionEnabled();
@@ -90,10 +89,22 @@ package androidx.camera.video {
   public static final class HighSpeedVideoSessionConfig.Builder {
     ctor public HighSpeedVideoSessionConfig.Builder(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
     method public androidx.camera.video.HighSpeedVideoSessionConfig build();
+    method @BytecodeOnly public android.util.Range getFrameRateRange();
+    method @BytecodeOnly public androidx.camera.core.Preview? getPreview();
+    method @BytecodeOnly public boolean isAutoRotationEnabled();
+    method @BytecodeOnly public boolean isSlowMotionEnabled();
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setAutoRotationEnabled(boolean autoRotationEnabled);
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setFrameRateRange(android.util.Range<java.lang.Integer> frameRateRange);
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setPreview(androidx.camera.core.Preview? preview);
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setSlowMotionEnabled(boolean enabled);
+    property @kotlin.jvm.JvmSynthetic public android.util.Range<java.lang.Integer> frameRateRange;
+    property @kotlin.jvm.JvmSynthetic public boolean isAutoRotationEnabled;
+    property @kotlin.jvm.JvmSynthetic public boolean isSlowMotionEnabled;
+    property @kotlin.jvm.JvmSynthetic public androidx.camera.core.Preview? preview;
+  }
+
+  public final class HighSpeedVideoSessionConfigKt {
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline androidx.camera.video.HighSpeedVideoSessionConfig highSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, kotlin.jvm.functions.Function1<androidx.camera.video.HighSpeedVideoSessionConfig.Builder,kotlin.Unit> block);
   }
 
   public final class MediaStoreOutputOptions extends androidx.camera.video.OutputOptions {
