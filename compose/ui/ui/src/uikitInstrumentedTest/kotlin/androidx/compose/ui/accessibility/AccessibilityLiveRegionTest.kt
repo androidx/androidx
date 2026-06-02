@@ -240,16 +240,20 @@ class AccessibilityLiveRegionTest {
         getAccessibilityTree()
         waitForIdle()
 
-        var last = lastAccessibilityNotification
-        assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
-        assertEquals("Label, Value", last?.message)
+        val announcementNotification1 = accessibilityNotifications.last {
+            it.notification == UIAccessibilityAnnouncementNotification
+        }
+        assertNotNull(announcementNotification1)
+        assertEquals("Label, Value", announcementNotification1.message)
 
         label = "New Label"
         value = "New Value"
         waitForIdle()
 
-        last = lastAccessibilityNotification
-        assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
-        assertEquals("New Label, New Value", last?.message)
+        val announcementNotification2 = accessibilityNotifications.last {
+            it.notification == UIAccessibilityAnnouncementNotification
+        }
+        assertNotNull(announcementNotification2)
+        assertEquals("New Label, New Value", announcementNotification2.message)
     }
 }
