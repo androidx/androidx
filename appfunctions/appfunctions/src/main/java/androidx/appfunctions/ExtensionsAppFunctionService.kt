@@ -30,7 +30,10 @@ import com.android.extensions.appfunctions.AppFunctionException as ExtensionAppF
 import com.android.extensions.appfunctions.AppFunctionService
 import com.android.extensions.appfunctions.ExecuteAppFunctionRequest as ExtensionExecuteAppFunctionRequest
 import com.android.extensions.appfunctions.ExecuteAppFunctionResponse as ExtensionExecuteAppFunctionResponse
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,7 +61,8 @@ import kotlinx.coroutines.withContext
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public abstract class ExtensionsAppFunctionService :
     AppFunctionService(), AppFunctionInventoryProvider {
-    private val workerCoroutineScope = CoroutineScope(Dispatchers.Worker)
+    private lateinit var workerExecutor: ExecutorService
+    private lateinit var workerCoroutineScope: CoroutineScope
 
     /**
      * Implements [AppFunctionService.onExecuteFunction] and delegates the execution to
@@ -185,13 +189,25 @@ public abstract class ExtensionsAppFunctionService :
     ): ExecuteAppFunctionResponse
 
     /**
+     * Implementing class can override this method to perform setup but should always call the
+     * superclass implementation.
+     */
+    @CallSuper
+    override fun onCreate() {
+        super.onCreate()
+        workerExecutor = Executors.newSingleThreadExecutor()
+        workerCoroutineScope = CoroutineScope(workerExecutor.asCoroutineDispatcher())
+    }
+
+    /**
      * Implementing class can override this method to perform cleanup but should always call the
      * superclass implementation.
      */
     @CallSuper
     override fun onDestroy() {
-        super.onDestroy()
         workerCoroutineScope.cancel()
+        workerExecutor.shutdown()
+        super.onDestroy()
     }
 
     internal companion object {
