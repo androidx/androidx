@@ -76,9 +76,14 @@ class SessionConfigTest {
             viewPort: ViewPort,
             effects: List<CameraEffect> = emptyList(),
             frameRateRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
-        ) : SessionConfig(useCases, viewPort, effects, frameRateRange) {
-            override val sessionType: Int = SESSION_TYPE_HIGH_SPEED
-        }
+        ) :
+            SessionConfig(
+                useCases,
+                viewPort,
+                effects,
+                frameRateRange,
+                sessionType = SESSION_TYPE_HIGH_SPEED,
+            )
         val sessionConfig = ExtendedSessionConfig(useCases, viewPort, effects, frameRateRange)
 
         assertThat(sessionConfig.useCases).isEqualTo(useCases)
@@ -640,9 +645,7 @@ class SessionConfigTest {
     @Test
     fun sessionConfig_emptyUseCaseListWithRequireNonEmptyUseCasesFalse_noException() {
         // Internal constructor to bypass public API restrictions
-        class TestSessionConfig : SessionConfig(emptyList()) {
-            override val requireNonEmptyUseCases: Boolean = false
-        }
+        class TestSessionConfig : SessionConfig(emptyList(), requireNonEmptyUseCases = false)
         TestSessionConfig() // Should not throw
     }
 
@@ -661,19 +664,17 @@ class SessionConfigTest {
         // Arrange
         val cameraFilter = mock(CameraFilter::class.java)
         val originalSessionConfig =
-            object :
-                SessionConfig(
-                    useCases = useCases,
-                    viewPort = viewPort,
-                    effects = effects,
-                    frameRateRange = frameRateRange,
-                    requiredFeatureGroup = setOf(HDR_HLG10),
-                    preferredFeatureGroup = listOf(FPS_60),
-                ) {
-                override val cameraFilter: CameraFilter? = cameraFilter
-                override val sessionType: Int = SESSION_TYPE_HIGH_SPEED
-                override val requireNonEmptyUseCases: Boolean = false
-            }
+            SessionConfig(
+                useCases = useCases,
+                viewPort = viewPort,
+                effects = effects,
+                frameRateRange = frameRateRange,
+                requiredFeatureGroup = setOf(HDR_HLG10),
+                preferredFeatureGroup = listOf(FPS_60),
+                cameraFilter = cameraFilter,
+                sessionType = SESSION_TYPE_HIGH_SPEED,
+                requireNonEmptyUseCases = false,
+            )
 
         // Act
         val copiedSessionConfig = SessionConfig.Builder(originalSessionConfig).build()
@@ -692,6 +693,19 @@ class SessionConfigTest {
         assertThat(copiedSessionConfig.sessionType).isEqualTo(originalSessionConfig.sessionType)
         assertThat(copiedSessionConfig.requireNonEmptyUseCases)
             .isEqualTo(originalSessionConfig.requireNonEmptyUseCases)
+    }
+
+    @Test
+    fun sessionConfig_dslCreatesCorrectSessionConfig() {
+        val sessionConfig =
+            sessionConfig(useCases) {
+                viewPort = this@SessionConfigTest.viewPort
+                isAutoRotationEnabled = true
+            }
+
+        assertThat(sessionConfig.useCases).isEqualTo(useCases)
+        assertThat(sessionConfig.viewPort).isEqualTo(viewPort)
+        assertThat(sessionConfig.isAutoRotationEnabled).isTrue()
     }
 
     private fun createVideoCapture(quality: Quality? = null): VideoCapture<Recorder> {

@@ -198,6 +198,18 @@ class HighSpeedVideoSessionConfigTest {
     }
 
     @Test
+    fun dsl_buildsCorrectHighSpeedVideoSessionConfig() {
+        val config =
+            highSpeedVideoSessionConfig(defaultVideoCapture) {
+                isAutoRotationEnabled = true
+                preview = defaultPreview
+            }
+
+        assertThat(config.isAutoRotationEnabled).isTrue()
+        assertThat(config.preview).isEqualTo(defaultPreview)
+    }
+
+    @Test
     fun toString_containsAllPropertiesCorrectly() {
         // Test with all properties
         val config1 =

@@ -1,3 +1,1 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.camera.core.SessionConfig#SessionConfig(java.util.List, androidx.camera.core.ViewPort, java.util.List, android.util.Range, java.util.Set, java.util.List, int, kotlin.jvm.internal.DefaultConstructorMarker):
-    Binary breaking change: Removed constructor androidx.camera.core.SessionConfig(java.util.List,androidx.camera.core.ViewPort,java.util.List,android.util.Range,java.util.Set,java.util.List,int,kotlin.jvm.internal.DefaultConstructorMarker)
