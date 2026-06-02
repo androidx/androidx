@@ -37,13 +37,14 @@ import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
 import androidx.compose.remote.player.core.platform.BitmapLoader;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
+import androidx.compose.remote.player.view.platform.RemotePreparedDocument;
+import androidx.compose.remote.testing.LimitsRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,24 +61,11 @@ import java.util.Random;
 @RunWith(AndroidJUnit4.class)
 public class ImageErrorTest {
 
+    @Rule
+    public final LimitsRule limitsRule =
+            new LimitsRule().enableImageUrls(true).enableImageFiles(true);
+
     private final RcPlatformServices mPlatform = new AndroidxRcPlatformServices();
-
-    private boolean mOriginalEnableImageUrls;
-    private boolean mOriginalEnableImageFiles;
-
-    @Before
-    public void setUp() {
-        mOriginalEnableImageUrls = Limits.ENABLE_IMAGE_URLS;
-        mOriginalEnableImageFiles = Limits.ENABLE_IMAGE_FILES;
-        Limits.ENABLE_IMAGE_URLS = true;
-        Limits.ENABLE_IMAGE_FILES = true;
-    }
-
-    @After
-    public void tearDown() {
-        Limits.ENABLE_IMAGE_URLS = mOriginalEnableImageUrls;
-        Limits.ENABLE_IMAGE_FILES = mOriginalEnableImageFiles;
-    }
 
     // ########################### TEST UTILS ######################################
     private RemoteDocument createDocument(
@@ -363,6 +351,45 @@ public class ImageErrorTest {
         } finally {
             tempFile.delete();
         }
+    }
+
+    @Test
+    public void testRemotePreparedDocumentOversizeImageFailsSafely() {
+        int tw = 600;
+        int th = 600;
+
+        int declaredWidth = 10;
+        int declaredHeight = 10;
+        int attackWidth = 2000;
+        int attackHeight = 2000;
+
+        Bitmap bigImage = Bitmap.createBitmap(attackWidth, attackHeight, Bitmap.Config.ARGB_8888);
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        bigImage.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] bigPngBytes = bos.toByteArray();
+        bigImage.recycle();
+
+        RemoteComposeBuffer buffer = new RemoteComposeBuffer();
+        buffer.header(tw, th, 1.0f, 0L);
+        buffer.storeBitmap(1, declaredWidth, declaredHeight, bigPngBytes);
+        buffer.addDrawBitmap(1, 0f, 0f, 100f, 100f, 0);
+
+        int size = buffer.getBuffer().getSize();
+        byte[] b = Arrays.copyOf(buffer.getBuffer().getBuffer(), size);
+        InputStream is = new ByteArrayInputStream(b);
+        RemoteDocument rdoc = new RemoteDocument(is);
+
+        BitmapLoader loader = (url) -> null;
+
+        // RemotePreparedDocument's constructor eagerly calls loadBitmap on all BitmapData
+        // operations.
+        RuntimeException e =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> {
+                            new RemotePreparedDocument(rdoc, loader);
+                        });
+        assertThat(e).hasMessageThat().contains("dimensions don't match");
     }
 
     ByteBuffer createDoc(int tw, int th) {
