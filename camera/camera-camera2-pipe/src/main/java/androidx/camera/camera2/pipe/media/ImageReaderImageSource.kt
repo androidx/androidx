@@ -24,14 +24,14 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.ImageSourceConfig
-import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
-import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.media.OutputImage.Companion.toLogString
 import java.lang.Class
 import javax.inject.Inject
+import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 internal class ImageReaderImageSources
@@ -40,7 +40,6 @@ constructor(
     private val threads: Threads,
     cameraPipeConfig: CameraPipe.Config,
     cameraMetadata: CameraMetadata,
-    private val memoryEstimator: MemoryEstimator,
 ) : ImageSources {
     private val platformApiCompat = cameraPipeConfig.platformApiCompat
 
@@ -107,7 +106,7 @@ constructor(
                     output.id,
                     handler,
                 )
-            return ImageReaderImageSource.create(imageReader, memoryEstimator)
+            return ImageReaderImageSource.create(imageReader)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -146,7 +145,7 @@ constructor(
                     enableConcurrentOutputs,
                     platformApiCompat,
                 )
-            return ImageReaderImageSource.create(imageReader, memoryEstimator)
+            return ImageReaderImageSource.create(imageReader)
         }
 
         // If we reach this point, it's likely the user asked for MultiResolutionImageReader
@@ -176,29 +175,23 @@ public class ImageReaderImageSource(
     private val imageReader: ImageReaderWrapper,
     internal val maxImages: Int,
     internal val usageFlags: Long? = imageReader.usageFlags,
-    private val memoryEstimator: MemoryEstimator,
 ) : ImageSource {
     public companion object {
         public const val BUFFER_QUEUE_MAX_CAPACITY: Int = 64
         public const val DEFAULT_PIPELINE_MAX_DEPTH: Byte = 10
         public const val IMAGE_SOURCE_CAPACITY_MARGIN: Int = 2
 
-        public fun create(
-            imageReader: ImageReaderWrapper,
-            memoryEstimator: MemoryEstimator,
-        ): ImageSource {
+        public fun create(imageReader: ImageReaderWrapper): ImageSource {
             // Reduce the maxImages of the ImageSource relative to the ImageReader to ensure there
             // is enough headroom to avoid acquiring too many images that could otherwise stall the
             // camera or trigger IllegalStateExceptions from the underlying ImageReader.
             val maxImages = imageReader.capacity - IMAGE_SOURCE_CAPACITY_MARGIN
-            return ImageReaderImageSource(imageReader, maxImages, memoryEstimator = memoryEstimator)
+            return ImageReaderImageSource(imageReader, maxImages)
         }
     }
 
     private val state = atomic(State.ACTIVE)
     private val imageCount = atomic(0)
-    private val ImageWrapper.estimatedBytes: Long
-        get() = StreamFormat.bytesPerImage(StreamFormat(format), width, height)
 
     override val surface: Surface = imageReader.surface
 
@@ -261,31 +254,11 @@ public class ImageReaderImageSource(
             return
         }
 
-        val isInactive = state.value != State.ACTIVE
-        val isOverCapacity = currentImageCount > maxImages
-        val isLowMemory = !memoryEstimator.canAllocate(image.estimatedBytes)
-        // If there are too many images that are currently being held or the ImageSource is in
-        // a CLOSING or CLOSED state, or we are low of memory budget: close the image, decrement the
-        // imageCount, and let the outputListener know that an image was received but that it was
-        // dropped (by passing null for the image).
-        if (isOverCapacity || isInactive || isLowMemory) {
-            when {
-                isLowMemory ->
-                    Log.warn {
-                        "Dropping image from $streamId at ${image.timestamp} due to low memory budget. " +
-                            "Usage: ${memoryEstimator.usage.value} bytes, requested: ${image.estimatedBytes} bytes."
-                    }
-                isInactive ->
-                    Log.warn {
-                        "Dropping image from $streamId at ${image.timestamp} because ImageSource is not active. " +
-                            "State: ${state.value}."
-                    }
-
-                else ->
-                    Log.warn {
-                        "Dropping $image from $streamId, ${currentImageCount - 1} / $maxImages acquired."
-                    }
-            }
+        if (currentImageCount > maxImages || state.value != State.ACTIVE) {
+            // If there are too many images that are currently being held or the ImageSource is in
+            // a CLOSING or CLOSED state: close the image, decrement the imageCount, and let the
+            // outputListener know that an image was received but that it was dropped (by passing
+            // null for the image).
             val outputTimestamp = image.timestamp
             closeAndDecrementImageCount(image)
             outputListener.onImage(streamId, outputId, outputTimestamp, null)
@@ -298,7 +271,7 @@ public class ImageReaderImageSource(
             streamId,
             outputId,
             image.timestamp,
-            TrackedOutputImage(this, image, streamId, outputId, memoryEstimator),
+            TrackedOutputImage(image, streamId, outputId),
         )
     }
 
@@ -329,6 +302,43 @@ public class ImageReaderImageSource(
         // If we reach this point, this ImageSource is CLOSING. Actively flush and discard free
         // buffers to reduce memory usage as individual images are closed.
         imageReader.flush()
+    }
+
+    private inner class TrackedOutputImage(
+        private val image: ImageWrapper,
+        override val streamId: StreamId,
+        override val outputId: OutputId,
+    ) : ImageWrapper by image, OutputImage {
+        @Suppress("UNCHECKED_CAST")
+        @Deprecated("Use the reified unwrapAs<T>() extension function instead")
+        override fun <T : Any> unwrapAs(type: KClass<T>): T? = unwrapAs(type.java)
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : Any> unwrapAs(type: Class<T>): T? =
+            when (type) {
+                TrackedOutputImage::class.java -> this as T?
+                OutputImage::class.java -> this as T?
+                ImageWrapper::class.java -> this as T?
+                else -> image.unwrapAs(type)
+            }
+
+        private val closed = atomic(false)
+
+        override fun close() {
+            if (closed.compareAndSet(expect = false, update = true)) {
+                // Close underlying image exactly once, and close it *before* decrementImageCount
+                // to ensure the imageCount does not get out of sync.
+                closeAndDecrementImageCount(image)
+            }
+        }
+
+        protected fun finalize() {
+            // https://kotlinlang.org/docs/java-interop.html#finalize
+            // Wrapper images that are no longer reachable should be closed to avoid memory leaks.
+            close()
+        }
+
+        override fun toString(): String = this.toLogString()
     }
 
     private enum class State {

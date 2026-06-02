@@ -149,7 +149,6 @@ public interface CameraPipe {
         val imageSources: ImageSources? = null,
         val flags: Flags = Flags(),
         val platformApiCompat: PlatformApiCompat? = null,
-        val memoryEstimator: MemoryEstimator = MemoryEstimator.create(),
     )
 
     /**

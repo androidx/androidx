@@ -232,29 +232,19 @@ internal class FrameDistributor(
 
         // Create a Frame, and offer it
         val frame = FrameImpl(frameState)
+        frameStartedListener.onFrameStarted(frame)
 
         // If there is an explicit capture request associated with this request, pass it to the
         // FrameCapture.
         if (!requestMetadata.repeating) {
             val frameCapture = frameCaptureQueue.remove(requestMetadata.request)
-            // Acquire a Frame for this capture with usage type as external. Pass on the same frame
-            // to the frameStartedListener.
-            // FrameBuffers(s) are one of the consumer of this listener, but sending an external use
-            // Frame to them is ok since FrameBuffer(s) will get this Frame as a FrameReference.
-            // If they want to use this Frame, they will need to fork a new Frame out. The forked
-            // Frame can be marked for internal use.
             if (frameCapture != null) {
-                frame.isExternal = true
-                frameStartedListener.onFrameStarted(frame)
                 frameCapture.completeWith(frame)
                 return
             }
         }
-        frameStartedListener.onFrameStarted(frame)
 
-        // Close the frame. This releases the reference we are holding. This is ok since the
-        // FrameBuffer(s) are supposed to acquire a Frame from the reference and for explicit
-        // captures we use a forked reference.
+        // Close the frame. This releases the reference we are holding.
         frame.close()
     }
 
