@@ -30,6 +30,9 @@ import kotlinx.serialization.modules.SerializersModule
 /**
  * An [AbstractDecoder] that decodes arguments from a flat map of strings (extracted from a deep
  * link) into a navigation key.
+ *
+ * @throws DeepLinkDecoderException if required values are missing from [arguments] or if the
+ *   provided value is the wrong type
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>) :
@@ -87,7 +90,11 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
                         "Cannot decode collection of type with serial name ${elementDescriptor.serialName}. Only collections of primitives are supported."
                     )
                 }
-                val values = arguments[currentName] ?: emptyList()
+                val values =
+                    arguments[currentName]
+                        ?: throw DeepLinkDecoderException(
+                            "Argument value not found for argument name [$currentName]"
+                        )
                 ListDecoder(values)
             }
             StructureKind.MAP ->
@@ -102,26 +109,29 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
     }
 
     override fun decodeString(): String {
-        val value = arguments[currentName]?.firstOrNull()
-        requireNotNull(value) { "Missing value for field [$currentName]" }
-        return arguments[currentName]?.first()!!
+        val value =
+            arguments[currentName]?.firstOrNull()
+                ?: throw DeepLinkDecoderException(
+                    "Argument value not found for argument name [$currentName]"
+                )
+        return value
     }
 
-    override fun decodeInt(): Int = decodeString().toInt()
+    override fun decodeInt(): Int = decodePrimitive { it.toInt() }
 
-    override fun decodeBoolean(): Boolean = decodeString().toBooleanStrict()
+    override fun decodeBoolean(): Boolean = decodePrimitive { it.toBooleanStrict() }
 
-    override fun decodeLong(): Long = decodeString().toLong()
+    override fun decodeLong(): Long = decodePrimitive { it.toLong() }
 
-    override fun decodeFloat(): Float = decodeString().toFloat()
+    override fun decodeFloat(): Float = decodePrimitive { it.toFloat() }
 
-    override fun decodeDouble(): Double = decodeString().toDouble()
+    override fun decodeDouble(): Double = decodePrimitive { it.toDouble() }
 
-    override fun decodeChar(): Char = decodeString().first()
+    override fun decodeChar(): Char = decodePrimitive { it.first() }
 
-    override fun decodeByte(): Byte = decodeString().toByte()
+    override fun decodeByte(): Byte = decodePrimitive { it.toByte() }
 
-    override fun decodeShort(): Short = decodeString().toShort()
+    override fun decodeShort(): Short = decodePrimitive { it.toShort() }
 
     override fun decodeNull(): Nothing? = null
 
@@ -131,11 +141,18 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
         val value = decodeString()
         val index = enumDescriptor.getElementIndex(value)
         if (index == CompositeDecoder.UNKNOWN_NAME) {
-            throw SerializationException(
-                "Unknown enum value [$value] for enum type with serial name ${enumDescriptor.serialName}"
-            )
+            throw DeepLinkDecoderException("Unknown ENUM value: $value")
         }
         return index
+    }
+
+    private inline fun <K> decodePrimitive(block: (String) -> K): K {
+        val value = decodeString()
+        return try {
+            block(value)
+        } catch (e: Exception) {
+            throw DeepLinkDecoderException(e.message)
+        }
     }
 }
 
@@ -166,19 +183,30 @@ internal class ListDecoder(private val values: List<String>) : AbstractDecoder()
         return values[currentIndex]
     }
 
-    override fun decodeInt(): Int = decodeString().toInt()
+    override fun decodeInt(): Int = decodePrimitive { it.toInt() }
 
-    override fun decodeBoolean(): Boolean = decodeString().toBooleanStrict()
+    override fun decodeBoolean(): Boolean = decodePrimitive { it.toBooleanStrict() }
 
-    override fun decodeLong(): Long = decodeString().toLong()
+    override fun decodeLong(): Long = decodePrimitive { it.toLong() }
 
-    override fun decodeFloat(): Float = decodeString().toFloat()
+    override fun decodeFloat(): Float = decodePrimitive { it.toFloat() }
 
-    override fun decodeDouble(): Double = decodeString().toDouble()
+    override fun decodeDouble(): Double = decodePrimitive { it.toDouble() }
 
-    override fun decodeChar(): Char = decodeString().first()
+    override fun decodeChar(): Char = decodePrimitive { it.first() }
 
-    override fun decodeByte(): Byte = decodeString().toByte()
+    override fun decodeByte(): Byte = decodePrimitive { it.toByte() }
 
-    override fun decodeShort(): Short = decodeString().toShort()
+    override fun decodeShort(): Short = decodePrimitive { it.toShort() }
+
+    private inline fun <K> decodePrimitive(block: (String) -> K): K {
+        val value = decodeString()
+        return try {
+            block(value)
+        } catch (e: Exception) {
+            throw DeepLinkDecoderException(e.message)
+        }
+    }
 }
+
+internal class DeepLinkDecoderException(msg: String? = null) : Exception(msg, null)

@@ -229,7 +229,12 @@ public open class UriDeepLinkMatcher<T : Any>(
             putAll(pathArgs)
         }
         val decoder = DeepLinkDecoder(arguments)
-        val key = decoder.decodeSerializableValue(serializer)
+        val key =
+            try {
+                decoder.decodeSerializableValue(serializer)
+            } catch (e: DeepLinkDecoderException) {
+                return null
+            }
         val isExactPath = pathArgs.isEmpty() && !uriPattern.getPathSegments().contains(".*")
         return UriMatchResult(key, arguments, isExactPath, pathArgs.size)
     }

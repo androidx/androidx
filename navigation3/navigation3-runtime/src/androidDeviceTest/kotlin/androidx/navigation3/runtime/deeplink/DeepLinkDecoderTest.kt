@@ -19,7 +19,6 @@ package androidx.navigation3.runtime.deeplink
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.serializer
 
@@ -162,7 +161,7 @@ class DeepLinkDecoderTest {
             )
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<IntKey>())
         }
     }
@@ -172,7 +171,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("bool" to listOf("notABoolean"))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<BooleanKey>())
         }
     }
@@ -182,7 +181,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("byte" to listOf("notAByte"))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<ByteKey>())
         }
     }
@@ -192,7 +191,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("short" to listOf("notAShort"))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<ShortKey>())
         }
     }
@@ -202,7 +201,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("long" to listOf("notALong"))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<LongKey>())
         }
     }
@@ -212,7 +211,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("float" to listOf("notAFloat"))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<FloatKey>())
         }
     }
@@ -222,7 +221,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("double" to listOf("notADouble"))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<DoubleKey>())
         }
     }
@@ -232,7 +231,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("char" to listOf(""))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<NoSuchElementException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<CharKey>())
         }
     }
@@ -269,7 +268,7 @@ class DeepLinkDecoderTest {
         val arguments = mapOf("direction" to listOf("UP"))
         val decoder = DeepLinkDecoder(arguments)
 
-        assertFailsWith<SerializationException> {
+        assertFailsWith<DeepLinkDecoderException> {
             decoder.decodeSerializableValue(serializer<EnumKey>())
         }
     }
@@ -347,56 +346,4 @@ class DeepLinkDecoderTest {
             decoder.decodeSerializableValue(serializer<MapKey>())
         }
     }
-
-    @Serializable data class SimpleKey(val name: String, val age: Int)
-
-    @Serializable data class DefaultKey(val name: String = "default", val age: Int = 0)
-
-    @Serializable data class NullableKey(val name: String?, val age: Int?)
-
-    @Serializable data class NestedKey(val user: SimpleKey, val flag: Boolean)
-
-    @Serializable
-    enum class DirectionEnum {
-        NORTH,
-        SOUTH,
-    }
-
-    @Serializable data class EnumKey(val direction: DirectionEnum)
-
-    @Serializable data class DefaultEnumKey(val direction: DirectionEnum = DirectionEnum.NORTH)
-
-    @Serializable data class NestedEnumKey(val direction: EnumKey, val flag: Boolean)
-
-    @Serializable data class ListKey(val list: List<Int>)
-
-    @Serializable data class SetKey(val set: Set<String>)
-
-    @Serializable data class ArrayKey(val array: Array<Boolean>)
-
-    @Serializable data class NullableListKey(val list: List<Int?>)
-
-    @Serializable data class DefaultListKey(val list: List<Int> = emptyList())
-
-    @Serializable data class NonPrimitiveListKey(val list: List<SimpleKey>)
-
-    @Serializable data class NonEmptyDefaultListKey(val list: List<Int> = listOf(1, 2, 3))
-
-    @Serializable data class MapKey(val map: Map<Int, String>)
-
-    @Serializable data class BooleanKey(val bool: Boolean)
-
-    @Serializable data class ByteKey(val byte: Byte)
-
-    @Serializable data class ShortKey(val short: Short)
-
-    @Serializable data class LongKey(val long: Long)
-
-    @Serializable data class FloatKey(val float: Float)
-
-    @Serializable data class DoubleKey(val double: Double)
-
-    @Serializable data class CharKey(val char: Char)
-
-    @Serializable data class IntKey(val int: Int)
 }
