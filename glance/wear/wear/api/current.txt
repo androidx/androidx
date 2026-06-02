@@ -24,6 +24,9 @@ package androidx.glance.wear {
     ctor public GlanceWearWidgetService();
     method @InaccessibleFromKotlin public abstract androidx.glance.wear.GlanceWearWidget getWidget();
     method public final android.os.IBinder? onBind(android.content.Intent intent);
+    method public final void onCreate();
+    method public final void onDestroy();
+    method public final int onStartCommand(android.content.Intent? intent, int flags, int startId);
     property public abstract androidx.glance.wear.GlanceWearWidget widget;
     field public static final String ACTION_BIND_WIDGET_PROVIDER = "androidx.glance.wear.action.BIND_WIDGET_PROVIDER";
     field public static final androidx.glance.wear.GlanceWearWidgetService.Companion Companion;
