@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
@@ -451,6 +452,7 @@ internal fun BasicTextField(
             )
             .pointerHoverIcon(PointerIcon.Text)
             .addContextMenuComponents(textFieldSelectionState, coroutineScope)
+            .textFieldOverlay(state, keyboardOptions, interactionSource)
 
     Box(decorationModifiers, propagateMinConstraints = true) {
         ContextMenuArea(textFieldSelectionState, enabled) {
@@ -552,6 +554,18 @@ internal fun BasicTextField(
         }
     }
 }
+
+/**
+ * A modifier that can be used to determine the location and state of the text field. It is used on
+ * multiplatform, where knowledge of the text field's state and location is required in order to
+ * support platform-dependent features such as VoiceOver or Autofill (password autofill, one-time
+ * codes, etc.).
+ */
+internal expect fun Modifier.textFieldOverlay(
+    state: TextFieldState,
+    keyboardOptions: KeyboardOptions,
+    interactionSource: InteractionSource,
+): Modifier
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.heightForSingleLineField(textLayoutState: TextLayoutState) =
