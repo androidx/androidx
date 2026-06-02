@@ -452,7 +452,14 @@ constructor(
         camera2ErrorProcessor.setActiveVirtualCamera(cameraIdToOpen, request.virtualCamera)
         val result = retrieveActiveCamera(cameraIdToOpen, request, requestAborted)
         if (result is RetrieveActiveCameraResult.Error) {
-            if (result.lastCameraError != null) {
+            // Log the event as error when the error code is present. Here, we do not log
+            // ERROR_CAMERA_OPEN_TIMEOUT as error since this generally happens when camera open is
+            // aborted, which can happen during test shutdown and logging this can lead to erroneous
+            // test failures (b/518765641).
+            if (
+                result.lastCameraError != null &&
+                    result.lastCameraError != CameraError.ERROR_CAMERA_OPEN_TIMEOUT
+            ) {
                 Log.error {
                     "Failed to retrieve active camera for $cameraIdToOpen. " +
                         "Last camera error was ${result.lastCameraError}"
@@ -460,7 +467,7 @@ constructor(
             } else {
                 Log.warn {
                     "Failed to retrieve active camera for $cameraIdToOpen. " +
-                        "Camera might have been closed during opening."
+                        "Camera might have been aborted or closed during opening."
                 }
             }
             return
