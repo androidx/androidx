@@ -32,7 +32,6 @@ import org.jspecify.annotations.NonNull;
  * a {@link CustomTabsIntent} using
  * {@link CustomTabsIntent.Builder#addCustomContentAction(CustomContentAction)}.
  */
-@ExperimentalCustomContentAction
 public final class CustomContentAction {
 
     /**
