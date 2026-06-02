@@ -86,12 +86,6 @@ final class androidx.lifecycle/ViewModelProvider { // androidx.lifecycle/ViewMod
         open fun <#A2: androidx.lifecycle/ViewModel> create(kotlin.reflect/KClass<#A2>, androidx.lifecycle.viewmodel/CreationExtras): #A2 // androidx.lifecycle/ViewModelProvider.Factory.create|create(kotlin.reflect.KClass<0:0>;androidx.lifecycle.viewmodel.CreationExtras){0§<androidx.lifecycle.ViewModel>}[0]
     }
 
-    open class OnRequeryFactory { // androidx.lifecycle/ViewModelProvider.OnRequeryFactory|null[0]
-        constructor <init>() // androidx.lifecycle/ViewModelProvider.OnRequeryFactory.<init>|<init>(){}[0]
-
-        open fun onRequery(androidx.lifecycle/ViewModel) // androidx.lifecycle/ViewModelProvider.OnRequeryFactory.onRequery|onRequery(androidx.lifecycle.ViewModel){}[0]
-    }
-
     final object Companion { // androidx.lifecycle/ViewModelProvider.Companion|null[0]
         final val VIEW_MODEL_KEY // androidx.lifecycle/ViewModelProvider.Companion.VIEW_MODEL_KEY|{}VIEW_MODEL_KEY[0]
             final fun <get-VIEW_MODEL_KEY>(): androidx.lifecycle.viewmodel/CreationExtras.Key<kotlin/String> // androidx.lifecycle/ViewModelProvider.Companion.VIEW_MODEL_KEY.<get-VIEW_MODEL_KEY>|<get-VIEW_MODEL_KEY>(){}[0]

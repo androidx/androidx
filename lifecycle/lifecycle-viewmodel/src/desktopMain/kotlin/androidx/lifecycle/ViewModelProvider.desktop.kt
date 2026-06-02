@@ -40,11 +40,6 @@ public actual class ViewModelProvider private constructor(private val impl: View
             ViewModelProviders.unsupportedCreateViewModel()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual open class OnRequeryFactory {
-        public actual open fun onRequery(viewModel: ViewModel) {}
-    }
-
     /** Simple factory, which calls empty constructor on the give class. */
     public open class NewInstanceFactory
     /**

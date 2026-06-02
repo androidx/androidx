@@ -164,11 +164,6 @@ private constructor(private val impl: ViewModelProviderImpl) {
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual open class OnRequeryFactory {
-        public actual open fun onRequery(viewModel: ViewModel) {}
-    }
-
     /** Simple factory, which calls empty constructor on the give class. */
     @Suppress("KmpSignatureClash") // also defined in desktop
     public open class NewInstanceFactory
