@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.CameraPipe.CameraBackendConfig
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.ConfigQueryResult
 import androidx.camera.camera2.pipe.FrameGraph
+import androidx.camera.camera2.pipe.MemoryEstimator
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -202,10 +203,11 @@ private constructor(
             testContext: Context,
             testThreads: CameraPipe.ThreadConfig,
             testCameras: List<CameraMetadata>,
+            memoryEstimator: MemoryEstimator = MemoryEstimator.create(),
         ): CameraPipeSimulator {
             val fakeSurfaces = FakeSurfaces()
             val fakeImageReaders = FakeImageReaders(fakeSurfaces)
-            val fakeImageSources = FakeImageSources(fakeImageReaders)
+            val fakeImageSources = FakeImageSources(fakeImageReaders, memoryEstimator)
             val fakeCameraBackend =
                 FakeCameraBackend(fakeCameras = testCameras.associateBy { it.camera })
 
@@ -217,6 +219,7 @@ private constructor(
                             CameraBackendConfig(internalBackend = fakeCameraBackend),
                         threadConfig = testThreads,
                         imageSources = fakeImageSources,
+                        memoryEstimator = memoryEstimator,
                     )
                 )
             return CameraPipeSimulator(
@@ -232,6 +235,7 @@ private constructor(
             testScope: TestScope,
             testContext: Context,
             fakeCameras: List<CameraMetadata> = listOf(FakeCameraMetadata()),
+            memoryEstimator: MemoryEstimator = MemoryEstimator.create(),
         ): CameraPipeSimulator {
             val testScopeDispatcher =
                 StandardTestDispatcher(testScope.testScheduler, "CXCP-TestScope")
@@ -254,6 +258,7 @@ private constructor(
                 testContext = testContext,
                 testThreads = testScopeThreadConfig,
                 testCameras = fakeCameras,
+                memoryEstimator = memoryEstimator,
             )
         }
     }
