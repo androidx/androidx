@@ -142,6 +142,7 @@ internal class FrameBufferImpl(
         frameToClose?.close()
     }
 
+    @Deprecated("Use removeFirst instead.")
     override fun removeFirstReference(): FrameReference? =
         synchronized(lock) {
             if (closed) return null
@@ -151,6 +152,7 @@ internal class FrameBufferImpl(
             }
         }
 
+    @Deprecated("Use removeLast instead.")
     override fun removeLastReference(): FrameReference? =
         synchronized(lock) {
             if (closed) return null
@@ -160,6 +162,7 @@ internal class FrameBufferImpl(
             }
         }
 
+    @Deprecated("Use removeAll instead")
     override fun removeAllReferences(): List<FrameReference> =
         synchronized(lock) {
             if (closed) return emptyList()
@@ -169,14 +172,17 @@ internal class FrameBufferImpl(
             references
         }
 
+    @Deprecated("Use removeFirst instead")
     override fun removeFirstFrameReferenceAndAcquire(
         predicate: (FrameReference) -> Boolean
     ): Frame? = removeAndAcquire(predicate, reversed = false)
 
+    @Deprecated("Use removeLast instead")
     override fun removeLastFrameReferenceAndAcquire(
         predicate: (FrameReference) -> Boolean
     ): Frame? = removeAndAcquire(predicate, reversed = true)
 
+    @Deprecated("Use removeAll instead")
     override fun removeAllFrameReferencesAndAcquire(
         predicate: (FrameReference) -> Boolean
     ): List<Frame> =
@@ -191,6 +197,36 @@ internal class FrameBufferImpl(
                 if (predicate(bufferEntry.frameReference)) {
                     iterator.remove()
                     (bufferEntry as? BufferEntry.WithFrame)?.let { removedFrames.add(it.frame) }
+                }
+            }
+            _size.value = frameQueue.size
+            return removedFrames
+        }
+
+    override fun removeFirst(predicate: ((FrameReference) -> Boolean)?): Frame? =
+        removeAndAcquire(predicate ?: { true }, reversed = false)
+
+    override fun removeLast(predicate: ((FrameReference) -> Boolean)?): Frame? =
+        removeAndAcquire(predicate ?: { true }, reversed = true)
+
+    override fun removeAll(predicate: ((FrameReference) -> Boolean)?): List<Frame> =
+        synchronized(lock) {
+            if (closed || frameQueue.isEmpty()) return emptyList()
+
+            if (predicate == null) {
+                return clearQueueAndExtractFrames()
+            }
+
+            val removedFrames = buildList {
+                val iterator = frameQueue.iterator()
+                while (iterator.hasNext()) {
+                    val entry = iterator.next()
+                    if (predicate(entry.frameReference)) {
+                        iterator.remove()
+                        if (entry is BufferEntry.WithFrame) {
+                            add(entry.frame)
+                        }
+                    }
                 }
             }
             _size.value = frameQueue.size

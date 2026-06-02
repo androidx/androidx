@@ -65,21 +65,21 @@ public interface FrameBuffer : AutoCloseable {
      *
      * The frame reference is removed from the buffer.
      */
-    public fun removeFirstReference(): FrameReference?
+    @Deprecated("Use removeFirst instead.") public fun removeFirstReference(): FrameReference?
 
     /**
      * Removes the last frame reference in the buffer or null if the buffer is empty.
      *
      * The frame reference is removed from the buffer.
      */
-    public fun removeLastReference(): FrameReference?
+    @Deprecated("Use removeLast instead.") public fun removeLastReference(): FrameReference?
 
     /**
      * Removes all the frame reference in the buffer or empty if the buffer is empty.
      *
      * The frame references are removed from the buffer.
      */
-    public fun removeAllReferences(): List<FrameReference>
+    @Deprecated("Use removeAll instead.") public fun removeAllReferences(): List<FrameReference>
 
     /**
      * Removes the first entry in [FrameBuffer] that matches the [FrameReference] filter. If a match
@@ -90,6 +90,7 @@ public interface FrameBuffer : AutoCloseable {
      * @return The [Frame] of the first buffer entry that matches the filter, or null if a match is
      *   not found or the matching entry does not have a frame.
      */
+    @Deprecated("Use removeFirst(predicate) instead.")
     public fun removeFirstFrameReferenceAndAcquire(predicate: (FrameReference) -> Boolean): Frame?
 
     /**
@@ -101,6 +102,7 @@ public interface FrameBuffer : AutoCloseable {
      * @return The [Frame] of the last buffer entry that matches the filter, or null if a match is
      *   not found or the matching entry does not have a frame.
      */
+    @Deprecated("Use removeLast(predicate) instead.")
     public fun removeLastFrameReferenceAndAcquire(predicate: (FrameReference) -> Boolean): Frame?
 
     /**
@@ -112,6 +114,7 @@ public interface FrameBuffer : AutoCloseable {
      * @return The [Frame] of all entries that matches the filter, or null if a match is not found
      *   or the matching entry does not have a frame.
      */
+    @Deprecated("Use removeAll(predicate) instead.")
     public fun removeAllFrameReferencesAndAcquire(
         predicate: (FrameReference) -> Boolean
     ): List<Frame>
@@ -121,6 +124,47 @@ public interface FrameBuffer : AutoCloseable {
      * references are removed by this call.
      */
     public fun peekFirstReference(): FrameReference?
+
+    /**
+     * Removes the first entry in [FrameBuffer] that matches the optional [predicate] filter.
+     *
+     * If [predicate] is null, the first entry in the buffer is removed. If [predicate] is provided,
+     * the first entry that matches the filter is removed. If a matching entry is found and removed,
+     * its associated [Frame] is returned if valid; otherwise, null is returned.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the first entry is removed.
+     * @return The [Frame] associated with the removed entry, or null if the buffer is empty, no
+     *   entry matches the [predicate] filter, or the removed entry does not have a valid frame.
+     */
+    public fun removeFirst(predicate: ((FrameReference) -> Boolean)? = null): Frame?
+
+    /**
+     * Removes the last entry in [FrameBuffer] that matches the optional [predicate] filter.
+     *
+     * If [predicate] is null, the last entry in the buffer is removed. If [predicate] is provided,
+     * the last entry that matches the filter is removed. If a matching entry is found and removed,
+     * its associated [Frame] is returned if valid; otherwise, null is returned.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the last entry is removed.
+     * @return The [Frame] associated with the removed entry, or null if the buffer is empty, no
+     *   entry matches the [predicate] filter, or the removed entry does not have a valid frame.
+     */
+    public fun removeLast(predicate: ((FrameReference) -> Boolean)? = null): Frame?
+
+    /**
+     * Removes all entries in [FrameBuffer] that match the optional [predicate] filter.
+     *
+     * If [predicate] is null, all entries in the buffer are removed. If [predicate] is provided,
+     * all entries that match the filter are removed. For each removed entry, its [Frame] is
+     * returned if valid.
+     *
+     * @param predicate An optional filter function to apply. If null, all entries are matched and
+     *   removed.
+     * @return A list of [Frame]s associated with the removed entries.
+     */
+    public fun removeAll(predicate: ((FrameReference) -> Boolean)? = null): List<Frame>
 
     /**
      * The last FrameReference in the buffer, or null if the buffer is empty. No frame references
@@ -152,6 +196,7 @@ public interface FrameBuffer : AutoCloseable {
  * [FrameBuffer], such as peeking at or removing frames.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Suppress("DEPRECATION")
 public object FrameBuffers {
     /**
      * Returns the first frame in the buffer without removing its reference, or null if the buffer
@@ -180,6 +225,7 @@ public object FrameBuffers {
      *
      * The frame is removed from the buffer.
      */
+    @Deprecated("Use removeFirst instead.")
     @JvmStatic
     public fun FrameBuffer.tryRemoveFirst(): Frame? = this.removeFirstReference()?.tryAcquire()
 
@@ -189,6 +235,7 @@ public object FrameBuffers {
      *
      * The frame is removed from the buffer.
      */
+    @Deprecated("Use removeLast instead.")
     @JvmStatic
     public fun FrameBuffer.tryRemoveLast(): Frame? = this.removeLastReference()?.tryAcquire()
 
@@ -198,6 +245,7 @@ public object FrameBuffers {
      *
      * The frames are removed from the buffer.
      */
+    @Deprecated("Use removeAll instead.")
     @JvmStatic
     public fun FrameBuffer.tryRemoveAll(): List<Frame> =
         this.removeAllReferences().mapNotNull { it.tryAcquire() }
