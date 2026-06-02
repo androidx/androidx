@@ -4947,6 +4947,24 @@ class CompositionTests {
         advance()
     }
 
+    @Test // b/516904513
+    fun derivedStateOfLeak() = compositionTest {
+        val state = mutableIntStateOf(10)
+        compose {
+            val derived by remember { derivedStateOf { state.intValue > 100 } }
+            state.intValue++
+            Text("$derived")
+            Wrap { Text("$derived") }
+        }
+
+        repeat(100) {
+            state.intValue++
+            advance(ignorePendingWork = true)
+        }
+
+        assertEquals(0, (composition as CompositionImpl).processedObservationCount)
+    }
+
     @Test // regression test for 339618126
     fun removeGroupAtEndOfGroup() = compositionTest {
         // Ensure the runtime handles aberrant code generation
