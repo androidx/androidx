@@ -128,6 +128,7 @@ import androidx.compose.remote.integration.view.demos.examples.TestDrawContentDe
 import androidx.compose.remote.integration.view.demos.examples.WeatherDemo
 import androidx.compose.remote.integration.view.demos.examples.countDown
 import androidx.compose.remote.integration.view.demos.examples.cube3d
+import androidx.compose.remote.integration.view.demos.examples.cubeInteractive
 import androidx.compose.remote.integration.view.demos.examples.shaderFireworks
 import androidx.compose.remote.integration.view.demos.utils.RCDoc
 import androidx.compose.remote.player.core.RemoteDocument
@@ -376,6 +377,7 @@ class ExperimentActivity : ComponentActivity() {
                     getpc("Text baseline") { RcTextDemo() },
                     getpc("CountDown") { countDown() },
                     getpc("Cube 3D") { cube3d() },
+                    getpc("Cube 3D (Interactive)") { cubeInteractive() },
                     getpc("Shader Calendar") { ShaderCalendar() },
                     getpc("Ride Share") { rideShare.rideShare() },
                 ),
