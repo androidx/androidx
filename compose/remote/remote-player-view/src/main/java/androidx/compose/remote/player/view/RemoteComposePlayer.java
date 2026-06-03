@@ -50,6 +50,7 @@ import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
 import androidx.compose.remote.player.core.platform.BitmapLoader;
 import androidx.compose.remote.player.core.platform.SettingsRetriever;
+import androidx.compose.remote.player.core.platform.TypefaceResolver;
 import androidx.compose.remote.player.core.state.StateUpdater;
 import androidx.compose.remote.player.core.state.StateUpdaterImpl;
 import androidx.compose.remote.player.view.accessibility.platform.RemoteComposeTouchHelper;
@@ -531,6 +532,26 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @RestrictTo(LIBRARY_GROUP)
     public void setBitmapLoader(@NonNull BitmapLoader bitmapLoader) {
         ((AndroidRemoteContext) mInner.getRemoteContext()).setBitmapLoader(bitmapLoader);
+    }
+
+    /**
+     * Sets the TypefaceResolver to be used by the PaintContext.
+     *
+     * @param typefaceResolver The TypefaceResolver to be used.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setTypefaceResolver(@NonNull TypefaceResolver typefaceResolver) {
+        ((AndroidRemoteContext) mInner.getRemoteContext()).setTypefaceResolver(typefaceResolver);
+    }
+
+    /**
+     * Gets the current TypefaceResolver used by the PaintContext.
+     *
+     * @return The current TypefaceResolver.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public @Nullable TypefaceResolver getTypefaceResolver() {
+        return ((AndroidRemoteContext) mInner.getRemoteContext()).getTypefaceResolver();
     }
 
     /** Sets a FloatSystemVariables on the RemoteContext. */
