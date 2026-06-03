@@ -16,6 +16,8 @@
 
 package androidx.test.shell.command
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.test.shell.Shell
 
 /** Commands about the current focused display. */
@@ -41,21 +43,38 @@ public class ScreenCommands internal constructor(private val shell: Shell) {
     public fun isKeyboardVisible(): Boolean {
         with(shell.command("dumpsys input_method | grep InputShown")) {
             stdErr.assertEmpty()
-            return stdOut
-                .lines()
-                .first { it.contains("InputShown=") }
-                .substringAfter("InputShown=")
-                .trim()
-                .toBooleanStrict()
+            return isKeyboardVisible(stdOut)
         }
     }
 
-    // Regex breakdown:
-    // ActivityRecord\{         # literal “ActivityRecord{”
-    //   [^}]*?                 # non-greedy skip up to the first space before the component
-    //   \s                     # that space
-    // (?<activity>            # start named group “activity”
-    //   [^\s}]+/[^\s}]+        #   one-or-more non-space/non-} chars, slash, same again
-    // )
-    private val regex = Regex("""ActivityRecord\{[^}]*?\s(?<activity>[^\s}]+/[^\s}]+)""")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
+        /**
+         * Returns whether the keyboard is currently visible.
+         *
+         * @param [inputMethod] The result of calling `adb shell dumpsys input_method`.
+         */
+        @VisibleForTesting
+        public fun isKeyboardVisible(inputMethod: String): Boolean {
+            // Be graceful when looking for `InputShown`. It's not always guaranteed to exist.
+            // IME Service could still be initializing or could have crashed.
+            // The Window could have declared that's its handling its own input using something
+            // like: `windowSoftInputMode="stateAlwaysHidden"`
+            return inputMethod
+                .lines()
+                .firstOrNull { it.contains("InputShown=") }
+                ?.substringAfter("InputShown=")
+                ?.trim()
+                ?.toBooleanStrictOrNull() ?: false
+        }
+
+        // Regex breakdown:
+        // ActivityRecord\{         # literal “ActivityRecord{”
+        //   [^}]*?                 # non-greedy skip up to the first space before the component
+        //   \s                     # that space
+        // (?<activity>            # start named group “activity”
+        //   [^\s}]+/[^\s}]+        #   one-or-more non-space/non-} chars, slash, same again
+        // )
+        private val regex = Regex("""ActivityRecord\{[^}]*?\s(?<activity>[^\s}]+/[^\s}]+)""")
+    }
 }
