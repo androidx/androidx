@@ -203,6 +203,13 @@ internal constructor(
     }
 }
 
+/**
+ * Calculates a scene by iterating through the [sceneStrategies] in order.
+ *
+ * If the calculated scene is not an [OverlayScene], it further decorates the scene with
+ * [SceneDecoratorStrategy.decorateScene]. Overlay scenes are animated separately from non-overlays
+ * and therefore don't get decorated along with non-overlays.
+ */
 private fun <T : Any> provideScene(
     scope: SceneDecoratorStrategyScope<T>,
     decoratedEntries: List<NavEntry<T>>,

@@ -28,6 +28,15 @@ internal inline fun <T, R> List<T>.fastMapOrMap(transform: (T) -> R) =
         @Suppress("ListIterator") this.map(transform)
     }
 
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T, R> List<T>.fastMapIndexed(transform: (index: Int, T) -> R): List<R> {
+    contract { callsInPlace(transform) }
+    val target = ArrayList<R>(size)
+    fastForEachIndexed { index, e -> target += transform(index, e) }
+    return target
+}
+
 internal inline fun <T> List<T>.fastForEachReversedOrForEachReversed(action: (T) -> Unit) {
     if (this is RandomAccess) {
         this.fastForEachReversed(action)
@@ -64,6 +73,16 @@ private inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
+internal inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
+    contract { callsInPlace(action) }
+    for (index in indices) {
+        val item = get(index)
+        action(index, item)
+    }
+}
+
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
 private inline fun <T, R> List<T>.fastMap(transform: (T) -> R): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
@@ -91,5 +110,14 @@ private inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
         val key = selector(e)
         if (set.add(key)) target += e
     }
+    return target
+}
+
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
+    contract { callsInPlace(predicate) }
+    val target = ArrayList<T>(size)
+    fastForEach { if (predicate(it)) target += (it) }
     return target
 }

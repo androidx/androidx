@@ -21,9 +21,17 @@ public final class androidx/navigation3/scene/DialogSceneStrategy$Companion$Dial
 	public static final field INSTANCE Landroidx/navigation3/scene/DialogSceneStrategy$Companion$DialogKey;
 }
 
+public final class androidx/navigation3/scene/NavigationEventHandlerKt {
+	public static final fun NavigationBackHandler (Landroidx/navigation3/scene/SceneState;Landroidx/navigationevent/compose/NavigationEventState;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+}
+
 public abstract interface class androidx/navigation3/scene/OverlayScene : androidx/navigation3/scene/Scene {
 	public abstract fun getOverlaidEntries ()Ljava/util/List;
 	public fun onRemove (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class androidx/navigation3/scene/RememberNavigationEventStateKt {
+	public static final fun rememberNavigationEventState (Landroidx/navigation3/scene/SceneState;Landroidx/compose/runtime/Composer;I)Landroidx/navigationevent/compose/NavigationEventState;
 }
 
 public abstract interface class androidx/navigation3/scene/Scene {

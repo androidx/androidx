@@ -20,7 +20,6 @@
  * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -53,7 +52,7 @@ androidXMultiplatform {
 
         commonMain.dependencies {
             api("androidx.navigation3:navigation3-runtime:$navigation3Version")
-            api("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
+            api("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.1.0")
             api("org.jetbrains.compose.animation:animation:1.10.0")
             api("org.jetbrains.compose.runtime:runtime:1.10.0")
             api("org.jetbrains.compose.runtime:runtime-saveable:1.10.0")
