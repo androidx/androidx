@@ -1031,6 +1031,18 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
                     Features.WEBVIEW_NAVIGATE_V1);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers:
+     * {@link WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)}
+     * {@link WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework DOWNLOAD_FAVICONS_ENABLED =
+            new ApiFeature.NoFramework(
+                    WebViewFeature.DOWNLOAD_FAVICONS_ENABLED,
+                    Features.DOWNLOAD_FAVICONS_ENABLED);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

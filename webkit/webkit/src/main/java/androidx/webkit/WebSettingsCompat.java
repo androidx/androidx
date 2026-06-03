@@ -1586,6 +1586,61 @@ public class WebSettingsCompat {
         getAdapter(settings).setHyperlinkContextMenuItems(hyperlinkMenuItems);
     }
 
+    /**
+     * Sets whether the WebView will download a Favicon upon
+     * navigation.
+     * <p>
+     * If you are not using Favicons it is recommended to set this
+     * to false to save resources like bandwidth and memory.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#HYPERLINK_CONTEXT_MENU_ITEMS}.
+     *
+     * @param settings The WebSettings object to update
+     * @param enabled Whether downloading favicons is enabled
+     *
+     * @throws UnsupportedOperationException if the
+     *                                       {@link WebViewFeature#DOWNLOAD_FAVICONS_ENABLED}
+     *                                       feature is not supported.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.DOWNLOAD_FAVICONS_ENABLED,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setDownloadFaviconsEnabled(@NonNull WebSettings settings, boolean enabled) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.DOWNLOAD_FAVICONS_ENABLED;
+        if (!feature.isSupportedByWebView()) {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+        getAdapter(settings).setDownloadFaviconsEnabled(enabled);
+    }
+
+    /**
+     * Returns whether the WebView will download a Favicon upon
+     * navigation.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#HYPERLINK_CONTEXT_MENU_ITEMS}.
+     *
+     * @throws UnsupportedOperationException if the
+     *                                       {@link WebViewFeature#DOWNLOAD_FAVICONS_ENABLED}
+     *                                       feature is not supported.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.DOWNLOAD_FAVICONS_ENABLED,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static boolean getDownloadFaviconsEnabled(@NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.DOWNLOAD_FAVICONS_ENABLED;
+        if (!feature.isSupportedByWebView()) {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+        return getAdapter(settings).getDownloadFaviconsEnabled();
+    }
+
+
     private static WebSettingsAdapter getAdapter(WebSettings settings) {
         try {
             return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
