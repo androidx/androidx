@@ -55,6 +55,29 @@ public class AndroidRemoteContext extends RemoteContext {
 
     @NonNull private BitmapLoader mBitmapLoader = BitmapLoader.UNSUPPORTED;
 
+    private TypefaceResolver mTypefaceResolver;
+
+    /**
+     * Sets the TypefaceResolver to be used by the PaintContext.
+     *
+     * @param typefaceResolver The TypefaceResolver to be used.
+     */
+    public void setTypefaceResolver(@NonNull TypefaceResolver typefaceResolver) {
+        mTypefaceResolver = typefaceResolver;
+        if (mPaintContext != null) {
+            ((AndroidPaintContext) mPaintContext).setTypefaceResolver(typefaceResolver);
+        }
+    }
+
+    /**
+     * Gets the current TypefaceResolver.
+     *
+     * @return The current TypefaceResolver.
+     */
+    public @Nullable TypefaceResolver getTypefaceResolver() {
+        return mTypefaceResolver;
+    }
+
     /** Default constructor, uses a {@link RemoteClock#SYSTEM} as the clock. */
     public AndroidRemoteContext() {
         this(RemoteClock.SYSTEM);
@@ -101,6 +124,9 @@ public class AndroidRemoteContext extends RemoteContext {
     public void useCanvas(@NonNull Canvas canvas) {
         if (mPaintContext == null) {
             mPaintContext = new AndroidPaintContext(this, canvas);
+            if (mTypefaceResolver != null) {
+                ((AndroidPaintContext) mPaintContext).setTypefaceResolver(mTypefaceResolver);
+            }
         } else {
             // need to make sure to update the canvas for the current one
             mPaintContext.reset();
