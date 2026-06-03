@@ -16,11 +16,15 @@
 
 package androidx.compose.ui.autofill
 
+import android.credentials.GetCredentialException
+import android.credentials.GetCredentialRequest
+import android.credentials.GetCredentialResponse
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
+import android.os.OutcomeReceiver
 import android.os.Parcel
 import android.view.View
 import android.view.ViewStructure
@@ -57,6 +61,8 @@ internal data class FakeAndroidViewStructure(
     private val autofillId: AutofillId? = generateAutofillId(),
     private var autofillType: Int = View.AUTOFILL_TYPE_NONE,
     private var autofillHints: Array<out String> = arrayOf(),
+    var credentialRequest: Any? = null,
+    var credentialCallback: Any? = null,
 ) : ViewStructure() {
 
     internal companion object {
@@ -295,6 +301,21 @@ internal data class FakeAndroidViewStructure(
 
     override fun setDataIsSensitive(p0: Boolean) {
         TODO("not implemented")
+    }
+
+    @RequiresApi(35)
+    override fun setPendingCredentialRequest(
+        request: GetCredentialRequest,
+        callback: OutcomeReceiver<GetCredentialResponse, GetCredentialException>,
+    ) {
+        this.credentialRequest = request
+        this.credentialCallback = callback
+    }
+
+    @RequiresApi(35)
+    override fun clearCredentialManagerRequest() {
+        this.credentialRequest = null
+        this.credentialCallback = null
     }
 }
 

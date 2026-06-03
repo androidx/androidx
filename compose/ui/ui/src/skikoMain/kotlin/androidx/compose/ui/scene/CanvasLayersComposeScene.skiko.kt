@@ -39,7 +39,6 @@ import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.layout.MeasurableRootContent
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.RootNodeOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.setContent
@@ -284,7 +283,6 @@ private class CanvasLayersComposeSceneImpl(
     }
 
     override var showLayoutBounds: Boolean = false
-        @OptIn(InternalCoreApi::class)
         set(value) {
             field = value
             forEachOwner { it.owner.showLayoutBounds = value }
@@ -607,7 +605,6 @@ private class CanvasLayersComposeSceneImpl(
         private var onKeyEvent: ((KeyEvent) -> Boolean)? = null
 
         init {
-            @OptIn(InternalCoreApi::class)
             owner.owner.showLayoutBounds = showLayoutBounds
             attachLayer(this)
         }

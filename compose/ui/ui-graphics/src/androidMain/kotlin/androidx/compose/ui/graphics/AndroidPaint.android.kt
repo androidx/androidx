@@ -188,10 +188,21 @@ internal fun android.graphics.Paint.setNativeAntiAlias(value: Boolean) {
     this.isAntiAlias = value
 }
 
-internal fun android.graphics.Paint.getNativeColor(): Color = Color(this.color)
+internal fun android.graphics.Paint.getNativeColor(): Color {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        WrapperVerificationHelperMethods.getColor(this)
+    } else {
+        Color(this.color)
+    }
+}
 
 internal fun android.graphics.Paint.setNativeColor(value: Color) {
-    this.color = value.toArgb()
+    // ColorSpace support was introduced in Android Q
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        WrapperVerificationHelperMethods.setColor(this, value)
+    } else {
+        this.color = value.toArgb()
+    }
 }
 
 internal fun android.graphics.Paint.setNativeStyle(value: PaintingStyle) {
@@ -288,7 +299,18 @@ internal fun android.graphics.Paint.setNativePathEffect(value: PathEffect?) {
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object WrapperVerificationHelperMethods {
+    @androidx.annotation.DoNotInline
     fun setBlendMode(paint: android.graphics.Paint, mode: BlendMode) {
         paint.blendMode = mode.toAndroidBlendMode()
+    }
+
+    @androidx.annotation.DoNotInline
+    fun setColor(paint: android.graphics.Paint, color: Color) {
+        paint.setColor(color.toSupportedColorLong())
+    }
+
+    @androidx.annotation.DoNotInline
+    fun getColor(paint: android.graphics.Paint): Color {
+        return Color.fromColorLong(paint.colorLong)
     }
 }

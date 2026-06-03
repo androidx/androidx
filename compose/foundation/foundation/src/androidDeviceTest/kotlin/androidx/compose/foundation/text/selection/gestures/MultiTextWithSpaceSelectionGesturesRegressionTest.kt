@@ -19,8 +19,8 @@ package androidx.compose.foundation.text.selection.gestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
-import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.MultiSelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
@@ -30,7 +30,6 @@ import androidx.compose.foundation.text.selection.gestures.util.offsetToSelectab
 import androidx.compose.foundation.text.selection.gestures.util.textContentIndices
 import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -55,17 +54,13 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
 
     override val pointerAreaTag = "selectionContainer"
 
-    private val selection = mutableStateOf<Selection?>(null)
+    private val state = SelectionState()
 
     private lateinit var asserter: TextSelectionAsserter
 
     @Composable
     override fun Content() {
-        SelectionContainer(
-            selection = selection.value,
-            onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag),
-        ) {
+        SelectionContainer(state = state, modifier = Modifier.testTag(pointerAreaTag)) {
             Column {
                 texts.fastForEach { (str, tag) ->
                     BasicText(
@@ -88,7 +83,7 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
                     textToolbar = textToolbar,
                     spyTextActionModeCallback = spyTextActionModeCallback,
                     hapticFeedback = hapticFeedback,
-                    getActual = { selection.value },
+                    getActual = { state.selection },
                 ) {
                 override fun subAssert() {
                     Truth.assertAbout(MultiSelectionSubject.withContent(texts))

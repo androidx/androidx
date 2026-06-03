@@ -496,7 +496,7 @@ class FocusRestorerTest {
     }
 
     @Test
-    fun disposedLazyRowWithFocusRestorerRestoresFocusCorrectly() {
+    fun disposedLazyRowWithFocusRestorerRestoresFocusCorrectly_firstRow() {
         rule.setContent {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(600.dp, 250.dp))
@@ -564,6 +564,64 @@ class FocusRestorerTest {
             // that row (ie. 0-10)
             pressKey(Key.DirectionUp)
             rule.onNodeWithTag("0-10").assertIsFocused()
+        }
+    }
+
+    @Test
+    fun disposedLazyRowWithFocusRestorerRestoresFocusCorrectly_allRows() {
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(600.dp, 250.dp))
+            ) {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(50) { outer ->
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.focusRestorer(),
+                        ) {
+                            items(50) { index ->
+                                val interactionSource = remember { MutableInteractionSource() }
+                                val isFocused = interactionSource.collectIsFocusedAsState().value
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier =
+                                        Modifier.testTag("$outer-$index")
+                                            .size(50.dp)
+                                            .focusable(interactionSource = interactionSource)
+                                            .background(if (isFocused) Color.Green else Color.Red),
+                                ) {
+                                    BasicText("$index")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val root = rule.onAllNodes(isRoot())[0]
+
+        rule.onNodeWithTag("0-0").requestFocus()
+        rule.onNodeWithTag("0-0").assertIsFocused()
+
+        root.performKeyInput {
+            repeat(25) { count ->
+                pressKey(Key.DirectionDown)
+                rule.onNodeWithTag("${count + 1}-0").assertIsFocused()
+            }
+
+            // Go back to the first row, selecting item x-1 in each row as we go up
+            repeat(25) { count ->
+                pressKey(Key.DirectionRight)
+                rule.onNodeWithTag("${25 - count}-1").assertIsFocused()
+                pressKey(Key.DirectionUp)
+                rule.onNodeWithTag("${25 - count - 1}-0").assertIsFocused()
+            }
+            // Go back down, and now item x-1 should be focused
+            repeat(25) { count ->
+                pressKey(Key.DirectionDown)
+                rule.onNodeWithTag("${count + 1}-1").assertIsFocused()
+            }
         }
     }
 }

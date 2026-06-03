@@ -40,7 +40,6 @@ public annotation class ExperimentalAnimatableApi
  *
  * @sample androidx.compose.animation.core.samples.DeferredTargetAnimationSample
  */
-@ExperimentalAnimatableApi
 public class DeferredTargetAnimation<T, V : AnimationVector>(
     private val vectorConverter: TwoWayConverter<T, V>
 ) {

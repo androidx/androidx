@@ -21,6 +21,8 @@ import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,12 +58,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -534,33 +542,334 @@ class StyleUxTaskTests {
         }
     }
 
+    @Test
+    fun style_color_brush_animations() {
+        interactiveTask {
+            @Composable
+            fun ClickableStyleableBox(
+                onClick: () -> Unit,
+                modifier: Modifier = Modifier,
+                style: Style = Style,
+            ) {
+                val interactionSource = remember { MutableInteractionSource() }
+                val styleState = rememberUpdatedStyleState(interactionSource)
+                Box(
+                    modifier =
+                        modifier
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null,
+                                onClick = onClick,
+                            )
+                            .styleable(styleState, style)
+                )
+            }
+
+            val startBrush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+            val endBrush = Brush.linearGradient(listOf(Color.Green, Color.Yellow))
+
+            Column {
+                Text("color to color")
+                ClickableStyleableBox(
+                    onClick = {},
+                    style = {
+                        size(150.dp)
+                        background(Color.Blue)
+                        pressed { animate(tween(1000)) { background(Color.Yellow) } }
+                    },
+                )
+                Text("color to brush", modifier = Modifier.padding(top = 10.dp))
+                ClickableStyleableBox(
+                    onClick = {},
+                    style = {
+                        size(150.dp)
+                        background(Color.Blue)
+                        pressed { animate(tween(1000)) { background(endBrush) } }
+                    },
+                )
+
+                Text("brush to color", modifier = Modifier.padding(top = 10.dp))
+                ClickableStyleableBox(
+                    onClick = {},
+                    style = {
+                        size(150.dp)
+                        background(startBrush)
+                        pressed { animate(tween(1000)) { background(Color.Yellow) } }
+                    },
+                )
+                Text("brush to brush", modifier = Modifier.padding(top = 10.dp))
+                ClickableStyleableBox(
+                    onClick = {},
+                    style = {
+                        size(150.dp)
+                        background(startBrush)
+                        pressed { animate(tween(1000)) { background(endBrush) } }
+                    },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun button_from_io_talk() {
+        interactiveTask {
+            val colors =
+                object {
+                    val interactivePrimary =
+                        listOf(Color(0xFFFFC8A4), Color(0xFF9685FF), Color(0xFFFFC8A4))
+                    val textSecondary = Color.White
+                    val interactiveDisabled = Color.LightGray
+                    val interactiveDisabledText = Color.DarkGray
+                    val brand = Color(0xFF9685FF)
+                    val brandLight = Color(0xFFE4E1FA)
+                    val loadingBackground = Color(0xFFFFC8A4)
+                    val error = Color(0xFF93000A)
+                }
+            val shapes =
+                object {
+                    val small = androidx.compose.foundation.shape.RoundedCornerShape(28.dp)
+                }
+            val typography =
+                object {
+                    val labelLarge = androidx.compose.ui.text.TextStyle(fontSize = 16.sp)
+                }
+            fun StyleScope.buttonFocusedStyle() {
+                focused { animate(tween(1000)) { border(4.dp, colors.brand) } }
+            }
+            fun StyleScope.buttonPressedStyle() {
+                pressed {
+                    animate(tween(1000)) {
+                        scale(1.2f)
+                        background(colors.brand)
+                        dropShadow(
+                            Shadow(
+                                color = colors.brand,
+                                offset = DpOffset(x = 0.dp, y = 0.dp),
+                                radius = 0.dp,
+                            )
+                        )
+                        innerShadow(
+                            Shadow(
+                                color = colors.brand,
+                                offset = DpOffset(x = (0).dp, (0).dp),
+                                radius = 0.dp,
+                            )
+                        )
+                    }
+                    buttonFocusedStyle()
+                }
+            }
+
+            val buttonStyle = Style {
+                shape(shapes.small)
+                background(Brush.linearGradient(colors = colors.interactivePrimary))
+                contentColor(colors.textSecondary)
+                minWidth(58.dp)
+                width(150.dp)
+                contentPaddingVertical(8.dp)
+                contentPaddingHorizontal(24.dp)
+                minHeight(40.dp)
+                textStyle(typography.labelLarge)
+                textMotion(TextMotion.Animated)
+                fontWeight(FontWeight.Bold)
+                innerShadow(
+                    Shadow(
+                        color = colors.brand.copy(alpha = 0.5f),
+                        offset = DpOffset(x = (0).dp, (0).dp),
+                        radius = 8.dp,
+                    )
+                )
+                dropShadow(
+                    Shadow(
+                        color = colors.brand,
+                        offset = DpOffset(x = 0.dp, y = 2.dp),
+                        radius = 6.dp,
+                    )
+                )
+                border(4.dp, Color.Transparent)
+                buttonPressedStyle()
+                disabled {
+                    animate(tween(1000)) {
+                        background(colors.interactiveDisabled)
+                        contentColor(colors.interactiveDisabledText)
+                        // reset shadow
+                        dropShadow(
+                            Shadow(
+                                color = Color.Transparent,
+                                offset = DpOffset(x = 0.dp, y = 0.dp),
+                                radius = 0.dp,
+                            )
+                        )
+                        innerShadow(
+                            Shadow(
+                                color = Color.Transparent,
+                                offset = DpOffset(x = (0).dp, (0).dp),
+                                radius = 0.dp,
+                            )
+                        )
+                    }
+                }
+                hovered {
+                    animate(tween(1000)) {
+                        background(colors.brandLight)
+                        dropShadow(
+                            Shadow(
+                                color = colors.brand,
+                                offset = DpOffset(x = 0.dp, y = 2.dp),
+                                radius = 6.dp,
+                            )
+                        )
+                        innerShadow(
+                            Shadow(
+                                color = colors.brand.copy(alpha = 0.5f),
+                                offset = DpOffset(x = (-6).dp, (-2).dp),
+                                radius = 8.dp,
+                            )
+                        )
+                    }
+                }
+                buttonFocusedStyle()
+
+                loading {
+                    animate(tween(1000)) {
+                        background(colors.loadingBackground)
+                        // reset shadow
+                        dropShadow(
+                            Shadow(
+                                color = colors.brand,
+                                offset = DpOffset(x = 0.dp, y = 0.dp),
+                                radius = 0.dp,
+                            )
+                        )
+                        // apply purple inner shadow
+                        innerShadow(
+                            Shadow(
+                                color = colors.brand,
+                                offset = DpOffset(x = (-6).dp, (-2).dp),
+                                radius = 8.dp,
+                            )
+                        )
+                    }
+                    buttonFocusedStyle()
+                }
+                error {
+                    animate(tween(1000)) {
+                        background(colors.error)
+                        // contentColor(colors.interactiveDisabled)
+                        // reset shadow
+                        dropShadow(
+                            Shadow(
+                                color = Color.Transparent,
+                                offset = DpOffset(x = 0.dp, y = 0.dp),
+                                radius = 0.dp,
+                            )
+                        )
+                        innerShadow(
+                            Shadow(
+                                color = Color.Transparent,
+                                offset = DpOffset(x = (0).dp, (0).dp),
+                                radius = 0.dp,
+                            )
+                        )
+                    }
+                    buttonFocusedStyle()
+                }
+            }
+
+            @Composable
+            fun Button(
+                onClick: () -> Unit,
+                modifier: Modifier = Modifier,
+                style: Style = Style,
+                enabled: Boolean = true,
+                loadingState: SampleLoadingState = SampleLoadingState.Loaded,
+                interactionSource: MutableInteractionSource = remember {
+                    MutableInteractionSource()
+                },
+                content: @Composable RowScope.() -> Unit,
+            ) {
+                val styleState =
+                    rememberUpdatedStyleState(interactionSource) {
+                        it.isEnabled = enabled
+                        it.sampleLoadingState = loadingState
+                    }
+                Row(
+                    modifier =
+                        modifier
+                            .padding(8.dp)
+                            .semantics(properties = { role = Role.Button })
+                            .clickable(
+                                enabled = enabled,
+                                onClick = onClick,
+                                interactionSource = interactionSource,
+                                indication = null,
+                            )
+                            .styleable(styleState, buttonStyle, style),
+                    content = content,
+                    verticalAlignment = Alignment.CenterVertically,
+                )
+            }
+
+            // Example usage:
+            var loadingState by remember { mutableStateOf(SampleLoadingState.Loading) }
+            Button(
+                onClick = {
+                    loadingState =
+                        when (loadingState) {
+                            SampleLoadingState.Loaded -> SampleLoadingState.Loading
+                            SampleLoadingState.Loading -> SampleLoadingState.Error
+                            SampleLoadingState.Error -> SampleLoadingState.Loaded
+                        }
+                },
+                enabled = true,
+                loadingState = loadingState,
+                style = { fontWeight(FontWeight.Bold) },
+            ) {
+                val text =
+                    when (loadingState) {
+                        SampleLoadingState.Loaded -> "Add to cart"
+                        SampleLoadingState.Loading -> "Loading..."
+                        SampleLoadingState.Error -> "Try again"
+                    }
+                BasicText(text)
+            }
+        }
+    }
+
     private fun task(content: @Composable () -> Unit) {
         rule.setContent(content)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private fun interactiveTask(isDone: Boolean = true, content: @Composable () -> Unit) {
         var done = isDone
-        rule.setContent {
-            Column(modifier = Modifier.padding(bottom = 10.dp)) {
-                Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) { content() }
-                if (!done) {
-                    Box(
-                        modifier =
-                            Modifier.border(
-                                    10.dp,
-                                    color = Color.LightGray,
-                                    RoundedCornerShape(15.dp),
-                                )
-                                .background(Color.Cyan, RoundedCornerShape(15.dp))
-                                .padding(20.dp)
-                                .clickable { done = true }
-                    ) {
-                        Text("Done")
+        val previous = ComposeFoundationFlags.isInheritedTextStyleEnabled
+        ComposeFoundationFlags.isInheritedTextStyleEnabled = true
+        try {
+            rule.setContent {
+                Column(modifier = Modifier.padding(bottom = 10.dp)) {
+                    Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) { content() }
+                    if (!done) {
+                        Box(
+                            modifier =
+                                Modifier.border(
+                                        10.dp,
+                                        color = Color.LightGray,
+                                        RoundedCornerShape(15.dp),
+                                    )
+                                    .background(Color.Cyan, RoundedCornerShape(15.dp))
+                                    .padding(20.dp)
+                                    .clickable { done = true }
+                        ) {
+                            Text("Done")
+                        }
                     }
                 }
             }
+            rule.waitUntil(1000 * 60 * 2) { done }
+        } finally {
+            ComposeFoundationFlags.isInheritedTextStyleEnabled = previous
         }
-        rule.waitUntil(1000 * 60 * 2) { done }
     }
 }
 
@@ -671,4 +980,30 @@ private fun StyledSwitch(
                 .styleable(styleState, styledSwitchBaseStyle, style),
         content = content,
     )
+}
+
+private enum class SampleLoadingState {
+    Loaded,
+    Loading,
+    Error,
+}
+
+@OptIn(ExperimentalFoundationStyleApi::class)
+private val SampleLoadingStateKey = StyleStateKey(SampleLoadingState.Loaded)
+
+@OptIn(ExperimentalFoundationStyleApi::class)
+private var MutableStyleState.sampleLoadingState: SampleLoadingState
+    get() = get(SampleLoadingStateKey)
+    set(value) {
+        set(SampleLoadingStateKey, value)
+    }
+
+@OptIn(ExperimentalFoundationStyleApi::class)
+private fun StyleScope.loading(block: () -> Unit) {
+    state(SampleLoadingStateKey, block) { key, state -> state[key] == SampleLoadingState.Loading }
+}
+
+@OptIn(ExperimentalFoundationStyleApi::class)
+private fun StyleScope.error(block: () -> Unit) {
+    state(SampleLoadingStateKey, block) { key, state -> state[key] == SampleLoadingState.Error }
 }

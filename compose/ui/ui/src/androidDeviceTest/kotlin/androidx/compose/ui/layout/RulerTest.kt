@@ -40,18 +40,19 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 // There is a bug on x86 L emulators where 35f == NaN is true
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-class RulerTest {
+@RunWith(Parameterized::class)
+class RulerTest(val useIndividualRulers: Boolean) {
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     private val verticalRuler = VerticalRuler()
@@ -95,21 +96,7 @@ class RulerTest {
         val horizontalKeylineValues = mutableFloatListOf()
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                verticalRuler.provides(35f)
-                                horizontalRuler.provides(53f)
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
-                ) {
+                Box(Modifier.size(100.toDp(), 150.toDp()).provideRulers()) {
                     Box(
                         Modifier.offset(x = 25.toDp(), y = 50.toDp())
                             .requiredSize(50.toDp())
@@ -139,21 +126,7 @@ class RulerTest {
         val horizontalKeylineValues = mutableFloatListOf()
         rule.setContent {
             with(LocalDensity.current) {
-                Row(
-                    Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                verticalRuler.provides(35f)
-                                horizontalRuler.provides(53f)
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
-                ) {
+                Row(Modifier.size(100.toDp(), 150.toDp()).provideRulers()) {
                     Text(
                         "Hello",
                         Modifier.alignByBaseline()
@@ -187,21 +160,7 @@ class RulerTest {
         val horizontalKeylineValues = mutableFloatListOf()
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                verticalRuler.provides(5f)
-                                horizontalRuler.provides(7f)
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
-                ) {
+                Box(Modifier.size(100.toDp(), 150.toDp()).provideRulers(7f, 5f)) {
                     Box(
                         Modifier.offset(x = 25.toDp(), y = 50.toDp())
                             .requiredSize(50.toDp())
@@ -231,18 +190,7 @@ class RulerTest {
         rule.setContent {
             with(LocalDensity.current) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Box(
-                        Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                            val p = measurable.measure(constraints)
-                            layout(
-                                p.width,
-                                p.height,
-                                rulers = { verticalRuler.providesRelative(0f) },
-                            ) {
-                                p.place(0, 0)
-                            }
-                        }
-                    ) {
+                    Box(Modifier.size(100.toDp(), 150.toDp()).provideRelativeRuler()) {
                         // Make sure that the layout direction of the place where the ruler is
                         // defined is used, not the layout direction where it is consumed
                         CompositionLocalProvider(
@@ -277,18 +225,7 @@ class RulerTest {
         rule.setContent {
             with(LocalDensity.current) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Box(
-                        Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                            val p = measurable.measure(constraints)
-                            layout(
-                                p.width,
-                                p.height,
-                                rulers = { verticalRuler.providesRelative(0f) },
-                            ) {
-                                p.place(0, 0)
-                            }
-                        }
-                    ) {
+                    Box(Modifier.size(100.toDp(), 150.toDp()).provideRelativeRuler()) {
                         // Make sure that the layout direction of the place where the ruler is
                         // defined is used, not the layout direction where it is consumed
                         CompositionLocalProvider(
@@ -324,18 +261,7 @@ class RulerTest {
         rule.setContent {
             with(LocalDensity.current) {
                 CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                    Box(
-                        Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                            val p = measurable.measure(constraints)
-                            layout(
-                                p.width,
-                                p.height,
-                                rulers = { verticalRuler.providesRelative(0f) },
-                            ) {
-                                p.place(0, 0)
-                            }
-                        }
-                    ) {
+                    Box(Modifier.size(100.toDp(), 150.toDp()).provideRelativeRuler()) {
                         // Make sure that the layout direction of the place where the ruler is
                         // defined is used, not the layout direction where it is consumed
                         CompositionLocalProvider(
@@ -377,19 +303,8 @@ class RulerTest {
         rule.setContent {
             with(LocalDensity.current) {
                 Box(
-                    Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                verticalRuler.provides(vertValue)
-                                horizontalRuler.provides(horzValue)
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
+                    Modifier.size(100.toDp(), 150.toDp())
+                        .provideRulers(horz = { horzValue }, vert = { vertValue })
                 ) {
                     Box(
                         Modifier.align(AbsoluteAlignment.TopLeft)
@@ -430,21 +345,11 @@ class RulerTest {
         rule.setContent {
             with(LocalDensity.current) {
                 Box(
-                    Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                if (setRulers) {
-                                    verticalRuler.provides(35f)
-                                    horizontalRuler.provides(53f)
-                                }
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
+                    Modifier.size(100.toDp(), 150.toDp())
+                        .provideRulers(
+                            horz = { if (setRulers) 53f else null },
+                            vert = { if (setRulers) 35f else null },
+                        )
                 ) {
                     Box(
                         Modifier.align(AbsoluteAlignment.TopLeft)
@@ -484,21 +389,11 @@ class RulerTest {
         rule.setContent {
             with(LocalDensity.current) {
                 Box(
-                    Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                if (setRulers) {
-                                    verticalRuler.provides(35f)
-                                    horizontalRuler.provides(53f)
-                                }
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
+                    Modifier.size(100.toDp(), 150.toDp())
+                        .provideRulers(
+                            horz = { if (setRulers) 53f else null },
+                            vert = { if (setRulers) 35f else null },
+                        )
                 ) {
                     Box(
                         Modifier.align(AbsoluteAlignment.TopLeft)
@@ -537,21 +432,7 @@ class RulerTest {
         var offset by mutableStateOf(IntOffset.Zero)
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier.size(100.toDp(), 150.toDp()).layout { measurable, constraints ->
-                        val p = measurable.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                verticalRuler.provides(35f)
-                                horizontalRuler.provides(53f)
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
-                ) {
+                Box(Modifier.size(100.toDp(), 150.toDp()).provideRulers()) {
                     Box(
                         Modifier.align(AbsoluteAlignment.TopLeft)
                             .offset { offset }
@@ -590,19 +471,10 @@ class RulerTest {
         rule.setContent {
             Box(Modifier.offset { IntOffset(offset, 0) }) {
                 Box(
-                    Modifier.layout { m, constraints ->
-                        val p = m.measure(constraints)
-                        layout(
-                            p.width,
-                            p.height,
-                            rulers = {
-                                val position = coordinates.positionInRoot().x
-                                verticalRuler.provides(-position)
-                            },
-                        ) {
-                            p.place(0, 0)
-                        }
-                    }
+                    Modifier.provideRulers(
+                        horz = { null },
+                        vert = { -coordinates.positionInRoot().x },
+                    )
                 ) {
                     Box(
                         Modifier.layout { measurable, constraints ->
@@ -652,5 +524,157 @@ class RulerTest {
             )
         }
         rule.runOnIdle { assertThat(rulerValue).isWithin(0.01f).of(10f) }
+    }
+
+    @Test
+    fun readOnlyImportantRulers() {
+        var horzRead = false
+        var vertRead = false
+        rule.setContent {
+            Box(
+                Modifier.fillMaxSize()
+                    .provideRulers(
+                        horz = {
+                            horzRead = true
+                            35f
+                        },
+                        vert = {
+                            vertRead = true
+                            53f
+                        },
+                    )
+            ) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            val x = horizontalRuler.current(Float.NaN)
+                            if (x.isNaN()) {
+                                p.place(0, 0)
+                            } else {
+                                p.place(x.roundToInt(), 0)
+                            }
+                        }
+                    }
+                )
+            }
+        }
+        rule.waitForIdle()
+        assertThat(horzRead).isTrue()
+        assertThat(vertRead).isEqualTo(!useIndividualRulers)
+    }
+
+    fun Modifier.provideRulers(horz: Float = 53f, vert: Float = 35f) =
+        if (useIndividualRulers) {
+            layout { measurable, constraints ->
+                val p = measurable.measure(constraints)
+                layout(
+                    p.width,
+                    p.height,
+                    isRulerProvided = { it == verticalRuler || it == horizontalRuler },
+                    rulerProvider = { ruler ->
+                        if (ruler == horizontalRuler) {
+                            ruler.provides(horz)
+                        } else if (ruler == verticalRuler) {
+                            ruler.provides(vert)
+                        }
+                    },
+                ) {
+                    p.place(0, 0)
+                }
+            }
+        } else {
+            layout { measurable, constraints ->
+                val p = measurable.measure(constraints)
+                layout(
+                    p.width,
+                    p.height,
+                    rulers = {
+                        verticalRuler.provides(vert)
+                        horizontalRuler.provides(horz)
+                    },
+                ) {
+                    p.place(0, 0)
+                }
+            }
+        }
+
+    fun Modifier.provideRulers(horz: RulerScope.() -> Float?, vert: RulerScope.() -> Float?) =
+        if (useIndividualRulers) {
+            layout { measurable, constraints ->
+                val p = measurable.measure(constraints)
+                layout(
+                    p.width,
+                    p.height,
+                    isRulerProvided = { it == verticalRuler || it == horizontalRuler },
+                    rulerProvider = { ruler ->
+                        if (ruler == horizontalRuler) {
+                            val value = horz()
+                            if (value != null) {
+                                ruler.provides(value)
+                            }
+                        } else if (ruler == verticalRuler) {
+                            val value = vert()
+                            if (value != null) {
+                                ruler.provides(value)
+                            }
+                        }
+                    },
+                ) {
+                    p.place(0, 0)
+                }
+            }
+        } else {
+            layout { measurable, constraints ->
+                val p = measurable.measure(constraints)
+                layout(
+                    p.width,
+                    p.height,
+                    rulers = {
+                        val h = horz()
+                        if (h != null) {
+                            horizontalRuler.provides(h)
+                        }
+                        val v = vert()
+                        if (v != null) {
+                            verticalRuler.provides(v)
+                        }
+                    },
+                ) {
+                    p.place(0, 0)
+                }
+            }
+        }
+
+    fun Modifier.provideRelativeRuler(vert: Float = 0f) =
+        if (useIndividualRulers) {
+            layout { measurable, constraints ->
+                val p = measurable.measure(constraints)
+                layout(
+                    p.width,
+                    p.height,
+                    isRulerProvided = { it == verticalRuler },
+                    rulerProvider = { ruler ->
+                        if (ruler == verticalRuler) {
+                            verticalRuler.providesRelative(vert)
+                        }
+                    },
+                ) {
+                    p.place(0, 0)
+                }
+            }
+        } else {
+            layout { measurable, constraints ->
+                val p = measurable.measure(constraints)
+                layout(p.width, p.height, rulers = { verticalRuler.providesRelative(vert) }) {
+                    p.place(0, 0)
+                }
+            }
+        }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useIndividualRulers={0}")
+        fun params() = arrayOf(false, true)
     }
 }

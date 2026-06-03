@@ -17,6 +17,7 @@
 package androidx.compose.ui.test.util
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
@@ -45,7 +46,11 @@ fun ClickableTestBox(
     with(LocalDensity.current) {
         Box(
             modifier =
-                modifier.testTag(tag).requiredSize(width.toDp(), height.toDp()).background(color)
+                modifier
+                    .testTag(tag)
+                    .requiredSize(width.toDp(), height.toDp())
+                    .background(color)
+                    .focusable()
         )
     }
 }

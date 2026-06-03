@@ -226,6 +226,16 @@ val TextDemos =
                     },
                     ComposableDemo("Selection & DropdownMenu") { DropdownMenuSelection() },
                     ComposableDemo("Selection in Popup") { SelectionPopupDemo() },
+                    ComposableDemo("Nested Selection") { NestedSelectionContainerDemo() },
+                    ComposableDemo("Select All Button") { SelectAllButtonDemo() },
+                    ComposableDemo("Extend Selection By Word Button") {
+                        ExtendSelectionButtonDemo()
+                    },
+                    ComposableDemo("Selection Translation") { SelectionTranslationDemo() },
+                    ComposableDemo("Share Selection") { ShareSelectionDemo() },
+                    ComposableDemo("Selected Character Count") { SelectionCharacterCountDemo() },
+                    ComposableDemo("Selection Query Programmatically") { SelectQueryDemo() },
+                    ComposableDemo("Select Third Text Programmatically") { SelectThirdTextDemo() },
                 ),
             ),
             DemoCategory(

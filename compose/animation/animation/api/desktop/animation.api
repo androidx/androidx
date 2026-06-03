@@ -6,6 +6,7 @@ public final class androidx/compose/animation/AnimateBoundsModifierKt {
 public final class androidx/compose/animation/AnimatedContentKt {
 	public static final fun AnimatedContent (Landroidx/compose/animation/core/Transition;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
 	public static final fun AnimatedContent (Ljava/lang/Object;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Alignment;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public static final fun DeferredAnimatedContent (Landroidx/compose/animation/core/DeferredTransition;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
 	public static final fun SizeTransform (ZLkotlin/jvm/functions/Function2;)Landroidx/compose/animation/SizeTransform;
 	public static synthetic fun SizeTransform$default (ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/animation/SizeTransform;
 	public static final fun togetherWith (Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;)Landroidx/compose/animation/ContentTransform;
@@ -54,6 +55,7 @@ public final class androidx/compose/animation/AnimatedVisibilityKt {
 	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/RowScope;Landroidx/compose/animation/core/MutableTransitionState;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/RowScope;ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun AnimatedVisibility (ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun DeferredAnimatedVisibility (Landroidx/compose/animation/core/DeferredTransition;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Landroidx/compose/animation/MutableTransform;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
 public abstract interface class androidx/compose/animation/AnimatedVisibilityScope {
@@ -186,6 +188,23 @@ public final class androidx/compose/animation/LookaheadAnimationVisualDebugHelpe
 	public static final fun LookaheadAnimationVisualDebugging-gUzqikQ (ZJJJZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 }
 
+public final class androidx/compose/animation/MutableContentTransform {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (ZZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (ZZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun initialContentTransform (Lkotlin/jvm/functions/Function2;)V
+	public final fun targetContentTransform (Lkotlin/jvm/functions/Function2;)V
+}
+
+public final class androidx/compose/animation/MutableTransform {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)V
+	public synthetic fun <init> (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun invoke (Lkotlin/jvm/functions/Function2;)V
+}
+
 public final class androidx/compose/animation/SharedTransitionDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/animation/SharedTransitionDefaults;
@@ -288,6 +307,19 @@ public final class androidx/compose/animation/SplineBasedFloatDecayAnimationSpec
 	public fun getTargetValue (FF)F
 	public fun getValueFromNanos (JFF)F
 	public fun getVelocityFromNanos (JFF)F
+}
+
+public abstract interface class androidx/compose/animation/TransformScope {
+	public abstract fun getAlpha ()F
+	public abstract fun getOffset-nOcc-ac ()J
+	public abstract fun getScale ()F
+	public abstract fun getTransformOrigin-SzJe1aQ ()J
+	public abstract fun getVeil-0d7_KjU ()J
+	public abstract fun setAlpha (F)V
+	public abstract fun setOffset--gyyYBs (J)V
+	public abstract fun setScale (F)V
+	public abstract fun setTransformOrigin-__ExYCQ (J)V
+	public abstract fun setVeil-8_81llA (J)V
 }
 
 public final class androidx/compose/animation/TransitionKt {

@@ -41,6 +41,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -53,7 +57,19 @@ fun PlainTooltipSample() {
     TooltipBox(
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = { PlainTooltip { Text("Add to favorites") } },
+        tooltip = {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    }
+            ) {
+                Text("Add to favorites")
+            }
+        },
         state = rememberTooltipState(),
     ) {
         IconButton(onClick = { /* Icon button's click event */ }) {
@@ -72,7 +88,21 @@ fun PlainTooltipWithManualInvocationSample() {
         TooltipBox(
             positionProvider =
                 TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = { PlainTooltip { Text("Add to list") } },
+            tooltip = {
+                PlainTooltip(
+                    modifier =
+                        Modifier.semantics {
+                            // TODO(b/496338253): Remove this modifier once bug where tooltip text
+                            // is not
+                            // announced
+                            //  by a11y screen readers is resolved.
+                            liveRegion = LiveRegionMode.Assertive
+                            paneTitle = "Add to list"
+                        }
+                ) {
+                    Text("Add to list")
+                }
+            },
             state = tooltipState,
         ) {
             IconButton(onClick = { /* Icon button's click event */ }) {
@@ -96,7 +126,17 @@ fun PlainTooltipWithCaret() {
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape()) { Text("Add to favorites") }
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    }
+            ) {
+                Text("Add to favorites")
+            }
         },
         state = rememberTooltipState(),
     ) {
@@ -113,7 +153,18 @@ fun PlainTooltipWithCaretBelowAnchor() {
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
         tooltip = {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape()) { Text("Add to favorites") }
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    },
+                caretShape = TooltipDefaults.caretShape(),
+            ) {
+                Text("Add to favorites")
+            }
         },
         state = rememberTooltipState(),
     ) {
@@ -130,7 +181,18 @@ fun PlainTooltipWithCaretLeftOfAnchor() {
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Left),
         tooltip = {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape()) { Text("Add to favorites") }
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    },
+                caretShape = TooltipDefaults.caretShape(),
+            ) {
+                Text("Add to favorites")
+            }
         },
         state = rememberTooltipState(),
     ) {
@@ -147,7 +209,18 @@ fun PlainTooltipWithCaretRightOfAnchor() {
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Right),
         tooltip = {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape()) { Text("Add to favorites") }
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    },
+                caretShape = TooltipDefaults.caretShape(),
+            ) {
+                Text("Add to favorites")
+            }
         },
         state = rememberTooltipState(),
     ) {
@@ -164,7 +237,18 @@ fun PlainTooltipWithCaretStartOfAnchor() {
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Start),
         tooltip = {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape()) { Text("Add to favorites") }
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    },
+                caretShape = TooltipDefaults.caretShape(),
+            ) {
+                Text("Add to favorites")
+            }
         },
         state = rememberTooltipState(),
     ) {
@@ -181,7 +265,18 @@ fun PlainTooltipWithCaretEndOfAnchor() {
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.End),
         tooltip = {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape()) { Text("Add to favorites") }
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    },
+                caretShape = TooltipDefaults.caretShape(),
+            ) {
+                Text("Add to favorites")
+            }
         },
         state = rememberTooltipState(),
     ) {
@@ -198,7 +293,16 @@ fun PlainTooltipWithCustomCaret() {
         positionProvider =
             TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape(DpSize(24.dp, 12.dp))) {
+            PlainTooltip(
+                modifier =
+                    Modifier.semantics {
+                        // TODO(b/496338253): Remove this modifier once bug where tooltip text is
+                        //  not announced by a11y screen readers is resolved.
+                        liveRegion = LiveRegionMode.Assertive
+                        paneTitle = "Add to favorites"
+                    },
+                caretShape = TooltipDefaults.caretShape(DpSize(24.dp, 12.dp)),
+            ) {
                 Text("Add to favorites")
             }
         },

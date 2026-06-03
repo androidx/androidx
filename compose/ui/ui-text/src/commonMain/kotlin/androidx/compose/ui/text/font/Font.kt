@@ -18,7 +18,6 @@ package androidx.compose.ui.text.font
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.ExperimentalTextApi
 
 /**
  * The interface of the font resource.
@@ -150,7 +149,6 @@ internal interface PlatformFontLoader {
  * @param loadingStrategy Load strategy for this font
  * @see FontFamily
  */
-@OptIn(ExperimentalTextApi::class)
 class ResourceFont
 internal constructor(
     val resId: Int,
@@ -160,8 +158,6 @@ internal constructor(
     loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Async,
 ) : Font {
 
-    @Suppress("CanBePrimaryConstructorProperty")
-    @ExperimentalTextApi
     override val loadingStrategy: FontLoadingStrategy = loadingStrategy
 
     fun copy(
@@ -170,7 +166,6 @@ internal constructor(
         style: FontStyle = this.style,
     ): ResourceFont = copy(resId, weight, style, loadingStrategy = loadingStrategy)
 
-    @ExperimentalTextApi
     fun copy(
         resId: Int = this.resId,
         weight: FontWeight = this.weight,
@@ -271,7 +266,6 @@ fun Font(
     loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking,
 ): Font = ResourceFont(resId, weight, style, FontVariation.Settings(), loadingStrategy)
 
-@ExperimentalTextApi
 fun Font(
     resId: Int,
     weight: FontWeight = FontWeight.Normal,

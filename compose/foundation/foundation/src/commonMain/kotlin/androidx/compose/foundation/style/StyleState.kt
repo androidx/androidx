@@ -347,7 +347,7 @@ sealed class StyleState {
 
 /**
  * Defines a [Style] to be applied when the component is [StyleState.isChecked] is `true`. The
- * properties within the provided [value] Style will override or merge with the base style of the
+ * properties within the provided [block] will override or merge with the base style of the
  * component when a toggle interaction is detected.
  *
  * @see StyleState.isChecked
@@ -358,8 +358,8 @@ sealed class StyleState {
  * @see androidx.compose.ui.Modifier.toggleable
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.checked(value: Style) {
-    state(StyleStateKey.Toggle, value) { _, state -> state.isChecked }
+fun StyleStateScope.checked(block: () -> Unit) {
+    state(StyleStateKey.Toggle, block) { _, state -> state.isChecked }
 }
 
 /**
@@ -367,12 +367,12 @@ fun StyleScope.checked(value: Style) {
  * provided `value` Style will override or merge with the base style of the component when the style
  * state for the component is disabled.
  *
- * @param value The [Style] to apply on hover.
+ * @param block The [Style] to apply on hover.
  * @see StyleState.isEnabled
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.disabled(value: Style) {
-    state(StyleStateKey.Enabled, value) { _, state -> !state.isEnabled }
+fun StyleStateScope.disabled(block: () -> Unit) {
+    state(StyleStateKey.Enabled, block) { _, state -> !state.isEnabled }
 }
 
 /**
@@ -380,7 +380,7 @@ fun StyleScope.disabled(value: Style) {
  * `value` Style will override or merge with the base style of the component when a focus
  * interaction is detected.
  *
- * @param value The [Style] to apply on focus.
+ * @param block The [Style] to apply on focus.
  * @see StyleState.isFocused
  * @see checked
  * @see hovered
@@ -388,8 +388,8 @@ fun StyleScope.disabled(value: Style) {
  * @see selected
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.focused(value: Style) {
-    state(StyleStateKey.Focused, value) { _, state -> state.isFocused }
+fun StyleStateScope.focused(block: () -> Unit) {
+    state(StyleStateKey.Focused, block) { _, state -> state.isFocused }
 }
 
 /**
@@ -397,7 +397,7 @@ fun StyleScope.focused(value: Style) {
  * `value` Style will override or merge with the base style of the component when a hover
  * interaction is detected.
  *
- * @param value The [Style] to apply on hover.
+ * @param block The [Style] to apply on hover.
  * @see StyleState.isHovered
  * @see checked
  * @see focused
@@ -405,8 +405,8 @@ fun StyleScope.focused(value: Style) {
  * @see selected
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.hovered(value: Style) {
-    state(StyleStateKey.Hovered, value) { _, state -> state.isHovered }
+fun StyleStateScope.hovered(block: () -> Unit) {
+    state(StyleStateKey.Hovered, block) { _, state -> state.isHovered }
 }
 
 /**
@@ -414,7 +414,7 @@ fun StyleScope.hovered(value: Style) {
  * `value` Style will override or merge with the base style of the component when a press
  * interaction is detected.
  *
- * @param value The [Style] to apply on press.
+ * @param block The [Style] to apply on press.
  * @see StyleState.isPressed
  * @see checked
  * @see focused
@@ -422,59 +422,63 @@ fun StyleScope.hovered(value: Style) {
  * @see selected
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.pressed(value: Style) {
-    state(StyleStateKey.Pressed, value) { _, state -> state.isPressed }
+fun StyleStateScope.pressed(block: () -> Unit) {
+    state(StyleStateKey.Pressed, block) { _, state -> state.isPressed }
 }
 
 /**
  * Defines a [Style] to be applied when the component is [StyleState.isSelected] is `true`. The
- * properties within the provided [value] Style will override or merge with the base style of the
+ * properties within the provided [block] Style will override or merge with the base style of the
  * component when a toggle interaction is detected.
  *
+ * @param block The [Style] to apply on press.
  * @see StyleState.isSelected
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.selected(value: Style) {
-    state(StyleStateKey.Selected, value) { _, state -> state.isSelected }
+fun StyleStateScope.selected(block: () -> Unit) {
+    state(StyleStateKey.Selected, block) { _, state -> state.isSelected }
 }
 
 /**
  * Defines a [Style] to be applied when the component is [StyleState.triStateToggle] is
- * [ToggleableState.On]. The properties within the provided [value] Style will override or merge
+ * [ToggleableState.On]. The properties within the provided [block] Style will override or merge
  * with the base style of the component when a toggle interaction is detected.
  *
+ * @param block The [Style] to apply on press.
  * @see StyleState.triStateToggle
  * @see androidx.compose.ui.Modifier.triStateToggleable
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.triStateToggleOn(value: Style) {
-    state(StyleStateKey.Toggle, value) { _, state -> state.triStateToggle == ToggleableState.On }
+fun StyleStateScope.triStateToggleOn(block: () -> Unit) {
+    state(StyleStateKey.Toggle, block) { _, state -> state.triStateToggle == ToggleableState.On }
 }
 
 /**
  * Defines a [Style] to be applied when the component is [StyleState.triStateToggle] is
- * [ToggleableState.Off]. The properties within the provided [value] Style will override or merge
+ * [ToggleableState.Off]. The properties within the provided [block] Style will override or merge
  * with the base style of the component when a toggle interaction is detected.
  *
+ * @param block The [Style] to apply on press.
  * @see StyleState.triStateToggle
  * @see androidx.compose.ui.Modifier.triStateToggleable
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.triStateToggleOff(value: Style) {
-    state(StyleStateKey.Toggle, value) { _, state -> state.triStateToggle == ToggleableState.Off }
+fun StyleStateScope.triStateToggleOff(block: () -> Unit) {
+    state(StyleStateKey.Toggle, block) { _, state -> state.triStateToggle == ToggleableState.Off }
 }
 
 /**
  * Defines a [Style] to be applied when the component is [StyleState.triStateToggle] is
- * [ToggleableState.Indeterminate]. The properties within the provided [value] Style will override
+ * [ToggleableState.Indeterminate]. The properties within the provided [block] Style will override
  * or merge with the base style of the component when a toggle interaction is detected.
  *
+ * @param block The [Style] to apply on press.
  * @see StyleState.triStateToggle
  * @see androidx.compose.ui.Modifier.triStateToggleable
  */
 @ExperimentalFoundationStyleApi
-fun StyleScope.triStateToggleIndeterminate(value: Style) {
-    state(StyleStateKey.Toggle, value) { _, state ->
+fun StyleStateScope.triStateToggleIndeterminate(block: () -> Unit) {
+    state(StyleStateKey.Toggle, block) { _, state ->
         state.triStateToggle == ToggleableState.Indeterminate
     }
 }

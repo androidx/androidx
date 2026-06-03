@@ -16,6 +16,9 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.collection.IntList
+import androidx.collection.emptyIntList
+import androidx.collection.mutableIntListOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.min
@@ -37,24 +40,34 @@ internal interface LazyLayoutBeyondBoundsState {
 internal fun LazyLayoutItemProvider.calculateLazyLayoutPinnedIndices(
     pinnedItemList: LazyLayoutPinnedItemList,
     beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
-): List<Int> {
+): IntList {
+    val pinnedItemList = pinnedItemList.toList()
     if (!beyondBoundsInfo.hasIntervals() && pinnedItemList.isEmpty()) {
-        return emptyList()
+        return emptyIntList()
     } else {
-        val pinnedItems = mutableListOf<Int>()
-        val beyondBoundsRange =
-            if (beyondBoundsInfo.hasIntervals()) {
-                beyondBoundsInfo.start..min(beyondBoundsInfo.end, itemCount - 1)
-            } else {
-                IntRange.EMPTY
-            }
+        val pinnedItems = mutableIntListOf()
+        val beyondBoundsStart: Int
+        val beyondBoundsEnd: Int
+        if (beyondBoundsInfo.hasIntervals()) {
+            beyondBoundsStart = beyondBoundsInfo.start
+            beyondBoundsEnd = min(beyondBoundsInfo.end, itemCount - 1)
+        } else {
+            // Empty range
+            beyondBoundsStart = 1
+            beyondBoundsEnd = 0
+        }
+
         pinnedItemList.fastForEach {
             val index = findIndexByKey(it.key, it.index)
-            if (index in beyondBoundsRange) return@fastForEach
+            if (index in beyondBoundsStart..beyondBoundsEnd) return@fastForEach
             if (index !in 0 until itemCount) return@fastForEach
             pinnedItems.add(index)
         }
-        pinnedItems.addAll(beyondBoundsRange)
+
+        for (i in beyondBoundsStart..beyondBoundsEnd) {
+            pinnedItems.add(i)
+        }
+
         pinnedItems.sort()
         return pinnedItems
     }

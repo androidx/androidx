@@ -29,23 +29,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import kotlin.math.ceil
 
-internal actual fun ActualParagraphIntrinsics(
-    text: String,
-    style: TextStyle,
-    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
-    placeholders: List<AnnotatedString.Range<Placeholder>>,
-    density: Density,
-    fontFamilyResolver: FontFamily.Resolver
-): ParagraphIntrinsics =
-    SkiaParagraphIntrinsics(
-        text,
-        style,
-        annotations,
-        placeholders,
-        density,
-        fontFamilyResolver
-    )
-
 internal class SkiaParagraphIntrinsics(
     val text: String,
     private val style: TextStyle,

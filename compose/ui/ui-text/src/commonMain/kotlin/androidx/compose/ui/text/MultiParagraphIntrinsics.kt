@@ -36,6 +36,9 @@ import androidx.compose.ui.util.fastMaxBy
  *   [Placeholder] doesn't cross paragraph boundary, otherwise [IllegalArgumentException] is thrown.
  * @param density density of the device
  * @param fontFamilyResolver [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
+ * @param softWrap Whether the text should break at soft line breaks. When the intention is to lay
+ *   out text as a single line, setting [softWrap] to false enables optimizations that avoid certain
+ *   expensive calculations
  * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set, or any of the
  *   [placeholders] crosses paragraph boundary.
  * @see MultiParagraph
@@ -47,7 +50,22 @@ class MultiParagraphIntrinsics(
     val placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
+    softWrap: Boolean,
 ) : ParagraphIntrinsics {
+
+    @Deprecated(
+        "Use an overload with `softWrap` instead",
+        ReplaceWith(
+            "MultiParagraphIntrinsics(annotatedString, style, placeholders, density, fontFamilyResolver, true)"
+        ),
+    )
+    constructor(
+        annotatedString: AnnotatedString,
+        style: TextStyle,
+        placeholders: List<AnnotatedString.Range<Placeholder>>,
+        density: Density,
+        fontFamilyResolver: FontFamily.Resolver,
+    ) : this(annotatedString, style, placeholders, density, fontFamilyResolver, true)
 
     @Suppress("DEPRECATION")
     @Deprecated(
@@ -114,6 +132,7 @@ class MultiParagraphIntrinsics(
                                 ),
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
+                            softWrap = softWrap,
                         ),
                     startIndex = paragraphStyleItem.start,
                     endIndex = paragraphStyleItem.end,

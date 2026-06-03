@@ -125,7 +125,6 @@ import kotlinx.coroutines.launch
  * @param density The [Density] used for this text field.
  * @param enabled If false, all selection behaviors and gestures will be disabled.
  * @param readOnly If true, selection behaviors still work, but the text field cannot be edited.
- * @param isFocused True iff component is focused and the window is focused.
  * @param isPassword True if the text field is for a password.
  * @param toolbarRequester The [ToolbarRequester] used to show and hide text floating toolbar.
  * @param coroutineScope The [coroutineScope] bounds to the composition.
@@ -139,13 +138,15 @@ internal class TextFieldSelectionState(
     private var density: Density,
     enabled: Boolean,
     readOnly: Boolean,
-    var isFocused: Boolean,
     private var isPassword: Boolean,
     private val toolbarRequester: ToolbarRequester,
     private val coroutineScope: CoroutineScope,
     internal val platformSelectionBehaviors: PlatformSelectionBehaviors?,
     private var clipboard: Clipboard,
 ) {
+    // This field is updated from `TextFieldCoreModifier`.
+    var isWindowAndTextFieldFocused: Boolean = false
+
     var enabled: Boolean = enabled
         private set
 
@@ -363,7 +364,7 @@ internal class TextFieldSelectionState(
     fun getFocusRect(): Rect {
         val layoutResult = textLayoutState.layoutResult ?: return Rect.Zero
         // if not focused, use the entire bounding box of the TextField.
-        if (!isFocused) return UnsetFocusRect
+        if (!isWindowAndTextFieldFocused) return UnsetFocusRect
         val value = textFieldState.visualText
 
         val focusRectInTextLayout =
@@ -1800,7 +1801,7 @@ internal suspend fun TextFieldSelectionState.defaultDetectTextFieldTapGestures(
             logDebug { "onTapTextField" }
             requestFocus()
 
-            if (enabled && isFocused) {
+            if (enabled && isWindowAndTextFieldFocused) {
                 if (!readOnly) {
                     showKeyboard()
                     if (textFieldState.visualText.isNotEmpty()) {

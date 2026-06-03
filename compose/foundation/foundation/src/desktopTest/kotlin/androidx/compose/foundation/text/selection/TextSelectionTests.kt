@@ -307,13 +307,12 @@ class TextSelectionTests {
         assumeTrue(DesktopPlatform.Current == DesktopPlatform.MacOS)
 
         val text = "word1 word2"
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         lateinit var textLayout: TextLayoutResult
         rule.setContent {
             SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.fillMaxSize(),
-                selection = selection,
-                onSelectionChange = { selection = it }
             ) {
                 BasicText(
                     text = text,
@@ -333,7 +332,7 @@ class TextSelectionTests {
                 rightClick(firstCharBounds.center)
             }
 
-            assertEquals(expected = "word1", actual = selection.selectedText(text))
+            assertEquals(expected = "word1", actual = selectionState.selection.selectedText(text))
 
             // Left-click to close the context menu
             performMouseInput {
@@ -345,7 +344,7 @@ class TextSelectionTests {
                 val firstCharInSecondWordBounds = textLayout.getBoundingBox(6)
                 rightClick(firstCharInSecondWordBounds.center)
             }
-            assertEquals(expected = "word2", actual = selection.selectedText(text))
+            assertEquals(expected = "word2", actual = selectionState.selection.selectedText(text))
         }
     }
 
@@ -401,11 +400,10 @@ class TextSelectionTests {
     fun rightClickOnMacOsWithoutTextDoesNotCrash() {
         assumeTrue(DesktopPlatform.Current == DesktopPlatform.MacOS)
 
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         rule.setContent {
             SelectionContainer(
-                selection = selection,
-                onSelectionChange = { selection = it }
+                state = selectionState
             ) {
                 Box(
                     modifier = Modifier
@@ -418,7 +416,7 @@ class TextSelectionTests {
         rule.onNodeWithTag("selectable").performMouseInput {
             rightClick(center)
         }
-        assertNull(selection)
+        assertNull(selectionState.selection)
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -426,12 +424,11 @@ class TextSelectionTests {
     fun rightClickOnMacOsAtEmptySpaceDoesNotCrash() {
         assumeTrue(DesktopPlatform.Current == DesktopPlatform.MacOS)
 
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         val text = "Hello, Compose"
         rule.setContent {
             SelectionContainer(
-                selection = selection,
-                onSelectionChange = { selection = it }
+                state = selectionState
             ) {
                 Box(
                     modifier = Modifier
@@ -462,7 +459,7 @@ class TextSelectionTests {
                         )
                     )
                 }
-                assertTrue(selection.selectedText(text).isNullOrEmpty())
+                assertTrue(selectionState.selection.selectedText(text).isNullOrEmpty())
             }
         }
     }
@@ -473,13 +470,12 @@ class TextSelectionTests {
         assumeTrue(DesktopPlatform.Current == DesktopPlatform.MacOS)
 
         val text = "word1 word2"
-        var selection by mutableStateOf<Selection?>(null)
+        val selectionState = SelectionState()
         lateinit var textLayout: TextLayoutResult
         rule.setContent {
             SelectionContainer(
+                state = selectionState,
                 modifier = Modifier.fillMaxSize(),
-                selection = selection,
-                onSelectionChange = { selection = it }
             ) {
                 BasicText(
                     text = text,
@@ -496,14 +492,14 @@ class TextSelectionTests {
             performMouseInput {
                 tripleClick(center)
             }
-            assertEquals(expected = text, actual = selection.selectedText(text))
+            assertEquals(expected = text, actual = selectionState.selection.selectedText(text))
 
             // Right-click first word; selection should not change
             performMouseInput {
                 val firstCharBounds = textLayout.getBoundingBox(0)
                 rightClick(firstCharBounds.center)
             }
-            assertEquals(expected = text, actual = selection.selectedText(text))
+            assertEquals(expected = text, actual = selectionState.selection.selectedText(text))
         }
     }
 

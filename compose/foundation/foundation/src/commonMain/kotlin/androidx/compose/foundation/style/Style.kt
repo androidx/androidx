@@ -19,6 +19,19 @@
 package androidx.compose.foundation.style
 
 /**
+ * A base type for custom styles including [Style] itself. [CustomStyle] can be used to restrict
+ * extension functions to a specific style as well as restrict the properties that are available to
+ * a custom style.
+ *
+ * @sample androidx.compose.foundation.samples.StyleStateKeySample
+ * @see Style
+ */
+@ExperimentalFoundationStyleApi
+fun interface CustomStyle<ScopeT : CustomStyleScope> {
+    fun ScopeT.applyStyle()
+}
+
+/**
  * Style represents an opaque type which encodes a description of how to style a node in compose. It
  * is implemented semantically like a lambda which is executed on a [StyleScope].
  *
@@ -44,9 +57,7 @@ package androidx.compose.foundation.style
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-fun interface Style {
-    fun StyleScope.applyStyle()
-
+fun interface Style : CustomStyle<StyleScope> {
     companion object : Style {
         @Suppress("MissingJvmstatic") override fun StyleScope.applyStyle() {}
     }

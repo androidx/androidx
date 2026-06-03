@@ -66,7 +66,7 @@ class TextFieldLayoutStateCacheTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
-    private var textFieldState = TextFieldState()
+    private var textFieldState = TextFieldState("abc")
     private var transformedTextFieldState =
         TransformedTextFieldState(
             textFieldState,

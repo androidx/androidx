@@ -292,7 +292,7 @@ class LazyGridScrollIndicatorTest(private val orientation: Orientation) :
 
         rule.runOnIdle {
             assertNotNull(state.scrollIndicatorState)
-            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(0)
+            assertThat(state.scrollIndicatorState?.scrollOffset).isEqualTo(100)
             assertThat(state.scrollIndicatorState?.contentSize).isEqualTo(expectedContentSize)
             assertThat(state.scrollIndicatorState?.viewportSize).isEqualTo(containerMainAxisSizePx)
         }

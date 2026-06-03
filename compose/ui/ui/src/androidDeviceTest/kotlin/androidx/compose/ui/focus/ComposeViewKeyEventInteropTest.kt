@@ -104,7 +104,7 @@ class ComposeViewKeyEventInteropTest {
 
         // Act.
         val keyEvent = AndroidKeyEvent(KeyDown, DirectionRight.nativeKeyCode)
-        rule.activity.dispatchKeyEvent(keyEvent)
+        rule.runOnUiThread { rule.activity.dispatchKeyEvent(keyEvent) }
 
         // Assert.
         assertThat(rule.activity.receivedKeyEvent).isNull()

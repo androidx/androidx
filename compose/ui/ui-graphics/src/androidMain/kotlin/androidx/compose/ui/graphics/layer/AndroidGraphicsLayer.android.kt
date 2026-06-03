@@ -920,7 +920,8 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
     actual suspend fun toImageBitmap(): ImageBitmap = SnapshotImpl.toBitmap(this).asImageBitmap()
 
     companion object {
-        private val isRobolectric = Build.FINGERPRINT.lowercase() == "robolectric"
+        private val isRobolectric
+            get() = Build.FINGERPRINT == "robolectric"
 
         // See b/340578758, fallback to software rendering for Robolectric tests
         private val SnapshotImpl =

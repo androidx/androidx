@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
+import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -76,7 +78,7 @@ internal fun computeSizeForDefaultText(
     fontFamilyResolver: FontFamily.Resolver,
     lines: Int = 1,
 ): IntSize {
-    val paragraph = paragraphForDefaultText(style, density, fontFamilyResolver, lines)
+    val paragraph = paragraphForDefaultText(style, density, fontFamilyResolver, lines, lines > 1)
     return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
 
@@ -86,14 +88,21 @@ internal fun paragraphForDefaultText(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     lines: Int,
+    softWrap: Boolean,
 ) =
     Paragraph(
-        text = (0..<lines).joinToString("\n") { EmptyTextReplacement },
-        style = style,
-        maxLines = lines,
-        density = density,
-        fontFamilyResolver = fontFamilyResolver,
-        constraints = Constraints(),
+        ParagraphIntrinsics(
+            text = (0..<lines).joinToString("\n") { EmptyTextReplacement },
+            style = style,
+            fontFamilyResolver = fontFamilyResolver,
+            annotations = emptyList(),
+            placeholders = listOf(),
+            density = density,
+            softWrap = softWrap,
+        ),
+        Constraints(),
+        lines,
+        TextOverflow.Clip,
     )
 
 internal class TextFieldDelegate {

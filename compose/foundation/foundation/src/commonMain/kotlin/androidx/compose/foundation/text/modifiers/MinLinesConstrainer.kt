@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.ui.text.Paragraph
+import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.resolveDefaults
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastRoundToInt
+import kotlin.collections.emptyList
 
 /**
  * Coerce min and max lines into actual constraints.
@@ -101,25 +103,37 @@ internal class MinLinesConstrainer
         if (oneLineHeight.isNaN() || lineHeight.isNaN()) {
             oneLineHeight =
                 Paragraph(
-                        text = EmptyTextReplacement,
-                        style = resolvedStyle,
-                        constraints = Constraints(),
-                        density = density,
-                        fontFamilyResolver = fontFamilyResolver,
+                        paragraphIntrinsics =
+                            ParagraphIntrinsics(
+                                text = EmptyTextReplacement,
+                                style = resolvedStyle,
+                                placeholders = emptyList(),
+                                annotations = emptyList(),
+                                density = density,
+                                softWrap = false,
+                                fontFamilyResolver = fontFamilyResolver,
+                            ),
                         maxLines = 1,
                         overflow = TextOverflow.Clip,
+                        constraints = Constraints(),
                     )
                     .height
 
             val twoLineHeight =
                 Paragraph(
-                        text = TwoLineTextReplacement,
-                        style = resolvedStyle,
-                        constraints = Constraints(),
-                        density = density,
-                        fontFamilyResolver = fontFamilyResolver,
+                        paragraphIntrinsics =
+                            ParagraphIntrinsics(
+                                text = TwoLineTextReplacement,
+                                style = resolvedStyle,
+                                placeholders = emptyList(),
+                                annotations = emptyList(),
+                                density = density,
+                                softWrap = true,
+                                fontFamilyResolver = fontFamilyResolver,
+                            ),
                         maxLines = 2,
                         overflow = TextOverflow.Clip,
+                        constraints = Constraints(),
                     )
                     .height
 

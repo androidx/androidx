@@ -44,7 +44,6 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 

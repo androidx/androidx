@@ -260,7 +260,6 @@ interface IndirectPointerInjectionScope : Density {
         moveBy(0, delta, delayMillis)
     }
 
-    // TODO(b/502001776): Add updatePointerBy() that doesn't take a pointer id (and sets to zero).
     /**
      * Updates the position of the pointer with the given [pointerId] by the given [delta], but does
      * not send a move event. The move event can be sent with [move].
@@ -285,6 +284,20 @@ interface IndirectPointerInjectionScope : Density {
             }
 
         updatePointerTo(pointerId, position)
+    }
+
+    /**
+     * Updates the position of the default pointer by the given [delta], but does not send a move
+     * event. The move event can be sent with [move]. The default pointer is `pointerId = 0`.
+     *
+     * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+     *
+     * @param delta The position for this move event, relative to the last sent position of the
+     *   pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's
+     *   x-position, and subtract 10.px from the pointer's y-position.
+     */
+    fun updatePointerBy(delta: Offset) {
+        updatePointerBy(0, delta)
     }
 
     /**

@@ -19,6 +19,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.composer.gapbuffer.expectError
+import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.Contact
 import androidx.compose.runtime.mock.ContactModel
 import androidx.compose.runtime.mock.Edit
@@ -2563,7 +2564,7 @@ class CompositionTests {
     }
 
     @Test
-    fun testRememberObserver_Abandon_Recompose() = wrapRunTest {
+    fun testRememberObserver_Abandon_Recompose_GapBuffer() = wrapRunTest {
         val abandonedObjects = mutableListOf<RememberObserver>()
         val observed =
             object : RememberObserver {
@@ -2580,7 +2581,47 @@ class CompositionTests {
                 }
             }
         assertFailsWith(IllegalStateException::class, message = "Throw") {
-            compositionTest {
+            compositionTest(ComposerToUse.Gap) {
+                    val rememberObject = mutableStateOf(false)
+
+                    compose {
+                        if (rememberObject.value) {
+                            @Suppress("UNUSED_EXPRESSION") remember { observed }
+                            error("Throw")
+                        }
+                    }
+
+                    assertTrue(abandonedObjects.isEmpty())
+
+                    rememberObject.value = true
+
+                    advance(ignorePendingWork = true)
+                }
+                .awaitCompletion()
+        }
+
+        assertArrayEquals(listOf(observed), abandonedObjects)
+    }
+
+    @Test
+    fun testRememberObserver_Abandon_Recompose_LinkTable() = wrapRunTest {
+        val abandonedObjects = mutableListOf<RememberObserver>()
+        val observed =
+            object : RememberObserver {
+                override fun onAbandoned() {
+                    abandonedObjects.add(this)
+                }
+
+                override fun onForgotten() {
+                    error("Unexpected call to onForgotten")
+                }
+
+                override fun onRemembered() {
+                    error("Unexpected call to onRemembered")
+                }
+            }
+        assertFailsWith(IllegalStateException::class, message = "Throw") {
+            compositionTest(ComposerToUse.Link) {
                     val rememberObject = mutableStateOf(false)
 
                     compose {
@@ -3767,6 +3808,37 @@ class CompositionTests {
 
         assertEquals("1", lastOuterSeen, "Outer scope did not recompose")
         assertEquals("1", lastInnerSeen, "Inner scope did not recompose")
+    }
+
+    @Test
+    fun testInvalidateDoesNotRecomputeDefaultValues() = compositionTest {
+        lateinit var recomposeScope: RecomposeScope
+        val defaultValues = mutableSetOf<Any>()
+
+        compose {
+            ComposableWithDefaultArg { parentScope, defaultValue ->
+                recomposeScope = parentScope
+                defaultValues += defaultValue
+            }
+        }
+
+        recomposeScope.invalidate()
+        expectNoChanges()
+        assertEquals(
+            expected = 1,
+            actual = defaultValues.size,
+            message =
+                "Expected exactly one default object instance; " +
+                    "the default argument should not be recalculated",
+        )
+    }
+
+    @Composable
+    private fun ComposableWithDefaultArg(
+        defaultValue: Any = Any(),
+        block: @Composable (scope: RecomposeScope, defaultValue: Any) -> Unit,
+    ) {
+        block(currentRecomposeScope, defaultValue)
     }
 
     enum class MyEnum {
@@ -5089,14 +5161,14 @@ private fun <T> assertArrayEquals(message: String, expected: Array<T>, received:
     fun err(msg: String): Nothing =
         error(
             "$message: $msg, expected: [${
-        expected.getString()}], received: [${received.getString()}]"
+                expected.getString()}], received: [${received.getString()}]"
         )
     if (expected.size != received.size) err("sizes are different")
     expected.indices.forEach { index ->
         if (expected[index] != received[index])
             err(
                 "item at index $index was different (expected [${
-                expected[index]}], received: [${received[index]}]"
+                    expected[index]}], received: [${received[index]}]"
             )
     }
 }

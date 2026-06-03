@@ -27,7 +27,6 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -531,9 +530,4 @@ internal class FakeClipboard(private var clipEntry: ClipEntry?) : Clipboard {
         setClipEntryCalled++
         this@FakeClipboard.clipEntry = clipEntry
     }
-
-    override val nativeClipboard: NativeClipboard
-        get() {
-            throw UnsupportedOperationException("Native Clipboard isn't needed in tests")
-        }
 }

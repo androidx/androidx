@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.platform
+@file:JvmName("ParagraphIntrinsicsKt")
+
+package androidx.compose.ui.text
 
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.view.View
 import androidx.compose.runtime.State
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.EmojiSupportMatch
-import androidx.compose.ui.text.ParagraphIntrinsics
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.android.LayoutCompat
 import androidx.compose.ui.text.android.LayoutIntrinsics
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.TypefaceResult
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.platform.AndroidTextPaint
+import androidx.compose.ui.text.platform.EmojiCompatStatus
+import androidx.compose.ui.text.platform.createCharSequence
 import androidx.compose.ui.text.platform.extensions.applySpanStyle
 import androidx.compose.ui.text.platform.extensions.setTextMotion
 import androidx.compose.ui.text.style.TextDirection
@@ -49,6 +50,7 @@ internal class AndroidParagraphIntrinsics(
     val placeholders: List<AnnotatedString.Range<Placeholder>>,
     val fontFamilyResolver: FontFamily.Resolver,
     val density: Density,
+    val softWrap: Boolean,
 ) : ParagraphIntrinsics {
 
     internal val textPaint = AndroidTextPaint(Paint.ANTI_ALIAS_FLAG, density.density)
@@ -171,10 +173,42 @@ internal fun resolveTextDirectionHeuristics(
     }
 }
 
-internal actual fun ActualParagraphIntrinsics(
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
+            "fontFamilyResolver)"
+    ),
+)
+actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
-    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    density: Density,
+    resourceLoader: Font.ResourceLoader,
+): ParagraphIntrinsics =
+    AndroidParagraphIntrinsics(
+        text = text,
+        style = style,
+        placeholders = placeholders,
+        fontFamilyResolver = createFontFamilyResolver(resourceLoader),
+        annotations = spanStyles,
+        density = density,
+        softWrap = true,
+    )
+
+@Deprecated(
+    "Use an overload that takes `annotations` instead",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
+    ),
+)
+actual fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
@@ -184,8 +218,52 @@ internal actual fun ActualParagraphIntrinsics(
         style = style,
         placeholders = placeholders,
         fontFamilyResolver = fontFamilyResolver,
+        annotations = spanStyles,
+        density = density,
+        softWrap = true,
+    )
+
+@Deprecated(
+    "Use an override with `softWrap`",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, true, listOf())"
+    ),
+)
+actual fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+): ParagraphIntrinsics =
+    AndroidParagraphIntrinsics(
+        text = text,
+        style = style,
+        placeholders = placeholders,
+        fontFamilyResolver = fontFamilyResolver,
         annotations = annotations,
         density = density,
+        softWrap = true,
+    )
+
+actual fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    softWrap: Boolean,
+): ParagraphIntrinsics =
+    AndroidParagraphIntrinsics(
+        text = text,
+        style = style,
+        placeholders = placeholders,
+        fontFamilyResolver = fontFamilyResolver,
+        annotations = annotations,
+        density = density,
+        softWrap = softWrap,
     )
 
 private class TypefaceDirtyTrackerLinkedList(

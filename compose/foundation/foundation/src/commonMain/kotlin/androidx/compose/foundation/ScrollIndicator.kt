@@ -31,10 +31,12 @@ import androidx.compose.runtime.annotation.FrequentlyChangingValue
 @Stable
 interface ScrollIndicatorState {
     /**
-     * The current scroll offset of the content from the start, typically in pixels.
+     * The current scroll offset of the content from the visual start of the container, typically in
+     * pixels.
      *
-     * For a vertical scrollable component, this is the Y offset. For a horizontal scrollable
-     * component, this is the X offset.
+     * For a vertical scrollable component, it's the offset from the top edge. For a horizontal
+     * scrollable component, it's the offset from the left edge in LTR or the right edge in RTL.
+     * This absolute offset is unaffected by reverse layout or reverse scrolling.
      *
      * For lazy layouts, this value may represent an estimated scroll offset.
      *

@@ -38,12 +38,12 @@ import kotlinx.coroutines.launch
 @Suppress("ModifierFactoryExtensionFunction")
 internal fun SelectionRegistrar.makeSkikoSelectionModifier(
     selectableId: Long,
-    layoutCoordinates: () -> LayoutCoordinates?,
+    layoutCoordinatesProvider: () -> LayoutCoordinates?,
 ): Modifier {
     return SkikoSelectionModifierElement(
         selectionRegistrar = this,
         selectableId = selectableId,
-        layoutCoordinates = layoutCoordinates,
+        layoutCoordinates = layoutCoordinatesProvider,
     )
 }
 

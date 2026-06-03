@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.text.modifiers
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.MultiWidgetSelectionDelegate
@@ -35,15 +39,17 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
 
 internal open class StaticTextSelectionParams(
     val layoutCoordinates: LayoutCoordinates?,
     val textLayoutResult: TextLayoutResult?,
+    val pinnableContainer: PinnableContainer?,
 ) {
     companion object {
-        val Empty = StaticTextSelectionParams(null, null)
+        val Empty = StaticTextSelectionParams(null, null, null)
     }
 
     open fun getPathForRange(start: Int, end: Int): Path? {
@@ -60,8 +66,9 @@ internal open class StaticTextSelectionParams(
     fun copy(
         layoutCoordinates: LayoutCoordinates? = this.layoutCoordinates,
         textLayoutResult: TextLayoutResult? = this.textLayoutResult,
+        pinnableContainer: PinnableContainer? = this.pinnableContainer,
     ): StaticTextSelectionParams {
-        return StaticTextSelectionParams(layoutCoordinates, textLayoutResult)
+        return StaticTextSelectionParams(layoutCoordinates, textLayoutResult, pinnableContainer)
     }
 }
 
@@ -76,12 +83,15 @@ internal class SelectionController(
 ) : RememberObserver {
     private var selectable: Selectable? = null
 
+    private val bringIntoViewRequester = BringIntoViewRequester()
+
     val modifier: Modifier =
         selectionRegistrar
             .makeSelectionModifier(
                 selectableId = selectableId,
-                layoutCoordinates = { params.layoutCoordinates },
+                layoutCoordinatesProvider = { params.layoutCoordinates },
             )
+            .bringIntoViewRequester(bringIntoViewRequester)
             .pointerHoverIcon(PointerIcon.Text)
 
     override fun onRemembered() {
@@ -91,6 +101,8 @@ internal class SelectionController(
                     selectableId = selectableId,
                     coordinatesCallback = { params.layoutCoordinates },
                     layoutResultCallback = { params.textLayoutResult },
+                    pinnableContainerCallback = { params.pinnableContainer },
+                    bringIntoViewRequester = bringIntoViewRequester,
                 )
             )
     }
@@ -131,6 +143,10 @@ internal class SelectionController(
         selectionRegistrar.notifyPositionChange(selectableId)
     }
 
+    fun updatePinnableContainer(pinnableContainer: PinnableContainer?) {
+        params = params.copy(pinnableContainer = pinnableContainer)
+    }
+
     fun draw(drawScope: DrawScope) {
         val selection = selectionRegistrar.subselections[selectableId] ?: return
 
@@ -169,11 +185,31 @@ internal class SelectionController(
 @Suppress("ModifierFactoryExtensionFunction")
 internal expect fun SelectionRegistrar.makeSelectionModifier(
     selectableId: Long,
-    layoutCoordinates: () -> LayoutCoordinates?,
+    layoutCoordinatesProvider: () -> LayoutCoordinates?,
 ): Modifier
 
+@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ModifierFactoryExtensionFunction")
 internal fun SelectionRegistrar.makeDefaultSelectionModifier(
+    selectableId: Long,
+    layoutCoordinatesProvider: () -> LayoutCoordinates?,
+): Modifier {
+    return if (ComposeFoundationFlags.isSelectionAutoScrollEnabled) {
+        SelectionModifierElement(
+            selectionRegistrar = this,
+            selectableId = selectableId,
+            layoutCoordinatesProvider = layoutCoordinatesProvider,
+        )
+    } else {
+        makeLegacySelectionModifier(
+            selectableId = selectableId,
+            layoutCoordinates = layoutCoordinatesProvider,
+        )
+    }
+}
+
+@Suppress("ModifierFactoryExtensionFunction")
+internal fun SelectionRegistrar.makeLegacySelectionModifier(
     selectableId: Long,
     layoutCoordinates: () -> LayoutCoordinates?,
 ): Modifier {

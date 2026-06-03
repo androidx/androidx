@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -40,41 +41,33 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
-                implementation(project(":compose:material:material"))
-                implementation(libs.kotlinSerializationCore)
-            }
+        commonMain.dependencies {
+            api("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
+            implementation(project(":compose:material:material"))
+            implementation(libs.kotlinSerializationCore)
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.navigation:navigation-testing:2.9.6")
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.testRules)
         }
 
-        androidDeviceTest {
-            dependencies {
-                implementation(project(":compose:test-utils"))
-                implementation("androidx.navigation:navigation-testing:2.7.7")
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.testRules)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
         }
 
-        nonAndroidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(project(":compose:ui:ui-backhandler"))
-            }
-        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
 
-        nonAndroidTest {
-            dependsOn(commonTest)
+        nonAndroidMain.dependencies {
+            implementation(project(":compose:ui:ui-backhandler"))
         }
 
         desktopMain {

@@ -39,6 +39,7 @@ import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -74,6 +75,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
@@ -771,6 +773,9 @@ private fun SliderImpl(
     track: @Composable (SliderState) -> Unit,
 ) {
     state.isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    state.isFocused = isFocused
+
     val reverseDirection =
         (state.orientation == Horizontal && state.isRtl) ||
             (state.orientation == Vertical && state.reverseVerticalDirection)
@@ -808,7 +813,7 @@ private fun SliderImpl(
                             enableHoverIndication = false,
                         ),
                 )
-                .padding(insetFocusRingPadding)
+                .padding(if (isFocused) insetFocusRingPadding else 0.dp)
         } else {
             Modifier
         }
@@ -821,7 +826,7 @@ private fun SliderImpl(
                 modifier =
                     thumbModifier.then(focusRingModifier).onSizeChanged {
                         val padding =
-                            if (isInsetFocusRing) {
+                            if (isInsetFocusRing && isFocused) {
                                 with(density) { (insetFocusRingPadding * 2).roundToPx() }
                             } else {
                                 0
@@ -863,7 +868,8 @@ private fun SliderImpl(
                 .then(press)
                 .then(drag),
     ) { measurables, constraints ->
-        val trackPadding = if (isInsetFocusRing) insetFocusRingPadding.roundToPx() else 0
+        val trackPadding =
+            if (isInsetFocusRing && isFocused) insetFocusRingPadding.roundToPx() else 0
 
         val thumbPlaceable =
             measurables.fastFirst { it.layoutId == SliderComponents.THUMB }.measure(constraints)
@@ -899,36 +905,42 @@ private fun SliderImpl(
                 if (it != AlignmentLine.Unspecified) it else 0
             }
 
+        val thumbCoreWidth = thumbPlaceable.width - 2 * trackPadding
+        val thumbCoreHeight = thumbPlaceable.height - 2 * trackPadding
+
         if (state.orientation == Vertical) {
-            sliderWidth = max(trackPlaceable.width, thumbPlaceable.width - 2 * trackPadding)
-            sliderHeight = thumbPlaceable.height - 2 * trackPadding + trackPlaceable.height
+            sliderWidth = max(trackPlaceable.width, thumbCoreWidth)
+            sliderHeight = thumbCoreHeight + trackPlaceable.height
             trackOffsetX = (sliderWidth - trackPlaceable.width) / 2
-            trackOffsetY = (thumbPlaceable.height - 2 * trackPadding) / 2
+            trackOffsetY = thumbCoreHeight / 2
             thumbOffsetX = (sliderWidth - thumbPlaceable.width) / 2
-            thumbOffsetY =
+            val fractionOffset =
                 if (state.steps > 0 && !isOnFirstOrLastStep) {
                     ((trackPlaceable.height - trackCornerSize * 2) * valueAsFraction).roundToInt() +
                         trackCornerSize
                 } else {
                     (trackPlaceable.height * valueAsFraction).roundToInt()
                 }
+            thumbOffsetY =
+                if (state.reverseVerticalDirection) {
+                    trackPlaceable.height - fractionOffset
+                } else {
+                    fractionOffset
+                }
             thumbOffsetY += trackOffsetY - thumbPlaceable.height / 2
-            if (state.reverseVerticalDirection) {
-                thumbOffsetY = trackPlaceable.height - thumbOffsetY
-            }
         } else {
-            sliderWidth = thumbPlaceable.width - 2 * trackPadding + trackPlaceable.width
-            sliderHeight = max(trackPlaceable.height, thumbPlaceable.height - 2 * trackPadding)
-            trackOffsetX = (thumbPlaceable.width - 2 * trackPadding) / 2
+            sliderWidth = thumbCoreWidth + trackPlaceable.width
+            sliderHeight = max(trackPlaceable.height, thumbCoreHeight)
+            trackOffsetX = thumbCoreWidth / 2
             trackOffsetY = (sliderHeight - trackPlaceable.height) / 2
-            thumbOffsetX =
+            val fractionOffset =
                 if (state.steps > 0 && !isOnFirstOrLastStep) {
                     ((trackPlaceable.width - trackCornerSize * 2) * valueAsFraction).roundToInt() +
                         trackCornerSize
                 } else {
                     (trackPlaceable.width * valueAsFraction).roundToInt()
                 }
-            thumbOffsetX += trackOffsetX - thumbPlaceable.width / 2
+            thumbOffsetX = fractionOffset + trackOffsetX - thumbPlaceable.width / 2
             thumbOffsetY = (sliderHeight - thumbPlaceable.height) / 2
         }
 
@@ -1231,6 +1243,10 @@ private fun RangeSliderImpl(
     track: @Composable ((RangeSliderState) -> Unit),
 ) {
     state.isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val isStartFocused by startInteractionSource.collectIsFocusedAsState()
+    val isEndFocused by endInteractionSource.collectIsFocusedAsState()
+    state.isStartFocused = isStartFocused
+    state.isEndFocused = isEndFocused
 
     val pressDrag =
         Modifier.rangeSliderPressDragModifier(
@@ -1259,7 +1275,7 @@ private fun RangeSliderImpl(
                             enableHoverIndication = false,
                         ),
                 )
-                .padding(insetFocusRingPadding)
+                .padding(if (isStartFocused) insetFocusRingPadding else 0.dp)
         } else {
             Modifier
         }
@@ -1277,7 +1293,7 @@ private fun RangeSliderImpl(
                             enableHoverIndication = false,
                         ),
                 )
-                .padding(insetFocusRingPadding)
+                .padding(if (isEndFocused) insetFocusRingPadding else 0.dp)
         } else {
             Modifier
         }
@@ -1293,7 +1309,7 @@ private fun RangeSliderImpl(
                         .wrapContentWidth()
                         .onSizeChanged {
                             val padding =
-                                if (isInsetFocusRing) {
+                                if (isInsetFocusRing && isStartFocused) {
                                     with(density) { (insetFocusRingPadding * 2).roundToPx() }
                                 } else {
                                     0
@@ -1333,7 +1349,7 @@ private fun RangeSliderImpl(
                         .wrapContentWidth()
                         .onSizeChanged {
                             val padding =
-                                if (isInsetFocusRing) {
+                                if (isInsetFocusRing && isEndFocused) {
                                     with(density) { (insetFocusRingPadding * 2).roundToPx() }
                                 } else {
                                     0
@@ -1374,7 +1390,10 @@ private fun RangeSliderImpl(
                 .requiredSizeIn(minWidth = ThumbWidth, minHeight = TrackHeight)
                 .then(pressDrag),
     ) { measurables, constraints ->
-        val trackPadding = if (isInsetFocusRing) insetFocusRingPadding.roundToPx() else 0
+        val startTrackPadding =
+            if (isInsetFocusRing && isStartFocused) insetFocusRingPadding.roundToPx() else 0
+        val endTrackPadding =
+            if (isInsetFocusRing && isEndFocused) insetFocusRingPadding.roundToPx() else 0
 
         val startThumbPlaceable =
             measurables
@@ -1393,20 +1412,21 @@ private fun RangeSliderImpl(
                     constraints
                         .offset(
                             horizontal =
-                                -(startThumbPlaceable.width + endThumbPlaceable.width -
-                                    4 * trackPadding) / 2
+                                -(startThumbPlaceable.width - 2 * startTrackPadding +
+                                    endThumbPlaceable.width - 2 * endTrackPadding) / 2
                         )
                         .copy(minHeight = 0)
                 )
 
         val sliderWidth =
             trackPlaceable.width +
-                (startThumbPlaceable.width + endThumbPlaceable.width - 4 * trackPadding) / 2
+                (startThumbPlaceable.width - 2 * startTrackPadding + endThumbPlaceable.width -
+                    2 * endTrackPadding) / 2
         val sliderHeight =
             maxOf(
                 trackPlaceable.height,
-                startThumbPlaceable.height - 2 * trackPadding,
-                endThumbPlaceable.height - 2 * trackPadding,
+                startThumbPlaceable.height - 2 * startTrackPadding,
+                endThumbPlaceable.height - 2 * endTrackPadding,
             )
 
         state.totalWidth = sliderWidth
@@ -1421,7 +1441,7 @@ private fun RangeSliderImpl(
         val isEndOnFirstOrLastStep =
             endValueAsFraction == state.tickFractions.firstOrNull() ||
                 endValueAsFraction == state.tickFractions.lastOrNull()
-        val trackOffsetX = startThumbPlaceable.width / 2 - trackPadding
+        val trackOffsetX = startThumbPlaceable.width / 2 - startTrackPadding
         val trackCornerSize =
             trackPlaceable[CornerSizeAlignmentLine].let {
                 if (it != AlignmentLine.Unspecified) it else 0
@@ -1436,7 +1456,9 @@ private fun RangeSliderImpl(
             }
         // When start thumb and end thumb have different widths,
         // we need to add a correction for the centering of the slider.
-        val endCorrection = (startThumbPlaceable.width - endThumbPlaceable.width) / 2
+        val startThumbCoreWidth = startThumbPlaceable.width - 2 * startTrackPadding
+        val endThumbCoreWidth = endThumbPlaceable.width - 2 * endTrackPadding
+        val endCorrection = (startThumbCoreWidth - endThumbCoreWidth) / 2
         val endThumbOffsetX =
             if (state.steps > 0 && !isEndOnFirstOrLastStep) {
                 ((trackPlaceable.width - trackCornerSize * 2) * endValueAsFraction + endCorrection)
@@ -1450,8 +1472,11 @@ private fun RangeSliderImpl(
 
         layout(sliderWidth, sliderHeight) {
             trackPlaceable.placeRelative(trackOffsetX, trackOffsetY)
-            startThumbPlaceable.placeRelative(startThumbOffsetX - trackPadding, startThumbOffsetY)
-            endThumbPlaceable.placeRelative(endThumbOffsetX - trackPadding, endThumbOffsetY)
+            startThumbPlaceable.placeRelative(
+                startThumbOffsetX - startTrackPadding,
+                startThumbOffsetY,
+            )
+            endThumbPlaceable.placeRelative(endThumbOffsetX - endTrackPadding, endThumbOffsetY)
         }
     }
 }
@@ -1866,7 +1891,8 @@ object SliderDefaults {
         val activeTickColor = colors.tickColor(enabled = enabled, active = true)
         val isInsetFocusRing =
             LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
-        val focusPadding = if (isInsetFocusRing) insetFocusRingPadding else 0.dp
+        val focusPadding =
+            if (isInsetFocusRing && sliderState.isFocused) insetFocusRingPadding else 0.dp
         Canvas(
             if (sliderState.orientation == Vertical) {
                     modifier.width(TrackHeight).fillMaxHeight().let {
@@ -1908,6 +1934,32 @@ object SliderDefaults {
                 } else {
                     trackCornerSize.toPx()
                 }
+            val isThumbBeforeCenter = sliderState.coercedValueAsFraction < 0.5f
+            val isThumbAfterCenter = sliderState.coercedValueAsFraction > 0.5f
+            val startThumbWidth =
+                if (isCentered && !isThumbAfterCenter) {
+                    sliderState.thumbWidth.toDp()
+                } else {
+                    0.dp
+                }
+            val startThumbHeight =
+                if (isCentered && !isThumbAfterCenter) {
+                    sliderState.thumbHeight.toDp()
+                } else {
+                    0.dp
+                }
+            val endThumbWidth =
+                if (isCentered) {
+                    if (!isThumbBeforeCenter) sliderState.thumbWidth.toDp() else 0.dp
+                } else {
+                    sliderState.thumbWidth.toDp()
+                }
+            val endThumbHeight =
+                if (isCentered) {
+                    if (!isThumbBeforeCenter) sliderState.thumbHeight.toDp() else 0.dp
+                } else {
+                    sliderState.thumbHeight.toDp()
+                }
             drawTrack(
                 tickFractions = sliderState.tickFractions,
                 activeRangeStart = 0f,
@@ -1916,11 +1968,12 @@ object SliderDefaults {
                 activeTrackColor = activeTrackColor,
                 inactiveTickColor = inactiveTickColor,
                 activeTickColor = activeTickColor,
-                startThumbWidth = 0.toDp(),
-                startThumbHeight = 0.toDp(),
-                endThumbWidth = sliderState.thumbWidth.toDp(),
-                endThumbHeight = sliderState.thumbHeight.toDp(),
-                thumbTrackGapSize = thumbTrackGapSize + focusPadding,
+                startThumbWidth = startThumbWidth,
+                startThumbHeight = startThumbHeight,
+                endThumbWidth = endThumbWidth,
+                endThumbHeight = endThumbHeight,
+                startThumbTrackGapSize = if (isCentered) thumbTrackGapSize + focusPadding else 0.dp,
+                endThumbTrackGapSize = thumbTrackGapSize + focusPadding,
                 trackInsideCornerSize = trackInsideCornerSize,
                 trackCornerSize = cornerSize.toDp(),
                 drawStopIndicator = drawStopIndicator,
@@ -2090,7 +2143,10 @@ object SliderDefaults {
         val activeTickColor = colors.tickColor(enabled, active = true)
         val isInsetFocusRing =
             LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
-        val focusPadding = if (isInsetFocusRing) insetFocusRingPadding else 0.dp
+        val startFocusPadding =
+            if (isInsetFocusRing && rangeSliderState.isStartFocused) insetFocusRingPadding else 0.dp
+        val endFocusPadding =
+            if (isInsetFocusRing && rangeSliderState.isEndFocused) insetFocusRingPadding else 0.dp
         Canvas(
             modifier.fillMaxWidth().height(TrackHeight).layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
@@ -2122,7 +2178,8 @@ object SliderDefaults {
                 startThumbHeight = rangeSliderState.startThumbHeight.toDp(),
                 endThumbWidth = rangeSliderState.endThumbWidth.toDp(),
                 endThumbHeight = rangeSliderState.endThumbHeight.toDp(),
-                thumbTrackGapSize = thumbTrackGapSize + focusPadding,
+                startThumbTrackGapSize = thumbTrackGapSize + startFocusPadding,
+                endThumbTrackGapSize = thumbTrackGapSize + endFocusPadding,
                 trackInsideCornerSize = trackInsideCornerSize,
                 trackCornerSize = cornerSize.toDp(),
                 drawStopIndicator = drawStopIndicator,
@@ -2144,7 +2201,8 @@ object SliderDefaults {
         startThumbHeight: Dp,
         endThumbWidth: Dp,
         endThumbHeight: Dp,
-        thumbTrackGapSize: Dp,
+        startThumbTrackGapSize: Dp,
+        endThumbTrackGapSize: Dp,
         trackInsideCornerSize: Dp,
         trackCornerSize: Dp,
         drawStopIndicator: (DrawScope.(Offset) -> Unit)?,
@@ -2187,13 +2245,19 @@ object SliderDefaults {
         val insideCornerSize = trackInsideCornerSize.toPx()
         var startGap = 0f
         var endGap = 0f
-        if (thumbTrackGapSize > 0.dp) {
-            if (isVertical) {
-                startGap = startThumbHeight.toPx() / 2 + thumbTrackGapSize.toPx()
-                endGap = endThumbHeight.toPx() / 2 + thumbTrackGapSize.toPx()
-            } else {
-                startGap = startThumbWidth.toPx() / 2 + thumbTrackGapSize.toPx()
-                endGap = endThumbWidth.toPx() / 2 + thumbTrackGapSize.toPx()
+        if (isVertical) {
+            if (startThumbTrackGapSize > 0.dp) {
+                startGap = startThumbHeight.toPx() / 2 + startThumbTrackGapSize.toPx()
+            }
+            if (endThumbTrackGapSize > 0.dp) {
+                endGap = endThumbHeight.toPx() / 2 + endThumbTrackGapSize.toPx()
+            }
+        } else {
+            if (startThumbTrackGapSize > 0.dp) {
+                startGap = startThumbWidth.toPx() / 2 + startThumbTrackGapSize.toPx()
+            }
+            if (endThumbTrackGapSize > 0.dp) {
+                endGap = endThumbWidth.toPx() / 2 + endThumbTrackGapSize.toPx()
             }
         }
         val centerAxis = if (isVertical) center.y else center.x
@@ -2351,9 +2415,21 @@ object SliderDefaults {
         val start = sliderStart + cornerSize
         val end = sliderEnd - cornerSize
         val activeTrack = activeTrackStart..activeTrackEnd
-        val tickCenterGap = centerAxis - endGap..centerAxis + endGap
+        val tickCenterGap =
+            if (isCentered) {
+                val gap = if (sliderValueEnd > centerAxis) startGap else endGap
+                centerAxis - gap..centerAxis + gap
+            } else {
+                0f..0f
+            }
         val tickStartGap = sliderValueStart - startGap..sliderValueStart + startGap
-        val tickEndGap = sliderValueEnd - endGap..sliderValueEnd + endGap
+        val tickEndGap =
+            if (isCentered) {
+                val gap = if (sliderValueEnd > centerAxis) endGap else startGap
+                sliderValueEnd - gap..sliderValueEnd + gap
+            } else {
+                sliderValueEnd - endGap..sliderValueEnd + endGap
+            }
         tickFractions.forEachIndexed { index, tick ->
             // skip ticks that fall on the stop indicator
             if (drawStopIndicator != null) {
@@ -2476,13 +2552,18 @@ private fun Thumb(
         } else {
             thumbSize
         }
-    Spacer(
+    Box(
         modifier
-            .size(size)
+            .size(thumbSize)
             .hoverable(interactionSource = interactionSource)
-            .pointerHoverIcon(icon = PointerIcon.Hand)
-            .background(colors.thumbColor(enabled), SliderTokens.HandleShape.value)
-    )
+            .pointerHoverIcon(icon = PointerIcon.Hand),
+        contentAlignment = Alignment.Center,
+    ) {
+        Spacer(
+            Modifier.size(size)
+                .background(colors.thumbColor(enabled), SliderTokens.HandleShape.value)
+        )
+    }
 }
 
 private fun snapValueToTick(
@@ -3199,6 +3280,7 @@ class SliderState(
     private var totalWidth by mutableIntStateOf(0)
     private var totalHeight by mutableIntStateOf(0)
     internal var isRtl = false
+    internal var isFocused by mutableStateOf(false)
     internal var thumbWidth by mutableIntStateOf(0)
     internal var thumbHeight by mutableIntStateOf(0)
     internal var orientation = Horizontal
@@ -3391,6 +3473,8 @@ class RangeSliderState(
     internal var isDragging by mutableStateOf(false)
 
     internal var isRtl by mutableStateOf(false)
+    internal var isStartFocused by mutableStateOf(false)
+    internal var isEndFocused by mutableStateOf(false)
 
     internal val gestureEndAction: (Boolean) -> Unit = { onValueChangeFinished?.invoke() }
 

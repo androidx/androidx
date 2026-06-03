@@ -28,10 +28,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextClassName
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextFieldClassName
 import androidx.compose.ui.platform.toLegacyClassName
+import androidx.compose.ui.semantics.CredentialRequestData
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsInfo
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
 import androidx.compose.ui.semantics.mergedSemanticsConfiguration
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.state.ToggleableState
@@ -66,6 +68,7 @@ internal fun ViewStructure.populate(
     var roleProp: Role? = null
     var selectedProp: Boolean? = null
     var toggleableStateProp: ToggleableState? = null
+    var credentialRequestProp: Any? = null
 
     // Semantics properties form merged configuration.
     var textMergedProp: List<AnnotatedString>? = null
@@ -95,6 +98,12 @@ internal fun ViewStructure.populate(
             actions.OnLongClick -> autofillApi.setLongClickable(this, true)
             actions.RequestFocus -> autofillApi.setFocusable(this, true)
             actions.SetText -> hasSetTextAction = true
+        }
+
+        if (
+            Build.VERSION.SDK_INT >= 34 && property == SemanticsPropertiesAndroid.CredentialRequest
+        ) {
+            credentialRequestProp = value
         }
     }
 
@@ -195,6 +204,18 @@ internal fun ViewStructure.populate(
             autofillApi.setInputType(
                 this,
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD,
+            )
+        }
+    }
+
+    // Credential Request.
+    if (Build.VERSION.SDK_INT >= 35) {
+        credentialRequestProp?.let {
+            val requestData = it as CredentialRequestData
+            AutofillApi35Helper.setPendingCredentialRequest(
+                this,
+                requestData.request,
+                requestData.callback,
             )
         }
     }

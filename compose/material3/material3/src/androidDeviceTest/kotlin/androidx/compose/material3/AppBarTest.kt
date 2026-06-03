@@ -112,7 +112,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1907,7 +1906,6 @@ class AppBarTest {
     }
 
     @Test
-    @Ignore("b/422735600")
     fun bottomAppBarWithFAB_heightIsFromSpec() {
         rule
             .setMaterialContentForSizeAssertions {
@@ -1922,6 +1920,8 @@ class AppBarTest {
                             Icon(Icons.Filled.Add, "Localized description")
                         }
                     },
+                    // Set window insets to zero so we can test app bar without insets applied.
+                    windowInsets = WindowInsets(),
                 )
             }
             .assertHeightIsEqualTo(BottomAppBarTokens.ContainerHeight)
@@ -1929,12 +1929,13 @@ class AppBarTest {
     }
 
     @Test
-    @Ignore("b/422735600")
     fun bottomAppBarWithCustomArrangement_heightIsFromSpec() {
         rule
             .setMaterialContentForSizeAssertions {
                 FlexibleBottomAppBar(
                     horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
+                    // Set window insets to zero so we can test app bar without insets applied.
+                    windowInsets = WindowInsets(),
                     content = {},
                 )
             }
@@ -1943,7 +1944,6 @@ class AppBarTest {
     }
 
     @Test
-    @Ignore("b/422735600")
     fun bottomAppBarWithCustomHeight() {
         val height = 128.dp
         rule
@@ -1951,6 +1951,8 @@ class AppBarTest {
                 FlexibleBottomAppBar(
                     horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                     expandedHeight = height,
+                    // Set window insets to zero so we can test app bar without insets applied.
+                    windowInsets = WindowInsets(),
                     content = {},
                 )
             }
@@ -1981,7 +1983,7 @@ class AppBarTest {
     }
 
     @Test
-    fun bottomAppBar_FABshown_whenActionsOverflowRow() {
+    fun bottomAppBar_FABShown_whenActionsOverflowRow() {
         rule.setMaterialContent(lightColorScheme()) {
             BottomAppBar(
                 actions = { repeat(20) { FakeIcon(Modifier) } },
@@ -2001,19 +2003,28 @@ class AppBarTest {
     }
 
     @Test
-    @Ignore("b/422735600")
     fun bottomAppBar_widthExpandsToScreen() {
         rule
-            .setMaterialContentForSizeAssertions { BottomAppBar {} }
+            .setMaterialContentForSizeAssertions {
+                BottomAppBar(
+                    // Set window insets to zero so we can test app bar without insets applied.
+                    windowInsets = WindowInsets()
+                ) {}
+            }
             .assertHeightIsEqualTo(BottomAppBarTokens.ContainerHeight)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
     @Test
-    @Ignore("b/422746273")
     fun bottomAppBar_default_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
-            BottomAppBar(Modifier.testTag("bar")) { FakeIcon(Modifier.testTag("icon")) }
+            BottomAppBar(
+                Modifier.testTag("bar"),
+                // Set window insets to zero so we can test app bar without insets applied.
+                windowInsets = WindowInsets(),
+            ) {
+                FakeIcon(Modifier.testTag("icon"))
+            }
         }
 
         val appBarBounds = rule.onNodeWithTag("bar").getUnclippedBoundsInRoot()
@@ -2032,12 +2043,13 @@ class AppBarTest {
     }
 
     @Test
-    @Ignore("b/422746273")
     fun bottomAppBar_default_positioning_respectsContentPadding() {
         val topPadding = 5.dp
         rule.setMaterialContent(lightColorScheme()) {
             BottomAppBar(
                 Modifier.testTag("bar"),
+                // Set window insets to zero so we can test app bar without insets applied.
+                windowInsets = WindowInsets(),
                 contentPadding = PaddingValues(top = topPadding, start = 3.dp),
             ) {
                 FakeIcon(Modifier.testTag("icon"))
@@ -2089,15 +2101,18 @@ class AppBarTest {
     }
 
     @Test
-    @Ignore("b/422746273")
     fun bottomAppBar_exitAlways_scaffoldWithFAB_default_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
             val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                // Set window insets to zero so we can test without insets applied.
+                contentWindowInsets = WindowInsets(),
                 bottomBar = {
                     BottomAppBar(
                         modifier = Modifier.testTag(BottomAppBarTestTag),
+                        // Set window insets to zero so we can test app bar without insets applied.
+                        windowInsets = WindowInsets(),
                         scrollBehavior = scrollBehavior,
                     ) {}
                 },
@@ -2122,7 +2137,6 @@ class AppBarTest {
     }
 
     @Test
-    @Ignore("b/422735600")
     fun bottomAppBar_exitAlways_scaffoldWithFAB_scrolled_positioning() {
         lateinit var scrollBehavior: BottomAppBarScrollBehavior
         val scrollHeightOffsetDp = 20.dp
@@ -2133,9 +2147,13 @@ class AppBarTest {
             scrollHeightOffsetPx = with(LocalDensity.current) { scrollHeightOffsetDp.toPx() }
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                // Set window insets to zero so we can test without insets applied.
+                contentWindowInsets = WindowInsets(),
                 bottomBar = {
                     BottomAppBar(
                         modifier = Modifier.testTag(BottomAppBarTestTag),
+                        // Set window insets to zero so we can test app bar without insets applied.
+                        windowInsets = WindowInsets(),
                         scrollBehavior = scrollBehavior,
                     ) {}
                 },
@@ -2171,7 +2189,7 @@ class AppBarTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun topAppBar_enterAlways_changeColors_scrolledLazyColumn_setisAtStart() {
+    fun topAppBar_enterAlways_changeColors_scrolledLazyColumn_setIsAtStart() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             val lazyListState = rememberLazyListState()

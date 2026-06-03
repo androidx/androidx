@@ -16,21 +16,36 @@
 
 package androidx.compose.ui.graphics
 
+import android.os.Build
 import androidx.annotation.ColorLong
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 
 /**
- * Converts the Color to a 64-bit [ColorLong] value that can be used by Android's framework.
+ * Converts the [Color] to a 64-bit [ColorLong] value that can be used by Android's framework.
  * [Color.value] isn't fully compatible with Android's 64-bit [ColorLong] values as some color
- * spaces differ, so this method handles the conversion.
+ * spaces differ, so this method handles the conversion. Color spaces that are not supported by the
+ * current Android API level will safely fallback to the [ColorSpaces.Srgb] color space.
  */
 @ColorLong
 fun Color.toColorLong(): Long {
-    return if ((value and 0x3FUL) < 16UL) {
-            value
-        } else {
-            (value and 0x3FUL.inv()) or ((value and 0x3FUL) - 1UL)
-        }
-        .toLong()
+    val id = (this.value and 0x3FUL).toInt()
+
+    if (id <= 15) return this.value.toLong()
+
+    if (id == ColorSpaces.Unspecified.id) return this.toArgb().toLong()
+
+    if (
+        (id == ColorSpaces.Bt2020Hlg.id || id == ColorSpaces.Bt2020Pq.id) &&
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+    ) {
+        return this.toArgb().toLong()
+    }
+
+    if (id == ColorSpaces.Oklab.id && Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+        return this.toArgb().toLong()
+    }
+
+    return ((this.value and 0x3FUL.inv()) or ((this.value and 0x3FUL) - 1UL)).toLong()
 }
 
 /**
@@ -48,4 +63,28 @@ fun Color.Companion.fromColorLong(@ColorLong colorLong: Long): Color {
             (colorLong and 0x3F.inv()) or ((colorLong and 0x3F) + 1)
         }
     return Color(color.toULong())
+}
+
+/**
+ * Converts this [Color] to a platform-compatible [@ColorLong] suitable for use with
+ * [android.graphics.Paint] and [android.graphics.Shader] APIs. Color spaces that are not supported
+ * for rendering (e.g., CIE XYZ, CIE Lab, OkLab) are converted to [ColorSpaces.Srgb] before
+ * encoding.
+ */
+@ColorLong
+internal fun Color.toSupportedColorLong(): Long {
+    return if (isColorSpaceSupported()) {
+        this.toColorLong()
+    } else {
+        this.convert(ColorSpaces.Srgb).toColorLong()
+    }
+}
+
+// Color spaces not supported for platform @ColorLong rendering operations
+// (Paint, Shader, etc.)
+internal fun Color.isColorSpaceSupported(): Boolean {
+    val id = (this.value and 0x3FUL).toInt()
+    return !(id == ColorSpaces.Oklab.id ||
+        id == ColorSpaces.CieXyz.id ||
+        id == ColorSpaces.CieLab.id)
 }

@@ -69,7 +69,7 @@ internal actual suspend fun TextFieldSelectionState.detectTextFieldTapGestures(
         onTap = { offset ->
             requestFocus()
 
-            if (enabled && isFocused) {
+            if (enabled && isWindowAndTextFieldFocused) {
                 if (!readOnly) {
                     showKeyboard()
                     if (textFieldState.visualText.isNotEmpty()) {

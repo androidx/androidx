@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.retain.RetainedValuesStore
@@ -175,7 +174,6 @@ internal interface Owner : PositionCalculator {
 
     /** `true` when layout should draw debug bounds. */
     var showLayoutBounds: Boolean
-        @RestrictTo(RestrictTo.Scope.LIBRARY) @InternalCoreApi set
 
     /**
      * Called by [LayoutNode] to request the Owner a new measurement+layout. [forceRequest] defines

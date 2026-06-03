@@ -18,6 +18,7 @@ package androidx.compose.ui.contentcapture
 
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.LongSparseArray
 import android.view.ViewStructure
 import android.view.translation.TranslationRequestValue
@@ -169,6 +170,8 @@ class ContentCaptureTest {
         //  invocations of boundsUpdatesEventLoop.
         repeat(2) {
             rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            // We're using postDelayed(), so we must wait for the real clock
+            SystemClock.sleep(contentCaptureEventLoopIntervalMs)
             rule.waitForIdle()
         }
 
@@ -214,6 +217,8 @@ class ContentCaptureTest {
         //  invocations of boundsUpdatesEventLoop.
         repeat(2) {
             rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            // We're using postDelayed(), so we must wait for the real clock
+            SystemClock.sleep(contentCaptureEventLoopIntervalMs)
             rule.waitForIdle()
         }
 
@@ -250,12 +255,16 @@ class ContentCaptureTest {
         //  AutofillId is a final class, and these tests just use the autofill id of the parent
         //  view.
         rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        // We're using postDelayed(), so we must wait for the real clock
+        SystemClock.sleep(contentCaptureEventLoopIntervalMs)
         rule.runOnIdle { appeared = false }
 
         // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for
         //  two invocations of boundsUpdatesEventLoop.
         repeat(2) {
             rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            // We're using postDelayed(), so we must wait for the real clock
+            SystemClock.sleep(contentCaptureEventLoopIntervalMs)
             rule.waitForIdle()
         }
 
@@ -287,6 +296,8 @@ class ContentCaptureTest {
         //  invocations of boundsUpdatesEventLoop.
         repeat(2) {
             rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            // We're using postDelayed(), so we must wait for the real clock
+            SystemClock.sleep(contentCaptureEventLoopIntervalMs)
             rule.waitForIdle()
         }
 
@@ -306,6 +317,8 @@ class ContentCaptureTest {
         //  invocations of boundsUpdatesEventLoop.
         repeat(2) {
             rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            // We're using postDelayed(), so we must wait for the real clock
+            SystemClock.sleep(contentCaptureEventLoopIntervalMs)
             rule.waitForIdle()
         }
 
@@ -329,6 +342,8 @@ class ContentCaptureTest {
         rule.waitForIdle()
         repeat(2) {
             rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            // We're using postDelayed(), so we must wait for the real clock
+            SystemClock.sleep(contentCaptureEventLoopIntervalMs)
             rule.waitForIdle()
         }
 
@@ -368,6 +383,8 @@ class ContentCaptureTest {
             }
             repeat(2) {
                 rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                // We're using postDelayed(), so we must wait for the real clock
+                SystemClock.sleep(contentCaptureEventLoopIntervalMs)
                 rule.waitForIdle()
             }
 
@@ -407,6 +424,8 @@ class ContentCaptureTest {
 
             repeat(2) {
                 rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                // We're using postDelayed(), so we must wait for the real clock
+                SystemClock.sleep(contentCaptureEventLoopIntervalMs)
                 rule.waitForIdle()
             }
 
@@ -447,6 +466,8 @@ class ContentCaptureTest {
             }
             repeat(2) {
                 rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                // We're using postDelayed(), so we must wait for the real clock
+                SystemClock.sleep(contentCaptureEventLoopIntervalMs)
                 rule.waitForIdle()
             }
 
@@ -486,6 +507,8 @@ class ContentCaptureTest {
 
             repeat(2) {
                 rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                // We're using postDelayed(), so we must wait for the real clock
+                SystemClock.sleep(contentCaptureEventLoopIntervalMs)
                 rule.waitForIdle()
             }
 
@@ -532,6 +555,8 @@ class ContentCaptureTest {
         // Act.
         rule.runOnIdle { appeared = true }
         rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        // We're using postDelayed(), so we must wait for the real clock
+        SystemClock.sleep(contentCaptureEventLoopIntervalMs)
 
         // Assert.
         rule.runOnIdle { assertThat(result).isFalse() }
@@ -566,6 +591,8 @@ class ContentCaptureTest {
         // Act.
         rule.runOnIdle { appeared = true }
         rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        // We're using postDelayed(), so we must wait for the real clock
+        SystemClock.sleep(contentCaptureEventLoopIntervalMs)
 
         // Assert.
         rule.runOnIdle { assertThat(result).isTrue() }
@@ -809,6 +836,8 @@ class ContentCaptureTest {
         // Advance the clock past the first accessibility event loop, and clear the initial
         // as we are want the assertions to check the events that were generated later.
         runOnIdle { mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs) }
+        // We're using postDelayed(), so we must wait for the real clock
+        SystemClock.sleep(contentCaptureEventLoopIntervalMs)
 
         runOnIdle {
             if (!retainInteractionsDuringInitialization) {

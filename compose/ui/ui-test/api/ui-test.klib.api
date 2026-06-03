@@ -20,6 +20,18 @@ abstract fun interface androidx.compose.ui.test/DeviceConfigurationOverride { //
     final object Companion // androidx.compose.ui.test/DeviceConfigurationOverride.Companion|null[0]
 }
 
+abstract interface androidx.compose.ui.test/IdlingResource { // androidx.compose.ui.test/IdlingResource|null[0]
+    abstract val isIdleNow // androidx.compose.ui.test/IdlingResource.isIdleNow|{}isIdleNow[0]
+        abstract fun <get-isIdleNow>(): kotlin/Boolean // androidx.compose.ui.test/IdlingResource.isIdleNow.<get-isIdleNow>|<get-isIdleNow>(){}[0]
+
+    open fun getDiagnosticMessageIfBusy(): kotlin/String? // androidx.compose.ui.test/IdlingResource.getDiagnosticMessageIfBusy|getDiagnosticMessageIfBusy(){}[0]
+}
+
+abstract interface androidx.compose.ui.test/IdlingResourceOwner { // androidx.compose.ui.test/IdlingResourceOwner|null[0]
+    abstract fun registerIdlingResource(androidx.compose.ui.test/IdlingResource) // androidx.compose.ui.test/IdlingResourceOwner.registerIdlingResource|registerIdlingResource(androidx.compose.ui.test.IdlingResource){}[0]
+    abstract fun unregisterIdlingResource(androidx.compose.ui.test/IdlingResource) // androidx.compose.ui.test/IdlingResourceOwner.unregisterIdlingResource|unregisterIdlingResource(androidx.compose.ui.test.IdlingResource){}[0]
+}
+
 abstract interface androidx.compose.ui.test/IndirectPointerInjectionScope : androidx.compose.ui.unit/Density { // androidx.compose.ui.test/IndirectPointerInjectionScope|null[0]
     abstract val indirectPointerEventPrimaryDirectionalMotionAxis // androidx.compose.ui.test/IndirectPointerInjectionScope.indirectPointerEventPrimaryDirectionalMotionAxis|{}indirectPointerEventPrimaryDirectionalMotionAxis[0]
         abstract fun <get-indirectPointerEventPrimaryDirectionalMotionAxis>(): androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis // androidx.compose.ui.test/IndirectPointerInjectionScope.indirectPointerEventPrimaryDirectionalMotionAxis.<get-indirectPointerEventPrimaryDirectionalMotionAxis>|<get-indirectPointerEventPrimaryDirectionalMotionAxis>(){}[0]
@@ -44,6 +56,7 @@ abstract interface androidx.compose.ui.test/IndirectPointerInjectionScope : andr
     open fun moveTo(androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/IndirectPointerInjectionScope.moveTo|moveTo(androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
     open fun moveTo(kotlin/Int, androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/IndirectPointerInjectionScope.moveTo|moveTo(kotlin.Int;androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
     open fun moveWithHistory(kotlin.collections/List<kotlin/Long>, kotlin.collections/List<androidx.compose.ui.geometry/Offset>, kotlin/Long = ...) // androidx.compose.ui.test/IndirectPointerInjectionScope.moveWithHistory|moveWithHistory(kotlin.collections.List<kotlin.Long>;kotlin.collections.List<androidx.compose.ui.geometry.Offset>;kotlin.Long){}[0]
+    open fun updatePointerBy(androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/IndirectPointerInjectionScope.updatePointerBy|updatePointerBy(androidx.compose.ui.geometry.Offset){}[0]
     open fun updatePointerBy(kotlin/Int, androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/IndirectPointerInjectionScope.updatePointerBy|updatePointerBy(kotlin.Int;androidx.compose.ui.geometry.Offset){}[0]
     open fun updatePointerTo(androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/IndirectPointerInjectionScope.updatePointerTo|updatePointerTo(androidx.compose.ui.geometry.Offset){}[0]
 }
@@ -161,6 +174,7 @@ abstract interface androidx.compose.ui.test/TouchInjectionScope : androidx.compo
     open fun moveBy(kotlin/Int, androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/TouchInjectionScope.moveBy|moveBy(kotlin.Int;androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
     open fun moveTo(androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/TouchInjectionScope.moveTo|moveTo(androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
     open fun moveTo(kotlin/Int, androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/TouchInjectionScope.moveTo|moveTo(kotlin.Int;androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
+    open fun updatePointerBy(androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/TouchInjectionScope.updatePointerBy|updatePointerBy(androidx.compose.ui.geometry.Offset){}[0]
     open fun updatePointerBy(kotlin/Int, androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/TouchInjectionScope.updatePointerBy|updatePointerBy(kotlin.Int;androidx.compose.ui.geometry.Offset){}[0]
 }
 

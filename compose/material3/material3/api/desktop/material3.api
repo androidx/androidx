@@ -1461,8 +1461,10 @@ public final class androidx/compose/material3/MenuKt {
 	public static final fun DropdownMenuGroup-BfByrIA (Landroidx/compose/material3/MenuGroupShapes;Landroidx/compose/ui/Modifier;JFFLandroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun DropdownMenuItem (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun DropdownMenuItem (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
-	public static final fun DropdownMenuItem (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/material3/MenuItemShapes;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
-	public static final fun DropdownMenuItem (ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/material3/MenuItemShapes;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
+	public static final fun DropdownMenuItem (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/material3/MenuItemShapes;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun DropdownMenuItem (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/material3/MenuItemShapes;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
+	public static final fun DropdownMenuItem (ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/material3/MenuItemShapes;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun DropdownMenuItem (ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/material3/MenuItemShapes;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/material3/MenuItemColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
 	public static final fun DropdownMenuPopup-x0xb5LI (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/material3/DropdownMenuPopupPositionProvider;JLandroidx/compose/ui/window/PopupProperties;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
@@ -1651,10 +1653,6 @@ public final class androidx/compose/material3/OutlinedTextFieldKt {
 	public static final fun OutlinedTextField (Landroidx/compose/foundation/text/input/TextFieldState;Landroidx/compose/ui/Modifier;ZZLandroidx/compose/ui/text/TextStyle;Landroidx/compose/material3/TextFieldLabelPosition;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/foundation/text/input/InputTransformation;Landroidx/compose/foundation/text/input/OutputTransformation;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/foundation/text/input/KeyboardActionHandler;Landroidx/compose/foundation/text/input/TextFieldLineLimits;Lkotlin/jvm/functions/Function2;Landroidx/compose/foundation/ScrollState;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/TextFieldColors;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;IIII)V
 	public static final fun OutlinedTextField (Landroidx/compose/ui/text/input/TextFieldValue;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZZLandroidx/compose/ui/text/TextStyle;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/ui/text/input/VisualTransformation;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/foundation/text/KeyboardActions;ZIILandroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/TextFieldColors;Landroidx/compose/runtime/Composer;IIII)V
 	public static final fun OutlinedTextField (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZZLandroidx/compose/ui/text/TextStyle;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/ui/text/input/VisualTransformation;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/foundation/text/KeyboardActions;ZIILandroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/TextFieldColors;Landroidx/compose/runtime/Composer;IIII)V
-}
-
-public final class androidx/compose/material3/PrecisionPointer {
-	public static final fun shouldUsePrecisionPointerComponentSizing ()Z
 }
 
 public final class androidx/compose/material3/ProgressIndicatorDefaults {
@@ -1854,6 +1852,24 @@ public final class androidx/compose/material3/ScrimKt {
 	public static final fun Scrim-yrwZFoE (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;JLandroidx/compose/runtime/Composer;II)V
 }
 
+public final class androidx/compose/material3/ScrollbarDefaults {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material3/ScrollbarDefaults;
+	public final fun getCrossAxisTrackInset-D9Ej5fM ()F
+	public final fun getMainAxisTrackInset-D9Ej5fM ()F
+	public final fun getThickness-D9Ej5fM ()F
+	public final fun getThumbColor (Landroidx/compose/runtime/Composer;I)J
+	public final fun getThumbFadeDelayMillis ()I
+	public final fun getThumbFadeDurationMillis ()I
+	public final fun getThumbMaxLengthFraction ()F
+	public final fun getThumbMinLength-D9Ej5fM ()F
+	public final fun getThumbOpacity ()F
+}
+
+public final class androidx/compose/material3/ScrollbarKt {
+	public static final fun scrollbar-TYlY6FY (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollIndicatorState;Landroidx/compose/foundation/gestures/Orientation;JJFFFZIIFFLandroidx/compose/runtime/Composer;III)Landroidx/compose/ui/Modifier;
+}
+
 public final class androidx/compose/material3/SearchBarState$Companion {
 	public final fun Saver (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;)Landroidx/compose/runtime/saveable/Saver;
 	public final fun Saver (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;)Landroidx/compose/runtime/saveable/Saver;
@@ -1975,6 +1991,7 @@ public final class androidx/compose/material3/Shapes {
 }
 
 public final class androidx/compose/material3/SheetState$Companion {
+	public final fun Saver (Ljava/util/Set;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/saveable/Saver;
 	public final fun Saver (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Z)Landroidx/compose/runtime/saveable/Saver;
 	public final synthetic fun Saver (ZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/unit/Density;Z)Landroidx/compose/runtime/saveable/Saver;
 }
@@ -2168,6 +2185,81 @@ public abstract interface class androidx/compose/material3/SnackbarVisuals {
 	public abstract fun getDuration ()Landroidx/compose/material3/SnackbarDuration;
 	public abstract fun getMessage ()Ljava/lang/String;
 	public abstract fun getWithDismissAction ()Z
+}
+
+public final class androidx/compose/material3/SplitButtonDefaults {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material3/SplitButtonDefaults;
+	public final fun ElevatedLeadingButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun ElevatedTrailingButton (ZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun LeadingButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun OutlinedLeadingButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun OutlinedTrailingButton (ZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun TonalLeadingButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun TonalTrailingButton (ZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun TrailingButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun TrailingButton (ZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/SplitButtonShapes;Landroidx/compose/material3/ButtonColors;Landroidx/compose/material3/ButtonElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun getExtraLargeContainerHeight-D9Ej5fM ()F
+	public final fun getExtraLargeInnerCornerSize ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getExtraLargeInnerCornerSizePressed ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getExtraLargeLeadingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getExtraLargeTrailingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getExtraLargeTrailingButtonIconSize-D9Ej5fM ()F
+	public final fun getExtraSmallContainerHeight-D9Ej5fM ()F
+	public final fun getExtraSmallInnerCornerSize ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getExtraSmallInnerCornerSizePressed ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getExtraSmallLeadingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getExtraSmallTrailingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getExtraSmallTrailingButtonIconSize-D9Ej5fM ()F
+	public final synthetic fun getInnerCornerSize ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getLargeContainerHeight-D9Ej5fM ()F
+	public final fun getLargeInnerCornerSize ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getLargeInnerCornerSizePressed ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getLargeLeadingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getLargeTrailingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getLargeTrailingButtonIconSize-D9Ej5fM ()F
+	public final synthetic fun getLeadingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getLeadingIconSize-D9Ej5fM ()F
+	public final fun getMediumContainerHeight-D9Ej5fM ()F
+	public final fun getMediumInnerCornerSize ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getMediumInnerCornerSizePressed ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getMediumLeadingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getMediumTrailingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getMediumTrailingButtonIconSize-D9Ej5fM ()F
+	public final fun getOuterCornerSize ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getSmallContainerHeight-D9Ej5fM ()F
+	public final fun getSmallInnerCornerSize ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getSmallInnerCornerSizePressed ()Landroidx/compose/foundation/shape/CornerSize;
+	public final fun getSmallLeadingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getSmallTrailingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getSmallTrailingButtonIconSize-D9Ej5fM ()F
+	public final fun getSpacing-D9Ej5fM ()F
+	public final synthetic fun getTrailingButtonContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun getTrailingIconSize-D9Ej5fM ()F
+	public final fun leadingButtonContentPaddingFor-0680j_4 (F)Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun leadingButtonIconSizeFor-5rwHm24 (F)F
+	public final synthetic fun leadingButtonShapes (Landroidx/compose/foundation/shape/CornerSize;)Landroidx/compose/material3/SplitButtonShapes;
+	public static synthetic fun leadingButtonShapes$default (Landroidx/compose/material3/SplitButtonDefaults;Landroidx/compose/foundation/shape/CornerSize;ILjava/lang/Object;)Landroidx/compose/material3/SplitButtonShapes;
+	public final fun leadingButtonShapesFor-8Feqmps (FLandroidx/compose/runtime/Composer;I)Landroidx/compose/material3/SplitButtonShapes;
+	public final fun trailingButtonContentPaddingFor-0680j_4 (F)Landroidx/compose/foundation/layout/PaddingValues;
+	public final fun trailingButtonIconSizeFor-5rwHm24 (F)F
+	public final synthetic fun trailingButtonShapes (Landroidx/compose/foundation/shape/CornerSize;)Landroidx/compose/material3/SplitButtonShapes;
+	public static synthetic fun trailingButtonShapes$default (Landroidx/compose/material3/SplitButtonDefaults;Landroidx/compose/foundation/shape/CornerSize;ILjava/lang/Object;)Landroidx/compose/material3/SplitButtonShapes;
+	public final fun trailingButtonShapesFor-8Feqmps (FLandroidx/compose/runtime/Composer;I)Landroidx/compose/material3/SplitButtonShapes;
+}
+
+public final class androidx/compose/material3/SplitButtonKt {
+	public static final fun SplitButtonLayout--jt2gSs (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;FLandroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/compose/material3/SplitButtonShapes {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCheckedShape ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getPressedShape ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getShape ()Landroidx/compose/ui/graphics/Shape;
+	public fun hashCode ()I
 }
 
 public final class androidx/compose/material3/SuggestionChipDefaults {
@@ -2753,7 +2845,8 @@ public final class androidx/compose/material3/TooltipKt {
 
 public abstract interface class androidx/compose/material3/TooltipScope {
 	public abstract synthetic fun drawCaret (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
-	public abstract fun obtainAnchorBounds (Landroidx/compose/ui/layout/MeasureScope;)Landroidx/compose/ui/layout/LayoutCoordinates;
+	public abstract fun obtainAnchorBounds ()Landroidx/compose/ui/layout/LayoutCoordinates;
+	public abstract synthetic fun obtainAnchorBounds (Landroidx/compose/ui/layout/MeasureScope;)Landroidx/compose/ui/layout/LayoutCoordinates;
 	public abstract fun obtainPositionProvider ()Landroidx/compose/ui/window/PopupPositionProvider;
 }
 

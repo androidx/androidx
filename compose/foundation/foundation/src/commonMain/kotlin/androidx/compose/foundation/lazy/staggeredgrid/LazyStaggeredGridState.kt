@@ -162,7 +162,14 @@ internal constructor(
     private val _scrollIndicatorState =
         object : ScrollIndicatorState {
             override val scrollOffset: Int
-                get() = calculateScrollOffset()
+                get() =
+                    if (layoutInfo.reverseLayout) {
+                        layoutInfo.calculateContentSize(laneCount) -
+                            layoutInfo.singleAxisViewportSize -
+                            calculateScrollOffset()
+                    } else {
+                        calculateScrollOffset()
+                    }
 
             override val contentSize: Int
                 get() = layoutInfo.calculateContentSize(laneCount)
