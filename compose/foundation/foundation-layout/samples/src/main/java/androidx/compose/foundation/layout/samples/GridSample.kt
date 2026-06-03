@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalGridApi
 import androidx.compose.foundation.layout.Grid
 import androidx.compose.foundation.layout.GridFlow
-import androidx.compose.foundation.layout.GridScope.Companion.GridIndexUnspecified
 import androidx.compose.foundation.layout.GridTrackSize
 import androidx.compose.foundation.layout.GridTrackSize.Companion.Fixed
 import androidx.compose.foundation.layout.columns
@@ -362,11 +361,11 @@ fun GridWithOneDimensionalAreas() {
             gap(8.dp)
 
             // 2. Define 1-Dimensional Areas
-            // Explicitly set column to GridIndexUnspecified so items flow horizontally
-            area("header", row = 1, column = GridIndexUnspecified)
+            // 1D Area: Fix the row, leave column unspecified
+            area("header", row = 1)
 
-            // Explicitly set row to GridIndexUnspecified so items flow vertically
-            area("sidebar", row = GridIndexUnspecified, column = 1)
+            // 1D Area: Fix the column, leave row unspecified
+            area("sidebar", column = 1)
 
             // Fully specified 2D area
             area("content", row = 2, column = 2)

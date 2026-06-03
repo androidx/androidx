@@ -20,7 +20,6 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.GridScope.Companion.GridIndexUnspecified
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
@@ -3199,7 +3198,7 @@ class GridTest : LayoutTest() {
                         row(rowHeight.toDp())
 
                         // 1D Area: Fix the row, but leave the column unspecified
-                        area(TestArea.Header, row = 1, column = GridIndexUnspecified)
+                        area(TestArea.Header, row = 1)
                     }
                 ) {
                     // Because they share a 1D area, they should flow across the columns in row 1
@@ -3327,7 +3326,7 @@ class GridTest : LayoutTest() {
                         repeat(2) { row(size) }
 
                         // 1D Area: Fix the column, leave row unspecified
-                        area(TestArea.Sidebar, row = GridIndexUnspecified, column = 1)
+                        area(TestArea.Sidebar, column = 1)
                     }
                 ) {
                     Box(
@@ -3367,7 +3366,7 @@ class GridTest : LayoutTest() {
                         repeat(3) { row(size) }
 
                         // 1D Area sitting down in row 3
-                        area(TestArea.Footer, row = 3, column = GridIndexUnspecified)
+                        area(TestArea.Footer, row = 3)
                     }
                 ) {
                     // Item 1: Fully Auto. Should go to (0,0). Global cursor moves to (0,1).

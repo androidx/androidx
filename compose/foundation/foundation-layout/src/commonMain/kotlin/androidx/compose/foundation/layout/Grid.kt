@@ -391,17 +391,23 @@ interface GridConfigurationScope : Density {
      * @sample androidx.compose.foundation.layout.samples.GridWithOneDimensionalAreas
      * @param areaId A user-defined identifier (e.g., an Enum, String, or object marker) that
      *   represents this area. This identifier **must** have a stable `equals()` and `hashCode()`.
-     * @param row The 1-based starting row index of the area, or [GridIndexUnspecified] to create a
-     *   1D column-based area where items flow vertically.
-     * @param column The 1-based starting column index of the area, or [GridIndexUnspecified] to
-     *   create a 1D row-based area where items flow horizontally.
+     * @param row The 1-based starting row index of the area. Defaults to [GridIndexUnspecified] to
+     *   create a 1D column-based area where items flow vertically.
+     * @param column The 1-based starting column index of the area. Defaults to
+     *   [GridIndexUnspecified] to create a 1D row-based area where items flow horizontally.
      * @param rowSpan The number of rows this area should occupy. Must be greater than 0. Defaults
      *   to 1.
      * @param columnSpan The number of columns this area should occupy. Must be greater than 0.
      *   Defaults to 1.
      * @throws IllegalArgumentException if both [row] and [column] are [GridIndexUnspecified].
      */
-    fun area(areaId: Any, row: Int, column: Int, rowSpan: Int = 1, columnSpan: Int = 1)
+    fun area(
+        areaId: Any,
+        row: Int = GridIndexUnspecified,
+        column: Int = GridIndexUnspecified,
+        rowSpan: Int = 1,
+        columnSpan: Int = 1,
+    )
 
     /**
      * Defines a named area within the grid using explicit coordinate ranges.
