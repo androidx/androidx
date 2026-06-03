@@ -18,10 +18,6 @@ package androidx.core.locationbutton
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.permissionui.LocationButtonClient
-import android.app.permissionui.LocationButtonProvider
-import android.app.permissionui.LocationButtonProviderFactory
-import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
 import android.content.Context
 import android.content.ContextWrapper
@@ -29,7 +25,6 @@ import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Build
-import android.os.Trace
 import android.util.AttributeSet
 import android.util.Log
 import android.view.SurfaceView
@@ -49,7 +44,6 @@ import androidx.core.content.res.use
  * [LocationButtonListener.onRequestPermissions], allowing the app to handle the click (e.g., by
  * requesting permissions or performing actions).
  */
-@SuppressLint("NewApi")
 public class LocationButton
 @JvmOverloads
 constructor(
@@ -71,7 +65,7 @@ constructor(
     public annotation class LocationButtonTextType
 
     /** Remotely rendered location button is hosted in this surface view */
-    private var surfaceView: SurfaceView? = null
+    internal var surfaceView: SurfaceView? = null
 
     /**
      * Locally rendered location button, this button provides an alternate to remote location button
@@ -80,29 +74,26 @@ constructor(
      * This button is also used in measuring the width for remote location button to help implement
      * wrap_content for SurfaceView.
      */
-    private val localButtonView: LocalLocationButton
+    internal val localButtonView: LocalLocationButton
 
-    /** Location button provider entry point for remote location button rendering */
-    private var provider: LocationButtonProvider? = null
-
-    /** Location button session handle to communicate to remote with remote rendering service. */
-    private var session: LocationButtonSession? = null
+    /** Location button provider helper for API 37+ remote rendering */
+    internal var remoteDelegate: RemoteLocationButtonDelegate? = null
 
     /** Client callback for location button events, provided by apps. */
-    private var locationButtonListener: LocationButtonListener? = null
+    internal var locationButtonListener: LocationButtonListener? = null
 
     /** Once initialized, can't add more views. */
     private var initialized = false
 
     // -- Style Attributes --
-    private var textColor = 0
-    private var backgroundColor = 0
-    private var iconTint = 0
-    private var cornerRadius = 0f
-    private var pressedCornerRadius = 0f
-    private var strokeColor = 0
-    private var strokeWidth = 0
-    private var textType = LocationButtonSession.TEXT_TYPE_PRECISE_LOCATION
+    internal var textColor = 0
+    internal var backgroundColor = 0
+    internal var iconTint = 0
+    internal var cornerRadius = 0f
+    internal var pressedCornerRadius = 0f
+    internal var strokeColor = 0
+    internal var strokeWidth = 0
+    internal var textType = TEXT_TYPE_PRECISE_LOCATION
     private var maxLines = -1
     private var textAllCaps = false
     private var includeFontPadding = true
@@ -110,7 +101,7 @@ constructor(
     init {
         // Setup SurfaceView if remote rendering is supported
         if (isRemoteButtonSupported) {
-            provider = LocationButtonProviderFactory.create(context)
+            remoteDelegate = Api37Impl.create(this, context)
             surfaceView =
                 SurfaceView(context).apply {
                     holder.setFormat(PixelFormat.TRANSPARENT)
@@ -130,49 +121,10 @@ constructor(
     }
 
     private val openSessionRunnable = Runnable {
-        @Suppress("DEPRECATION") val hostToken = surfaceView!!.hostToken ?: return@Runnable
-        Trace.beginAsyncSection("LocationButton.openSession", 0)
+        val surfaceView = surfaceView ?: return@Runnable
+        val delegate = remoteDelegate ?: return@Runnable
 
-        val request = createButtonRequest()
-
-        val clientCallback =
-            Api37Impl.createClient(
-                onPermissionResultHandler = { isGranted ->
-                    locationButtonListener?.onPermissionResult(isGranted)
-                },
-                onSessionErrorHandler = { t ->
-                    closeSession()
-                    locationButtonListener?.onSessionError(t)
-                },
-                onSessionOpenedHandler = { openedSession ->
-                    try {
-                        if (!isAttachedToWindow) {
-                            openedSession.close()
-                            return@createClient
-                        }
-
-                        session = openedSession
-                        surfaceView!!.apply {
-                            visibility = VISIBLE
-                            setChildSurfacePackage(openedSession.surfacePackage)
-                            setCompositionOrder(DEFAULT_COMPOSITION_ORDER)
-                            invalidate()
-                        }
-                        localButtonView.visibility = INVISIBLE
-                    } finally {
-                        Trace.endAsyncSection("LocationButton.openSession", 0)
-                    }
-                },
-            )
-
-        provider?.openSession(
-            findActivity(),
-            hostToken,
-            getDisplayId(),
-            request,
-            handler::post, // Force all client callbacks to the UI thread
-            clientCallback,
-        )
+        delegate.openSession(findActivity(), getDisplayId(), surfaceView)
     }
 
     override fun onAttachedToWindow() {
@@ -193,10 +145,7 @@ constructor(
     }
 
     private fun closeSession() {
-        session?.close()
-        session = null
-        surfaceView?.clearChildSurfacePackage()
-        surfaceView?.visibility = INVISIBLE
+        remoteDelegate?.closeSession(surfaceView)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -296,7 +245,7 @@ constructor(
                 textType =
                     a.getInt(
                         R.styleable.LocationButton_locationButtonTextType,
-                        LocationButtonSession.TEXT_TYPE_PRECISE_LOCATION,
+                        TEXT_TYPE_PRECISE_LOCATION,
                     )
                 maxLines = a.getInt(R.styleable.LocationButton_android_maxLines, -1)
                 textAllCaps = a.getBoolean(R.styleable.LocationButton_android_textAllCaps, false)
@@ -337,7 +286,7 @@ constructor(
      * @param order The exact Z-order integer. Default is 1 (on top of the app window).
      */
     public fun setCompositionOrder(order: Int) {
-        surfaceView?.setCompositionOrder(order)
+        remoteDelegate?.setCompositionOrder(order)
     }
 
     /**
@@ -346,7 +295,7 @@ constructor(
      * @return The exact Z-order integer.
      */
     public fun getCompositionOrder(): Int {
-        return surfaceView?.getCompositionOrder() ?: DEFAULT_COMPOSITION_ORDER
+        return remoteDelegate?.getCompositionOrder() ?: DEFAULT_COMPOSITION_ORDER
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -355,13 +304,18 @@ constructor(
         if ((w == oldw && h == oldh) || w == 0 || h == 0) {
             return
         }
-        session?.resize(w, h)
+        remoteDelegate?.onSizeChanged(w, h)
     }
 
     override fun setPadding(left: Int, top: Int, right: Int, bottom: Int) {
         super.setPadding(left, top, right, bottom)
 
-        session?.setPadding(safePaddingLeft, safePaddingTop, safePaddingRight, safePaddingBottom)
+        remoteDelegate?.setPadding(
+            safePaddingLeft,
+            safePaddingTop,
+            safePaddingRight,
+            safePaddingBottom,
+        )
         syncLocalButton()
         localButtonView.setPadding(
             safePaddingLeft,
@@ -374,7 +328,12 @@ constructor(
     override fun setPaddingRelative(start: Int, top: Int, end: Int, bottom: Int) {
         super.setPaddingRelative(start, top, end, bottom)
 
-        session?.setPadding(safePaddingLeft, safePaddingTop, safePaddingRight, safePaddingBottom)
+        remoteDelegate?.setPadding(
+            safePaddingLeft,
+            safePaddingTop,
+            safePaddingRight,
+            safePaddingBottom,
+        )
         syncLocalButton()
         localButtonView.setPadding(
             safePaddingLeft,
@@ -387,7 +346,7 @@ constructor(
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
         if (newConfig != null) {
-            session?.changeConfiguration(newConfig)
+            remoteDelegate?.changeConfiguration(newConfig)
         }
     }
 
@@ -398,7 +357,7 @@ constructor(
      */
     public fun setCornerRadius(radius: Float) {
         cornerRadius = radius
-        session?.setCornerRadius(radius)
+        remoteDelegate?.setCornerRadius(radius)
         syncLocalButton()
     }
 
@@ -409,7 +368,7 @@ constructor(
      */
     public fun setPressedCornerRadius(radius: Float) {
         pressedCornerRadius = radius
-        session?.setPressedCornerRadius(radius)
+        remoteDelegate?.setPressedCornerRadius(radius)
         syncLocalButton()
     }
 
@@ -420,13 +379,13 @@ constructor(
      */
     public fun setTextColor(color: Int) {
         textColor = color
-        session?.setTextColor(color)
+        remoteDelegate?.setTextColor(color)
         syncLocalButton()
     }
 
     override fun setBackgroundColor(color: Int) {
         backgroundColor = color
-        session?.setBackgroundColor(color)
+        remoteDelegate?.setBackgroundColor(color)
         syncLocalButton()
     }
 
@@ -437,7 +396,7 @@ constructor(
      */
     public fun setIconTint(color: Int) {
         iconTint = color
-        session?.setIconTint(color)
+        remoteDelegate?.setIconTint(color)
         syncLocalButton()
     }
 
@@ -448,7 +407,7 @@ constructor(
      */
     public fun setStrokeColor(color: Int) {
         strokeColor = color
-        session?.setStrokeColor(color)
+        remoteDelegate?.setStrokeColor(color)
         syncLocalButton()
     }
 
@@ -459,7 +418,7 @@ constructor(
      */
     public fun setStrokeWidth(strokeWidth: Int) {
         this@LocationButton.strokeWidth = strokeWidth
-        session?.setStrokeWidth(strokeWidth)
+        remoteDelegate?.setStrokeWidth(strokeWidth)
         syncLocalButton()
     }
 
@@ -474,26 +433,9 @@ constructor(
     public fun setTextType(@LocationButtonTextType textType: Int) {
 
         this.textType = textType
-        session?.setTextType(textType)
+        remoteDelegate?.setTextType(textType)
         syncLocalButton()
         requestLayout()
-    }
-
-    private fun createButtonRequest(): LocationButtonRequest {
-        return LocationButtonRequest.Builder(width, height, resources.configuration)
-            .setPaddingLeft(safePaddingLeft)
-            .setPaddingTop(safePaddingTop)
-            .setPaddingRight(safePaddingRight)
-            .setPaddingBottom(safePaddingBottom)
-            .setBackgroundColor(backgroundColor)
-            .setStrokeColor(strokeColor)
-            .setStrokeWidth(strokeWidth)
-            .setCornerRadius(cornerRadius)
-            .setIconTint(iconTint)
-            .setTextType(textType)
-            .setTextColor(textColor)
-            .setPressedCornerRadius(pressedCornerRadius)
-            .build()
     }
 
     private fun getDisplayId(): Int {
@@ -554,16 +496,16 @@ constructor(
         }
     }
 
-    private val safePaddingLeft: Int
+    internal val safePaddingLeft: Int
         get() = paddingLeft.coerceAtMost(maxPaddingPx)
 
-    private val safePaddingTop: Int
+    internal val safePaddingTop: Int
         get() = paddingTop.coerceAtMost(maxPaddingPx)
 
-    private val safePaddingRight: Int
+    internal val safePaddingRight: Int
         get() = paddingRight.coerceAtMost(maxPaddingPx)
 
-    private val safePaddingBottom: Int
+    internal val safePaddingBottom: Int
         get() = paddingBottom.coerceAtMost(maxPaddingPx)
 
     private val maxPaddingPx: Int
@@ -572,15 +514,9 @@ constructor(
     private val maxHeightPx: Int
         get() = (MAX_HEIGHT_DP * resources.displayMetrics.density).toInt()
 
-    /** Test-only hook to inject a fake provider. */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public fun setLocationButtonProviderForTesting(provider: LocationButtonProvider) {
-        this.provider = provider
-    }
-
     @get:RestrictTo(LIBRARY_GROUP_PREFIX)
     public val isRemoteSessionActive: Boolean
-        get() = session != null
+        get() = remoteDelegate?.isSessionActive() ?: false
 
     @get:RestrictTo(LIBRARY_GROUP_PREFIX)
     public val isSurfaceViewVisible: Boolean
@@ -595,26 +531,10 @@ constructor(
         findActivity()
     }
 
-    @RequiresApi(37)
-    private object Api37Impl {
-        fun createClient(
-            onPermissionResultHandler: (Boolean) -> Unit,
-            onSessionErrorHandler: (Throwable) -> Unit,
-            onSessionOpenedHandler: (LocationButtonSession) -> Unit,
-        ): LocationButtonClient {
-            return object : LocationButtonClient {
-                override fun onPermissionResult(granted: Boolean) {
-                    onPermissionResultHandler(granted)
-                }
-
-                override fun onSessionError(t: Throwable) {
-                    onSessionErrorHandler(t)
-                }
-
-                override fun onSessionOpened(openedSession: LocationButtonSession) {
-                    onSessionOpenedHandler(openedSession)
-                }
-            }
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    internal object Api37Impl {
+        fun create(view: LocationButton, context: Context): RemoteLocationButtonDelegate {
+            return RemoteLocationButtonDelegateApi37(view, context)
         }
     }
 
@@ -623,7 +543,7 @@ constructor(
         private const val DEBUG = false
 
         // Equivalent to android.view.WindowManagerPolicyConstants.APPLICATION_PANEL_SUBLAYER
-        private const val DEFAULT_COMPOSITION_ORDER = 1
+        internal const val DEFAULT_COMPOSITION_ORDER = 1
         private const val MAX_PADDING_DP = 8
         private const val MAX_HEIGHT_DP = 136
 
