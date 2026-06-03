@@ -130,6 +130,7 @@ class AppFunctionAggregateProcessor(
     private fun generateAggregatedAppFunctionInvoker(resolver: Resolver) {
         val generatedInvokers =
             AppFunctionSymbolResolver(resolver).getGeneratedAppFunctionInvokers()
+        if (generatedInvokers.isEmpty()) return
         // TODO(b/463909015): Remove the condition logic once service module is removed
         val hasBaseInvoker =
             generatedInvokers.any { invokerClass ->
