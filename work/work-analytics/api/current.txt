@@ -1,1 +1,60 @@
 // Signature format: 4.0
+package androidx.work.analytics {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWorkMetricsApi {
+  }
+
+  public final class WorkMetricsInfo {
+    ctor public WorkMetricsInfo(java.util.UUID workSpecId, int generation, String? workerClassName, java.util.Set<java.lang.String> tags, androidx.work.analytics.WorkMetricsInfo.State state, long enqueueTimeMillis, long unblockTimeMillis, long firstStartTimeMillis, long finishTimeMillis);
+    method @InaccessibleFromKotlin public long getEnqueueTimeMillis();
+    method @InaccessibleFromKotlin public long getFinishTimeMillis();
+    method @InaccessibleFromKotlin public long getFirstStartTimeMillis();
+    method @InaccessibleFromKotlin public int getGeneration();
+    method @InaccessibleFromKotlin public androidx.work.analytics.WorkMetricsInfo.State getState();
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getTags();
+    method @InaccessibleFromKotlin public long getUnblockTimeMillis();
+    method @InaccessibleFromKotlin public java.util.UUID getWorkSpecId();
+    method @InaccessibleFromKotlin public String? getWorkerClassName();
+    property public long enqueueTimeMillis;
+    property public long finishTimeMillis;
+    property public long firstStartTimeMillis;
+    property public int generation;
+    property public androidx.work.analytics.WorkMetricsInfo.State state;
+    property public java.util.Set<java.lang.String> tags;
+    property public long unblockTimeMillis;
+    property public java.util.UUID workSpecId;
+    property public String? workerClassName;
+  }
+
+  public enum WorkMetricsInfo.State {
+    enum_constant public static final androidx.work.analytics.WorkMetricsInfo.State CANCELLED;
+    enum_constant public static final androidx.work.analytics.WorkMetricsInfo.State ENQUEUED_BLOCKED;
+    enum_constant public static final androidx.work.analytics.WorkMetricsInfo.State ENQUEUED_PENDING;
+    enum_constant public static final androidx.work.analytics.WorkMetricsInfo.State FAILED;
+    enum_constant public static final androidx.work.analytics.WorkMetricsInfo.State OBSOLETE_UPDATED;
+    enum_constant public static final androidx.work.analytics.WorkMetricsInfo.State RUNNING;
+    enum_constant public static final androidx.work.analytics.WorkMetricsInfo.State SUCCEEDED;
+  }
+
+  @SuppressCompatibility @androidx.work.ExperimentalEventsApi public final class WorkMetricsInfoRepository implements androidx.work.ExecutionEventListener androidx.work.ScheduleEventListener {
+    ctor public WorkMetricsInfoRepository(android.content.Context context);
+    ctor public WorkMetricsInfoRepository(android.content.Context context, optional java.util.concurrent.Executor? dbExecutor);
+    ctor @BytecodeOnly public WorkMetricsInfoRepository(android.content.Context!, java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public suspend Object? getWorkMetricsInfoById(java.util.UUID workId, kotlin.coroutines.Continuation<? super java.util.List<androidx.work.analytics.WorkMetricsInfo>>);
+    method public suspend Object? onCancelled(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onEnqueued(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onException(Throwable throwable, androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onFinished(androidx.work.ListenableWorker.Result result, androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onPrerequisiteFailed(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onStarted(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onStopped(int stopReason, androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onUnblocked(androidx.work.WorkInfo workInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onUpdated(androidx.work.WorkInfo oldWorkInfo, androidx.work.WorkInfo updatedWorkInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    field public static final androidx.work.analytics.WorkMetricsInfoRepository.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.work.ExperimentalEventsApi public static final class WorkMetricsInfoRepository.Companion {
+  }
+
+}
+
