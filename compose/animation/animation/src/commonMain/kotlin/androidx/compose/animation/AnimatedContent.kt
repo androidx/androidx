@@ -65,6 +65,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -654,6 +655,41 @@ internal constructor(
         var sizeTransform: State<SizeTransform?>,
         var scope: AnimatedContentTransitionScopeImpl<S>,
     ) : LayoutModifierNodeWithPassThroughIntrinsics() {
+
+        /**
+         * Temporary state used to pass data from [measure] to the corresponding placement block in
+         * the same frame. These are separated for lookahead and approach passes to avoid state
+         * pollution between passes. References are NOT cleared after placement because placement
+         * can be invoked multiple times without a new measure pass. Should not be used elsewhere.
+         */
+        private var lookaheadPlaceable: Placeable? = null
+        private var approachPlaceable: Placeable? = null
+        private var lookaheadSize: IntSize = IntSize.Zero
+        private var approachSize: IntSize = IntSize.Zero
+
+        private val lookaheadPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+            val placeable = lookaheadPlaceable!!
+            val measuredSize = lookaheadSize
+            val offset =
+                scope.contentAlignment.align(
+                    IntSize(placeable.width, placeable.height),
+                    measuredSize,
+                    LayoutDirection.Ltr,
+                )
+            placeable.place(offset)
+        }
+
+        private val approachPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+            val placeable = approachPlaceable!!
+            val measuredSize = approachSize
+            val offset =
+                scope.contentAlignment.align(
+                    IntSize(placeable.width, placeable.height),
+                    measuredSize,
+                    LayoutDirection.Ltr,
+                )
+            placeable.place(offset)
+        }
         // This is used to track the on-going size change so that when the target state changes,
         // we always start from the last seen size to the new target size to ensure continuity.
         private var lastSize: IntSize = UnspecifiedSize
@@ -705,14 +741,22 @@ internal constructor(
                 measuredSize = size.value
                 lastSize = size.value
             }
-            return layout(measuredSize.width, measuredSize.height) {
-                val offset =
-                    scope.contentAlignment.align(
-                        IntSize(placeable.width, placeable.height),
-                        measuredSize,
-                        LayoutDirection.Ltr,
-                    )
-                placeable.place(offset)
+            if (isLookingAhead) {
+                lookaheadPlaceable = placeable
+                lookaheadSize = measuredSize
+                return layout(
+                    measuredSize.width,
+                    measuredSize.height,
+                    placementBlock = lookaheadPlacementBlock,
+                )
+            } else {
+                approachPlaceable = placeable
+                approachSize = measuredSize
+                return layout(
+                    measuredSize.width,
+                    measuredSize.height,
+                    placementBlock = approachPlacementBlock,
+                )
             }
         }
     }
@@ -1120,12 +1164,7 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                     enter = specOnEnter.targetContentEnter,
                     exit = exit,
                     modifier =
-                        Modifier.layout { measurable, constraints ->
-                                val placeable = measurable.measure(constraints)
-                                layout(placeable.width, placeable.height) {
-                                    placeable.place(0, 0, zIndex = specOnEnter.targetContentZIndex)
-                                }
-                            }
+                        ZIndexModifierElement(specOnEnter.targetContentZIndex)
                             .then(
                                 childData.apply {
                                     isTarget = stateForContent == targetState
@@ -1178,10 +1217,59 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
 
 private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransitionScopeImpl<*>) :
     MeasurePolicy {
+
+    // Temporary state used to pass data from measure to the corresponding placement block in the
+    // same frame. These are separated for lookahead and approach passes to avoid state pollution
+    // between passes. References are not cleared after placement because placement can be invoked
+    // multiple times without a new measure pass.
+    private var lookaheadPlaceables: Array<Placeable?>? = null
+    private var approachPlaceables: Array<Placeable?>? = null
+    private var lookaheadMaxWidth: Int = 0
+    private var approachMaxWidth: Int = 0
+    private var lookaheadMaxHeight: Int = 0
+    private var approachMaxHeight: Int = 0
+
+    private val lookaheadPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+        val placeables = lookaheadPlaceables!!
+        val maxWidth = lookaheadMaxWidth
+        val maxHeight = lookaheadMaxHeight
+
+        for (placeable in placeables) {
+            placeable?.let {
+                val offset =
+                    rootScope.contentAlignment.align(
+                        IntSize(it.width, it.height),
+                        IntSize(maxWidth, maxHeight),
+                        LayoutDirection.Ltr,
+                    )
+                it.place(offset.x, offset.y)
+            }
+        }
+    }
+
+    private val approachPlacementBlock: Placeable.PlacementScope.() -> Unit = {
+        val placeables = approachPlaceables!!
+        val maxWidth = approachMaxWidth
+        val maxHeight = approachMaxHeight
+
+        for (placeable in placeables) {
+            placeable?.let {
+                val offset =
+                    rootScope.contentAlignment.align(
+                        IntSize(it.width, it.height),
+                        IntSize(maxWidth, maxHeight),
+                        LayoutDirection.Ltr,
+                    )
+                it.place(offset.x, offset.y)
+            }
+        }
+    }
+
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints,
     ): MeasureResult {
+        rootScope.contentAlignment // Trigger read in measure to force remeasure on alignment change
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         var targetSize = IntSize.Zero
         // Measure the target composable first (but place it on top unless zIndex is specified)
@@ -1226,21 +1314,18 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
         if (!isLookingAhead) {
             // update currently measured size only during approach
             rootScope.measuredSize = IntSize(maxWidth, maxHeight)
-        }
 
-        // Position the children.
-        return layout(maxWidth, maxHeight) {
-            placeables.forEach { placeable ->
-                placeable?.let {
-                    val offset =
-                        rootScope.contentAlignment.align(
-                            IntSize(it.width, it.height),
-                            IntSize(maxWidth, maxHeight),
-                            LayoutDirection.Ltr,
-                        )
-                    it.place(offset.x, offset.y)
-                }
-            }
+            // Position the children.
+            approachPlaceables = placeables
+            approachMaxWidth = maxWidth
+            approachMaxHeight = maxHeight
+            return layout(maxWidth, maxHeight, placementBlock = approachPlacementBlock)
+        } else {
+            // Position the children.
+            lookaheadPlaceables = placeables
+            lookaheadMaxWidth = maxWidth
+            lookaheadMaxHeight = maxHeight
+            return layout(maxWidth, maxHeight, placementBlock = lookaheadPlacementBlock)
         }
     }
 
@@ -1263,4 +1348,41 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ) = measurables.fastMaxOfOrNull { it.maxIntrinsicHeight(width) } ?: 0
+}
+
+/**
+ * A [ModifierNodeElement] that creates and updates a [ZIndexModifierNode] to apply z-index to the
+ * content in [AnimatedContent]. This is used to avoid multiple allocations of `Modifier.layout`
+ * lambdas.
+ */
+private class ZIndexModifierElement(val zIndex: Float) : ModifierNodeElement<ZIndexModifierNode>() {
+    override fun create(): ZIndexModifierNode = ZIndexModifierNode(zIndex)
+
+    override fun update(node: ZIndexModifierNode) {
+        node.zIndex = zIndex
+    }
+
+    override fun equals(other: Any?): Boolean =
+        other is ZIndexModifierElement && other.zIndex == zIndex
+
+    override fun hashCode(): Int = zIndex.hashCode()
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "targetContentZIndex"
+        properties["zIndex"] = zIndex
+    }
+}
+
+/**
+ * A [LayoutModifierNode] that applies the specified [zIndex] during placement. This avoids
+ * allocating a lambda on every placement pass.
+ */
+private class ZIndexModifierNode(var zIndex: Float) : LayoutModifierNode, Modifier.Node() {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0, zIndex = zIndex) }
+    }
 }
