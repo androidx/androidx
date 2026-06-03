@@ -279,7 +279,13 @@ internal class PaintTracker {
             RemoteTypeface.SansSerif -> PaintBundle.FONT_TYPE_SANS_SERIF
             RemoteTypeface.Monospace -> PaintBundle.FONT_TYPE_MONOSPACE
             is RemoteTypeface.Named -> {
-                creationState.document.addText(paintTypeface.name)
+                when (paintTypeface.name.lowercase()) {
+                    "sans-serif" -> PaintBundle.FONT_TYPE_SANS_SERIF
+                    "serif" -> PaintBundle.FONT_TYPE_SERIF
+                    "monospace" -> PaintBundle.FONT_TYPE_MONOSPACE
+                    "default" -> PaintBundle.FONT_TYPE_DEFAULT
+                    else -> creationState.document.addText(paintTypeface.name)
+                }
             }
         }
     }
