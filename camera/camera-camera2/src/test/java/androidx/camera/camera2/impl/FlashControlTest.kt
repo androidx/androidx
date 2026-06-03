@@ -25,6 +25,7 @@ import androidx.camera.camera2.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.compat.workaround.UseFlashModeTorchFor3aUpdateImpl
 import androidx.camera.camera2.impl.TorchControl.TorchMode
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.core.CameraControl
@@ -101,11 +102,13 @@ class FlashControlTest {
                 }
 
         val metadata =
-            FakeCameraMetadata(
-                mapOf(
-                    CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
-                        aeAvailableModes.toIntArray()
-                )
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
+                            aeAvailableModes.toIntArray()
+                    ),
             )
         val cameraProperties = FakeCameraProperties(metadata)
 

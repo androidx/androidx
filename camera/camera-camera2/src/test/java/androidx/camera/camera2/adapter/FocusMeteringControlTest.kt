@@ -45,6 +45,7 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeState3AControlCreator
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
@@ -1709,7 +1710,11 @@ class FocusMeteringControlTest {
     ): FakeCameraProperties {
         val cameraId = CameraId(cameraIdStr)
         return FakeCameraProperties(
-            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = cameraId,
+                characteristicsOverrides = characteristics,
+            ),
             cameraId,
         )
     }

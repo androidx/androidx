@@ -25,6 +25,7 @@ import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.AttachedSurfaceInfo
@@ -310,7 +311,11 @@ class HighSpeedResolverTest {
     ): HighSpeedResolver {
         return HighSpeedResolver(
             cameraMetadata =
-                FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
+                FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    cameraId = cameraId,
+                    characteristicsOverrides = characteristics,
+                )
         )
     }
 

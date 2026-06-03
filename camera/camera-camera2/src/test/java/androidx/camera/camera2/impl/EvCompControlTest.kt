@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.core.CameraControl
@@ -60,11 +61,14 @@ class EvCompControlTest {
         UseCaseThreads(cameraScope, executor, dispatcher)
     }
     private val metadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE to Range.create(-4, 4),
-                CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP to Rational.parseRational("1/2"),
-            )
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            characteristicsOverrides =
+                mapOf(
+                    CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE to Range.create(-4, 4),
+                    CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP to
+                        Rational.parseRational("1/2"),
+                ),
         )
     private val comboRequestListener = ComboRequestListener()
     private lateinit var exposureControl: EvCompControl

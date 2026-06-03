@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.core.impl.StreamSpec
 import androidx.test.core.app.ApplicationProvider
@@ -81,8 +82,10 @@ class MeteringRepeatingTest {
                 builder.addOutputSize(size)
             }
 
-            return FakeCameraMetadata(
-                mapOf(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to builder.build())
+            return FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides =
+                    mapOf(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to builder.build()),
             )
         }
     }

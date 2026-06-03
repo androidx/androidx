@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -36,7 +37,11 @@ class CameraMetadataIntegrationTest {
     private fun initCameraMetadata(
         cameraCharacteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap()
     ) {
-        cameraMetadata = FakeCameraMetadata(cameraCharacteristics)
+        cameraMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                characteristicsOverrides = cameraCharacteristics,
+            )
     }
 
     @Before
