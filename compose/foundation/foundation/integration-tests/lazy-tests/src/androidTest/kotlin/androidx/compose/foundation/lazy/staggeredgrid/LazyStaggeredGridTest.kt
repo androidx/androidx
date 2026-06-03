@@ -2160,6 +2160,93 @@ class LazyStaggeredGridTest(
     }
 
     @Test
+    fun fullSpanItem_scrollPast_withGaps_atStart() {
+        lateinit var state: LazyStaggeredGridState
+
+        // ┌───┬───┐ <- scroll offset
+        // │ 0 │   │
+        // ├───┴───┤
+        // │   1   │
+        // ├───┬───┤ <- end of screen
+        // │ 2 │ 3 │
+        // ├───┼───┤
+        // │ 4 │ 5 │
+        // └───┴───┘
+
+        rule.setContentWithConfigurableLookahead {
+            state = rememberLazyStaggeredGridState().apply { prefetchingEnabled = false }
+            LazyStaggeredGrid(
+                lanes = 2,
+                state = state,
+                modifier = Modifier.mainAxisSize(itemSizeDp * 2).crossAxisSize(itemSizeDp * 2),
+            ) {
+                item { Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("0")) }
+
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("1"))
+                }
+
+                items(4) { Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("${it + 2}")) }
+            }
+        }
+
+        // ┌───┬───┐
+        // │ 0 │   │
+        // ├───┴───┤ <- scroll offset
+        // │   1   │
+        // ├───┬───┤
+        // │ 2 │ 3 │
+        // ├───┼───┤ <- end of screen
+        // │ 4 │ 5 │
+        // └───┴───┘
+
+        state.scrollBy(itemSizeDp)
+        rule.onNodeWithTag("1").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+
+        // ┌───┬───┐
+        // │ 0 │   │
+        // ├───┴───┤
+        // │   1   │
+        // ├───┬───┤ <- scroll offset
+        // │ 2 │ 3 │
+        // ├───┼───┤
+        // │ 4 │ 5 │
+        // └───┴───┘ <- end of screen
+
+        state.scrollBy(itemSizeDp)
+        rule.onNodeWithTag("2").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("3").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+
+        // ┌───┬───┐
+        // │ 0 │   │
+        // ├───┴───┤ <- scroll offset
+        // │   1   │
+        // ├───┬───┤
+        // │ 2 │ 3 │
+        // ├───┼───┤ <- end of screen
+        // │ 4 │ 5 │
+        // └───┴───┘
+
+        state.scrollBy(-itemSizeDp)
+        rule.onNodeWithTag("1").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("2").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+        rule.onNodeWithTag("3").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+
+        // ┌───┬───┐ <- scroll offset
+        // │ 0 │   │
+        // ├───┴───┤
+        // │   1   │
+        // ├───┬───┤ <- end of screen
+        // │ 2 │ 3 │
+        // ├───┼───┤
+        // │ 4 │ 5 │
+        // └───┴───┘
+        state.scrollBy(-itemSizeDp)
+        rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+    }
+
+    @Test
     fun triggerBackScrollAndVerifyNoScrollDeltaBetweenTwoPasses() {
         state = LazyStaggeredGridState()
         rule.setContent {

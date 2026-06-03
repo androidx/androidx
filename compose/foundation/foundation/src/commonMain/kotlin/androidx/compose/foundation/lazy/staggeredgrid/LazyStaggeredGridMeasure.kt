@@ -521,7 +521,16 @@ private fun LazyStaggeredGridMeasureContext.measure(
 
             laneInfo.setLane(itemIndex, spanRange.laneInfo)
             val offset = currentItemOffsets.maxInRange(spanRange)
+            val gaps =
+                if (spanRange.isFullSpan) {
+                    laneInfo.getGaps(itemIndex) ?: IntArray(laneCount)
+                } else {
+                    null
+                }
             spanRange.forEach { lane ->
+                if (gaps != null) {
+                    gaps[lane] = offset - currentItemOffsets[lane]
+                }
                 currentItemOffsets[lane] = offset + measuredItem.mainAxisSizeWithSpacings
                 currentItemIndices[lane] = itemIndex
                 measuredItems[lane].addLast(measuredItem)
@@ -539,6 +548,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             }
 
             if (spanRange.isFullSpan) {
+                laneInfo.setGaps(itemIndex, gaps)
                 // full span items overwrite other slots if we measure it here, so skip measuring
                 // the rest of the slots
                 initialItemsMeasured = laneCount
@@ -609,6 +619,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             while (laneItems.size > 1 && !laneItems.first().isVisible) {
                 val item = laneItems.removeFirst()
                 val gaps = if (item.span != 1) laneInfo.getGaps(item.index) else null
+                debugLog { "removing item ${item.index}, gaps = ${gaps?.toList()}" }
                 firstItemOffsets[laneIndex] -=
                     item.mainAxisSizeWithSpacings + if (gaps == null) 0 else gaps[laneIndex]
             }
