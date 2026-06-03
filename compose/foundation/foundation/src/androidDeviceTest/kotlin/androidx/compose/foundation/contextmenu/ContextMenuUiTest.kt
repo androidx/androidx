@@ -251,8 +251,10 @@ class ContextMenuUiTest {
             val action = accessibilityAction.action
             assertThat(action).isNotNull()
             assertThat(onClickCount).isEqualTo(0)
-            action!!.invoke()
-            assertThat(onClickCount).isEqualTo(1)
+            rule.runOnUiThread {
+                action!!.invoke()
+                assertThat(onClickCount).isEqualTo(1)
+            }
         }
     }
 
@@ -272,8 +274,10 @@ class ContextMenuUiTest {
             val action = accessibilityAction.action
             assertThat(action).isNotNull()
             assertThat(onClickCount).isEqualTo(0)
-            action!!.invoke()
-            assertThat(onClickCount).isEqualTo(0)
+            rule.runOnUiThread {
+                action!!.invoke()
+                assertThat(onClickCount).isEqualTo(0)
+            }
         }
     }
 

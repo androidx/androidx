@@ -487,7 +487,7 @@ class ButtonScreenshotTest {
     @Test
     fun filledTonalButton_withAnimatedShape_default_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
-            Button(
+            FilledTonalButton(
                 onClick = {},
                 shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.testTag(buttonTestTag),

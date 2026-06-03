@@ -206,13 +206,6 @@ androidx {
     addGoldenImageAssets()
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    def dirToDelete = new File(project.buildDir, "kotlin/${it.name}/cacheable")
-    it.doFirst {
-        dirToDelete.deleteDir()
-    }
-}
-
 // This task updates the translations of the localizable strings in this module.
 // It obtains them from Android's base repository.
 tasks.register("updateTranslations", UpdateTranslationsTask.class) {

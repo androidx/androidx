@@ -20,10 +20,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.util.fastForEach
 import kotlin.jvm.JvmStatic
 
-internal actual typealias NativePointerButtons = Int
-internal actual typealias NativePointerKeyboardModifiers = Int
-
-
 // TODO(https://youtrack.jetbrains.com/issue/CMP-2184) support more buttons
 /**
  * Creates [PointerButtons] with the specified state of the pressed buttons.
@@ -72,8 +68,6 @@ fun PointerKeyboardModifiers(
     if (isNumLockOn) res = res or KeyboardModifierMasks.NumLockOn
     return PointerKeyboardModifiers(res)
 }
-
-internal actual fun EmptyPointerKeyboardModifiers() = PointerKeyboardModifiers()
 
 /**
  * Describes a pointer input change event that has occurred at a particular point in time.

@@ -55,6 +55,7 @@ typedef NS_ENUM(NSInteger, CMPLayoutRegionKind) {
 }
 
 - (UIEdgeInsets)edgeInsetsInView:(UIView *)view {
+#if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
     // Starting iOS 26, UIKit exposes `UIViewLayoutRegion`s (e.g. safe area / margins with corner
     // adaptation) which are needed to properly adopt iOS 26 macOS-like system controls.
     //
@@ -68,16 +69,18 @@ typedef NS_ENUM(NSInteger, CMPLayoutRegionKind) {
     if (@available(iOS 26.1, *)) {
         return [self edgeInsetsForLayoutRegionInView: view];
     }
-    
+
     if (@available(iOS 26.0, *)) {
         if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
             return [self edgeInsetsForLayoutRegionInView: view];
         }
     }
-    
+#endif
+
     return [self edgeInsetsFallbackInView: view];
 }
 
+#if defined(__IPHONE_26_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_26_0
 - (UIEdgeInsets)edgeInsetsForLayoutRegionInView:(UIView *)view API_AVAILABLE(ios(26.0)) {
     UIViewLayoutRegionAdaptivityAxis axis;
     switch (_axis) {
@@ -107,6 +110,7 @@ typedef NS_ENUM(NSInteger, CMPLayoutRegionKind) {
 
     return [view edgeInsetsForLayoutRegion:layoutRegion];
 }
+#endif
 
 - (UIEdgeInsets)edgeInsetsFallbackInView:(UIView *)view {
     switch (_kind) {

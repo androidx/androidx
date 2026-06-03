@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.benchmark
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
@@ -46,9 +49,14 @@ class DatePickerBenchmark {
         benchmarkRule.benchmarkFirstRenderUntilStable(datePickerTestCaseFactory)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun dateInput_firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(dateInputTestCaseFactory)
+        if (ComposeFoundationFlags.isBasicTextFieldSizeOptimizationEnabled) {
+            benchmarkRule.benchmarkToFirstPixel(dateInputTestCaseFactory)
+        } else {
+            benchmarkRule.benchmarkFirstRenderUntilStable(datePickerTestCaseFactory)
+        }
     }
 
     @Ignore

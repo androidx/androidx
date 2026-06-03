@@ -33,11 +33,11 @@ import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkLayout
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkMeasure
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.meshGradient
+import androidx.compose.ui.graphics.MeshGradientPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
@@ -58,72 +58,64 @@ class MeshGradientBenchmark(private val rows: Int, private val columns: Int) {
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
-    fun createMeshGradientModifier_compose() {
-        benchmarkRule.benchmarkFirstCompose { CreateMeshGradientModifierTestCase(rows, columns) }
+    fun createMeshGradientPainter_compose() {
+        benchmarkRule.benchmarkFirstCompose { CreateMeshGradientPainterTestCase(rows, columns) }
     }
 
     @Test
-    fun createMeshGradientModifier_measure() {
-        benchmarkRule.benchmarkFirstMeasure { CreateMeshGradientModifierTestCase(rows, columns) }
+    fun createMeshGradientPainter_measure() {
+        benchmarkRule.benchmarkFirstMeasure { CreateMeshGradientPainterTestCase(rows, columns) }
     }
 
     @Test
-    fun createMeshGradientModifier_layout() {
-        benchmarkRule.benchmarkFirstLayout { CreateMeshGradientModifierTestCase(rows, columns) }
+    fun createMeshGradientPainter_layout() {
+        benchmarkRule.benchmarkFirstLayout { CreateMeshGradientPainterTestCase(rows, columns) }
     }
 
     @Test
-    fun createMeshGradientModifier_draw() {
-        benchmarkRule.benchmarkFirstDraw { CreateMeshGradientModifierTestCase(rows, columns) }
+    fun createMeshGradientPainter_draw() {
+        benchmarkRule.benchmarkFirstDraw { CreateMeshGradientPainterTestCase(rows, columns) }
     }
 
     @Test
-    fun updateMeshGradientModifier_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(
-            { UpdateMeshGradientModifierTestCase(rows, columns) },
-            assertOneRecomposition = false,
-        )
-    }
-
-    @Test
-    fun updateMeshGradientModifier_draw() {
+    fun updateMeshGradientPainter_draw() {
         benchmarkRule.toggleStateBenchmarkDraw(
-            { UpdateMeshGradientModifierTestCase(rows, columns) },
-            assertOneRecomposition = false,
+            { UpdateMeshGradientPainterTestCase(rows, columns) },
+            toggleCausesRecompose = false,
         )
     }
 
     @Test
-    fun resizeMeshGradientModifier_measure() {
+    fun resizeMeshGradientPainter_measure() {
         benchmarkRule.toggleStateBenchmarkMeasure(
-            { ResizeMeshGradientModifierTestCase(rows, columns) },
+            { ResizeMeshGradientPainterTestCase(rows, columns) },
             assertOneRecomposition = false,
         )
     }
 
     @Test
-    fun resizeMeshGradientModifier_layout() {
+    fun resizeMeshGradientPainter_layout() {
         benchmarkRule.toggleStateBenchmarkLayout(
-            { ResizeMeshGradientModifierTestCase(rows, columns) },
+            { ResizeMeshGradientPainterTestCase(rows, columns) },
             assertOneRecomposition = false,
         )
     }
 
     @Test
-    fun resizeMeshGradientModifier_draw() {
+    fun resizeMeshGradientPainter_draw() {
         benchmarkRule.toggleStateBenchmarkDraw(
-            { ResizeMeshGradientModifierTestCase(rows, columns) },
+            { ResizeMeshGradientPainterTestCase(rows, columns) },
             assertOneRecomposition = false,
         )
     }
 }
 
-private class CreateMeshGradientModifierTestCase(private val rows: Int, private val columns: Int) :
+private class CreateMeshGradientPainterTestCase(private val rows: Int, private val columns: Int) :
     LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
-        Box(
-            Modifier.fillMaxSize().meshGradient(rows, columns, false) {
+        val gradientPainter = remember {
+            MeshGradientPainter(rows, columns, false) {
                 for (r in 0..rows) {
                     for (c in 0..columns) {
                         setVertex(
@@ -135,11 +127,12 @@ private class CreateMeshGradientModifierTestCase(private val rows: Int, private 
                     }
                 }
             }
-        )
+        }
+        Box(Modifier.fillMaxSize().paint(gradientPainter))
     }
 }
 
-private class UpdateMeshGradientModifierTestCase(private val rows: Int, private val columns: Int) :
+private class UpdateMeshGradientPainterTestCase(private val rows: Int, private val columns: Int) :
     LayeredComposeTestCase(), ToggleableTestCase {
     private var toggleState = false
     private lateinit var colorState: MutableState<Color>
@@ -147,21 +140,21 @@ private class UpdateMeshGradientModifierTestCase(private val rows: Int, private 
     @Composable
     override fun MeasuredContent() {
         colorState = remember { mutableStateOf(Color.Red) }
-        val currentColor = colorState.value
-        Box(
-            Modifier.fillMaxSize().meshGradient(rows, columns, false) {
+        val gradientPainter = remember {
+            MeshGradientPainter(rows, columns, false) {
                 for (r in 0..rows) {
                     for (c in 0..columns) {
                         setVertex(
                             r,
                             c,
                             position = Offset(c / columns.toFloat(), r / rows.toFloat()),
-                            color = currentColor,
+                            color = colorState.value,
                         )
                     }
                 }
             }
-        )
+        }
+        Box(Modifier.fillMaxSize().paint(gradientPainter))
     }
 
     override fun toggleState() {
@@ -170,7 +163,7 @@ private class UpdateMeshGradientModifierTestCase(private val rows: Int, private 
     }
 }
 
-private class ResizeMeshGradientModifierTestCase(private val rows: Int, val columns: Int) :
+private class ResizeMeshGradientPainterTestCase(private val rows: Int, val columns: Int) :
     LayeredComposeTestCase(), ToggleableTestCase {
     private var toggleState = false
     private lateinit var boxSizeState: MutableState<Dp>
@@ -178,8 +171,9 @@ private class ResizeMeshGradientModifierTestCase(private val rows: Int, val colu
     @Composable
     override fun MeasuredContent() {
         boxSizeState = remember { mutableStateOf(100.dp) }
-        Box(
-            Modifier.size(boxSizeState.value).meshGradient(rows, columns, false) {
+
+        val gradientPainter = remember {
+            MeshGradientPainter(rows, columns, false) {
                 for (r in 0..rows) {
                     for (c in 0..columns) {
                         setVertex(
@@ -191,7 +185,9 @@ private class ResizeMeshGradientModifierTestCase(private val rows: Int, val colu
                     }
                 }
             }
-        )
+        }
+
+        Box(Modifier.size(boxSizeState.value).paint(gradientPainter))
     }
 
     override fun toggleState() {

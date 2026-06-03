@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.EmptyInputTraits
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextEditingDelegate
+import androidx.compose.ui.platform.UIKitNativeTextInputContextMenuCustomAction
 import androidx.compose.ui.platform.getUITextInputTraits
 import androidx.compose.ui.scene.ComposeSceneFocusManager
 import androidx.compose.ui.text.TextRange
@@ -51,7 +52,6 @@ internal abstract class TextInputConnection(
     protected val view: UIView,
     protected val coroutineScope: CoroutineScope,
     protected val focusedViewsList: FocusedViewsList?,
-    override var onKeyboardPresses: (Set<*>) -> Unit,
     private var focusManager: () -> ComposeSceneFocusManager?,
 ): TextEditingDelegate {
 
@@ -99,11 +99,11 @@ internal abstract class TextInputConnection(
 
     protected abstract fun detachView()
 
-    fun showKeyboard() {
+    open fun showKeyboard() {
         focusedViewsList?.addAndFocus(textInputView)
     }
 
-    fun dismissKeyboard() {
+    open fun dismissKeyboard() {
         focusedViewsList?.remove(textInputView, delayMillis = CLEAR_FOCUS_DELAY)
     }
 
@@ -134,6 +134,14 @@ internal abstract class TextInputConnection(
             else -> false
         }
     }
+
+    abstract fun setAvailableEditMenuActions(
+        copy: (() -> Unit)?,
+        paste: (() -> Unit)?,
+        cut: (() -> Unit)?,
+        selectAll: (() -> Unit)?,
+        customActions: List<UIKitNativeTextInputContextMenuCustomAction>?
+    )
 
     /**
      * Workaround to prevent IME action from being called multiple times with hardware keyboards.

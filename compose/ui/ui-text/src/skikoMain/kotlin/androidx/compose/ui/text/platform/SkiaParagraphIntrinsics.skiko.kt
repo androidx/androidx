@@ -15,6 +15,9 @@
  */
 package androidx.compose.ui.text.platform
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.font.FontFamily
@@ -26,23 +29,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import kotlin.math.ceil
 
-internal actual fun ActualParagraphIntrinsics(
-    text: String,
-    style: TextStyle,
-    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
-    placeholders: List<AnnotatedString.Range<Placeholder>>,
-    density: Density,
-    fontFamilyResolver: FontFamily.Resolver
-): ParagraphIntrinsics =
-    SkiaParagraphIntrinsics(
-        text,
-        style,
-        annotations,
-        placeholders,
-        density,
-        fontFamilyResolver
-    )
-
 internal class SkiaParagraphIntrinsics(
     val text: String,
     private val style: TextStyle,
@@ -52,6 +38,10 @@ internal class SkiaParagraphIntrinsics(
     private val fontFamilyResolver: FontFamily.Resolver
 ) : ParagraphIntrinsics {
     val textDirection = resolveTextDirection(text, style.textDirection, style.localeList)
+
+    //we need to track it reactively to invalidate the UI
+    override var hasStaleResolvedFonts: Boolean by mutableStateOf(false)
+        private set
 
     private var layouter: ParagraphLayouter? = newLayouter()
 
@@ -68,7 +58,8 @@ internal class SkiaParagraphIntrinsics(
         annotations = annotations,
         placeholders = placeholders,
         density = density,
-        fontFamilyResolver = fontFamilyResolver
+        fontFamilyResolver = fontFamilyResolver,
+        onFontStale = { hasStaleResolvedFonts = true }
     )
 
     override var minIntrinsicWidth = 0f

@@ -1299,26 +1299,20 @@ public final class androidx/compose/ui/graphics/GraphicsLayerScopeKt {
 	public static final fun rememberGraphicsLayer (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/layer/GraphicsLayer;
 }
 
-public final class androidx/compose/ui/graphics/MeshGradientKt {
-	public static final fun meshGradient (Landroidx/compose/ui/Modifier;IIZLkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
-	public static synthetic fun meshGradient$default (Landroidx/compose/ui/Modifier;IIZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
-}
-
-public abstract interface class androidx/compose/ui/graphics/MeshGradientRenderer {
-	public abstract fun draw (Landroidx/compose/ui/graphics/drawscope/DrawScope;II[F[I[F[F[F[FZ)V
-	public static synthetic fun draw$default (Landroidx/compose/ui/graphics/MeshGradientRenderer;Landroidx/compose/ui/graphics/drawscope/DrawScope;II[F[I[F[F[F[FZILjava/lang/Object;)V
-}
-
-public final class androidx/compose/ui/graphics/MeshGradientRenderer_skikoKt {
-	public static final fun MeshGradientRenderer ()Landroidx/compose/ui/graphics/MeshGradientRenderer;
-}
-
-public final class androidx/compose/ui/graphics/MeshGradientScope {
+public final class androidx/compose/ui/graphics/MeshGradientPainter : androidx/compose/ui/graphics/painter/Painter {
 	public static final field $stable I
-	public fun <init> (II)V
-	public final fun getColumns ()I
-	public final fun getRows ()I
-	public final fun setVertex-6uS4IUQ (IIJJJJJJ)V
+	public fun <init> (IIZLkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (IIZLkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getIntrinsicSize-NH-jbRc ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class androidx/compose/ui/graphics/MeshGradientScope {
+	public abstract fun getColumns ()I
+	public abstract fun getRows ()I
+	public abstract fun setVertex-6uS4IUQ (IIJJJJJJ)V
 	public static synthetic fun setVertex-6uS4IUQ$default (Landroidx/compose/ui/graphics/MeshGradientScope;IIJJJJJJILjava/lang/Object;)V
 }
 
@@ -2299,6 +2293,7 @@ public final class androidx/compose/ui/input/pointer/PointerButton_skikoKt {
 public final class androidx/compose/ui/input/pointer/PointerButtons {
 	public static final synthetic fun box-impl (I)Landroidx/compose/ui/input/pointer/PointerButtons;
 	public static fun constructor-impl (I)I
+	public static synthetic fun constructor-impl$default (IILkotlin/jvm/internal/DefaultConstructorMarker;)I
 	public fun equals (Ljava/lang/Object;)Z
 	public static fun equals-impl (ILjava/lang/Object;)Z
 	public static final fun equals-impl0 (II)Z
@@ -2556,6 +2551,7 @@ public final class androidx/compose/ui/input/pointer/PointerInputScope$DefaultIm
 public final class androidx/compose/ui/input/pointer/PointerKeyboardModifiers {
 	public static final synthetic fun box-impl (I)Landroidx/compose/ui/input/pointer/PointerKeyboardModifiers;
 	public static fun constructor-impl (I)I
+	public static synthetic fun constructor-impl$default (IILkotlin/jvm/internal/DefaultConstructorMarker;)I
 	public fun equals (Ljava/lang/Object;)Z
 	public static fun equals-impl (ILjava/lang/Object;)Z
 	public static final fun equals-impl0 (II)Z
@@ -2943,24 +2939,30 @@ public final class androidx/compose/ui/layout/MeasurePolicy$DefaultImpls {
 public abstract interface class androidx/compose/ui/layout/MeasureResult {
 	public abstract fun getAlignmentLines ()Ljava/util/Map;
 	public abstract fun getHeight ()I
+	public fun getRulerProvider ()Lkotlin/jvm/functions/Function2;
 	public fun getRulers ()Lkotlin/jvm/functions/Function1;
 	public abstract fun getWidth ()I
+	public fun isRulerProvided ()Lkotlin/jvm/functions/Function1;
 	public abstract fun placeChildren ()V
 }
 
 public abstract interface class androidx/compose/ui/layout/MeasureScope : androidx/compose/ui/layout/IntrinsicMeasureScope {
 	public fun layout (IILjava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/layout/MeasureResult;
 	public fun layout (IILjava/util/Map;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/layout/MeasureResult;
+	public fun layout (IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/layout/MeasureResult;
 	public static synthetic fun layout$default (Landroidx/compose/ui/layout/MeasureScope;IILjava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/layout/MeasureResult;
 	public static synthetic fun layout$default (Landroidx/compose/ui/layout/MeasureScope;IILjava/util/Map;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/layout/MeasureResult;
+	public static synthetic fun layout$default (Landroidx/compose/ui/layout/MeasureScope;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/layout/MeasureResult;
 }
 
 public final class androidx/compose/ui/layout/MeasureScope$DefaultImpls {
 	public static fun isLookingAhead (Landroidx/compose/ui/layout/MeasureScope;)Z
 	public static fun layout (Landroidx/compose/ui/layout/MeasureScope;IILjava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/layout/MeasureResult;
 	public static fun layout (Landroidx/compose/ui/layout/MeasureScope;IILjava/util/Map;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/layout/MeasureResult;
+	public static fun layout (Landroidx/compose/ui/layout/MeasureScope;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/layout/MeasureResult;
 	public static synthetic fun layout$default (Landroidx/compose/ui/layout/MeasureScope;IILjava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/layout/MeasureResult;
 	public static synthetic fun layout$default (Landroidx/compose/ui/layout/MeasureScope;IILjava/util/Map;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/layout/MeasureResult;
+	public static synthetic fun layout$default (Landroidx/compose/ui/layout/MeasureScope;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/layout/MeasureResult;
 	public static fun roundToPx--R2X_6o (Landroidx/compose/ui/layout/MeasureScope;J)I
 	public static fun roundToPx-0680j_4 (Landroidx/compose/ui/layout/MeasureScope;F)I
 	public static fun toDp-GaN1DYA (Landroidx/compose/ui/layout/MeasureScope;J)F
@@ -3733,7 +3735,7 @@ public final class androidx/compose/ui/platform/ClipMetadata {
 
 public abstract interface class androidx/compose/ui/platform/Clipboard {
 	public abstract fun getClipEntry (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun getNativeClipboard ()Ljava/lang/Object;
+	public fun getNativeClipboard ()Ljava/lang/Object;
 	public abstract fun setClipEntry (Landroidx/compose/ui/platform/ClipEntry;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
@@ -3767,6 +3769,7 @@ public final class androidx/compose/ui/platform/CompositionLocalsKt {
 	public static final fun getLocalProvidableLocaleList ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalScrollCaptureInProgress ()Landroidx/compose/runtime/CompositionLocal;
 	public static final fun getLocalSoftwareKeyboardController ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+	public static final fun getLocalSoundEffect ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalTextInputService ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalTextToolbar ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalUriHandler ()Landroidx/compose/runtime/ProvidableCompositionLocal;
@@ -3892,6 +3895,10 @@ public final class androidx/compose/ui/platform/PlatformLocalization_desktopKt {
 	public static final fun getLocalLocalization ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
+public abstract interface class androidx/compose/ui/platform/PlatformTextInputInterceptor {
+	public abstract fun interceptStartInputMethod (Landroidx/compose/ui/platform/PlatformTextInputMethodRequest;Landroidx/compose/ui/platform/PlatformTextInputSession;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public abstract interface class androidx/compose/ui/platform/PlatformTextInputMethodRequest {
 }
 
@@ -3899,6 +3906,7 @@ public abstract interface class androidx/compose/ui/platform/PlatformTextInputMo
 }
 
 public final class androidx/compose/ui/platform/PlatformTextInputModifierNodeKt {
+	public static final fun InterceptPlatformTextInput (Landroidx/compose/ui/platform/PlatformTextInputInterceptor;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
 	public static final fun establishTextInputSession (Landroidx/compose/ui/platform/PlatformTextInputModifierNode;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
@@ -3912,6 +3920,10 @@ public abstract interface class androidx/compose/ui/platform/PlatformTextInputSe
 public abstract interface class androidx/compose/ui/platform/SoftwareKeyboardController {
 	public abstract fun hide ()V
 	public abstract fun show ()V
+}
+
+public abstract interface class androidx/compose/ui/platform/SoundEffect {
+	public abstract fun playClickSound ()V
 }
 
 public final class androidx/compose/ui/platform/SynchronizationKt {

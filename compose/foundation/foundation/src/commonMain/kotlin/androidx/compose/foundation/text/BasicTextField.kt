@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ComposeFoundationFlags.isBasicTextFieldSizeOptimizationEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
@@ -262,11 +263,6 @@ internal fun BasicTextField(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
-    val isFocused = interactionSource.collectIsFocusedAsState().value
-    val isDragHovered = interactionSource.collectIsDragAndDropHoveredAsState().value
-    // Avoid reading LocalWindowInfo.current.isWindowFocused when the text field is not focused;
-    // otherwise all text fields in a window will be recomposed when it becomes focused.
-    val isWindowAndTextFieldFocused = isFocused && LocalWindowInfo.current.isWindowFocused
     val stylusHandwritingTrigger = remember {
         MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
     }
@@ -316,7 +312,6 @@ internal fun BasicTextField(
                 density = density,
                 enabled = enabled,
                 readOnly = readOnly,
-                isFocused = isWindowAndTextFieldFocused,
                 isPassword = isPassword,
                 toolbarRequester = toolbarRequester,
                 coroutineScope = coroutineScope,
@@ -375,13 +370,6 @@ internal fun BasicTextField(
             }
         }
 
-    rememberClipboardEventsHandler(
-        isEnabled = isFocused,
-        onPaste = { textFieldSelectionState.onPasteEvent(it) },
-        onCopy = { textFieldSelectionState.copyWithResult() },
-        onCut = { textFieldSelectionState.cutWithResult() },
-    )
-
     SideEffect {
         // These properties are not backed by snapshot state, so they can't be updated directly in
         // composition.
@@ -406,6 +394,7 @@ internal fun BasicTextField(
         !isPassword &&
             keyboardOptions.keyboardType != KeyboardType.Password &&
             keyboardOptions.keyboardType != KeyboardType.NumberPassword
+    val dragInputType = textFieldSelectionState.directDragGestureInitiator
     val decorationModifiers =
         modifier
             .stylusHandwriting(enabled, handwritingEnabled) {
@@ -451,8 +440,7 @@ internal fun BasicTextField(
                 orientation = orientation,
                 // Disable scrolling when textField is disabled or another dragging gesture is
                 // taking place
-                enabled =
-                    enabled && textFieldSelectionState.directDragGestureInitiator == InputType.None,
+                enabled = enabled && dragInputType == InputType.None,
                 reverseDirection =
                     ScrollableDefaults.reverseDirection(
                         layoutDirection = layoutDirection,
@@ -469,6 +457,23 @@ internal fun BasicTextField(
         ContextMenuArea(textFieldSelectionState, enabled) {
             val nonNullDecorator = decorator ?: DefaultTextFieldDecorator
             nonNullDecorator.Decoration {
+                val isFocused by interactionSource.collectIsFocusedAsState()
+                val isDragHovered by interactionSource.collectIsDragAndDropHoveredAsState()
+                val windowInfo = LocalWindowInfo.current
+                val isWindowAndTextFieldFocused by
+                    remember(interactionSource, windowInfo) {
+                        // Using derived state here to avoid recomposing when window focus is
+                        // obtained after the initial focus.
+                        derivedStateOf { isFocused && windowInfo.isWindowFocused }
+                    }
+
+                rememberClipboardEventsHandler(
+                    isEnabled = isFocused,
+                    onPaste = { textFieldSelectionState.onPasteEvent(it) },
+                    onCopy = { textFieldSelectionState.copyWithResult() },
+                    onCut = { textFieldSelectionState.cutWithResult() },
+                )
+
                 val minLines: Int
                 val maxLines: Int
                 if (lineLimits is MultiLine) {
@@ -479,9 +484,17 @@ internal fun BasicTextField(
                     maxLines = 1
                 }
 
-                Box(
-                    propagateMinConstraints = true,
-                    modifier =
+                @OptIn(ExperimentalFoundationApi::class)
+                val textFieldSize =
+                    if (isBasicTextFieldSizeOptimizationEnabled) {
+                        Modifier.textFieldSize(
+                            textStyle = textStyle,
+                            singleLineHeightProvider = textLayoutState,
+                            minLines = minLines,
+                            maxLines = maxLines,
+                            softWrap = !singleLine,
+                        )
+                    } else {
                         Modifier.heightForSingleLineField(textLayoutState)
                             .heightInLines(
                                 textStyle = textStyle,
@@ -490,12 +503,18 @@ internal fun BasicTextField(
                                 softWrap = !singleLine,
                             )
                             .textFieldMinSize(textStyle)
+                    }
+                Box(
+                    propagateMinConstraints = true,
+                    modifier =
+                        textFieldSize
                             .clipToBounds()
                             .overscroll(overscrollEffect)
                             .then(
                                 TextFieldCoreModifier(
                                     isFocused = isWindowAndTextFieldFocused,
                                     isDragHovered = isDragHovered,
+                                    isTouchDragInProgress = dragInputType == InputType.Touch,
                                     textLayoutState = textLayoutState,
                                     textFieldState = transformedState,
                                     textFieldSelectionState = textFieldSelectionState,
@@ -551,6 +570,7 @@ private fun Modifier.heightForSingleLineField(textLayoutState: TextLayoutState) 
                         maxHeight = if (height == 0.dp) Constraints.Infinity else heightPx,
                     )
                 )
+
             val placeable = measurable.measure(wrappedConstraints)
             layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
         }

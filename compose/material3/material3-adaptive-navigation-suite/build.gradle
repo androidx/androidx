@@ -24,7 +24,6 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -54,16 +53,13 @@ androidXMultiplatform {
             }
         }
 
-        commonTest.dependencies {
-            implementation(libs.kotlinTest)
-        }
-
-        androidMain {
+        commonTest {
             dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.annotation:annotation-experimental:1.4.1")
+            implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
+
         androidMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")
             api("androidx.annotation:annotation-experimental:1.4.1")

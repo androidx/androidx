@@ -236,4 +236,47 @@ class MouseEventsTest : OnCanvasTests {
         assertEquals(PointerEventType.Move, pointerEvents[3].type)
         assertEquals(PointerEventType.Release, pointerEvents[4].type)
     }
+
+    // https://youtrack.jetbrains.com/issue/CMP-10185/Send-missing-input-events-in-Web-Target
+    @Test
+    fun testMouseMoveUnpressingButtonsSendsReleaseEvent() = runTest {
+        val pointerEvents = mutableListOf<ComposePointerEvent>()
+
+        createComposeWindow {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (isActive) {
+                                pointerEvents.add(awaitPointerEvent())
+                            }
+                        }
+                    }
+            ) {}
+        }
+
+        dispatchEvents(
+            PointerEvent("pointerenter", PointerEventInit(clientX = 100, clientY = 100, pointerType = "mouse")),
+            PointerEvent("pointerdown", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 1, pointerType = "mouse")),
+            PointerEvent("pointermove", PointerEventInit(clientX = 100, clientY = 100, buttons = 1, pointerType = "mouse")),
+        )
+
+        val countBefore = pointerEvents.count { it.type == PointerEventType.Release }
+        assertEquals(0, countBefore, "Release event sent too early")
+
+        // Move while the button is no longer pressed -> a synthetic Release should be emitted.
+        dispatchEvents(
+            PointerEvent("pointermove", PointerEventInit(clientX = 100, clientY = 100, buttons = 0, pointerType = "mouse")),
+        )
+
+        assertEquals(1, pointerEvents.count { it.type == PointerEventType.Release }, "Release event not sent")
+
+        // Make sure we don't send an extra release event afterward.
+        dispatchEvents(
+            PointerEvent("pointerup", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 0, pointerType = "mouse")),
+        )
+
+        assertEquals(1, pointerEvents.count { it.type == PointerEventType.Release }, "Extra release event sent")
+    }
 }

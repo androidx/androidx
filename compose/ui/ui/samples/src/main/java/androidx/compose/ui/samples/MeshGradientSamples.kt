@@ -18,25 +18,20 @@ package androidx.compose.ui.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.MeshGradientRenderer
-import androidx.compose.ui.graphics.meshGradient
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.MeshGradientPainter
 
 @Sampled
 @Composable
-fun MeshGradientModifierSample() {
-    val rows = 1
-    val columns = 1
-    Box(
-        Modifier.size(300.dp).meshGradient(rows, columns) {
+fun MeshGradientPainterSample() {
+    val gradientPainter = remember {
+        MeshGradientPainter(1, 1, hasBicubicColor = true) {
             // (row, column, position, color)
             setVertex(
                 0,
@@ -49,54 +44,7 @@ fun MeshGradientModifierSample() {
             setVertex(1, 0, Offset(0f, 1f), Color.Green) // Bottom-Left
             setVertex(1, 1, Offset(1f, 1f), Color.Yellow) // Bottom-Right
         }
-    )
-}
-
-@Sampled
-@Composable
-fun MeshGradientRendererSample() {
-    val rows = 2
-    val columns = 2
-    val positions = remember {
-        floatArrayOf(
-            0f,
-            0f,
-            0.5f,
-            0f,
-            1.0f,
-            0.0f,
-            0f,
-            0.5f,
-            0.5f,
-            0.5f,
-            1.0f,
-            0.5f,
-            0f,
-            1.0f,
-            0.5f,
-            1.0f,
-            1.0f,
-            1.0f,
-        )
     }
-    val colors = remember {
-        intArrayOf(
-            Color(0xFFFF0000).toArgb(),
-            Color(0xFFFFA500).toArgb(),
-            Color(0xFFFFFF00).toArgb(),
-            Color(0xFF00FF00).toArgb(),
-            Color(0xFF00FFFF).toArgb(),
-            Color(0xFF0000FF).toArgb(),
-            Color(0xFF800080).toArgb(),
-            Color(0xFFFFC0CB).toArgb(),
-            Color(0xFFFFFFFF).toArgb(),
-        )
-    }
-    val renderer = remember { MeshGradientRenderer() }
 
-    Box(
-        Modifier.size(100.dp).drawBehind {
-            with(renderer) { draw(rows, columns, positions, colors, null, null, null, null, true) }
-        }
-    )
+    Box(Modifier.fillMaxSize().paint(gradientPainter))
 }

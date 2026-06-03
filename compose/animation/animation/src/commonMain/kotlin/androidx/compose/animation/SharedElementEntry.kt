@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -66,7 +67,20 @@ internal class SharedElementEntry(
 
     internal var clipPathInOverlay: Path? = null
 
-    override fun drawInOverlay(drawScope: DrawScope) {
+    override fun drawInOverlay(drawScope: DrawScope, graphicsContext: GraphicsContext) {
+        sharedTransitionDebug {
+            "Rendering in overlay for key ${sharedElement.key}, becoming visible? $target"
+        }
+        if (shouldRenderInOverlay) {
+            // Some intermediate parent between overlay and SharedBoundsNode may record its
+            // DisplayList before the SharedBoundsNode runs its draw block. By lazily creating the
+            // layer here, we ensure the overlay has a valid RenderNode reference to record. This
+            // layer will be populated with content in the same frame by the SharedBoundsNode in
+            // the case of out-of-order rendering due to layers, hence preventing flickering.
+            if (layer == null) {
+                layer = graphicsContext.createGraphicsLayer()
+            }
+        }
         val layer = layer ?: return
         // If currentBoundsWhenMatched == null, it means the shared element has not been properly
         // placed since foundMatch is set. This could be due to some nodes being composed but

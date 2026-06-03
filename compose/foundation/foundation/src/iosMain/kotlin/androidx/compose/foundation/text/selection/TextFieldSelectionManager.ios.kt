@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 internal actual fun Modifier.textFieldMagnifier(
     manager: TextFieldSelectionManager
@@ -183,6 +184,9 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
                 onClick = {
                     onClick()
                     close()
+                    coroutineScope.launch {
+                        manager.updateClipboardEntry()
+                    }
                 })
         )
     }

@@ -32,9 +32,9 @@ import kotlinx.coroutines.SupervisorJob
 
 /**
  * ViewModel is a class that is responsible for preparing and managing the data for an
- * [Activity][androidx.activity.ComponentActivity] or a [Fragment][androidx.fragment.app.Fragment].
- * It also handles the communication of the Activity / Fragment with the rest of the application
- * (e.g. calling the business logic classes).
+ * `androidx.activity.ComponentActivity` or a `androidx.fragment.app.Fragment`. It also handles the
+ * communication of the Activity / Fragment with the rest of the application (e.g. calling the
+ * business logic classes).
  *
  * A ViewModel is always created in association with a scope (a fragment or an activity) and will be
  * retained as long as the scope is alive. E.g. if it is an Activity, until it is finished.
@@ -45,9 +45,8 @@ import kotlinx.coroutines.SupervisorJob
  *
  * The purpose of the ViewModel is to acquire and keep the information that is necessary for an
  * Activity or a Fragment. The Activity or the Fragment should be able to observe changes in the
- * ViewModel. ViewModels usually expose this information via
- * [Lifecycle][androidx.lifecycle.LiveData] or Android Data Binding. You can also use any
- * observability construct from your favorite framework.
+ * ViewModel. ViewModels usually expose this information via `androidx.lifecycle.LiveData` or
+ * Android Data Binding. You can also use any observability construct from your favorite framework.
  *
  * ViewModel's only responsibility is to manage the data for the UI. It **should never** access your
  * view hierarchy or hold a reference back to the Activity or the Fragment.
@@ -112,7 +111,7 @@ public expect abstract class ViewModel {
      *
      * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared,
+     * @param viewModelScope a [CoroutineScope] to be canceled when the [ViewModel] is cleared,
      *   right **before** the [onCleared] method is called.
      */
     public constructor(viewModelScope: CoroutineScope)
@@ -132,7 +131,7 @@ public expect abstract class ViewModel {
      *
      * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param viewModelScope a [CoroutineScope] to be cancelled when the [ViewModel] is cleared,
+     * @param viewModelScope a [CoroutineScope] to be canceled when the [ViewModel] is cleared,
      *   right **before** the [onCleared] method is called.
      * @param closeables the resources to be closed when the [ViewModel] is cleared, right
      *   **before** the [onCleared] method is called.
@@ -142,7 +141,7 @@ public expect abstract class ViewModel {
     /**
      * This method will be called when this [ViewModel] is no longer used and will be destroyed.
      *
-     * It is useful when the [ViewModel] observes data and you need to clear the subscriptions to
+     * It is useful when the [ViewModel] observes data, and you need to clear the subscriptions to
      * prevent a memory leak, as the subscriptions might hold a reference to the [ViewModel] even
      * after it is no longer needed.
      *
@@ -211,14 +210,14 @@ public expect abstract class ViewModel {
  * The [CoroutineScope.coroutineContext] is configured with:
  * - [SupervisorJob]: ensures children jobs can fail independently of each other.
  * - [MainCoroutineDispatcher.immediate]: executes jobs immediately on the main (UI) thread. If the
- *   [Dispatchers.Main] is not available on the current platform (e.g., Linux), we fallback to an
+ *   [Dispatchers.Main] is not available on the current platform (e.g., Linux), we fall back to an
  *   [EmptyCoroutineContext].
  *
- * This scope is automatically cancelled when the [ViewModel] is cleared, and can be replaced by
+ * This scope is automatically canceled when the [ViewModel] is cleared, and can be replaced by
  * using the [ViewModel] constructor overload that takes in a `viewModelScope: CoroutineScope`.
  *
  * For background execution, use [kotlinx.coroutines.withContext] to switch to appropriate
- * dispatchers (e.g., [kotlinx.coroutines.IO]).
+ * dispatchers (e.g., `kotlinx.coroutines.IO`).
  *
  * @see ViewModel.onCleared
  */

@@ -3,14 +3,12 @@ public abstract interface class androidx/compose/ui/test/junit4/ComposeContentTe
 }
 
 public final class androidx/compose/ui/test/junit4/ComposeContentTestRule$DefaultImpls {
-	public static fun awaitAndRunWhenIdle (Landroidx/compose/ui/test/junit4/ComposeContentTestRule;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun hasPendingWork (Landroidx/compose/ui/test/junit4/ComposeContentTestRule;)Z
-	public static fun runWhenIdle (Landroidx/compose/ui/test/junit4/ComposeContentTestRule;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static fun runWithoutImplicitWait (Landroidx/compose/ui/test/junit4/ComposeContentTestRule;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public static fun waitUntil (Landroidx/compose/ui/test/junit4/ComposeContentTestRule;Ljava/lang/String;JLkotlin/jvm/functions/Function0;)V
 }
 
 public abstract interface class androidx/compose/ui/test/junit4/ComposeTestRule : androidx/compose/ui/test/SemanticsNodeInteractionsProvider, org/junit/rules/TestRule {
-	public fun awaitAndRunWhenIdle (Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun awaitIdle (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun getDensity ()Landroidx/compose/ui/unit/Density;
 	public abstract fun getMainClock ()Landroidx/compose/ui/test/MainTestClock;
@@ -18,7 +16,7 @@ public abstract interface class androidx/compose/ui/test/junit4/ComposeTestRule 
 	public abstract fun registerIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
 	public abstract fun runOnIdle (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public abstract fun runOnUiThread (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
-	public fun runWhenIdle (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun runWithoutImplicitWait (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public abstract fun unregisterIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
 	public abstract fun waitForIdle ()V
 	public abstract fun waitUntil (JLkotlin/jvm/functions/Function0;)V
@@ -28,9 +26,8 @@ public abstract interface class androidx/compose/ui/test/junit4/ComposeTestRule 
 }
 
 public final class androidx/compose/ui/test/junit4/ComposeTestRule$DefaultImpls {
-	public static fun awaitAndRunWhenIdle (Landroidx/compose/ui/test/junit4/ComposeTestRule;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun hasPendingWork (Landroidx/compose/ui/test/junit4/ComposeTestRule;)Z
-	public static fun runWhenIdle (Landroidx/compose/ui/test/junit4/ComposeTestRule;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static fun runWithoutImplicitWait (Landroidx/compose/ui/test/junit4/ComposeTestRule;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public static fun waitUntil (Landroidx/compose/ui/test/junit4/ComposeTestRule;Ljava/lang/String;JLkotlin/jvm/functions/Function0;)V
 	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Ljava/lang/String;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V

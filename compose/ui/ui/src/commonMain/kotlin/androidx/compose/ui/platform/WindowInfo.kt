@@ -20,7 +20,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
@@ -88,6 +87,6 @@ internal class WindowInfoImpl : WindowInfo {
     companion object {
         // One instance across all windows makes sense, since the state of KeyboardModifiers is
         // common for all windows.
-        internal val GlobalKeyboardModifiers = mutableStateOf(EmptyPointerKeyboardModifiers())
+        internal val GlobalKeyboardModifiers = mutableStateOf(PointerKeyboardModifiers())
     }
 }

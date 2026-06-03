@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import java.awt.Component
 import javax.swing.SwingUtilities.isEventDispatchThread
 import org.jetbrains.skiko.ClipRectangle
@@ -133,12 +134,16 @@ internal class SwingInteropContainer(
     /**
      * Map to reverse-lookup of [InteropViewHolder] having an [InteropViewGroup].
      */
-    private var interopComponents = mutableMapOf<InteropViewGroup, InteropViewHolder>()
+    private val interopComponents by lazy(LazyThreadSafetyMode.NONE) {
+        mutableMapOf<InteropViewGroup, InteropViewHolder>()
+    }
 
     override var rootModifier: TrackInteropPlacementModifierNode? = null
 
-    override val snapshotObserver: SnapshotStateObserver = SnapshotStateObserver { command ->
-        command()
+    override val snapshotObserver: SnapshotStateObserver by lazy(LazyThreadSafetyMode.NONE) {
+        SnapshotStateObserver { command ->
+            command()
+        }
     }
 
     private val scheduledUpdatesSwapchain = ScheduledUpdatesSwapchain(requestRedraw)
@@ -161,7 +166,8 @@ internal class SwingInteropContainer(
         scheduleUpdate {
             val allComponentCount = root.components.size
             // AWT/Swing uses the **REVERSE ORDER** for drawing and events, so add in reverse
-            for ((index, holder) in orderedInteropComponents.asReversed().withIndex()) {
+            var index = 0
+            orderedInteropComponents.fastForEachReversed { holder ->
                 holder.changeInteropViewIndex(
                     root = root,
                     index = if (placeInteropAbove) {
@@ -170,6 +176,7 @@ internal class SwingInteropContainer(
                         index  // Insert at 0, 1, 2 etc.
                     }
                 )
+                index++
             }
         }
     }
@@ -247,9 +254,7 @@ internal class SwingInteropContainer(
      * inside [body].
      */
     fun postponingExecutingScheduledUpdates(body: () -> Unit) {
-        scheduledUpdatesSwapchain.preventingRedrawRequests {
-            body()
-        }
+        scheduledUpdatesSwapchain.preventingRedrawRequests(body)
 
         executeScheduledUpdates()
     }

@@ -122,6 +122,7 @@ class ParagraphBenchmark(
             density = Density(density = instrumentationContext.resources.displayMetrics.density),
             fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
             placeholders = listOf(),
+            softWrap = true,
         )
     }
 

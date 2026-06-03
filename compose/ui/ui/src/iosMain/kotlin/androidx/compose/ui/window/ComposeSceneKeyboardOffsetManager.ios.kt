@@ -18,6 +18,7 @@ package androidx.compose.ui.window
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
@@ -134,7 +135,7 @@ internal class ComposeSceneKeyboardOffsetManager(
         animationOptions: UIViewAnimationOptions
     ) {
         UIView.performWithoutAnimation {
-            animationViews.forEach {
+            animationViews.fastForEach {
                 it.layer.removeAllAnimations()
                 it.setFrame(CGRectZero.readValue())
                 it.removeFromSuperview()

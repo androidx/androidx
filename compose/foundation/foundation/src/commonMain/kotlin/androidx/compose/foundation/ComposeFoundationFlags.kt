@@ -131,6 +131,16 @@ object ComposeFoundationFlags {
     var isBasicTextFieldHeightInLinesOptimizationEnabled = true
 
     /**
+     * This flag controls performance optimizations related to squashing multiple modifiers
+     * responsible for providing default measurement of the
+     * [androidx.compose.foundation.text.BasicTextField] into one.
+     */
+    // TODO: Remove this flag after 1.12 (b/507967106)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isBasicTextFieldSizeOptimizationEnabled = false
+
+    /**
      * This flag controls the fix where item placement animation in
      * [androidx.compose.foundation.lazy.LazyColumn] and [androidx.compose.foundation.lazy.LazyRow]
      * is disabled when animated scroll happens.
@@ -161,9 +171,7 @@ object ComposeFoundationFlags {
      * features are enabled.
      */
     // TODO: Remove this flag once it has soaked (b/494340211)
-    @field:Suppress("MutableBareField")
-    @JvmField
-    internal var isBasicTextFieldStyledTextEnabled = false
+    @field:Suppress("MutableBareField") @JvmField var isBasicTextFieldStyledTextEnabled = true
 
     /**
      * This flag controls whether the legacy nodeOffset logic in DragGestureNode and
@@ -174,6 +182,31 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isDragNodeOffsetDoubleCountingFixEnabled = true
+
+    /**
+     * Enables fix where coroutine scope lambda and scope are cleared on node detachment to prevent
+     * reference leaking.
+     */
+    // TODO: b/506963276
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = false
+
+    /**
+     * This flag controls whether selecting text in
+     * [androidx.compose.foundation.text.selection.SelectionContainer] causes scrollable ancestors
+     * of the text to be scrolled when the selecting pointer is dragged outside the scrollable's
+     * viewport.
+     */
+    // TODO: Remove this flag once it has soaked (b/504914051)
+    @field:Suppress("MutableBareField") @JvmField var isSelectionAutoScrollEnabled = true
+
+    /**
+     * If enabled, interactions (like clicks) will automatically trigger interaction sound effects
+     * on Android.
+     */
+    // TODO: Remove this flag once it has soaked (b/495885589)
+    @field:Suppress("MutableBareField") @JvmField var isInteractionSoundEffectOnClickEnabled = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

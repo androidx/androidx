@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.AccessibilityNotification
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -32,7 +31,10 @@ import androidx.compose.ui.test.getAccessibilityTree
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import platform.UIKit.UIAccessibilityAnnouncementNotification
 
 class AccessibilityLiveRegionTest {
@@ -53,7 +55,7 @@ class AccessibilityLiveRegionTest {
         text = "Updated"
         waitForIdle()
 
-        val last = AccessibilityNotification.lastPostedNotificationForTests
+        val last = lastAccessibilityNotification
         assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
         assertEquals("Updated", last?.message)
     }
@@ -74,7 +76,7 @@ class AccessibilityLiveRegionTest {
         text = "Urgent update"
         waitForIdle()
 
-        val last = AccessibilityNotification.lastPostedNotificationForTests
+        val last = lastAccessibilityNotification
         assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
         assertEquals("Urgent update", last?.message)
     }
@@ -100,7 +102,7 @@ class AccessibilityLiveRegionTest {
         showLiveRegion = true
         waitForIdle()
 
-        val last = AccessibilityNotification.lastPostedNotificationForTests
+        val last = lastAccessibilityNotification
         assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
         assertEquals("Live content appeared", last?.message)
     }
@@ -121,11 +123,16 @@ class AccessibilityLiveRegionTest {
         getAccessibilityTree()
         waitForIdle()
 
+        accessibilityNotifications.clear()
+
         unrelatedState = 1
         waitForIdle()
 
-        val last = AccessibilityNotification.lastPostedNotificationForTests
-        assertNotEquals(UIAccessibilityAnnouncementNotification, last?.notification)
+        val hasAnnouncementNotification = accessibilityNotifications.any {
+            it.notification == UIAccessibilityAnnouncementNotification
+        }
+        assertFalse(hasAnnouncementNotification)
+        assertTrue(accessibilityNotifications.isNotEmpty())
     }
 
     @Test
@@ -144,14 +151,14 @@ class AccessibilityLiveRegionTest {
         text = "Second"
         waitForIdle()
 
-        var last = AccessibilityNotification.lastPostedNotificationForTests
+        var last = lastAccessibilityNotification
         assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
         assertEquals("Second", last?.message)
 
         text = "Third"
         waitForIdle()
 
-        last = AccessibilityNotification.lastPostedNotificationForTests
+        last = lastAccessibilityNotification
         assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
         assertEquals("Third", last?.message)
     }
@@ -170,7 +177,7 @@ class AccessibilityLiveRegionTest {
         text = "Updated"
         waitForIdle()
 
-        val last = AccessibilityNotification.lastPostedNotificationForTests
+        val last = lastAccessibilityNotification
         assertNotEquals(UIAccessibilityAnnouncementNotification, last?.notification)
     }
 
@@ -195,7 +202,7 @@ class AccessibilityLiveRegionTest {
         showLiveRegion = false
         waitForIdle()
 
-        val last = AccessibilityNotification.lastPostedNotificationForTests
+        val last = lastAccessibilityNotification
         assertNotEquals(UIAccessibilityAnnouncementNotification, last?.notification)
     }
 
@@ -210,9 +217,11 @@ class AccessibilityLiveRegionTest {
         getAccessibilityTree()
         waitForIdle()
 
-        val last = AccessibilityNotification.lastPostedNotificationForTests
-        assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
-        assertEquals("Live content", last?.message)
+        val notification = accessibilityNotifications.first {
+            it.notification == UIAccessibilityAnnouncementNotification
+        }
+        assertNotNull(notification)
+        assertEquals("Live content", notification.message)
     }
 
     @Test
@@ -231,16 +240,20 @@ class AccessibilityLiveRegionTest {
         getAccessibilityTree()
         waitForIdle()
 
-        var last = AccessibilityNotification.lastPostedNotificationForTests
-        assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
-        assertEquals("Label, Value", last?.message)
+        val announcementNotification1 = accessibilityNotifications.last {
+            it.notification == UIAccessibilityAnnouncementNotification
+        }
+        assertNotNull(announcementNotification1)
+        assertEquals("Label, Value", announcementNotification1.message)
 
         label = "New Label"
         value = "New Value"
         waitForIdle()
 
-        last = AccessibilityNotification.lastPostedNotificationForTests
-        assertEquals(UIAccessibilityAnnouncementNotification, last?.notification)
-        assertEquals("New Label, New Value", last?.message)
+        val announcementNotification2 = accessibilityNotifications.last {
+            it.notification == UIAccessibilityAnnouncementNotification
+        }
+        assertNotNull(announcementNotification2)
+        assertEquals("New Label, New Value", announcementNotification2.message)
     }
 }

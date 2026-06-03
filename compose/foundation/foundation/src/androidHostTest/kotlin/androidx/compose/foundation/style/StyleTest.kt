@@ -854,6 +854,27 @@ class StyleTest {
             assertEquals(TextMotion.Animated, it.textMotion)
         }
     }
+
+    @Test
+    fun resolve_no_text_style() {
+        resolved(NoTextStyle { background(Color.Blue) }.toStyle()) {
+            assertEquals(Color.Blue, it.backgroundColor)
+        }
+    }
+
+    @Test
+    fun resolve_extended_style() {
+        val state = MutableStyleState(null)
+        val style =
+            ExtendedStyle {
+                    background(Color.Red)
+                    extended { background(Color.Green) }
+                }
+                .toStyle()
+        resolved(style, state) { assertEquals(Color.Green, it.backgroundColor) }
+        state[ExtendedStyleStateKey] = false
+        resolved(style, state) { assertEquals(Color.Red, it.backgroundColor) }
+    }
 }
 
 fun styleTest(vararg expected: String, block: MutableList<String>.() -> Style) {
@@ -905,11 +926,11 @@ internal fun diff(a: Style, b: Style, phases: Int) {
     assertEquals(phases, changesAB)
 }
 
-fun invoke(style: Style) {
+internal fun invoke(style: Style) {
     with(ResolvedStyle()) { with(style) { applyStyle() } }
 }
 
-fun assertCombinedStylesCount(style: Style, count: Int) {
+internal fun assertCombinedStylesCount(style: Style, count: Int) {
     when (count) {
         0 -> assertEquals(Style, style)
         1 -> assertFalse(style is CombinedStyle)
@@ -919,4 +940,37 @@ fun assertCombinedStylesCount(style: Style, count: Int) {
             assertEquals(count, combinedStyle.styles.size)
         }
     }
+}
+
+// Subsetting the scope
+@ExperimentalFoundationStyleApi
+internal interface NoTextStyleScope :
+    CustomStyleScope,
+    StyleStateScope,
+    AnimateStyleScope,
+    LayoutStyleScope,
+    LayerStyleScope,
+    DrawStyleScope
+
+internal fun interface NoTextStyle : CustomStyle<NoTextStyleScope>
+
+@ExperimentalFoundationStyleApi
+internal fun NoTextStyle.toStyle(): Style = Style {
+    val scope = object : StyleScope by this, NoTextStyleScope {}
+    with(scope) { applyStyle() }
+}
+
+// Extending the scope
+@ExperimentalFoundationStyleApi internal interface ExtendedStyleScope : StyleScope
+
+internal fun interface ExtendedStyle : CustomStyle<ExtendedStyleScope>
+
+@ExperimentalFoundationStyleApi internal val ExtendedStyleStateKey = StyleStateKey(true)
+
+internal fun ExtendedStyleScope.extended(block: () -> Unit) = state(ExtendedStyleStateKey, block)
+
+@ExperimentalFoundationStyleApi
+internal fun ExtendedStyle.toStyle() = Style {
+    val scope = object : StyleScope by this, ExtendedStyleScope {}
+    with(scope) { applyStyle() }
 }

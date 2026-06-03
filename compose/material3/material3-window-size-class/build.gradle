@@ -120,4 +120,3 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
 }
-

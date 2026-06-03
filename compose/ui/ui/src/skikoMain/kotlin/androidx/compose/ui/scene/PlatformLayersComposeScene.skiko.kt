@@ -27,7 +27,6 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.layout.MeasurableRootContent
-import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.RootNodeOwner
 import androidx.compose.ui.platform.setContent
@@ -197,7 +196,6 @@ private class PlatformLayersComposeSceneImpl(
     override var showLayoutBounds: Boolean
         get() = mainOwner.owner.showLayoutBounds
         set(value) {
-            @OptIn(InternalCoreApi::class)
             mainOwner.owner.showLayoutBounds = value
         }
 

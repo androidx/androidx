@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
 import androidx.compose.foundation.style.MutableStyleState
+import androidx.compose.foundation.style.animate
+import androidx.compose.foundation.style.border
 import androidx.compose.foundation.style.focused
 import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.BasicTextField

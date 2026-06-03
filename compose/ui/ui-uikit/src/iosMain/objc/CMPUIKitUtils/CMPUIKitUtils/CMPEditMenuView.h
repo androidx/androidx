@@ -25,14 +25,15 @@
                       copy:(void (^)(void))copyBlock
                        cut:(void (^)(void))cutBlock
                      paste:(void (^)(void))pasteBlock
-                 selectAll:(void (^)(void))selectAllBlock;
-
-- (void)showEditMenuAtRect:(CGRect)targetRect
-                      copy:(void (^)(void))copyBlock
-                       cut:(void (^)(void))cutBlock
-                     paste:(void (^)(void))pasteBlock
+                    select:(void (^)(void))selectBlock
                  selectAll:(void (^)(void))selectAllBlock
              customActions:(NSArray<CMPEditMenuCustomAction *> *)customActions;
+
+- (void)updateAvailableSystemActions:(void (^)(void))copyBlock
+                                 cut:(void (^)(void))cutBlock
+                               paste:(void (^)(void))pasteBlock
+                              select:(void (^)(void))selectBlock
+                           selectAll:(void (^)(void))selectAllBlock;
 
 - (void)hideEditMenu;
 

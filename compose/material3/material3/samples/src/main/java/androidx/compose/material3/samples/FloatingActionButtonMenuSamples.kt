@@ -65,9 +65,12 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.traversalIndex
@@ -126,7 +129,20 @@ fun FloatingActionButtonMenuSample() {
                                 TooltipAnchorPosition.Above
                             }
                         ),
-                    tooltip = { PlainTooltip { Text("Toggle menu") } },
+                    tooltip = {
+                        PlainTooltip(
+                            modifier =
+                                Modifier.semantics {
+                                    // TODO(b/496338253): Remove this modifier once bug where
+                                    //  tooltip text is not announced by a11y screen readers is
+                                    //  resolved.
+                                    liveRegion = LiveRegionMode.Assertive
+                                    paneTitle = "Toggle menu"
+                                }
+                        ) {
+                            Text("Toggle menu")
+                        }
+                    },
                     state = rememberTooltipState(),
                 ) {
                     ToggleFloatingActionButton(

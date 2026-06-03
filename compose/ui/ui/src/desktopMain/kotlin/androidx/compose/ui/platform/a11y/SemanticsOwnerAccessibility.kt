@@ -533,7 +533,7 @@ internal class SemanticsOwnerAccessibility(
          */
         fun notifyInUse() {
             lastUseTimeNanos = System.nanoTime()
-            for (instance in activeInstances) {
+            activeInstances.fastForEach { instance ->
                 instance.scheduleNodeSyncIfNeeded()
             }
         }

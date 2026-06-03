@@ -340,23 +340,31 @@ class IntIntervalTreeTest {
                     reference.addInterval(item, start, end)
                 }
                 1 -> { // Remove
-                    if (reference.intervals.isNotEmpty()) {
-                        val index = random.nextInt(reference.intervals.size)
-                        val (item, start, end) = reference.intervals[index]
-                        tree.removeIntervalAndVerifyIntegrity(item, start, end)
-                        reference.removeInterval(item, start, end)
+                    val start = random.nextInt(0, 100)
+                    val end = random.nextInt(start, 101)
+                    val handles =
+                        tree.findIntervalsInRange<Int, IntervalHandle>(start, end) {
+                            IntervalHandle(it)
+                        }
+                    if (handles.isNotEmpty()) {
+                        val handle = handles[random.nextInt(handles.size)]
+                        val item = tree.getItem<Int>(handle)!!
+                        val interval = tree.getInterval(handle)
+                        tree.removeInterval(handle)
+                        verifyIntegrity(tree)
+                        reference.removeInterval(item, interval.start, interval.end)
                     }
                 }
                 2 -> { // Query
                     val start = random.nextInt(0, 100)
-                    val end = random.nextInt(start, 100 + 1)
+                    val end = random.nextInt(start, 101)
                     val treeResult = tree.getStyles(start, end)
                     val refResult = reference.getStyles(start, end)
                     assertThat(treeResult).isEqualTo(refResult)
                 }
                 3 -> { // Map
                     val start = random.nextInt(0, 100)
-                    val end = random.nextInt(start, 100 + 1)
+                    val end = random.nextInt(start, 101)
 
                     val offset = random.nextInt(-100, 100)
                     val mapper: (Long) -> Long = { packed ->
@@ -710,14 +718,20 @@ internal fun <T> IntIntervalTree<T>.addIntervalAndVerifyIntegrity(
     return result != IntervalHandle.Invalid
 }
 
-internal fun <T> IntIntervalTree<T>.removeIntervalAndVerifyIntegrity(
+internal inline fun <reified T> IntIntervalTree<T>.removeIntervalAndVerifyIntegrity(
     t: T,
     start: Int,
     end: Int,
 ): Boolean {
-    val result = removeInterval(t, Interval(start, end, false, true))
-    verifyIntegrity(this)
-    return result
+    val handles = findIntervalsInRange<T, IntervalHandle>(start, end) { IntervalHandle(it) }
+    for (handle in handles) {
+        if (getItem<T>(handle) == t && getInterval(handle) == Interval(start, end, false, true)) {
+            val result = removeInterval(handle)
+            verifyIntegrity(this)
+            return result
+        }
+    }
+    return false
 }
 
 private inline fun <reified T> IntIntervalTree<T>.getStyles(
@@ -726,7 +740,7 @@ private inline fun <reified T> IntIntervalTree<T>.getStyles(
 ): List<AnnotatedString.Range<T>> {
     return findIntervalsInRange<T, AnnotatedString.Range<T>>(start, end) { packedHandle ->
         val handle = IntervalHandle(packedHandle)
-        val item = getItem(handle)!!
+        val item = getItem<T>(handle)!!
         val interval = getInterval(handle)
         AnnotatedString.Range(item, interval.start, interval.end)
     }

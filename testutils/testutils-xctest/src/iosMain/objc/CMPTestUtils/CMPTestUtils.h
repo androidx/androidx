@@ -23,3 +23,4 @@ FOUNDATION_EXPORT double CMPTestUtilsVersionNumber;
 FOUNDATION_EXPORT const unsigned char CMPTestUtilsVersionString[];
 
 #import "UITouch+Test.h"
+#import "UIPressesEvent+Test.h"

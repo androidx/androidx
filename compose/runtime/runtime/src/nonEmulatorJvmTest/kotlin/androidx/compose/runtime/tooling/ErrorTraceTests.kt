@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.fastForEach
+import androidx.compose.runtime.snapshots.fastMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -375,7 +376,7 @@ class ErrorTraceTests {
         }
 
     @Test
-    fun nodeReuse() =
+    fun nodeReuse_gapBuffer() {
         exceptionTest(
             listOf(
                 "NodeWithCallbacks(ErrorTraceComposables.kt:121)",
@@ -384,6 +385,7 @@ class ErrorTraceTests {
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
             ),
             groupKeyTrace(2),
+            ComposerToUse.Gap,
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -393,6 +395,38 @@ class ErrorTraceTests {
             state = true
             advance()
         }
+    }
+
+    @Test
+    fun nodeReuse_linkBuffer() {
+        // The LinkComposer returns a different StackTrace from the GapComposer. The GapComposer
+        // will ignore the ReusableComposeNode because it is an incomplete group. The LinkComposer
+        // doesn't have the same filtering constraints or knowledge about what percentage of slots
+        // the composer was able to apply, so there is no equivalent filter over the partial group
+        // observed by the GapComposer.
+        //
+        // The line numbers differ because of resolution differences in the source information.
+        // The LinkTable line number is consistent with other tests in this file.
+        exceptionTest(
+            listOf(
+                "ReusableComposeNode(Composables.kt:<unknown line>)",
+                "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "ReusableContent(Composables.kt:<line number>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(2),
+            ComposerToUse.Link,
+        ) {
+            var state by mutableStateOf(false)
+            compose {
+                ReusableContent(state) { NodeWithCallbacks(onReuse = { throwTestException() }) }
+            }
+
+            state = true
+            advance()
+        }
+    }
 
     @Test
     fun nodeDeactivate() =
@@ -558,7 +592,7 @@ class ErrorTraceTests {
             listOf(
                 "<lambda>(ErrorTraceTests.kt:<unknown line>)",
                 "<lambda>(MovableContent.kt:<line number>)",
-                "<lambda>(GapComposer.kt:<line number>)",
+                "<lambda>($COMPOSER_NAME.kt:<line number>)",
                 "<lambda>(MovableContent.kt:<unknown line>)",
                 "MovableWrapper(ErrorTraceComposables.kt:156)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
@@ -574,7 +608,7 @@ class ErrorTraceTests {
             listOf(
                 "<lambda>(ErrorTraceTests.kt:<unknown line>)",
                 "<lambda>(MovableContent.kt:<line number>)",
-                "<lambda>(GapComposer.kt:<line number>)",
+                "<lambda>($COMPOSER_NAME.kt:<line number>)",
                 "<lambda>(MovableContent.kt:<unknown line>)",
                 "MovableWrapper(ErrorTraceComposables.kt:156)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
@@ -599,7 +633,7 @@ class ErrorTraceTests {
         exceptionTest(
             listOf(
                 "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-                "<lambda>(GapComposer.kt:<line number>)",
+                "<lambda>($COMPOSER_NAME.kt:<line number>)",
                 "<lambda>(MovableContent.kt:<unknown line>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
                 "WrappedMovableContent(ErrorTraceComposables.kt:166)",
@@ -633,7 +667,7 @@ class ErrorTraceTests {
         exceptionTest(
             listOf(
                 "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-                "<lambda>(GapComposer.kt:<line number>)",
+                "<lambda>(%composerImpl%.kt:<line number>)",
                 "<lambda>(MovableContent.kt:<unknown line>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
                 "WrappedMovableContent(ErrorTraceComposables.kt:166)",
@@ -667,7 +701,7 @@ class ErrorTraceTests {
         exceptionTest(
             listOf(
                 "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-                "<lambda>(GapComposer.kt:<line number>)",
+                "<lambda>($COMPOSER_NAME.kt:<line number>)",
                 "<lambda>(MovableContent.kt:<unknown line>)",
                 "<lambda>(ErrorTraceTests.kt:<line number>)",
                 "Wrapper(ErrorTraceComposables.kt:149)",
@@ -701,9 +735,10 @@ class ErrorTraceTests {
     @Suppress("VisibleForTests")
     @Test
     fun setContentNoSourceInformation() {
-        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
-        assertTrace(expected = null) {
-            compositionTest {
+        exceptionTest(
+            stackTraceMode = ComposeStackTraceMode.SourceInformation,
+            expectedTrace = null,
+            block = {
                 var state by mutableStateOf(false)
                 compose {
                     InlineLinear {
@@ -728,8 +763,8 @@ class ErrorTraceTests {
 
                 state = true
                 advance()
-            }
-        }
+            },
+        )
     }
 }
 
@@ -743,13 +778,40 @@ private const val DebugKeepLineNumbers = false
 private fun exceptionTest(
     sourceTrace: List<String>,
     groupKeyTrace: List<String>,
+    composerToUse: ComposerToUse = ComposerToUse.Both,
     block: suspend CompositionTestScope.() -> Unit,
 ) {
-    Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
-    assertTrace(sourceTrace) { compositionTest(ComposerToUse.Both, block = block) }
-    Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.GroupKeys)
-    assertTrace(groupKeyTrace) { compositionTest(ComposerToUse.Both, block = block) }
-    Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
+    exceptionTest(ComposeStackTraceMode.SourceInformation, sourceTrace, composerToUse, block)
+    exceptionTest(ComposeStackTraceMode.GroupKeys, groupKeyTrace, composerToUse, block)
+}
+
+private fun exceptionTest(
+    stackTraceMode: ComposeStackTraceMode,
+    expectedTrace: List<String>?,
+    composerToUse: ComposerToUse = ComposerToUse.Both,
+    block: suspend CompositionTestScope.() -> Unit,
+) {
+    try {
+        Composer.setDiagnosticStackTraceMode(stackTraceMode)
+
+        if (composerToUse == ComposerToUse.Both || composerToUse == ComposerToUse.Gap) {
+            assertTrace(expectedTrace?.substituteComposerImpl("GapComposer")) {
+                compositionTest(ComposerToUse.Gap, block = block)
+            }
+        }
+
+        if (composerToUse == ComposerToUse.Both || composerToUse == ComposerToUse.Link) {
+            assertTrace(expectedTrace?.substituteComposerImpl("LinkComposer")) {
+                compositionTest(ComposerToUse.Link, block = block)
+            }
+        }
+    } finally {
+        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
+    }
+}
+
+private fun List<String>.substituteComposerImpl(composerImplName: String) = fastMap {
+    it.replace(COMPOSER_NAME, composerImplName)
 }
 
 private fun assertTrace(expected: List<String>?, block: () -> Unit) {
@@ -758,6 +820,8 @@ private fun assertTrace(expected: List<String>?, block: () -> Unit) {
         block()
     } catch (e: TestComposeException) {
         exception = e
+    } catch (t: Throwable) {
+        throw AssertionError("Expected an instance of TestComposeException, got ${t.javaClass}", t)
     }
     exception = exception ?: error("Composition exception was not caught or not thrown")
 
@@ -767,10 +831,13 @@ private fun assertTrace(expected: List<String>?, block: () -> Unit) {
         return
     }
     if (expected == null) {
-        throw exception
+        throw AssertionError("Expected no exception, got <cause>", exception)
     }
     if (composeTrace == null) {
-        throw exception
+        throw AssertionError(
+            "Expected diagnostic trace, got no suppressed DiagnosticComposeException",
+            exception,
+        )
     }
     val message = composeTrace.stackTraceToString()
 
@@ -811,3 +878,5 @@ private fun assertTrace(expected: List<String>?, block: () -> Unit) {
 
 private fun groupKeyTrace(stackFrameCount: Int): List<String> =
     List(stackFrameCount) { "$\$compose.m$<group-key>(SourceFile:1)" }
+
+private const val COMPOSER_NAME = "%composerImpl%"

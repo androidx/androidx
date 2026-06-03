@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -205,6 +206,31 @@ class GesturesTest : OnCanvasTests {
             }
         }
         assertEquals(expected, actual)
+    }
+
+    @Test // Regression: https://youtrack.jetbrains.com/issue/CMP-10249
+    fun pointerCancelDoesNotTriggerClick() = runApplicationTest {
+        var clicksCount = 0
+
+        createComposeWindow {
+            Box(modifier = Modifier.fillMaxSize().clickable { clicksCount++ })
+        }
+
+        // Normal click should fire
+        dispatchEvents(
+            WebPointerEvent("pointerdown", touch(0, 50, 50)),
+            WebPointerEvent("pointerup", touch(0, 50, 50))
+        )
+        awaitIdle()
+        assertEquals(1, clicksCount)
+
+        // pointercancel should NOT fire click (browser took over the gesture)
+        dispatchEvents(
+            WebPointerEvent("pointerdown", touch(1, 50, 50)),
+            WebPointerEvent("pointercancel", touch(1, 50, 50))
+        )
+        awaitIdle()
+        assertEquals(1, clicksCount) // still 1 — click was cancelled
     }
 
     private fun touch(id: Int, x: Int, y: Int) = PointerEventInit(

@@ -196,6 +196,24 @@ val LocalViewConfiguration =
  */
 val LocalWindowInfo = staticCompositionLocalOf<WindowInfo> { noLocalProvidedFor("LocalWindowInfo") }
 
+/**
+ * The CompositionLocal to provide platform sound effects.
+ *
+ * This is used to trigger sounds on user interaction, like clicks. To enable, disable, or customize
+ * sound interaction scopes, utilize `SoundEffectOnInteraction`.
+ *
+ * @sample androidx.compose.ui.samples.InteractionSoundSamples
+ * @see SoundEffect
+ */
+val LocalSoundEffect =
+    staticCompositionLocalOf<SoundEffect> {
+        object : SoundEffect {
+            override fun playClickSound() {
+                // This platform does not support sound, so sound effects are a no-op
+            }
+        }
+    }
+
 /** The CompositionLocal containing the current [LifecycleOwner]. */
 @Deprecated(
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
@@ -247,15 +265,15 @@ internal fun ProvideCommonCompositionLocals(
             @Suppress("DEPRECATION") owner.fontLoader,
         LocalFontFamilyResolver providesDefault owner.fontFamilyResolver,
         LocalHapticFeedback provides owner.hapticFeedBack,
-        LocalInputModeManager provides owner.inputModeManager,
+        LocalInputModeManager providesComputed { owner.inputModeManager },
         LocalLayoutDirection provides owner.layoutDirection,
-        LocalTextInputService provides owner.textInputService,
-        LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
-        LocalTextToolbar provides owner.textToolbar,
+        LocalTextInputService providesComputed { owner.textInputService },
+        LocalSoftwareKeyboardController providesComputed { owner.softwareKeyboardController },
+        LocalTextToolbar providesComputed { owner.textToolbar },
         LocalUriHandler provides uriHandler,
         LocalViewConfiguration provides owner.viewConfiguration,
         LocalWindowInfo provides owner.windowInfo,
-        LocalPointerIconService provides owner.pointerIconService,
+        LocalPointerIconService providesComputed { owner.pointerIconService },
         LocalGraphicsContext provides owner.graphicsContext,
         LocalRetainedValuesStore provides owner.retainedValuesStore,
         LocalProvidableLocaleList provides owner.localeList,

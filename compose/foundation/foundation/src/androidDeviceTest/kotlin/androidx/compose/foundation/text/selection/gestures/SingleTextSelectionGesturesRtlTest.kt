@@ -60,7 +60,7 @@ internal class SingleTextSelectionGesturesRtlTest : TextSelectionGesturesTest() 
                         textToolbar = textToolbar,
                         spyTextActionModeCallback = spyTextActionModeCallback,
                         hapticFeedback = hapticFeedback,
-                        getActual = { selection.value },
+                        getActual = { state.selection },
                     ) {
                     override fun subAssert() {
                         Truth.assertAbout(SelectionSubject.withContent(textContent))

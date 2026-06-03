@@ -33,6 +33,7 @@ import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.skiko.OverlayRenderDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.window.Dialog
@@ -542,7 +543,7 @@ internal class ComposeContainer(
     }
 
     private inner class BlockingInputLayerEventFilter : AwtEventFilter() {
-        private val noBlockingInputLayers get() = layers.all { !it.consumePointerInputOutside }
+        private val noBlockingInputLayers get() = layers.fastAll { !it.consumePointerInputOutside }
 
         override fun shouldSendMouseEvent(event: AwtMouseEvent): Boolean = noBlockingInputLayers
         override fun shouldSendKeyEvent(event: AwtKeyEvent): Boolean = noBlockingInputLayers

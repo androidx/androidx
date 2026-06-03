@@ -156,6 +156,12 @@ fun PasswordToggleVisibilityDemo() {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         BasicSecureTextField(
             state = state,
+            keyboardOptions =
+                KeyboardOptions(
+                    autoCorrectEnabled = false,
+                    keyboardType =
+                        if (visible) KeyboardType.PasswordVisible else KeyboardType.Password,
+                ),
             textObfuscationMode =
                 if (visible) {
                     TextObfuscationMode.Visible

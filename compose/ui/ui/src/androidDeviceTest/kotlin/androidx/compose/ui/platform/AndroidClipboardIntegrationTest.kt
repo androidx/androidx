@@ -58,14 +58,14 @@ class AndroidClipboardIntegrationTest {
         assertFalse(clipboard.getClipEntry().hasText())
         assertEquals(null, clipboard.getClipEntry())
 
-        clipboard.nativeClipboard.setPrimaryClip(testClipEntry("test2").clipData)
+        clipboard.nativeClipboardManager.setPrimaryClip(testClipEntry("test2").clipData)
         assertTrue(clipboard.getClipEntry().hasText())
         assertEquals("test2", clipboard.getClipEntry()?.clipData?.getItemAt(0)?.text)
 
         // nativeClipboard should be correct too
         assertEquals(
             rule.activity.getSystemService(Context.CLIPBOARD_SERVICE),
-            clipboard.nativeClipboard,
+            clipboard.nativeClipboardManager,
         )
     }
 }

@@ -64,7 +64,7 @@ internal class SingleTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTe
                     textToolbar = textToolbar,
                     spyTextActionModeCallback = spyTextActionModeCallback,
                     hapticFeedback = hapticFeedback,
-                    getActual = { selection.value },
+                    getActual = { state.selection },
                 ) {
                 override fun subAssert() {
                     Truth.assertAbout(SelectionSubject.withContent(textContent))

@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.TextInputRange
 import androidx.compose.ui.platform.TextInputStringTokenizer
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextEditingDelegate
+import androidx.compose.ui.platform.selectTextNearCursor
 import androidx.compose.ui.platform.toTextRange
 import androidx.compose.ui.platform.toUITextRange
 import androidx.compose.ui.text.TextRange
@@ -50,7 +51,6 @@ import platform.UIKit.NSWritingDirectionNatural
 import platform.UIKit.UIKeyInputProtocol
 import platform.UIKit.UIKeyboardAppearance
 import platform.UIKit.UIKeyboardType
-import platform.UIKit.UIPressesEvent
 import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UITextAutocapitalizationType
 import platform.UIKit.UITextAutocorrectionType
@@ -113,14 +113,37 @@ internal class ComposeTextInputView(
         input?.endFloatingCursor()
     }
 
-    override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesBegan(presses, withEvent)
+    override fun showEditMenuAtRect(
+        targetRect: CValue<CGRect>,
+        copy: (() -> Unit)?,
+        cut: (() -> Unit)?,
+        paste: (() -> Unit)?,
+        select: (() -> Unit)?,
+        selectAll: (() -> Unit)?,
+        customActions: List<*>?
+    ) {
+        val patchedSelect = select ?: {
+            this.select()
+        }.takeIf { selectAll != null && showSelectMenu }
+
+        super.showEditMenuAtRect(
+            targetRect = targetRect,
+            copy = copy,
+            cut = cut,
+            paste = paste,
+            select = patchedSelect,
+            selectAll = selectAll,
+            customActions = customActions,
+        )
     }
 
-    override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesEnded(presses, withEvent)
+    private val showSelectMenu: Boolean
+        get() = input?.getSelectedTextRange()?.length == 0 && input?.hasText() == true
+
+    private fun select() {
+        selectionWillChange()
+        input?.selectTextNearCursor()
+        selectionDidChange()
     }
 
     /**
@@ -226,10 +249,10 @@ internal class ComposeTextInputView(
      * This range is always relative to markedText.
      */
     override fun setMarkedText(markedText: String?, selectedRange: CValue<NSRange>) {
-        val (locationRelative, lengthRelative) = selectedRange.useContents {
-            location.toInt() to length.toInt()
+        val relativeTextRange = selectedRange.useContents {
+            val loc = location.toInt()
+            TextRange(loc, loc + length.toInt())
         }
-        val relativeTextRange = TextRange(locationRelative, locationRelative + lengthRelative)
 
         input?.setMarkedText(markedText, relativeTextRange)
     }

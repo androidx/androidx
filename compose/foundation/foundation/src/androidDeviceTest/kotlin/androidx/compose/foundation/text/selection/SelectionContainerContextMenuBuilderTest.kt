@@ -34,7 +34,6 @@ import androidx.compose.foundation.text.input.internal.selection.FakeClipboard
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -130,10 +129,10 @@ class SelectionContainerContextMenuBuilderTest {
         val fakeClipboard = FakeClipboard(initialClipboardText)
 
         val reader = TestTextContextMenuDataInvoker()
-        var selection by mutableStateOf<Selection?>(null)
+        val state = SelectionState()
         rule.setContent {
             CompositionLocalProvider(LocalClipboard provides fakeClipboard) {
-                SelectionContainer(selection = selection, onSelectionChange = { selection = it }) {
+                SelectionContainer(state = state) {
                     BasicText(
                         defaultText,
                         modifier = Modifier.testTag(textTag).testTextContextMenuDataReader(reader),
@@ -171,7 +170,7 @@ class SelectionContainerContextMenuBuilderTest {
         }
 
         // verify selection updated
-        assertThat(selection?.toTextRange()).isEqualTo(expectedSelection)
+        assertThat(state.selection?.toTextRange()).isEqualTo(expectedSelection)
 
         // verify clipboard contents
         val clipboardContent = fakeClipboard.getClipEntry()

@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.selection.gestures
 
-import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
 import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
 import androidx.compose.foundation.text.selection.gestures.util.collapsed
@@ -25,7 +25,6 @@ import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -39,7 +38,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
 
     override val pointerAreaTag = "selectionContainer"
 
-    protected val selection = mutableStateOf<Selection?>(null)
+    val state = SelectionState()
 
     protected abstract val textContent: MutableState<String>
     protected abstract var asserter: TextSelectionAsserter
@@ -48,11 +47,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
 
     @Composable
     override fun Content() {
-        SelectionContainer(
-            selection = selection.value,
-            onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag),
-        ) {
+        SelectionContainer(state = state, modifier = Modifier.testTag(pointerAreaTag)) {
             TextContent()
         }
     }

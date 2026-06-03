@@ -528,6 +528,7 @@ class TextMeasurerTest {
             placeholders = placeholders,
             density = density,
             fontFamilyResolver = fontFamilyResolver,
+            softWrap = true,
         )
     }
 

@@ -59,6 +59,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
@@ -95,7 +98,18 @@ fun WideNavigationRailResponsiveSample() {
                         TooltipDefaults.rememberTooltipPositionProvider(
                             TooltipAnchorPosition.Above
                         ),
-                    tooltip = { PlainTooltip { Text(headerDescription) } },
+                    tooltip = {
+                        PlainTooltip(
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = headerDescription
+                            }
+                        ) {
+                            Text(headerDescription)
+                        }
+                    },
                     state = rememberTooltipState(),
                 ) {
                     IconButton(
@@ -198,7 +212,18 @@ fun ModalWideNavigationRailSample() {
                         TooltipDefaults.rememberTooltipPositionProvider(
                             TooltipAnchorPosition.Above
                         ),
-                    tooltip = { PlainTooltip { Text(headerDescription) } },
+                    tooltip = {
+                        PlainTooltip(
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = headerDescription
+                            }
+                        ) {
+                            Text(headerDescription)
+                        }
+                    },
                     state = rememberTooltipState(),
                 ) {
                     IconButton(
@@ -365,7 +390,6 @@ fun WideNavigationRailExpandedSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun WideNavigationRailArrangementsSample() {
@@ -395,7 +419,18 @@ fun WideNavigationRailArrangementsSample() {
                         TooltipDefaults.rememberTooltipPositionProvider(
                             TooltipAnchorPosition.Above
                         ),
-                    tooltip = { PlainTooltip { Text(headerDescription) } },
+                    tooltip = {
+                        PlainTooltip(
+                            Modifier.semantics {
+                                // TODO(b/496338253): Remove this modifier once bug where tooltip
+                                //  text is not announced by a11y screen readers is resolved.
+                                liveRegion = LiveRegionMode.Assertive
+                                paneTitle = headerDescription
+                            }
+                        ) {
+                            Text(headerDescription)
+                        }
+                    },
                     state = rememberTooltipState(),
                 ) {
                     IconButton(

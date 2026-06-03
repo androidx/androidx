@@ -47,7 +47,26 @@ import kotlinx.coroutines.test.TestResult
  * This means you may need to explicitly advance time or run current coroutines when testing complex
  * coroutine logic, as tasks are queued on the scheduler rather than running eagerly.
  *
+ * This function follows the semantics of [kotlinx.coroutines.test.runTest]. On JVM and Native it
+ * behaves similarly to `runBlocking`. On web targets it returns a [TestResult] backed by a
+ * `Promise`.
+ *
+ * For multiplatform tests, make the test return [TestResult] and immediately return the result of
+ * [runComposeUiTest]. Keep assertions inside the [block], and do not execute code after this call.
+ *
+ * Example:
+ * ```kotlin
+ * @Test
+ * fun myTest(): TestResult = runComposeUiTest {
+ *     setContent { /* content under test */ }
+ * }
+ * ```
+ *
  * Keeping a reference to the [ComposeUiTest] outside of this function is an error.
+ *
+ * See also:
+ * * [kotlinx.coroutines.test.runTest](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/kotlinx.coroutines.test/run-test.html)
+ * * [TestResult](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/kotlinx.coroutines.test/-test-result/)
  *
  * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
  * @param effectContext The [CoroutineContext] used to run the composition. The context for

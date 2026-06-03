@@ -21,13 +21,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.scene.ComposeSceneFocusManager
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ComposeTextInputConnection
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.NativeTextInputConnection
 import androidx.compose.ui.text.input.SelectionContainerConnection
+import androidx.compose.ui.text.input.TextEditingScope
+import androidx.compose.ui.text.input.TextEditorState
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputConnection
 import androidx.compose.ui.text.input.stateSnapshot
 import androidx.compose.ui.text.input.usingNativeTextInput
@@ -37,21 +46,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import platform.UIKit.UIPress
 import platform.UIKit.UIView
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal class UIKitTextInputService(
-    private val updateView: () -> Unit,
+    private var updateView: () -> Unit,
     private val view: UIView,
     private val viewConfiguration: ViewConfiguration,
     private val focusedViewsList: FocusedViewsList?,
     private var onInputStarted: () -> Unit,
-    /**
-     * Callback to handle keyboard presses. The parameter is a [Set] of [UIPress] objects.
-     * Erasure happens due to K/N not supporting Obj-C lightweight generics.
-     */
-    private var onKeyboardPresses: (Set<*>) -> Unit,
     private var focusManager: () -> ComposeSceneFocusManager?,
     coroutineContext: CoroutineContext
 ) {
@@ -59,6 +62,8 @@ internal class UIKitTextInputService(
     private val coroutineScope = CoroutineScope(coroutineContext)
 
     private var currentInputConnection: TextInputConnection? by mutableStateOf(null)
+
+    private var updateEditMenuState = {}
 
     val hasInvalidations: Boolean
         get() = currentInputConnection?.hasInvalidations ?: false
@@ -101,8 +106,7 @@ internal class UIKitTextInputService(
                 view = view,
                 coroutineScope = coroutineScope,
                 focusedViewsList = focusedViewsList,
-                onKeyboardPresses = onKeyboardPresses,
-                focusManager = focusManager
+                focusManager = focusManager,
             )
         } else {
             ComposeTextInputConnection(
@@ -111,12 +115,11 @@ internal class UIKitTextInputService(
                 coroutineScope = coroutineScope,
                 viewConfiguration = viewConfiguration,
                 focusedViewsList = focusedViewsList,
-                onKeyboardPresses = onKeyboardPresses,
                 focusManager = focusManager
             )
         }
         currentInputConnection?.start(request)
-
+        updateEditMenuState()
         onInputStarted()
     }
 
@@ -139,7 +142,7 @@ internal class UIKitTextInputService(
     val textToolbar: TextToolbar by lazy(LazyThreadSafetyMode.NONE) {
         object : TextToolbar {
             override val status: TextToolbarStatus
-                get() = (currentInputConnection as? TextToolbar)?.status ?: TextToolbarStatus.Hidden
+                get() = (currentInputConnection as? ComposeTextInputConnection)?.toolbarStatus ?: TextToolbarStatus.Hidden
 
             override fun showMenu(
                 rect: Rect,
@@ -157,16 +160,45 @@ internal class UIKitTextInputService(
                     // session (requiring a PlatformTextInputMethodRequest) which is not applicable for
                     // SelectionContainer.
                     currentInputConnection = SelectionContainerConnection(
-                        view, coroutineScope, viewConfiguration, focusManager
+                        view = view,
+                        coroutineScope = coroutineScope,
+                        viewConfiguration = viewConfiguration,
+                        focusManager = focusManager
+                    )
+                    currentInputConnection?.start(
+                        object : PlatformTextInputMethodRequest {
+                            override val value: () -> TextFieldValue get() = { TextFieldValue() }
+                            override val state: TextEditorState = object : TextEditorState {
+                                override val selection: TextRange get() = TextRange(0, 0)
+                                override val composition: TextRange? get() = null
+                                override val length: Int get() = 0
+                                override fun get(index: Int): Char = ' '
+                                override fun subSequence(startIndex: Int, endIndex: Int): CharSequence = ""
+                                override val text: String get() = ""
+                            }
+                            override val imeOptions: ImeOptions get() = ImeOptions.Default
+                            override val onEditCommand: (List<EditCommand>) -> Unit get() = { _ -> }
+                            override val onImeAction: ((ImeAction) -> Unit)? get() = null
+                            override val textLayoutResult: () -> TextLayoutResult? get() = { null }
+                            override val focusedRectInRoot: () -> Rect? get() = { null }
+                            override val textFieldRectInRoot: () -> Rect? get() = { null }
+                            override val textClippingRectInRoot: () -> Rect? get() = { null }
+                            override val unclippedTextOffsetInRoot: () -> Offset? get() = { null }
+                            override val editText: (block: TextEditingScope.() -> Unit) -> Unit get() = { _ -> }
+                        }
                     )
                 }
-                (currentInputConnection as? TextToolbar)?.showMenu(
-                    rect, onCopyRequested, onPasteRequested, onCutRequested, onSelectAllRequested
+                (currentInputConnection as? ComposeTextInputConnection)?.showToolbarMenu(
+                    rect = rect,
+                    onCopyRequested = onCopyRequested,
+                    onPasteRequested = onPasteRequested,
+                    onCutRequested = onCutRequested,
+                    onSelectAllRequested = onSelectAllRequested
                 )
             }
 
             override fun hide() {
-                (currentInputConnection as? TextToolbar)?.hide()
+                (currentInputConnection as? ComposeTextInputConnection)?.hideToolbar()
 
                 if (currentInputConnection is SelectionContainerConnection) {
                     // stop() removes the view from the hierarchy and resigns first responder,
@@ -189,9 +221,24 @@ internal class UIKitTextInputService(
             selectAll: (() -> Unit)?,
             customActions: List<UIKitNativeTextInputContextMenuCustomAction>?
         ) {
-            (currentInputConnection as? NativeTextInputConnection)?.updateNativeTextInputEditMenuState(
-                copy, paste, cut, selectAll, customActions
-            )
+            fun update() {
+                currentInputConnection?.setAvailableEditMenuActions(
+                    copy = copy,
+                    paste = paste,
+                    cut = cut,
+                    selectAll = selectAll,
+                    customActions = customActions
+                )
+                updateEditMenuState = {}
+            }
+
+            if (currentInputConnection == null) {
+                // Fixes race conditions when the `updateNativeTextInputEditMenuState` called before
+                // the input session start.
+                updateEditMenuState = ::update
+            } else {
+                update()
+            }
         }
 
         override fun updateNativeTextInputTintColor(color: Color?) {
@@ -203,8 +250,8 @@ internal class UIKitTextInputService(
 
     fun dispose() {
         stopInput()
-        onInputStarted = { }
-        onKeyboardPresses = { }
+        onInputStarted = {}
+        updateView = {}
         focusManager = { null }
     }
 }

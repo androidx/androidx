@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionState
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.EITHER
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.FIRST
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.FIRST_REVERSED
@@ -44,7 +45,6 @@ import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoun
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -137,7 +137,7 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
     private val testViewConfiguration =
         TestViewConfiguration(minimumTouchTargetSize = minTouchTargetSize)
 
-    private val selection = mutableStateOf<Selection?>(null)
+    val state = SelectionState()
 
     @get:Rule(order = Int.MIN_VALUE)
     val flagRule =
@@ -156,11 +156,7 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
 
     @Composable
     override fun Content() {
-        SelectionContainer(
-            selection = selection.value,
-            onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag),
-        ) {
+        SelectionContainer(state = state, modifier = Modifier.testTag(pointerAreaTag)) {
             CompositionLocalProvider(LocalViewConfiguration provides testViewConfiguration) {
                 Column(verticalArrangement = Arrangement.spacedBy(dpLen)) {
                     repeat(2) { BasicText(text = text, style = textStyle) }
@@ -259,7 +255,7 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
         val expectedSelectableId = expectedText.selectableId
         if (expectedSelectableId == null) {
             // verify something is selected
-            assertThat(selection).isNotNull()
+            assertThat(state.selection).isNotNull()
         } else {
             assertSelectedSelectableIs(expectedSelectableId, crossed)
         }
@@ -274,6 +270,6 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
                 end = Selection.AnchorInfo(ResolvedTextDirection.Ltr, endOffset, selectableId),
                 handlesCrossed = crossed,
             )
-        assertThat(selection.value).isEqualTo(expectedSelection)
+        assertThat(state.selection).isEqualTo(expectedSelection)
     }
 }

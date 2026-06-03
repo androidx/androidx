@@ -382,7 +382,7 @@ private class MockOwner(
     var semanticsChanged: Boolean = false
     val invalidatedLayers = mutableListOf<OwnedLayer>()
 
-    @InternalCoreApi override var showLayoutBounds: Boolean = false
+    override var showLayoutBounds: Boolean = false
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
     override var measureIteration: Long = 0

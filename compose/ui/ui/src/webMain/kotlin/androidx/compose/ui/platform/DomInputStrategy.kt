@@ -132,11 +132,17 @@ internal class DomInputStrategy(
                 composeSender.sendEditCommand(SetSelectionCommand(normalizedStart, normalizedEnd))
             }
         }
+        // In Chrome, we need to listen to the selection change on the document
         document.addEventListener("selectionchange", selectionChangeListener)
+        // In Firefox and Safari we listen to the selection change on the input element.
+        // Chrome is expected to dispatch this event too (https://chromium-review.googlesource.com/c/chromium/src/+/5598393),
+        // but it doesn't: https://issuetracker.google.com/issues/518751607
+        htmlInput.addEventListener("selectionchange", selectionChangeListener)
     }
 
     fun dispose() {
         document.removeEventListener("selectionchange", selectionChangeListener)
+        htmlInput.removeEventListener("selectionchange", selectionChangeListener)
         selectionChangeListener = null
     }
 

@@ -33,6 +33,7 @@ import androidx.compose.ui.demos.accessibility.ScaffoldSampleDemo
 import androidx.compose.ui.demos.accessibility.ScaffoldSampleScrollDemo
 import androidx.compose.ui.demos.accessibility.ScrollingColumnDemo
 import androidx.compose.ui.demos.accessibility.SimpleRtlLayoutDemo
+import androidx.compose.ui.demos.accessibility.TextBoundingBoxDemo
 import androidx.compose.ui.demos.autofill.AutofillNavigation
 import androidx.compose.ui.demos.autofill.BTFResetCredentialsDemo
 import androidx.compose.ui.demos.autofill.BasicSecureTextFieldAutofillDemo
@@ -345,6 +346,7 @@ val AccessibilityDemos =
             ComposableDemo("Scrolling Tooltip scene") { SampleScrollingTooltipScreen() },
             ComposableDemo("Accessibility Shapes") { AccessibilityShapeOffscreenDemo() },
             ComposableDemo("Accessibility Clipping Demo") { AccessibilityClippingDemo() },
+            ComposableDemo("Text Bounding Boxes") { TextBoundingBoxDemo() },
         ),
     )
 

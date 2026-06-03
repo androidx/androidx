@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.TextInputStringTokenizer
 import androidx.compose.ui.platform.PlatformTextLayoutDirection
 import androidx.compose.ui.platform.NativeTextEditingDelegate
 import androidx.compose.ui.platform.SkikoUITextInputTraits
+import androidx.compose.ui.platform.selectTextNearCursor
 import androidx.compose.ui.platform.toTextRange
 import androidx.compose.ui.platform.toUITextRange
 import androidx.compose.ui.text.TextRange
@@ -74,7 +75,6 @@ import platform.UIKit.UIKeyboardAppearance
 import platform.UIKit.UIKeyboardType
 import platform.UIKit.UIMenu
 import platform.UIKit.UIMenuElement
-import platform.UIKit.UIPressesEvent
 import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UIScrollView
 import platform.UIKit.UITextAutocapitalizationType
@@ -171,16 +171,6 @@ internal class NativeTextInputView
 
     override fun endFloatingCursor() {
         input?.endFloatingCursor()
-    }
-
-    override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesBegan(presses, withEvent)
-    }
-
-    override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
-        input?.onKeyboardPresses(presses)
-        super.pressesEnded(presses, withEvent)
     }
 
     override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
@@ -306,10 +296,10 @@ internal class NativeTextInputView
      * This range is always relative to markedText.
      */
     override fun setMarkedText(markedText: String?, selectedRange: CValue<NSRange>) {
-        val (locationRelative, lengthRelative) = selectedRange.useContents {
-            location.toInt() to length.toInt()
+        val relativeTextRange = selectedRange.useContents {
+            val loc = location.toInt()
+            TextRange(loc, loc + length.toInt())
         }
-        val relativeTextRange = TextRange(locationRelative, locationRelative + lengthRelative)
 
         input?.setMarkedText(markedText, relativeTextRange)
     }
@@ -596,16 +586,28 @@ internal class NativeTextInputView
         onCut?.invoke()
     }
 
+    override fun select(sender: Any?) {
+        selectionWillChange()
+        input?.selectTextNearCursor()
+        selectionDidChange()
+    }
+
     override fun selectAll(sender: Any?) {
         onSelectAll?.invoke()
     }
+
+    // On iOS Select and Select All buttons appear only when text selection is empty.
+    // The presence of the onSelectAll lambda indicates that the select action is available.
+    private val showSelectAndSelectAllMenus: Boolean get() =
+        onSelectAll != null && hasText() && input?.getSelectedTextRange()?.length == 0
 
     override fun canPerformAction(action: COpaquePointer?, withSender: Any?): Boolean =
         when (NSStringFromSelector(action)) {
             "copy:" -> onCopy != null
             "paste:" -> onPaste != null
             "cut:" -> onCut != null
-            "selectAll:" -> onSelectAll != null
+            "selectAll:" -> showSelectAndSelectAllMenus
+            "select:" -> showSelectAndSelectAllMenus
             else -> super.canPerformAction(action, withSender)
         }
 

@@ -23,6 +23,10 @@ import androidx.compose.foundation.platform.SynchronizedObject
 import androidx.compose.foundation.platform.synchronized
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.MonotonicFrameClock
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -46,6 +50,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.collections.first
+import kotlin.collections.last
 import kotlin.coroutines.resume
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -378,11 +384,65 @@ class StyleAnimationsTest {
         ) {
             assertTrue(it.size > 2)
             // Assert it starts and ends at WhiteBrush
-            assertEquals(WhiteBrush, it.first())
             assertEquals(WhiteBrush, it.last())
 
             // Assert it animated to BlackBrush
             assertTrue(it.contains(BlackBrush))
+        }
+    }
+
+    @Test
+    fun can_animate_backgroundColor_to_backgroundBrush() = runTest {
+        animate(
+            style = {
+                background(Color.Blue)
+                pressed { animate { background(SolidColor(Color.Red)) } }
+            },
+            collect = { backgroundBrush },
+            state = MutableStyleState(null).apply { isPressed = true },
+        ) { values ->
+            assertEquals(SolidColor(Color.Blue), values.first())
+            assertEquals(SolidColor(Color.Red), values.last())
+            assertTrue(values.size > 2)
+        }
+    }
+
+    @Test
+    fun can_animate_backgroundBrush_to_backgroundColor() = runTest {
+        animate(
+            style = {
+                background(SolidColor(Color.Blue))
+                pressed { animate { background(Color.Red) } }
+            },
+            collect = { if (hasId(BackgroundColorId)) backgroundColor else backgroundBrush },
+            state = MutableStyleState(null).apply { isPressed = true },
+        ) { values ->
+            assertEquals(SolidColor(Color.Blue), values.first())
+            // This test that, when an animation completes, it completes with the value set
+            // not the last animated value.
+            assertEquals(Color.Red, values.last())
+            assertTrue(values.size > 2)
+        }
+    }
+
+    @Test
+    fun can_interrupt_animations_smoothly() = runTest {
+        var value by mutableStateOf(0.dp)
+        animate(
+            style = { animate(tween(500)) { contentPaddingStart(value) } },
+            collect = { contentPaddingStart },
+            frame = { time ->
+                val ms = time / 1_000_000L
+                when (ms) {
+                    10L -> value = 1000.dp
+                    100L -> value = 0.dp
+                }
+            },
+            duration = 1_000,
+            interval = 1,
+        ) { values ->
+            assertEquals(0f, values.first())
+            assertTrue(values.size > 2)
         }
     }
 }
@@ -394,19 +454,31 @@ private suspend fun <T> TestScope.animate(
     state: StyleState? = null,
     duration: Int = 1000,
     interval: Int = 50,
+    frame: ((Long) -> Unit)? = null,
     block: suspend TestScope.(List<T>) -> Unit,
 ) {
     val resolvedStyle = ResolvedStyle()
     val clock = TestFrameClock(this)
     val result = mutableListOf<T>()
     withContext(clock) {
+        resolvedStyle.buildForTesting(style, Density(100f), MutableStyleState(null), this)
         resolvedStyle.buildForTesting(style, Density(100f), state, this)
         for (frameTimeMillis in 0..duration step interval) {
             clock.frame(frameTimeMillis * 1_000_000L)
         }
         clock.runUntil(duration)
 
-        clock.frameUntilStopped { result.add(collect(resolvedStyle.resolve())) }
+        clock.frameUntilStopped { time ->
+            if (frame != null) {
+                var wrote = false
+                Snapshot.observe(writeObserver = { wrote = true }) { frame(time) }
+                if (wrote) {
+                    // Assume it wrote something interesting
+                    resolvedStyle.buildForTesting(style, Density(100f), state, this)
+                }
+            }
+            result.add(collect(resolvedStyle.resolve()))
+        }
         resolvedStyle.closeForTesting()
     }
     block(result)
@@ -526,6 +598,11 @@ private suspend fun TestScope.animateColor(
     ) { colors ->
         assertEquals(start, colors.first())
         assertEquals(end, colors.last())
+        // At least one color is not black or white
+        assertNotNull(
+            colors.firstOrNull() { it != Color.Black && it != Color.White },
+            "The color didn't appear to have an intermediate color",
+        )
         assertTrue(colors.size > 2)
     }
 }

@@ -18,6 +18,13 @@ package androidx.compose.ui.platform
 
 import android.content.Context
 
+/**
+ * Returns an [android.content.ClipboardManager] that exposes the full functionality of platform
+ * clipboard.
+ */
+val Clipboard.nativeClipboardManager: android.content.ClipboardManager
+    @Suppress("DEPRECATION") get() = nativeClipboard
+
 internal class AndroidClipboard
 internal constructor(private val androidClipboardManager: AndroidClipboardManager) : Clipboard {
 
@@ -31,6 +38,13 @@ internal constructor(private val androidClipboardManager: AndroidClipboardManage
         androidClipboardManager.setClip(clipEntry)
     }
 
-    override val nativeClipboard: NativeClipboard
+    // The new extension field [nativeClipboardManager] still delegates to this property.
+    // Therefore, this deprecated field shall be used in tests to mock the backing
+    // native ClipboardManager.
+    @Deprecated(
+        message = "Use [nativeClipboardManager] extension instead",
+        replaceWith = ReplaceWith("nativeClipboardManager"),
+    )
+    override val nativeClipboard: android.content.ClipboardManager
         get() = androidClipboardManager.nativeClipboard
 }

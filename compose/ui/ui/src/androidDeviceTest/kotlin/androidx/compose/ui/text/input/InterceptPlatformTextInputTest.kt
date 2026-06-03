@@ -37,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.AtomicInt
@@ -80,7 +79,6 @@ import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class InterceptPlatformTextInputTest {

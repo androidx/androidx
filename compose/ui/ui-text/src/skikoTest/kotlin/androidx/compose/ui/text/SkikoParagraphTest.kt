@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -446,6 +447,33 @@ class SkikoParagraphTest {
 
         // Verify paragraph was created successfully without crashing
         assertEquals(1, paragraph.lineCount)
+    }
+
+    // Regression test for https://youtrack.jetbrains.com/issue/CMP-10034
+    @Test
+    fun getCursorRect_doesNotCrash_inRtlParagraphsWithNewlinesAndSpecialCharacters() {
+        val problemTexts = listOf(
+            // Arabic with diacritics across a newline: "اّ\nبَ"
+            "\u0627\u0651\n\u0628\u064E",
+            // Hebrew followed by newline and emoji: "אב\n😀"
+            "\u05D0\u05D1\n\uD83D\uDE00",
+            // RTL with multiple newlines and combining marks: "א\nבְ\nג"
+            "\u05D0\n\u05D1\u05B0\n\u05D2",
+            // Newline at start: "\nאב"
+            "\n\u05D0\u05D1",
+            // Newline followed by combining mark: "א\nְב"
+            "\u05D0\n\u05B0\u05D1",
+        )
+
+        for (text in problemTexts) {
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyle = TextStyle(textDirection = TextDirection.Rtl, fontSize = 20.sp)
+            )
+            for (offset in 0..text.length) {
+                paragraph.getCursorRect(offset)
+            }
+        }
     }
 
     private fun simpleParagraph(text: String, textStyle: TextStyle = TextStyle()) = Paragraph(

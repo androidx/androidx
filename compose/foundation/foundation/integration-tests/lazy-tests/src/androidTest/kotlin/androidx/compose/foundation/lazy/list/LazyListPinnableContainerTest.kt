@@ -20,6 +20,7 @@ import android.widget.EditText
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -58,6 +59,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.random.Random
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -830,6 +832,37 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
         rule.runOnIdle { runBlocking { state.scrollToItem(0) } }
         rule.waitForIdle()
         validateLayoutOrder(bottomPinRange)
+    }
+
+    @Test
+    fun noDuplicatePinnedItemsInPinnedItemsListDuringLayout() {
+        val data = mutableStateOf(List(0) { it })
+        val state = LazyListState()
+        var flag = false
+        rule.setContentParameterized {
+            LazyColumn(Modifier.height(700.dp), state = state) {
+                items(data.value) { index ->
+                    val container = LocalPinnableContainer.current
+                    Item(index = index, modifier = Modifier.height(300.dp))
+                    if (index == 19) {
+                        DisposableEffect(Unit) {
+                            flag = true
+                            container?.pin()
+                            onDispose { flag = false }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Repeating to ensure an element with the index of 19 is added to the pinned items list
+        // twice allowing us ot validate that there are no duplicates in the pinned item list.
+        repeat(2) { _ ->
+            rule.runOnIdle { data.value = List(20) { it } }
+            rule.runOnIdle { runBlocking { state.scrollToItem(19) } }
+            rule.runOnIdle { data.value = List(2) { it } }
+            rule.runOnIdle { assertFalse(flag) }
+        }
     }
 }
 

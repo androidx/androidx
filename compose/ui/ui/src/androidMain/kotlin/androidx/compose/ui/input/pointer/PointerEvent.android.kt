@@ -29,10 +29,6 @@ import androidx.annotation.IntDef
 import androidx.collection.LongSparseArray
 import androidx.compose.ui.util.fastForEach
 
-internal actual typealias NativePointerButtons = Int
-
-internal actual typealias NativePointerKeyboardModifiers = Int
-
 /**
  * Restricts Ints to `MotionEvent`'s classification types. See the
  * [Android documentation on MotionEvent.getClassification()]
@@ -219,8 +215,6 @@ internal actual constructor(
             }
         }
 }
-
-internal actual fun EmptyPointerKeyboardModifiers() = PointerKeyboardModifiers(0)
 
 actual val PointerButtons.isPrimaryPressed: Boolean
     get() = packedValue and (MotionEvent.BUTTON_PRIMARY or MotionEvent.BUTTON_STYLUS_PRIMARY) != 0

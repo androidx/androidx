@@ -1006,7 +1006,7 @@ internal fun DrawerPredictiveBackHandler(
         maxScaleYDistance = PredictiveBackDrawerMaxScaleYDistance.toPx()
     }
 
-    PredictiveBackHandler(enabled = drawerState.isOpen) { progress ->
+    PredictiveBackHandler(enabled = drawerState.targetValue == DrawerValue.Open) { progress ->
         try {
             progress.collect { backEvent ->
                 drawerPredictiveBackState.update(

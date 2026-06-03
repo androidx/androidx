@@ -40,10 +40,15 @@ import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
 import androidx.compose.foundation.style.MutableStyleState
 import androidx.compose.foundation.style.Style
 import androidx.compose.foundation.style.StyleScope
+import androidx.compose.foundation.style.animate
+import androidx.compose.foundation.style.border
+import androidx.compose.foundation.style.contentPadding
 import androidx.compose.foundation.style.disabled
+import androidx.compose.foundation.style.externalPadding
 import androidx.compose.foundation.style.focused
 import androidx.compose.foundation.style.hovered
 import androidx.compose.foundation.style.pressed
+import androidx.compose.foundation.style.size
 import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.Button
@@ -64,7 +69,7 @@ import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayoutDraw
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -102,7 +107,7 @@ class StyleBenchmark(val isStyle: Boolean) {
     @Test
     fun basic_box_border_change() {
         textFlag(isStyle) {
-            benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            benchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
                 { BasicBoxTestCase(isStyle) },
                 assertOneRecomposition = false,
                 requireRecomposition = false,
