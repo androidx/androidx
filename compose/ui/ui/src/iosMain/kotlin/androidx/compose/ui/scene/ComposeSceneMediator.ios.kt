@@ -49,6 +49,7 @@ import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.platform.DefaultInputModeManager
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformScreenReader
@@ -200,8 +201,9 @@ internal class ComposeSceneMediator(
     interfaceOrientationState: State<InterfaceOrientation>,
     composeSceneFactory: (
         invalidate: () -> Unit,
-        platformContext: PlatformContext
-    ) -> ComposeScene
+        platformContext: PlatformContext,
+        frameRecomposer: FrameRecomposer,
+    ) -> ComposeScene,
 ) {
     private var onPreviewKeyEvent: (KeyEvent) -> Boolean = { false }
 
@@ -224,10 +226,23 @@ internal class ComposeSceneMediator(
                 }
         }
 
+    // TODO: It must be shared between Compose instances.
+    //  It's supposed to be stored in platform's root view or window.
+    val frameRecomposer = FrameRecomposer(coroutineContext, redrawer::setNeedsRedraw)
+
+    // TODO: It cannot be used in case of shared [FrameRecomposer], replace this helper with calling
+    //  - [frameRecomposer.performFrame] once per frame (across all instances) before platform views layout phase
+    //  - [scene.measureAndLayout] during platform views layout phase. Note that it should be triggered
+    //    by platform view invalidation (which is triggered by [scene.invalidateLayout] OR by regular platform invalidation)
+    //  - [scene.draw] during drawing phase of platform views (which is triggered by [scene.invalidateDraw]).
+    //    Note that in case of custom GPU surface/V-Sync handling, it needs to be handled differently.
+    private val sceneRenderingScope = SingleComposeSceneRenderingScope(redrawer::setNeedsRedraw)
+
     private val scene: ComposeScene by lazy {
         composeSceneFactory(
-            redrawer::setNeedsRedraw,
-            PlatformContextImpl()
+            sceneRenderingScope::onSceneInvalidation,
+            PlatformContextImpl(),
+            frameRecomposer,
         )
     }
 
@@ -393,7 +408,8 @@ internal class ComposeSceneMediator(
     private val textInputService: UIKitTextInputService by lazy {
         UIKitTextInputService(
             updateView = {
-                scene.recomposeAndLayout(lastRenderTime)
+                frameRecomposer.performFrame(lastRenderTime)
+                scene.measureAndLayout()
                 CATransaction.flush()
             },
             view = _overlayView,
@@ -415,7 +431,8 @@ internal class ComposeSceneMediator(
     }
 
     val hasInvalidations: Boolean
-        get() = scene.hasInvalidations() ||
+        get() = frameRecomposer.hasPendingWork() ||
+            scene.hasInvalidations() ||
             keyboardManager.isAnimating ||
             isLayoutTransitionAnimating ||
             semanticsOwnerListener.hasInvalidations ||
@@ -622,7 +639,9 @@ internal class ComposeSceneMediator(
     private var lastRenderTime = CACurrentMediaTime().toNanoSeconds()
     fun render(canvas: Canvas, nanoTime: Long) {
         lastRenderTime = nanoTime
-        scene.render(canvas, nanoTime)
+        with(sceneRenderingScope) {
+            scene.render(frameRecomposer, canvas, nanoTime)
+        }
     }
 
     fun retrieveInteropTransaction(): UIKitInteropTransaction =
@@ -672,6 +691,7 @@ internal class ComposeSceneMediator(
         _backgroundView.removeFromSuperview()
 
         scene.close()
+        frameRecomposer.close()
         interopContainer.dispose()
         semanticsOwnerListener.dispose()
     }

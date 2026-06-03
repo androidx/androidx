@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.node
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SnapshotMutationPolicy
@@ -46,7 +46,8 @@ import androidx.compose.ui.graphics.prepareTransformationMatrix
 import androidx.compose.ui.graphics.skiaImageFilter
 import androidx.compose.ui.graphics.materializeSkiaPath
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.platform.invertTo
+import androidx.compose.ui.platform.isInOutline
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -64,7 +65,7 @@ import org.jetbrains.skia.ShadowUtils
  * Maintained for compatibility purposes.
  *
  * @see androidx.compose.ui.SkikoComposeUiFlags.useLegacyRenderNodeLayers
- * @see GraphicsLayerOwnerLayer
+ * @see androidx.compose.ui.node.GraphicsLayerOwnerLayer
  */
 internal class LegacyRenderNodeLayer(
     private var density: Density,

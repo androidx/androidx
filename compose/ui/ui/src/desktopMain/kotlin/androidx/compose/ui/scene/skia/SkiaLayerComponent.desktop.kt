@@ -50,7 +50,7 @@ internal interface SkiaLayerComponent {
 
     fun dispose()
 
-    fun onComposeInvalidation()
+    fun needRender()
     fun renderImmediately()
     fun onRenderApiChanged(action: () -> Unit)
 }

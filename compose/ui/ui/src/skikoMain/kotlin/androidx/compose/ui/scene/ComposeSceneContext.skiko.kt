@@ -17,7 +17,6 @@
 package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.InternalComposeUiApi
@@ -55,7 +54,6 @@ interface ComposeSceneContext {
     /**
      * Creates a scene layer to display content as a new [LayoutNode] tree.
      *
-     * @param compositionContext The composition context for the layer.
      * @param density The density of the layer.
      * @param layoutDirection The layout direction of the layer.
      * @param focusable Indicates whether the layer is focusable.
@@ -66,7 +64,6 @@ interface ComposeSceneContext {
      * @see ComposeSceneLayer
      */
     fun createLayer(
-        compositionContext: CompositionContext,
         density: Density,
         layoutDirection: LayoutDirection,
         focusable: Boolean,

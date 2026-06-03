@@ -649,6 +649,142 @@ class ComposeSceneTest {
         assertThat(receivedKeyboardModifiers.last()).isEqualTo(keyboardModifiers)
     }
 
+    @Test(timeout = 5000)
+    fun `draw-only model re-runs only draw, in one frame`() =
+        renderingTest(width = 40, height = 40) {
+            var drawModel by mutableStateOf(0)
+            var compositions = 0
+            var measures = 0
+            var places = 0
+            var draws = 0
+
+            setContent {
+                compositions++
+                Layout(
+                    content = {},
+                    modifier = Modifier.drawBehind {
+                        drawModel // read in draw
+                        draws++
+                    },
+                ) { _, _ ->
+                    measures++
+                    layout(10, 10) { places++ }
+                }
+            }
+            awaitNextRender()
+
+            val c = compositions; val m = measures; val p = places; val d = draws
+            drawModel = 1
+            awaitNextRender()
+            kotlin.test.assertFalse(hasRenders())
+
+            assertEquals(c, compositions, "no recomposition")
+            assertEquals(m, measures, "no measure")
+            assertEquals(p, places, "no place")
+            assertEquals(d + 1, draws, "exactly one redraw")
+        }
+
+    @Test(timeout = 5000)
+    fun `measure model re-runs measure+place+draw, in one frame`() =
+        renderingTest(width = 40, height = 40) {
+            var measureModel by mutableStateOf(10)
+            var compositions = 0
+            var measures = 0
+            var places = 0
+            var draws = 0
+
+            setContent {
+                compositions++
+                Layout(
+                    content = {},
+                    modifier = Modifier.drawBehind { draws++ },
+                ) { _, _ ->
+                    measures++
+                    layout(measureModel, 10) { places++ } // read in measure
+                }
+            }
+            awaitNextRender()
+
+            val c = compositions; val m = measures; val p = places; val d = draws
+            measureModel = 20
+            awaitNextRender()
+            kotlin.test.assertFalse(hasRenders())
+
+            assertEquals(c, compositions, "no recomposition")
+            assertEquals(m + 1, measures, "exactly one measure")
+            assertEquals(p + 1, places, "exactly one place (remeasure -> relayout)")
+            assertEquals(d + 1, draws, "exactly one redraw")
+        }
+
+    @Test(timeout = 5000)
+    fun `place-only model re-runs place but not draw, in one frame`() =
+        renderingTest(width = 40, height = 40) {
+            var placeModel by mutableStateOf(0)
+            var compositions = 0
+            var measures = 0
+            var places = 0
+            var draws = 0
+
+            setContent {
+                compositions++
+                Layout(
+                    content = {},
+                    modifier = Modifier.drawBehind { draws++ },
+                ) { _, _ ->
+                    measures++
+                    layout(10, 10) {
+                        placeModel // read in placement
+                        places++
+                    }
+                }
+            }
+            awaitNextRender()
+
+            val c = compositions; val m = measures; val p = places; val d = draws
+            placeModel = 1
+            awaitNextRender()
+            kotlin.test.assertFalse(hasRenders())
+
+            assertEquals(c, compositions, "no recomposition")
+            assertEquals(m, measures, "no measure")
+            assertEquals(p + 1, places, "exactly one re-place")
+            // Android: a re-position replays the cached draw layer without re-running drawBehind.
+            assertEquals(d, draws, "no redraw on re-position")
+        }
+
+    @Test(timeout = 5000)
+    fun `recompose changing size re-runs all phases, in one frame`() =
+        renderingTest(width = 40, height = 40) {
+            var size by mutableStateOf(10)
+            var compositions = 0
+            var measures = 0
+            var places = 0
+            var draws = 0
+
+            setContent {
+                compositions++
+                val s = size // read in composition
+                Layout(
+                    content = {},
+                    modifier = Modifier.drawBehind { draws++ },
+                ) { _, _ ->
+                    measures++
+                    layout(s, s) { places++ }
+                }
+            }
+            awaitNextRender()
+
+            val c = compositions; val m = measures; val p = places; val d = draws
+            size = 20
+            awaitNextRender()
+            kotlin.test.assertFalse(hasRenders())
+
+            assertEquals(c + 1, compositions, "exactly one recomposition")
+            assertEquals(m + 1, measures, "exactly one measure")
+            assertEquals(p + 1, places, "exactly one place")
+            assertEquals(d + 1, draws, "exactly one redraw")
+        }
+
     @Test(expected = TestException::class)
     fun `catch exception in LaunchedEffect`() {
         runBlocking(Dispatchers.Main) {

@@ -28,7 +28,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.unit.IntSize
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -40,104 +42,154 @@ class BaseComposeSceneTest {
 
     @Test
     fun testMoveEventsConsumption() = runTest(StandardTestDispatcher()) {
-        val scenes: List<ComposeScene> = listOf(
-            PlatformLayersComposeScene(size = IntSize(100, 100)),
-            CanvasLayersComposeScene(size = IntSize(100, 100))
+        val scenes = listOf(
+            createPlatformLayersScene(coroutineContext, IntSize(100, 100)),
+            createCanvasLayersScene(coroutineContext, IntSize(100, 100))
         )
 
-        scenes.forEach { scene ->
-            var consumeAll = false
-            scene.setContent {
-                Box(modifier = Modifier.fillMaxSize().pointerInput(PointerEventPass.Initial) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            if (consumeAll) {
-                                event.changes.forEach {
-                                    if ((it.previousPosition - it.position) != Offset.Zero) it.consume()
+        try {
+            scenes.forEach { (scene, _) ->
+                var consumeAll = false
+                scene.setContent {
+                    Box(modifier = Modifier.fillMaxSize().pointerInput(PointerEventPass.Initial) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                if (consumeAll) {
+                                    event.changes.forEach {
+                                        if ((it.previousPosition - it.position) != Offset.Zero) it.consume()
+                                    }
                                 }
                             }
                         }
-                    }
-                })
+                    })
+                }
+                scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+                assertFalse(
+                    scene.sendPointerEvent(PointerEventType.Move, Offset(11f, 10f))
+                        .anyMovementConsumed
+                )
+                assertFalse(
+                    scene.sendPointerEvent(PointerEventType.Release, Offset(12f, 10f))
+                        .anyMovementConsumed
+                )
+
+                consumeAll = true
+
+                scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+                assertTrue(
+                    scene.sendPointerEvent(PointerEventType.Move, Offset(11f, 10f))
+                        .anyMovementConsumed
+                )
+                assertTrue(
+                    scene.sendPointerEvent(PointerEventType.Release, Offset(12f, 10f))
+                        .anyMovementConsumed
+                )
             }
-            scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-            assertFalse(
-                scene.sendPointerEvent(PointerEventType.Move, Offset(11f, 10f))
-                    .anyMovementConsumed
-            )
-            assertFalse(
-                scene.sendPointerEvent(PointerEventType.Release, Offset(12f, 10f))
-                    .anyMovementConsumed
-            )
-
-            consumeAll = true
-
-            scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-            assertTrue(
-                scene.sendPointerEvent(PointerEventType.Move, Offset(11f, 10f))
-                    .anyMovementConsumed
-            )
-            assertTrue(
-                scene.sendPointerEvent(PointerEventType.Release, Offset(12f, 10f))
-                    .anyMovementConsumed
-            )
+        } finally {
+            scenes.forEach { (_, dispose) -> dispose.close() }
         }
     }
 
     @Test
     fun cancelAllPointersShouldCancelInputCoroutines() = runTest(StandardTestDispatcher()) {
-        val scenes: List<ComposeScene> = listOf(
-            PlatformLayersComposeScene(size = IntSize(100, 100)),
-            CanvasLayersComposeScene(size = IntSize(100, 100))
+        val scenes = listOf(
+            createPlatformLayersScene(coroutineContext, IntSize(100, 100)),
+            createCanvasLayersScene(coroutineContext, IntSize(100, 100))
         )
 
-        scenes.forEach { scene ->
-            var cancellationsCount = 0
-            scene.setContent {
-                Box(modifier = Modifier.fillMaxSize().onCancel {
-                    cancellationsCount++
-                })
+        try {
+            scenes.forEach { (scene, _) ->
+                var cancellationsCount = 0
+                scene.setContent {
+                    Box(modifier = Modifier.fillMaxSize().onCancel {
+                        cancellationsCount++
+                    })
+                }
+
+                scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+                scene.cancelPointerInput()
+
+                assertEquals(1, cancellationsCount)
             }
-
-            scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-            scene.cancelPointerInput()
-
-            assertEquals(1, cancellationsCount)
+        } finally {
+            scenes.forEach { (_, dispose) -> dispose.close() }
         }
     }
 
     @Test
     fun cancelAllPointersShouldCancelClicks() = runTest(StandardTestDispatcher()) {
-        val scenes: List<ComposeScene> = listOf(
-            PlatformLayersComposeScene(size = IntSize(100, 100)),
-            CanvasLayersComposeScene(size = IntSize(100, 100))
+        val scenes = listOf(
+            createPlatformLayersScene(coroutineContext, IntSize(100, 100)),
+            createCanvasLayersScene(coroutineContext, IntSize(100, 100))
         )
 
-        scenes.forEach { scene ->
-            var clicksCount = 0
-            scene.setContent {
-                Box(modifier = Modifier.fillMaxSize().clickable {
-                    clicksCount++
-                })
+        try {
+            scenes.forEach { (scene, _) ->
+                var clicksCount = 0
+                scene.setContent {
+                    Box(modifier = Modifier.fillMaxSize().clickable {
+                        clicksCount++
+                    })
+                }
+
+                // Perform first click
+                scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+                scene.sendPointerEvent(PointerEventType.Release, Offset(40f, 40f))
+
+                // Start and cancel click
+                scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+                scene.cancelPointerInput()
+                scene.sendPointerEvent(PointerEventType.Release, Offset(40f, 40f))
+
+                // Perform second click
+                scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+                scene.sendPointerEvent(PointerEventType.Release, Offset(40f, 40f))
+
+                // Should be only two clicks
+                assertEquals(2, clicksCount)
             }
-
-            // Perform first click
-            scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-            scene.sendPointerEvent(PointerEventType.Release, Offset(40f, 40f))
-
-            // Start and cancel click
-            scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-            scene.cancelPointerInput()
-            scene.sendPointerEvent(PointerEventType.Release, Offset(40f, 40f))
-
-            // Perform second click
-            scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-            scene.sendPointerEvent(PointerEventType.Release, Offset(40f, 40f))
-
-            // Should be only two clicks
-            assertEquals(2, clicksCount)
+        } finally {
+            scenes.forEach { (_, dispose) -> dispose.close() }
         }
+    }
+}
+
+private fun createPlatformLayersScene(
+    coroutineContext: CoroutineContext,
+    size: IntSize,
+    invalidateLayout: () -> Unit = {},
+    invalidateDraw: () -> Unit = {},
+): Pair<ComposeScene, AutoCloseable> {
+    val frameRecomposer = FrameRecomposer(coroutineContext)
+    val scene = PlatformLayersComposeScene(
+        frameRecomposer = frameRecomposer,
+        size = size,
+        invalidateLayout = invalidateLayout,
+        invalidateDraw = invalidateDraw,
+    )
+    return scene to AutoCloseable {
+        scene.close()
+        frameRecomposer.close()
+    }
+}
+
+private fun createCanvasLayersScene(
+    coroutineContext: CoroutineContext,
+    size: IntSize,
+    invalidateLayout: () -> Unit = {},
+    invalidateDraw: () -> Unit = {},
+): Pair<ComposeScene, AutoCloseable> {
+    val frameRecomposer = FrameRecomposer(coroutineContext)
+    val scene = CanvasLayersComposeScene(
+        frameRecomposer = frameRecomposer,
+        size = size,
+        invalidateLayout = invalidateLayout,
+        invalidateDraw = invalidateDraw,
+    )
+    return scene to AutoCloseable {
+        scene.close()
+        frameRecomposer.close()
     }
 }
 

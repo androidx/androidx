@@ -17,7 +17,6 @@
 package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +25,7 @@ import androidx.compose.ui.SystemTheme
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.MotionDurationScaleImpl
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -229,8 +229,8 @@ internal class ComposeContainer(
             architectureComponentsOwner = architectureComponentsOwner,
             coroutineContext = sceneCoroutineContext,
             redrawer = metalView.redrawer,
-            composeSceneFactory = { invalidate, context ->
-                createComposeScene(invalidate, context, holder, sceneCoroutineContext)
+            composeSceneFactory = { invalidate, context, frameRecomposer ->
+                createComposeScene(invalidate, context, holder, frameRecomposer)
             },
             navigationEventInput = navigationEventInput,
             interfaceOrientationState = interfaceOrientationState,
@@ -288,13 +288,13 @@ internal class ComposeContainer(
 
     private fun createComposeSceneContext(
         platformContext: PlatformContext,
-        layersHolder: ComposeLayersHolder
+        layersHolder: ComposeLayersHolder,
+        frameRecomposer: FrameRecomposer,
     ): ComposeSceneContext {
         return object : ComposeSceneContext {
             override val platformContext: PlatformContext = platformContext
 
             override fun createLayer(
-                compositionContext: CompositionContext,
                 density: Density,
                 layoutDirection: LayoutDirection,
                 focusable: Boolean,
@@ -305,7 +305,9 @@ internal class ComposeContainer(
                         layersHolder.getLayersViewController().detach(it)
                         onFocusConditionsChanged()
                     },
-                    createComposeSceneContext = { createComposeSceneContext(it, layersHolder) },
+                    createComposeSceneContext = {
+                        createComposeSceneContext(it, layersHolder, frameRecomposer)
+                    },
                     hostCompositionLocals = { ProvideContainerCompositionLocals(it) },
                     layersViewController = layersHolder.getLayersViewController(),
                     initialLayoutDirection = layoutDirection,
@@ -313,7 +315,7 @@ internal class ComposeContainer(
                     onFocusConditionsChanged = ::onFocusConditionsChanged,
                     focusedViewsList = if (focusable) focusedViewsList.childFocusedViewsList() else null,
                     consumePointerInputOutside = consumePointerInputOutside,
-                    parentCoroutineContext = compositionContext.effectCoroutineContext,
+                    parentCoroutineContext = frameRecomposer.compositionContext.effectCoroutineContext,
                     ownerProvider = architectureComponentsOwner,
                     interfaceOrientationState = interfaceOrientationState,
                 )
@@ -330,16 +332,20 @@ internal class ComposeContainer(
         invalidate: () -> Unit,
         platformContext: PlatformContext,
         layersHolder: ComposeLayersHolder,
-        coroutineContext: CoroutineContext
+        frameRecomposer: FrameRecomposer,
     ): ComposeScene = PlatformLayersComposeScene(
+        frameRecomposer = frameRecomposer,
         density = view.density,
         layoutDirection = layoutDirection,
-        coroutineContext = coroutineContext,
         composeSceneContext = createComposeSceneContext(
             platformContext = platformContext,
-            layersHolder = layersHolder
+            layersHolder = layersHolder,
+            frameRecomposer = frameRecomposer,
         ),
-        invalidate = invalidate,
+        // TODO: Split these into UIKit layout vs display invalidation. `invalidateLayout`
+        // should call into layout scheduling, while `invalidateDraw` should schedule display.
+        invalidateLayout = invalidate,
+        invalidateDraw = invalidate,
     )
 
     /**

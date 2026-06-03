@@ -166,7 +166,7 @@ internal class WindowSkiaLayerComponent(
         isDisposed = true
     }
 
-    override fun onComposeInvalidation() {
+    override fun needRender() {
         if (!isDisposed) {
             hierarchyRoot.needRender()
         }

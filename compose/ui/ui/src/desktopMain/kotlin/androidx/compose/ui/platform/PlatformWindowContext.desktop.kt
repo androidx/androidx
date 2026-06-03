@@ -33,6 +33,7 @@ import java.awt.Container
 import java.awt.Frame
 import java.awt.Point
 import javax.swing.SwingUtilities
+import javax.swing.SwingUtilities.isEventDispatchThread
 
 /**
  * Tracking a state of window.
@@ -80,6 +81,9 @@ internal class PlatformWindowContext {
         component: Component,
         block: (locationOnScreen: Offset) -> Offset
     ): Offset {
+        check(isEventDispatchThread()) {
+            "Swing hierarchy should be accessed only from AWT Event Dispatch Thread"
+        }
         if (!component.isShowing) return Offset.Unspecified
 
         val frame = SwingUtilities.getWindowAncestor(component) as? Frame

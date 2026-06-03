@@ -184,9 +184,12 @@ internal class SwingComposeSceneLayer(
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
         val density = container.density
         return PlatformLayersComposeScene(
-            coroutineContext = mediator.coroutineContext,
+            frameRecomposer = mediator.frameRecomposer,
             density = density,
-            invalidate = mediator::onComposeInvalidation,
+            // TODO: Route layout invalidations through Swing layout and draw invalidations
+            // through repaint instead of collapsing both to `onComposeInvalidation`.
+            invalidateLayout = mediator::onComposeInvalidation,
+            invalidateDraw = mediator::onComposeInvalidation,
             layoutDirection = layoutDirection,
             composeSceneContext = composeContainer.createComposeSceneContext(
                 platformContext = mediator.platformContext

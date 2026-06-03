@@ -96,8 +96,12 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 
 class ComposePanelTest {
+    @get:Rule
+    val timeout: Timeout = Timeout.seconds(60)
+
     @get:Rule
     val throwUncaughtExceptionRule = ThrowUncaughtExceptionRule()
 

@@ -122,7 +122,7 @@ internal class SwingSkiaLayerComponent(
         hierarchyRoot.dispose()
     }
 
-    override fun onComposeInvalidation() {
+    override fun needRender() {
         hierarchyRoot.repaint()
     }
 

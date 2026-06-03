@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.MacosTextInputService
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.scene.CanvasLayersComposeScene
+import androidx.compose.ui.scene.SingleComposeSceneRenderingScope
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -96,6 +98,19 @@ private class ComposeWindow(
         isWindowFocused = true
     }
     private val archComponentsOwner = DefaultArchitectureComponentsOwner()
+
+    // TODO: It must be shared between Compose instances.
+    //  It's supposed to be stored in platform's root view or window.
+    private val frameRecomposer = FrameRecomposer(Dispatchers.Main) { skiaLayer.needRender() }
+
+    // TODO: It cannot be used in case of shared [FrameRecomposer], replace this helper with calling
+    //  - [frameRecomposer.performFrame] once per frame (across all instances) before platform views layout phase
+    //  - [scene.measureAndLayout] during platform views layout phase. Note that it should be triggered
+    //    by platform view invalidation (which is triggered by [scene.invalidateLayout] OR by regular platform invalidation)
+    //  - [scene.draw] during drawing phase of platform views (which is triggered by [scene.invalidateDraw]).
+    //    Note that in case of custom GPU surface/V-Sync handling, it needs to be handled differently.
+    private val sceneRenderingScope = SingleComposeSceneRenderingScope { skiaLayer.needRender() }
+
     private val platformContext: PlatformContext =
         object : PlatformContext by PlatformContext.Empty() {
             override val windowInfo get() = _windowInfo
@@ -108,9 +123,12 @@ private class ComposeWindow(
         }
     private val skiaLayer = SkiaLayer()
     private val scene = CanvasLayersComposeScene(
-        coroutineContext = Dispatchers.Main,
+        frameRecomposer = frameRecomposer,
         platformContext = platformContext,
-        invalidate = skiaLayer::needRender,
+        // TODO: Route these to distinct AppKit invalidation paths: layout work should use
+        // native layout scheduling, while draw work should only mark display dirty.
+        invalidateLayout = sceneRenderingScope::onSceneInvalidation,
+        invalidateDraw = sceneRenderingScope::onSceneInvalidation,
     )
     private val renderDelegate = object : SkikoRenderDelegate {
         override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
@@ -118,7 +136,9 @@ private class ComposeWindow(
             _windowInfo.containerSize = sizeInPx
             _windowInfo.containerDpSize = sizeInPx.toSize().toDpSize(scene.density)
             scene.size = sizeInPx // TODO: Move it out from onRender to avoid extra invalidation
-            scene.render(canvas.asComposeCanvas(), nanoTime)
+            with(sceneRenderingScope) {
+                scene.render(frameRecomposer, canvas.asComposeCanvas(), nanoTime)
+            }
         }
     }
 
@@ -233,6 +253,7 @@ private class ComposeWindow(
         archComponentsOwner.viewModelStore.clear()
         skiaLayer.detach()
         scene.close()
+        frameRecomposer.close()
         isDisposed = true
     }
 

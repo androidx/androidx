@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.node
 
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.geometry.MutableRect
@@ -39,7 +39,8 @@ import androidx.compose.ui.graphics.layer.setOutline
 import androidx.compose.ui.graphics.prepareTransformationMatrix
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.internal.requirePrecondition
-import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.platform.invertTo
+import androidx.compose.ui.platform.isInOutline
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize

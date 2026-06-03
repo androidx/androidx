@@ -18,6 +18,7 @@ package androidx.compose.ui.scene
 
 import androidx.annotation.CallSuper
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
@@ -115,7 +116,11 @@ internal abstract class DesktopComposeSceneLayer(
         drawBoundsRecorder = null
     }
 
-    final override fun setContent(content: @Composable () -> Unit) {
+    final override fun setContent(
+        parentCompositionContext: CompositionContext,
+        content: @Composable () -> Unit,
+    ) {
+        // TODO: pass [parentCompositionContext] once a shared [Recomposer] exists.
         mediator?.setContent(content)
     }
 

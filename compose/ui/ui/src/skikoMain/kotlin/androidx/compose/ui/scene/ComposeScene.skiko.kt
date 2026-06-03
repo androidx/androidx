@@ -17,12 +17,12 @@
 package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.currentTimeMillis
@@ -159,18 +159,25 @@ sealed interface ComposeScene : AutoCloseable {
     fun invalidatePositionOnScreen()
 
     /**
-     * Returns whether there are pending recompositions, renders, or dispatched tasks.
+     * Returns whether there is pending measure or layout work for this scene.
      * Can be called from any thread.
-     *
-     * Note that changes to snapshot state don't immediately trigger an invalidation.
-     * To guarantee that there are no changes expected in the scene use
-     * ```
-     * !Snapshot.current.hasPendingChanges()
-     *     && !Snapshot.isApplyObserverNotificationPending
-     *     && !scene.hasInvalidations()
-     * ```
      */
-    fun hasInvalidations(): Boolean
+    val hasPendingMeasureOrLayout: Boolean
+
+    /**
+     * Returns whether there is pending draw work for this scene.
+     * Can be called from any thread.
+     */
+    val hasPendingDraw: Boolean
+
+    /**
+     * Returns whether the scene has queued snapshot-observer callbacks that have not been
+     * performed yet. The scene drains these synchronously inside [measureAndLayout] and [draw],
+     * so this is mainly useful for test harnesses that decide when to drive the next frame after
+     * snapshot writes happen outside the scene's input/render paths.
+     * Can be called from any thread.
+     */
+    val hasPendingSnapshotCommands: Boolean
 
     /**
      * Update the composition with the content described by the [content] composable. After this
@@ -179,22 +186,24 @@ sealed interface ComposeScene : AutoCloseable {
      *
      * Will throw an [IllegalStateException] if the composition has been disposed.
      *
+     * @param parentCompositionContext The parent [CompositionContext] of the content's composition.
+     * When `null`, root [androidx.compose.runtime.Recomposer] is used.
      * @param content Content of the [ComposeScene]
      */
-    fun setContent(content: @Composable () -> Unit)
+    fun setContent(
+        parentCompositionContext: CompositionContext? = null,
+        content: @Composable () -> Unit,
+    )
 
     /**
-     * Render the current content on [canvas]. Passed [nanoTime] will be used to drive all
-     * animations in the content (or any other code, which uses [withFrameNanos]
+     * Runs layout for the current scene content.
      */
-    fun render(canvas: Canvas, nanoTime: Long)
+    fun measureAndLayout()
 
     /**
-     * Performs pending recompositions and layout passes without rendering.
-     *
-     * @param nanoTime the time to use for animations and any other code that uses [withFrameNanos]
+     * Draws the current scene content into [canvas].
      */
-    fun recomposeAndLayout(nanoTime: Long)
+    fun draw(canvas: Canvas)
 
     /**
      * Send pointer event to the content.
@@ -299,16 +308,18 @@ sealed interface ComposeScene : AutoCloseable {
     fun hitTestInteropView(position: Offset): InteropView?
 
     /**
-     * Run the [block] in a coroutine with a [androidx.compose.runtime.MonotonicFrameClock] instance
-     * provided by the [androidx.compose.runtime.Recomposer] of the current scene.
-     */
-    suspend fun withMonotonicFrameClock(block: suspend () -> Unit)
-
-    /**
      * Set the visual debug option that shows bounds for all nodes in the hierarchy.
      */
     var showLayoutBounds: Boolean
 }
+
+/**
+ * Returns whether there are pending layout work, renders, or dispatched tasks.
+ * Can be called from any thread.
+ */
+@InternalComposeUiApi
+fun ComposeScene.hasInvalidations(): Boolean =
+    hasPendingMeasureOrLayout || hasPendingDraw || hasPendingSnapshotCommands
 
 /**
  * Returns the current content size (in pixels) in infinity constraints.

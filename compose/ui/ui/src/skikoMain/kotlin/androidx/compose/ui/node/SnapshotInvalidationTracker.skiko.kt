@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.makeSynchronizedObject
 import androidx.compose.ui.internal.getCurrentThreadId
 import androidx.compose.ui.platform.synchronized
@@ -33,8 +32,6 @@ internal class SnapshotInvalidationTracker(
     private val invalidate: () -> Unit = {}
 ) {
     private val snapshotChanges = CommandList(invalidate)
-    private var needMeasureAndLayout = true
-    private var needDraw = true
 
     /**
      * The id of the thread currently inside [performSnapshotChangesSynchronously].
@@ -43,25 +40,31 @@ internal class SnapshotInvalidationTracker(
      */
     private var renderingThreadId: Long? by atomic(null)
 
-    val hasInvalidations: Boolean
-        get() = needMeasureAndLayout || needDraw || snapshotChanges.hasCommands
+    val hasPendingSnapshotCommands: Boolean
+        get() = snapshotChanges.hasCommands
+
+    var hasPendingMeasureOrLayout: Boolean = true
+        private set
+
+    var hasPendingDraw: Boolean = true
+        private set
 
     fun requestMeasureAndLayout() {
-        needMeasureAndLayout = true
+        hasPendingMeasureOrLayout = true
         invalidate()
     }
 
     fun onMeasureAndLayout() {
-        needMeasureAndLayout = false
+        hasPendingMeasureOrLayout = false
     }
 
     fun requestDraw() {
-        needDraw = true
+        hasPendingDraw = true
         invalidate()
     }
 
     fun onDraw() {
-        needDraw = false
+        hasPendingDraw = false
     }
 
     /**
@@ -77,10 +80,9 @@ internal class SnapshotInvalidationTracker(
     }
 
     /**
-     * Sends any pending apply notifications and performs the changes they cause.
+     * Performs pending snapshot observer callbacks without sending new apply notifications.
      */
-    fun sendAndPerformSnapshotChanges() {
-        Snapshot.sendApplyNotifications()
+    fun performSnapshotChanges() {
         snapshotChanges.perform()
     }
 
@@ -115,9 +117,10 @@ private class CommandList(
      *
      * Can be called concurrently from multiple threads.
      */
-    val hasCommands: Boolean get() = synchronized(lock) {
-        list.isNotEmpty()
-    }
+    val hasCommands: Boolean
+        get() = synchronized(lock) {
+            list.isNotEmpty()
+        }
 
     /**
      * Add command to the list, and notify observer via [onNewCommand].

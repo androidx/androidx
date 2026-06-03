@@ -21,9 +21,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -36,26 +38,30 @@ class CanvasLayersComposeSceneTest {
     @Test
     fun sceneSizeChangeTriggersInvalidation() = runTest(StandardTestDispatcher()) {
         var invalidationCount = 0
+        val frameRecomposer = FrameRecomposer(coroutineContext)
         CanvasLayersComposeScene(
+            frameRecomposer = frameRecomposer,
             size = IntSize(100, 100),
-            coroutineContext = coroutineContext,
-            invalidate = { invalidationCount++ }
+            invalidateLayout = { invalidationCount++ },
+            invalidateDraw = { invalidationCount++ },
         ).use { scene ->
             scene.setContent { Box(Modifier.fillMaxSize()) }
 
-            assertEquals(1, invalidationCount)
-            scene.size = IntSize(120, 120)
             assertEquals(2, invalidationCount)
+            scene.size = IntSize(120, 120)
+            assertEquals(4, invalidationCount)
         }
+        frameRecomposer.close()
     }
 
     @Test
     fun cancelClickForGestureOwner() = runTest(StandardTestDispatcher()) {
         var rootCancelled = false
         var popupCancelled = false
+        val frameRecomposer = FrameRecomposer(coroutineContext)
         CanvasLayersComposeScene(
+            frameRecomposer = frameRecomposer,
             size = IntSize(100, 100),
-            coroutineContext = coroutineContext,
         ).use { scene ->
             scene.setContent {
                 Box(modifier = Modifier.fillMaxSize().onCancel { rootCancelled = true })
@@ -71,5 +77,6 @@ class CanvasLayersComposeSceneTest {
             assertFalse(rootCancelled)
             assertTrue(popupCancelled)
         }
+        frameRecomposer.close()
     }
 }

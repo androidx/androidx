@@ -30,6 +30,7 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.isAltPressed
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.scene.CanvasLayersComposeScene
@@ -82,7 +83,10 @@ class OnClickTest {
     @OptIn(ExperimentalFoundationApi::class, ExperimentalCoroutinesApi::class)
     @Test
     fun simpleClickWithoutMove() = runTest {
-        val scene = CanvasLayersComposeScene(coroutineContext = coroutineContext)
+        val frameRecomposer = FrameRecomposer(coroutineContext)
+        val scene = CanvasLayersComposeScene(
+            frameRecomposer = frameRecomposer,
+        )
         try {
             scene.size = IntSize(100, 100)
             scene.setContent {
@@ -105,6 +109,7 @@ class OnClickTest {
             )
         } finally {
             scene.close()
+            frameRecomposer.close()
         }
     }
 

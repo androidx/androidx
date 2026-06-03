@@ -56,12 +56,17 @@ import org.jetbrains.skiko.MainUIDispatcher
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.junit.Assume
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 
 // A copy of ComposeWindowTest adapted for ComposeDialog. Don't change it, if it isn't specific for ComposeDialog.
 // A copy because it is better to keep tests less abstract, and we can't properly abstract away from JFrame/JDialog.
 @OptIn(ExperimentalComposeUiApi::class)
 class ComposeDialogTest {
+    @get:Rule
+    val timeout: Timeout = Timeout.seconds(60)
+
     @Test
     fun `catch exception on setContent`() = runApplicationTest {
         val caughtExceptions = mutableListOf<Throwable>()

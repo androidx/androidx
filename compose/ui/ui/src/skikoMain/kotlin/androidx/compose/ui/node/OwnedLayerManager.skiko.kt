@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.node
 
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.node.OwnedLayer
 
 // TODO: It's a good candidate for moving to commonMain because AndroidComposeView reference inside
 //  GraphicsLayerOwnerLayer might be limited only to this (AndroidComposeView already compatible)
@@ -38,7 +37,7 @@ internal interface OwnedLayerManager {
     fun recycle(layer: OwnedLayer): Boolean = false
 
     fun notifyLayerIsDirty(layer: OwnedLayer, isDirty: Boolean) = Unit
-    
+
     /**
      * Triggers redrawing of Compose content during the next frame.
      */

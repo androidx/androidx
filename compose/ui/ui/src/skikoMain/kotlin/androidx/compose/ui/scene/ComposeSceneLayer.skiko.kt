@@ -18,6 +18,7 @@ package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.remember
@@ -125,9 +126,10 @@ interface ComposeSceneLayer {
      *
      * Will throw an [IllegalStateException] if the composition has been disposed.
      *
+     * @param parentCompositionContext The parent [CompositionContext] for the layer's content.
      * @param content Content of the [ComposeScene]
      */
-    fun setContent(content: @Composable () -> Unit)
+    fun setContent(parentCompositionContext: CompositionContext, content: @Composable () -> Unit)
 
     /**
      * Sets the root key event listener.
@@ -187,11 +189,9 @@ internal fun rememberComposeSceneLayer(
     val sceneContext = LocalComposeSceneContext.requireCurrent()
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
-    val parentComposition = rememberCompositionContext()
     val compositionLocalContext = currentCompositionLocalContext
     val layer = remember {
         sceneContext.createLayer(
-            compositionContext = parentComposition,
             density = density,
             layoutDirection = layoutDirection,
             focusable = focusable,
@@ -211,9 +211,12 @@ internal fun rememberComposeSceneLayer(
  * Sets the content of the layer to [content].
  */
 @Composable
-internal fun ComposeSceneLayer.Content(content: @Composable () -> Unit) {
+internal fun ComposeSceneLayer.Content(
+    parentCompositionContext: CompositionContext = rememberCompositionContext(),
+    content: @Composable () -> Unit,
+) {
     DisposableEffect(this, content) {
-        setContent(content)
+        setContent(parentCompositionContext, content)
         onDispose { }
     }
 }

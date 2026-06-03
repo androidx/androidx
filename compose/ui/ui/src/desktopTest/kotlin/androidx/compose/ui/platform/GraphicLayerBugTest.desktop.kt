@@ -47,7 +47,7 @@ class GraphicLayerBugDesktopTest {
     // sendApplyNotifications can be called anywhere. When it was called inside composition, it triggers wrongly written observers
     @Test
     fun `no crash when sendApplyNotifications performed in composition`() {
-        runLayerSceneTest { scene ->
+        runLayerSceneTest { scene, frameDispatcher ->
             val canvas = Surface.makeRasterN32Premul(100, 100).canvas
 
             var triggerApplySnapshot by mutableStateOf(false)
@@ -63,18 +63,22 @@ class GraphicLayerBugDesktopTest {
             }
 
             repeat(10) {
-                scene.render(canvas.asComposeCanvas(), it * 100L)
+                frameDispatcher.performFrame(it * 100L)
+                scene.measureAndLayout()
+                scene.draw(canvas.asComposeCanvas())
             }
 
             triggerApplySnapshot = true
 
             repeat(10) {
-                scene.render(canvas.asComposeCanvas(), 1000 + it * 100L)
+                frameDispatcher.performFrame(1000 + it * 100L)
+                scene.measureAndLayout()
+                scene.draw(canvas.asComposeCanvas())
             }
         }
     }
 
-    private fun runLayerSceneTest(body: CoroutineScope.(ComposeScene) -> Unit) {
+    private fun runLayerSceneTest(body: CoroutineScope.(ComposeScene, FrameRecomposer) -> Unit) {
         var coroutineException: Throwable? = null
 
         // catching recomposition exceptions this way because of https://youtrack.jetbrains.com/issue/CMP-6734/ComposeScene-doesnt-catch-exceptions-during-recomposition
@@ -84,8 +88,15 @@ class GraphicLayerBugDesktopTest {
                 coroutineException = throwable
             }
         ) {
-            CanvasLayersComposeScene(coroutineContext = coroutineContext).use {
-                body(it)
+            val frameRecomposer = FrameRecomposer(coroutineContext)
+            val scene = CanvasLayersComposeScene(
+                frameRecomposer = frameRecomposer,
+            )
+            try {
+                body(scene, frameRecomposer)
+            } finally {
+                scene.close()
+                frameRecomposer.close()
             }
         }
 

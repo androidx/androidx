@@ -20,10 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -40,6 +38,7 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.node.RootNodeOwner
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
@@ -55,7 +54,6 @@ import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.window.getDialogScrimBlendMode
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.Dispatchers
 
 /**
  * Constructs a multi-layer [ComposeScene] using the specified parameters. Unlike
@@ -66,54 +64,58 @@ import kotlinx.coroutines.Dispatchers
  * After [ComposeScene] will no longer needed, you should call [ComposeScene.close] method, so
  * all resources and subscriptions will be properly closed. Otherwise, there can be a memory leak.
  *
+ * @param frameRecomposer The host-owned recomposer and frame clock that drives this scene. The
+ * scene launches its content effects on [FrameRecomposer.compositionContext]'s effect context, so
+ * effects and animations are performed by the host's [FrameRecomposer.performFrame].
  * @param density Initial density of the content which will be used to convert [Dp] units.
  * @param layoutDirection Initial layout direction of the content.
  * @param size The size of the [ComposeScene]. Default value is `null`, which means the size will be
  * determined by the content.
- * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
- * [rememberCoroutineScope]) and run recompositions.
  * @param platformContext The the platform-specific context used for platform interaction.
- * @param invalidate The function to be called when the content need to be recomposed or
- * re-rendered. If you draw your content using [ComposeScene.render] method, in this callback you
- * should schedule the next [ComposeScene.render] in your rendering loop.
+ * @param invalidateLayout The function to be called when the content requires another
+ * measure/layout pass.
+ * @param invalidateDraw The function to be called when the content requires another draw pass.
  * @return The created [ComposeScene].
  *
  * @see ComposeScene
  */
 @InternalComposeUiApi
 fun CanvasLayersComposeScene(
+    frameRecomposer: FrameRecomposer,
     density: Density = Density(1f),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     size: IntSize? = null,
-    // TODO: Remove `Dispatchers.Unconfined` as a default
-    coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     platformContext: PlatformContext = PlatformContext.Empty(),
-    invalidate: () -> Unit = {},
+    invalidateLayout: () -> Unit = {},
+    invalidateDraw: () -> Unit = {},
 ): ComposeScene = CanvasLayersComposeSceneImpl(
+    frameRecomposer = frameRecomposer,
     density = density,
     layoutDirection = layoutDirection,
     size = size,
-    coroutineContext = coroutineContext,
     platformContext = platformContext,
-    invalidate = invalidate
+    invalidateLayout = invalidateLayout,
+    invalidateDraw = invalidateDraw,
 )
 
 private class CanvasLayersComposeSceneImpl(
+    frameRecomposer: FrameRecomposer,
     density: Density,
     layoutDirection: LayoutDirection,
     size: IntSize?,
-    coroutineContext: CoroutineContext,
     override val platformContext: PlatformContext,
-    invalidate: () -> Unit = {},
+    invalidateLayout: () -> Unit = {},
+    invalidateDraw: () -> Unit = {},
 ) : BaseComposeScene(
-    coroutineContext = coroutineContext,
-    invalidate = invalidate
+    frameRecomposer = frameRecomposer,
+    invalidateLayout = invalidateLayout,
+    invalidateDraw = invalidateDraw,
 ), ComposeSceneContext {
     private val mainOwner = RootNodeOwner(
         density = density,
         layoutDirection = layoutDirection,
         size = size,
-        coroutineContext = compositionContext.effectCoroutineContext,
+        coroutineContext = frameRecomposer.compositionContext.effectCoroutineContext,
         platformContext = composeSceneContext.platformContext,
         snapshotInvalidationTracker = snapshotInvalidationTracker,
         inputHandler = inputHandler,
@@ -214,13 +216,14 @@ private class CanvasLayersComposeSceneImpl(
         mainOwner.invalidatePositionOnScreen()
     }
 
-    override fun createComposition(content: @Composable () -> Unit): Composition {
-        return mainOwner.setContent(
-            compositionContext,
-            { compositionLocalContext },
-            content = content
-        )
-    }
+    override fun createComposition(
+        parentCompositionContext: CompositionContext,
+        content: @Composable () -> Unit,
+    ): Composition = mainOwner.setContent(
+        parent = parentCompositionContext,
+        getCompositionLocalContext = { compositionLocalContext },
+        content = content,
+    )
 
     override fun hitTestInteropView(position: Offset): InteropView? {
         forEachLayerReversed { layer ->
@@ -274,11 +277,11 @@ private class CanvasLayersComposeSceneImpl(
     override fun processRotaryScrollEvent(event: RotaryScrollEvent): Boolean =
         focusedLayer?.onRotaryEvent(event) ?: mainOwner.onRotaryEvent(event)
 
-    override fun measureAndLayout() {
+    override fun doMeasureAndLayout() {
         forEachOwner { it.measureAndLayout() }
     }
 
-    override fun draw(canvas: Canvas) {
+    override fun doDraw(canvas: Canvas) {
         forEachOwner { it.draw(canvas) }
     }
 
@@ -460,13 +463,12 @@ private class CanvasLayersComposeSceneImpl(
     }
 
     override fun createLayer(
-        compositionContext: CompositionContext,
         density: Density,
         layoutDirection: LayoutDirection,
         focusable: Boolean,
         consumePointerInputOutside: Boolean,
     ): ComposeSceneLayer = AttachedComposeSceneLayer(
-        compositionContext = compositionContext,
+        coroutineContext = frameRecomposer.compositionContext.effectCoroutineContext,
         density = density,
         layoutDirection = layoutDirection,
         focusable = focusable,
@@ -528,7 +530,7 @@ private class CanvasLayersComposeSceneImpl(
     }
 
     private inner class AttachedComposeSceneLayer(
-        private val compositionContext: CompositionContext,
+        coroutineContext: CoroutineContext,
         density: Density,
         layoutDirection: LayoutDirection,
         focusable: Boolean,
@@ -537,7 +539,7 @@ private class CanvasLayersComposeSceneImpl(
         val owner = RootNodeOwner(
             density = density,
             layoutDirection = layoutDirection,
-            coroutineContext = compositionContext.effectCoroutineContext,
+            coroutineContext = coroutineContext,
             size = this@CanvasLayersComposeSceneImpl.size,
             platformContext = object : PlatformContext by composeSceneContext.platformContext {
 
@@ -642,11 +644,11 @@ private class CanvasLayersComposeSceneImpl(
             outsidePointerCallback = onOutsidePointerEvent
         }
 
-        override fun setContent(content: @Composable () -> Unit) {
+        override fun setContent(parentCompositionContext: CompositionContext, content: @Composable () -> Unit) {
             check(!isClosed) { "AttachedComposeSceneLayer is closed" }
             composition?.dispose()
             composition = owner.setContent(
-                parent = this@AttachedComposeSceneLayer.compositionContext,
+                parent = parentCompositionContext,
                 {
                     /*
                      * Do not use `compositionLocalContext` here - composition locals already

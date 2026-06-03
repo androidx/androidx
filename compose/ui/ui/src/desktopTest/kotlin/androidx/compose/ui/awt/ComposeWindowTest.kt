@@ -58,10 +58,15 @@ import org.jetbrains.skiko.MainUIDispatcher
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.junit.Assume
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 
 @OptIn(ExperimentalComposeUiApi::class)
 class ComposeWindowTest {
+    @get:Rule
+    val timeout: Timeout = Timeout.seconds(60)
+
     @Test
     fun `catch exception on setContent`() = runApplicationTest {
         val caughtExceptions = mutableListOf<Throwable>()

@@ -329,7 +329,7 @@ class DialogTest {
             }
 
             val layer = rememberComposeSceneLayer()
-            layer.Content(if (useContent2) content2 else content1)
+            layer.Content(content = if (useContent2) content2 else content1)
             DisposableEffect(Unit) {
                 onDispose {
                     layer.close()

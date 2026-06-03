@@ -67,7 +67,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.launch
 
 /**
- * Tests the ordering of the phases of the [BaseComposeScene.render] loop.
+ * Tests the ordering of the split frame, measure/layout, and draw phases.
  */
 @OptIn(ExperimentalTestApi::class, InternalTestApi::class)
 class RenderPhasesTest {
@@ -343,7 +343,7 @@ class RenderPhasesTest {
             }
         }
 
-        assertFalse(scene.hasInvalidations())
+        assertFalse(scene.hasPendingMeasureOrLayout || scene.hasPendingDraw)
         assertEquals(0, scrollState.value)
 
         scene.sendPointerEvent(
@@ -358,7 +358,7 @@ class RenderPhasesTest {
                 touch(50f, 10f, pressed = true)
             )
         )
-        assertTrue(scene.hasInvalidations())
+        assertTrue(hasPendingWork())
         assertNotEquals(0, scrollState.value)
     }
 
@@ -371,7 +371,7 @@ class RenderPhasesTest {
             }
         }
 
-        assertFalse(scene.hasInvalidations())
+        assertFalse(scene.hasPendingMeasureOrLayout || scene.hasPendingDraw)
         assertEquals(0, scrollState.value)
 
         scene.sendPointerEvent(
@@ -380,7 +380,7 @@ class RenderPhasesTest {
             scrollDelta = Offset(0f, 40f)
         )
 
-        assertTrue(scene.hasInvalidations())
+        assertTrue(scene.hasPendingMeasureOrLayout)
         assertNotEquals(0, scrollState.value)
     }
 
@@ -393,7 +393,7 @@ class RenderPhasesTest {
             }
         }
 
-        assertFalse(scene.hasInvalidations())
+        assertFalse(scene.hasPendingMeasureOrLayout || scene.hasPendingDraw)
         assertEquals(0, scrollState.value)
 
         scene.sendPointerEvent(
@@ -402,7 +402,7 @@ class RenderPhasesTest {
             panGestureOffset = Offset(0f, 40f)
         )
 
-        assertTrue(scene.hasInvalidations())
+        assertTrue(scene.hasPendingMeasureOrLayout)
         assertNotEquals(0, scrollState.value)
     }
 
@@ -419,7 +419,7 @@ class RenderPhasesTest {
             }
         }
 
-        assertFalse(scene.hasInvalidations())
+        assertFalse(scene.hasPendingMeasureOrLayout || scene.hasPendingDraw)
         assertEquals(1f, scale)
 
         scene.sendPointerEvent(
@@ -428,7 +428,8 @@ class RenderPhasesTest {
             scaleGestureFactor = 2.0f
         )
 
-        assertTrue(scene.hasInvalidations())
+        assertFalse(scene.hasPendingMeasureOrLayout)
+        assertFalse(scene.hasPendingDraw)
         assertNotEquals(1f, scale)
     }
 

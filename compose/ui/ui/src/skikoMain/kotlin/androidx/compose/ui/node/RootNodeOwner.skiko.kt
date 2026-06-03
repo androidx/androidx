@@ -69,9 +69,6 @@ import androidx.compose.ui.layout.RulerProviderModifierElement
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.DefaultAccessibilityManager
 import androidx.compose.ui.platform.DelegatingSoftwareKeyboardController
-import androidx.compose.ui.platform.GraphicsLayerOwnerLayer
-import androidx.compose.ui.platform.LegacyRenderNodeLayer
-import androidx.compose.ui.platform.OwnedLayerManager
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformRootForTest
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
@@ -80,7 +77,6 @@ import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.platform.PlatformWindowInsetsProviderNode
 import androidx.compose.ui.platform.createPlatformClipboard
 import androidx.compose.ui.platform.createPlatformClipboardManager
-import androidx.compose.ui.platform.setLightingInfo
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneInputHandler
 import androidx.compose.ui.scene.ComposeScenePointer
@@ -138,7 +134,8 @@ internal class RootNodeOwner(
     private val rootSemanticsNode = EmptySemanticsModifier()
     private val snapshotObserver = snapshotInvalidationTracker.snapshotObserver()
     private val graphicsContext = SkiaGraphicsContext(platformContext.measureDrawLayerBounds)
-    private val coroutineScope = CoroutineScope(coroutineContext + Job(parent = coroutineContext[Job]))
+    private val coroutineScope =
+        CoroutineScope(coroutineContext + Job(parent = coroutineContext[Job]))
 
     private val _owner = OwnerImpl(layoutDirection, coroutineContext)
     val owner: Owner get() = _owner
@@ -478,11 +475,14 @@ internal class RootNodeOwner(
         override val accessibilityManager = DefaultAccessibilityManager()
         override val graphicsContext get() = this@RootNodeOwner.graphicsContext
         override val textToolbar get() = platformContext.textToolbar
+
         @Suppress("DEPRECATION")
         override val autofillTree = androidx.compose.ui.autofill.AutofillTree()
+
         @Suppress("DEPRECATION")
         override val autofill: androidx.compose.ui.autofill.Autofill?
             get() = null
+
         // TODO https://youtrack.jetbrains.com/issue/CMP-1572
         override val autofillManager: AutofillManager? get() = null
         override val density get() = this@RootNodeOwner.density
@@ -494,6 +494,7 @@ internal class RootNodeOwner(
         }
 
         private val textInputSessionMutex = SessionMutex<TextInputSession>()
+
         private inner class TextInputSession(
             coroutineScope: CoroutineScope,
         ) : PlatformTextInputSessionScope, CoroutineScope by coroutineScope {
@@ -525,7 +526,7 @@ internal class RootNodeOwner(
 
         override suspend fun textInputSession(
             session: suspend PlatformTextInputSessionScope.() -> Nothing
-        ) : Nothing {
+        ): Nothing {
             textInputSessionMutex.withSessionCancellingPrevious<Nothing>(
                 sessionInitializer = ::TextInputSession,
                 session = session
@@ -717,6 +718,13 @@ internal class RootNodeOwner(
         private val endApplyChangesListeners = mutableVectorOf<(() -> Unit)?>()
 
         override fun onEndApplyChanges() {
+            // Android's OwnerSnapshotObserver runs callbacks immediately when apply changes
+            // happens on the view handler thread. Non-Android queues off-thread owner callbacks in
+            // the scene-local tracker, so drain them here before clearing invalid observations and
+            // invoking end-apply listeners.
+            // This preserves the previous render-time synchronous observer ordering
+            // after recomposition moved to FrameRecomposer.
+            snapshotInvalidationTracker.performSnapshotChanges()
             clearInvalidObservations()
 
             // Listeners can add more items to the list and we want to ensure that they
@@ -777,6 +785,7 @@ internal class RootNodeOwner(
 
     private inner class PlatformRootForTestImpl : PlatformRootForTest {
         override val density get() = this@RootNodeOwner.density
+
         @Suppress("OVERRIDE_DEPRECATION")
         override val textInputService get() = owner.textInputService
         override val semanticsOwner get() = owner.semanticsOwner
@@ -999,7 +1008,8 @@ internal class RootNodeOwner(
                 postponed.clear()
             }
 
-            val isAnyCurrentFrameRateSet = !currentFrameRate.isNaN() || currentFrameRateCategory != 0f
+            val isAnyCurrentFrameRateSet =
+                !currentFrameRate.isNaN() || currentFrameRateCategory != 0f
             if (isAnyCurrentFrameRateSet) {
                 platformContext.voteFrameRate(currentFrameRate, currentFrameRateCategory)
                 currentFrameRate = Float.NaN
@@ -1059,7 +1069,7 @@ private fun MeasureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(
 
 private fun IntSize.toConstraints() = Constraints(maxWidth = width, maxHeight = height)
 
-private object IdentityPositionCalculator: PositionCalculator {
+private object IdentityPositionCalculator : PositionCalculator {
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
     override fun localToScreen(localPosition: Offset): Offset = localPosition
 }
@@ -1069,14 +1079,16 @@ private fun Modifier.rulerProvider(windowInsets: PlatformWindowInsets) =
 
 private data class RootWindowInsetsProviderModifierElement(
     val windowInsets: PlatformWindowInsets,
-): ModifierNodeElement<RootPlatformWindowInsetsProviderNode>() {
-    override fun create(): RootPlatformWindowInsetsProviderNode = RootPlatformWindowInsetsProviderNode(windowInsets)
+) : ModifierNodeElement<RootPlatformWindowInsetsProviderNode>() {
+    override fun create(): RootPlatformWindowInsetsProviderNode =
+        RootPlatformWindowInsetsProviderNode(windowInsets)
+
     override fun update(node: RootPlatformWindowInsetsProviderNode) = node.update(windowInsets)
 }
 
 private class RootPlatformWindowInsetsProviderNode(
     private var insets: PlatformWindowInsets,
-): PlatformWindowInsetsProviderNode(insets) {
+) : PlatformWindowInsetsProviderNode(insets) {
     override fun calculatePlatformInsets(ancestorWindowInsets: PlatformWindowInsets): PlatformWindowInsets =
         insets
 

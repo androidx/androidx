@@ -66,9 +66,11 @@ import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.platform.accessibility.ComposeWebSemanticsListener
 import androidx.compose.ui.platform.installFallbackFontDownloader
 import androidx.compose.ui.scene.CanvasLayersComposeScene
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.scene.ComposeSceneDragAndDropNode
 import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.scene.PointerEventResult
+import androidx.compose.ui.scene.SingleComposeSceneRenderingScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
@@ -218,6 +220,18 @@ internal class ComposeWindow(
 
     private val clipTarget = clipTargetElement(canvas)
 
+    // TODO: It must be shared between Compose instances.
+    //  It's supposed to be stored in platform's root view or window.
+    private val frameRecomposer = FrameRecomposer(Dispatchers.Main, invalidate = { skiaLayer.needRender() })
+
+    // TODO: It cannot be used in case of shared [FrameRecomposer], replace this helper with calling
+    //  - [frameRecomposer.performFrame] once per frame (across all instances) before platform views layout phase
+    //  - [scene.measureAndLayout] during platform views layout phase. Note that it should be triggered
+    //    by platform view invalidation (which is triggered by [scene.invalidateLayout] OR by regular platform invalidation)
+    //  - [scene.draw] during drawing phase of platform views (which is triggered by [scene.invalidateDraw]).
+    //    Note that in case of custom GPU surface/V-Sync handling, it needs to be handled differently.
+    private val sceneRenderingScope = SingleComposeSceneRenderingScope { skiaLayer.needRender() }
+
     private val platformContext: PlatformContext =
         object : PlatformContext by PlatformContext.Empty() {
             override val windowInfo get() = _windowInfo
@@ -327,15 +341,20 @@ internal class ComposeWindow(
 
     private val skiaLayer: SkiaLayer = SkiaLayer().apply {
         renderDelegate = SkikoRenderDelegate { canvas, _, _, nanoTime ->
-            scene.render(canvas.asComposeCanvas(), nanoTime)
+            with(sceneRenderingScope) {
+                scene.render(frameRecomposer, canvas.asComposeCanvas(), nanoTime)
+            }
         }
     }
 
     private val scene = CanvasLayersComposeScene(
-        coroutineContext = Dispatchers.Main,
+        frameRecomposer = frameRecomposer,
         platformContext = platformContext,
         density = density,
-        invalidate = skiaLayer::needRender,
+        // TODO: Split layout invalidation from draw invalidation once the web host has distinct
+        //  scheduling paths for relayout vs redraw.
+        invalidateLayout = sceneRenderingScope::onSceneInvalidation,
+        invalidateDraw = sceneRenderingScope::onSceneInvalidation,
     )
 
     private val systemThemeObserver = getSystemThemeObserver()
@@ -539,6 +558,7 @@ internal class ComposeWindow(
             .navigationEventDispatcher.removeInput(navigationEventInput)
 
         scene.close()
+        frameRecomposer.close()
         skiaLayer.detach()
 
         systemThemeObserver.dispose()
@@ -907,4 +927,3 @@ private fun Element.isFocused(): Boolean {
 private external interface ShadowRootExt {
     val activeElement: Element?
 }
-

@@ -17,6 +17,7 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.InternalComposeApi
@@ -25,6 +26,7 @@ import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -220,20 +222,22 @@ private fun DialogLayout(
     val layer = rememberComposeSceneLayer(focusable = true)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
     val currentContent by rememberUpdatedState(content)
+    val parentCompositionContext = rememberCompositionContext()
     val graphicsContext = LocalGraphicsContext.current
 
     val animator = remember {
         DialogAppearanceController(
             layer = layer,
+            parentCompositionContext = parentCompositionContext,
             graphicsContext = graphicsContext,
-            properties = properties
+            properties = properties,
         )
     }
 
     animator.properties = properties
     var layerScope: CoroutineScope? = null
 
-    layer.Content {
+    layer.Content(parentCompositionContext) {
         layerScope = rememberCoroutineScope()
         LaunchedEffect(Unit) {
             animator.onDialogShown()
@@ -272,6 +276,7 @@ private fun DialogLayout(
 
 private class DialogAppearanceController(
     private val layer: ComposeSceneLayer,
+    private val parentCompositionContext: CompositionContext,
     private val graphicsContext: GraphicsContext,
     properties: DialogProperties,
 ) {
@@ -309,7 +314,7 @@ private class DialogAppearanceController(
     }
 
     fun hideDialogWithAnimation() {
-        layer.setContent {
+        layer.setContent(parentCompositionContext) {
             val containerSize = LocalWindowInfo.current.containerSize
             val measurePolicy = rememberDialogMeasurePolicy(
                 layer = layer,

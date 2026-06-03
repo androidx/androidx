@@ -18,8 +18,7 @@ package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -29,14 +28,13 @@ import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.RootNodeOwner
+import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.InteropView
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.Dispatchers
 
 /**
  * Constructs a single-layer [ComposeScene] using the specified parameters. It utilizes
@@ -45,55 +43,59 @@ import kotlinx.coroutines.Dispatchers
  * After [ComposeScene] will no longer needed, you should call [ComposeScene.close] method, so
  * all resources and subscriptions will be properly closed. Otherwise, there can be a memory leak.
  *
+ * @param frameRecomposer The host-owned recomposer and frame clock that drives this scene. The
+ * scene launches its content effects on [FrameRecomposer.compositionContext]'s effect context, so
+ * effects and animations are performed by the host's [FrameRecomposer.performFrame].
  * @param density Initial density of the content which will be used to convert [Dp] units.
  * @param layoutDirection Initial layout direction of the content.
  * @param size The size of the [ComposeScene]. Default value is `null`, which means the size will be
  * determined by the content.
- * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
- * [rememberCoroutineScope]) and run recompositions.
  * @param composeSceneContext The context to share resources between multiple scenes and provide
  * a way for platform interaction.
- * @param invalidate The function to be called when the content need to be recomposed or
- * re-rendered. If you draw your content using [ComposeScene.render] method, in this callback you
- * should schedule the next [ComposeScene.render] in your rendering loop.
+ * @param invalidateLayout The function to be called when the content requires another
+ * measure/layout pass.
+ * @param invalidateDraw The function to be called when the content requires another draw pass.
  * @return The created [ComposeScene].
  *
  * @see ComposeScene
  */
 @InternalComposeUiApi
 fun PlatformLayersComposeScene(
+    frameRecomposer: FrameRecomposer,
     density: Density = Density(1f),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     size: IntSize? = null,
-    // TODO: Remove `Dispatchers.Unconfined` as a default
-    coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty(),
-    invalidate: () -> Unit = {},
+    invalidateLayout: () -> Unit = {},
+    invalidateDraw: () -> Unit = {},
 ): ComposeScene = PlatformLayersComposeSceneImpl(
+    frameRecomposer = frameRecomposer,
     density = density,
     layoutDirection = layoutDirection,
     size = size,
-    coroutineContext = coroutineContext,
     composeSceneContext = composeSceneContext,
-    invalidate = invalidate
+    invalidateLayout = invalidateLayout,
+    invalidateDraw = invalidateDraw,
 )
 
 private class PlatformLayersComposeSceneImpl(
+    frameRecomposer: FrameRecomposer,
     density: Density,
     layoutDirection: LayoutDirection,
     size: IntSize?,
-    coroutineContext: CoroutineContext,
     override val composeSceneContext: ComposeSceneContext,
-    invalidate: () -> Unit,
+    invalidateLayout: () -> Unit,
+    invalidateDraw: () -> Unit,
 ) : BaseComposeScene(
-    coroutineContext = coroutineContext,
-    invalidate = invalidate
+    frameRecomposer = frameRecomposer,
+    invalidateLayout = invalidateLayout,
+    invalidateDraw = invalidateDraw,
 ) {
     private val mainOwner: RootNodeOwner by lazy {
         RootNodeOwner(
             density = density,
             layoutDirection = layoutDirection,
-            coroutineContext = compositionContext.effectCoroutineContext,
+            coroutineContext = frameRecomposer.compositionContext.effectCoroutineContext,
             size = size,
             platformContext = composeSceneContext.platformContext,
             snapshotInvalidationTracker = snapshotInvalidationTracker,
@@ -160,13 +162,14 @@ private class PlatformLayersComposeSceneImpl(
         mainOwner.invalidatePositionOnScreen()
     }
 
-    override fun createComposition(content: @Composable () -> Unit): Composition {
-        return mainOwner.setContent(
-            compositionContext,
-            { compositionLocalContext },
-            content = content
-        )
-    }
+    override fun createComposition(
+        parentCompositionContext: CompositionContext,
+        content: @Composable () -> Unit,
+    ): Composition = mainOwner.setContent(
+        parent = parentCompositionContext,
+        getCompositionLocalContext = { compositionLocalContext },
+        content = content,
+    )
 
     override fun hitTestInteropView(position: Offset): InteropView? {
         return mainOwner.hitTestInteropView(position)
@@ -185,11 +188,11 @@ private class PlatformLayersComposeSceneImpl(
     override fun processRotaryScrollEvent(event: RotaryScrollEvent): Boolean =
         mainOwner.onRotaryEvent(event)
 
-    override fun measureAndLayout() {
+    override fun doMeasureAndLayout() {
         mainOwner.measureAndLayout()
     }
 
-    override fun draw(canvas: Canvas) {
+    override fun doDraw(canvas: Canvas) {
         mainOwner.draw(canvas)
     }
 
