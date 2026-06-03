@@ -17,6 +17,7 @@
 package androidx.compose.foundation.gestures
 
 import androidx.annotation.FloatRange
+import androidx.collection.LongSparseArray
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.GestureConnection
@@ -67,6 +68,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.PI
 import kotlin.math.absoluteValue
@@ -446,6 +448,7 @@ internal abstract class DragGestureNode(
 
     private var velocityTracker: VelocityTracker? = null
     private var previousPositionOnScreen = Offset.Unspecified
+    private var velocityTrackerMulti: LongSparseArray<VelocityTracker>? = null
     private var touchSlopDetector: TouchSlopDetector? = null
     private var indirectPointerInputDragCycleDetector: IndirectPointerInputDragCycleDetector? = null
 
@@ -676,6 +679,9 @@ internal abstract class DragGestureNode(
     }
 
     private fun processRawPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass) {
+        if (ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
+            if (pass == PointerEventPass.Main) preProcessVelocity(pointerEvent)
+        }
         when (
             val state = requireNotNull(currentDragState) { "currentDragState should not be null" }
         ) {
@@ -683,8 +689,33 @@ internal abstract class DragGestureNode(
             is DragDetectionState.AwaitTouchSlop -> processAwaitTouchSlop(pointerEvent, pass, state)
             is DragDetectionState.AwaitGesturePickup ->
                 processAwaitGesturePickup(pointerEvent, pass, state)
-
             is DragDetectionState.Dragging -> processDraggingState(pointerEvent, pass, state)
+        }
+        if (ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
+            if (pass == PointerEventPass.Main) postProcessVelocity(pointerEvent)
+        }
+    }
+
+    private fun preProcessVelocity(pointerEvent: PointerEvent) {
+        var trackers = velocityTrackerMulti
+        if (trackers == null) {
+            trackers = LongSparseArray()
+            velocityTrackerMulti = trackers
+        }
+        pointerEvent.changes.fastForEach {
+            if (trackers[it.id.value] == null) {
+                trackers.append(it.id.value, VelocityTracker())
+            }
+        }
+
+        pointerEvent.changes.fastForEach { trackers[it.id.value]!!.addPointerInputChange(it) }
+    }
+
+    private fun postProcessVelocity(pointerEvent: PointerEvent) {
+        pointerEvent.changes.fastForEach {
+            if (it.changedToUpIgnoreConsumed()) {
+                velocityTrackerMulti?.remove(it.id.value)
+            }
         }
     }
 
@@ -698,7 +729,11 @@ internal abstract class DragGestureNode(
     private fun resetDragDetectionState() {
         moveToAwaitDownState()
         if (isListeningForEvents) sendDragCancelled()
-        velocityTracker = null
+        if (ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
+            velocityTrackerMulti = null
+        } else {
+            velocityTracker = null
+        }
     }
 
     private fun moveToAwaitTouchSlopState(
@@ -1069,8 +1104,10 @@ internal abstract class DragGestureNode(
         slopTriggerChange: PointerInputChange,
         overSlopOffset: Offset,
     ) {
-        if (velocityTracker == null) velocityTracker = VelocityTracker()
-        requireVelocityTracker().addPointerInputChange(down)
+        if (!ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
+            if (velocityTracker == null) velocityTracker = VelocityTracker()
+            requireVelocityTracker().addPointerInputChange(down)
+        }
         val dragStartedOffset = slopTriggerChange.position - overSlopOffset
         if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
             // the drag start event offset is the down event + touch slop value
@@ -1094,30 +1131,39 @@ internal abstract class DragGestureNode(
 
     private fun sendDragEvent(change: PointerInputChange, dragAmount: Offset) {
         dragAccumulator += dragAmount
-        if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
-            val currentPositionOnScreen = node.requireLayoutCoordinates().positionOnScreen()
-            // container changed positions
-            if (
-                previousPositionOnScreen != Offset.Unspecified &&
-                    currentPositionOnScreen != previousPositionOnScreen
-            ) {
-                val delta = currentPositionOnScreen - previousPositionOnScreen
-                nodeOffset += delta
+        if (!ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
+            if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
+                val currentPositionOnScreen = node.requireLayoutCoordinates().positionOnScreen()
+                // container changed positions
+                if (
+                    previousPositionOnScreen != Offset.Unspecified &&
+                        currentPositionOnScreen != previousPositionOnScreen
+                ) {
+                    val delta = currentPositionOnScreen - previousPositionOnScreen
+                    nodeOffset += delta
+                }
+                previousPositionOnScreen = currentPositionOnScreen
+                requireVelocityTracker().addPointerInputChange(event = change, offset = nodeOffset)
+            } else {
+                requireVelocityTracker().addPointerInputChange(change)
             }
-            previousPositionOnScreen = currentPositionOnScreen
-            requireVelocityTracker().addPointerInputChange(event = change, offset = nodeOffset)
-        } else {
-            requireVelocityTracker().addPointerInputChange(change)
         }
         requireChannel().trySend(DragDelta(dragAmount, false))
     }
 
     private fun sendDragStopped(change: PointerInputChange) {
-        requireVelocityTracker().addPointerInputChange(change)
         val maximumVelocity = currentValueOf(LocalViewConfiguration).maximumFlingVelocity
         val velocity =
-            requireVelocityTracker().calculateVelocity(Velocity(maximumVelocity, maximumVelocity))
-        requireVelocityTracker().resetTracking()
+            if (ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled) {
+                velocityTrackerMulti
+                    ?.get(change.id.value)
+                    ?.calculateVelocity(Velocity(maximumVelocity, maximumVelocity)) ?: Velocity.Zero
+            } else {
+                requireVelocityTracker().addPointerInputChange(change)
+                requireVelocityTracker()
+                    .calculateVelocity(Velocity(maximumVelocity, maximumVelocity))
+                    .also { requireVelocityTracker().resetTracking() }
+            }
         requireChannel().trySend(DragStopped(velocity.toValidVelocity(), false))
         isListeningForPointerInputEvents = false
     }
