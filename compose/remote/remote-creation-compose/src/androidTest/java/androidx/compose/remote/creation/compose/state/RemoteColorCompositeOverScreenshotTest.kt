@@ -34,7 +34,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver as composeCompositeOver
+import androidx.compose.ui.graphics.compositeOver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -70,7 +70,7 @@ class RemoteColorCompositeOverScreenshotTest {
                     bg = Color.Blue.rc,
                     fg = Color.Red.rc.copy(alpha = 0.5f.rf),
                     remoteResult = Color.Red.rc.copy(alpha = 0.5f.rf).compositeOver(Color.Blue.rc),
-                    composeResult = Color.Red.copy(alpha = 0.5f).composeCompositeOver(Color.Blue).rc,
+                    composeResult = Color.Red.copy(alpha = 0.5f).compositeOver(Color.Blue).rc,
                 )
 
                 RemoteSpacer(modifier = RemoteModifier.height(6.rdp))
@@ -83,8 +83,7 @@ class RemoteColorCompositeOverScreenshotTest {
                     fg = Color.Magenta.rc.copy(alpha = dynamicAlpha40),
                     remoteResult =
                         Color.Magenta.rc.copy(alpha = dynamicAlpha40).compositeOver(Color.Blue.rc),
-                    composeResult =
-                        Color.Magenta.copy(alpha = 0.4f).composeCompositeOver(Color.Blue).rc,
+                    composeResult = Color.Magenta.copy(alpha = 0.4f).compositeOver(Color.Blue).rc,
                 )
 
                 RemoteSpacer(modifier = RemoteModifier.height(6.rdp))
@@ -113,9 +112,7 @@ class RemoteColorCompositeOverScreenshotTest {
                     remoteResult = fgConstAlpha.compositeOver(bgConstAlpha),
                     composeResult =
                         Color(red = 0f, green = 0f, blue = 0.9f, alpha = 0.6f)
-                            .composeCompositeOver(
-                                Color(red = 0.8f, green = 0f, blue = 0f, alpha = 0.5f)
-                            )
+                            .compositeOver(Color(red = 0.8f, green = 0f, blue = 0f, alpha = 0.5f))
                             .rc,
                 )
 
@@ -133,7 +130,7 @@ class RemoteColorCompositeOverScreenshotTest {
                     remoteResult = dynamicFgYellow.compositeOver(dynamicBgCyan),
                     composeResult =
                         Color.Yellow.copy(alpha = 0.3f)
-                            .composeCompositeOver(Color.Cyan.copy(alpha = 0.8f))
+                            .compositeOver(Color.Cyan.copy(alpha = 0.8f))
                             .rc,
                 )
 
@@ -146,8 +143,7 @@ class RemoteColorCompositeOverScreenshotTest {
                     fg = Color.White.rc.copy(alpha = 0.7f.rf),
                     remoteResult =
                         Color.White.rc.copy(alpha = 0.7f.rf).compositeOver(Color.Black.rc),
-                    composeResult =
-                        Color.White.copy(alpha = 0.7f).composeCompositeOver(Color.Black).rc,
+                    composeResult = Color.White.copy(alpha = 0.7f).compositeOver(Color.Black).rc,
                 )
             }
         }
