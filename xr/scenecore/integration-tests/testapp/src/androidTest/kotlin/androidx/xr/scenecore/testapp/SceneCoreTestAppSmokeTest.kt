@@ -22,7 +22,7 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.xr.scenecore.testapp.accessibilitytest.AccessibilityTestActivity
 import androidx.xr.scenecore.testapp.activitypanel.ActivityPanel
 import androidx.xr.scenecore.testapp.activitypanel.ActivityPanelActivity
-import androidx.xr.scenecore.testapp.anchorentity.AnchorEntityActivity
+import androidx.xr.scenecore.testapp.anchorspace.AnchorSpaceActivity
 import androidx.xr.scenecore.testapp.fieldofviewvisibility.FieldOfViewVisibilityActivity
 import androidx.xr.scenecore.testapp.fsmhsmtransition.FsmHsmTransitionActivity
 import androidx.xr.scenecore.testapp.headlockedui.HeadLockedUiActivity
@@ -85,7 +85,7 @@ class SceneCoreTestAppSmokeTest(activityClass: Class<out Activity>) :
                 arrayOf(AccessibilityTestActivity::class.java),
                 arrayOf(ActivityPanel::class.java),
                 arrayOf(ActivityPanelActivity::class.java),
-                arrayOf(AnchorEntityActivity::class.java),
+                arrayOf(AnchorSpaceActivity::class.java),
                 arrayOf(FieldOfViewVisibilityActivity::class.java),
                 arrayOf(FsmHsmTransitionActivity::class.java),
                 arrayOf(HeadLockedUiActivity::class.java),

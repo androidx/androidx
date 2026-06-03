@@ -107,7 +107,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType
@@ -1565,10 +1565,10 @@ class SubspaceTest {
             val anchorTranslation = Vector3(20.0f, 30.0f, 40.0f)
             val anchorResult = Anchor.create(session, Pose(anchorTranslation))
             val success = assertIs<AnchorCreateSuccess>(anchorResult)
-            val anchorEntity = AnchorEntity.create(session, anchor = success.anchor)
+            val anchorSpace = AnchorSpace.create(session, anchor = success.anchor)
             testDispatcher.scheduler.advanceUntilIdle()
 
-            followTarget = FollowTarget.Anchor(anchorEntity)
+            followTarget = FollowTarget.Anchor(anchorSpace)
             followBehavior = FollowBehavior.Tight
             subspaceCurrentPose = assertExistenceAndGetNodeWorldPose("FollowingSubspace")
             assertThat(subspaceCurrentPose.translation).isEqualTo(anchorTranslation)
@@ -2209,19 +2209,19 @@ class SubspaceTest {
         session.configure(
             Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
         )
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         composeTestRule.setContent {
             FollowingSubspace(
-                target = FollowTarget.Anchor(anchorEntity),
+                target = FollowTarget.Anchor(anchorSpace),
                 behavior = FollowBehavior.Tight,
             ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
 
-        composeTestRule.onSubspaceNodeWithTag("panel").assertEntityIsChildOf(anchorEntity)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertEntityIsChildOf(anchorSpace)
     }
 
     @Test
@@ -2232,12 +2232,12 @@ class SubspaceTest {
         session.configure(
             Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
         )
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         composeTestRule.setContent {
             FollowingSubspace(
-                target = FollowTarget.Anchor(anchorEntity),
+                target = FollowTarget.Anchor(anchorSpace),
                 behavior = FollowBehavior.Tight,
             ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
@@ -2258,14 +2258,14 @@ class SubspaceTest {
         session.configure(
             Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
         )
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         composeTestRule.setContent {
             Subspace(modifier = SubspaceModifier.offset(x = 40.dp, y = 50.dp, z = 60.dp)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("subspacePanel")) {}
                 FollowingSubspace(
-                    target = FollowTarget.Anchor(anchorEntity),
+                    target = FollowTarget.Anchor(anchorSpace),
                     behavior = FollowBehavior.Tight,
                 ) {
                     SpatialPanel(
@@ -2297,11 +2297,11 @@ class SubspaceTest {
 
         val anchorResult = Anchor.create(session, Pose.Identity)
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
-        val anchorEntity = AnchorEntity.create(session, anchor = success.anchor)
+        val anchorSpace = AnchorSpace.create(session, anchor = success.anchor)
 
         composeTestRule.setContent {
             FollowingSubspace(
-                target = FollowTarget.Anchor(anchorEntity),
+                target = FollowTarget.Anchor(anchorSpace),
                 behavior = FollowBehavior.Tight,
             ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
@@ -2323,18 +2323,18 @@ class SubspaceTest {
 
         val anchorResult = Anchor.create(session, Pose(Vector3(20.0f, 30.0f, 40.0f)))
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
-        val anchorEntity = AnchorEntity.create(session, anchor = success.anchor)
+        val anchorSpace = AnchorSpace.create(session, anchor = success.anchor)
 
         composeTestRule.setContent {
             FollowingSubspace(
-                target = FollowTarget.Anchor(anchorEntity),
+                target = FollowTarget.Anchor(anchorSpace),
                 behavior = FollowBehavior.Tight,
             ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
             }
         }
 
-        val anchorWorldPose = anchorEntity.getPose(Space.ACTIVITY)
+        val anchorWorldPose = anchorSpace.getPose(Space.ACTIVITY)
         val panelWorldPose = assertExistenceAndGetNodeWorldPose("Panel")
         assertThat(anchorWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
         assertThat(panelWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
@@ -2355,21 +2355,18 @@ class SubspaceTest {
 
         val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
         val anchorResult = Anchor.create(session, initialPose)
-        val anchorEntity =
-            AnchorEntity.create(
-                session,
-                anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor,
-            )
+        val anchorSpace =
+            AnchorSpace.create(session, anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor)
 
         val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
         val updatedAnchorResult = Anchor.create(session, updatedPose)
-        val updatedAnchorEntity =
-            AnchorEntity.create(
+        val updatedAnchorSpace =
+            AnchorSpace.create(
                 session,
                 anchor = assertIs<AnchorCreateSuccess>(updatedAnchorResult).anchor,
             )
 
-        val currentAnchorState = mutableStateOf(anchorEntity)
+        val currentAnchorState = mutableStateOf(anchorSpace)
 
         composeTestRule.setContent {
             FollowingSubspace(
@@ -2383,7 +2380,7 @@ class SubspaceTest {
         assertThat(assertExistenceAndGetNodeWorldPose("Panel")).isEqualTo(initialPose)
         composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
 
-        currentAnchorState.value = updatedAnchorEntity
+        currentAnchorState.value = updatedAnchorSpace
         composeTestRule.waitForIdle()
 
         assertThat(assertExistenceAndGetNodeWorldPose("Panel")).isEqualTo(updatedPose)
@@ -2441,7 +2438,7 @@ class SubspaceTest {
             val anchor = (Anchor.create(session, anchorPose) as AnchorCreateSuccess).anchor
             val anchorTarget =
                 FollowTarget.Anchor(
-                    anchorEntity = assertNotNull(actual = AnchorEntity.create(session, anchor))
+                    anchorSpace = assertNotNull(actual = AnchorSpace.create(session, anchor))
                 )
 
             // Start with the Anchor as the follow target
@@ -2608,8 +2605,8 @@ class SubspaceTestWithArCoreTestRule {
                 )
             testPlane.centerPose = initialPose
             arCoreTestRule.addTrackables(testPlane)
-            val anchorEntity =
-                AnchorEntity.create(
+            val anchorSpace =
+                AnchorSpace.create(
                     session,
                     minimumPlaneExtents = FloatSize2d(),
                     planeOrientations = PlaneOrientation.ALL,
@@ -2619,14 +2616,14 @@ class SubspaceTestWithArCoreTestRule {
 
             composeTestRule.setContent {
                 FollowingSubspace(
-                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    target = FollowTarget.Anchor(assertNotNull(anchorSpace)),
                     behavior = FollowBehavior.Tight,
                 ) {
                     SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
                 }
             }
 
-            assertPose(anchorEntity.getPose(Space.ACTIVITY), initialPose)
+            assertPose(anchorSpace.getPose(Space.ACTIVITY), initialPose)
             assertPose(assertExistenceAndGetNodeWorldPose("Panel"), initialPose)
             composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
 
@@ -2635,7 +2632,7 @@ class SubspaceTestWithArCoreTestRule {
             testPlane.centerPose = updatedPose
             advanceUntilIdle()
 
-            assertPose(anchorEntity.getPose(Space.ACTIVITY), updatedPose)
+            assertPose(anchorSpace.getPose(Space.ACTIVITY), updatedPose)
             assertPose(assertExistenceAndGetNodeWorldPose("Panel"), updatedPose)
             composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
         }
@@ -2659,8 +2656,8 @@ class SubspaceTestWithArCoreTestRule {
             val testPlane = TestPlane(PlaneType.HORIZONTAL_UPWARD_FACING, PlaneLabel.FLOOR)
             testPlane.centerPose = initialPose
             arCoreTestRule.addTrackables(testPlane)
-            val anchorEntity =
-                AnchorEntity.create(
+            val anchorSpace =
+                AnchorSpace.create(
                     session,
                     minimumPlaneExtents = FloatSize2d(),
                     planeOrientations = PlaneOrientation.ALL,
@@ -2670,7 +2667,7 @@ class SubspaceTestWithArCoreTestRule {
 
             composeTestRule.setContent {
                 FollowingSubspace(
-                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    target = FollowTarget.Anchor(assertNotNull(anchorSpace)),
                     behavior = FollowBehavior.Soft(durationMs = 1000),
                 ) {
                     SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
@@ -2682,7 +2679,7 @@ class SubspaceTestWithArCoreTestRule {
             testPlane.centerPose = updatedPose
             advanceUntilIdle()
 
-            assertPose(anchorEntity.getPose(Space.ACTIVITY), updatedPose)
+            assertPose(anchorSpace.getPose(Space.ACTIVITY), updatedPose)
             assertPose(assertExistenceAndGetNodeWorldPose("Panel"), updatedPose)
         }
     }
@@ -2710,8 +2707,8 @@ class SubspaceTestWithArCoreTestRule {
                 )
             testPlane.centerPose = initialPose
             arCoreTestRule.addTrackables(testPlane)
-            val anchorEntity =
-                AnchorEntity.create(
+            val anchorSpace =
+                AnchorSpace.create(
                     session,
                     minimumPlaneExtents = FloatSize2d(),
                     planeOrientations = PlaneOrientation.ALL,
@@ -2721,7 +2718,7 @@ class SubspaceTestWithArCoreTestRule {
 
             composeTestRule.setContent {
                 FollowingSubspace(
-                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    target = FollowTarget.Anchor(assertNotNull(anchorSpace)),
                     behavior = FollowBehavior.Static,
                 ) {
                     SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
@@ -2744,7 +2741,7 @@ class SubspaceTestWithArCoreTestRule {
 
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertThat(anchorEntity.getPose(Space.ACTIVITY)).isEqualTo(updatedPose)
+            assertThat(anchorSpace.getPose(Space.ACTIVITY)).isEqualTo(updatedPose)
 
             composeTestRule.waitForIdle()
 

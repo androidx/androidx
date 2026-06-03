@@ -167,7 +167,7 @@ class MovableComponentTest {
     private lateinit var testDispatcher: TestDispatcher
     private lateinit var timeSource: TestTimeSource
     private var mCurrentTimeMillis: Long = 1000000000L
-    private var anchorEntityToDispose: AnchorEntity? = null
+    private var anchorSpaceToDispose: AnchorSpace? = null
 
     @Suppress("DEPRECATION")
     // TODO: b/494308962 Remove references to arcore-testing Fakes
@@ -218,8 +218,8 @@ class MovableComponentTest {
 
     @After
     fun tearDown() {
-        anchorEntityToDispose?.disposeInternal()
-        anchorEntityToDispose = null
+        anchorSpaceToDispose?.disposeInternal()
+        anchorSpaceToDispose = null
     }
 
     @Test
@@ -308,14 +308,14 @@ class MovableComponentTest {
     }
 
     @Test
-    fun addMovableComponentToAnchorEntity_returnsFalse() {
+    fun addMovableComponentToAnchorSpace_returnsFalse() {
         createCustomSession()
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
-        assertThat(anchorEntity).isNotNull()
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+        assertThat(anchorSpace).isNotNull()
         val movableComponent = MovableComponent.createSystemMovable(session)
 
-        assertThat(anchorEntity.addComponent(movableComponent)).isFalse()
+        assertThat(anchorSpace.addComponent(movableComponent)).isFalse()
     }
 
     @Test
@@ -934,7 +934,7 @@ class MovableComponentTest {
     @Test
     @Suppress("DEPRECATION")
     // TODO: b/494308962 Remove references to arcore-testing Fakes
-    fun createAnchorable_withinAnchorDistance_setsAnchorEntity() {
+    fun createAnchorable_withinAnchorDistance_setsAnchorSpace() {
         createSession()
         runTest(testDispatcher) {
             activityController.create().start().resume()
@@ -1012,8 +1012,8 @@ class MovableComponentTest {
             // rotated into the plane's reference space.
             val expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
-            anchorEntityToDispose = panelEntity.parent as AnchorEntity
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
+            anchorSpaceToDispose = panelEntity.parent as AnchorSpace
         }
     }
 
@@ -1105,8 +1105,8 @@ class MovableComponentTest {
             // rotated into the plane's reference space.
             val expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
-            anchorEntityToDispose = panelEntity.parent as AnchorEntity
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
+            anchorSpaceToDispose = panelEntity.parent as AnchorSpace
         }
     }
 
@@ -1287,8 +1287,8 @@ class MovableComponentTest {
             val expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
             assertThat(panelEntity.getScale()).isEqualTo(activitySpaceScale.x * entityScale.x)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
-            anchorEntityToDispose = panelEntity.parent as AnchorEntity
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
+            anchorSpaceToDispose = panelEntity.parent as AnchorSpace
         }
     }
 
@@ -1555,7 +1555,7 @@ class MovableComponentTest {
             // rotated into the plane's reference space.
             var expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
 
             proposedPose = Pose(Vector3(1f, 4f, 1f), Quaternion.Identity)
             rtMoveEndEvent =
@@ -1670,7 +1670,7 @@ class MovableComponentTest {
             // rotated into the plane's reference space.
             var expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
             assertThat(panelEntity.getScale()).isEqualTo(activitySpaceScale.x * entityScale.x)
 
             proposedPose = Pose(Vector3(2f, 8f, 2f), Quaternion.Identity)
@@ -1788,7 +1788,7 @@ class MovableComponentTest {
             // rotated into the plane's reference space.
             var expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
 
             proposedPose = Pose(Vector3(1f, 4f, 1f), Quaternion.Identity)
             rtMoveEndEvent =
@@ -1899,7 +1899,7 @@ class MovableComponentTest {
             // rotated into the plane's reference space.
             var expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
 
             proposedPose = Pose(Vector3(1f, 4f, 1f), Quaternion.Identity)
             rtMoveEndEvent =
@@ -1927,9 +1927,7 @@ class MovableComponentTest {
 
             // Verify that the anchor entity was disposed by checking that it is no longer in the
             // entity manager.
-            assertThat(
-                    session.scene.entityRegistry.getEntitiesOfType(AnchorEntity::class.java).size
-                )
+            assertThat(session.scene.entityRegistry.getEntitiesOfType(AnchorSpace::class.java).size)
                 .isEqualTo(0)
         }
     }
@@ -2016,7 +2014,7 @@ class MovableComponentTest {
             // rotated into the plane's reference space.
             var expectedPose = Pose(Vector3(0f, 0f, 1f), Quaternion(-0.707f, 0f, 0f, 0.707f))
             assertPose(panelEntity.getPose(), expectedPose)
-            assertThat(panelEntity.parent).isInstanceOf(AnchorEntity::class.java)
+            assertThat(panelEntity.parent).isInstanceOf(AnchorSpace::class.java)
 
             // Cache anchor entity and give it a child
             val anchorEntity = panelEntity.parent
@@ -2049,12 +2047,10 @@ class MovableComponentTest {
 
             // Verify that the anchor entity has not been disposed by checking that it is still in
             // the entity manager.
-            assertThat(
-                    session.scene.entityRegistry.getEntitiesOfType(AnchorEntity::class.java).size
-                )
+            assertThat(session.scene.entityRegistry.getEntitiesOfType(AnchorSpace::class.java).size)
                 .isEqualTo(1)
-            anchorEntityToDispose =
-                session.scene.entityRegistry.getEntitiesOfType(AnchorEntity::class.java).first()
+            anchorSpaceToDispose =
+                session.scene.entityRegistry.getEntitiesOfType(AnchorSpace::class.java).first()
         }
     }
 

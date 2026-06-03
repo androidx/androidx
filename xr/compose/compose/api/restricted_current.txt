@@ -338,7 +338,7 @@ package androidx.xr.compose.subspace {
   }
 
   public static final class FollowTarget.Companion {
-    method public androidx.xr.compose.subspace.FollowTarget Anchor(androidx.xr.scenecore.AnchorEntity anchorEntity);
+    method public androidx.xr.compose.subspace.FollowTarget Anchor(androidx.xr.scenecore.AnchorSpace anchorSpace);
     method public androidx.xr.compose.subspace.FollowTarget ArDevice(androidx.xr.runtime.Session session);
   }
 

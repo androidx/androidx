@@ -17,7 +17,7 @@
 package androidx.xr.scenecore.testing
 
 import android.annotation.SuppressLint
-import androidx.xr.scenecore.AnchorEntity.State
+import androidx.xr.scenecore.AnchorSpace.State
 import androidx.xr.scenecore.HitTestResult
 import androidx.xr.scenecore.HitTestResult.SurfaceType
 import androidx.xr.scenecore.InputEvent

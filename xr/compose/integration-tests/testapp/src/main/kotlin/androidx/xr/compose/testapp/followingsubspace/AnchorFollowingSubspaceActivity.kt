@@ -70,7 +70,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import kotlinx.coroutines.delay
 
 /** Represents the different states of the AnchorFollowingSubspaceActivity. */
@@ -188,9 +188,9 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
 
     @Composable
     fun SingleAnchorButtonWithPoseListener(text: String, position: Pose, onClick: () -> Unit) {
-        var rootAnchor by remember { mutableStateOf<AnchorEntity?>(null) }
+        var rootAnchor by remember { mutableStateOf<AnchorSpace?>(null) }
         DisposableEffect(Unit) {
-            val anchor = createAnchorEntity(session, position)
+            val anchor = createAnchorSpace(session, position)
             rootAnchor = anchor
 
             onDispose { anchor?.anchor?.detach() }
@@ -236,15 +236,15 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
     @Composable
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
     private fun FollowingSubspaceContent(session: Session, anchorPose: Pose) {
-        var rootAnchor by remember { mutableStateOf<AnchorEntity?>(null) }
-        var alternateAnchor by remember { mutableStateOf<AnchorEntity?>(null) }
+        var rootAnchor by remember { mutableStateOf<AnchorSpace?>(null) }
+        var alternateAnchor by remember { mutableStateOf<AnchorSpace?>(null) }
         var showAlternate by remember { mutableStateOf(false) }
         var isAnimating by remember { mutableStateOf(false) }
 
         DisposableEffect(anchorPose) {
-            val localRoot = createAnchorEntity(session, anchorPose)
+            val localRoot = createAnchorSpace(session, anchorPose)
             val alternatePose = Pose(anchorPose.translation + ANIMATION_DELTA, anchorPose.rotation)
-            val localAlternative = createAnchorEntity(session, alternatePose)
+            val localAlternative = createAnchorSpace(session, alternatePose)
             rootAnchor = localRoot
             alternateAnchor = localAlternative
 
@@ -285,10 +285,10 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
         }
     }
 
-    private fun createAnchorEntity(session: Session, anchorPose: Pose): AnchorEntity? {
+    private fun createAnchorSpace(session: Session, anchorPose: Pose): AnchorSpace? {
         when (val anchorResult = Anchor.create(session, anchorPose)) {
             is AnchorCreateSuccess -> {
-                return AnchorEntity.create(session, anchor = anchorResult.anchor)
+                return AnchorSpace.create(session, anchor = anchorResult.anchor)
             }
             is AnchorCreateResourcesExhausted -> {
                 Log.e(TAG, "Failed to create anchor: anchor resources exhausted.")

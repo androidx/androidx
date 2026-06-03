@@ -93,7 +93,7 @@ class EntityTest {
     private lateinit var gltfModel: GltfModel
     private lateinit var gltfModelEntity: GltfModelEntity
     private lateinit var panelEntity: PanelEntity
-    private lateinit var anchorEntity: AnchorEntity
+    private lateinit var anchorSpace: AnchorSpace
     private lateinit var activityPanelEntity: ActivityPanelEntity
     private lateinit var entity: Entity
     private lateinit var surfaceEntity: SurfaceEntity
@@ -177,8 +177,8 @@ class EntityTest {
                 name = "test",
                 parent = session.scene.activitySpace,
             )
-        anchorEntity =
-            AnchorEntity.create(
+        anchorSpace =
+            AnchorSpace.create(
                 session,
                 FloatSize2d(),
                 PlaneOrientation.ALL,
@@ -358,19 +358,19 @@ class EntityTest {
     }
 
     @Test
-    fun anchorEntityCreateWithNullTimeout_passesNullToImpl() {
-        anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+    fun anchorSpaceCreateWithNullTimeout_passesNullToImpl() {
+        anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
-        assertThat(anchorEntity).isNotNull()
+        assertThat(anchorSpace).isNotNull()
     }
 
     @Test
-    fun anchorEntity_planeTrackingDisabled_throwsIllegalStateException() {
+    fun anchorSpace_planeTrackingDisabled_throwsIllegalStateException() {
         session.configure(Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build())
 
         assertFailsWith<IllegalStateException> {
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
         }
     }
 
@@ -378,15 +378,12 @@ class EntityTest {
     fun allEntitySetParent_callsRuntimeEntityImplSetParent() {
         panelEntity.parent = activitySpace
         gltfModelEntity.parent = activitySpace
-        anchorEntity.parent = activitySpace
         activityPanelEntity.parent = activitySpace
 
         assertThat(panelEntity.parent).isEqualTo(activitySpace)
         assertThat(panelEntity.rtEntity.parent).isEqualTo(activitySpace.rtEntity)
         assertThat(gltfModelEntity.parent).isEqualTo(activitySpace)
         assertThat(gltfModelEntity.rtEntity.parent).isEqualTo(activitySpace.rtEntity)
-        assertThat(anchorEntity.parent).isEqualTo(activitySpace)
-        assertThat(anchorEntity.rtEntity.parent).isEqualTo(activitySpace.rtEntity)
         assertThat(activityPanelEntity.parent).isEqualTo(activitySpace)
         assertThat(activityPanelEntity.rtEntity.parent).isEqualTo(activitySpace.rtEntity)
     }
@@ -396,7 +393,6 @@ class EntityTest {
         panelEntity.parent = activityPanelEntity
         gltfModelEntity.parent = panelEntity
         entity.parent = gltfModelEntity
-        anchorEntity.parent = entity
 
         assertThat(activityPanelEntity.parent).isEqualTo(activitySpace)
         assertThat(activityPanelEntity.rtEntity.parent).isEqualTo(activitySpace.rtEntity)
@@ -406,8 +402,6 @@ class EntityTest {
         assertThat(gltfModelEntity.rtEntity.parent).isEqualTo(panelEntity.rtEntity)
         assertThat(entity.parent).isEqualTo(gltfModelEntity)
         assertThat(entity.rtEntity.parent).isEqualTo(gltfModelEntity.rtEntity)
-        assertThat(anchorEntity.parent).isEqualTo(entity)
-        assertThat(anchorEntity.rtEntity.parent).isEqualTo(entity.rtEntity)
     }
 
     @Test
@@ -416,7 +410,6 @@ class EntityTest {
         panelEntity.parent = null
         gltfModelEntity.parent = null
         entity.parent = null
-        anchorEntity.parent = null
 
         assertThat(activityPanelEntity.parent).isNull()
         assertThat(activityPanelEntity.rtEntity.parent).isNull()
@@ -426,18 +419,16 @@ class EntityTest {
         assertThat(gltfModelEntity.rtEntity.parent).isNull()
         assertThat(entity.parent).isNull()
         assertThat(entity.rtEntity.parent).isNull()
-        assertThat(anchorEntity.parent).isNull()
-        assertThat(anchorEntity.rtEntity.parent).isNull()
     }
 
     @Test
     fun allEntityAddChild_callsRuntimeEntityImplAddChild() {
-        anchorEntity.addChild(panelEntity)
+        anchorSpace.addChild(panelEntity)
         panelEntity.addChild(gltfModelEntity)
         gltfModelEntity.addChild(activityPanelEntity)
 
-        assertThat(panelEntity.parent).isEqualTo(anchorEntity)
-        assertThat(panelEntity.rtEntity.parent).isEqualTo(anchorEntity.rtEntity)
+        assertThat(panelEntity.parent).isEqualTo(anchorSpace)
+        assertThat(panelEntity.rtEntity.parent).isEqualTo(anchorSpace.rtEntity)
         assertThat(gltfModelEntity.parent).isEqualTo(panelEntity)
         assertThat(gltfModelEntity.rtEntity.parent).isEqualTo(panelEntity.rtEntity)
         assertThat(activityPanelEntity.parent).isEqualTo(gltfModelEntity)
@@ -452,13 +443,13 @@ class EntityTest {
         panelEntity.setPose(pose)
         gltfModelEntity.setPose(pose, Space.PARENT)
         assertThrows(UnsupportedOperationException::class.java) {
-            anchorEntity.setPose(pose, Space.ACTIVITY)
+            anchorSpace.setPose(pose, Space.ACTIVITY)
         }
         activityPanelEntity.setPose(pose, Space.REAL_WORLD)
 
         assertThat(panelEntity.getPose()).isEqualTo(pose)
         assertThat(gltfModelEntity.getPose(Space.PARENT)).isEqualTo(pose)
-        assertThat(anchorEntity.getPose(Space.ACTIVITY)).isEqualTo(pose)
+        assertThat(anchorSpace.getPose(Space.ACTIVITY)).isEqualTo(pose)
         assertThat(activityPanelEntity.getPose(Space.REAL_WORLD)).isEqualTo(pose)
     }
 
@@ -466,7 +457,7 @@ class EntityTest {
     fun allEntityGetActivitySpacePose_callsRuntimeEntityImplGetActivitySpacePose() {
         check(panelEntity.rtEntity.activitySpacePose == Pose.Identity)
         check(gltfModelEntity.rtEntity.activitySpacePose == Pose.Identity)
-        check(anchorEntity.rtEntity.activitySpacePose == Pose.Identity)
+        check(anchorSpace.rtEntity.activitySpacePose == Pose.Identity)
         check(activityPanelEntity.rtEntity.activitySpacePose == Pose.Identity)
     }
 
@@ -476,14 +467,14 @@ class EntityTest {
 
         panelEntity.setAlpha(alpha)
         gltfModelEntity.setAlpha(alpha)
-        anchorEntity.setAlpha(alpha)
+        anchorSpace.setAlpha(alpha)
         activityPanelEntity.setAlpha(alpha)
         entity.setAlpha(alpha)
         activitySpace.setAlpha(alpha)
 
         assertThat(panelEntity.getAlpha()).isEqualTo(alpha)
         assertThat(gltfModelEntity.getAlpha()).isEqualTo(alpha)
-        assertThat(anchorEntity.getAlpha()).isEqualTo(alpha)
+        assertThat(anchorSpace.getAlpha()).isEqualTo(alpha)
         assertThat(activityPanelEntity.getAlpha()).isEqualTo(alpha)
         assertThat(entity.getAlpha()).isEqualTo(alpha)
         assertThat(activitySpace.getAlpha()).isEqualTo(alpha)
@@ -531,14 +522,14 @@ class EntityTest {
     fun allEntitySetEnabled_callsRuntimeEntityImplSetHidden() {
         panelEntity.setEnabled(false)
         gltfModelEntity.setEnabled(false)
-        anchorEntity.setEnabled(false)
+        anchorSpace.setEnabled(false)
         activityPanelEntity.setEnabled(true)
         entity.setEnabled(true)
         activitySpace.setEnabled(true)
 
         assertThat(panelEntity.rtEntity.isHidden(false)).isTrue()
         assertThat(gltfModelEntity.rtEntity.isHidden(false)).isTrue()
-        assertThat(anchorEntity.rtEntity.isHidden(false)).isTrue()
+        assertThat(anchorSpace.rtEntity.isHidden(false)).isTrue()
         assertThat(activityPanelEntity.rtEntity.isHidden(false)).isFalse()
         assertThat(entity.isEnabled()).isTrue()
         assertThat(activitySpace.rtEntity.isHidden(false)).isFalse()
@@ -554,7 +545,7 @@ class EntityTest {
 
         // We expect this to raise an exception
         assertThrows(UnsupportedOperationException::class.java) {
-            anchorEntity.setScale(scale, Space.ACTIVITY)
+            anchorSpace.setScale(scale, Space.ACTIVITY)
         }
         activityPanelEntity.setScale(scale, Space.REAL_WORLD)
         entity.setScale(scale)
@@ -562,7 +553,7 @@ class EntityTest {
 
         assertThat(panelEntity.getScale()).isEqualTo(scale)
         assertThat(gltfModelEntity.getScale(Space.PARENT)).isEqualTo(scale)
-        assertThat(anchorEntity.getScale(Space.ACTIVITY)).isEqualTo(1f)
+        assertThat(anchorSpace.getScale(Space.ACTIVITY)).isEqualTo(1f)
         assertThat(activityPanelEntity.getScale(Space.REAL_WORLD)).isEqualTo(scale)
         assertThat(entity.getScale()).isEqualTo(scale)
         assertThrows(IllegalArgumentException::class.java) { activitySpace.getScale() }
@@ -579,7 +570,7 @@ class EntityTest {
 
         // We expect this to raise an exception
         assertThrows(UnsupportedOperationException::class.java) {
-            anchorEntity.setScale(scale, Space.ACTIVITY)
+            anchorSpace.setScale(scale, Space.ACTIVITY)
         }
         activityPanelEntity.setScale(scale, Space.REAL_WORLD)
         entity.setScale(scale)
@@ -587,7 +578,7 @@ class EntityTest {
 
         assertThat(panelEntity.getScale()).isEqualTo(sdkScale)
         assertThat(gltfModelEntity.getScale(Space.PARENT)).isEqualTo(sdkScale)
-        assertThat(anchorEntity.getScale(Space.ACTIVITY)).isEqualTo(1.0f)
+        assertThat(anchorSpace.getScale(Space.ACTIVITY)).isEqualTo(1.0f)
         assertThat(activityPanelEntity.getScale(Space.REAL_WORLD)).isEqualTo(sdkScale)
         assertThat(entity.getScale()).isEqualTo(sdkScale)
         assertThrows(IllegalArgumentException::class.java) { activitySpace.getScale() }
@@ -603,7 +594,7 @@ class EntityTest {
 
         // We expect this to raise an exception
         assertThrows(UnsupportedOperationException::class.java) {
-            anchorEntity.setScale(scale, Space.ACTIVITY)
+            anchorSpace.setScale(scale, Space.ACTIVITY)
         }
         activityPanelEntity.setScale(scale, Space.REAL_WORLD)
         entity.setScale(scale)
@@ -611,7 +602,7 @@ class EntityTest {
 
         assertThat(panelEntity.getNonUniformScale()).isEqualTo(scale)
         assertThat(gltfModelEntity.getNonUniformScale(Space.PARENT)).isEqualTo(scale)
-        assertThat(anchorEntity.getNonUniformScale(Space.ACTIVITY)).isEqualTo(Vector3.One)
+        assertThat(anchorSpace.getNonUniformScale(Space.ACTIVITY)).isEqualTo(Vector3.One)
         assertThat(activityPanelEntity.getNonUniformScale(Space.REAL_WORLD)).isEqualTo(scale)
         assertThat(entity.getNonUniformScale()).isEqualTo(scale)
 
@@ -628,7 +619,7 @@ class EntityTest {
 
         // We expect this to raise an exception
         assertThrows(UnsupportedOperationException::class.java) {
-            anchorEntity.setScale(scale, Space.ACTIVITY)
+            anchorSpace.setScale(scale, Space.ACTIVITY)
         }
         activityPanelEntity.setScale(scale, Space.REAL_WORLD)
         entity.setScale(scale)
@@ -636,7 +627,7 @@ class EntityTest {
 
         assertThat(panelEntity.getNonUniformScale()).isEqualTo(scale)
         assertThat(gltfModelEntity.getNonUniformScale(Space.PARENT)).isEqualTo(scale)
-        assertThat(anchorEntity.getNonUniformScale(Space.ACTIVITY)).isEqualTo(Vector3.One)
+        assertThat(anchorSpace.getNonUniformScale(Space.ACTIVITY)).isEqualTo(Vector3.One)
         assertThat(activityPanelEntity.getNonUniformScale(Space.REAL_WORLD)).isEqualTo(scale)
         assertThat(entity.getNonUniformScale()).isEqualTo(scale)
         assertThrows(IllegalArgumentException::class.java) { activitySpace.getNonUniformScale() }
@@ -650,7 +641,7 @@ class EntityTest {
             .isEqualTo(pose)
         assertThat(gltfModelEntity.rtEntity.transformPoseTo(pose, panelEntity.rtScenePose))
             .isEqualTo(pose)
-        assertThat(anchorEntity.rtEntity.transformPoseTo(pose, panelEntity.rtScenePose))
+        assertThat(anchorSpace.rtEntity.transformPoseTo(pose, panelEntity.rtScenePose))
             .isEqualTo(pose)
         assertThat(activityPanelEntity.rtEntity.transformPoseTo(pose, panelEntity.rtScenePose))
             .isEqualTo(pose)
@@ -715,13 +706,13 @@ class EntityTest {
 
         panelEntity.disposeInternal()
 
-        anchorEntity.disposeInternal()
+        anchorSpace.disposeInternal()
 
         activityPanelEntity.disposeInternal()
 
         assertThat(gltfModelEntity.isDisposed).isTrue()
         assertThat(panelEntity.isDisposed).isTrue()
-        assertThat(anchorEntity.isDisposed).isTrue()
+        assertThat(anchorSpace.isDisposed).isTrue()
         assertThat(activityPanelEntity.isDisposed).isTrue()
     }
 
@@ -788,7 +779,7 @@ class EntityTest {
 
         assertThat(panelEntity.addComponent(component)).isTrue()
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
-        assertThat(anchorEntity.addComponent(component)).isTrue()
+        assertThat(anchorSpace.addComponent(component)).isTrue()
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
     }
 
@@ -798,7 +789,7 @@ class EntityTest {
 
         assertThat(panelEntity.addComponent(component)).isFalse()
         assertThat(gltfModelEntity.addComponent(component)).isFalse()
-        assertThat(anchorEntity.addComponent(component)).isFalse()
+        assertThat(anchorSpace.addComponent(component)).isFalse()
         assertThat(activityPanelEntity.addComponent(component)).isFalse()
     }
 
@@ -818,9 +809,9 @@ class EntityTest {
 
         assertThat(component.onDetached).isEqualTo(2)
 
-        assertThat(anchorEntity.addComponent(component)).isTrue()
+        assertThat(anchorSpace.addComponent(component)).isTrue()
 
-        anchorEntity.removeComponent(component)
+        anchorSpace.removeComponent(component)
 
         assertThat(component.onDetached).isEqualTo(3)
 
@@ -842,8 +833,8 @@ class EntityTest {
         assertThat(gltfModelEntity.addComponent(component1)).isTrue()
         assertThat(gltfModelEntity.addComponent(component2)).isTrue()
 
-        assertThat(anchorEntity.addComponent(component1)).isTrue()
-        assertThat(anchorEntity.addComponent(component2)).isTrue()
+        assertThat(anchorSpace.addComponent(component1)).isTrue()
+        assertThat(anchorSpace.addComponent(component2)).isTrue()
 
         assertThat(activityPanelEntity.addComponent(component1)).isTrue()
         assertThat(activityPanelEntity.addComponent(component2)).isTrue()
@@ -860,8 +851,8 @@ class EntityTest {
         assertThat(gltfModelEntity.addComponent(component1)).isTrue()
         assertThat(gltfModelEntity.addComponent(component2)).isTrue()
 
-        assertThat(anchorEntity.addComponent(component1)).isTrue()
-        assertThat(anchorEntity.addComponent(component2)).isTrue()
+        assertThat(anchorSpace.addComponent(component1)).isTrue()
+        assertThat(anchorSpace.addComponent(component2)).isTrue()
 
         assertThat(activityPanelEntity.addComponent(component1)).isTrue()
         assertThat(activityPanelEntity.addComponent(component2)).isTrue()
@@ -888,10 +879,10 @@ class EntityTest {
         assertThat(component1.onDetached).isEqualTo(2)
         assertThat(component2.onDetached).isEqualTo(2)
 
-        assertThat(anchorEntity.addComponent(component1)).isTrue()
-        assertThat(anchorEntity.addComponent(component2)).isTrue()
+        assertThat(anchorSpace.addComponent(component1)).isTrue()
+        assertThat(anchorSpace.addComponent(component2)).isTrue()
 
-        anchorEntity.removeAllComponents()
+        anchorSpace.removeAllComponents()
 
         assertThat(component1.onDetached).isEqualTo(3)
         assertThat(component2.onDetached).isEqualTo(3)
@@ -917,8 +908,8 @@ class EntityTest {
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
         assertThat(component.onAttached).isEqualTo(4)
 
-        assertThat(anchorEntity.addComponent(component)).isTrue()
-        assertThat(anchorEntity.addComponent(component)).isTrue()
+        assertThat(anchorSpace.addComponent(component)).isTrue()
+        assertThat(anchorSpace.addComponent(component)).isTrue()
         assertThat(component.onAttached).isEqualTo(6)
 
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
@@ -943,10 +934,10 @@ class EntityTest {
 
         assertThat(component.onDetached).isEqualTo(2)
 
-        assertThat(anchorEntity.addComponent(component)).isTrue()
+        assertThat(anchorSpace.addComponent(component)).isTrue()
 
-        anchorEntity.removeComponent(component)
-        anchorEntity.removeComponent(component)
+        anchorSpace.removeComponent(component)
+        anchorSpace.removeComponent(component)
 
         assertThat(component.onDetached).isEqualTo(3)
 
@@ -974,9 +965,9 @@ class EntityTest {
 
         assertThat(component.onDetached).isEqualTo(2)
 
-        assertThat(anchorEntity.addComponent(component)).isTrue()
+        assertThat(anchorSpace.addComponent(component)).isTrue()
 
-        anchorEntity.disposeInternal()
+        anchorSpace.disposeInternal()
 
         assertThat(component.onDetached).isEqualTo(3)
 
@@ -1000,9 +991,9 @@ class EntityTest {
         assertThat(gltfModelEntity.addComponent(component2)).isTrue()
         assertThat(gltfModelEntity.getComponents()).containsExactly(component1, component2)
 
-        assertThat(anchorEntity.addComponent(component1)).isTrue()
-        assertThat(anchorEntity.addComponent(component2)).isTrue()
-        assertThat(anchorEntity.getComponents()).containsExactly(component1, component2)
+        assertThat(anchorSpace.addComponent(component1)).isTrue()
+        assertThat(anchorSpace.addComponent(component2)).isTrue()
+        assertThat(anchorSpace.getComponents()).containsExactly(component1, component2)
 
         assertThat(activityPanelEntity.addComponent(component1)).isTrue()
         assertThat(activityPanelEntity.addComponent(component2)).isTrue()
@@ -1229,7 +1220,7 @@ class EntityTest {
 
         surfaceEntity.disposeInternal()
 
-        anchorEntity.disposeInternal()
+        anchorSpace.disposeInternal()
 
         entity.disposeInternal()
 
@@ -1266,9 +1257,9 @@ class EntityTest {
 
         surfaceEntity.disposeInternal()
 
-        anchorEntity.disposeInternal()
+        anchorSpace.disposeInternal()
 
-        anchorEntity.disposeInternal()
+        anchorSpace.disposeInternal()
 
         entity.disposeInternal()
 
@@ -1314,7 +1305,7 @@ class EntityTest {
     fun isDisposed_falseForNewEntity() {
         assertThat(panelEntity.isDisposed).isFalse()
         assertThat(surfaceEntity.isDisposed).isFalse()
-        assertThat(anchorEntity.isDisposed).isFalse()
+        assertThat(anchorSpace.isDisposed).isFalse()
         assertThat(entity.isDisposed).isFalse()
         assertThat(activityPanelEntity.isDisposed).isFalse()
         assertThat(gltfModelEntity.isDisposed).isFalse()
@@ -1327,7 +1318,7 @@ class EntityTest {
 
         surfaceEntity.disposeInternal()
 
-        anchorEntity.disposeInternal()
+        anchorSpace.disposeInternal()
 
         entity.disposeInternal()
 
@@ -1339,7 +1330,7 @@ class EntityTest {
 
         assertThat(panelEntity.isDisposed).isTrue()
         assertThat(surfaceEntity.isDisposed).isTrue()
-        assertThat(anchorEntity.isDisposed).isTrue()
+        assertThat(anchorSpace.isDisposed).isTrue()
         assertThat(entity.isDisposed).isTrue()
         assertThat(activityPanelEntity.isDisposed).isTrue()
         assertThat(gltfModelEntity.isDisposed).isTrue()

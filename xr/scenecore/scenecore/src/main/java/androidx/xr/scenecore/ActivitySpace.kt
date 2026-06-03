@@ -18,12 +18,8 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
-import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
 import androidx.xr.scenecore.runtime.DirectExecutor
 import androidx.xr.scenecore.runtime.HandlerExecutor
@@ -34,7 +30,7 @@ import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /**
- * ActivitySpace is an [Entity] used to track the system-managed pose and boundary of the volume
+ * ActivitySpace is a [SpaceEntity] used to track the system-managed pose and boundary of the volume
  * associated with a spatialized Activity. The Application cannot directly control this volume, but
  * the system might update it in response to the User moving it or entering or exiting Full Space
  * Mode.
@@ -43,7 +39,7 @@ import java.util.function.Consumer
 // spaces.
 public class ActivitySpace
 private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegistry) :
-    Entity(rtActivitySpace, entityRegistry) {
+    SpaceEntity(rtActivitySpace, entityRegistry) {
 
     private val rtActivitySpace: RtActivitySpace
         get() = rtEntity as RtActivitySpace
@@ -138,7 +134,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      * due to an internal system event.
      *
      * When this event occurs, any [ScenePose] that is not a child of ActivitySpace, such as
-     * [AnchorEntity], will have a different position relative to the [ActivitySpace]. Therefore,
+     * [AnchorSpace], will have a different position relative to the [ActivitySpace]. Therefore,
      * this listener can be used to indicate when to invalidate any cached information about the
      * relative difference in Pose between ActivitySpace's children and children of
      * non-ActivitySpace ScenePoses.
@@ -160,7 +156,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
      * due to an internal system event.
      *
      * When this event occurs, any [ScenePose] that is not a child of ActivitySpace, such as
-     * [AnchorEntity], will have a different position relative to the [ActivitySpace]. Therefore,
+     * [AnchorSpace], will have a different position relative to the [ActivitySpace]. Therefore,
      * this listener can be used to indicate when to invalidate any cached information about the
      * relative difference in Pose between ActivitySpace's children and children of
      * non-ActivitySpace ScenePoses.
@@ -206,124 +202,6 @@ private constructor(rtActivitySpace: RtActivitySpace, entityRegistry: EntityRegi
             checkNotDisposed()
             return rtActivitySpace.recommendedContentBoxInFullSpace
         }
-
-    /**
-     * Throws [UnsupportedOperationException] if called.
-     *
-     * **Note:** The pose of the `ActivitySpace` is managed by the system. Applications should not
-     * call this method, as any changes may be overwritten by the system.
-     *
-     * @param pose The new pose to set.
-     * @param relativeTo The space in which the pose is defined.
-     * @throws UnsupportedOperationException if called.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun setPose(pose: Pose, relativeTo: Space) {
-        checkNotDisposed()
-        throw UnsupportedOperationException("Cannot set 'pose' on an ActivitySpace.")
-    }
-
-    /**
-     * Returns the pose of the `ActivitySpace` relative to the specified coordinate space.
-     *
-     * @param relativeTo The coordinate space to get the pose relative to. Defaults to
-     *   [Space.PARENT].
-     * @return The current pose of the `ActivitySpace`.
-     * @throws IllegalArgumentException if called with Space.PARENT since ActivitySpace has no
-     *   parents.
-     */
-    override fun getPose(relativeTo: Space): Pose {
-        checkNotDisposed()
-        return when (relativeTo) {
-            Space.PARENT ->
-                throw IllegalArgumentException(
-                    "ActivitySpace is a root space and it does not have a parent."
-                )
-            Space.ACTIVITY,
-            @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
-            Space.REAL_WORLD -> super.getPose(relativeTo)
-            else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
-        }
-    }
-
-    /**
-     * Throws [UnsupportedOperationException] if called.
-     *
-     * **Note:** The scale of the `ActivitySpace` is managed by the system. Applications should not
-     * call this method, as any changes may be overwritten by the system.
-     *
-     * @param scale The new scale to set.
-     * @param relativeTo The space in which the scale is defined.
-     * @throws UnsupportedOperationException if called.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun setScale(scale: Float, relativeTo: Space) {
-        checkNotDisposed()
-        throw UnsupportedOperationException("Cannot set 'scale' on an ActivitySpace.")
-    }
-
-    /**
-     * Throws [UnsupportedOperationException] if called.
-     *
-     * **Note:** The scale of the `ActivitySpace` is managed by the system. Applications should not
-     * call this method, as any changes may be overwritten by the system.
-     *
-     * @param scale The new scale to set.
-     * @param relativeTo The space in which the scale is defined.
-     * @throws UnsupportedOperationException if called.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun setScale(scale: Vector3, relativeTo: Space) {
-        throw UnsupportedOperationException("Cannot set 'scale' on an ActivitySpace.")
-    }
-
-    /**
-     * Returns the scale of the `ActivitySpace` along each axis, relative to the specified
-     * coordinate space.
-     *
-     * @param relativeTo The coordinate space to get the scale relative to. Defaults to
-     *   [Space.PARENT].
-     * @return The current scale of the `ActivitySpace` along each axis.
-     * @throws IllegalArgumentException if called with Space.PARENT since ActivitySpace has no
-     *   parents.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun getNonUniformScale(relativeTo: Space): Vector3 {
-        checkNotDisposed()
-        return when (relativeTo) {
-            Space.PARENT ->
-                throw IllegalArgumentException(
-                    "ActivitySpace is a root space and it does not have a parent."
-                )
-            Space.ACTIVITY,
-            @Suppress("DEPRECATION") // TODO - b/415320653: REAL_WORLD
-            Space.REAL_WORLD -> super.getNonUniformScale(relativeTo)
-            else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
-        }
-    }
-
-    /**
-     * Returns the scale of the `ActivitySpace` relative to the specified coordinate space.
-     *
-     * @param relativeTo The coordinate space to get the scale relative to. Defaults to
-     *   [Space.PARENT].
-     * @return The current scale of the `ActivitySpace`.
-     * @throws IllegalArgumentException if called with Space.PARENT since ActivitySpace has no
-     *   parents.
-     */
-    override fun getScale(relativeTo: Space): Float {
-        checkNotDisposed()
-        return when (relativeTo) {
-            Space.PARENT ->
-                throw IllegalArgumentException(
-                    "ActivitySpace is a root space and it does not have a parent."
-                )
-            Space.ACTIVITY,
-            @Suppress("DEPRECATION") // TODO - b/415320653: REAL_WORLD
-            Space.REAL_WORLD -> super.getScale(relativeTo)
-            else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
-        }
-    }
 
     override fun disposeInternal() {
         if (isDisposed) return

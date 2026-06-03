@@ -17,7 +17,7 @@ package androidx.xr.scenecore {
     method @BytecodeOnly public static androidx.xr.scenecore.ActivityPanelEntity! create$default(androidx.xr.scenecore.ActivityPanelEntity.Companion!, androidx.xr.runtime.Session!, androidx.xr.runtime.math.IntSize2d!, String!, androidx.xr.runtime.math.Pose!, androidx.xr.scenecore.Entity!, int, Object!);
   }
 
-  public final class ActivitySpace extends androidx.xr.scenecore.Entity {
+  public final class ActivitySpace extends androidx.xr.scenecore.SpaceEntity {
     method public void addBoundsChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
     method public void addBoundsChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
     method public void addOriginChangedListener(Runnable listener);
@@ -43,45 +43,6 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.AlphaMode OPAQUE;
   }
 
-  public final class AnchorEntity extends androidx.xr.scenecore.Entity {
-    method public void addOriginChangedListener(Runnable listener);
-    method public void addOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
-    method public void addStateChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
-    method public void addStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
-    method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
-    method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
-    method public static androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
-    method @InaccessibleFromKotlin public androidx.xr.arcore.Anchor? getAnchor();
-    method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorEntity.State getState();
-    method public void removeOriginChangedListener(Runnable listener);
-    method public void removeStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorEntity.State> listener);
-    property public androidx.xr.arcore.Anchor? anchor;
-    property public androidx.xr.scenecore.AnchorEntity.State state;
-    field public static final androidx.xr.scenecore.AnchorEntity.Companion Companion;
-  }
-
-  public static final class AnchorEntity.Companion {
-    method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
-    method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
-    method public androidx.xr.scenecore.AnchorEntity create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
-    method @BytecodeOnly public static androidx.xr.scenecore.AnchorEntity! create$default(androidx.xr.scenecore.AnchorEntity.Companion!, androidx.xr.runtime.Session!, androidx.xr.runtime.math.FloatSize2d!, java.util.Set!, java.util.Set!, java.time.Duration!, int, Object!);
-  }
-
-  public static final class AnchorEntity.State {
-    field public static final androidx.xr.scenecore.AnchorEntity.State ANCHORED;
-    field public static final androidx.xr.scenecore.AnchorEntity.State.Companion Companion;
-    field public static final androidx.xr.scenecore.AnchorEntity.State ERROR;
-    field public static final androidx.xr.scenecore.AnchorEntity.State TIMED_OUT;
-    field public static final androidx.xr.scenecore.AnchorEntity.State UNANCHORED;
-  }
-
-  public static final class AnchorEntity.State.Companion {
-    property public androidx.xr.scenecore.AnchorEntity.State ANCHORED;
-    property public androidx.xr.scenecore.AnchorEntity.State ERROR;
-    property public androidx.xr.scenecore.AnchorEntity.State TIMED_OUT;
-    property public androidx.xr.scenecore.AnchorEntity.State UNANCHORED;
-  }
-
   public final class AnchorPlacement {
     method public static androidx.xr.scenecore.AnchorPlacement createForPlanes();
     method public static androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations);
@@ -98,6 +59,45 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations);
     method public androidx.xr.scenecore.AnchorPlacement createForPlanes(optional java.util.Set<androidx.xr.scenecore.PlaneOrientation> anchorablePlaneOrientations, optional java.util.Set<androidx.xr.scenecore.PlaneSemanticType> anchorablePlaneSemanticTypes);
     method @BytecodeOnly public static androidx.xr.scenecore.AnchorPlacement! createForPlanes$default(androidx.xr.scenecore.AnchorPlacement.Companion!, java.util.Set!, java.util.Set!, int, Object!);
+  }
+
+  public final class AnchorSpace extends androidx.xr.scenecore.SpaceEntity {
+    method public void addOriginChangedListener(Runnable listener);
+    method public void addOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
+    method public void addStateChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.AnchorSpace.State> listener);
+    method public void addStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorSpace.State> listener);
+    method public static androidx.xr.scenecore.AnchorSpace create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
+    method public static androidx.xr.scenecore.AnchorSpace create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
+    method public static androidx.xr.scenecore.AnchorSpace create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Anchor? getAnchor();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorSpace.State getState();
+    method public void removeOriginChangedListener(Runnable listener);
+    method public void removeStateChangedListener(java.util.function.Consumer<androidx.xr.scenecore.AnchorSpace.State> listener);
+    property public androidx.xr.arcore.Anchor? anchor;
+    property public androidx.xr.scenecore.AnchorSpace.State state;
+    field public static final androidx.xr.scenecore.AnchorSpace.Companion Companion;
+  }
+
+  public static final class AnchorSpace.Companion {
+    method public androidx.xr.scenecore.AnchorSpace create(androidx.xr.runtime.Session session, androidx.xr.arcore.Anchor anchor);
+    method public androidx.xr.scenecore.AnchorSpace create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes);
+    method public androidx.xr.scenecore.AnchorSpace create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.FloatSize2d minimumPlaneExtents, java.util.Set<androidx.xr.scenecore.PlaneOrientation> planeOrientations, java.util.Set<androidx.xr.scenecore.PlaneSemanticType> planeSemanticTypes, optional java.time.Duration timeout);
+    method @BytecodeOnly public static androidx.xr.scenecore.AnchorSpace! create$default(androidx.xr.scenecore.AnchorSpace.Companion!, androidx.xr.runtime.Session!, androidx.xr.runtime.math.FloatSize2d!, java.util.Set!, java.util.Set!, java.time.Duration!, int, Object!);
+  }
+
+  public static final class AnchorSpace.State {
+    field public static final androidx.xr.scenecore.AnchorSpace.State ANCHORED;
+    field public static final androidx.xr.scenecore.AnchorSpace.State.Companion Companion;
+    field public static final androidx.xr.scenecore.AnchorSpace.State ERROR;
+    field public static final androidx.xr.scenecore.AnchorSpace.State TIMED_OUT;
+    field public static final androidx.xr.scenecore.AnchorSpace.State UNANCHORED;
+  }
+
+  public static final class AnchorSpace.State.Companion {
+    property public androidx.xr.scenecore.AnchorSpace.State ANCHORED;
+    property public androidx.xr.scenecore.AnchorSpace.State ERROR;
+    property public androidx.xr.scenecore.AnchorSpace.State TIMED_OUT;
+    property public androidx.xr.scenecore.AnchorSpace.State UNANCHORED;
   }
 
   public abstract class BaseScenePose<RtScenePoseType extends androidx.xr.scenecore.runtime.ScenePose> implements androidx.xr.scenecore.ScenePose {
@@ -196,7 +196,7 @@ package androidx.xr.scenecore {
     method public final java.util.List<androidx.xr.scenecore.Component> getComponents();
     method public final <T extends androidx.xr.scenecore.Component> java.util.List<T> getComponentsOfType(Class<? extends T> type);
     method @InaccessibleFromKotlin public final CharSequence getContentDescription();
-    method @InaccessibleFromKotlin public final androidx.xr.scenecore.Entity? getParent();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getParent();
     method public androidx.xr.runtime.math.Pose getPose();
     method public androidx.xr.runtime.math.Pose getPose(optional androidx.xr.scenecore.Space relativeTo);
     method @BytecodeOnly public static androidx.xr.runtime.math.Pose! getPose$default(androidx.xr.scenecore.Entity!, androidx.xr.scenecore.Space!, int, Object!);
@@ -212,7 +212,7 @@ package androidx.xr.scenecore {
     method public final void setAlpha(@FloatRange(from=0.0, to=1.0) float alpha);
     method @InaccessibleFromKotlin public final void setContentDescription(CharSequence);
     method public final void setEnabled(boolean enabled);
-    method @InaccessibleFromKotlin public final void setParent(androidx.xr.scenecore.Entity?);
+    method @InaccessibleFromKotlin public void setParent(androidx.xr.scenecore.Entity?);
     method public void setPose(androidx.xr.runtime.math.Pose pose);
     method public void setPose(androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Space relativeTo);
     method @BytecodeOnly public static void setPose$default(androidx.xr.scenecore.Entity!, androidx.xr.runtime.math.Pose!, androidx.xr.scenecore.Space!, int, Object!);
@@ -222,7 +222,7 @@ package androidx.xr.scenecore {
     property public final java.util.List<androidx.xr.scenecore.Entity> children;
     property public final CharSequence contentDescription;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final boolean isDisposed;
-    property public final androidx.xr.scenecore.Entity? parent;
+    property public androidx.xr.scenecore.Entity? parent;
     field public static final androidx.xr.scenecore.Entity.Companion Companion;
   }
 
@@ -1027,6 +1027,10 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public float getRecommendedScale();
     property public androidx.xr.runtime.math.Pose recommendedPose;
     property public float recommendedScale;
+  }
+
+  public abstract class SpaceEntity extends androidx.xr.scenecore.Entity {
+    property public androidx.xr.scenecore.Entity? parent;
   }
 
   public final class SpatialAudioTrack {

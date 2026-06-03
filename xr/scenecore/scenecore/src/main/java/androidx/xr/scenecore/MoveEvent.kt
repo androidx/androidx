@@ -128,7 +128,7 @@ public interface EntityMoveListener {
      * @param finalPose [Pose] of the Entity during this event relative to its parent.
      * @param finalScale Scale of the Entity during this event.
      * @param updatedParent If anchorPlacement is set, the Entity may have a new parent when the
-     *   movement completes. This will be a new [AnchorEntity], if it was anchored or re-anchored
+     *   movement completes. This will be a new [AnchorSpace], if it was anchored or re-anchored
      *   during the movement; or the [ActivitySpace], if it was unanchored. This will be null if
      *   there was no updated parent on the Entity.
      */

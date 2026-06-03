@@ -120,8 +120,8 @@ class BoundsComponentTest {
                 name = "test",
                 parent = session.scene.activitySpace,
             )
-        val anchorEntity =
-            AnchorEntity.create(
+        val anchorSpace =
+            AnchorSpace.create(
                 session,
                 FloatSize2d(),
                 PlaneOrientation.ALL,
@@ -147,7 +147,7 @@ class BoundsComponentTest {
         val boundsComponent = BoundsComponent.create(session)
 
         assertThat(panelEntity.addComponent(boundsComponent)).isFalse()
-        assertThat(anchorEntity.addComponent(boundsComponent)).isFalse()
+        assertThat(anchorSpace.addComponent(boundsComponent)).isFalse()
         assertThat(activityPanelEntity.addComponent(boundsComponent)).isFalse()
         assertThat(entity.addComponent(boundsComponent)).isFalse()
         assertThat(surfaceEntity.addComponent(boundsComponent)).isFalse()

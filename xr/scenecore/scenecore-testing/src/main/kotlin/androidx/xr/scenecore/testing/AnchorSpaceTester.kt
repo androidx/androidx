@@ -18,46 +18,46 @@
 
 package androidx.xr.scenecore.testing
 
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.runtime.AnchorEntity.State as RtState
 import androidx.xr.scenecore.testing.internal.FakeAnchorEntity as InternalFakeAnchorEntity
 
 /**
- * A test-only accessor for [AnchorEntity] that enables direct manipulation and inspection of its
+ * A test-only accessor for [AnchorSpace] that enables direct manipulation and inspection of its
  * internal state.
  */
-public class AnchorEntityTester
+public class AnchorSpaceTester
 internal constructor(
     private val rtAnchorEntity: InternalFakeAnchorEntity,
-    internal val anchorEntity: AnchorEntity,
+    internal val anchorSpace: AnchorSpace,
 ) {
 
     internal companion object {
         /**
-         * Retrieves a test data accessor for the given [AnchorEntity].
+         * Retrieves a test data accessor for the given [AnchorSpace].
          *
-         * This function provides a [AnchorEntityTester] instance, which can be used to inspect and
+         * This function provides a [AnchorSpaceTester] instance, which can be used to inspect and
          * manipulate its underlying data in the test environment.
          *
-         * @param anchorEntity The entity for which to retrieve the test data accessor.
-         * @return A [AnchorEntityTester] instance for the given entity.
+         * @param anchorSpace The AnchorSpace for which to retrieve the test data accessor.
+         * @return An [AnchorSpaceTester] instance for the given AnchorSpace.
          */
-        internal fun create(anchorEntity: AnchorEntity): AnchorEntityTester {
-            return AnchorEntityTester(
-                (anchorEntity.rtEntity as FakeEntity).fakeInternal as InternalFakeAnchorEntity,
-                anchorEntity,
+        internal fun create(anchorSpace: AnchorSpace): AnchorSpaceTester {
+            return AnchorSpaceTester(
+                (anchorSpace.rtEntity as FakeEntity).fakeInternal as InternalFakeAnchorEntity,
+                anchorSpace,
             )
         }
     }
 
     /**
-     * The state of the AnchorEntity.
+     * The state of the AnchorSpace.
      *
      * Setting this property simulates a system-level state change (e.g., from
-     * [AnchorEntity.State.UNANCHORED] to [AnchorEntity.State.ANCHORED]) and triggers the listener
-     * set by [AnchorEntity.addStateChangedListener].
+     * [AnchorSpace.State.UNANCHORED] to [AnchorSpace.State.ANCHORED]) and triggers the listener set
+     * by [AnchorSpace.addStateChangedListener].
      */
-    public var state: AnchorEntity.State?
+    public var state: AnchorSpace.State?
         get() = rtAnchorEntity.state.toState()
         set(value) {
             rtAnchorEntity.onStateChanged(value?.toRtState() ?: RtState.ERROR)
@@ -67,7 +67,7 @@ internal constructor(
      * Simulates a change to the underlying space's origin.
      *
      * This function manually triggers any listeners registered via
-     * [AnchorEntity.addOriginChangedListener], allowing tests to verify that the application
+     * [AnchorSpace.addOriginChangedListener], allowing tests to verify that the application
      * correctly responds to spatial updates from the system.
      */
     public fun triggerOnOriginChanged() {
@@ -78,17 +78,17 @@ internal constructor(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as AnchorEntityTester
+        other as AnchorSpaceTester
 
         if (rtAnchorEntity != other.rtAnchorEntity) return false
-        if (anchorEntity != other.anchorEntity) return false
+        if (anchorSpace != other.anchorSpace) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = rtAnchorEntity.hashCode()
-        result = 31 * result + anchorEntity.hashCode()
+        result = 31 * result + anchorSpace.hashCode()
 
         return result
     }

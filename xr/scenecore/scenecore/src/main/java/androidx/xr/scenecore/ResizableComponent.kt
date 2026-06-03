@@ -35,7 +35,7 @@ import java.util.function.Consumer
  * boundaries of a user-resize affordance. While resizing an overlay will appear indicating the
  * proposed updated size.
  *
- * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
+ * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
  * [Entity.addComponent] to an Entity with these types will return false.
  *
  * Note: This Component is currently unsupported on GltfModelEntity.
@@ -168,7 +168,7 @@ private constructor(
     private var entity: Entity? = null
 
     override fun onAttach(entity: Entity): Boolean {
-        if (entity is AnchorEntity || entity is ActivitySpace) {
+        if (entity is AnchorSpace || entity is ActivitySpace) {
             return false
         }
         if (this.entity != null) {
@@ -261,7 +261,7 @@ private constructor(
          * Component will enable the user to resize the Entity by dragging along the boundaries of a
          * user-resize affordance.
          *
-         * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
+         * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
          * [Entity.addComponent] to an Entity with these types will return false.
          *
          * @param session The [Session] to create the ResizableComponent in.

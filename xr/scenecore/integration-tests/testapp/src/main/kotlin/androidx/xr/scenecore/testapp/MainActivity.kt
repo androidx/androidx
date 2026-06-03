@@ -73,7 +73,7 @@ import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.accessibilitytest.AccessibilityTestActivity
 import androidx.xr.scenecore.testapp.activitypanel.ActivityPanelActivity
-import androidx.xr.scenecore.testapp.anchorentity.AnchorEntityActivity
+import androidx.xr.scenecore.testapp.anchorspace.AnchorSpaceActivity
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import androidx.xr.scenecore.testapp.environment.EnvironmentActivity
 import androidx.xr.scenecore.testapp.fieldofviewvisibility.FieldOfViewVisibilityActivity
@@ -341,7 +341,7 @@ class MainActivity : AppCompatActivity() {
         when (index) {
             Tests.ACTIVITY_PANEL_TEST.test -> startActivity(createIntent<ActivityPanelActivity>())
 
-            Tests.ANCHOR_TEST.test -> startActivity(createIntent<AnchorEntityActivity>())
+            Tests.ANCHOR_TEST.test -> startActivity(createIntent<AnchorSpaceActivity>())
 
             Tests.FIELD_OF_VIEW_VISIBILITY_TEST.test ->
                 startActivity(createIntent<FieldOfViewVisibilityActivity>())
