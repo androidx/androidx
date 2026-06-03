@@ -122,7 +122,6 @@ public class SandboxedPdfLoader(
             } catch (_: UnsupportedOperationException) {
                 PdfDocument.LINEARIZATION_STATUS_UNKNOWN
             }
-        val isPdfLinearized = linearizationStatus == PdfRenderer.DOCUMENT_LINEARIZED_TYPE_LINEARIZED
 
         val formType: Int =
             try {
@@ -141,7 +140,6 @@ public class SandboxedPdfLoader(
             linearizationStatus,
             formType,
             renderParams = renderParams,
-            isPdfLinearized,
         )
     }
 

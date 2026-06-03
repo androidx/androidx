@@ -64,11 +64,6 @@ internal open class FakePdfDocument(
     override val formType: Int = PDF_FORM_TYPE_NONE,
     override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
     private val supportedFeatures: Set<PdfFeature> = setOf(),
-    @Deprecated(
-        "Deprecated, Use linearizationStatus instead",
-        replaceWith = ReplaceWith("linearizationStatus"),
-    )
-    override val isLinearized: Boolean = false,
     override val renderParams: RenderParams = RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY),
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),
     override val uri: Uri = Uri.parse("content://test.app/document.pdf"),

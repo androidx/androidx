@@ -49,13 +49,6 @@ public interface PdfDocument : Closeable {
     /** The total number of pages in the document. */
     public val pageCount: Int
 
-    /** Indicates whether the document is linearized (optimized for fast web viewing). */
-    @Deprecated(
-        "Deprecated, Use linearizationStatus instead",
-        replaceWith = ReplaceWith("linearizationStatus"),
-    )
-    public val isLinearized: Boolean
-
     /** Indicates the linearization status of the document. */
     @get:LinearizationStatus public val linearizationStatus: Int
 
