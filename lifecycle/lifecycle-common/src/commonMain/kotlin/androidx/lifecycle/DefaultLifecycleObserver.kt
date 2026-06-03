@@ -20,8 +20,8 @@ package androidx.lifecycle
  * this interface and [LifecycleEventObserver], then methods of `DefaultLifecycleObserver` will be
  * called first, and then followed by the call of [LifecycleEventObserver.onStateChanged]
  *
- * If a class implements this interface and in the same time uses [OnLifecycleEvent], then
- * annotations will be ignored.
+ * If a class implements this interface and in the same time uses
+ * `androidx.lifecycle.OnLifecycleEvent`, then annotations will be ignored.
  */
 public interface DefaultLifecycleObserver : LifecycleObserver {
     /**

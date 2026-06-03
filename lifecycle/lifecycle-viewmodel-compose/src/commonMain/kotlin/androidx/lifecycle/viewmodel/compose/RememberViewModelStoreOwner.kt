@@ -49,17 +49,22 @@ import androidx.savedstate.savedState
  * throw an [IllegalStateException] if one is not present.
  *
  * @param parent The [ViewModelStoreOwner] to use as the parent. Defaults to the owner from
- *   [LocalViewModelStoreOwner].
+ *   [LocalViewModelStoreOwner]. If this value changes, the [ViewModelStoreOwner] will be recreated.
  * @param savedStateRegistryOwner An optional [SavedStateRegistryOwner] to delegate saved state
- *   operations. When `null`, ViewModels created in this scope do not support saved state.
+ *   operations. When `null`, ViewModels created in this scope do not support saved state. If this
+ *   value changes, the [ViewModelStoreOwner] will be recreated.
  * @param defaultArgs The [SavedState] containing default arguments to be passed to ViewModels
  *   created in this scope. These arguments are merged with any default arguments in
  *   [defaultCreationExtras]. If the same key exists in both, the value from [defaultArgs] takes
- *   precedence.
+ *   precedence. This value is only read during the initial creation of the owner; subsequent
+ *   recompositions with different values will not update the existing owner.
  * @param defaultCreationExtras The [CreationExtras] to use. Defaults to the [parent]'s default
- *   extras.
+ *   extras. This value is only read during the initial creation of the owner; subsequent
+ *   recompositions with different values will not update or recreate the existing owner.
  * @param defaultFactory The [ViewModelProvider.Factory] to use for creating ViewModels in this
- *   scope. Defaults to the [parent]'s default factory.
+ *   scope. Defaults to the [parent]'s default factory. This value is only read during the initial
+ *   creation of the owner; subsequent recompositions with different values will not update or
+ *   recreate the existing owner.
  * @return A [ViewModelStoreOwner] that is remembered across compositions and scoped to this call
  *   site.
  * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreOwnerSample
@@ -101,9 +106,11 @@ public fun rememberViewModelStoreOwner(
  * clearing.
  *
  * @param provider The [ViewModelStoreProvider] that manages the creation and cleanup of the
- *   underlying [ViewModelStore].
+ *   underlying [ViewModelStore]. If this value changes, the [ViewModelStoreOwner] will be
+ *   recreated.
  * @param savedStateRegistryOwner An optional [SavedStateRegistryOwner] to delegate saved state
- *   operations. When `null`, ViewModels created in this scope do not support saved state.
+ *   operations. When `null`, ViewModels created in this scope do not support saved state. If this
+ *   value changes, the [ViewModelStoreOwner] will be recreated.
  * @return A [ViewModelStoreOwner] remembered across compositions and scoped to this call site.
  * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreProviderSample
  */
@@ -136,11 +143,14 @@ public fun rememberViewModelStoreOwner(
  *
  * @param key A unique identifier to isolate this store from others. Providing the same [key] and
  *   [provider] to multiple [rememberViewModelStoreOwner] calls will yield the same
- *   [ViewModelStoreOwner] and shared state.
+ *   [ViewModelStoreOwner] and shared state. If this value changes, the [ViewModelStoreOwner] will
+ *   be recreated.
  * @param provider The [ViewModelStoreProvider] that manages the creation and cleanup of the
- *   underlying [ViewModelStore].
+ *   underlying [ViewModelStore]. If this value changes, the [ViewModelStoreOwner] will be
+ *   recreated.
  * @param savedStateRegistryOwner An optional [SavedStateRegistryOwner] to delegate saved state
- *   operations. When `null`, ViewModels created in this scope do not support saved state.
+ *   operations. When `null`, ViewModels created in this scope do not support saved state. If this
+ *   value changes, the [ViewModelStoreOwner] will be recreated.
  * @return A [ViewModelStoreOwner] remembered across compositions and scoped to the provided [key].
  * @sample androidx.lifecycle.viewmodel.compose.samples.RememberViewModelStoreOwnerWithKeySample
  */

@@ -17,13 +17,21 @@
 package androidx.lifecycle.viewmodel.compose
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.savedstate.read
 import androidx.savedstate.savedState
@@ -39,6 +47,16 @@ import org.junit.runner.RunWith
 class RememberViewModelStoreProviderTest {
 
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
+
+    private class TestViewModel : ViewModel() {
+        var isCleared = false
+            private set
+
+        override fun onCleared() {
+            super.onCleared()
+            isCleared = true
+        }
+    }
 
     @Test
     fun rememberViewModelStoreProvider_whenParentProvided_createsLinkedProvider() {
@@ -167,5 +185,86 @@ class RememberViewModelStoreProviderTest {
 
         // Verify that providerB's store survived providerA's destruction.
         assertThat(storeBAfterDisposal).isSameInstanceAs(storeBBeforeDisposal)
+    }
+
+    @Test
+    fun rememberViewModelStoreProvider_withSameKey_whenOneDisposed_preservesState() {
+        lateinit var providerA: ViewModelStoreProvider
+        lateinit var providerB: ViewModelStoreProvider
+        var showA by mutableStateOf(true)
+        val sharedProviderKey = "shared_provider_key"
+        val sharedChildKey = "shared_child_key"
+
+        rule.setContent {
+            if (showA) {
+                providerA = rememberViewModelStoreProvider(key = sharedProviderKey)
+            }
+            // Sibling provider that shares the same parent and provider key
+            providerB = rememberViewModelStoreProvider(key = sharedProviderKey)
+        }
+        rule.waitForIdle()
+
+        val storeABeforeDisposal = providerA.getOrCreate(sharedChildKey)
+        val storeBBeforeDisposal = providerB.getOrCreate(sharedChildKey)
+
+        // Since they share the same parent and the same provider key, they must share the same
+        // store.
+        assertThat(storeBBeforeDisposal).isSameInstanceAs(storeABeforeDisposal)
+
+        // We remove providerA from the tree. Its 'onDispose' will run and call 'clearAllKeys()'.
+        // However, providerB is still in the composition and it holds a provider-level token.
+        // The shared state must survive as long as at least one provider is active.
+        showA = false
+        rule.waitForIdle()
+
+        val storeBAfterDisposal = providerB.getOrCreate(sharedChildKey)
+
+        // The shared store must survive because Provider B is still active.
+        assertThat(storeBAfterDisposal).isSameInstanceAs(storeABeforeDisposal)
+    }
+
+    @Test
+    fun rememberViewModelStoreProvider_withUnstableParent_isRemembered() {
+        var initialViewModel: TestViewModel? = null
+        var count by mutableIntStateOf(0)
+
+        // A stable parent instance returning unstable default parameters.
+        // The getters return new instances on every access. This simulates the
+        // unstable inputs that previously caused `remember()` to invalidate
+        // and incorrectly clear the `ViewModelStore` upon recomposition.
+        val unstableParent =
+            object : ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+                override val viewModelStore = ViewModelStore()
+
+                override val defaultViewModelProviderFactory
+                    get() = SavedStateViewModelFactory()
+
+                override val defaultViewModelCreationExtras
+                    get() = CreationExtras()
+            }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides unstableParent) {
+                BasicText("Count: $count")
+
+                val storeProvider = rememberViewModelStoreProvider()
+                val storeOwner = rememberViewModelStoreOwner(storeProvider)
+
+                CompositionLocalProvider(LocalViewModelStoreOwner provides storeOwner) {
+                    val viewModel = viewModel<TestViewModel> { TestViewModel() }
+
+                    if (initialViewModel == null) {
+                        initialViewModel = viewModel
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        count++
+        rule.waitForIdle()
+
+        assertThat(initialViewModel?.isCleared).isFalse()
     }
 }
