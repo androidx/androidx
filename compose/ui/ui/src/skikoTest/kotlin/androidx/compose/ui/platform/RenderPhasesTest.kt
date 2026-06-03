@@ -524,7 +524,7 @@ class RenderPhasesTest {
                     key = Key.A,
                     type = KeyEventType.KeyDown,
                     codePoint = 0,
-                    modifiers =  PointerKeyboardModifiers(),
+                    modifiers = PointerKeyboardModifiers(),
                     nativeEvent = null
                 )
             )
