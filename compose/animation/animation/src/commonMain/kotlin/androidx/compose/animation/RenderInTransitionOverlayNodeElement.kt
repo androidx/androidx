@@ -85,7 +85,15 @@ internal class RenderInTransitionOverlayNode(
     var renderInOverlay: () -> Boolean,
     zIndexInOverlay: Float,
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, ModifierLocalModifierNode {
-    var zIndexInOverlay by mutableFloatStateOf(zIndexInOverlay)
+    private var _zIndexInOverlay by mutableFloatStateOf(zIndexInOverlay)
+    var zIndexInOverlay: Float
+        get() = _zIndexInOverlay
+        set(value) {
+            if (_zIndexInOverlay != value) {
+                _zIndexInOverlay = value
+                sharedScope.zOrderChanged()
+            }
+        }
 
     val parentState: SharedElementEntry?
         get() = ModifierLocalSharedElementInternalState.current
