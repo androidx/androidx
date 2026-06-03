@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.activity.compose.setContent
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -30,10 +29,10 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -46,60 +45,56 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ModelReadsTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
-    private lateinit var activity: TestActivity
-    private lateinit var latch: CountDownLatch
+    private var actionExecuted = false
 
     @Before
     fun setup() {
-        activity = rule.activity
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        latch = CountDownLatch(1)
+        actionExecuted = false
     }
 
     @Test
     fun useTheSameModelInDrawAndPosition() {
         val offset = mutableStateOf(5)
-        var drawLatch = CountDownLatch(1)
-        var positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    {},
-                    modifier =
-                        Modifier.drawBehind {
-                            // read from the model
-                            offset.value
-                            drawLatch.countDown()
-                        },
-                ) { _, _ ->
-                    layout(10, 10) {
+        var drawExecuted = false
+        var positionExecuted = false
+        rule.setContent {
+            Layout(
+                {},
+                modifier =
+                    Modifier.drawBehind {
                         // read from the model
                         offset.value
-                        positionLatch.countDown()
-                    }
+                        drawExecuted = true
+                    },
+            ) { _, _ ->
+                layout(10, 10) {
+                    // read from the model
+                    offset.value
+                    positionExecuted = true
                 }
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(drawExecuted)
+        assertTrue(positionExecuted)
 
-        drawLatch = CountDownLatch(1)
-        positionLatch = CountDownLatch(1)
-        rule.runOnUiThread { offset.value = 7 }
+        drawExecuted = false
+        positionExecuted = false
+        rule.runOnIdle { offset.value = 7 }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(drawExecuted)
+        assertTrue(positionExecuted)
 
-        drawLatch = CountDownLatch(1)
-        positionLatch = CountDownLatch(1)
-        rule.runOnUiThread { offset.value = 10 }
+        drawExecuted = false
+        positionExecuted = false
+        rule.runOnIdle { offset.value = 10 }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(drawExecuted)
+        assertTrue(positionExecuted)
     }
 
     @Test
@@ -107,186 +102,186 @@ class ModelReadsTest {
     fun useDifferentModelsInDrawAndPosition() {
         val drawModel = mutableStateOf(5)
         val positionModel = mutableStateOf(5)
-        var drawLatch = CountDownLatch(1)
-        var positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    {},
-                    modifier =
-                        Modifier.drawBehind {
-                            // read from the model
-                            drawModel.value
-                            drawLatch.countDown()
-                        },
-                ) { _, _ ->
-                    layout(10, 10) {
+        var drawExecuted = false
+        var positionExecuted = false
+        rule.setContent {
+            Layout(
+                {},
+                modifier =
+                    Modifier.drawBehind {
                         // read from the model
-                        positionModel.value
-                        positionLatch.countDown()
-                    }
+                        drawModel.value
+                        drawExecuted = true
+                    },
+            ) { _, _ ->
+                layout(10, 10) {
+                    // read from the model
+                    positionModel.value
+                    positionExecuted = true
                 }
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(drawExecuted)
+        assertTrue(positionExecuted)
 
-        drawLatch = CountDownLatch(1)
-        positionLatch = CountDownLatch(1)
-        rule.runOnUiThread { drawModel.value = 7 }
+        drawExecuted = false
+        positionExecuted = false
+        rule.runOnIdle { drawModel.value = 7 }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertFalse(positionLatch.await(200, TimeUnit.MILLISECONDS))
+        rule.waitForIdle()
+        assertTrue(drawExecuted)
+        assertFalse(positionExecuted)
 
-        drawLatch = CountDownLatch(1)
-        positionLatch = CountDownLatch(1)
-        rule.runOnUiThread { positionModel.value = 10 }
+        drawExecuted = false
+        positionExecuted = false
+        rule.runOnIdle { positionModel.value = 10 }
 
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
-        assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
+        rule.waitForIdle()
+        assertTrue(positionExecuted)
+        assertFalse(drawExecuted)
     }
 
     @Test
     fun useTheSameModelInMeasureAndDraw() {
         val offset = mutableStateOf(5)
-        var measureLatch = CountDownLatch(1)
-        var drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    {},
-                    modifier =
-                        Modifier.drawBehind {
-                            // read from the model
-                            offset.value
-                            drawLatch.countDown()
-                        },
-                ) { _, _ ->
-                    measureLatch.countDown()
-                    // read from the model
-                    layout(offset.value, 10) {}
-                }
+        var measureExecuted = false
+        var drawExecuted = false
+        rule.setContent {
+            Layout(
+                {},
+                modifier =
+                    Modifier.drawBehind {
+                        // read from the model
+                        offset.value
+                        drawExecuted = true
+                    },
+            ) { _, _ ->
+                measureExecuted = true
+                // read from the model
+                layout(offset.value, 10) {}
             }
         }
-        assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measureExecuted)
+        assertTrue(drawExecuted)
 
-        measureLatch = CountDownLatch(1)
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread { offset.value = 10 }
+        measureExecuted = false
+        drawExecuted = false
+        rule.runOnIdle { offset.value = 10 }
 
-        assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measureExecuted)
+        assertTrue(drawExecuted)
 
-        measureLatch = CountDownLatch(1)
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread { offset.value = 15 }
+        measureExecuted = false
+        drawExecuted = false
+        rule.runOnIdle { offset.value = 15 }
 
-        assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measureExecuted)
+        assertTrue(drawExecuted)
     }
 
     @Test
     fun useDifferentModelsInMeasureAndPosition() {
         val measureModel = mutableStateOf(5)
         val positionModel = mutableStateOf(5)
-        var measureLatch = CountDownLatch(1)
-        var positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    measureLatch.countDown()
+        var measureExecuted = false
+        var positionExecuted = false
+        rule.setContent {
+            Layout({}) { _, _ ->
+                measureExecuted = true
+                // read from the model
+                layout(measureModel.value, 10) {
                     // read from the model
-                    layout(measureModel.value, 10) {
-                        // read from the model
-                        positionModel.value
-                        positionLatch.countDown()
-                    }
+                    positionModel.value
+                    positionExecuted = true
                 }
             }
         }
-        assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measureExecuted)
+        assertTrue(positionExecuted)
 
-        measureLatch = CountDownLatch(1)
-        positionLatch = CountDownLatch(1)
-        rule.runOnUiThread { measureModel.value = 10 }
+        measureExecuted = false
+        positionExecuted = false
+        rule.runOnIdle { measureModel.value = 10 }
 
-        assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measureExecuted)
         // remeasuring automatically triggers relayout
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(positionExecuted)
 
-        measureLatch = CountDownLatch(1)
-        positionLatch = CountDownLatch(1)
-        rule.runOnUiThread { positionModel.value = 15 }
+        measureExecuted = false
+        positionExecuted = false
+        rule.runOnIdle { positionModel.value = 15 }
 
-        assertFalse(measureLatch.await(200, TimeUnit.MILLISECONDS))
-        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertFalse(measureExecuted)
+        assertTrue(positionExecuted)
     }
 
     @Test
     fun drawReactsOnCorrectModelsChanges() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                AtLeastSize(
-                    10,
-                    modifier =
-                        Modifier.drawBehind {
-                            if (enabled.value) {
-                                // read the model
-                                model.value
-                            }
-                            latch.countDown()
-                        },
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                10,
+                modifier =
+                    Modifier.drawBehind {
+                        if (enabled.value) {
+                            // read the model
+                            model.value
+                        }
+                        actionExecuted = true
+                    },
+            ) {}
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
     }
 
     @Test
     fun measureReactsOnCorrectModelsChanges() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    if (enabled.value) {
-                        // read the model
-                        model.value
-                    }
-                    latch.countDown()
-                    layout(10, 10) {}
+        rule.setContent {
+            Layout({}) { _, _ ->
+                if (enabled.value) {
+                    // read the model
+                    model.value
                 }
+                actionExecuted = true
+                layout(10, 10) {}
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        assertCountDownOnlyWhileEnabled(enabled, model)
+        assertActionExecutedOnlyWhileEnabled(enabled, model)
     }
 
     @Test
     fun layoutReactsOnCorrectModelsChanges() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    layout(10, 10) {
-                        if (enabled.value) {
-                            // read the model
-                            model.value
-                        }
-                        latch.countDown()
+        rule.setContent {
+            Layout({}) { _, _ ->
+                layout(10, 10) {
+                    if (enabled.value) {
+                        // read the model
+                        model.value
                     }
+                    actionExecuted = true
                 }
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        assertCountDownOnlyWhileEnabled(enabled, model)
+        assertActionExecutedOnlyWhileEnabled(enabled, model)
     }
 
     @Test
@@ -294,22 +289,21 @@ class ModelReadsTest {
     fun drawStopsReactingOnModelsAfterDetaching() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                val modifier =
-                    if (enabled.value) {
-                        Modifier.drawBehind {
-                            // read the model
-                            model.value
-                            latch.countDown()
-                        }
-                    } else Modifier
-                AtLeastSize(10, modifier = modifier) {}
-            }
+        rule.setContent {
+            val modifier =
+                if (enabled.value) {
+                    Modifier.drawBehind {
+                        // read the model
+                        model.value
+                        actionExecuted = true
+                    }
+                } else Modifier
+            AtLeastSize(10, modifier = modifier) {}
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        assertCountDownOnlyWhileEnabled(enabled, model, false)
+        assertActionExecutedOnlyWhileEnabled(enabled, model, false)
     }
 
     @Test
@@ -317,21 +311,20 @@ class ModelReadsTest {
     fun measureStopsReactingOnModelsAfterDetaching() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                if (enabled.value) {
-                    Layout({}) { _, _ ->
-                        // read the model
-                        model.value
-                        latch.countDown()
-                        layout(10, 10) {}
-                    }
+        rule.setContent {
+            if (enabled.value) {
+                Layout({}) { _, _ ->
+                    // read the model
+                    model.value
+                    actionExecuted = true
+                    layout(10, 10) {}
                 }
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        assertCountDownOnlyWhileEnabled(enabled, model, false)
+        assertActionExecutedOnlyWhileEnabled(enabled, model, false)
     }
 
     @Test
@@ -339,209 +332,206 @@ class ModelReadsTest {
     fun layoutStopsReactingOnModelsAfterDetaching() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                if (enabled.value) {
-                    Layout({}) { _, _ ->
-                        layout(10, 10) {
-                            // read the model
-                            model.value
-                            latch.countDown()
-                        }
+        rule.setContent {
+            if (enabled.value) {
+                Layout({}) { _, _ ->
+                    layout(10, 10) {
+                        // read the model
+                        model.value
+                        actionExecuted = true
                     }
                 }
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        assertCountDownOnlyWhileEnabled(enabled, model, false)
+        assertActionExecutedOnlyWhileEnabled(enabled, model, false)
     }
 
     @Test
     fun remeasureRequestForTheNodeBeingMeasured() {
-        var latch = CountDownLatch(1)
+        var measured = false
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    if (model.value == 1) {
-                        // this will trigger remeasure request for this node we currently measure
-                        model.value = 2
-                        Snapshot.sendApplyNotifications()
-                    }
-                    latch.countDown()
-                    layout(100, 100) {}
+        rule.setContent {
+            Layout({}) { _, _ ->
+                if (model.value == 1) {
+                    // this will trigger remeasure request for this node we currently measure
+                    model.value = 2
+                    Snapshot.sendApplyNotifications()
                 }
+                measured = true
+                layout(100, 100) {}
             }
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measured)
 
-        latch = CountDownLatch(1)
+        measured = false
 
-        rule.runOnUiThread { model.value = 1 }
+        rule.runOnIdle { model.value = 1 }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measured)
     }
 
     @Test
     fun remeasureRequestForTheNodeBeingLaidOut() {
-        var remeasureLatch = CountDownLatch(1)
-        var relayoutLatch = CountDownLatch(1)
+        var remeasured = false
+        var relayouted = false
         val remeasureModel = mutableStateOf(0)
         val relayoutModel = mutableStateOf(0)
         var valueReadDuringMeasure = -1
         var modelAlreadyChanged = false
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    valueReadDuringMeasure = remeasureModel.value
-                    remeasureLatch.countDown()
-                    layout(100, 100) {
-                        if (relayoutModel.value != 0) {
-                            if (!modelAlreadyChanged) {
-                                // this will trigger remeasure request for this node we layout
-                                remeasureModel.value = 1
-                                Snapshot.sendApplyNotifications()
-                                // the remeasure will also include another relayout and we don't
-                                // want to loop and request remeasure again
-                                modelAlreadyChanged = true
-                            }
+        rule.setContent {
+            Layout({}) { _, _ ->
+                valueReadDuringMeasure = remeasureModel.value
+                remeasured = true
+                layout(100, 100) {
+                    if (relayoutModel.value != 0) {
+                        if (!modelAlreadyChanged) {
+                            // this will trigger remeasure request for this node we layout
+                            remeasureModel.value = 1
+                            Snapshot.sendApplyNotifications()
+                            // the remeasure will also include another relayout and we don't
+                            // want to loop and request remeasure again
+                            modelAlreadyChanged = true
                         }
-                        relayoutLatch.countDown()
                     }
+                    relayouted = true
                 }
             }
         }
 
-        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(remeasured)
+        assertTrue(relayouted)
 
-        remeasureLatch = CountDownLatch(1)
-        relayoutLatch = CountDownLatch(1)
+        remeasured = false
+        relayouted = false
 
-        rule.runOnUiThread { relayoutModel.value = 1 }
+        rule.runOnIdle { relayoutModel.value = 1 }
 
-        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(remeasured)
+        assertTrue(relayouted)
         assertEquals(1, valueReadDuringMeasure)
     }
 
     @Test
     fun relayoutRequestForTheNodeBeingMeasured() {
-        var remeasureLatch = CountDownLatch(1)
-        var relayoutLatch = CountDownLatch(1)
+        var remeasured = false
+        var relayouted = false
         val remeasureModel = mutableStateOf(0)
         val relayoutModel = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    if (remeasureModel.value != 0) {
-                        // this will trigger relayout request for this node we currently measure
-                        relayoutModel.value = 1
-                        Snapshot.sendApplyNotifications()
-                    }
-                    remeasureLatch.countDown()
-                    layout(100, 100) {
-                        relayoutModel.value // just register the read
-                        relayoutLatch.countDown()
-                    }
+        rule.setContent {
+            Layout({}) { _, _ ->
+                if (remeasureModel.value != 0) {
+                    // this will trigger relayout request for this node we currently measure
+                    relayoutModel.value = 1
+                    Snapshot.sendApplyNotifications()
+                }
+                remeasured = true
+                layout(100, 100) {
+                    relayoutModel.value // just register the read
+                    relayouted = true
                 }
             }
         }
 
-        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(remeasured)
+        assertTrue(relayouted)
 
-        remeasureLatch = CountDownLatch(1)
-        relayoutLatch = CountDownLatch(1)
+        remeasured = false
+        relayouted = false
 
-        rule.runOnUiThread { remeasureModel.value = 1 }
+        rule.runOnIdle { remeasureModel.value = 1 }
 
-        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
-        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(remeasured)
+        assertTrue(relayouted)
     }
 
     @Test
     fun relayoutRequestForTheNodeBeingLaidOut() {
-        var latch = CountDownLatch(1)
+        var relayouted = false
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    layout(100, 100) {
-                        if (model.value == 1) {
-                            // this will trigger relayout request for this node we currently layout
-                            model.value = 2
-                            Snapshot.sendApplyNotifications()
-                        }
-                        latch.countDown()
+        rule.setContent {
+            Layout({}) { _, _ ->
+                layout(100, 100) {
+                    if (model.value == 1) {
+                        // this will trigger relayout request for this node we currently layout
+                        model.value = 2
+                        Snapshot.sendApplyNotifications()
                     }
+                    relayouted = true
                 }
             }
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(relayouted)
 
-        latch = CountDownLatch(1)
+        relayouted = false
 
-        rule.runOnUiThread { model.value = 1 }
+        rule.runOnIdle { model.value = 1 }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(relayouted)
     }
 
     @Test
     fun measureModifierReactsOnCorrectModelsChanges() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    {},
-                    Modifier.layout(
-                        onMeasure = {
-                            if (enabled.value) {
-                                // read the model
-                                model.value
-                            }
-                            latch.countDown()
+        rule.setContent {
+            Layout(
+                {},
+                Modifier.layout(
+                    onMeasure = {
+                        if (enabled.value) {
+                            // read the model
+                            model.value
                         }
-                    ),
-                ) { _, _ ->
-                    layout(10, 10) {}
-                }
+                        actionExecuted = true
+                    }
+                ),
+            ) { _, _ ->
+                layout(10, 10) {}
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        assertCountDownOnlyWhileEnabled(enabled, model)
+        assertActionExecutedOnlyWhileEnabled(enabled, model)
     }
 
     @Test
     fun layoutModifierReactsOnCorrectModelsChanges() {
         val enabled = mutableStateOf(true)
         val model = mutableStateOf(0)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    {},
-                    Modifier.layout(
-                        onLayout = {
-                            if (enabled.value) {
-                                // read the model
-                                model.value
-                            }
-                            latch.countDown()
+        rule.setContent {
+            Layout(
+                {},
+                Modifier.layout(
+                    onLayout = {
+                        if (enabled.value) {
+                            // read the model
+                            model.value
                         }
-                    ),
-                ) { _, _ ->
-                    layout(10, 10) {}
-                }
+                        actionExecuted = true
+                    }
+                ),
+            ) { _, _ ->
+                layout(10, 10) {}
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        assertCountDownOnlyWhileEnabled(enabled, model)
+        assertActionExecutedOnlyWhileEnabled(enabled, model)
     }
 
     @Test
@@ -549,43 +539,44 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         var parentMeasureCount = 0
         var parentLayoutsCount = 0
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({
-                    Layout(
-                        {},
-                        Modifier.layout(
-                            onMeasure = {
-                                // read the model
-                                model.value
-                                latch.countDown()
-                            }
-                        ),
-                    ) { _, _ ->
-                        layout(10, 10) {}
-                    }
-                }) { measurables, constraints ->
-                    val placeable = measurables.first().measure(constraints)
-                    parentMeasureCount++
-                    layout(placeable.width, placeable.height) {
-                        parentLayoutsCount++
-                        placeable.place(0, 0)
-                    }
+        var childMeasured = false
+        rule.setContent {
+            Layout({
+                Layout(
+                    {},
+                    Modifier.layout(
+                        onMeasure = {
+                            // read the model
+                            model.value
+                            childMeasured = true
+                        }
+                    ),
+                ) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                parentMeasureCount++
+                layout(placeable.width, placeable.height) {
+                    parentLayoutsCount++
+                    placeable.place(0, 0)
                 }
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(childMeasured)
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread {
+        childMeasured = false
+        rule.runOnIdle {
             assertEquals(1, parentMeasureCount)
             assertEquals(1, parentLayoutsCount)
             model.value++
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(childMeasured)
 
-        rule.runOnUiThread {
+        rule.runOnIdle {
             assertEquals(1, parentMeasureCount)
             assertEquals(1, parentLayoutsCount)
         }
@@ -595,121 +586,122 @@ class ModelReadsTest {
     fun parentIsNotRelaidOutWhenChildLayoutModifierUsesState() {
         val model = mutableStateOf(0)
         var parentLayoutsCount = 0
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({
-                    Layout(
-                        {},
-                        Modifier.layout(
-                            onLayout = {
-                                // read the model
-                                model.value
-                                latch.countDown()
-                            }
-                        ),
-                    ) { _, _ ->
-                        layout(10, 10) {}
-                    }
-                }) { measurables, constraints ->
-                    val placeable = measurables.first().measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        parentLayoutsCount++
-                        placeable.place(0, 0)
-                    }
+        var childLayouted = false
+        rule.setContent {
+            Layout({
+                Layout(
+                    {},
+                    Modifier.layout(
+                        onLayout = {
+                            // read the model
+                            model.value
+                            childLayouted = true
+                        }
+                    ),
+                ) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    parentLayoutsCount++
+                    placeable.place(0, 0)
                 }
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(childLayouted)
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread {
+        childLayouted = false
+        rule.runOnIdle {
             assertEquals(1, parentLayoutsCount)
             model.value++
         }
 
-        assertTrue(latch.await(1, TimeUnit.HOURS))
+        rule.waitForIdle()
+        assertTrue(childLayouted)
 
-        rule.runOnUiThread { assertEquals(1, parentLayoutsCount) }
+        rule.runOnIdle { assertEquals(1, parentLayoutsCount) }
     }
 
     @Test
     fun stateReadForTheIntroducedLaterMeasureModifierIsObserved() {
         val model = mutableStateOf(0)
-        var modifier by mutableStateOf(Modifier.layout(onMeasure = { latch.countDown() }))
-        rule.runOnUiThread {
-            activity.setContent { Layout({}, modifier) { _, _ -> layout(10, 10) {} } }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        var measured = false
+        var modifier by mutableStateOf(Modifier.layout(onMeasure = { measured = true }))
+        rule.setContent { Layout({}, modifier) { _, _ -> layout(10, 10) {} } }
+        rule.waitForIdle()
+        assertTrue(measured)
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread {
+        measured = false
+        rule.runOnIdle {
             modifier =
                 Modifier.layout(
                     onMeasure = {
                         // read the model
                         model.value
-                        latch.countDown()
+                        measured = true
                     }
                 )
         }
+        rule.waitForIdle()
+        assertTrue(measured)
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        measured = false
+        rule.runOnIdle { model.value++ }
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread { model.value++ }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(measured)
     }
 
     @Test
     fun stateReadForTheIntroducedLaterLayoutModifierIsObserved() {
         val model = mutableStateOf(0)
-        var modifier by mutableStateOf(Modifier.layout(onLayout = { latch.countDown() }))
-        rule.runOnUiThread {
-            activity.setContent { Layout({}, modifier) { _, _ -> layout(10, 10) {} } }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        var layouted = false
+        var modifier by mutableStateOf(Modifier.layout(onLayout = { layouted = true }))
+        rule.setContent { Layout({}, modifier) { _, _ -> layout(10, 10) {} } }
+        rule.waitForIdle()
+        assertTrue(layouted)
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread {
+        layouted = false
+        rule.runOnIdle {
             modifier =
                 Modifier.layout(
                     onLayout = {
                         // read the model
                         model.value
-                        latch.countDown()
+                        layouted = true
                     }
                 )
         }
+        rule.waitForIdle()
+        assertTrue(layouted)
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        layouted = false
+        rule.runOnIdle { model.value++ }
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread { model.value++ }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(layouted)
     }
 
     @Test
     fun stateChangeTriggersUpdateWhenDerivedStateIsUsedRightAfter() {
         val state = mutableStateOf(0)
         val derivedState = derivedStateOf { 0 }
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    state.value++
-                    derivedState.value
-                    latch.countDown()
-                    layout(10, 10) {}
-                }
+        var layoutCount = 0
+        rule.setContent {
+            Layout({}) { _, _ ->
+                state.value
+                derivedState.value
+                layoutCount++
+                layout(10, 10) {}
             }
         }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-
-        latch = CountDownLatch(1)
-        rule.runOnUiThread { state.value++ }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.runOnIdle {
+            layoutCount = 0
+            state.value++
+        }
+        rule.runOnIdle { assertEquals(1, layoutCount) }
     }
 
     private fun Modifier.layout(onMeasure: () -> Unit = {}, onLayout: () -> Unit = {}) =
@@ -722,25 +714,28 @@ class ModelReadsTest {
             }
         }
 
-    fun assertCountDownOnlyWhileEnabled(
+    fun assertActionExecutedOnlyWhileEnabled(
         enableModel: MutableState<Boolean>,
         valueModel: MutableState<Int>,
         triggeredByEnableSwitch: Boolean = true,
     ) {
-        latch = CountDownLatch(1)
-        rule.runOnUiThread { valueModel.value++ }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        actionExecuted = false
+        rule.runOnIdle { valueModel.value++ }
+        rule.waitForIdle()
+        assertTrue(actionExecuted)
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread { enableModel.value = false }
+        actionExecuted = false
+        rule.runOnIdle { enableModel.value = false }
+        rule.waitForIdle()
         if (triggeredByEnableSwitch) {
-            assertTrue(latch.await(1, TimeUnit.SECONDS))
+            assertTrue(actionExecuted)
         } else {
-            assertFalse(latch.await(200, TimeUnit.MILLISECONDS))
+            assertFalse(actionExecuted)
         }
 
-        latch = CountDownLatch(1)
-        rule.runOnUiThread { valueModel.value++ }
-        assertFalse(latch.await(200, TimeUnit.MILLISECONDS))
+        actionExecuted = false
+        rule.runOnIdle { valueModel.value++ }
+        rule.waitForIdle()
+        assertFalse(actionExecuted)
     }
 }
