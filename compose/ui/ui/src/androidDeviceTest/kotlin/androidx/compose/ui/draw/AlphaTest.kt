@@ -18,7 +18,6 @@ package androidx.compose.ui.draw
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -30,18 +29,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertColorsEqual
 import androidx.compose.ui.assertRect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
-import androidx.compose.ui.waitAndScreenShot
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.math.max
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,32 +50,23 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AlphaTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     private lateinit var activity: TestActivity
-    private lateinit var drawLatch: CountDownLatch
-    private val unlatch = Modifier.drawBehind { drawLatch.countDown() }
 
     @Before
     fun setup() {
         activity = rule.activity
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        drawLatch = CountDownLatch(1)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun drawFullAlpha() {
         val color = Color.LightGray
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 10,
-                    modifier =
-                        Modifier.background(Color.White).alpha(1f).background(color).then(unlatch),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 10,
+                modifier = Modifier.background(Color.White).alpha(1f).background(color),
+            ) {}
         }
 
         takeScreenShot(10).apply { assertRect(color) }
@@ -86,14 +76,11 @@ class AlphaTest {
     @Test
     fun drawZeroAlpha() {
         val color = Color.LightGray
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 10,
-                    modifier =
-                        Modifier.background(Color.White).alpha(0f).background(color).then(unlatch),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 10,
+                modifier = Modifier.background(Color.White).alpha(0f).background(color),
+            ) {}
         }
 
         takeScreenShot(10).apply { assertRect(Color.White) }
@@ -103,22 +90,13 @@ class AlphaTest {
     @Test
     fun drawHalfAlpha() {
         val color = Color.Red
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                Row(Modifier.background(Color.White)) {
-                    AtLeastSize(
-                        size = 10,
-                        modifier =
-                            Modifier.background(Color.White)
-                                .alpha(0.5f)
-                                .background(color)
-                                .then(unlatch),
-                    ) {}
-                    AtLeastSize(
-                        size = 10,
-                        modifier = Modifier.background(color.copy(alpha = 0.5f)),
-                    ) {}
-                }
+        rule.setContent {
+            Row(Modifier.background(Color.White)) {
+                AtLeastSize(
+                    size = 10,
+                    modifier = Modifier.background(Color.White).alpha(0.5f).background(color),
+                ) {}
+                AtLeastSize(size = 10, modifier = Modifier.background(color.copy(alpha = 0.5f))) {}
             }
         }
 
@@ -131,21 +109,13 @@ class AlphaTest {
         val color = Color.Green
         val alpha = mutableStateOf(0.5f)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 10,
-                    modifier =
-                        Modifier.background(Color.White)
-                            .alpha(alpha.value)
-                            .then(unlatch)
-                            .background(color),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 10,
+                modifier = Modifier.background(Color.White).alpha(alpha.value).background(color),
+            ) {}
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        rule.runOnUiThreadIR { alpha.value = 1f }
+        rule.runOnIdle { alpha.value = 1f }
 
         takeScreenShot(10).apply { assertRect(color) }
     }
@@ -156,22 +126,14 @@ class AlphaTest {
         val color = Color.Green
         var alpha by mutableStateOf(0f)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 10,
-                    modifier =
-                        Modifier.background(Color.White)
-                            .alpha(1f)
-                            .alpha(alpha)
-                            .then(unlatch)
-                            .background(color),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 10,
+                modifier = Modifier.background(Color.White).alpha(1f).alpha(alpha).background(color),
+            ) {}
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        rule.runOnUiThreadIR { alpha = 1f }
+        rule.runOnIdle { alpha = 1f }
 
         takeScreenShot(10).apply { assertRect(color) }
     }
@@ -181,21 +143,17 @@ class AlphaTest {
     fun emitDrawWithAlphaLater() {
         val model = mutableStateOf(false)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(
-                    size = 10,
-                    modifier =
-                        Modifier.background(Color.White)
-                            .run { if (model.value) alpha(0f).background(Color.Green) else this }
-                            .then(unlatch),
-                ) {}
-            }
+        rule.setContent {
+            AtLeastSize(
+                size = 10,
+                modifier =
+                    Modifier.background(Color.White).run {
+                        if (model.value) alpha(0f).background(Color.Green) else this
+                    },
+            ) {}
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.value = true }
+        rule.runOnIdle { model.value = true }
 
         takeScreenShot(10).apply { assertRect(Color.White) }
     }
@@ -203,8 +161,8 @@ class AlphaTest {
     // waitAndScreenShot() requires API level 26
     @RequiresApi(Build.VERSION_CODES.O)
     private fun takeScreenShot(width: Int, height: Int = width): Bitmap {
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = rule.waitAndScreenShot()
+        rule.waitForIdle()
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
         assertEquals(width, bitmap.width)
         assertEquals(height, bitmap.height)
         return bitmap
