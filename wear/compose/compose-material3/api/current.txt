@@ -58,6 +58,21 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AlertDialogContent(kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.wear.compose.material3.lazy.TransformationSpec, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.foundation.layout.PaddingValues?, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
+  @kotlin.jvm.JvmInline public final value class AngularAnchorType {
+    method @BytecodeOnly public static androidx.wear.compose.material3.AngularAnchorType! box-impl(float);
+    method @BytecodeOnly public float unbox-impl();
+    field public static final androidx.wear.compose.material3.AngularAnchorType.Companion Companion;
+  }
+
+  public static final class AngularAnchorType.Companion {
+    method @BytecodeOnly public float getCenter-C6CbAD8();
+    method @BytecodeOnly public float getEnd-C6CbAD8();
+    method @BytecodeOnly public float getStart-C6CbAD8();
+    property public androidx.wear.compose.material3.AngularAnchorType Center;
+    property public androidx.wear.compose.material3.AngularAnchorType End;
+    property public androidx.wear.compose.material3.AngularAnchorType Start;
+  }
+
   @kotlin.jvm.JvmInline public final value class AngularDirection {
     method @BytecodeOnly public static androidx.wear.compose.material3.AngularDirection! box-impl(int);
     method @BytecodeOnly public int unbox-impl();
@@ -638,6 +653,12 @@ package androidx.wear.compose.material3 {
   public final class ContentColorKt {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
+  }
+
+  public final class CurveToEdgeKt {
+    method @KotlinOnly @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.compose.ui.Modifier curveToEdge(androidx.compose.ui.Modifier, optional float maxSweepAngle, optional androidx.wear.compose.material3.AngularDirection angularDirection, optional float anchor, optional androidx.wear.compose.material3.AngularAnchorType anchorType);
+    method @BytecodeOnly @RequiresApi(33) public static androidx.compose.ui.Modifier curveToEdge-AzF0u4w(androidx.compose.ui.Modifier, float, int, float, float);
+    method @BytecodeOnly @RequiresApi(33) public static androidx.compose.ui.Modifier! curveToEdge-AzF0u4w$default(androidx.compose.ui.Modifier!, float, int, float, float, int, Object!);
   }
 
   public final class CurvedTextDefaults {
