@@ -83,6 +83,55 @@ class ConcurrentCameraTest {
     }
 
     @Test
+    fun getAvailableConcurrentCameraInfos_filtersNonSize2Combinations(): Unit = runBlocking {
+        val combination0 =
+            mapOf(
+                "0" to CameraSelector.Builder().requireLensFacing(LENS_FACING_BACK).build(),
+                "1" to CameraSelector.Builder().requireLensFacing(LENS_FACING_FRONT).build(),
+            )
+        // A combination with size 3 (which should be filtered out)
+        val combinationSize3 =
+            mapOf(
+                "0" to CameraSelector.Builder().requireLensFacing(LENS_FACING_BACK).build(),
+                "1" to CameraSelector.Builder().requireLensFacing(LENS_FACING_FRONT).build(),
+                "2" to CameraSelector.Builder().requireLensFacing(LENS_FACING_FRONT).build(),
+            )
+
+        val localCoordinator = FakeCameraCoordinator()
+        localCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination0)
+        localCoordinator.addConcurrentCameraIdsAndCameraSelectors(combinationSize3)
+
+        val cameraFactoryProvider =
+            CameraFactory.Provider { _, _, _, _, _, _ ->
+                val cameraFactory = FakeCameraFactory()
+                cameraFactory.insertCamera(LENS_FACING_BACK, "0") {
+                    FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))
+                }
+                cameraFactory.insertCamera(LENS_FACING_FRONT, "1") {
+                    FakeCamera("1", null, FakeCameraInfoInternal("1", 0, LENS_FACING_FRONT))
+                }
+                cameraFactory.insertCamera(LENS_FACING_FRONT, "2") {
+                    FakeCamera("2", null, FakeCameraInfoInternal("2", 0, LENS_FACING_FRONT))
+                }
+                cameraFactory.cameraCoordinator = localCoordinator
+                cameraFactory
+            }
+        val appConfigBuilder =
+            CameraXConfig.Builder()
+                .setCameraFactoryProvider(cameraFactoryProvider)
+                .setDeviceSurfaceManagerProvider { _, _, _, _ -> FakeCameraDeviceSurfaceManager() }
+                .setUseCaseConfigFactoryProvider { _, _ -> FakeUseCaseConfigFactory() }
+
+        ProcessCameraProvider.configureInstance(appConfigBuilder.build())
+        provider = ProcessCameraProvider.getInstance(context).await()
+
+        // Verify that only the size 2 combination is returned, and the size 3 combination is
+        // filtered out
+        assertThat(provider.availableConcurrentCameraInfos.size).isEqualTo(1)
+        assertThat(provider.availableConcurrentCameraInfos[0].size).isEqualTo(2)
+    }
+
+    @Test
     fun shutdown_clearsPreviousConfiguration() = runBlocking {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
 
@@ -136,6 +185,43 @@ class ConcurrentCameraTest {
     }
 
     @Test
+    fun bindConcurrentCamera_withDifferentOrder(): Unit = runBlocking {
+        ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val useCase0 = Preview.Builder().build()
+        val useCase1 = Preview.Builder().build()
+
+        val singleCameraConfig0 =
+            SingleCameraConfig(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder().addUseCase(useCase0).build(),
+                lifecycleOwner0,
+            )
+        val singleCameraConfig1 =
+            SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder().addUseCase(useCase1).build(),
+                lifecycleOwner1,
+            )
+
+        if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+            val concurrentCamera =
+                provider.bindToLifecycle(listOf(singleCameraConfig1, singleCameraConfig0))
+
+            assertThat(concurrentCamera).isNotNull()
+            assertThat(concurrentCamera.cameras.size).isEqualTo(2)
+            assertThat(provider.isBound(useCase0)).isTrue()
+            assertThat(provider.isBound(useCase1)).isTrue()
+            assertThat(provider.isConcurrentCameraModeOn).isTrue()
+        } else {
+            assertThrows<UnsupportedOperationException> {
+                provider.bindToLifecycle(listOf(singleCameraConfig1, singleCameraConfig0))
+            }
+        }
+    }
+
+    @Test
     fun bindConcurrentPhysicalCamera_isBound() = runBlocking {
         ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
 
@@ -147,6 +233,7 @@ class ConcurrentCameraTest {
             SingleCameraConfig(
                 CameraSelector.Builder()
                     .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                    .setPhysicalCameraId("1")
                     .build(),
                 UseCaseGroup.Builder().addUseCase(useCase0).build(),
                 lifecycleOwner0,
@@ -155,6 +242,7 @@ class ConcurrentCameraTest {
             SingleCameraConfig(
                 CameraSelector.Builder()
                     .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                    .setPhysicalCameraId("2")
                     .build(),
                 UseCaseGroup.Builder().addUseCase(useCase1).build(),
                 lifecycleOwner0,
@@ -281,6 +369,41 @@ class ConcurrentCameraTest {
             )
         }
     }
+
+    @Test
+    fun bindConcurrentCamera_unsupportedCombinationThrowsIllegalArgumentException(): Unit =
+        runBlocking {
+            ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+            provider = ProcessCameraProvider.getInstance(context).await()
+            val useCase0 = Preview.Builder().build()
+            val useCase1 = Preview.Builder().build()
+
+            val cameraSelector3 =
+                CameraSelector.Builder()
+                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                    .addCameraFilter { cameraInfos ->
+                        cameraInfos.filter { (it as? FakeCameraInfoInternal)?.cameraId == "3" }
+                    }
+                    .build()
+
+            val singleCameraConfig0 =
+                SingleCameraConfig(
+                    cameraSelector3,
+                    UseCaseGroup.Builder().addUseCase(useCase0).build(),
+                    lifecycleOwner0,
+                )
+            val singleCameraConfig1 =
+                SingleCameraConfig(
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    UseCaseGroup.Builder().addUseCase(useCase1).build(),
+                    lifecycleOwner1,
+                )
+
+            assertThrows<IllegalArgumentException> {
+                provider.bindToLifecycle(listOf(singleCameraConfig0, singleCameraConfig1))
+            }
+        }
 
     @Test
     fun bindConcurrentCamera_isDualRecording(): Unit = runBlocking {
@@ -468,6 +591,9 @@ class ConcurrentCameraTest {
                 }
                 cameraFactory.insertCamera(LENS_FACING_FRONT, "2") {
                     FakeCamera("2", null, FakeCameraInfoInternal("2", 0, LENS_FACING_FRONT))
+                }
+                cameraFactory.insertCamera(LENS_FACING_BACK, "3") {
+                    FakeCamera("3", null, FakeCameraInfoInternal("3", 0, LENS_FACING_BACK))
                 }
                 cameraFactory.cameraCoordinator = cameraCoordinator
                 cameraFactory
