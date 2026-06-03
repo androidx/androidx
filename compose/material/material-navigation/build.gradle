@@ -42,20 +42,20 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-                api("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
-                implementation(project(":compose:material:material"))
-                implementation(libs.kotlinSerializationCore)
-            }
+            api("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
+            implementation(project(":compose:material:material"))
+            implementation(libs.kotlinSerializationCore)
+        }
 
         androidDeviceTest.dependencies {
-                implementation(project(":compose:test-utils"))
+            implementation(project(":compose:test-utils"))
             implementation("androidx.navigation:navigation-testing:2.9.6")
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.testRules)
-            }
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.testRules)
+        }
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)
