@@ -240,6 +240,53 @@ class ResultEventBusNavEntryDecoratorTest {
         // Verify Result
         composeTestRule.onNodeWithText(resultFromDialog).assertIsDisplayed()
     }
+
+    @Test
+    fun testHoistedResultEventBusBetweenTwoEntries() {
+        lateinit var backStack: NavBackStack<NavKey>
+        composeTestRule.setContent {
+            backStack = rememberNavBackStack(First)
+            val resultEventBus = rememberResultEventBus()
+            NavDisplay(
+                backStack = backStack,
+                modifier = Modifier.fillMaxSize().wrapContentSize(),
+                entryDecorators = listOf(rememberResultEventBusNavEntryDecorator(resultEventBus)),
+                onBack = { backStack.removeLastOrNull() },
+                entryProvider =
+                    entryProvider {
+                        entry<First> {
+                            var result by remember { mutableStateOf(noResult) }
+                            ResultEffect<String> { result = it }
+                            Text(result)
+                        }
+                        entry<Second> {
+                            val resultBus = LocalResultEventBus.current
+                            Button(onClick = { resultBus.sendResult<String>(result = setResult) }) {
+                                Text(sendResult)
+                            }
+                        }
+                    },
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(noResult).assertIsDisplayed()
+
+        composeTestRule.runOnIdle { backStack.add(Second) }
+
+        composeTestRule.waitForIdle()
+
+        // Send Result
+        composeTestRule.onNodeWithText(sendResult).performClick()
+
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        composeTestRule.waitForIdle()
+
+        // Verify Result
+        composeTestRule.onNodeWithText(setResult).assertIsDisplayed()
+    }
 }
 
 @Serializable internal data object First : NavKey

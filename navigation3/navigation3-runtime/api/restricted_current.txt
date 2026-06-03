@@ -253,6 +253,11 @@ package androidx.navigation3.runtime.result {
     method @KotlinOnly public inline <reified T> void sendResult(T result);
   }
 
+  public final class ResultEventBusKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.navigation3.runtime.result.ResultEventBus rememberResultEventBus();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.navigation3.runtime.result.ResultEventBus rememberResultEventBus(androidx.compose.runtime.Composer?, int);
+  }
+
   public final class ResultEventBusNavEntryDecorator<T> extends androidx.navigation3.runtime.NavEntryDecorator<T> {
     ctor public ResultEventBusNavEntryDecorator();
     ctor public ResultEventBusNavEntryDecorator(optional androidx.navigation3.runtime.result.ResultEventBus bus);
@@ -260,8 +265,8 @@ package androidx.navigation3.runtime.result {
   }
 
   public final class ResultEventBusNavEntryDecoratorKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.result.ResultEventBusNavEntryDecorator<T> rememberResultEventBusNavEntryDecorator();
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.result.ResultEventBusNavEntryDecorator<T> rememberResultEventBusNavEntryDecorator(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.result.ResultEventBusNavEntryDecorator<T> rememberResultEventBusNavEntryDecorator(optional androidx.navigation3.runtime.result.ResultEventBus resultEventBus);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.result.ResultEventBusNavEntryDecorator<T> rememberResultEventBusNavEntryDecorator(androidx.navigation3.runtime.result.ResultEventBus?, androidx.compose.runtime.Composer?, int, int);
   }
 
 }
