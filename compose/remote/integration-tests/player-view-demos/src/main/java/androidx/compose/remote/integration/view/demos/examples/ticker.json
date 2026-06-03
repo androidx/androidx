@@ -1,0 +1,390 @@
+    {
+      "header": {
+        "apiLevel": 8,
+        "profiles": 513,
+        "orderedResources": true
+      },
+      "root": [
+        {
+          "type": "resources",
+          "beginGlobal": true,
+          "order": [ "colors" ],
+          "colors": [
+            { "name": "color.system_accent2_800", "value": "#FF0000" },
+            { "name": "color.system_accent2_50", "value": "#113311" },
+            { "name": "background", "value": { "light": "@colors.color.system_accent2_50", "dark": "@colors.color.system_accent2_800" }, "named": false },
+            { "name": "color.system_on_surface_light", "value": "#113311" },
+            { "name": "color.system_on_surface_dark", "value": "#FF9966" },
+            { "name": "textColor", "value": { "light": "@colors.color.system_on_surface_dark", "dark": "@colors.color.system_on_surface_light" }, "named": false },
+            { "name": "color.system_accent3_600", "value": "#113311" },
+            { "name": "color.system_accent3_100", "value": "#FF9966" },
+            { "name": "dotColor", "value": { "light": "@colors.color.system_accent3_100", "dark": "@colors.color.system_accent3_600" }, "named": false },
+            { "name": "color.system_accent2_10", "value": "#113311" },
+            { "name": "color.system_accent2_900", "value": "#FF9966" },
+            { "name": "panels", "value": { "light": "@colors.color.system_accent2_900", "dark": "@colors.color.system_accent2_10" }, "named": false },
+            { "name": "color.system_accent1_200", "value": "#222222" },
+            { "name": "followText", "value": { "light": "@colors.color.system_accent1_200", "dark": "@colors.color.system_accent2_800" }, "named": false },
+            { "name": "color.system_neutral2_800", "value": "#113311" },
+            { "name": "color.system_neutral2_400", "value": "#FF9966" },
+            { "name": "stockName", "value": { "light": "@colors.color.system_neutral2_400", "dark": "@colors.color.system_neutral2_800" }, "named": false },
+            { "name": "color.system_accent1_900", "value": "#113311" },
+            { "name": "color.system_accent1_50", "value": "#FF9966" },
+            { "name": "stockPrice", "value": { "light": "@colors.color.system_accent1_50", "dark": "@colors.color.system_accent1_900" }, "named": false },
+            { "name": "arrowColor", "value": { "light": "@colors.color.system_accent1_900", "dark": "@colors.color.system_accent1_50" }, "named": false }
+          ],
+          "endGlobal": true
+        },
+        { "type": "variable", "name": "system.font_size", "value": 37.0 },
+        { "type": "variable", "name": "head1", "value": "42.0 * (@vars.system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "priceDollars", "value": "64.0 * (@vars.system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "priceCents", "value": "48.0 * (@vars.system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "nameFontSize", "value": "32.0 * (@vars.system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "defaultFontSize", "value": "32.0 * (@vars.system.font_size / 37.0)", "named": false },
+        {
+          "type": "column",
+          "modifiers": [ { "fillMaxWidth": "NaN" }, { "background": "@colors.background" } ],
+          "children": [
+            {
+              "type": "row",
+              "modifiers": [ { "padding": 32.0 } ],
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Watchlist",
+                  "fontSize": "@vars.head1",
+                  "color": "@colors.textColor",
+                  "modifiers": [ { "padding": 24.0 } ]
+                },
+                { "type": "spacer" },
+                {
+                  "type": "canvas",
+                  "modifiers": [ { "width": 64.0 }, { "height": 64.0 } ],
+                  "commands": [
+                    { "type": "paint", "color": "@colors.textColor" },
+                    { "type": "variable", "name": "refreshPath", "value": "@{refreshStr}", "vtype": "path", "named": false },
+                    { "type": "scale", "sx": 0.06666667, "sy": 0.06666667 },
+                    { "type": "drawPath", "path": "refreshPath" }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "box",
+              "modifiers": [ { "fillMaxWidth": "NaN" } ],
+              "children": [
+                {
+                  "type": "column",
+                  "horizontalAlignment": "center",
+                  "modifiers": [
+                    { "fillMaxSize": "NaN" },
+                    { "id": 4343 },
+                    { "verticalScroll": 0.0 }
+                  ],
+                  "children": [
+                    {
+                      "type": "column",
+                      "horizontalAlignment": "center",
+                      "children": [
+                        {
+                          "type": "column",
+                          "modifiers": [ { "padding": [32.0, 40.0, 48.0, 1.0] } ],
+                          "children": [
+                            {
+                              "type": "row",
+                              "children": [
+                                {
+                                  "type": "column",
+                                  "children": [
+                                    {
+                                      "type": "row",
+                                      "verticalAlignment": "bottom",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "textFromFloat": { "value": 47739.32, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} },
+                                          "fontSize": "@vars.priceDollars",
+                                          "color": "@colors.stockPrice"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "textFromFloat": { "value": 47739.32, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} },
+                                          "fontSize": "@vars.priceCents",
+                                          "color": "@colors.stockName"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "row",
+                                      "modifiers": [ { "padding": { "top": 16.0 } } ],
+                                      "children": [
+                                        { "type": "text", "value": "Dow Jones", "fontSize": "@vars.nameFontSize", "color": "@colors.stockName" },
+                                        { "type": "text", "value": "-0.45%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor", "modifiers": [ { "padding": { "start": 8.0 } } ] }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                { "type": "spacer" },
+                                {
+                                  "type": "box",
+                                  "horizontalAlignment": "center",
+                                  "verticalAlignment": "center",
+                                  "modifiers": [ { "width": 120.0 }, { "height": 120.0 }, { "padding": 16.0 }, { "clip": { "type": "roundRect", "radius": 60.0 } }, { "background": "@colors.dotColor" } ],
+                                  "children": [ { "type": "text", "value": "\u2193", "fontSize": 48.0, "color": "@colors.arrowColor" } ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "canvas",
+                              "modifiers": [ { "height": 260.0 }, { "fillMaxWidth": "NaN" } ],
+                              "commands": [
+                                { "type": "variable", "name": "cx", "value": "width / 2.0", "named": false },
+                                { "type": "variable", "name": "cy", "value": "height / 2.0", "named": false },
+                                { "type": "variable", "name": "rad", "value": "min(@vars.cx, @vars.cy)", "named": false },
+                                { "type": "variable", "name": "stockValues", "value": [ @{stockDataJson} ], "vtype": "floatArrays", "named": false },
+                                { "type": "variable", "name": "margin", "value": "@vars.rad * 0.3", "named": false },
+                                { "type": "variable", "name": "lineBottom", "value": "height - @vars.margin", "named": false },
+                                { "type": "pathCreate", "id": "graphPath", "x": "@vars.margin", "y": "@vars.lineBottom" },
+                                { "type": "variable", "name": "maxValue", "value": "arrayMax(@vars.stockValues)", "named": false },
+                                { "type": "variable", "name": "minValue", "value": "arrayMin(@vars.stockValues) - 100.0", "named": false },
+                                { "type": "variable", "name": "xEnd", "value": "width - @vars.margin", "named": false },
+                                {
+                                  "type": "loop",
+                                  "from": "@vars.margin", "step": 1.0, "until": "@vars.xEnd",
+                                  "index": "index",
+                                  "commands": [
+                                    { "type": "variable", "name": "pos", "value": "(@vars.index - @vars.margin) / (width - @vars.margin * 2.0)", "named": false },
+                                    { "type": "variable", "name": "v", "value": "(arraySpline(@vars.stockValues, @vars.pos) - @vars.minValue) / (@vars.maxValue - @vars.minValue)", "named": false },
+                                    { "type": "variable", "name": "y", "value": "@vars.lineBottom - @vars.v * (@vars.lineBottom - @vars.margin)", "named": false },
+                                    { "type": "pathAppendLineTo", "path": "graphPath", "x": "@vars.index", "y": "@vars.y" }
+                                  ]
+                                },
+                                { "type": "pathAppendLineTo", "path": "graphPath", "x": "@vars.xEnd", "y": "@vars.lineBottom" },
+                                { "type": "pathAppendClose", "path": "graphPath" },
+                                {
+                                  "type": "paint",
+                                  "style": "fill",
+                                  "linearGradient": {
+                                    "x1": 0.0, "y1": 0.0, "x2": 0.0, "y2": "@vars.lineBottom",
+                                    "colors": [ "@colors.dotColor", 0 ],
+                                    "stops": [ 0.0, 1.0 ],
+                                    "tileMode": "clamp"
+                                  },
+                                  "color": "#000000"
+                                },
+                                { "type": "save" },
+                                { "type": "clipRect", "left": "@vars.margin + 5.0", "top": "@vars.margin + 5.0", "right": "@vars.xEnd - 5.0", "bottom": "@vars.lineBottom - 5.0" },
+                                { "type": "drawPath", "path": "graphPath" },
+                                {
+                                  "type": "paint",
+                                  "shader": 0,
+                                  "color": "@colors.dotColor",
+                                  "style": "stroke",
+                                  "width": 6.0
+                                },
+                                { "type": "drawPath", "path": "graphPath" },
+                                { "type": "restore" }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "flow",
+                          "modifiers": [ { "fillMaxWidth": "NaN" } ],
+                          "children": [
+                            {
+                              "type": "row",
+                              "modifiers": [ { "padding": [32.0, 0.0, 32.0, 28.0] }, { "clip": { "type": "roundRect", "radius": 48.0 } }, { "background": "@colors.panels" }, { "weight": 1.0 }, { "widthIn": [120.0, "max"] }, { "padding": 24.0 } ],
+                              "children": [
+                                {
+                                  "type": "column",
+                                  "children": [
+                                    {
+                                      "type": "row",
+                                      "verticalAlignment": "bottom",
+                                      "children": [
+                                        { "type": "text", "textFromFloat": { "value": 6846.51, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
+                                        { "type": "text", "textFromFloat": { "value": 6846.51, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                      ]
+                                    },
+                                    {
+                                      "type": "row",
+                                      "children": [
+                                        {
+                                          "type": "column",
+                                          "children": [
+                                            { "type": "text", "value": "S&P 500", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
+                                            { "type": "text", "value": "-0.35%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                          ]
+                                        },
+                                        { "type": "spacer" },
+                                        {
+                                          "type": "box",
+                                          "horizontalAlignment": "center",
+                                          "verticalAlignment": "center",
+                                          "modifiers": [ { "width": 120.0 }, { "height": 120.0 }, { "padding": 16.0 }, { "clip": { "type": "roundRect", "radius": 60.0 } }, { "background": "@colors.dotColor" } ],
+                                          "children": [ { "type": "text", "value": "\u2193", "fontSize": 48.0, "color": "@colors.arrowColor" } ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "row",
+                              "modifiers": [ { "padding": [32.0, 0.0, 32.0, 28.0] }, { "clip": { "type": "roundRect", "radius": 48.0 } }, { "background": "@colors.panels" }, { "weight": 1.0 }, { "widthIn": [120.0, "max"] }, { "padding": 24.0 } ],
+                              "children": [
+                                {
+                                  "type": "column",
+                                  "children": [
+                                    {
+                                      "type": "row",
+                                      "verticalAlignment": "bottom",
+                                      "children": [
+                                        { "type": "text", "textFromFloat": { "value": 23545.9, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
+                                        { "type": "text", "textFromFloat": { "value": 23545.9, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                      ]
+                                    },
+                                    {
+                                      "type": "row",
+                                      "children": [
+                                        {
+                                          "type": "column",
+                                          "children": [
+                                            { "type": "text", "value": "Nasdaq", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
+                                            { "type": "text", "value": "-0.14%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                          ]
+                                        },
+                                        { "type": "spacer" },
+                                        {
+                                          "type": "box",
+                                          "horizontalAlignment": "center",
+                                          "verticalAlignment": "center",
+                                          "modifiers": [ { "width": 120.0 }, { "height": 120.0 }, { "padding": 16.0 }, { "clip": { "type": "roundRect", "radius": 60.0 } }, { "background": "@colors.dotColor" } ],
+                                          "children": [ { "type": "text", "value": "\u2193", "fontSize": 48.0, "color": "@colors.arrowColor" } ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "row",
+                              "modifiers": [ { "padding": [32.0, 0.0, 32.0, 28.0] }, { "clip": { "type": "roundRect", "radius": 48.0 } }, { "background": "@colors.panels" }, { "weight": 1.0 }, { "widthIn": [120.0, "max"] }, { "padding": 24.0 } ],
+                              "children": [
+                                {
+                                  "type": "column",
+                                  "children": [
+                                    {
+                                      "type": "row",
+                                      "verticalAlignment": "bottom",
+                                      "children": [
+                                        { "type": "text", "textFromFloat": { "value": 2520.98, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
+                                        { "type": "text", "textFromFloat": { "value": 2520.98, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                      ]
+                                    },
+                                    {
+                                      "type": "row",
+                                      "children": [
+                                        {
+                                          "type": "column",
+                                          "children": [
+                                            { "type": "text", "value": "Russell", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
+                                            { "type": "text", "value": "-0.020%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                          ]
+                                        },
+                                        { "type": "spacer" },
+                                        {
+                                          "type": "box",
+                                          "horizontalAlignment": "center",
+                                          "verticalAlignment": "center",
+                                          "modifiers": [ { "width": 120.0 }, { "height": 120.0 }, { "padding": 16.0 }, { "clip": { "type": "roundRect", "radius": 60.0 } }, { "background": "@colors.dotColor" } ],
+                                          "children": [ { "type": "text", "value": "\u2193", "fontSize": 48.0, "color": "@colors.arrowColor" } ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "row",
+                              "modifiers": [ { "padding": [32.0, 0.0, 32.0, 28.0] }, { "clip": { "type": "roundRect", "radius": 48.0 } }, { "background": "@colors.panels" }, { "weight": 1.0 }, { "widthIn": [120.0, "max"] }, { "padding": 24.0 } ],
+                            "children": [
+                              {
+                                "type": "column",
+                                "children": [
+                                  {
+                                    "type": "row",
+                                    "verticalAlignment": "bottom",
+                                    "children": [
+                                      { "type": "text", "textFromFloat": { "value": 21703.2, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
+                                      { "type": "text", "textFromFloat": { "value": 21703.2, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                    ]
+                                  },
+                                  {
+                                    "type": "row",
+                                    "children": [
+                                      {
+                                        "type": "column",
+                                        "children": [
+                                          { "type": "text", "value": "NYA", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
+                                          { "type": "text", "value": "-0.49%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                        ]
+                                      },
+                                      { "type": "spacer" },
+                                      {
+                                        "type": "box",
+                                        "horizontalAlignment": "center",
+                                        "verticalAlignment": "center",
+                                        "modifiers": [ { "width": 120.0 }, { "height": 120.0 }, { "padding": 16.0 }, { "clip": { "type": "roundRect", "radius": 60.0 } }, { "background": "@colors.dotColor" } ],
+                                        "children": [ { "type": "text", "value": "\u2193", "fontSize": 48.0, "color": "@colors.arrowColor" } ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "box",
+                        "horizontalAlignment": "center",
+                        "verticalAlignment": "center",
+                        "modifiers": [ { "padding": 8.0 }, { "height": 100.0 }, { "clip": { "type": "roundRect", "radius": 48.0 } }, { "background": "@colors.followText" }, { "padding": 4.0 }, { "clip": { "type": "roundRect", "radius": 48.0 } }, { "background": "@colors.background" }, { "padding": 16.0 } ],
+                        "children": [
+                          {
+                            "type": "row",
+                            "verticalAlignment": "center",
+                            "children": [
+                              { "type": "text", "value": "+ ", "color": "@colors.followText", "fontSize": 48.0 },
+                              { "type": "text", "value": "Follow investments", "color": "@colors.followText", "fontSize": "@vars.defaultFontSize" }
+                            ]
+                          }
+                        ]
+                      },
+                      { "type": "variable", "name": "sHeight", "value": "height", "named": false }
+                    ]
+                  },
+                  {
+                    "type": "canvas",
+                    "modifiers": [ { "fillMaxSize": "NaN" } ],
+                    "commands": [
+                      { "type": "variable", "name": "w", "value": "width", "named": false },
+                      { "type": "variable", "name": "h", "value": "height", "named": false },
+                      { "type": "variable", "name": "alpha", "value": { "value": "sign(max(0.0, touchTime - animationTime + 0.1))", "anim": 1.2 }, "named": false },
+                      { "type": "paint", "color": "@colors.stockName", "alpha": "@vars.alpha", "width": 10.0 },
+                      { "type": "variable", "name": "len", "value": "h * h / sHeight", "named": false },
+                      { "type": "variable", "name": "off", "value": "h * 0.0 / sHeight", "named": false },
+                      { "type": "drawLine", "x1": "@vars.w - 5.0", "y1": "@vars.off", "x2": "@vars.w - 5.0", "y2": "@vars.off + @vars.len" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }

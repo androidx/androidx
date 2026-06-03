@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.abs
 import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.remote.creation.plus
 import androidx.compose.remote.creation.sin
 import androidx.compose.remote.creation.times
 import androidx.compose.runtime.Composable

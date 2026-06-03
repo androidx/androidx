@@ -80,7 +80,7 @@ fun dslTicker(): ByteArray {
                 Text(
                     "Watchlist",
                     modifier = Modifier.padding(24f),
-                    fontSize = fontSizes.head1,
+                    fontSize = fontSizes.head1.value.rsp,
                     color = colors.textColor,
                 )
                 Spacer()
@@ -274,8 +274,12 @@ private fun RcScope.FollowInvestments() {
         vertical = RcVerticalPositioning.Center,
     ) {
         Row(vertical = RcVerticalPositioning.Center) {
-            Text("+ ", color = colors.followText, fontSize = 48.rsp)
-            Text("Follow investments", color = colors.followText, fontSize = fontSizes.default)
+            Text("+ ", color = colors.followText, fontSize = 48f.rsp)
+            Text(
+                "Follow investments",
+                color = colors.followText,
+                fontSize = fontSizes.default.value.rsp,
+            )
         }
     }
 }
@@ -292,7 +296,7 @@ private fun RcScope.DirectionIcon() {
         horizontal = RcHorizontalPositioning.Center,
         vertical = RcVerticalPositioning.Center,
     ) {
-        Text("↓", fontSize = 48.rsp, color = colors.arrowColor)
+        Text("↓", fontSize = 48f.rsp, color = colors.arrowColor)
     }
 }
 
@@ -394,6 +398,7 @@ private class RcTickerFontSizes(rc: RcScope) {
     val default: RcSp
 
     init {
+        rc.beginGlobal()
         val fontScale = rc.remoteNamedFloat("system.font_size", 37f) / 37f
         with(rc) {
             head1 = (42f.rf * fontScale).toSp()
@@ -402,6 +407,7 @@ private class RcTickerFontSizes(rc: RcScope) {
             name = (32f.rf * fontScale).toSp()
             default = (32f.rf * fontScale).toSp()
         }
+        rc.endGlobal()
     }
 
     private fun RcFloat.toSp(): RcSp = RcSp(this.toFloat()) // Rough conversion for demo
@@ -415,7 +421,7 @@ private fun generateStockDataArray(
     annualVolatility: Float,
     daysPerPoint: Float,
 ): FloatArray {
-    val random = Random()
+    val random = Random(42)
     val prices = FloatArray(numPoints)
     prices[0] = startPrice
     val dt = daysPerPoint / 252.0

@@ -26,10 +26,12 @@ dependencies {
     api(project(":compose:remote:remote-core"))
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
+    compileOnly("org.json:json:20231013")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(project(":compose:remote:remote-core"))
     testImplementation("org.jetbrains.kotlin:kotlin-stdlib")
+    testImplementation("org.json:json:20231013")
 }
 
 androidx {

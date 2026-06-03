@@ -58,6 +58,8 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.4.0")
 
     testImplementation("org.json:json:20231013")
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
