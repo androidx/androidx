@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalRippleThemeConfiguration
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
@@ -52,7 +51,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
 
 @SuppressLint("NewApi")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
     val context = LocalContext.current
