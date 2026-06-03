@@ -17,9 +17,11 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 /**
@@ -30,8 +32,13 @@ import kotlinx.coroutines.flow.update
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MemoryEstimator {
+    // Flow of the total memory usage.
+    public val usage: StateFlow<Long>
+
     // Flow of available capacity.
-    public val capacity: StateFlow<Long>
+    public val capacity: Flow<Long>
+
+    // Flow of total evictable memory usage.
     public val evictable: StateFlow<Long>
 
     // Acquires a resource of given size, irrespective of the available capacity. This can cause the
@@ -49,40 +56,31 @@ public interface MemoryEstimator {
     public fun canAllocate(size: Long): Boolean
 
     public companion object {
-        @JvmStatic public val noop: MemoryEstimator = NoOpMemoryEstimator
-
         @JvmStatic
-        public fun create(initialCapacity: Long): MemoryEstimator =
+        /**
+         * Create an instance of [MemoryEstimator] with a given totalCapacity bound. The default is
+         * unbounded.
+         */
+        public fun create(initialCapacity: Long = Long.MAX_VALUE): MemoryEstimator =
             MemoryEstimatorImpl(initialCapacity)
     }
 }
 
-internal object NoOpMemoryEstimator : MemoryEstimator {
-    override val capacity: StateFlow<Long> = MutableStateFlow(0L)
-    override val evictable: StateFlow<Long> = MutableStateFlow(0L)
-
-    override fun incrementUsage(size: Long) {}
-
-    override fun decrementUsage(size: Long) {}
-
-    override fun updateEvictable(size: Long) {}
-
-    override fun canAllocate(size: Long): Boolean = true
-}
-
 internal class MemoryEstimatorImpl(private val initialCapacity: Long) : MemoryEstimator {
-    private val _available = MutableStateFlow(initialCapacity)
-    override val capacity: StateFlow<Long> = _available.asStateFlow()
+    private val _usage = MutableStateFlow(0L)
+    override val usage: StateFlow<Long> = _usage.asStateFlow()
+
+    override val capacity: Flow<Long> = _usage.map { usage -> initialCapacity - usage }
 
     private val _evictable = MutableStateFlow(0L)
     override val evictable: StateFlow<Long> = _evictable.asStateFlow()
 
     override fun incrementUsage(size: Long) {
-        _available.update { current -> current - size }
+        _usage.update { current -> current + size }
     }
 
     override fun decrementUsage(size: Long) {
-        _available.update { current -> current + size }
+        _usage.update { current -> current - size }
     }
 
     override fun updateEvictable(size: Long) {
@@ -90,6 +88,6 @@ internal class MemoryEstimatorImpl(private val initialCapacity: Long) : MemoryEs
     }
 
     override fun canAllocate(size: Long): Boolean {
-        return _available.value >= size
+        return (initialCapacity - _usage.value) >= size
     }
 }
