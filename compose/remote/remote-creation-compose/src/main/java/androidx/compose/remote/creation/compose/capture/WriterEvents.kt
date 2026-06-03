@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.app.PendingIntent
-import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.compose.ui.util.fastForEachIndexed
@@ -31,7 +30,6 @@ import androidx.compose.ui.util.fastForEachIndexed
  * composable tree into a desired output format, such as a binary file, a JSON representation, or a
  * network stream.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WriterEvents {
     private val pendingIntentList: MutableList<PendingIntent> = mutableListOf()
 

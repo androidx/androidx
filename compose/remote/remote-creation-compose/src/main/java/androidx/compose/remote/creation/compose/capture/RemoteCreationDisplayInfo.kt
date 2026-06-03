@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
@@ -31,7 +28,18 @@ import androidx.compose.ui.unit.Dp
 
 private const val baseDensity = 160f
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Represents the virtual display metrics and configuration used as guide values for rendering a
+ * RemoteCompose document.
+ *
+ * These values serve as a guide for the predicted characteristics of the remote display, but the
+ * actual characteristics may differ when the document is played back on a remote client.
+ *
+ * @property size The physical dimensions of the virtual display in pixels.
+ * @property density The Compose [Density] of the virtual display.
+ * @property isInspectionMode Whether the capture is happening in an inspection or preview
+ *   environment (e.g. inside an IDE preview). Defaults to false.
+ */
 public class RemoteCreationDisplayInfo(
     public val size: Size,
     public val density: Density,
@@ -50,7 +58,6 @@ public class RemoteCreationDisplayInfo(
  *   Defaults to false.
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCreationDisplayInfo(
     width: Int,
     height: Int,

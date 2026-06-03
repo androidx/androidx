@@ -28,7 +28,6 @@ import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.toCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -129,7 +128,7 @@ class BasicLayoutTest {
         val documentBytes = runBlocking {
             captureSingleRemoteDocument(
                     context = context,
-                    creationDisplayInfo = creationDisplayInfo.toCreationDisplayInfo(),
+                    creationDisplayInfo = creationDisplayInfo,
                     content = content,
                 )
                 .bytes
@@ -170,7 +169,7 @@ class BasicLayoutTest {
         val documentBytes = runBlocking {
             captureSingleRemoteDocument(
                     context = context,
-                    creationDisplayInfo = creationDisplayInfo.toCreationDisplayInfo(),
+                    creationDisplayInfo = creationDisplayInfo,
                     content = content,
                 )
                 .bytes
