@@ -25,15 +25,31 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
     // Add dependencies here
+    api(project(":work:work-runtime"))
+    api("androidx.annotation:annotation-experimental:1.4.1")
+    ksp("androidx.room:room-compiler:2.7.0")
+    implementation("androidx.room:room-runtime:2.7.0")
+    implementation("androidx.room:room-ktx:2.7.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
     compileSdk { version = release(35) }
     namespace = "androidx.work.analytics"
+}
+
+kotlin {
+    compilerOptions {
+        optIn.add("androidx.work.analytics.ExperimentalWorkMetricsApi")
+    }
 }
 
 androidx {
