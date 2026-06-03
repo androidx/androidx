@@ -247,6 +247,9 @@ val WearMaterial3Demos =
                             SwipeToRevealWithEdgeSwipeToDismiss(params.swipeToDismissBoxState)
                         },
                         ComposableDemo("Custom drag with fling") { SwipeToRevealCustomDragDemo() },
+                        ComposableDemo("Custom Action Content Spacing") {
+                            SwipeToRevealWithCustomActionContentSpacing()
+                        },
                     ),
                 ),
                 Material3DemoCategory(

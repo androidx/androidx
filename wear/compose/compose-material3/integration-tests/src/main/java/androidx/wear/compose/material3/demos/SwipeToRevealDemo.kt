@@ -135,6 +135,60 @@ fun SwipeToRevealBothDirectionsNoPartialReveal() {
 }
 
 @Composable
+fun SwipeToRevealWithCustomActionContentSpacing() {
+    ScalingLazyDemo {
+        item {
+            SwipeToReveal(
+                primaryAction = {
+                    PrimaryActionButton(
+                        onClick = { /* This block is called when the primary action is executed. */
+                        },
+                        icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
+                        text = { Text("Delete") },
+                    )
+                },
+                onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+                },
+                undoPrimaryAction = {
+                    UndoActionButton(
+                        onClick = { /* This block is called when the undo primary action is executed. */
+                        },
+                        text = { Text("Undo Delete") },
+                    )
+                },
+                secondaryAction = {
+                    SecondaryActionButton(
+                        onClick = { /* This block is called when the secondary action is executed. */
+                        },
+                        icon = { Icon(Icons.Outlined.MoreVert, contentDescription = "More") },
+                    )
+                },
+                revealDirection = Bidirectional,
+                hasPartiallyRevealedState = true,
+                actionContentSpacing = 12.dp,
+            ) {
+                Button(
+                    modifier =
+                        Modifier.fillMaxWidth().semantics {
+                            // Use custom actions to make the primary action accessible
+                            customActions =
+                                listOf(
+                                    CustomAccessibilityAction("Delete") {
+                                        /* Add the primary action click handler here */
+                                        true
+                                    }
+                                )
+                        },
+                    onClick = {},
+                ) {
+                    Text("Custom Action Content Spacing", modifier = Modifier.fillMaxSize())
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun SwipeToRevealBothDirections() {
     val slcState = rememberScalingLazyListState()
     val coroutineScope = rememberCoroutineScope()

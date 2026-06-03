@@ -59,6 +59,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -1501,6 +1502,114 @@ class SwipeToRevealTest {
         rule.onNodeWithTag(PRIMARY_ACTION_TAG).assertExists()
     }
 
+    @Test
+    fun onSwipeLeft_twoActions_actionContentSpacingSetCorrectly() {
+        verifyActionContentSpacingSetCorrectly(
+            isSwipeLeft = true,
+            hasSecondaryAction = true,
+            actionContentSpacing = ActionContentSpacing,
+        )
+    }
+
+    @Test
+    fun onSwipeLeft_singleAction_actionContentSpacingSetCorrectly() {
+        verifyActionContentSpacingSetCorrectly(
+            isSwipeLeft = true,
+            hasSecondaryAction = false,
+            actionContentSpacing = ActionContentSpacing,
+        )
+    }
+
+    @Test
+    fun onSwipeRight_twoActions_actionContentSpacingSetCorrectly() {
+        verifyActionContentSpacingSetCorrectly(
+            isSwipeLeft = false,
+            hasSecondaryAction = true,
+            actionContentSpacing = ActionContentSpacing,
+        )
+    }
+
+    @Test
+    fun onSwipeRight_singleAction_actionContentSpacingSetCorrectly() {
+        verifyActionContentSpacingSetCorrectly(
+            isSwipeLeft = false,
+            hasSecondaryAction = false,
+            actionContentSpacing = ActionContentSpacing,
+        )
+    }
+
+    @Test
+    fun defaultActionContentSpacingSetCorrectly() {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            revealState = rememberRevealState(RightRevealing)
+            SwipeToReveal(
+                modifier = Modifier.testTag(TEST_TAG),
+                primaryAction = {
+                    DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                },
+                onSwipePrimaryAction = {},
+                revealState = revealState,
+                revealDirection = Bidirectional,
+                content = {
+                    DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                },
+            )
+        }
+
+        rule.waitForIdle()
+
+        val contentBound = rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).getBoundsInRoot()
+        rule
+            .onNodeWithTag(PRIMARY_ACTION_TAG)
+            .assertLeftPositionInRootIsEqualTo(contentBound.right + ActionContentSpacingDefault)
+    }
+
+    fun verifyActionContentSpacingSetCorrectly(
+        isSwipeLeft: Boolean,
+        hasSecondaryAction: Boolean,
+        actionContentSpacing: Dp,
+    ) {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            revealState = rememberRevealState(if (isSwipeLeft) RightRevealing else LeftRevealing)
+            SwipeToRevealWithDefaults(
+                modifier = Modifier.testTag(TEST_TAG),
+                primaryAction = {
+                    DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                },
+                secondaryAction =
+                    if (hasSecondaryAction) {
+                        {
+                            DefaultSecondaryActionButton(
+                                modifier = Modifier.testTag(SECONDARY_ACTION_TAG)
+                            )
+                        }
+                    } else null,
+                revealDirection = Bidirectional,
+                revealState = revealState,
+                actionContentSpacing = actionContentSpacing,
+                content = {
+                    DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                },
+            )
+        }
+
+        rule.waitForIdle()
+        val tagToCheck = if (hasSecondaryAction) SECONDARY_ACTION_TAG else PRIMARY_ACTION_TAG
+        if (isSwipeLeft) {
+            val contentBound = rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).getBoundsInRoot()
+            rule
+                .onNodeWithTag(tagToCheck)
+                .assertLeftPositionInRootIsEqualTo(contentBound.right + actionContentSpacing)
+        } else {
+            val actionBound = rule.onNodeWithTag(tagToCheck).getBoundsInRoot()
+            rule
+                .onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG)
+                .assertLeftPositionInRootIsEqualTo(actionBound.right + actionContentSpacing)
+        }
+    }
+
     private fun verifyActionCenterVerticalAligned(
         primaryActionHeight: Dp,
         secondaryActionHeight: Dp,
@@ -2080,6 +2189,7 @@ class SwipeToRevealTest {
     fun SwipeToRevealWithDefaults(
         modifier: Modifier = Modifier,
         onSwipePrimaryAction: () -> Unit = {},
+        actionContentSpacing: Dp = 4.dp,
         primaryAction: @Composable SwipeToRevealScope.() -> Unit =
             @Composable { DefaultPrimaryActionButton(onClick = onSwipePrimaryAction) },
         secondaryAction: (@Composable SwipeToRevealScope.() -> Unit)? = null,
@@ -2103,6 +2213,7 @@ class SwipeToRevealTest {
                     primaryAction = primaryAction,
                     onSwipePrimaryAction = onSwipePrimaryAction,
                     modifier = modifier,
+                    actionContentSpacing = actionContentSpacing,
                     secondaryAction = secondaryAction,
                     undoPrimaryAction = undoPrimaryAction,
                     undoSecondaryAction = undoSecondaryAction,
@@ -2194,6 +2305,8 @@ class SwipeToRevealTest {
     }
 
     companion object {
+        private val ActionContentSpacing = 12.dp
+        private val ActionContentSpacingDefault = 4.dp
         private const val SWIPE_TO_REVEAL_TAG = TEST_TAG
         private const val SWIPE_TO_REVEAL_SECOND_TAG = "SWIPE_TO_REVEAL_SECOND_TAG"
         private const val SWIPE_TO_REVEAL_CONTENT_TAG = "SWIPE_TO_REVEAL_CONTENT_TAG"
