@@ -101,9 +101,7 @@ import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.scene
 import java.io.File
 import java.nio.file.Paths
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val TAG = "JXR-SurfaceEntity-VideoPlayerActivity"
 
@@ -132,31 +130,23 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        session = (Session.create(context = this) as SessionCreateSuccess).session
+        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
+        arDevice = ArDevice.getInstance(session)
+
+        checkExternalStoragePermission()
+
+        // Load texture
         lifecycleScope.launch {
-            val sessionResult =
-                withContext(Dispatchers.IO) { Session.create(context = this@VideoPlayerActivity) }
-            if (sessionResult !is SessionCreateSuccess) {
-                finish()
-                return@launch
-            }
-            session = sessionResult.session
-            session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
-            session.configure(
-                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
-            )
-            arDevice = ArDevice.getInstance(session)
-
-            checkExternalStoragePermission()
-
-            // Load texture
             alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))
+        }
 
-            setContent {
-                if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-                    SpatialVideoPlayerUi()
-                } else {
-                    VideoPlayerUi()
-                }
+        setContent {
+            if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
+                SpatialVideoPlayerUi()
+            } else {
+                VideoPlayerUi()
             }
         }
     }
