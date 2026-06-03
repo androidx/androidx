@@ -23,10 +23,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.isDisplayed
@@ -36,8 +38,10 @@ import androidx.compose.ui.test.performClick
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.DialogSceneStrategy
@@ -370,88 +374,6 @@ class NavDisplayTest {
 
         assertThat(backStack3).containsExactly(third, forth)
         assertThat(composeTestRule.onNodeWithText(forth).isDisplayed()).isTrue()
-    }
-
-    @Test
-    fun swappingBackStackUsesDifferentHoistedStates() {
-        lateinit var numberOnScreen1: MutableState<Int>
-        lateinit var numberOnScreen2: MutableState<Int>
-
-        lateinit var backStackState: MutableState<Int>
-        lateinit var decoratorState: MutableState<Int>
-
-        composeTestRule.setContent {
-            val backStack1 = rememberNavBackStack(First)
-            val backStack2 = rememberNavBackStack(Second)
-            val decorator1 = listOf(rememberSaveableStateHolderNavEntryDecorator<NavKey>())
-            val decorator2 = listOf(rememberSaveableStateHolderNavEntryDecorator<NavKey>())
-            backStackState = remember { mutableStateOf(1) }
-            decoratorState = remember { mutableStateOf(1) }
-
-            val backStack =
-                when (backStackState.value) {
-                    1 -> backStack1
-                    else -> backStack2
-                }
-            val decorators =
-                when (decoratorState.value) {
-                    1 -> decorator1
-                    else -> decorator2
-                }
-            NavDisplay(
-                backStack = backStack,
-                entryDecorators = decorators,
-                onBack = { backStack.removeAt(backStack.lastIndex) },
-                entryProvider =
-                    entryProvider {
-                        entry(First, First.toString()) {
-                            numberOnScreen1 = rememberSaveable { mutableStateOf(0) }
-                            Text("numberOnScreen1: ${numberOnScreen1.value}")
-                            Text(first)
-                        }
-                        entry(Second, Second.toString()) {
-                            numberOnScreen2 = rememberSaveable { mutableStateOf(0) }
-                            Text("numberOnScreen2: ${numberOnScreen2.value}")
-                            Text(second)
-                        }
-                    },
-            )
-        }
-
-        composeTestRule.runOnIdle {
-            assertWithMessage("Initial number should be 0").that(numberOnScreen1.value).isEqualTo(0)
-            numberOnScreen1.value++
-            numberOnScreen1.value++
-        }
-
-        composeTestRule.onNodeWithText(first).assertIsDisplayed()
-        composeTestRule.onNodeWithText("numberOnScreen1: 2").assertIsDisplayed()
-
-        backStackState.value = 2
-        decoratorState.value = 2
-
-        composeTestRule.runOnIdle {
-            assertWithMessage("Initial number should be 0").that(numberOnScreen2.value).isEqualTo(0)
-            numberOnScreen2.value++
-            numberOnScreen2.value++
-            numberOnScreen2.value++
-        }
-        composeTestRule.onNodeWithText(second).assertIsDisplayed()
-        composeTestRule.onNodeWithText("numberOnScreen2: 3").assertIsDisplayed()
-
-        backStackState.value = 1
-        decoratorState.value = 1
-
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(first).assertIsDisplayed()
-        composeTestRule.onNodeWithText("numberOnScreen1: 2").assertIsDisplayed()
-
-        backStackState.value = 2
-        decoratorState.value = 2
-        composeTestRule.waitForIdle()
-
-        composeTestRule.onNodeWithText(second).assertIsDisplayed()
-        composeTestRule.onNodeWithText("numberOnScreen2: 3").assertIsDisplayed()
     }
 
     @Test
@@ -797,6 +719,126 @@ class NavDisplayTest {
         }
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("first").assertIsDisplayed()
+    }
+
+    @Test
+    fun testOnPopCalledWhenSwappingBackStacksWithSharedDecorator() {
+        // We use onPop to verify that entries are correctly removed when their back stack
+        // is no longer being used. This also implicitly verifies that NavDisplay correctly
+        // waits for any exit animations to complete before triggering onPop, as onPop is
+        // only called once an entry has been entirely removed from the composition.
+        val poppedKeys = mutableListOf<Any>()
+        val decorator =
+            NavEntryDecorator<String>(onPop = { key -> poppedKeys.add(key) }) { entry ->
+                entry.Content()
+            }
+
+        var backStackState by mutableStateOf(1)
+        val backStack1 = mutableStateListOf(first)
+        val backStack2 = mutableStateListOf(second)
+        composeTestRule.setContent {
+            NavDisplay(
+                backStack = if (backStackState == 1) backStack1 else backStack2,
+                entryDecorators = listOf(decorator),
+                onBack = {},
+            ) { key ->
+                when (key) {
+                    first -> NavEntry(first) { Text(first) }
+                    second -> NavEntry(second) { Text(second) }
+                    third -> NavEntry(third) { Text(third) }
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        assertWithMessage("poppedKeys should be empty initially").that(poppedKeys).isEmpty()
+
+        // Moving forward in the backstack should not trigger any pops.
+        composeTestRule.runOnIdle { backStack1.add(third) }
+        composeTestRule.waitForIdle()
+
+        assertWithMessage("poppedKeys should be empty after forward navigation")
+            .that(poppedKeys)
+            .isEmpty()
+
+        // When we swap backstacks, all entries in the old backstack are removed from composition.
+        // NavDisplay should only trigger onPop once the exit animations for these entries
+        // have completed. waitForIdle() ensures we wait for those animations.
+        composeTestRule.runOnIdle { backStackState = 2 }
+        composeTestRule.waitForIdle()
+
+        assertWithMessage(
+                "Swapping the active backstack should trigger onPop for all entries " +
+                    "in the previously active backstack"
+            )
+            .that(poppedKeys)
+            .containsExactly(first, third)
+    }
+
+    @Test
+    fun testOnPopCalledWhenSwappingBackStacksWithMultipleDecorator() {
+        val poppedKeys1 = mutableListOf<Any>()
+        val decorator1 =
+            NavEntryDecorator<String>(onPop = { key -> poppedKeys1.add(key) }) { entry ->
+                entry.Content()
+            }
+
+        val poppedKeys2 = mutableListOf<Any>()
+        val decorator2 =
+            NavEntryDecorator<String>(onPop = { key -> poppedKeys2.add(key) }) { entry ->
+                entry.Content()
+            }
+
+        var backStackState by mutableStateOf(1)
+        val backStack1 = mutableStateListOf(first)
+        val backStack2 = mutableStateListOf(second)
+
+        composeTestRule.setContent {
+            // We simulate the Multiple Back Stack pattern where each backstack is decorated
+            // independently and the resulting entries are hoisted above NavDisplay.
+            val entries1 =
+                rememberDecoratedNavEntries(
+                    backStack = backStack1,
+                    entryDecorators = listOf(decorator1),
+                    entryProvider = { NavEntry(it) { Text(it) } },
+                )
+            val entries2 =
+                rememberDecoratedNavEntries(
+                    backStack = backStack2,
+                    entryDecorators = listOf(decorator2),
+                    entryProvider = { NavEntry(it) { Text(it) } },
+                )
+
+            val entries = if (backStackState == 1) entries1 else entries2
+
+            NavDisplay(entries = entries, onBack = {})
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(poppedKeys1).isEmpty()
+        assertThat(poppedKeys2).isEmpty()
+
+        // Switch to backstack 2.
+        composeTestRule.runOnIdle { backStackState = 2 }
+        composeTestRule.waitForIdle()
+
+        // Even though backstack 1 is no longer displayed, its entries are still held by the
+        // hoisted rememberDecoratedNavEntries(backStack1), so onPop should NOT be called.
+        assertWithMessage("onPop should NOT be called for hoisted backstack when it's just hidden")
+            .that(poppedKeys1)
+            .isEmpty()
+
+        assertThat(composeTestRule.onNodeWithText(second).isDisplayed()).isTrue()
+
+        // Now if we pop from the hidden backstack...
+        composeTestRule.runOnIdle { backStack1.removeLastOrNull() }
+        composeTestRule.waitForIdle()
+
+        // It should be popped even if it's hidden!
+        assertWithMessage("onPop SHOULD be called when an entry is removed from a hidden backstack")
+            .that(poppedKeys1)
+            .containsExactly(first)
     }
 }
 

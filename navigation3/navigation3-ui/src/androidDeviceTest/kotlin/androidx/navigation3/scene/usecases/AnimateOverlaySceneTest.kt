@@ -66,6 +66,7 @@ class AnimateOverlaySceneTest {
     private object Second
 
     @OptIn(ExperimentalMaterial3Api::class)
+    @Suppress("Deprecation")
     @Test
     fun testAnimateOut() {
         lateinit var backStack: MutableList<Any>
