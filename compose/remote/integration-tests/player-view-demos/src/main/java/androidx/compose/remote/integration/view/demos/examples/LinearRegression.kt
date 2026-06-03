@@ -49,7 +49,12 @@ fun demoLinearRegression(): RemoteComposeContextAndroid {
         FloatArray(nPoints) {
             trueSlope * it + trueIntercept + (Random.nextFloat() - 0.5f) * noiseScale * 4f
         }
+    return demoLinearRegression(xData, yData)
+}
 
+@Suppress("RestrictedApiAndroidX")
+fun demoLinearRegression(xData: FloatArray, yData: FloatArray): RemoteComposeContextAndroid {
+    val nPoints = xData.size
     val rc =
         RemoteComposeContextAndroid(
             platform = AndroidxRcPlatformServices(),

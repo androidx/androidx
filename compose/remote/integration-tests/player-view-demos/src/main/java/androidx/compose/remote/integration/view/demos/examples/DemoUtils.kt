@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.examples
 
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.Rc.TextFromFloat.PAD_PRE_SPACE
@@ -75,11 +76,26 @@ fun addHeaderParam(tag: Short, value: Any) {
 }
 
 @Suppress("RestrictedApiAndroidX")
-fun demo7(content: RemoteComposeContextAndroid.() -> Unit): RemoteComposeContextAndroid {
+fun clearParams() {
+    params.clear()
+    params[Header.DOC_WIDTH] = hTag(Header.DOC_WIDTH, 400)
+    params[Header.DOC_HEIGHT] = hTag(Header.DOC_HEIGHT, 400)
+    params[Header.DOC_CONTENT_DESCRIPTION] = hTag(Header.DOC_CONTENT_DESCRIPTION, "Activity Rings")
+}
+
+@Suppress("RestrictedApiAndroidX")
+@JvmOverloads
+fun demo7(
+    platform: RcPlatformServices = AndroidxRcPlatformServices(),
+    content: RemoteComposeContextAndroid.() -> Unit,
+): RemoteComposeContextAndroid {
     val array = params.values.toTypedArray()
+    array.sortBy { it.tag }
     val rc =
-        RemoteComposeContextAndroid(platform = AndroidxRcPlatformServices(), apiLevel = 7, *array) {
+        RemoteComposeContextAndroid(platform = platform, apiLevel = 7, *array) {
+            beginGlobal()
             content()
+            endGlobal()
             print("") // to satisfy lint
         }
     return rc

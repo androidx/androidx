@@ -56,6 +56,8 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.MatrixAccess;
@@ -745,70 +747,80 @@ public class AndroidPaintContext extends PaintContext {
         return PorterDuff.Mode.SRC_OVER;
     }
 
-    private static BlendMode remoteToAndroidBlendMode(int mode) {
-        switch (mode) {
-            case PaintBundle.BLEND_MODE_CLEAR:
-                return BlendMode.CLEAR;
-            case PaintBundle.BLEND_MODE_SRC:
-                return BlendMode.SRC;
-            case PaintBundle.BLEND_MODE_DST:
-                return BlendMode.DST;
-            case PaintBundle.BLEND_MODE_SRC_OVER:
-                return BlendMode.SRC_OVER;
-            case PaintBundle.BLEND_MODE_DST_OVER:
-                return BlendMode.DST_OVER;
-            case PaintBundle.BLEND_MODE_SRC_IN:
-                return BlendMode.SRC_IN;
-            case PaintBundle.BLEND_MODE_DST_IN:
-                return BlendMode.DST_IN;
-            case PaintBundle.BLEND_MODE_SRC_OUT:
-                return BlendMode.SRC_OUT;
-            case PaintBundle.BLEND_MODE_DST_OUT:
-                return BlendMode.DST_OUT;
-            case PaintBundle.BLEND_MODE_SRC_ATOP:
-                return BlendMode.SRC_ATOP;
-            case PaintBundle.BLEND_MODE_DST_ATOP:
-                return BlendMode.DST_ATOP;
-            case PaintBundle.BLEND_MODE_XOR:
-                return BlendMode.XOR;
-            case PaintBundle.BLEND_MODE_PLUS:
-                return BlendMode.PLUS;
-            case PaintBundle.BLEND_MODE_MODULATE:
-                return BlendMode.MODULATE;
-            case PaintBundle.BLEND_MODE_SCREEN:
-                return BlendMode.SCREEN;
-            case PaintBundle.BLEND_MODE_OVERLAY:
-                return BlendMode.OVERLAY;
-            case PaintBundle.BLEND_MODE_DARKEN:
-                return BlendMode.DARKEN;
-            case PaintBundle.BLEND_MODE_LIGHTEN:
-                return BlendMode.LIGHTEN;
-            case PaintBundle.BLEND_MODE_COLOR_DODGE:
-                return BlendMode.COLOR_DODGE;
-            case PaintBundle.BLEND_MODE_COLOR_BURN:
-                return BlendMode.COLOR_BURN;
-            case PaintBundle.BLEND_MODE_HARD_LIGHT:
-                return BlendMode.HARD_LIGHT;
-            case PaintBundle.BLEND_MODE_SOFT_LIGHT:
-                return BlendMode.SOFT_LIGHT;
-            case PaintBundle.BLEND_MODE_DIFFERENCE:
-                return BlendMode.DIFFERENCE;
-            case PaintBundle.BLEND_MODE_EXCLUSION:
-                return BlendMode.EXCLUSION;
-            case PaintBundle.BLEND_MODE_MULTIPLY:
-                return BlendMode.MULTIPLY;
-            case PaintBundle.BLEND_MODE_HUE:
-                return BlendMode.HUE;
-            case PaintBundle.BLEND_MODE_SATURATION:
-                return BlendMode.SATURATION;
-            case PaintBundle.BLEND_MODE_COLOR:
-                return BlendMode.COLOR;
-            case PaintBundle.BLEND_MODE_LUMINOSITY:
-                return BlendMode.LUMINOSITY;
-            case PaintBundle.BLEND_MODE_NULL:
-                return null;
+    @SuppressLint("ObsoleteSdkInt")
+    @RequiresApi(29)
+    private static class Api29Impl {
+        @DoNotInline
+        static void setBlendMode(Paint paint, int mode) {
+            paint.setBlendMode(remoteToAndroidBlendMode(mode));
         }
-        return null;
+
+        @DoNotInline
+        private static BlendMode remoteToAndroidBlendMode(int mode) {
+            switch (mode) {
+                case PaintBundle.BLEND_MODE_CLEAR:
+                    return BlendMode.CLEAR;
+                case PaintBundle.BLEND_MODE_SRC:
+                    return BlendMode.SRC;
+                case PaintBundle.BLEND_MODE_DST:
+                    return BlendMode.DST;
+                case PaintBundle.BLEND_MODE_SRC_OVER:
+                    return BlendMode.SRC_OVER;
+                case PaintBundle.BLEND_MODE_DST_OVER:
+                    return BlendMode.DST_OVER;
+                case PaintBundle.BLEND_MODE_SRC_IN:
+                    return BlendMode.SRC_IN;
+                case PaintBundle.BLEND_MODE_DST_IN:
+                    return BlendMode.DST_IN;
+                case PaintBundle.BLEND_MODE_SRC_OUT:
+                    return BlendMode.SRC_OUT;
+                case PaintBundle.BLEND_MODE_DST_OUT:
+                    return BlendMode.DST_OUT;
+                case PaintBundle.BLEND_MODE_SRC_ATOP:
+                    return BlendMode.SRC_ATOP;
+                case PaintBundle.BLEND_MODE_DST_ATOP:
+                    return BlendMode.DST_ATOP;
+                case PaintBundle.BLEND_MODE_XOR:
+                    return BlendMode.XOR;
+                case PaintBundle.BLEND_MODE_PLUS:
+                    return BlendMode.PLUS;
+                case PaintBundle.BLEND_MODE_MODULATE:
+                    return BlendMode.MODULATE;
+                case PaintBundle.BLEND_MODE_SCREEN:
+                    return BlendMode.SCREEN;
+                case PaintBundle.BLEND_MODE_OVERLAY:
+                    return BlendMode.OVERLAY;
+                case PaintBundle.BLEND_MODE_DARKEN:
+                    return BlendMode.DARKEN;
+                case PaintBundle.BLEND_MODE_LIGHTEN:
+                    return BlendMode.LIGHTEN;
+                case PaintBundle.BLEND_MODE_COLOR_DODGE:
+                    return BlendMode.COLOR_DODGE;
+                case PaintBundle.BLEND_MODE_COLOR_BURN:
+                    return BlendMode.COLOR_BURN;
+                case PaintBundle.BLEND_MODE_HARD_LIGHT:
+                    return BlendMode.HARD_LIGHT;
+                case PaintBundle.BLEND_MODE_SOFT_LIGHT:
+                    return BlendMode.SOFT_LIGHT;
+                case PaintBundle.BLEND_MODE_DIFFERENCE:
+                    return BlendMode.DIFFERENCE;
+                case PaintBundle.BLEND_MODE_EXCLUSION:
+                    return BlendMode.EXCLUSION;
+                case PaintBundle.BLEND_MODE_MULTIPLY:
+                    return BlendMode.MULTIPLY;
+                case PaintBundle.BLEND_MODE_HUE:
+                    return BlendMode.HUE;
+                case PaintBundle.BLEND_MODE_SATURATION:
+                    return BlendMode.SATURATION;
+                case PaintBundle.BLEND_MODE_COLOR:
+                    return BlendMode.COLOR;
+                case PaintBundle.BLEND_MODE_LUMINOSITY:
+                    return BlendMode.LUMINOSITY;
+                case PaintBundle.BLEND_MODE_NULL:
+                    return null;
+            }
+            return null;
+        }
     }
 
     PaintChanges mCachedPaintChanges =
@@ -1275,9 +1287,15 @@ public class AndroidPaintContext extends PaintContext {
                     mPaint.setFilterBitmap(quality == 1);
                 }
 
+                @SuppressLint("ObsoleteSdkInt")
                 @Override
                 public void setBlendMode(int mode) {
-                    mPaint.setBlendMode(remoteToAndroidBlendMode(mode));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        Api29Impl.setBlendMode(mPaint, mode);
+                    } else {
+                        mPaint.setXfermode(new android.graphics.PorterDuffXfermode(
+                                remoteToAndroidPorterDuffMode(mode)));
+                    }
                 }
 
                 @Override

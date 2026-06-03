@@ -16,9 +16,11 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Paint
 import android.graphics.Shader
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
@@ -63,15 +65,25 @@ private fun RcTickerPreview() {
 }
 
 @Suppress("RestrictedApiAndroidX")
-fun RcTicker(context: Context): RemoteComposeContext {
+@JvmOverloads
+fun RcTicker(
+    context: Context,
+    refresh: Bitmap? = null,
+    platform: RcPlatformServices = AndroidxRcPlatformServices(),
+): RemoteComposeContext {
     val res = context.resources
-    val refresh = BitmapFactory.decodeResource(res, R.drawable.refresh)
+    val refreshBitmap = refresh ?: BitmapFactory.decodeResource(res, R.drawable.refresh)
     return RemoteComposeContextAndroid(
-        AndroidxRcPlatformServices(),
+        platform,
         7,
+        RemoteComposeWriter.HTag(Header.DOC_WIDTH, 400),
+        RemoteComposeWriter.HTag(Header.DOC_HEIGHT, 400),
+        RemoteComposeWriter.HTag(Header.DOC_CONTENT_DESCRIPTION, "Activity Rings"),
         RemoteComposeWriter.HTag(
             Header.DOC_PROFILES,
-            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            RcProfiles.PROFILE_ANDROIDX or
+                RcProfiles.PROFILE_WIDGETS or
+                RcProfiles.PROFILE_EXPERIMENTAL,
         ),
         RemoteComposeWriter.HTag(Header.DEBUG, 0),
     ) {
@@ -415,7 +427,7 @@ private class RcTickerColorPack(val rc: RemoteComposeContextAndroid) {
 @Suppress("RestrictedApiAndroidX")
 private fun fillRandom(size: Int, startVal: Float, endVal: Float, roughness: Float): FloatArray {
     val arr = FloatArray(size)
-    var random = Random()
+    var random = Random(42)
     arr[0] = startVal
     arr[size - 1] = endVal
     divide(random, arr, 0, size - 1, roughness)
@@ -494,7 +506,7 @@ fun generateStockDataArray(
     annualVolatility: Float,
     daysPerPoint: Float,
 ): FloatArray {
-    val random = Random()
+    val random = Random(42)
     val prices = FloatArray(numPoints)
     prices[0] = startPrice
 

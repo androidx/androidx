@@ -23,12 +23,14 @@ import androidx.compose.remote.integration.view.demos.examples.ScrollViewDemo
 import androidx.compose.remote.integration.view.demos.examples.SimplePath
 import androidx.compose.remote.integration.view.demos.examples.SwitchWidgetDemo
 import androidx.compose.remote.integration.view.demos.examples.WeatherDemo
+import androidx.compose.remote.integration.view.demos.examples.demoJson1
 import androidx.compose.remote.integration.view.demos.examples.shaderFireworks
 import androidx.compose.remote.integration.view.demos.utils.RCDoc
 
 @SuppressLint("RestrictedApiAndroidX")
 fun getRemoteComposable(context: Context): ArrayList<RCDoc> {
     return arrayListOf(
+        getComposeDoc(context, "Compose/JSON") { demoJson1() },
         getComposeDoc(context, "Compose/Fireworks") { shaderFireworks() },
         getComposeDoc(context, "Compose/SimplePath") { SimplePath() },
         getComposeDoc(context, "Compose/WeatherDemo") { WeatherDemo() },

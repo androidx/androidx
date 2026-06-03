@@ -18,6 +18,8 @@ package androidx.compose.remote.integration.view.demos.examples
 
 import android.annotation.SuppressLint
 import android.graphics.Paint
+import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.Header
@@ -25,6 +27,7 @@ import androidx.compose.remote.core.operations.utilities.MatrixOperations
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.min
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.round
 import androidx.compose.remote.creation.sign
 import androidx.compose.runtime.Composable
@@ -35,7 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 /** Use Projection & Matrix to create a 3d cube with back side surface removal */
 @SuppressLint("PrimitiveInCollection")
 @Suppress("RestrictedApiAndroidX")
-fun cube3d(): RemoteComposeContext {
+@JvmOverloads
+fun cube3d(platform: RcPlatformServices = AndroidxRcPlatformServices()): RemoteComposeContext {
 
     val vertices =
         arrayOf(
@@ -88,10 +92,17 @@ fun cube3d(): RemoteComposeContext {
             0,
         ) // Bottom face
 
+    addHeaderParam(Header.DOC_WIDTH, 400)
+    addHeaderParam(Header.DOC_HEIGHT, 400)
     addHeaderParam(Header.DOC_CONTENT_DESCRIPTION, "Cube")
     addHeaderParam(Header.DOC_DESIRED_FPS, 120)
+    addHeaderParam(
+        Header.DOC_PROFILES,
+        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_WIDGETS or RcProfiles.PROFILE_EXPERIMENTAL,
+    )
+    addHeaderParam(Header.DEBUG, 0)
 
-    return demo7 {
+    return demo7(platform) {
         root {
             box(Modifier.fillMaxWidth().fillMaxHeight()) {
                 canvas(Modifier.fillMaxWidth().fillMaxHeight()) {

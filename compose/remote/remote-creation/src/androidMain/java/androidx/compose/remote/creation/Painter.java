@@ -91,7 +91,19 @@ public class Painter {
      * @param join set the paint's Join, used whenever the paint's style is Stroke or StrokeAndFill.
      */
     public @NonNull Painter setStrokeJoin(Paint.@NonNull Join join) {
-        mPaint.setStrokeJoin(join.ordinal());
+        int joinVal = 0;
+        switch (join) {
+            case MITER:
+                joinVal = 0;
+                break;
+            case ROUND:
+                joinVal = 1;
+                break;
+            case BEVEL:
+                joinVal = 2;
+                break;
+        }
+        mPaint.setStrokeJoin(joinVal);
         return this;
     }
 
@@ -114,7 +126,19 @@ public class Painter {
      * @param style The new style to set in the paint
      */
     public @NonNull Painter setStyle(Paint.@NonNull Style style) {
-        mPaint.setStyle(style.ordinal());
+        int styleVal = 0;
+        switch (style) {
+            case FILL:
+                styleVal = 0;
+                break;
+            case STROKE:
+                styleVal = 1;
+                break;
+            case FILL_AND_STROKE:
+                styleVal = 2;
+                break;
+        }
+        mPaint.setStyle(styleVal);
         return this;
     }
 
@@ -125,7 +149,19 @@ public class Painter {
      *     StrokeAndFill.
      */
     public @NonNull Painter setStrokeCap(Paint.@NonNull Cap cap) {
-        mPaint.setStrokeCap(cap.ordinal());
+        int capVal = 0;
+        switch (cap) {
+            case BUTT:
+                capVal = 0;
+                break;
+            case ROUND:
+                capVal = 1;
+                break;
+            case SQUARE:
+                capVal = 2;
+                break;
+        }
+        mPaint.setStrokeCap(capVal);
         return this;
     }
 
@@ -182,6 +218,19 @@ public class Painter {
      *     line.
      * @param tile The Shader tiling mode
      */
+    private int tileModeInt(Shader.@NonNull TileMode tileMode) {
+        switch (tileMode) {
+            case CLAMP:
+                return 0;
+            case REPEAT:
+                return 1;
+            case MIRROR:
+                return 2;
+            default:
+                return 0;
+        }
+    }
+
     public @NonNull Painter setLinearGradient(
             float startX,
             float startY,
@@ -190,7 +239,8 @@ public class Painter {
             int @NonNull [] colors,
             float @Nullable [] positions,
             Shader.@NonNull TileMode tile) {
-        mPaint.setLinearGradient(colors, 0, positions, startX, startY, endX, endY, tile.ordinal());
+        mPaint.setLinearGradient(
+                colors, 0, positions, startX, startY, endX, endY, tileModeInt(tile));
         return this;
     }
 
@@ -218,7 +268,7 @@ public class Painter {
             float @Nullable [] positions,
             Shader.@NonNull TileMode tile) {
         mPaint.setLinearGradient(
-                colors, mask, positions, startX, startY, endX, endY, tile.ordinal());
+                colors, mask, positions, startX, startY, endX, endY, tileModeInt(tile));
         return this;
     }
 
@@ -243,7 +293,7 @@ public class Painter {
             float @Nullable [] positions,
             Shader.@NonNull TileMode tileMode) {
         mPaint.setRadialGradient(
-                colors, 0, positions, centerX, centerY, radius, tileMode.ordinal());
+                colors, 0, positions, centerX, centerY, radius, tileModeInt(tileMode));
         return this;
     }
 
@@ -270,7 +320,7 @@ public class Painter {
             float @Nullable [] positions,
             Shader.@NonNull TileMode tileMode) {
         mPaint.setRadialGradient(
-                colors, mask, positions, centerX, centerY, radius, tileMode.ordinal());
+                colors, mask, positions, centerX, centerY, radius, tileModeInt(tileMode));
         return this;
     }
 
@@ -447,76 +497,106 @@ public class Painter {
      */
     @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.Q)
     public @NonNull Painter setBlendMode(@NonNull BlendMode blend) {
-        mPaint.setBlendMode(toBlendMode(blend));
+        mPaint.setBlendMode(Api29Impl.toBlendMode(blend));
         return this;
     }
 
     @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.Q)
-    private int toBlendMode(@Nullable BlendMode blend) {
-        if (blend == null) {
+    private static class Api29Impl {
+        @androidx.annotation.DoNotInline
+        static int toBlendMode(@Nullable BlendMode blend) {
+            if (blend == null) {
+                return PaintBundle.BLEND_MODE_NULL;
+            }
+            if (blend == BlendMode.CLEAR) {
+                return PaintBundle.BLEND_MODE_CLEAR;
+            }
+            if (blend == BlendMode.SRC) {
+                return PaintBundle.BLEND_MODE_SRC;
+            }
+            if (blend == BlendMode.DST) {
+                return PaintBundle.BLEND_MODE_DST;
+            }
+            if (blend == BlendMode.SRC_OVER) {
+                return PaintBundle.BLEND_MODE_SRC_OVER;
+            }
+            if (blend == BlendMode.DST_OVER) {
+                return PaintBundle.BLEND_MODE_DST_OVER;
+            }
+            if (blend == BlendMode.SRC_IN) {
+                return PaintBundle.BLEND_MODE_SRC_IN;
+            }
+            if (blend == BlendMode.DST_IN) {
+                return PaintBundle.BLEND_MODE_DST_IN;
+            }
+            if (blend == BlendMode.SRC_OUT) {
+                return PaintBundle.BLEND_MODE_SRC_OUT;
+            }
+            if (blend == BlendMode.DST_OUT) {
+                return PaintBundle.BLEND_MODE_DST_OUT;
+            }
+            if (blend == BlendMode.SRC_ATOP) {
+                return PaintBundle.BLEND_MODE_SRC_ATOP;
+            }
+            if (blend == BlendMode.DST_ATOP) {
+                return PaintBundle.BLEND_MODE_DST_ATOP;
+            }
+            if (blend == BlendMode.XOR) {
+                return PaintBundle.BLEND_MODE_XOR;
+            }
+            if (blend == BlendMode.PLUS) {
+                return PaintBundle.BLEND_MODE_PLUS;
+            }
+            if (blend == BlendMode.MODULATE) {
+                return PaintBundle.BLEND_MODE_MODULATE;
+            }
+            if (blend == BlendMode.SCREEN) {
+                return PaintBundle.BLEND_MODE_SCREEN;
+            }
+            if (blend == BlendMode.OVERLAY) {
+                return PaintBundle.BLEND_MODE_OVERLAY;
+            }
+            if (blend == BlendMode.DARKEN) {
+                return PaintBundle.BLEND_MODE_DARKEN;
+            }
+            if (blend == BlendMode.LIGHTEN) {
+                return PaintBundle.BLEND_MODE_LIGHTEN;
+            }
+            if (blend == BlendMode.COLOR_DODGE) {
+                return PaintBundle.BLEND_MODE_COLOR_DODGE;
+            }
+            if (blend == BlendMode.COLOR_BURN) {
+                return PaintBundle.BLEND_MODE_COLOR_BURN;
+            }
+            if (blend == BlendMode.HARD_LIGHT) {
+                return PaintBundle.BLEND_MODE_HARD_LIGHT;
+            }
+            if (blend == BlendMode.SOFT_LIGHT) {
+                return PaintBundle.BLEND_MODE_SOFT_LIGHT;
+            }
+            if (blend == BlendMode.DIFFERENCE) {
+                return PaintBundle.BLEND_MODE_DIFFERENCE;
+            }
+            if (blend == BlendMode.EXCLUSION) {
+                return PaintBundle.BLEND_MODE_EXCLUSION;
+            }
+            if (blend == BlendMode.MULTIPLY) {
+                return PaintBundle.BLEND_MODE_MULTIPLY;
+            }
+            if (blend == BlendMode.HUE) {
+                return PaintBundle.BLEND_MODE_HUE;
+            }
+            if (blend == BlendMode.SATURATION) {
+                return PaintBundle.BLEND_MODE_SATURATION;
+            }
+            if (blend == BlendMode.COLOR) {
+                return PaintBundle.BLEND_MODE_COLOR;
+            }
+            if (blend == BlendMode.LUMINOSITY) {
+                return PaintBundle.BLEND_MODE_LUMINOSITY;
+            }
             return PaintBundle.BLEND_MODE_NULL;
         }
-        switch (blend) {
-            case CLEAR:
-                return PaintBundle.BLEND_MODE_CLEAR;
-            case SRC:
-                return PaintBundle.BLEND_MODE_SRC;
-            case DST:
-                return PaintBundle.BLEND_MODE_DST;
-            case SRC_OVER:
-                return PaintBundle.BLEND_MODE_SRC_OVER;
-            case DST_OVER:
-                return PaintBundle.BLEND_MODE_DST_OVER;
-            case SRC_IN:
-                return PaintBundle.BLEND_MODE_SRC_IN;
-            case DST_IN:
-                return PaintBundle.BLEND_MODE_DST_IN;
-            case SRC_OUT:
-                return PaintBundle.BLEND_MODE_SRC_OUT;
-            case DST_OUT:
-                return PaintBundle.BLEND_MODE_DST_OUT;
-            case SRC_ATOP:
-                return PaintBundle.BLEND_MODE_SRC_ATOP;
-            case DST_ATOP:
-                return PaintBundle.BLEND_MODE_DST_ATOP;
-            case XOR:
-                return PaintBundle.BLEND_MODE_XOR;
-            case PLUS:
-                return PaintBundle.BLEND_MODE_PLUS;
-            case MODULATE:
-                return PaintBundle.BLEND_MODE_MODULATE;
-            case SCREEN:
-                return PaintBundle.BLEND_MODE_SCREEN;
-            case OVERLAY:
-                return PaintBundle.BLEND_MODE_OVERLAY;
-            case DARKEN:
-                return PaintBundle.BLEND_MODE_DARKEN;
-            case LIGHTEN:
-                return PaintBundle.BLEND_MODE_LIGHTEN;
-            case COLOR_DODGE:
-                return PaintBundle.BLEND_MODE_COLOR_DODGE;
-            case COLOR_BURN:
-                return PaintBundle.BLEND_MODE_COLOR_BURN;
-            case HARD_LIGHT:
-                return PaintBundle.BLEND_MODE_HARD_LIGHT;
-            case SOFT_LIGHT:
-                return PaintBundle.BLEND_MODE_SOFT_LIGHT;
-            case DIFFERENCE:
-                return PaintBundle.BLEND_MODE_DIFFERENCE;
-            case EXCLUSION:
-                return PaintBundle.BLEND_MODE_EXCLUSION;
-            case MULTIPLY:
-                return PaintBundle.BLEND_MODE_MULTIPLY;
-            case HUE:
-                return PaintBundle.BLEND_MODE_HUE;
-            case SATURATION:
-                return PaintBundle.BLEND_MODE_SATURATION;
-            case COLOR:
-                return PaintBundle.BLEND_MODE_COLOR;
-            case LUMINOSITY:
-                return PaintBundle.BLEND_MODE_LUMINOSITY;
-        }
-        return PaintBundle.BLEND_MODE_NULL;
     }
 
     /**
