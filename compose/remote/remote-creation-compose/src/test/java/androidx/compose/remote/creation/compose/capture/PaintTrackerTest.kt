@@ -222,6 +222,87 @@ class PaintTrackerTest {
     }
 
     @Test
+    fun testNamedTypefaceMapsToFontType() {
+        val paintDefault = RemotePaint { typeface = RemoteTypeface.create("default") }
+        val paintMono = RemotePaint { typeface = RemoteTypeface.create("monospace") }
+        val paintSerif = RemotePaint { typeface = RemoteTypeface.create("serif") }
+        val paintSansSerif = RemotePaint { typeface = RemoteTypeface.create("sans-serif") }
+
+        val bundleDefault = PaintBundle()
+        val bundleMono = PaintBundle()
+        val bundleSerif = PaintBundle()
+        val bundleSansSerif = PaintBundle()
+
+        val changesDefault = TestPaintChanges()
+        val changesMono = TestPaintChanges()
+        val changesSerif = TestPaintChanges()
+        val changesSansSerif = TestPaintChanges()
+
+        tracker.updateWithPaint(paintDefault, bundleDefault, recordingCanvas)
+        tracker.updateWithPaint(paintMono, bundleMono, recordingCanvas)
+        tracker.updateWithPaint(paintSerif, bundleSerif, recordingCanvas)
+        tracker.updateWithPaint(paintSansSerif, bundleSansSerif, recordingCanvas)
+
+        bundleDefault.applyPaintChange(paintContext, changesDefault)
+        bundleMono.applyPaintChange(paintContext, changesMono)
+        bundleSerif.applyPaintChange(paintContext, changesSerif)
+        bundleSansSerif.applyPaintChange(paintContext, changesSansSerif)
+
+        assertThat(changesDefault.mFontType).isEqualTo(0) // FONT_TYPE_DEFAULT
+        assertThat(changesMono.mFontType).isEqualTo(3) // FONT_TYPE_MONOSPACE
+        assertThat(changesSerif.mFontType).isEqualTo(2) // FONT_TYPE_SERIF
+        assertThat(changesSansSerif.mFontType).isEqualTo(1) // FONT_TYPE_SANS_SERIF
+    }
+
+    @Test
+    fun testTypefaceStyleSync() {
+        val paintNormal = RemotePaint {
+            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Normal)
+        }
+        val paintBold = RemotePaint {
+            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Bold)
+        }
+        val paintItalic = RemotePaint {
+            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Italic)
+        }
+        val paintBoldItalic = RemotePaint {
+            typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.BoldItalic)
+        }
+
+        val bundleNormal = PaintBundle()
+        val bundleBold = PaintBundle()
+        val bundleItalic = PaintBundle()
+        val bundleBoldItalic = PaintBundle()
+
+        val changesNormal = TestPaintChanges()
+        val changesBold = TestPaintChanges()
+        val changesItalic = TestPaintChanges()
+        val changesBoldItalic = TestPaintChanges()
+
+        tracker.updateWithPaint(paintNormal, bundleNormal, recordingCanvas)
+        tracker.updateWithPaint(paintBold, bundleBold, recordingCanvas)
+        tracker.updateWithPaint(paintItalic, bundleItalic, recordingCanvas)
+        tracker.updateWithPaint(paintBoldItalic, bundleBoldItalic, recordingCanvas)
+
+        bundleNormal.applyPaintChange(paintContext, changesNormal)
+        bundleBold.applyPaintChange(paintContext, changesBold)
+        bundleItalic.applyPaintChange(paintContext, changesItalic)
+        bundleBoldItalic.applyPaintChange(paintContext, changesBoldItalic)
+
+        assertThat(changesNormal.mWeight).isEqualTo(400)
+        assertThat(changesNormal.mItalic).isFalse()
+
+        assertThat(changesBold.mWeight).isEqualTo(700)
+        assertThat(changesBold.mItalic).isFalse()
+
+        assertThat(changesItalic.mWeight).isEqualTo(400)
+        assertThat(changesItalic.mItalic).isTrue()
+
+        assertThat(changesBoldItalic.mWeight).isEqualTo(700)
+        assertThat(changesBoldItalic.mItalic).isTrue()
+    }
+
+    @Test
     fun testFontVariationSettingsSync() {
         val settings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(100f))
         val paint = RemotePaint { fontVariationSettings = settings }
