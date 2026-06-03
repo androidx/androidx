@@ -345,4 +345,20 @@ public class WebSettingsAdapter {
     public void setBackForwardCacheKeepForwardEntries(boolean keepForwardEntries) {
         mBoundaryInterface.setBackForwardCacheSettingsKeepForwardEntries(keepForwardEntries);
     }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)}
+     */
+    public void setDownloadFaviconsEnabled(boolean enabled) {
+        mBoundaryInterface.setDownloadFaviconsEnabled(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
+     */
+    public boolean getDownloadFaviconsEnabled() {
+        return mBoundaryInterface.getDownloadFaviconsEnabled();
+    }
 }

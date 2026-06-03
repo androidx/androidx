@@ -142,6 +142,7 @@ public class WebViewFeature {
             JS_INJECTION_IN_FRAME_AND_WORLD,
             NAVIGATION_LISTENER,
             WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
+            DOWNLOAD_FAVICONS_ENABLED,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -962,6 +963,14 @@ public class WebViewFeature {
     @WebViewCompat.ExperimentalNavigate
     public static final String WEBVIEW_NAVIGATE_EXPERIMENTAL_V1 =
             "WEBVIEW_NAVIGATE_EXPERIMENTAL_V1";
+
+    /**
+     * Feature for
+     * {@link WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)},
+     * {@link WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String DOWNLOAD_FAVICONS_ENABLED = "DOWNLOAD_FAVICONS_ENABLED";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

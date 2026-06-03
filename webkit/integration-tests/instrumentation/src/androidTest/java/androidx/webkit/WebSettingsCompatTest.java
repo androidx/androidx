@@ -24,7 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Bitmap;
 import android.webkit.CookieManager;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -50,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -72,6 +75,23 @@ public class WebSettingsCompatTest {
         }
         WebkitUtils.onMainThreadSync(() -> CookieManager.getInstance().removeAllCookies(value -> {
         }));
+    }
+
+    private class FaviconChromeClient extends WebChromeClient {
+        private final BlockingQueue<Bitmap> mReceivedIcons = new LinkedBlockingQueue<>();
+        private static final long FAVICON_TIMEOUT = 500;
+
+        @Nullable
+        public Bitmap waitForNextIcon() throws InterruptedException {
+            return mReceivedIcons.poll(FAVICON_TIMEOUT, TimeUnit.MILLISECONDS);
+        }
+
+        @Override
+        public void onReceivedIcon(WebView view, Bitmap icon) {
+            Assert.assertNotNull(icon);
+            mReceivedIcons.add(icon);
+            super.onReceivedIcon(view, icon);
+        }
     }
 
     /**
@@ -413,6 +433,19 @@ public class WebSettingsCompatTest {
         Set<String> cookies = new HashSet<>(
                 CookieManagerCompat.getCookieInfo(cookieManager, interceptUrl));
         Assert.assertEquals(Set.of("foo=bar; domain=example.com; path=/"), cookies);
+    }
+
+    @Test
+    public void testSetDownloadFaviconsEnabledFalse() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.DOWNLOAD_FAVICONS_ENABLED);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        WebSettingsCompat.setDownloadFaviconsEnabled(settings, false);
+        Assert.assertFalse(WebSettingsCompat.getDownloadFaviconsEnabled(settings));
+
+        FaviconChromeClient iconClient = new FaviconChromeClient();
+        mWebViewOnUiThread.setWebChromeClient(iconClient);
+        mWebViewOnUiThread.loadUrl("https://www.google.com");
+        Assert.assertNull(iconClient.waitForNextIcon());
     }
 
     private void setCookieInterceptWebViewClient(String interceptUrl,
