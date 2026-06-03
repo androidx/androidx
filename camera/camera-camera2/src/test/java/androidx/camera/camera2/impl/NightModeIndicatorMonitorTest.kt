@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.core.NightModeIndicator
@@ -64,7 +65,11 @@ class NightModeIndicatorMonitorTest {
         }
     }
 
-    private val metadata = FakeCameraMetadata(resultKeys = setOf(EXTENSION_NIGHT_MODE_INDICATOR))
+    private val metadata =
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            resultKeysOverrides = setOf(EXTENSION_NIGHT_MODE_INDICATOR),
+        )
 
     private val fakeCameraProperties =
         CameraPipeCameraProperties(CameraConfig(CameraId(DEFAULT_CAMERA_ID)), metadata)

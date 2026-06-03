@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeState3AControlCreator
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
@@ -78,11 +79,13 @@ class LowLightBoostControlTest {
     }
 
     private val metadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
-                    intArrayOf(CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY)
-            )
+        FakeCameraMetadata.fromTemplate(
+            template = HighEndDeviceTemplate,
+            characteristicsOverrides =
+                mapOf(
+                    CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
+                        intArrayOf(CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY)
+                ),
         )
 
     private val fakeCameraProperties =

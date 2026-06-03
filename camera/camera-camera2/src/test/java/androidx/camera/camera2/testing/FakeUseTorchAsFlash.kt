@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 object FakeUseTorchAsFlash {
@@ -37,11 +38,12 @@ object FakeUseTorchAsFlash {
         intrinsicZoomCalculator: IntrinsicZoomCalculator = NO_OP_INTRINSIC_ZOOM_CALCULATOR,
     ): UseTorchAsFlash {
         val metadata =
-            FakeCameraMetadata(
-                characteristics = mapOf(CameraCharacteristics.LENS_FACING to lensFacing),
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
                 cameraId =
                     if (lensFacing == CameraCharacteristics.LENS_FACING_BACK) CameraId("0")
                     else CameraId("1"),
+                lensFacing = lensFacing,
             )
 
         val cameraDevices =
@@ -62,7 +64,7 @@ object FakeUseTorchAsFlash {
                 StreamConfigurationMapCompat(
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
-                        FakeCameraMetadata(),
+                        FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
                         StreamConfigurationMapBuilder.newBuilder().build(),
                     ),
                 ),
