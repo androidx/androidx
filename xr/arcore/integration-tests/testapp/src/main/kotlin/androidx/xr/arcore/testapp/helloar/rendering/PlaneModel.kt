@@ -17,8 +17,10 @@
 
 package androidx.xr.arcore.testapp.helloar.rendering
 
+import android.annotation.SuppressLint
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.PlaneType
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModelEntity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
@@ -29,4 +31,12 @@ data class PlaneModel(
     val stateFlow: StateFlow<Plane.State>,
     internal val modelEntity: GltfModelEntity,
     internal val renderJob: Job?,
-) {}
+) {
+    init {
+        @SuppressLint("RestrictedApiAndroidX") modelEntity.setScale(Vector3(0f, 0f, MODEL_DEPTH))
+    }
+
+    companion object {
+        const val MODEL_DEPTH = .001f
+    }
+}
