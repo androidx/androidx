@@ -31,6 +31,9 @@ import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 
+/** Returns a [ResultEventBus] that is remembered across recompositions */
+@Composable public fun rememberResultEventBus(): ResultEventBus = remember { ResultEventBus() }
+
 /** Local for receiving results in a [ResultEventBus] */
 public object LocalResultEventBus {
     private val LocalResultEventBus: ProvidableCompositionLocal<ResultEventBus?> =

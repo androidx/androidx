@@ -22,12 +22,15 @@ import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 
-/** Returns a [ResultEventBusNavEntryDecorator] that is remembered across recompositions. */
+/**
+ * Returns a [ResultEventBusNavEntryDecorator] that is remembered across recompositions.
+ *
+ * @param resultEventBus The [ResultEventBus] to be provided by the [LocalResultEventBus]
+ */
 @Composable
-public fun <T : Any> rememberResultEventBusNavEntryDecorator(): ResultEventBusNavEntryDecorator<T> =
-    remember {
-        ResultEventBusNavEntryDecorator()
-    }
+public fun <T : Any> rememberResultEventBusNavEntryDecorator(
+    resultEventBus: ResultEventBus = rememberResultEventBus()
+): ResultEventBusNavEntryDecorator<T> = remember { ResultEventBusNavEntryDecorator(resultEventBus) }
 
 /**
  * Wraps the content of a [NavEntry] with a [LocalResultEventBus] to provide the ability to pass
