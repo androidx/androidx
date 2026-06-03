@@ -36,12 +36,12 @@ import androidx.camera.camera2.pipe.compat.Camera2DeviceCache
 import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
 import androidx.camera.camera2.pipe.compat.Camera2DeviceCloserImpl
 import androidx.camera.camera2.pipe.compat.Camera2DeviceManager
+import androidx.camera.camera2.pipe.compat.Camera2DeviceManagerImpl
 import androidx.camera.camera2.pipe.compat.Camera2ErrorProcessor
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.CameraOpener
-import androidx.camera.camera2.pipe.compat.PruningCamera2DeviceManager
 import androidx.camera.camera2.pipe.compat.RetryingCameraStateOpener
 import androidx.camera.camera2.pipe.compat.RetryingCameraStateOpenerImpl
 import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcessorFactory
@@ -70,7 +70,7 @@ internal abstract class Camera2Module {
 
     @Binds
     abstract fun bindCamera2DeviceManager(
-        camera2DeviceManager: PruningCamera2DeviceManager
+        camera2DeviceManager: Camera2DeviceManagerImpl
     ): Camera2DeviceManager
 
     @Binds abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener

@@ -59,7 +59,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.M)
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class PruningCamera2DeviceManagerImplTest {
+internal class Camera2DeviceManagerImplTest {
     private val testScope = TestScope()
 
     private val fakeContext: Context = mock()
@@ -131,7 +131,7 @@ internal class PruningCamera2DeviceManagerImplTest {
         Camera2SystemState(CameraPipe.CameraInteropConfig(), fakeThreads)
 
     private val deviceManager =
-        PruningCamera2DeviceManager(
+        Camera2DeviceManagerImpl(
             fakePermissions,
             fakeRetryingCameraStateOpener,
             fakeCamera2DeviceCloser,
@@ -169,7 +169,7 @@ internal class PruningCamera2DeviceManagerImplTest {
         }
 
     val awaitAbortedDeviceManager =
-        PruningCamera2DeviceManager(
+        Camera2DeviceManagerImpl(
             fakePermissions,
             awaitAbortedRetryingCameraStateOpener,
             fakeCamera2DeviceCloser,
