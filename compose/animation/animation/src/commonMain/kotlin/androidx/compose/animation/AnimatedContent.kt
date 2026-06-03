@@ -1205,7 +1205,7 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                             },
                 ) {
                     // TODO: Should Transition.AnimatedVisibility have an end listener?
-                    DisposableEffect(this) {
+                    DisposableEffect(this, stateForContent) {
                         onDispose {
                             currentlyVisible.remove(stateForContent)
                             rootScope.targetSizeMap.remove(stateForContent)

@@ -1310,6 +1310,42 @@ class AnimatedContentTest {
         assertEquals(expected.y, actual.y, 0.00001f)
     }
 
+    @Test
+    fun testAnimatedContentCleanup() {
+        var state by mutableStateOf(0)
+        var rootScope: AnimatedContentTransitionScopeImpl<Int>? = null
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            AnimatedContent(
+                targetState = state,
+                contentKey = { 0 }, // Same key
+                transitionSpec = {
+                    rootScope = this as AnimatedContentTransitionScopeImpl<Int>
+                    fadeIn() togetherWith fadeOut()
+                },
+            ) { targetState ->
+                Box(Modifier.size(200.dp))
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+        assertEquals(1, rootScope!!.targetSizeMap.size)
+
+        for (i in 1..5) {
+            state = i
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        // Without the fix, targetSizeMap would grow with each update, making targetSizeMap.size =
+        // 6.
+        // With the fix, old states are promptly disposed as slots are reused, so size should be at
+        // most 2.
+        val size = rootScope!!.targetSizeMap.size
+        assertTrue("Visible items ($size) should be cleaned up and not exceed 2", size <= 2)
+    }
+
     private val Transition<*>.playTimeMillis
         get() = (playTimeNanos / 1_000_000L).toInt()
 }
