@@ -21,10 +21,10 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.getInstance
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
@@ -41,11 +41,10 @@ import kotlin.reflect.KClass
  * supported if you pass a non-null [Application] instance.
  */
 public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
-    private var application: Application? = null
+    private val application: Application?
+    private val owner: SavedStateRegistryOwner?
+    private val defaultArgs: Bundle?
     private val factory: ViewModelProvider.Factory
-    private var defaultArgs: Bundle? = null
-    private var lifecycle: Lifecycle? = null
-    private var savedStateRegistry: SavedStateRegistry? = null
 
     /**
      * Constructs this factory.
@@ -56,7 +55,10 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
      * @see [createSavedStateHandle] docs for more details.
      */
     public actual constructor() {
-        factory = ViewModelProvider.AndroidViewModelFactory()
+        this.application = null
+        this.owner = null
+        this.defaultArgs = null
+        this.factory = AndroidViewModelFactory()
     }
 
     /**
@@ -98,13 +100,11 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
         owner: SavedStateRegistryOwner,
         defaultArgs: Bundle?,
     ) {
-        savedStateRegistry = owner.savedStateRegistry
-        lifecycle = owner.lifecycle
+        this.owner = owner
         this.defaultArgs = defaultArgs
         this.application = application
-        factory =
-            if (application != null) getInstance(application)
-            else ViewModelProvider.AndroidViewModelFactory()
+        this.factory =
+            if (application != null) getInstance(application) else AndroidViewModelFactory()
     }
 
     actual override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
@@ -119,51 +119,46 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
      */
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         val key =
-            extras[ViewModelProvider.VIEW_MODEL_KEY]
-                ?: throw IllegalStateException(
-                    "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
-                )
+            checkNotNull(extras[ViewModelProvider.VIEW_MODEL_KEY]) {
+                "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
+            }
 
-        return if (
+        // Defer to legacy creation to maintain backward compatibility if CreationExtras are not
+        // populated by the caller.
+        val hasCreationExtras =
             extras[SAVED_STATE_REGISTRY_OWNER_KEY] != null &&
                 extras[VIEW_MODEL_STORE_OWNER_KEY] != null
-        ) {
-            val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-            val isAndroidViewModel = AndroidViewModel::class.java.isAssignableFrom(modelClass)
-            val constructor: Constructor<T>? =
-                if (isAndroidViewModel && application != null) {
-                    findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE)
-                } else {
-                    findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE)
-                }
-            // doesn't need SavedStateHandle
-            if (constructor == null) {
-                return factory.create(modelClass, extras)
+
+        if (!hasCreationExtras) {
+            checkNotNull(owner) {
+                "SAVED_STATE_REGISTRY_OWNER_KEY and VIEW_MODEL_STORE_OWNER_KEY must be provided " +
+                    "in the creation extras to successfully create a ViewModel."
             }
-            val viewModel =
-                if (isAndroidViewModel && application != null) {
-                    newInstance(
-                        modelClass,
-                        constructor,
-                        application,
-                        extras.createSavedStateHandle(),
-                    )
-                } else {
-                    newInstance(modelClass, constructor, extras.createSavedStateHandle())
-                }
-            viewModel
+            return create(key, modelClass)
+        }
+
+        val application = extras[AndroidViewModelFactory.APPLICATION_KEY]
+        val isAndroidViewModel = AndroidViewModel::class.java.isAssignableFrom(modelClass)
+
+        // AndroidViewModels enforce a strict signature: Application must precede SavedStateHandle.
+        val constructor =
+            if (isAndroidViewModel && application != null) {
+                findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE)
+            } else {
+                findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE)
+            }
+
+        // Delegate to the standard factory to avoid injection overhead if the target ViewModel
+        // does not request a SavedStateHandle in its constructor.
+        if (constructor == null) {
+            return factory.create(modelClass, extras)
+        }
+
+        val handle = extras.createSavedStateHandle()
+        return if (isAndroidViewModel && application != null) {
+            newInstance(modelClass, constructor, application, handle)
         } else {
-            val viewModel =
-                if (lifecycle != null) {
-                    create(key, modelClass)
-                } else {
-                    throw IllegalStateException(
-                        "SAVED_STATE_REGISTRY_OWNER_KEY and" +
-                            "VIEW_MODEL_STORE_OWNER_KEY must be provided in the creation extras to" +
-                            "successfully create a ViewModel."
-                    )
-                }
-            viewModel
+            newInstance(modelClass, constructor, handle)
         }
     }
 
@@ -173,37 +168,48 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
      * @param key a key associated with the requested ViewModel
      * @param modelClass a `Class` whose instance is requested
      * @return a newly created ViewModel
-     * @throws UnsupportedOperationException if the there is no lifecycle
+     * @throws UnsupportedOperationException if there is no lifecycle
      */
     public fun <T : ViewModel> create(key: String, modelClass: Class<T>): T {
-        // empty constructor was called.
-        val lifecycle =
-            lifecycle
-                ?: throw UnsupportedOperationException(
-                    "SavedStateViewModelFactory constructed with empty constructor supports only " +
-                        "calls to create(modelClass: Class<T>, extras: CreationExtras)."
-                )
+        // Fail fast if instantiated via the empty constructor, as that requires
+        // the modern CreationExtras pathway to provide the SavedStateRegistryOwner.
+        if (owner == null) {
+            throw UnsupportedOperationException(
+                "SavedStateViewModelFactory constructed with empty constructor supports only " +
+                    "calls to create(modelClass: Class<T>, extras: CreationExtras)."
+            )
+        }
+
         val isAndroidViewModel = AndroidViewModel::class.java.isAssignableFrom(modelClass)
-        val constructor: Constructor<T>? =
-            if (isAndroidViewModel && application != null) {
+        val hasApplication = application != null
+
+        // AndroidViewModels enforce a strict signature ordering: Application must precede
+        // SavedStateHandle.
+        val constructor =
+            if (isAndroidViewModel && hasApplication) {
                 findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE)
             } else {
                 findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE)
             }
-        // doesn't need SavedStateHandle
-        constructor
-            ?: // If you are using a stateful constructor and no application is available, we
-            // use an instance factory instead.
-            return if (application != null) factory.create(modelClass)
-            else instance.create(modelClass)
-        val controller =
-            SavedStateHandleController(key, savedStateRegistry!!, lifecycle, defaultArgs)
-        val viewModel: T =
-            if (isAndroidViewModel && application != null) {
-                newInstance(modelClass, constructor, application!!, controller.handle)
+
+        // Delegate to standard instance factories to avoid injection overhead if the target
+        // ViewModel does not request a SavedStateHandle in its constructor.
+        if (constructor == null) {
+            return if (hasApplication) {
+                factory.create(modelClass)
+            } else {
+                instance.create(modelClass)
+            }
+        }
+
+        val controller = SavedStateHandleController(key, owner, defaultArgs)
+        val viewModel =
+            if (isAndroidViewModel && hasApplication) {
+                newInstance(modelClass, constructor, application, controller.handle)
             } else {
                 newInstance(modelClass, constructor, controller.handle)
             }
+
         viewModel.addCloseable(SavedStateHandleController.TAG, controller)
         return viewModel
     }
@@ -218,10 +224,9 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
         // If a developer manually calls this method, there is no "key" in picture, so factory
         // simply uses classname internally as key.
         val canonicalName =
-            modelClass.canonicalName
-                ?: throw IllegalArgumentException(
-                    "Local and anonymous classes can not be ViewModels"
-                )
+            requireNotNull(modelClass.canonicalName) {
+                "Local and anonymous classes can not be ViewModels"
+            }
         return create(canonicalName, modelClass)
     }
 }
@@ -243,7 +248,7 @@ internal fun <T : ViewModel?> newInstance(
 }
 
 private val ANDROID_VIEWMODEL_SIGNATURE =
-    listOf<Class<*>>(Application::class.java, SavedStateHandle::class.java)
+    listOf(Application::class.java, SavedStateHandle::class.java)
 private val VIEWMODEL_SIGNATURE = listOf<Class<*>>(SavedStateHandle::class.java)
 
 // it is done instead of getConstructor(), because getConstructor() throws an exception

@@ -96,22 +96,19 @@ private fun createSavedStateHandle(
 @MainThread
 public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
     val savedStateRegistryOwner =
-        this[SAVED_STATE_REGISTRY_OWNER_KEY]
-            ?: throw IllegalArgumentException(
-                "CreationExtras must have a value by `SAVED_STATE_REGISTRY_OWNER_KEY`"
-            )
+        requireNotNull(this[SAVED_STATE_REGISTRY_OWNER_KEY]) {
+            "CreationExtras must have a value by `SAVED_STATE_REGISTRY_OWNER_KEY`"
+        }
     val viewModelStateRegistryOwner =
-        this[VIEW_MODEL_STORE_OWNER_KEY]
-            ?: throw IllegalArgumentException(
-                "CreationExtras must have a value by `VIEW_MODEL_STORE_OWNER_KEY`"
-            )
+        requireNotNull(this[VIEW_MODEL_STORE_OWNER_KEY]) {
+            "CreationExtras must have a value by `VIEW_MODEL_STORE_OWNER_KEY`"
+        }
+    val key =
+        requireNotNull(this[VIEW_MODEL_KEY]) {
+            "CreationExtras must have a value by `VIEW_MODEL_KEY`"
+        }
 
     val defaultArgs = this[DEFAULT_ARGS_KEY]
-    val key =
-        this[VIEW_MODEL_KEY]
-            ?: throw IllegalArgumentException(
-                "CreationExtras must have a value by `VIEW_MODEL_KEY`"
-            )
     return createSavedStateHandle(
         savedStateRegistryOwner,
         viewModelStateRegistryOwner,
@@ -137,12 +134,13 @@ internal val ViewModelStoreOwner.savedStateHandlesVM: SavedStateHandlesVM
             )[VIEWMODEL_KEY, SavedStateHandlesVM::class]
 
 internal val SavedStateRegistryOwner.savedStateHandlesProvider: SavedStateHandlesProvider
-    get() =
-        savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY) as? SavedStateHandlesProvider
-            ?: throw IllegalStateException(
-                "enableSavedStateHandles() wasn't called " +
-                    "prior to createSavedStateHandle() call"
-            )
+    get() {
+        val provider = savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY)
+        check(provider is SavedStateHandlesProvider) {
+            "enableSavedStateHandles() wasn't called prior to createSavedStateHandle() call"
+        }
+        return provider
+    }
 
 internal class SavedStateHandlesVM : ViewModel() {
     val handles = mutableMapOf<String, SavedStateHandle>()
