@@ -170,14 +170,14 @@ internal class ActiveCamera(
 }
 
 /**
- * PruningCamera2DeviceManager is an implementation of [Camera2DeviceManager] that actively prunes
+ * Camera2DeviceManagerImpl is an implementation of [Camera2DeviceManager] that actively prunes
  * incoming camera requests before processing them. It does this through a proven sequence of logic
  * that reduces the pending requests to an equivalent but shorter sequence of requests, allowing the
  * internal request processing channel to stay at a size within a proven upper bound, and the actual
  * request processing to be done optimally and efficiently.
  */
 @Singleton
-internal class PruningCamera2DeviceManager
+internal class Camera2DeviceManagerImpl
 @Inject
 constructor(
     private val permissions: Permissions,
@@ -362,7 +362,10 @@ constructor(
         }
         requests.removeIndices(prunedIndices).forEach { it.onRemoved() }
 
-        // Step 4: Determine whether we cancel the current request.
+        // Step 4: Determine whether we abort the current request.
+        if (!flags.cameraOpenAbortEnabled) {
+            return false
+        }
         if (currentRequest == null) {
             return false
         }
@@ -422,7 +425,7 @@ constructor(
 
     private suspend fun processRequestOpen(request: RequestOpen, requestAborted: Deferred<Unit>) {
         val cameraIdToOpen = request.virtualCamera.cameraId
-        Log.debug { "PruningCamera2DeviceManager#processRequestOpen($cameraIdToOpen)" }
+        Log.debug { "Camera2DeviceManagerImpl#processRequestOpen($cameraIdToOpen)" }
 
         val camerasToClose =
             if (request.sharedCameraIds.isEmpty()) {
@@ -509,7 +512,7 @@ constructor(
 
     private suspend fun processRequestClose(request: RequestClose) {
         val cameraId = request.activeCamera.cameraId
-        Log.debug { "PruningCamera2DeviceManager#processRequestClose($cameraId)" }
+        Log.debug { "Camera2DeviceManagerImpl#processRequestClose($cameraId)" }
 
         if (activeCameras.contains(request.activeCamera)) {
             activeCameras.remove(request.activeCamera)
@@ -527,9 +530,7 @@ constructor(
 
     private suspend fun processRequestCloseById(request: RequestCloseById) {
         val cameraId = request.activeCameraId
-        Log.info {
-            "PruningCamera2DeviceManager#processRequestCloseById(${request.activeCameraId})"
-        }
+        Log.info { "Camera2DeviceManagerImpl#processRequestCloseById(${request.activeCameraId})" }
 
         disconnectPendingRequestOpens(
             pendingRequestOpens.filter { it.request.virtualCamera.cameraId == cameraId }
@@ -544,7 +545,7 @@ constructor(
     }
 
     private suspend fun processRequestCloseAll(requestCloseAll: RequestCloseAll) {
-        Log.debug { "PruningCamera2DeviceManager#processRequestCloseAll()" }
+        Log.debug { "Camera2DeviceManagerImpl#processRequestCloseAll()" }
 
         disconnectPendingRequestOpens(pendingRequestOpens)
         for (activeCamera in activeCameras) {
