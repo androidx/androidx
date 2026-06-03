@@ -60,10 +60,8 @@ import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import java.nio.file.Paths
 import kotlin.random.Random
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /*
  * Testing if the session lifecycle fires with the activity lifecycle by creating
@@ -77,33 +75,24 @@ class RuntimeSessionActivity : BaseLifecycleTestActivity() {
     private var latestCreatedAnchor: Anchor? by mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i("corycook", "preCreate peekDecorView: " + window.peekDecorView())
-
         super.onCreate(savedInstanceState)
 
-        Log.i("corycook", "onCreate peekDecorView: " + window.peekDecorView())
+        val result: SessionCreateResult = Session.create(context = this)
+        currentSession =
+            if (result is SessionCreateSuccess) {
+                result.session
+            } else {
+                Log.e(
+                    TAG,
+                    "[$activityName] Failed to create Session: ${result.javaClass.simpleName}",
+                )
+                null
+            }
 
-        lifecycleScope.launch {
-            val result: SessionCreateResult =
-                withContext(Dispatchers.IO) {
-                    Session.create(context = this@RuntimeSessionActivity)
-                }
-            currentSession =
-                if (result is SessionCreateSuccess) {
-                    result.session
-                } else {
-                    Log.e(
-                        TAG,
-                        "[$activityName] Failed to create Session: ${result.javaClass.simpleName}",
-                    )
-                    null
-                }
+        // Load 3D models once the session is created
+        currentSession?.let { session -> lifecycleScope.launch { load3DModels(session) } }
 
-            // Load 3D models once the session is created
-            currentSession?.let { session -> launch { load3DModels(session) } }
-
-            setContent { RuntimeSessionContent() }
-        }
+        setContent { RuntimeSessionContent() }
     }
 
     override fun onDestroy() {

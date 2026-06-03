@@ -84,10 +84,8 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import java.io.File
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Test app for integrated Drm functionality. */
 class VideoPlayerDrmTestActivity : ComponentActivity() {
@@ -117,27 +115,18 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "onCreate")
 
-        lifecycleScope.launch {
-            val session =
-                withContext(Dispatchers.IO) {
-                    (Session.create(context = this@VideoPlayerDrmTestActivity)
-                            as SessionCreateSuccess)
-                        .session
-                }
-            session.configure(
-                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
-            )
-            session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+        val session = (Session.create(context = this) as SessionCreateSuccess).session
+        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
+        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
-            if (movableComponentMp == null) {
-                movableComponentMp = MovableComponent.createSystemMovable(session)
-                val unused = session.scene.mainPanelEntity.addComponent(movableComponentMp!!)
-            }
-
-            setContent { BootstrapUi(session, activity) }
-
-            checkExternalStoragePermission()
+        if (movableComponentMp == null) {
+            movableComponentMp = MovableComponent.createSystemMovable(session)
+            val unused = session.scene.mainPanelEntity.addComponent(movableComponentMp!!)
         }
+
+        setContent { BootstrapUi(session, activity) }
+
+        checkExternalStoragePermission()
     }
 
     override fun onDestroy() {
