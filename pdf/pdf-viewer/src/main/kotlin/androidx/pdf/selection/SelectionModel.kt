@@ -24,6 +24,8 @@ import androidx.core.util.isEmpty
 import androidx.pdf.PdfPoint
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.toViewSelection
+import androidx.pdf.leftCenter
+import androidx.pdf.rightCenter
 import androidx.pdf.view.pdfPointFromParcel
 import androidx.pdf.view.writeToParcel
 import kotlin.collections.firstOrNull
@@ -94,6 +96,28 @@ internal class SelectionModel(
                 selection,
                 UiSelectionBoundary(selectionBounds.first, isRtl),
                 UiSelectionBoundary(selectionBounds.second, isRtl),
+            )
+        }
+
+        /**
+         * Creates a [SelectionModel] from the provided [selection] on a specific page.
+         *
+         * @param pageNum The page number where the selection exists.
+         * @param selection The selected content.
+         * @param isRtl Whether the selection direction is Right-to-Left.
+         * @return A [SelectionModel] representing the content selection, or `null` if the selection
+         *   bounds are empty.
+         */
+        fun create(pageNum: Int, selection: Selection, isRtl: Boolean): SelectionModel? {
+            if (selection.bounds.isEmpty()) return null
+
+            val selectedContents =
+                SparseArray<List<Selection>>(1).apply { put(pageNum, listOf(selection)) }
+
+            return SelectionModel(
+                DocumentSelection(selectedContents),
+                UiSelectionBoundary(selection.bounds.first().leftCenter, isRtl),
+                UiSelectionBoundary(selection.bounds.last().rightCenter, isRtl),
             )
         }
 

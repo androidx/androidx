@@ -28,23 +28,23 @@ import org.robolectric.RobolectricTestRunner
 class PdfRectTest {
 
     @Test
-    fun leftBottom_returnsCorrectPoint() {
+    fun leftCenter_returnsCorrectPoint() {
         val rect = PdfRect(pageNum = 1, left = 10f, top = 20f, right = 50f, bottom = 40f)
-        val leftBottom = rect.leftBottom
+        val leftCenter = rect.leftCenter
 
-        assertThat(leftBottom.pageNum).isEqualTo(1)
-        assertThat(leftBottom.x).isEqualTo(10f)
-        assertThat(leftBottom.y).isEqualTo(40f)
+        assertThat(leftCenter.pageNum).isEqualTo(1)
+        assertThat(leftCenter.x).isEqualTo(10f)
+        assertThat(leftCenter.y).isEqualTo(30f)
     }
 
     @Test
-    fun rightBottom_returnsCorrectPoint() {
+    fun rightCenter_returnsCorrectPoint() {
         val rect = PdfRect(pageNum = 2, left = 10f, top = 20f, right = 50f, bottom = 40f)
-        val rightBottom = rect.rightBottom
+        val rightCenter = rect.rightCenter
 
-        assertThat(rightBottom.pageNum).isEqualTo(2)
-        assertThat(rightBottom.x).isEqualTo(50f)
-        assertThat(rightBottom.y).isEqualTo(40f)
+        assertThat(rightCenter.pageNum).isEqualTo(2)
+        assertThat(rightCenter.x).isEqualTo(50f)
+        assertThat(rightCenter.y).isEqualTo(30f)
     }
 
     @Test

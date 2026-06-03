@@ -60,11 +60,12 @@ public class OcrText(public val text: String, public val bounds: List<Rect>)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface OcrResult {
-    /** All recognized text and its corresponding bounding boxes. */
-    public val allText: OcrText
-
-    /** Whether the primary direction of the recognized text is Right-to-Left. */
-    public val isRtl: Boolean
+    /**
+     * Returns all recognized text and its corresponding bounding boxes.
+     *
+     * @return An [OcrText] object containing all recognized text in the image.
+     */
+    public suspend fun getAllText(): OcrText
 
     /**
      * Returns the text and its bounding boxes within the selection range defined by two points.
@@ -76,7 +77,19 @@ public interface OcrResult {
      * @param endPoint The ending coordinate of the selection, relative to image dimensions.
      * @return An [OcrText] object containing the selected text and its bounds.
      */
-    public fun getText(startPoint: Point, endPoint: Point): OcrText
+    public suspend fun getText(startPoint: Point, endPoint: Point): OcrText
+
+    /**
+     * Returns the text and its bounding boxes within the selection range defined by two points.
+     *
+     * @param startX The starting X coordinate, relative to image dimensions.
+     * @param startY The starting Y coordinate, relative to image dimensions.
+     * @param endX The ending X coordinate, relative to image dimensions.
+     * @param endY The ending Y coordinate, relative to image dimensions.
+     * @return An [OcrText] object containing the selected text and its bounds.
+     */
+    public suspend fun getText(startX: Int, startY: Int, endX: Int, endY: Int): OcrText =
+        getText(Point(startX, startY), Point(endX, endY))
 
     /**
      * Returns the word and its bounding boxes at the specified coordinate.
@@ -87,14 +100,18 @@ public interface OcrResult {
      * @param point The coordinate to query, relative to image dimensions.
      * @return An [OcrText] object containing the word at the point, or `null` if no word is found.
      */
-    public fun getWordAt(point: Point): OcrText?
+    public suspend fun getWordAt(point: Point): OcrText?
 
     /**
      * Searches for occurrences of the [searchTerm] and returns their bounding boxes.
      *
      * @param searchTerm The string to search for.
+     * @param ignoreCase `true` to ignore case when searching, `false` otherwise.
      * @return A list of lists of [Rect] objects, where each inner list represents the visual
      *   bounding boxes for one occurrence of the search term.
      */
-    public fun getSearchBounds(searchTerm: String): List<List<Rect>>
+    public suspend fun getSearchBounds(
+        searchTerm: String,
+        ignoreCase: Boolean = true,
+    ): List<List<Rect>>
 }

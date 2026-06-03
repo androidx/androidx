@@ -78,13 +78,13 @@ internal val PdfRect.centerPoint: PdfPoint
         return PdfPoint(pageNum, x, y)
     }
 
-/** The bottom-left corner point of this rectangle. */
-internal val PdfRect.leftBottom: PdfPoint
-    get() = PdfPoint(pageNum, left, bottom)
+/** The vertically centered point on the left edge of this rectangle. */
+internal val PdfRect.leftCenter: PdfPoint
+    get() = PdfPoint(pageNum, left, (top + bottom) / 2)
 
-/** The bottom-right corner point of this rectangle. */
-internal val PdfRect.rightBottom: PdfPoint
-    get() = PdfPoint(pageNum, right, bottom)
+/** The vertically centered point on the right edge of this rectangle. */
+internal val PdfRect.rightCenter: PdfPoint
+    get() = PdfPoint(pageNum, right, (top + bottom) / 2)
 
 /**
  * Maps a [Rect] from bitmap coordinates to a [PdfRect] in PDF coordinates.

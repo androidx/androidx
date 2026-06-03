@@ -56,7 +56,24 @@ class OcrContextTest {
     }
 
     @Test
-    fun testGetText_mapsCoordinatesToImage() {
+    fun testSearch_respectsIgnoreCase() = runTest {
+        val pageNum = 0
+        val imageRect = RectF(0f, 0f, 100f, 100f)
+        val bitmapSize = Dimension(100, 100)
+
+        val ocrResult = FakeOcrResult(words = listOf(OcrText("Test", listOf(Rect(0, 0, 10, 10)))))
+        val context = OcrContext(ocrResult, pageNum, imageRect, bitmapSize)
+
+        // Case-insensitive search (default)
+        assertEquals(1, context.search("test").size)
+
+        // Case-sensitive search
+        assertEquals(0, context.search("test", ignoreCase = false).size)
+        assertEquals(1, context.search("Test", ignoreCase = false).size)
+    }
+
+    @Test
+    fun testGetText_mapsCoordinatesToImage() = runTest {
         val imageRect = RectF(0f, 0f, 50f, 50f)
         val bitmapSize = Dimension(100, 100)
 
@@ -78,7 +95,7 @@ class OcrContextTest {
     }
 
     @Test
-    fun testGetWordAt_returnsWordAtPoint() {
+    fun testGetWordAt_returnsWordAtPoint() = runTest {
         val imageRect = RectF(50f, 50f, 100f, 100f)
         val bitmapSize = Dimension(100, 100)
 
@@ -98,18 +115,20 @@ class OcrContextTest {
     }
 
     @Test
-    fun testMapOcrTextToPdfBounds() {
+    fun testAllText_mapsCoordinatesToPdf() = runTest {
         val imageRect = RectF(10f, 10f, 110f, 110f)
         val bitmapSize = Dimension(100, 100)
 
         val ocrText = OcrText("test", listOf(Rect(0, 0, 100, 100)))
-        val context = OcrContext(FakeOcrResult(), 0, imageRect, bitmapSize)
+        val ocrResult = FakeOcrResult(words = listOf(ocrText))
+        val context = OcrContext(ocrResult, 0, imageRect, bitmapSize)
 
-        val pdfBounds = context.mapOcrTextToPdfBounds(ocrText)
-        assertEquals(1, pdfBounds.size)
-        assertEquals(10f, pdfBounds[0].left)
-        assertEquals(10f, pdfBounds[0].top)
-        assertEquals(110f, pdfBounds[0].right)
-        assertEquals(110f, pdfBounds[0].bottom)
+        val allText = context.getAllText()
+        assertEquals("test", allText.text.toString())
+        assertEquals(1, allText.bounds.size)
+        assertEquals(10f, allText.bounds[0].left)
+        assertEquals(10f, allText.bounds[0].top)
+        assertEquals(110f, allText.bounds[0].right)
+        assertEquals(110f, allText.bounds[0].bottom)
     }
 }
