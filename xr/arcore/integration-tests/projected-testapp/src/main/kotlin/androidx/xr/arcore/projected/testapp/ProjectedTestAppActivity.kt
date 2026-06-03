@@ -151,19 +151,16 @@ class ProjectedTestAppActivity : ComponentActivity() {
     }
 
     private fun onPermissionGranted() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            delay(4000) // TODO: b/436981970 - the onResume 2x is happening again with this change.
+        // TODO: b/518877582 - switch back to lifecycleScope.launch(Dispatchers.IO)
+        lifecycleScope.launch(Dispatchers.Main) {
             tryCreateSession()
-            lifecycleScope.launch {
-                Log.i("JetpackXR", "before sessionInitialized.await()")
-                sessionInitialized.await()
-                Log.i("JetpackXR", "sessionInitialized.await()")
-                geospatial = Geospatial.getInstance(session)
-                checkVpsAvailability(37.422, -122.084) // Googleplex coordinates
-                while (true) {
-                    update()
-                    delay(100)
-                }
+            sessionInitialized.await()
+            Log.i("JetpackXR", "Session configured successfully!!")
+            geospatial = Geospatial.getInstance(session)
+            checkVpsAvailability(37.422, -122.084) // Googleplex coordinates
+            while (true) {
+                update()
+                delay(100)
             }
         }
     }
