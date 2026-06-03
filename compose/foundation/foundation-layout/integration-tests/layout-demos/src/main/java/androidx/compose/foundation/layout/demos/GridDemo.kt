@@ -635,13 +635,9 @@ private fun OneDimensionalAreasDemo() {
             gap(8.dp)
 
             // 2. Define Semantic Areas
-            // Explicitly pass GridIndexUnspecified for 'column' to make Header a 1D band across row
-            // 1
-            area(AppArea.Header, row = 1, column = GridIndexUnspecified, columnSpan = 2)
+            area(AppArea.Header, row = 1, columnSpan = 2)
 
-            // Explicitly pass GridIndexUnspecified for 'row' to make Sidebar a 1D band down column
-            // 1
-            area(AppArea.Sidebar, row = GridIndexUnspecified, column = 1)
+            area(AppArea.Sidebar, column = 1)
 
             // Fully specified 2D area
             area(AppArea.Content, row = 2, column = 2)
