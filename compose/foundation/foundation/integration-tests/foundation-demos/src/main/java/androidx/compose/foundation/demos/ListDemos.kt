@@ -71,6 +71,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.samples.LazyColumnWithLazyRowsSample
 import androidx.compose.foundation.samples.StickyHeaderGridSample
 import androidx.compose.foundation.samples.StickyHeaderHeaderIndexSample
 import androidx.compose.foundation.samples.StickyHeaderListSample
@@ -151,6 +152,7 @@ val LazyListDemos =
         ComposableDemo("Arrangements") { LazyListArrangements() },
         ComposableDemo("ReverseLayout and RTL") { ReverseLayoutAndRtlDemo() },
         ComposableDemo("Nested lazy lists") { NestedLazyDemo() },
+        ComposableDemo("Nested LazyColumn and LazyRows") { LazyColumnWithLazyRowsSample() },
         ComposableDemo("LazyGrid") { LazyGridDemo() },
         ComposableDemo("LazyGrid with Spacing") { LazyGridWithSpacingDemo() },
         ComposableDemo("Custom keys") { ReorderWithCustomKeys() },
