@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Bundle
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
@@ -176,9 +177,13 @@ class Media3EffectFragmentDeviceTest(
     }
 
     private fun createFragmentScenario(): FragmentScenario<Media3EffectsFragment> {
+        val fragmentArgs =
+            Bundle().apply {
+                putString(Media3EffectsFragment.ARG_EFFECT, Media3EffectsFragment.EFFECT_BRIGHTNESS)
+            }
         return FragmentScenario.launchInContainer(
             Media3EffectsFragment::class.java,
-            null,
+            fragmentArgs,
             R.style.AppTheme,
             null,
         )
@@ -194,7 +199,7 @@ class Media3EffectFragmentDeviceTest(
         @JvmField val testCameraRule = CameraUtil.PreTestCamera()
 
         const val MAX_PROGRESS = 100
-        const val MIN_PROGRESS = 100
+        const val MIN_PROGRESS = -100
 
         // Timeout for waiting the effect to be effective.
         const val SET_EFFECT_DELAY_MILLIS = 200L
