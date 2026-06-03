@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
@@ -31,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -41,22 +43,19 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class LifecycleOwnerInFragment {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val activityTestRule =
-        androidx.test.rule.ActivityTestRule<FragmentActivity>(FragmentActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<FragmentActivity>(StandardTestDispatcher())
     private lateinit var activity: FragmentActivity
 
     @Before
     fun setup() {
-        activity = activityTestRule.activity
+        activity = rule.activity
     }
 
     @Test
     fun lifecycleOwnerIsAvailable() {
         val fragment = TestFragment()
 
-        activityTestRule.runOnUiThread {
+        rule.runOnUiThread {
             val view = FragmentContainerView(activity)
             view.id = 100
             activity.setContentView(view)
@@ -71,7 +70,7 @@ class LifecycleOwnerInFragment {
     fun lifecycleOwnerReplaced() {
         val fragment = TestFragmentFrameLayout()
 
-        activityTestRule.runOnUiThread {
+        rule.runOnUiThread {
             val view = FragmentContainerView(activity)
             view.id = 100
             activity.setContentView(view)
@@ -84,7 +83,7 @@ class LifecycleOwnerInFragment {
         var latch = CountDownLatch(1)
         var owner: LifecycleOwner? = null
 
-        activityTestRule.runOnUiThread {
+        rule.runOnUiThread {
             frameLayout.addView(
                 ComposeView(frameLayout.context).apply {
                     setContent {
@@ -101,14 +100,14 @@ class LifecycleOwnerInFragment {
         val composeView = frameLayout.getChildAt(0)
         val fragment2 = TestFragmentFrameLayout()
 
-        activityTestRule.runOnUiThread {
+        rule.runOnUiThread {
             frameLayout.removeView(composeView)
             owner = null
             activity.supportFragmentManager.beginTransaction().replace(100, fragment2).commit()
         }
         assertTrue(fragment2.latch.await(1, TimeUnit.SECONDS))
 
-        activityTestRule.runOnUiThread {
+        rule.runOnUiThread {
             val frameLayout2 = fragment2.frameLayout!!
             latch = CountDownLatch(1)
             frameLayout2.addView(composeView)
