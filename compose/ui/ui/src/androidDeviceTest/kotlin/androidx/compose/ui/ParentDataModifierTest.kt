@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui
 
-import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -33,15 +32,15 @@ import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,40 +49,32 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ParentDataModifierTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val activityTestRule =
-        androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     private lateinit var activity: TestActivity
-    private lateinit var drawLatch: CountDownLatch
 
     @Before
     fun setup() {
-        activity = activityTestRule.activity
+        activity = rule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        drawLatch = CountDownLatch(1)
     }
 
     // Test that parent data defaults to null
     @Test
     fun parentDataDefaultsToNull() {
         val parentData = Ref<Any?>()
-        runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = { SimpleDrawChild(drawLatch = drawLatch) },
-                    measurePolicy = { measurables, constraints ->
-                        assertEquals(1, measurables.size)
-                        parentData.value = measurables[0].parentData
+        rule.setContent {
+            Layout(
+                content = { SimpleDrawChild() },
+                measurePolicy = { measurables, constraints ->
+                    assertEquals(1, measurables.size)
+                    parentData.value = measurables[0].parentData
 
-                        val placeable = measurables[0].measure(constraints)
-                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                    },
-                )
-            }
+                    val placeable = measurables[0].measure(constraints)
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                },
+            )
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertNull(parentData.value)
+        rule.runOnIdle { assertNull(parentData.value) }
     }
 
     // Test that parent data doesn't flow to grandchild measurables. They must be
@@ -91,69 +82,70 @@ class ParentDataModifierTest {
     @Test
     fun parentDataIsReset() {
         val parentData = Ref<Any?>()
-        runOnUiThread {
-            activity.setContent {
-                Layout(
-                    modifier = Modifier.layoutId("Hello"),
-                    content = { SimpleDrawChild(drawLatch = drawLatch) },
-                    measurePolicy = { measurables, constraints ->
-                        assertEquals(1, measurables.size)
-                        parentData.value = measurables[0].parentData
+        rule.setContent {
+            Layout(
+                modifier = Modifier.layoutId("Hello"),
+                content = { SimpleDrawChild() },
+                measurePolicy = { measurables, constraints ->
+                    assertEquals(1, measurables.size)
+                    parentData.value = measurables[0].parentData
 
-                        val placeable = measurables[0].measure(constraints)
-                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                    },
-                )
-            }
+                    val placeable = measurables[0].measure(constraints)
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                },
+            )
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        assertNull(parentData.value)
+        rule.runOnIdle { assertNull(parentData.value) }
     }
 
     @Test
     fun multiChildLayoutTest_doesNotOverrideChildrenParentData() {
-        runOnUiThread {
-            activity.setContent {
-                val header =
-                    @Composable {
-                        Layout(modifier = Modifier.layoutId(0), content = {}) { _, _ ->
-                            layout(0, 0) {}
-                        }
+        var parentData0: Any? = null
+        var parentData1: Any? = null
+        rule.setContent {
+            val header =
+                @Composable {
+                    Layout(modifier = Modifier.layoutId(0), content = {}) { _, _ ->
+                        layout(0, 0) {}
                     }
-                val footer =
-                    @Composable {
-                        Layout(modifier = Modifier.layoutId(1), content = {}) { _, _ ->
-                            layout(0, 0) {}
-                        }
-                    }
-
-                Layout({
-                    header()
-                    footer()
-                }) { measurables, _ ->
-                    assertEquals(0, ((measurables[0]).parentData as? LayoutIdParentData)?.layoutId)
-                    assertEquals(1, ((measurables[1]).parentData as? LayoutIdParentData)?.layoutId)
-                    layout(0, 0) {}
                 }
+            val footer =
+                @Composable {
+                    Layout(modifier = Modifier.layoutId(1), content = {}) { _, _ ->
+                        layout(0, 0) {}
+                    }
+                }
+
+            Layout({
+                header()
+                footer()
+            }) { measurables, _ ->
+                parentData0 = ((measurables[0]).parentData as? LayoutIdParentData)?.layoutId
+                parentData1 = ((measurables[1]).parentData as? LayoutIdParentData)?.layoutId
+                layout(0, 0) {}
             }
+        }
+        rule.runOnIdle {
+            assertEquals(0, parentData0)
+            assertEquals(1, parentData1)
         }
     }
 
     @Test
     fun parentDataOnPlaceable() {
-        runOnUiThread {
-            activity.setContent {
-                Layout({
-                    Layout(modifier = Modifier.layoutId("data"), content = {}) { _, _ ->
-                        layout(0, 0) {}
-                    }
-                }) { measurables, constraints ->
-                    val placeable = measurables[0].measure(constraints)
-                    assertEquals("data", (placeable.parentData as? LayoutIdParentData)?.layoutId)
+        var parentDataValue: Any? = null
+        rule.setContent {
+            Layout({
+                Layout(modifier = Modifier.layoutId("data"), content = {}) { _, _ ->
                     layout(0, 0) {}
                 }
+            }) { measurables, constraints ->
+                val placeable = measurables[0].measure(constraints)
+                parentDataValue = (placeable.parentData as? LayoutIdParentData)?.layoutId
+                layout(0, 0) {}
             }
         }
+        rule.runOnIdle { assertEquals("data", parentDataValue) }
     }
 
     @Test
@@ -162,61 +154,42 @@ class ParentDataModifierTest {
             object : DelegatingNode() {
                 val pd = delegate(LayoutIdModifier("data"))
             }
-        runOnUiThread {
-            activity.setContent {
-                Layout({
-                    Layout(modifier = Modifier.elementFor(node), content = {}) { _, _ ->
-                        layout(0, 0) {}
-                    }
-                }) { measurables, constraints ->
-                    val placeable = measurables[0].measure(constraints)
-                    assertEquals("data", (placeable.parentData as? LayoutIdParentData)?.layoutId)
+        var parentDataValue: Any? = null
+        rule.setContent {
+            Layout({
+                Layout(modifier = Modifier.elementFor(node), content = {}) { _, _ ->
                     layout(0, 0) {}
                 }
+            }) { measurables, constraints ->
+                val placeable = measurables[0].measure(constraints)
+                parentDataValue = (placeable.parentData as? LayoutIdParentData)?.layoutId
+                layout(0, 0) {}
             }
         }
+        rule.runOnIdle { assertEquals("data", parentDataValue) }
     }
 
     @Test
     fun implementingBothParentDataAndLayoutModifier() {
         val parentData = "data"
-        runOnUiThread {
-            activity.setContent {
-                Layout({
-                    Layout(modifier = ParentDataAndLayoutElement(parentData), content = {}) { _, _
-                        ->
-                        layout(0, 0) {}
-                    }
-                }) { measurables, _ ->
-                    assertEquals("data", measurables[0].parentData)
+        var parentDataValue: Any? = null
+        rule.setContent {
+            Layout({
+                Layout(modifier = ParentDataAndLayoutElement(parentData), content = {}) { _, _ ->
                     layout(0, 0) {}
                 }
+            }) { measurables, _ ->
+                parentDataValue = measurables[0].parentData
+                layout(0, 0) {}
             }
         }
-    }
-
-    // We only need this because IR compiler doesn't like converting lambdas to Runnables
-    private fun runOnUiThread(block: () -> Unit) {
-        val runnable: Runnable =
-            object : Runnable {
-                override fun run() {
-                    block()
-                }
-            }
-        activityTestRule.runOnUiThread(runnable)
+        rule.runOnIdle { assertEquals("data", parentDataValue) }
     }
 }
 
 @Composable
-fun SimpleDrawChild(drawLatch: CountDownLatch) {
-    AtLeastSize(
-        size = 10,
-        modifier =
-            Modifier.drawBehind {
-                drawRect(Color(0xFF008000))
-                drawLatch.countDown()
-            },
-    ) {}
+private fun SimpleDrawChild() {
+    AtLeastSize(size = 10, modifier = Modifier.drawBehind { drawRect(Color(0xFF008000)) }) {}
 }
 
 private data class ParentDataAndLayoutElement(val data: String) :
@@ -228,7 +201,7 @@ private data class ParentDataAndLayoutElement(val data: String) :
     }
 }
 
-class ParentDataAndLayoutNode(var data: String) :
+private class ParentDataAndLayoutNode(var data: String) :
     Modifier.Node(), LayoutModifierNode, ParentDataModifierNode {
     override fun MeasureScope.measure(
         measurable: Measurable,
