@@ -65,7 +65,7 @@ internal fun Modifier.textFieldSize(
     singleLineHeightProvider: HeightForSingleLineFieldProvider,
     minLines: Int,
     maxLines: Int,
-    softWrap: Boolean,
+    singleLine: Boolean,
 ): Modifier {
     validateMinMaxLines(minLines, maxLines)
     return this then
@@ -73,7 +73,7 @@ internal fun Modifier.textFieldSize(
             textStyle,
             minLines,
             maxLines,
-            softWrap,
+            singleLine,
             singleLineHeightProvider,
         )
 }
@@ -82,7 +82,7 @@ private class TextFieldSizeConstrainerElement(
     private val textStyle: TextStyle,
     private val minLines: Int,
     private val maxLines: Int,
-    private val softWrap: Boolean,
+    private val singleLine: Boolean,
     private val singleLineHeightProvider: HeightForSingleLineFieldProvider,
 ) : ModifierNodeElement<TextFieldSizeConstrainerNode>() {
 
@@ -91,19 +91,19 @@ private class TextFieldSizeConstrainerElement(
             textStyle,
             minLines,
             maxLines,
-            softWrap,
+            singleLine,
             singleLineHeightProvider,
         )
 
     override fun update(node: TextFieldSizeConstrainerNode) {
-        node.update(textStyle, minLines, maxLines, softWrap, singleLineHeightProvider)
+        node.update(textStyle, minLines, maxLines, singleLine, singleLineHeightProvider)
     }
 
     override fun hashCode(): Int {
         var result = textStyle.hashCode()
         result = 31 * result + minLines
         result = 31 * result + maxLines
-        result = 31 * result + softWrap.hashCode()
+        result = 31 * result + singleLine.hashCode()
         result = 31 * result + singleLineHeightProvider.hashCode()
         return result
     }
@@ -114,7 +114,7 @@ private class TextFieldSizeConstrainerElement(
         if (textStyle != other.textStyle) return false
         if (minLines != other.minLines) return false
         if (maxLines != other.maxLines) return false
-        if (softWrap != other.softWrap) return false
+        if (singleLine != other.singleLine) return false
         if (singleLineHeightProvider != other.singleLineHeightProvider) return false
         return true
     }
@@ -123,7 +123,7 @@ private class TextFieldSizeConstrainerElement(
         name = "combinedTextFieldSize"
         properties["minLines"] = minLines
         properties["maxLines"] = maxLines
-        properties["softWrap"] = softWrap
+        properties["singleLine"] = singleLine
         properties["textStyle"] = textStyle
         properties["textLayoutState"] = singleLineHeightProvider
     }
@@ -133,7 +133,7 @@ private class TextFieldSizeConstrainerNode(
     private var textStyle: TextStyle,
     private var minLines: Int,
     private var maxLines: Int,
-    private var softWrap: Boolean,
+    private var singleLine: Boolean,
     private var singleLineHeightProvider: HeightForSingleLineFieldProvider,
 ) : Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {
 
@@ -189,7 +189,7 @@ private class TextFieldSizeConstrainerNode(
         computeDefaultSizeIfNeeded(requireFontResolutionState().value)
 
         val computedConstraints =
-            if (!softWrap) { // single line
+            if (singleLine) { // single line
                 // correction for tall glyph clipping in single line
                 val height = singleLineHeightProvider.heightForSingleLineField
                 val heightPx = height.roundToPx()
@@ -314,7 +314,7 @@ private class TextFieldSizeConstrainerNode(
         textStyle: TextStyle,
         minLines: Int,
         maxLines: Int,
-        softWrap: Boolean,
+        singleLine: Boolean,
         singleLineHeightProvider: HeightForSingleLineFieldProvider,
     ) {
         if (this.textStyle != textStyle) {
@@ -327,13 +327,13 @@ private class TextFieldSizeConstrainerNode(
         if (
             this.minLines != minLines ||
                 this.maxLines != maxLines ||
-                this.softWrap != softWrap ||
+                this.singleLine != singleLine ||
                 this.singleLineHeightProvider.heightForSingleLineField !=
                     singleLineHeightProvider.heightForSingleLineField
         ) {
             this.minLines = minLines
             this.maxLines = maxLines
-            this.softWrap = softWrap
+            this.singleLine = singleLine
             this.singleLineHeightProvider = singleLineHeightProvider
             dirty = true
         }
