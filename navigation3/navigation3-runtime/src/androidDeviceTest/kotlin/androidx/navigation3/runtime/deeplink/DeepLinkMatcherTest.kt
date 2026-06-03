@@ -17,6 +17,7 @@
 package androidx.navigation3.runtime.deeplink
 
 import androidx.kruth.assertThat
+import androidx.navigation3.runtime.NavKey
 import kotlin.test.Test
 
 class DeepLinkMatcherTest {
@@ -79,4 +80,17 @@ class DeepLinkMatcherTest {
         val result = matcher.match(request)
         assertThat(result).isNull()
     }
+
+    @Test
+    fun match_defaultComparator() {
+        val result1: DeepLinkMatcher.MatchResult<NavKey> = DeepLinkMatcher.MatchResult(First)
+        val result2: DeepLinkMatcher.MatchResult<NavKey> = DeepLinkMatcher.MatchResult(Second)
+
+        assertThat(result1.compareTo(result2)).isEqualTo(0)
+        assertThat(result1.compareTo(result2)).isEqualTo(0)
+    }
+
+    private object First : NavKey
+
+    private object Second : NavKey
 }

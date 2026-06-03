@@ -78,6 +78,12 @@ public abstract class DeepLinkMatcher<T : Any>(private val filters: List<Filter<
      * @param key the navigation key representing the deep link target
      */
     public open class MatchResult<T>(public val key: T) : Comparable<MatchResult<T>> {
-        public override fun compareTo(other: MatchResult<T>): Int = 1
+        /**
+         * Compares this [MatchResult] to [other] and returns an Int result.
+         *
+         * Returns zero if this result is equal to the other result, a negative number if it's less
+         * than the other, or a positive number if it's greater than the other.
+         */
+        public override fun compareTo(other: MatchResult<T>): Int = 0
     }
 }
