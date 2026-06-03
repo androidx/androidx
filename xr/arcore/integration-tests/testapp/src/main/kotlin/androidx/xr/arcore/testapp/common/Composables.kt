@@ -43,6 +43,7 @@ import androidx.xr.arcore.AugmentedImage
 import androidx.xr.arcore.AugmentedObject
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.PlaneLabel
+import androidx.xr.arcore.PlaneType
 import androidx.xr.arcore.QrCode
 import androidx.xr.arcore.Trackable
 import androidx.xr.arcore.TrackingState
@@ -92,7 +93,7 @@ fun TrackableCard(trackable: Trackable<Trackable.State>) {
                     AugmentedObjectStateInfo(state.value as AugmentedObject.State)
                 }
                 is Plane -> {
-                    Text("Plane Type: ${trackable.type}")
+                    Text("Plane Type: ${trackable.type.getDescription()}")
                     PlaneStateInfo(state.value as Plane.State)
                 }
                 is AugmentedImage -> {
@@ -108,7 +109,10 @@ fun TrackableCard(trackable: Trackable<Trackable.State>) {
 
 @Composable
 fun PlaneStateInfo(state: Plane.State) {
-    Text(text = "Plane Label: ${state.label}", color = convertPlaneLabelToColor(state.label))
+    Text(
+        text = "Plane Label: ${state.label.getDescription()}",
+        color = convertPlaneLabelToColor(state.label),
+    )
     Text(text = "Plane Center Pose: ${state.centerPose}")
     Text(text = "Plane Extents: ${state.extents}")
     Text(text = "Subsumed by Plane: ${state.subsumedBy}")
@@ -132,6 +136,23 @@ private fun AugmentedObjectCategory.getDescription(): String =
         AugmentedObjectCategory.KEYBOARD -> "Keyboard"
         AugmentedObjectCategory.MOUSE -> "Mouse"
         AugmentedObjectCategory.LAPTOP -> "Laptop"
+        else -> "Unknown"
+    }
+
+private fun PlaneType.getDescription(): String =
+    when (this) {
+        PlaneType.VERTICAL -> "Vertical"
+        PlaneType.HORIZONTAL_UPWARD_FACING -> "Horizontal Upward-facing"
+        PlaneType.HORIZONTAL_DOWNWARD_FACING -> "Horizontal Downward-facing"
+        else -> "Unknown"
+    }
+
+private fun PlaneLabel.getDescription(): String =
+    when (this) {
+        PlaneLabel.WALL -> "Wall"
+        PlaneLabel.FLOOR -> "Floor"
+        PlaneLabel.CEILING -> "Ceiling"
+        PlaneLabel.TABLE -> "Table"
         else -> "Unknown"
     }
 

@@ -126,23 +126,22 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
                         } else {
                             modelEntity.setEnabled(true)
                             modelEntity.setAlpha(.5f)
-                            counter++
                             modelEntity.setPose(
                                 session.scene.perceptionSpace
                                     .transformPoseTo(state.centerPose, session.scene.activitySpace)
                                     // Planes are X-Y while Panels are X-Z, so we need to rotate the
-                                    // X-axis by -90
-                                    // degrees to align them.
+                                    // X-axis by -90 degrees to align them.
                                     .compose(PANEL_TO_PLANE_ROTATION)
                             )
 
+                            counter++
                             if (counter > PANEL_RESIZE_UPDATE_COUNT) {
                                 @SuppressLint("RestrictedApiAndroidX")
                                 modelEntity.setScale(scaledExtents(state.extents))
                                 counter = 0
                             }
                         }
-                    } else if (state.trackingState == TrackingState.STOPPED) {
+                    } else {
                         modelEntity.setEnabled(false)
                     }
                 }
@@ -167,14 +166,13 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
     }
 
     private fun scaledExtents(extents: FloatSize2d): Vector3 {
-        return Vector3(extents.width, extents.height, MODEL_DEPTH)
+        return Vector3(extents.width, extents.height, PlaneModel.MODEL_DEPTH)
     }
 
     private companion object {
         private val PANEL_TO_PLANE_ROTATION =
             Pose(Vector3(), Quaternion.fromEulerAngles(-90f, 0f, 0f))
         private const val PANEL_RESIZE_UPDATE_COUNT = 50
-        private const val MODEL_DEPTH = .001f
         private const val DEFAULT_OBJECT_MODEL = "BoundingBoxGreen.glb"
         private val SUPPORTED_OBJECT_MODELS =
             mapOf(
