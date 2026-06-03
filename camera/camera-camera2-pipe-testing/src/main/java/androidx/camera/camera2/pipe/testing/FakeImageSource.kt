@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.testing
 
 import android.hardware.HardwareBuffer
 import android.util.Size
-import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
@@ -84,7 +83,6 @@ private constructor(
             capacity: Int,
             usageFlags: Long?,
             fakeImageReaders: FakeImageReaders,
-            memoryEstimator: MemoryEstimator,
         ): FakeImageSource {
             // ImageReaderImageSource maintains a margin to avoid acquiring too many images. We need
             // to bump up the capacity to keep effective capacity same.
@@ -97,8 +95,7 @@ private constructor(
                     usageFlags,
                 )
 
-            val imageReaderImageSource =
-                ImageReaderImageSource.create(fakeImageReader, memoryEstimator)
+            val imageReaderImageSource = ImageReaderImageSource.create(fakeImageReader)
             return FakeImageSource(fakeImageReader, imageReaderImageSource)
         }
     }

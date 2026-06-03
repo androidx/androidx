@@ -361,7 +361,7 @@ class FrameBufferImplTest {
         }
 
     @Test
-    fun removeAllReferences_zeroCapacityBuffer_doesNotThrowErrors() =
+    fun removeAllReference_zeroCapacityBuffer_doesNotThowErrors() =
         testScope.runTest {
             val frameBuffer = createFrameBuffer(capacity = 0)
 

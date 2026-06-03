@@ -32,18 +32,14 @@ public interface SharedOutputImage : OutputImage {
     /**
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Throws an
      * exception if this reference is already closed.
-     *
-     * [onClose] if provided, is invoked exactly once at the start of the close method.
      */
-    public fun acquire(onClose: (() -> Unit) = {}): SharedOutputImage
+    public fun acquire(): SharedOutputImage
 
     /**
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Returns
      * null if this image has already been finalized.
-     *
-     * [onClose] if provided, is invoked exactly once at the start of the close method.
      */
-    public fun acquireOrNull(onClose: (() -> Unit) = {}): SharedOutputImage?
+    public fun acquireOrNull(): SharedOutputImage?
 
     /**
      * Set a finalizer that is responsible for closing the underlying [OutputImage] when all
@@ -71,25 +67,23 @@ public interface SharedOutputImage : OutputImage {
             // By default, create the SharedReference with a ClosingFinalizer, which will simply
             // close the underlying image when it is no longer in use.
             val sharedReference = SharedReference(image, ClosingFinalizer)
-            return SharedOutputImageImpl(image, sharedReference, onClose = null)
+            return SharedOutputImageImpl(image, sharedReference)
         }
 
         private class SharedOutputImageImpl(
             private val outputImage: OutputImage,
             private val sharedReference: SharedReference<OutputImage>,
-            private val onClose: (() -> Unit)?,
         ) : OutputImage by outputImage, SharedOutputImage {
             private val closed = atomic(false)
 
-            override fun acquire(onClose: (() -> Unit)): SharedOutputImage =
-                checkNotNull(acquireOrNull(onClose))
+            override fun acquire(): SharedOutputImage = checkNotNull(acquireOrNull())
 
-            override fun acquireOrNull(onClose: (() -> Unit)): SharedOutputImage? {
+            override fun acquireOrNull(): SharedOutputImage? {
                 if (closed.value) {
                     return null
                 }
                 return sharedReference.acquireOrNull()?.let {
-                    SharedOutputImageImpl(outputImage, sharedReference, onClose)
+                    SharedOutputImageImpl(outputImage, sharedReference)
                 }
             }
 
@@ -127,10 +121,6 @@ public interface SharedOutputImage : OutputImage {
 
                     // Decrement the shared reference once and only once.
                     sharedReference.decrement()
-
-                    // Invoke the onClose at end. This is to make sure that any exception in the
-                    // onClose doesn't affect the decrement of the reference count.
-                    onClose?.invoke()
                 }
             }
 

@@ -28,7 +28,6 @@ import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraSurfaceManager
-import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.compat.AndroidDevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
@@ -79,8 +78,6 @@ internal interface CameraPipeComponent {
     fun cameraAudioRestrictionController(): AudioRestrictionController
 
     fun concurrentSessionSequencers(): ConcurrentSessionSequencers
-
-    fun memoryEstimator(): MemoryEstimator
 }
 
 @Module(
@@ -195,11 +192,5 @@ internal abstract class CameraPipeModule {
         fun provideCameraDeviceSetupCompatFactory(
             @CameraPipeContext cameraPipeContext: Context
         ): CameraDeviceSetupCompatFactory = CameraDeviceSetupCompatFactory(cameraPipeContext)
-
-        @Singleton
-        @Provides
-        fun provideMemoryEstimator(config: CameraPipe.Config): MemoryEstimator {
-            return config.memoryEstimator
-        }
     }
 }

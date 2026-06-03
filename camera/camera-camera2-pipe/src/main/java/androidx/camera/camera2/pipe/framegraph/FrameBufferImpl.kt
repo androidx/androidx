@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.FrameBuffer
 import androidx.camera.camera2.pipe.FrameReference
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.internal.FrameDistributor
-import androidx.camera.camera2.pipe.internal.FrameImpl
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -111,11 +110,11 @@ internal class FrameBufferImpl(
             return
         }
 
-        val acquiredFrameForInternalUse = frameReference.tryAcquireForInternalUse()
+        val acquiredFrame = frameReference.tryAcquire(streams)
 
         val entryToAdd: BufferEntry =
-            if (acquiredFrameForInternalUse != null) {
-                BufferEntry.WithFrame(acquiredFrameForInternalUse)
+            if (acquiredFrame != null) {
+                BufferEntry.WithFrame(acquiredFrame)
             } else {
                 BufferEntry.WithoutFrame(frameReference)
             }
@@ -197,9 +196,7 @@ internal class FrameBufferImpl(
                 val bufferEntry = iterator.next()
                 if (predicate(bufferEntry.frameReference)) {
                     iterator.remove()
-                    bufferEntry.tryAcquireFrameForExternalUse()?.let { frame ->
-                        removedFrames.add(frame)
-                    }
+                    (bufferEntry as? BufferEntry.WithFrame)?.let { removedFrames.add(it.frame) }
                 }
             }
             _size.value = frameQueue.size
@@ -303,17 +300,11 @@ internal class FrameBufferImpl(
             if (indexToRemove != -1) {
                 val bufferEntry = frameQueue.removeAt(indexToRemove)
                 _size.value = frameQueue.size
-                return bufferEntry.tryAcquireFrameForExternalUse()
+                return (bufferEntry as? BufferEntry.WithFrame)?.frame
             }
         }
         return null
     }
-
-    private fun FrameReference.tryAcquireForInternalUse(): Frame? =
-        (this as? FrameImpl)?.tryAcquireForInternalUse(streams)
-
-    private fun BufferEntry.tryAcquireFrameForExternalUse(): Frame? =
-        (this as? BufferEntry.WithFrame)?.frame?.also { (it as FrameImpl).isExternal = true }
 
     private companion object {
         const val FRAME_FLOW_EXTRA_BUFFER_CAPACITY = 4

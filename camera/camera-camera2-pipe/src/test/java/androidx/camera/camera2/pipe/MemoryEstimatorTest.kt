@@ -17,8 +17,6 @@
 package androidx.camera.camera2.pipe
 
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -26,53 +24,65 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 internal class MemoryEstimatorTest {
     @Test
-    fun unboundedEstimator_canAlwaysAllocate() {
-        val estimator = MemoryEstimator.create()
+    fun noOpEstimator_maintainsDefaultState() {
+        val estimator = MemoryEstimator.noop
+
+        // Initial state
+        assertThat(estimator.capacity.value).isEqualTo(0L)
+        assertThat(estimator.evictable.value).isEqualTo(0L)
+
+        // Actions should not mutate state
+        estimator.incrementUsage(100L)
+        assertThat(estimator.capacity.value).isEqualTo(0L)
+
+        estimator.decrementUsage(50L)
+        assertThat(estimator.capacity.value).isEqualTo(0L)
+
+        estimator.updateEvictable(20L)
+        assertThat(estimator.evictable.value).isEqualTo(0L)
+    }
+
+    @Test
+    fun noOpEstimator_canAlwaysAllocate() {
+        val estimator = MemoryEstimator.noop
 
         assertThat(estimator.canAllocate(10L)).isTrue()
         assertThat(estimator.canAllocate(Long.MAX_VALUE)).isTrue()
     }
 
     @Test
-    fun impl_initialStateIsCorrect() = runTest {
+    fun impl_initialStateIsCorrect() {
         val estimator = MemoryEstimator.create(initialCapacity = 1000L)
 
-        assertThat(estimator.usage.value).isEqualTo(0L)
-        assertThat(estimator.capacity.first()).isEqualTo(1000L)
+        assertThat(estimator.capacity.value).isEqualTo(1000L)
         assertThat(estimator.evictable.value).isEqualTo(0L)
     }
 
     @Test
-    fun impl_incrementUsageUpdatesCapacityAndUsage() = runTest {
+    fun impl_incrementUsageReducesCapacity() {
         val estimator = MemoryEstimator.create(initialCapacity = 1000L)
 
         estimator.incrementUsage(300L)
-
-        assertThat(estimator.usage.value).isEqualTo(300L)
-        assertThat(estimator.capacity.first()).isEqualTo(700L)
+        assertThat(estimator.capacity.value).isEqualTo(700L)
     }
 
     @Test
-    fun impl_incrementUsageAllowsNegativeCapacity() = runTest {
+    fun impl_incrementUsageAllowsNegativeCapacity() {
         val estimator = MemoryEstimator.create(1000L)
 
         estimator.incrementUsage(1200L)
-
-        assertThat(estimator.usage.value).isEqualTo(1200L)
-        assertThat(estimator.capacity.first()).isEqualTo(-200L)
+        assertThat(estimator.capacity.value).isEqualTo(-200L)
     }
 
     @Test
-    fun impl_decrementUsageUpdatesCapacityAndUsage() = runTest {
+    fun impl_decrementUsageIncreasesCapacity() {
         val estimator = MemoryEstimator.create(1000L)
 
         estimator.incrementUsage(500L)
-        assertThat(estimator.usage.value).isEqualTo(500L)
-        assertThat(estimator.capacity.first()).isEqualTo(500L)
+        assertThat(estimator.capacity.value).isEqualTo(500L)
 
         estimator.decrementUsage(200L)
-        assertThat(estimator.usage.value).isEqualTo(300L)
-        assertThat(estimator.capacity.first()).isEqualTo(700L)
+        assertThat(estimator.capacity.value).isEqualTo(700L)
     }
 
     @Test
