@@ -209,25 +209,22 @@ class SpatialElevation : ComponentActivity() {
                 }
             },
             bottomBar = {
-                if (LocalSpatialConfiguration.current.hasXrSpatialFeature) {
-                    val session =
-                        checkNotNull(LocalSession.current) {
-                            "LocalSession.current was null. Session must be available."
+                if (!LocalSpatialConfiguration.current.hasXrSpatialFeature) return@Scaffold
+                val session = LocalSession.current ?: return@Scaffold
+
+                Box(
+                    modifier = Modifier.fillMaxWidth().background(Purple40),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(modifier = Modifier.align(Alignment.Center)) {
+                        if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
+                            CUJButton("Enter Home Space") { session.scene.requestHomeSpace() }
+                        } else {
+                            CUJButton("Enter Full Space") { session.scene.requestFullSpace() }
                         }
-                    Box(
-                        modifier = Modifier.fillMaxWidth().background(Purple40),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Box(modifier = Modifier.align(Alignment.Center)) {
-                            if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-                                CUJButton("Enter Home Space") { session.scene.requestHomeSpace() }
-                            } else {
-                                CUJButton("Enter Full Space") { session.scene.requestFullSpace() }
-                            }
-                        }
-                        Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 20.dp)) {
-                            RecreateButton { this@SpatialElevation.recreate() }
-                        }
+                    }
+                    Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 20.dp)) {
+                        RecreateButton { this@SpatialElevation.recreate() }
                     }
                 }
             },

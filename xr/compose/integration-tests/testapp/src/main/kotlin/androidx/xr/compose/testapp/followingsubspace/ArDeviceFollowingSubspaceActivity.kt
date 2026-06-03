@@ -89,7 +89,7 @@ class FollowingSubspaceActivity : ComponentActivity() {
     @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalMaterial3Api::class)
     @Composable
     private fun MainContent() {
-        val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+        val session = LocalSession.current ?: return
         session.configure(
             Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
         )

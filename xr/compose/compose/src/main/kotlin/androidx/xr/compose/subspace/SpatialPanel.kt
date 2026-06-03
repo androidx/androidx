@@ -633,7 +633,7 @@ public fun SpatialMainPanel(
 @Composable
 private fun requestMainPanelOwnership(): State<CoreMainPanelEntity?> {
     val result = remember { mutableStateOf<CoreMainPanelEntity?>(null) }
-    val mainPanel = LocalComposeXrOwners.current?.coreMainPanelEntity ?: return result
+    val mainPanel = LocalComposeXrOwners.current.coreMainPanelEntity ?: return result
     // TODO(b/460459113) - For now we are using the decorView but we should be able to use LocalView
     //  once the view tree is properly connected via `setViewTreeDisjointParent`.
     val ownerQueue =

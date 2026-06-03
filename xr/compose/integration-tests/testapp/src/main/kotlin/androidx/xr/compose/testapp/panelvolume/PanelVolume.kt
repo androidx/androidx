@@ -126,10 +126,7 @@ class PanelVolume : ComponentActivity() {
 
     @Composable
     private fun SpatialContent() {
-        val session =
-            checkNotNull(LocalSession.current) {
-                "LocalSession.current was null. Session must be available."
-            }
+        val session = LocalSession.current ?: return
         var arrows by remember { mutableStateOf<GltfModel?>(null) }
         val gltfEntity =
             arrows?.let {

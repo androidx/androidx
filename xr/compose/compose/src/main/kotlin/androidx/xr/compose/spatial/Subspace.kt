@@ -79,7 +79,7 @@ import androidx.xr.scenecore.scene
 
 internal val LocalSubspaceRootNode: ProvidableCompositionLocal<Entity?> =
     compositionLocalWithComputedDefaultOf {
-        LocalComposeXrOwners.currentValue?.subspaceRootNode
+        LocalComposeXrOwners.currentValue.subspaceRootNode
     }
 
 private object SubspaceConstants {
@@ -175,7 +175,7 @@ private fun Subspace(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val session = LocalSession.current ?: return
     val compositionContext = rememberCompositionContext()
     val subspaceRoot = remember {
         Entity.create(
@@ -263,7 +263,7 @@ public fun PlanarEmbeddedSubspace(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val session = LocalSession.current ?: return
     val compositionContext = rememberCompositionContext()
     val coreEntity =
         checkNotNull(findNearestParentEntity()) { "CoreEntity unavailable for subspace" }
@@ -479,7 +479,7 @@ public fun FollowingSubspace(
 ) {
     // If not in XR, do nothing
     if (!LocalSpatialConfiguration.current.hasXrSpatialFeature) return
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val session = LocalSession.current ?: return
 
     if (!validateFollowingSubspaceConfiguration(target, behavior, session.config)) return
 

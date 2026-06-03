@@ -43,7 +43,7 @@ internal val LocalOpaqueEntity: ProvidableCompositionLocal<OpaqueEntity?> = comp
 
 internal val LocalCoreMainPanelEntity: CompositionLocal<CoreMainPanelEntity?> =
     compositionLocalWithComputedDefaultOf {
-        LocalComposeXrOwners.currentValue?.coreMainPanelEntity
+        LocalComposeXrOwners.currentValue.coreMainPanelEntity
             ?: LocalSession.currentValue?.let { CoreMainPanelEntity(it) }
     }
 

@@ -42,7 +42,7 @@ import androidx.xr.scenecore.scene
  */
 public val LocalSpatialConfiguration: ProvidableCompositionLocal<SpatialConfiguration> =
     compositionLocalWithComputedDefaultOf {
-        LocalComposeXrOwners.currentValue?.spatialConfiguration
+        LocalComposeXrOwners.currentValue.spatialConfiguration
             ?: ContextOnlySpatialConfiguration(LocalContext.currentValue)
     }
 

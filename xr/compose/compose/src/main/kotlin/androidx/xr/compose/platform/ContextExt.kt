@@ -19,6 +19,7 @@ package androidx.xr.compose.platform
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.activity.ComponentActivity
 
 /**
  * Utility extension function to fetch the current [Activity] based on the [Context] object. Will
@@ -40,5 +41,16 @@ internal tailrec fun Context.getActivity(): Activity? =
     when (this) {
         is Activity -> this
         is ContextWrapper -> baseContext.getActivity()
+        else -> null
+    }
+
+/**
+ * Utility extension function to fetch the current [ComponentActivity] based on the [Context] object
+ * or returns null if not found.
+ */
+internal tailrec fun Context.getComponentActivity(): ComponentActivity? =
+    when (this) {
+        is ComponentActivity -> this
+        is ContextWrapper -> baseContext.getComponentActivity()
         else -> null
     }
