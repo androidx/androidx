@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.internal.OutputResult.Companion.outputOrNull
 import androidx.camera.camera2.pipe.internal.OutputResult.Companion.outputStatus
 import androidx.camera.camera2.pipe.media.OutputImage
 import androidx.camera.camera2.pipe.media.SharedOutputImage
+import androidx.camera.camera2.pipe.media.TrackedOutputImage
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
@@ -245,6 +246,42 @@ internal class FrameState(
         val outputId: OutputId,
         private val remainingOutputResults: AtomicInt, // Number of remaining outputs in this stream
     ) : FrameOutput<SharedOutputImage>(), OutputDistributor.OutputListener<OutputImage> {
+        // This tracks the external use calls registered before the arrival of the image.
+        private val pendingExternalUseCount = atomic(0)
+        private val trackedImage = atomic<TrackedOutputImage?>(null)
+
+        fun incrementExternalUseCount() {
+            val count =
+                pendingExternalUseCount.updateAndGet() { count ->
+                    if (count != Int.MIN_VALUE) count + 1 else Int.MIN_VALUE
+                }
+
+            if (count == Int.MIN_VALUE) {
+                trackedImage.value?.incrementExternalUse()
+            }
+        }
+
+        fun decrementExternalUseCount() {
+            val count =
+                pendingExternalUseCount.updateAndGet() { count ->
+                    if (count != Int.MIN_VALUE) count - 1 else Int.MIN_VALUE
+                }
+
+            if (count == Int.MIN_VALUE) {
+                trackedImage.value?.decrementExternalUse()
+            }
+        }
+
+        fun acquireOrNullForExternalUse(): SharedOutputImage? {
+            val sharedImage = internalResult.outputOrNull() ?: return null
+            return sharedImage.acquireOrNullForExternalUse()
+        }
+
+        suspend fun awaitForExternalUse(): SharedOutputImage? {
+            val sharedImage = internalResult.await().output ?: return null
+            return sharedImage.acquireOrNullForExternalUse()
+        }
+
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
@@ -255,7 +292,22 @@ internal class FrameState(
             val output = outputResult.output
             if (output != null) {
                 val sharedImage = SharedOutputImage.from(output)
-                if (!internalResult.completeWithOutput(sharedImage)) {
+                if (internalResult.completeWithOutput(sharedImage)) {
+                    sharedImage.unwrapAs(TrackedOutputImage::class.java)?.let { trackedOutputImage
+                        ->
+                        trackedImage.value = trackedOutputImage
+                        // First update the trackedImage so that any call to increment/decrement
+                        // external usage at this exact moment is picked up.
+                        // Note - Int.MIN_VALUE indicates that we are setting the pending count to
+                        // zero after adding the current pendingExternalUseCount. After the actual
+                        // image has been received, the call to update external use count can be
+                        // made directly on it.
+                        val pending = pendingExternalUseCount.getAndSet(Int.MIN_VALUE)
+                        if (pending != Int.MIN_VALUE) {
+                            trackedOutputImage.addExternalUse(pending)
+                        }
+                    }
+                } else {
                     sharedImage.close()
                 }
             } else {
@@ -285,4 +337,25 @@ internal class FrameState(
 
         private fun nextFrameId(): FrameId = FrameId(frameIds.incrementAndGet())
     }
+}
+
+internal fun SharedOutputImage.acquireOrNullForExternalUse(): SharedOutputImage? {
+    // We try to unwrap it as TrackedOutputImage, if it fails for any reason, fallback to simply
+    // calling acquireOrNull and exit.
+    val trackedOutputImage =
+        this.unwrapAs(TrackedOutputImage::class.java) ?: return this.acquireOrNull()
+
+    // Increment the external use count in anticipation of a new fork that is meant to be used
+    // externally.
+    trackedOutputImage.incrementExternalUse()
+
+    // Pass in a lambda to decrement the external use count when the forked image closes.
+    val acquiredImage = this.acquireOrNull(onClose = { trackedOutputImage.decrementExternalUse() })
+
+    // Decrement the external use count if we were unable to fork the image.
+    if (acquiredImage == null) {
+        trackedOutputImage.decrementExternalUse()
+    }
+
+    return acquiredImage
 }

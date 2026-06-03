@@ -20,6 +20,7 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.ImageSourceConfig
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageSource
 import androidx.camera.camera2.pipe.media.ImageSources
@@ -29,7 +30,10 @@ import androidx.camera.camera2.pipe.media.ImageSources
  * be retrieved based on [Surface] or by [StreamId], and supports both single and
  * MultiResolutionImageReader-like implementations.
  */
-public class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : ImageSources {
+public class FakeImageSources(
+    private val fakeImageReaders: FakeImageReaders,
+    private val memoryEstimator: MemoryEstimator = MemoryEstimator.create(),
+) : ImageSources {
     private val lock = Any()
 
     @GuardedBy("lock") private val fakeImageSources = mutableListOf<FakeImageSource>()
@@ -57,6 +61,7 @@ public class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : 
                 imageSourceConfig.capacity,
                 imageSourceConfig.usageFlags,
                 fakeImageReaders,
+                memoryEstimator,
             )
         synchronized(lock) { fakeImageSources.add(fakeImageSource) }
         return fakeImageSource

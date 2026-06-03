@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.media
 
 import android.util.Size
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
@@ -46,7 +47,12 @@ class ImageSourceTest {
             capacity = 10,
             usageFlags = null,
         )
-    private val imageSource = ImageReaderImageSource(fakeImageReader, fakeImageReader.capacity - 2)
+    private val imageSource =
+        ImageReaderImageSource(
+            fakeImageReader,
+            fakeImageReader.capacity - 2,
+            memoryEstimator = MemoryEstimator.create(),
+        )
 
     @After
     fun cleanup() {
@@ -217,6 +223,77 @@ class ImageSourceTest {
 
         assertThat(expectedOutputsListener.lastOutputTimestamp).isEqualTo(timestamp)
         assertThat(expectedOutputsListener.lastOutputIds).isEqualTo(outputIds)
+    }
+
+    @Test
+    fun imagesAreDroppedWhenMemoryIsLow() {
+        // Create an estimator with 0 capacity so canAllocate always returns false
+        val estimator = MemoryEstimator.create(0L)
+        val source =
+            ImageReaderImageSource(
+                fakeImageReader,
+                fakeImageReader.capacity - 2,
+                memoryEstimator = estimator,
+            )
+        val testListener = TestImageListener()
+        source.imageListener = testListener
+
+        val fakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 12345)
+        fakeImageReader.simulateImage(fakeImage, outputId)
+
+        // The image listener should still be invoked, but with a null image because it was dropped
+        assertThat(testListener.onImageEvents.size).isEqualTo(1)
+        assertThat(testListener.onImageEvents[0].outputId).isEqualTo(outputId)
+        assertThat(testListener.onImageEvents[0].image).isNull()
+
+        // Ensure the dropped hardware buffer is closed immediately to prevent leaks
+        assertThat(fakeImage.isClosed).isTrue()
+    }
+
+    @Test
+    fun memoryIsTrackedWhenImagesAreAcquiredAndClosed() {
+        val expectedBytes =
+            StreamFormat.bytesPerImage(fakeImageFormat, fakeImageSize.width, fakeImageSize.height)
+
+        // Set capacity so the estimator can hold EXACTLY one image
+        val estimator = MemoryEstimator.create(expectedBytes)
+        val source =
+            ImageReaderImageSource(
+                fakeImageReader,
+                fakeImageReader.capacity - 2,
+                memoryEstimator = estimator,
+            )
+        val testListener = TestImageListener()
+        source.imageListener = testListener
+
+        // 1. Acquire first image (Should succeed, filling the memory budget)
+        val firstFakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1000)
+        fakeImageReader.simulateImage(firstFakeImage, outputId)
+        val firstTrackedImage = testListener.onImageEvents[0].image
+        assertThat(firstTrackedImage).isNotNull()
+
+        // 2. Acquire second image (Should fail and drop because the memory budget is full)
+        val secondFakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 2000)
+        fakeImageReader.simulateImage(secondFakeImage, outputId)
+        val secondTrackedImage = testListener.onImageEvents[1].image
+        assertThat(secondTrackedImage).isNull()
+        assertThat(secondFakeImage.isClosed).isTrue()
+
+        // 3. Close the first image (Should free the memory budget!)
+        firstTrackedImage!!.close()
+
+        // 4. Acquire third image (Should succeed again because the budget was restored)
+        val thirdFakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 3000)
+        fakeImageReader.simulateImage(thirdFakeImage, outputId)
+        val thirdTrackedImage = testListener.onImageEvents[2].image
+        assertThat(thirdTrackedImage).isNotNull()
+
+        // Clean up
+        thirdTrackedImage?.close()
     }
 
     private class TestImageListener : ImageListener {
