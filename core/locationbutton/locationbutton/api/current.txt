@@ -35,6 +35,10 @@ package androidx.core.locationbutton {
     property public static int TEXT_TYPE_USE_PRECISE_LOCATION;
   }
 
+  public final class LocationButtonCompat {
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public static void setLocationButtonProvider(androidx.core.locationbutton.LocationButton, android.app.permissionui.LocationButtonProvider? provider);
+  }
+
   public interface LocationButtonListener {
     method public void onPermissionResult(boolean isGranted);
     method public void onRequestPermissions();

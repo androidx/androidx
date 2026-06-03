@@ -53,7 +53,9 @@ public class LocationButtonTest {
         activityRule.scenario.onActivity { activity ->
             button =
                 LocationButton(activity).apply {
-                    setLocationButtonProviderForTesting(provider)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                        setLocationButtonProvider(provider)
+                    }
                     activity.setContentView(this)
                 }
         }
@@ -87,7 +89,7 @@ public class LocationButtonTest {
         activityRule.scenario.onActivity { activity ->
             button =
                 LocationButton(activity).apply {
-                    setLocationButtonProviderForTesting(provider)
+                    setLocationButtonProvider(provider)
 
                     setCornerRadius(12f)
                     setPressedCornerRadius(8f)
@@ -124,8 +126,7 @@ public class LocationButtonTest {
         var parent: FrameLayout? = null
 
         activityRule.scenario.onActivity { activity ->
-            button =
-                LocationButton(activity).apply { setLocationButtonProviderForTesting(provider) }
+            button = LocationButton(activity).apply { setLocationButtonProvider(provider) }
 
             // Wrap the button inside a parent container to remove it easily
             parent =
@@ -285,7 +286,7 @@ public class LocationButtonTest {
         activityRule.scenario.onActivity { activity ->
             button =
                 LocationButton(activity).apply {
-                    setLocationButtonProviderForTesting(provider)
+                    setLocationButtonProvider(provider)
                     setLocationButtonListener(
                         object : LocationButtonListener {
                             override fun onPermissionResult(isGranted: Boolean) {

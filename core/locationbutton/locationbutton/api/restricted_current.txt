@@ -16,7 +16,6 @@ package androidx.core.locationbutton {
     method public void setCornerRadius(float radius);
     method public void setIconTint(int color);
     method public void setLocationButtonListener(androidx.core.locationbutton.LocationButtonListener? client);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setLocationButtonProviderForTesting(android.app.permissionui.LocationButtonProvider provider);
     method public void setPressedCornerRadius(float radius);
     method public void setStrokeColor(int color);
     method public void setStrokeWidth(int strokeWidth);
@@ -44,6 +43,10 @@ package androidx.core.locationbutton {
   }
 
   @IntDef({androidx.core.locationbutton.LocationButton.TEXT_TYPE_NONE, androidx.core.locationbutton.LocationButton.TEXT_TYPE_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_USE_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_SHARE_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_NEAR_MY_PRECISE_LOCATION, androidx.core.locationbutton.LocationButton.TEXT_TYPE_NEAR_YOUR_PRECISE_LOCATION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface LocationButton.LocationButtonTextType {
+  }
+
+  public final class LocationButtonCompat {
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public static void setLocationButtonProvider(androidx.core.locationbutton.LocationButton, android.app.permissionui.LocationButtonProvider? provider);
   }
 
   public interface LocationButtonListener {
