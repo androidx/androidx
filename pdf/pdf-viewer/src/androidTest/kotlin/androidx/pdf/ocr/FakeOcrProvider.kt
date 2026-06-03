@@ -30,12 +30,11 @@ class FakeOcrProvider(private val fakeResult: OcrResult? = null) : OcrProvider {
 class FakeOcrResult(
     private val characters: List<OcrText> = emptyList(),
     private val words: List<OcrText> = emptyList(),
-    override val isRtl: Boolean = false,
 ) : OcrResult {
-    override val allText: OcrText =
+    override suspend fun getAllText(): OcrText =
         OcrText(words.joinToString(" ") { it.text }, words.flatMap { it.bounds })
 
-    override fun getText(startPoint: Point, endPoint: Point): OcrText {
+    override suspend fun getText(startPoint: Point, endPoint: Point): OcrText {
         if (characters.isEmpty()) return OcrText("", emptyList())
 
         val startIndex = findClosestCharacterIndex(startPoint)
@@ -50,12 +49,17 @@ class FakeOcrResult(
         )
     }
 
-    override fun getWordAt(point: Point): OcrText? {
+    override suspend fun getWordAt(point: Point): OcrText? {
         return words.find { word -> word.bounds.any { it.contains(point.x, point.y) } }
     }
 
-    override fun getSearchBounds(searchTerm: String): List<List<Rect>> {
-        return words.filter { it.text.contains(searchTerm, ignoreCase = true) }.map { it.bounds }
+    override suspend fun getSearchBounds(
+        searchTerm: String,
+        ignoreCase: Boolean,
+    ): List<List<Rect>> {
+        return words
+            .filter { it.text.contains(searchTerm, ignoreCase = ignoreCase) }
+            .map { it.bounds }
     }
 
     private fun findClosestCharacterIndex(point: Point): Int {
