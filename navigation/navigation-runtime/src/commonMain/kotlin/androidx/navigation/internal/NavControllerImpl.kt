@@ -18,7 +18,6 @@ package androidx.navigation.internal
 
 import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
@@ -93,7 +92,6 @@ internal class NavControllerImpl(
     internal val _currentBackStack: MutableStateFlow<List<NavBackStackEntry>> =
         MutableStateFlow(emptyList())
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal val currentBackStack: StateFlow<List<NavBackStackEntry>> =
         _currentBackStack.asStateFlow()
 
@@ -157,7 +155,6 @@ internal class NavControllerImpl(
 
     internal var _navigatorProvider = NavigatorProvider()
 
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal var navigatorProvider: NavigatorProvider
         get() = _navigatorProvider
         /**  */
@@ -1674,7 +1671,6 @@ internal class NavControllerImpl(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun setLifecycleOwner(owner: LifecycleOwner) {
         if (owner == lifecycleOwner) {
             return

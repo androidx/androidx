@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -143,6 +144,7 @@ androidXMultiplatform {
         }
 
         nonJvmMain {
+            dependsOn(nonAndroidMain)
             dependencies {
                 // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
                 implementation("org.jetbrains.androidx.savedstate:savedstate:1.4.0")
@@ -150,22 +152,24 @@ androidXMultiplatform {
             }
         }
 
+        nonJvmTest {
+            dependsOn(nonAndroidTest)
+        }
+
         nativeMain {
-            dependsOn(nonAndroidMain)
             dependsOn(nonJvmMain)
         }
 
         nativeTest {
-            dependsOn(nonAndroidTest)
+            dependsOn(nonJvmTest)
         }
 
         webMain {
-            dependsOn(nonAndroidMain)
             dependsOn(nonJvmMain)
         }
 
         webTest {
-            dependsOn(nonAndroidTest)
+            dependsOn(nonJvmTest)
         }
     }
 }

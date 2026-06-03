@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package androidx.navigation.testing
 
+import android.net.Uri
 import androidx.kruth.assertThat
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.CollectionNavType
@@ -25,10 +26,10 @@ import androidx.savedstate.SavedState
 import androidx.savedstate.read
 import androidx.savedstate.write
 import kotlin.reflect.typeOf
-import kotlin.test.Test
 import kotlinx.serialization.Serializable
+import org.junit.Test
 
-class TestSavedStateHandleBuilder {
+class TestSavedStateHandleBuilder : RobolectricTest() {
 
     @Test
     fun primitiveArgument() {
@@ -262,6 +263,33 @@ class TestSavedStateHandleBuilder {
         val handle = SavedStateHandle(TestClass(arg), typeMap)
         val route = handle.toRoute<TestClass>(typeMap)
         assertThat(route.arg).containsExactlyElementsIn(arg).inOrder()
+    }
+
+    @Test
+    fun handleEncodedValues() {
+        @Serializable data class TestType(val id: String)
+
+        @Serializable data class TestClass(val params: TestType)
+
+        val testNavType =
+            object : NavType<TestType>(isNullableAllowed = false) {
+
+                override fun put(bundle: SavedState, key: String, value: TestType) =
+                    bundle.write { putString(key, value.id) }
+
+                override fun get(bundle: SavedState, key: String): TestType? =
+                    bundle.read { TestType(getString(key)) }
+
+                override fun serializeAsValue(value: TestType): String = Uri.encode((value.id))
+
+                override fun parseValue(value: String): TestType = TestType(value)
+            }
+
+        val typeMap = mapOf(typeOf<TestType>() to testNavType)
+
+        val route = TestClass(params = TestType("%%string"))
+        val savedStateHandle = SavedStateHandle(route, typeMap)
+        assertThat(savedStateHandle.toRoute<TestClass>(typeMap).params.id).isEqualTo("%%string")
     }
 }
 
