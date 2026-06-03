@@ -1858,8 +1858,17 @@ protected constructor(
          * animations such as [Transition.animateFloat], [DeferredAnimation] also expects
          * [transitionSpec] and [targetValueByState] for the mapping from target state to animation
          * spec and target value, respectively.
+         *
+         * This overload of [animate] also allows forcing an initial value and/or velocity for the
+         * animation, which is useful for handoff from a manual deferred phase to the automatic
+         * transition phase.
+         *
+         * @param transitionSpec mapping from segment to animation spec
+         * @param forcedInitialValue optional initial value to use for the animation, instead of the
+         *   current value
+         * @param forcedInitialVelocity optional initial velocity to use for the animation
+         * @param targetValueByState mapping from target state to target value
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun animate(
             transitionSpec: Segment<S>.() -> FiniteAnimationSpec<T>,
             forcedInitialValue: T? = null,
