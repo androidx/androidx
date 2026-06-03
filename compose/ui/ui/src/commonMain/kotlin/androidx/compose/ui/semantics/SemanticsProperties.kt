@@ -714,7 +714,7 @@ class ScrollAxisRange(
  * shown as a dialog window and when a user inputs a transliteration language specifically Chinese,
  * Japanese, Korean, and Vietnamese.
  *
- * This is supported only in SDK >= 37.
+ * On Android, this semantics property is only supported on SDK >= 37.
  *
  * @param isCommittedByInputMethodEditor whether the current text was committed by an input method
  *   editor done by the user, will stay false if the committed text was done programmatically, e.g.
