@@ -28,7 +28,6 @@ plugins {
 }
 
 dependencies {
-    api(project(":pdf:pdf-viewer"))
     api(project(":pdf:pdf-document-service"))
     api("androidx.core:core:1.13.1")
 
