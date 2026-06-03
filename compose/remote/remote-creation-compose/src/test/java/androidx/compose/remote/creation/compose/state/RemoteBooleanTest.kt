@@ -584,10 +584,10 @@ class RemoteBooleanTest {
 
     @Test
     fun eq() {
-        val b00 = RemoteBoolean(false) eq RemoteBoolean(false)
-        val b01 = RemoteBoolean(false) eq RemoteBoolean(true)
-        val b10 = RemoteBoolean(true) eq RemoteBoolean(false)
-        val b11 = RemoteBoolean(true) eq RemoteBoolean(true)
+        val b00 = RemoteBoolean(false).isEqualTo(RemoteBoolean(false))
+        val b01 = RemoteBoolean(false).isEqualTo(RemoteBoolean(true))
+        val b10 = RemoteBoolean(true).isEqualTo(RemoteBoolean(false))
+        val b11 = RemoteBoolean(true).isEqualTo(RemoteBoolean(true))
         val result00 = b00.select(RemoteString("true"), RemoteString("false"))
         val result01 = b01.select(RemoteString("true"), RemoteString("false"))
         val result10 = b10.select(RemoteString("true"), RemoteString("false"))
@@ -606,10 +606,10 @@ class RemoteBooleanTest {
 
     @Test
     fun ne() {
-        val b00 = RemoteBoolean(false) ne RemoteBoolean(false)
-        val b01 = RemoteBoolean(false) ne RemoteBoolean(true)
-        val b10 = RemoteBoolean(true) ne RemoteBoolean(false)
-        val b11 = RemoteBoolean(true) ne RemoteBoolean(true)
+        val b00 = RemoteBoolean(false).isNotEqualTo(RemoteBoolean(false))
+        val b01 = RemoteBoolean(false).isNotEqualTo(RemoteBoolean(true))
+        val b10 = RemoteBoolean(true).isNotEqualTo(RemoteBoolean(false))
+        val b11 = RemoteBoolean(true).isNotEqualTo(RemoteBoolean(true))
         val result00 = b00.select(RemoteString("true"), RemoteString("false"))
         val result01 = b01.select(RemoteString("true"), RemoteString("false"))
         val result10 = b10.select(RemoteString("true"), RemoteString("false"))
