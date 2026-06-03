@@ -21,7 +21,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RawRes
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableFloatState
@@ -338,7 +337,6 @@ public interface SpatialGltfModelSource {
          *   composable.
          */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun fromResource(context: Context, @RawRes resId: Int): SpatialGltfModelSource =
             ResourceGltfModelSource(context.applicationContext, resId)
 

@@ -493,12 +493,14 @@ package androidx.xr.compose.subspace {
   public interface SpatialGltfModelSource {
     method public suspend Object? createModel(androidx.xr.runtime.Session session, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.GltfModel>);
     method public static androidx.xr.compose.subspace.SpatialGltfModelSource fromPath(java.nio.file.Path path);
+    method public static androidx.xr.compose.subspace.SpatialGltfModelSource fromResource(android.content.Context context, @RawRes int resId);
     method public static androidx.xr.compose.subspace.SpatialGltfModelSource fromUri(android.net.Uri uri);
     field public static final androidx.xr.compose.subspace.SpatialGltfModelSource.Companion Companion;
   }
 
   public static final class SpatialGltfModelSource.Companion {
     method public androidx.xr.compose.subspace.SpatialGltfModelSource fromPath(java.nio.file.Path path);
+    method public androidx.xr.compose.subspace.SpatialGltfModelSource fromResource(android.content.Context context, @RawRes int resId);
     method public androidx.xr.compose.subspace.SpatialGltfModelSource fromUri(android.net.Uri uri);
   }
 
