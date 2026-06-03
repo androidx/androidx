@@ -42,6 +42,7 @@ import androidx.xr.arcore.perceptionState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.common.TrackablesList
+import androidx.xr.arcore.testapp.common.asString
 import androidx.xr.arcore.testapp.helloar.rendering.AnchorRenderer
 import androidx.xr.arcore.testapp.helloar.rendering.PlaneRenderer
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
@@ -160,7 +161,7 @@ class HelloArPlaneActivity : ComponentActivity() {
                     )
                     Text(
                         modifier = Modifier.padding(start = 10.dp).weight(3f),
-                        text = "${arDeviceState.trackingState}",
+                        text = "${arDeviceState.trackingState.asString()}",
                         fontSize = 20.sp,
                     )
                 }

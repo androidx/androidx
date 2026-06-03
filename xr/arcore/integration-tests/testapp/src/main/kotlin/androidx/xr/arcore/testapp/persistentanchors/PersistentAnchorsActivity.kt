@@ -66,6 +66,7 @@ import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
+import androidx.xr.arcore.testapp.common.asString
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
@@ -465,7 +466,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
         ) {
             Text(
                 modifier = Modifier.padding(top = 10.dp),
-                text = "Tracking State: ${anchorState.value.trackingState}",
+                text = "Tracking State: ${anchorState.value.trackingState.asString()}",
                 fontSize = 32.sp,
             )
             Button(modifier = Modifier.padding(top = 10.dp), onClick = { persistAnchor(anchor) }) {

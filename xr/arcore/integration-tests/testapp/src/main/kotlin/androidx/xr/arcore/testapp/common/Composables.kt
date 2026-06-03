@@ -87,7 +87,7 @@ fun TrackableCard(trackable: Trackable<Trackable.State>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Trackable ID: $trackable")
-            Text(text = "Tracking State: ${state.value.trackingState}")
+            Text(text = "Tracking State: ${state.value.trackingState.asString()}")
             when (trackable) {
                 is AugmentedObject -> {
                     AugmentedObjectStateInfo(state.value as AugmentedObject.State)
