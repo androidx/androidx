@@ -110,7 +110,10 @@ var SemanticsPropertyReceiver.accessibilityClassName by
     SemanticsPropertiesAndroid.AccessibilityClassName
 
 /**
- * A data class to transport a Platform Credential Request and its receiver via the Semantics tree.
+ * Transports a credential request and its callback through the semantics tree.
+ *
+ * @param request credential request containing configuration for retrieving credentials
+ * @param callback callback to receive the credential response or exception
  */
 @RequiresApi(34)
 class CredentialRequestData(
