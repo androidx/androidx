@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
@@ -45,7 +46,7 @@ public fun rememberRemoteDocument(
     writerEvents: WriterEvents = WriterEvents(),
     onCreate: ((CoreDocument) -> Unit)? = null,
     clock: RemoteClock = RemoteClock.SYSTEM,
-    content: @Composable () -> Unit,
+    content: @Composable @RemoteComposable () -> Unit,
 ): MutableState<CoreDocument?> {
     val layoutDirection = LocalLayoutDirection.current
     val doc: MutableState<CoreDocument?> = remember { mutableStateOf(null) }
@@ -81,7 +82,7 @@ public fun rememberRemoteDocument(
 public fun rememberRemoteDocument(
     size: Size,
     onCreate: ((CoreDocument) -> Unit)? = null,
-    content: @Composable () -> Unit,
+    content: @Composable @RemoteComposable () -> Unit,
 ): MutableState<CoreDocument?> {
     return rememberRemoteDocument(
         creationDisplayInfo =

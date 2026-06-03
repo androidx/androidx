@@ -24,7 +24,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.action.pendingIntentAction
@@ -202,7 +201,7 @@ class WearWidgetCaptureTest {
     @Test
     fun pendingIntentCollection() = runTest {
         val creationDisplayInfo =
-            CreationDisplayInfo(400, 400, context.resources.configuration.densityDpi)
+            RemoteCreationDisplayInfo(400, 400, context.resources.configuration.densityDpi)
         val profile = RcPlatformProfiles.WEAR_WIDGETS
         val result =
             captureSingleRemoteDocument(

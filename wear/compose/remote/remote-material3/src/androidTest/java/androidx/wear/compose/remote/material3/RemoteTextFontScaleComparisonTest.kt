@@ -115,6 +115,7 @@ class RemoteTextFontScaleComparisonTest {
 
     @Test fun textComparison_fontScale_1_24() = runFontScaleTest(1.24f)
 
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
     private fun runFontScaleTest(fontScale: Float) {
         composeTestRule.setContent {
             val density = LocalDensity.current
@@ -132,7 +133,7 @@ class RemoteTextFontScaleComparisonTest {
                             creationDisplayInfo = creationDisplayInfo,
                             profile = TestProfiles.androidXWithCoreText,
                         ) {
-                            @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") RCText(fontScale)
+                            RCText(fontScale)
                         }
 
                     document?.let { coreDocument ->

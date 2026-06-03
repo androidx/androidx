@@ -33,9 +33,12 @@ package androidx.compose.remote.creation.compose.action {
 package androidx.compose.remote.creation.compose.capture {
 
   public final class CaptureRemoteDocumentKt {
-    method public static suspend Object? captureSingleRemoteDocument(android.content.Context context, optional androidx.compose.remote.creation.CreationDisplayInfo creationDisplayInfo, optional androidx.compose.remote.creation.profile.Profile profile, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.compose.remote.creation.compose.capture.CapturedDocument>);
-    method @BytecodeOnly public static Object? captureSingleRemoteDocument(android.content.Context, androidx.compose.remote.creation.CreationDisplayInfo, androidx.compose.remote.creation.profile.Profile, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.coroutines.Continuation<? super androidx.compose.remote.creation.compose.capture.CapturedDocument!>);
-    method @BytecodeOnly public static Object! captureSingleRemoteDocument$default(android.content.Context!, androidx.compose.remote.creation.CreationDisplayInfo!, androidx.compose.remote.creation.profile.Profile!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
+    method public static kotlinx.coroutines.flow.Flow<byte[]> captureRemoteDocument(android.content.Context context, androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo creationDisplayInfo, optional androidx.compose.remote.creation.compose.capture.RemoteDensity remoteDensity, optional androidx.compose.ui.unit.LayoutDirection? layoutDirection, optional androidx.compose.remote.creation.compose.capture.WriterEvents writerEvents, optional androidx.compose.remote.core.RemoteClock clock, optional androidx.compose.remote.creation.profile.Profile profile, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly public static kotlinx.coroutines.flow.Flow<byte[]!> captureRemoteDocument(android.content.Context, androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo, androidx.compose.remote.creation.compose.capture.RemoteDensity, androidx.compose.ui.unit.LayoutDirection?, androidx.compose.remote.creation.compose.capture.WriterEvents, androidx.compose.remote.core.RemoteClock, androidx.compose.remote.creation.profile.Profile, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static kotlinx.coroutines.flow.Flow! captureRemoteDocument$default(android.content.Context!, androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo!, androidx.compose.remote.creation.compose.capture.RemoteDensity!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.remote.creation.compose.capture.WriterEvents!, androidx.compose.remote.core.RemoteClock!, androidx.compose.remote.creation.profile.Profile!, kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function2!, int, Object!);
+    method public static suspend Object? captureSingleRemoteDocument(android.content.Context context, optional androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo creationDisplayInfo, optional androidx.compose.remote.creation.compose.capture.RemoteDensity remoteDensity, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.remote.core.RemoteClock clock, optional androidx.compose.remote.creation.profile.Profile profile, optional androidx.compose.remote.creation.compose.capture.WriterEvents writerEvents, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.compose.remote.creation.compose.capture.CapturedDocument>);
+    method @BytecodeOnly public static Object? captureSingleRemoteDocument(android.content.Context, androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo, androidx.compose.remote.creation.compose.capture.RemoteDensity, androidx.compose.ui.unit.LayoutDirection, androidx.compose.remote.core.RemoteClock, androidx.compose.remote.creation.profile.Profile, androidx.compose.remote.creation.compose.capture.WriterEvents, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.coroutines.Continuation<? super androidx.compose.remote.creation.compose.capture.CapturedDocument!>);
+    method @BytecodeOnly public static Object! captureSingleRemoteDocument$default(android.content.Context!, androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo!, androidx.compose.remote.creation.compose.capture.RemoteDensity!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.remote.core.RemoteClock!, androidx.compose.remote.creation.profile.Profile!, androidx.compose.remote.creation.compose.capture.WriterEvents!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
   public final class CapturedDocument {
@@ -43,6 +46,32 @@ package androidx.compose.remote.creation.compose.capture {
     method @InaccessibleFromKotlin public androidx.collection.IntObjectMap<android.app.PendingIntent> getPendingIntents();
     property public byte[] bytes;
     property public androidx.collection.IntObjectMap<android.app.PendingIntent> pendingIntents;
+  }
+
+  public final class RemoteCreationDisplayInfo {
+    ctor @KotlinOnly public RemoteCreationDisplayInfo(androidx.compose.ui.geometry.Size size, androidx.compose.ui.unit.Density density, optional boolean isInspectionMode);
+    ctor @BytecodeOnly public RemoteCreationDisplayInfo(long, androidx.compose.ui.unit.Density!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public RemoteCreationDisplayInfo(long, androidx.compose.ui.unit.Density!, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
+    method @BytecodeOnly public long getSize-NH-jbRc();
+    method @InaccessibleFromKotlin public boolean isInspectionMode();
+    property public androidx.compose.ui.unit.Density density;
+    property public boolean isInspectionMode;
+    property public androidx.compose.ui.geometry.Size size;
+  }
+
+  public final class RemoteCreationDisplayInfoKt {
+    method public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo RemoteCreationDisplayInfo(int width, int height, int densityDpi, optional float fontScale, optional boolean isInspectionMode);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo! RemoteCreationDisplayInfo$default(int, int, int, float, boolean, int, Object!);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(android.content.Context context, optional androidx.compose.ui.geometry.Size size, optional boolean isInspectionMode);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(optional int width, optional int height, optional int densityDpi, optional float fontScale, optional boolean isInspectionMode);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo(int, int, int, float, boolean, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo createCreationDisplayInfo-12SF9DM(android.content.Context, long, boolean);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo! createCreationDisplayInfo-12SF9DM$default(android.content.Context!, long, boolean, int, Object!);
+    method @BytecodeOnly public static float getHeightDp(androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo);
+    method @BytecodeOnly public static float getWidthDp(androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo);
+    property public static androidx.compose.ui.unit.Dp androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo.heightDp;
+    property public static androidx.compose.ui.unit.Dp androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo.widthDp;
   }
 
   public final class RemoteDensity {
@@ -74,6 +103,13 @@ package androidx.compose.remote.creation.compose.capture {
     method @KotlinOnly public static androidx.compose.remote.creation.compose.capture.RemoteImageVector.Builder path(androidx.compose.remote.creation.compose.capture.RemoteImageVector.Builder, optional String name, optional androidx.compose.ui.graphics.Brush? fill, optional androidx.compose.remote.creation.compose.state.RemoteFloat fillAlpha, optional androidx.compose.ui.graphics.Brush? stroke, optional androidx.compose.remote.creation.compose.state.RemoteFloat strokeAlpha, optional androidx.compose.remote.creation.compose.state.RemoteFloat strokeLineWidth, optional androidx.compose.ui.graphics.StrokeCap strokeLineCap, optional androidx.compose.ui.graphics.StrokeJoin strokeLineJoin, optional androidx.compose.remote.creation.compose.state.RemoteFloat strokeLineMiter, optional androidx.compose.ui.graphics.PathFillType pathFillType, kotlin.jvm.functions.Function1<androidx.compose.remote.creation.compose.vector.RemotePathBuilder,kotlin.Unit> pathBuilder);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteImageVector.Builder path-R_LF-3I(androidx.compose.remote.creation.compose.capture.RemoteImageVector.Builder, String, androidx.compose.ui.graphics.Brush?, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.ui.graphics.Brush?, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, int, int, androidx.compose.remote.creation.compose.state.RemoteFloat, int, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.vector.RemotePathBuilder!,kotlin.Unit!>);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.capture.RemoteImageVector.Builder! path-R_LF-3I$default(androidx.compose.remote.creation.compose.capture.RemoteImageVector.Builder!, String!, androidx.compose.ui.graphics.Brush!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.ui.graphics.Brush!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, int, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public final class WriterEvents {
+    ctor public WriterEvents();
+    method @InaccessibleFromKotlin public androidx.collection.IntObjectMap<android.app.PendingIntent> getPendingIntents();
+    method public int storePendingIntent(android.app.PendingIntent pendingIntent);
+    property public androidx.collection.IntObjectMap<android.app.PendingIntent> pendingIntents;
   }
 
 }

@@ -22,7 +22,6 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
@@ -66,50 +65,28 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
 /**
- * Capture a RemoteCompose document by rendering the specified [content] Composable in a virtual
- * display and returning the resulting bytes.
+ * Capture a single RemoteCompose document from the specified [content] Composable by rendering it
+ * once inside a virtual display.
  *
- * This can be used for testing, or for generating documents on the fly to be sent to a remote
- * client.
+ * This is a suspending function that performs the composition and rendering, returning a
+ * [CapturedDocument] which contains the serialized bytes and metadata.
  *
- * This API is experimental and is likely to change in the future before becoming API stable.
- *
- * @param context the Android [Context] to use for the capture.
- * @param creationDisplayInfo details about the virtual display to create.
- * @param profile the [Profile] to use for the capture, determining which operations are supported.
- * @param content the Composable content to render and capture.
- * @return a [ByteArray] containing the RemoteCompose document.
+ * @param context The Android [Context] to use.
+ * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
+ *   etc.). Defaults to display metrics derived from [context].
+ * @param remoteDensity The logical screen density and font scale to use for unit conversions.
+ *   Defaults to density derived from [creationDisplayInfo]. Note: If passing custom values, they
+ *   should typically match the density and font scale specified in [creationDisplayInfo] to avoid
+ *   layout scaling discrepancies.
+ * @param layoutDirection The layout direction (LTR or RTL) to use. Defaults to the system layout
+ *   direction.
+ * @param clock The clock used for the composition timeline. Defaults to [RemoteClock.SYSTEM].
+ * @param profile The writing profile that determines supported operations. Defaults to
+ *   [RcPlatformProfiles.ANDROIDX].
+ * @param writerEvents Callback to handle non-serializable events (e.g. pending intents).
+ * @param content The Composable content to render and capture.
+ * @return A [CapturedDocument] containing the serialized document bytes.
  */
-public suspend fun captureSingleRemoteDocument(
-    context: Context,
-    creationDisplayInfo: CreationDisplayInfo =
-        createCreationDisplayInfo(context).toCreationDisplayInfo(),
-    profile: Profile = RcPlatformProfiles.ANDROIDX,
-    content: @Composable @RemoteComposable () -> Unit,
-): CapturedDocument {
-    val layoutDirection = toLayoutDirection(context.resources.configuration.layoutDirection)
-
-    val remoteCreationDisplayInfo =
-        creationDisplayInfo.toRemote(context.resources.configuration.fontScale)
-    val remoteDensity =
-        RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf)
-
-    return traceAsync(
-        "CaptureRemoteDocument:captureSingleRemoteDocument",
-        ThreadLocalRandom.current().nextInt(),
-    ) {
-        captureSingleRemoteDocument(
-            creationDisplayInfo = remoteCreationDisplayInfo,
-            remoteDensity = remoteDensity,
-            layoutDirection = layoutDirection,
-            profile = profile,
-            content = content,
-            context = context,
-        )
-    }
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocument(
     context: Context,
     creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
@@ -123,7 +100,7 @@ public suspend fun captureSingleRemoteDocument(
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     writerEvents: WriterEvents = WriterEvents(),
-    content: @Composable () -> Unit,
+    content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
@@ -211,8 +188,37 @@ public suspend fun captureSingleRemoteDocument(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Capture a stream of RemoteCompose documents by rendering the specified [content] Composable in a
+ * virtual display and emitting the resulting byte arrays whenever recomposition occurs and the
+ * layout visually changes.
+ *
+ * This API allows capturing dynamic Compose content (e.g., containing animations, transitions, or
+ * state updates) as a Flow of serialized document byte arrays.
+ *
+ * Crucially, recomposition is handled cleanly, and duplicate documents (where nothing visually
+ * changed in the layout tree) are automatically filtered out, so new byte arrays are only emitted
+ * when the document actually changes.
+ *
+ * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
+ *   etc.).
+ * @param remoteDensity The logical screen density and font scale to use for unit conversions.
+ *   Defaults to density derived from [creationDisplayInfo]. Note: If passing custom values, they
+ *   should typically match the density and font scale specified in [creationDisplayInfo] to avoid
+ *   layout scaling discrepancies.
+ * @param layoutDirection The layout direction (LTR or RTL) to use. Defaults to LTR.
+ * @param writerEvents Callback to handle non-serializable events (e.g. pending intents).
+ * @param context The Android [Context] to use.
+ * @param clock The clock used for the recomposer timeline. Defaults to [RemoteClock.SYSTEM].
+ * @param profile The writing profile that determines supported operations. Defaults to
+ *   [RcPlatformProfiles.ANDROIDX].
+ * @param coroutineContext The CoroutineContext to run recomposition and rendering on. Defaults to
+ *   [Dispatchers.Default].
+ * @param content The Composable content to render and capture.
+ * @return A [Flow] of [ByteArray]s containing the serialized RemoteCompose documents.
+ */
 public fun captureRemoteDocument(
+    context: Context,
     creationDisplayInfo: RemoteCreationDisplayInfo,
     remoteDensity: RemoteDensity =
         RemoteDensity(
@@ -220,12 +226,11 @@ public fun captureRemoteDocument(
             creationDisplayInfo.density.fontScale.rf,
         ),
     layoutDirection: LayoutDirection? = null,
-    writerEvents: WriterEvents,
-    context: Context,
+    writerEvents: WriterEvents = WriterEvents(),
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     coroutineContext: CoroutineContext = Dispatchers.Default,
-    content: @Composable () -> Unit,
+    content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> = flow {
     require(RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
         "captureRemoteDocument requires isEnforceCleanRecompositionEnabled to be true"
