@@ -493,7 +493,7 @@ internal fun BasicTextField(
                             singleLineHeightProvider = textLayoutState,
                             minLines = minLines,
                             maxLines = maxLines,
-                            softWrap = !singleLine,
+                            singleLine = singleLine,
                         )
                     } else {
                         Modifier.heightForSingleLineField(textLayoutState)
