@@ -29,6 +29,8 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material3.OutlinedTextFieldDefaults.normalize as normalizeOutlined
+import androidx.compose.material3.TextFieldDefaults.normalize
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.defaultErrorSemantics
 import androidx.compose.material3.internal.getString
@@ -162,6 +164,8 @@ fun SecureTextField(
             colors.textColor(enabled, isError, focused)
         }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+    // Normalize labelPosition before passing down
+    val labelPosition = labelPosition.normalize()
 
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicSecureTextField(
@@ -324,6 +328,8 @@ fun OutlinedSecureTextField(
             colors.textColor(enabled, isError, focused)
         }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+    // Normalize labelPosition before passing down
+    val labelPosition = labelPosition.normalizeOutlined()
 
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicSecureTextField(

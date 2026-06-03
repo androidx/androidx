@@ -37,7 +37,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TextFieldDefaults.normalize
 import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -2161,7 +2160,7 @@ private fun Modifier.topPaddingForLabelCutout(
     labelPosition: TextFieldLabelPosition,
 ): Modifier {
     return this.then(
-        if (hasLabel && labelPosition.normalize() is TextFieldLabelPosition.Cutout) {
+        if (hasLabel && labelPosition is TextFieldLabelPosition.Cutout) {
             Modifier
                 // Merge semantics at the beginning of the modifier chain to ensure padding is
                 // considered part of the text field.

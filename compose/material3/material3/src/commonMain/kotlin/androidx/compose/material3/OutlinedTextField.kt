@@ -34,6 +34,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material3.OutlinedTextFieldDefaults.normalize
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.defaultErrorSemantics
 import androidx.compose.material3.internal.getString
@@ -185,6 +186,8 @@ fun OutlinedTextField(
             colors.textColor(enabled, isError, focused)
         }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+    // Normalize labelPosition before passing down
+    val labelPosition = labelPosition.normalize()
 
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
