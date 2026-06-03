@@ -91,7 +91,6 @@ import kotlinx.coroutines.withContext
  * @param pageCount The total number of pages in the document.
  * @param linearizationStatus Indicates the linearization status of the document.
  * @param formType The type of form present in the document.
- * @param isLinearized Indicates whether the document is linearized.
  * @constructor Creates a new [SandboxedPdfDocument] instance.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -105,11 +104,6 @@ public class SandboxedPdfDocument(
     override val linearizationStatus: Int,
     override val formType: Int,
     override val renderParams: RenderParams,
-    @Deprecated(
-        "Deprecated, Use linearizationStatus instead",
-        replaceWith = ReplaceWith("linearizationStatus"),
-    )
-    override val isLinearized: Boolean,
 ) : EditablePdfDocument {
 
     private val refCount = AtomicInteger(1)

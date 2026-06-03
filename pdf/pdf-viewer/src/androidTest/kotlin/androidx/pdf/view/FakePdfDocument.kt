@@ -93,11 +93,6 @@ internal open class FakePdfDocument(
     private val annotationsPerPage: Map<Int, List<KeyedPdfAnnotation>> = mapOf(),
     private val pageObjectsPerPage: Map<Int, List<KeyedPdfObject>> = mapOf(),
     private val exceptionToThrow: Exception? = null,
-    @Deprecated(
-        "Deprecated, Use linearizationStatus instead",
-        replaceWith = ReplaceWith("linearizationStatus"),
-    )
-    override val isLinearized: Boolean = false,
 ) : PdfDocument {
     override val pageCount: Int = pages.size
 

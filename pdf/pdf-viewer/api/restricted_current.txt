@@ -28,11 +28,9 @@ package androidx.pdf {
     method @InaccessibleFromKotlin public androidx.pdf.RenderParams getRenderParams();
     method public suspend Object? getSelectionBounds(int pageNumber, android.graphics.PointF start, android.graphics.PointF stop, kotlin.coroutines.Continuation<? super androidx.pdf.content.PageSelection?>);
     method @InaccessibleFromKotlin public android.net.Uri getUri();
-    method @InaccessibleFromKotlin @Deprecated public boolean isLinearized();
     method public void removeOnPdfContentInvalidatedListener(androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
     method public suspend Object? searchDocument(String query, kotlin.ranges.IntRange pageRange, kotlin.coroutines.Continuation<? super android.util.SparseArray<java.util.List<androidx.pdf.content.PageMatchBounds>>>);
     property public abstract int formType;
-    property @Deprecated public abstract boolean isLinearized;
     property public abstract int linearizationStatus;
     property public abstract int pageCount;
     property public abstract androidx.pdf.RenderParams renderParams;

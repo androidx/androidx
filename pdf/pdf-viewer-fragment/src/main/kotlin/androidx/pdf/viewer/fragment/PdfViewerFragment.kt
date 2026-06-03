@@ -214,21 +214,6 @@ public open class PdfViewerFragment constructor() : Fragment() {
     }
 
     /**
-     * Invoked when the document has been fully loaded, processed, and the initial pages are
-     * displayed within the viewing area. This callback signifies that the document is ready for
-     * user interaction.
-     *
-     * <p>Note that this callback is dispatched only when the fragment is fully created and not yet
-     * destroyed, i.e., after [onCreate] has fully run and before [onDestroy] runs, and only on the
-     * main thread.
-     */
-    @Deprecated(
-        message =
-            "Use onLoadDocumentSuccess(PdfDocument) to directly access the loaded document instance."
-    )
-    public open fun onLoadDocumentSuccess() {}
-
-    /**
      * Invoked when the document has been fully loaded and processed.
      *
      * <p>Note that this callback is dispatched only when the fragment is fully created and not yet
@@ -238,10 +223,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
      * @param document The [PdfDocument] instance representing the loaded PDF content. This
      *   reference will be valid till a new [documentUri] is set or the fragment is destroyed.
      */
-    public open fun onLoadDocumentSuccess(document: PdfDocument) {
-        // Trigger the deprecated parameterless callback to maintain backward compatibility
-        @Suppress("DEPRECATION") onLoadDocumentSuccess()
-    }
+    public open fun onLoadDocumentSuccess(document: PdfDocument) {}
 
     /**
      * Invoked when a problem arises during the loading process of the PDF document. This callback
