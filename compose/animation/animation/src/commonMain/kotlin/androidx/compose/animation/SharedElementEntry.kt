@@ -43,7 +43,15 @@ internal class SharedElementEntry(
 ) : LayerRenderer, RememberObserver {
 
     var isAttached: Boolean by mutableStateOf(false)
-    override var zIndex: Float by mutableFloatStateOf(zIndex)
+    private var _zIndex by mutableFloatStateOf(zIndex)
+    override var zIndex: Float
+        get() = _zIndex
+        set(value) {
+            if (_zIndex != value) {
+                _zIndex = value
+                sharedElement.scope.zOrderChanged()
+            }
+        }
 
     var renderInOverlayDuringTransition: Boolean by mutableStateOf(renderInOverlayDuringTransition)
     var sharedElement: SharedElement by mutableStateOf(sharedElement)
@@ -103,7 +111,15 @@ internal class SharedElementEntry(
         }
     }
 
-    override var parentState: SharedElementEntry? = null
+    private var _parentState: SharedElementEntry? = null
+    override var parentState: SharedElementEntry?
+        get() = _parentState
+        set(value) {
+            if (_parentState != value) {
+                _parentState = value
+                sharedElement.scope.zOrderChanged()
+            }
+        }
 
     val target: Boolean
         get() = boundsAnimation.target
