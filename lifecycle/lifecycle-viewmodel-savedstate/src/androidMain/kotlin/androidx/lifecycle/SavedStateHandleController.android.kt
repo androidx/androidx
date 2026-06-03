@@ -34,6 +34,12 @@ internal class SavedStateHandleController(
     defaultArgs: SavedState? = null,
 ) : AutoCloseable {
 
+    constructor(
+        key: String,
+        owner: SavedStateRegistryOwner,
+        defaultArgs: SavedState?,
+    ) : this(key, owner.savedStateRegistry, owner.lifecycle, defaultArgs)
+
     // Prevents redundant observer registrations if the lifecycle hasn't actually been destroyed.
     private var isAttached: Boolean = false
 

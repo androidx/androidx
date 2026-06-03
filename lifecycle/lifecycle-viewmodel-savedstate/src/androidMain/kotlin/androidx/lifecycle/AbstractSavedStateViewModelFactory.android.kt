@@ -18,7 +18,6 @@ package androidx.lifecycle
 import android.os.Bundle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 
 /**
@@ -39,9 +38,8 @@ import androidx.savedstate.SavedStateRegistryOwner
     "Use `viewModelFactory` or implement `ViewModelProvider.Factory`, combined with `CreationExtras.createSavedStateHandle()`."
 )
 public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Factory {
-    private var savedStateRegistry: SavedStateRegistry? = null
-    private var lifecycle: Lifecycle? = null
-    private var defaultArgs: Bundle? = null
+    private val owner: SavedStateRegistryOwner?
+    private val defaultArgs: Bundle?
 
     /**
      * Constructs this factory.
@@ -50,7 +48,10 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
      * must have called [enableSavedStateHandles]. See [CreationExtras.createSavedStateHandle] docs
      * for more details.
      */
-    public constructor() {}
+    public constructor() {
+        this.owner = null
+        this.defaultArgs = null
+    }
 
     /**
      * Constructs this factory.
@@ -62,8 +63,7 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
      *   state misses a value by such key
      */
     public constructor(owner: SavedStateRegistryOwner, defaultArgs: Bundle?) {
-        savedStateRegistry = owner.savedStateRegistry
-        lifecycle = owner.lifecycle
+        this.owner = owner
         this.defaultArgs = defaultArgs
     }
 
@@ -77,12 +77,12 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
      */
     public override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         val key =
-            extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]
-                ?: throw IllegalStateException(
-                    "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
-                )
-        // if a factory constructed in the old way use the old infra to create SavedStateHandle
-        return if (savedStateRegistry != null) {
+            checkNotNull(extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]) {
+                "VIEW_MODEL_KEY must always be provided by ViewModelProvider"
+            }
+
+        // If a factory constructed in the old way use the old infra to create SavedStateHandle.
+        return if (owner != null) {
             create(key, modelClass)
         } else {
             create(key, modelClass, extras.createSavedStateHandle())
@@ -90,8 +90,14 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
     }
 
     private fun <T : ViewModel> create(key: String, modelClass: Class<T>): T {
-        val controller =
-            SavedStateHandleController(key, savedStateRegistry!!, lifecycle!!, defaultArgs)
+        if (owner == null) {
+            throw UnsupportedOperationException(
+                "AbstractSavedStateViewModelFactory constructed with empty constructor supports " +
+                    "only calls to create(modelClass: Class<T>, extras: CreationExtras)."
+            )
+        }
+
+        val controller = SavedStateHandleController(key, owner, defaultArgs)
         val viewModel = create(key, modelClass, controller.handle)
         viewModel.addCloseable(SavedStateHandleController.TAG, controller)
         return viewModel
@@ -111,17 +117,9 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
         // If a developer manually calls this method, there is no "key" in picture, so factory
         // simply uses classname internally as key.
         val canonicalName =
-            modelClass.canonicalName
-                ?: throw IllegalArgumentException(
-                    "Local and anonymous classes can not be ViewModels"
-                )
-        if (lifecycle == null) {
-            throw UnsupportedOperationException(
-                "AbstractSavedStateViewModelFactory constructed " +
-                    "with empty constructor supports only calls to " +
-                    "create(modelClass: Class<T>, extras: CreationExtras)."
-            )
-        }
+            requireNotNull(modelClass.canonicalName) {
+                "Local and anonymous classes can not be ViewModels"
+            }
         return create(canonicalName, modelClass)
     }
 
