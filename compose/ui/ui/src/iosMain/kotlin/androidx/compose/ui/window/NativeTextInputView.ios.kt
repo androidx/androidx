@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.TextInputStringTokenizer
 import androidx.compose.ui.platform.PlatformTextLayoutDirection
 import androidx.compose.ui.platform.NativeTextEditingDelegate
 import androidx.compose.ui.platform.SkikoUITextInputTraits
+import androidx.compose.ui.platform.selectTextNearCursor
 import androidx.compose.ui.platform.toTextRange
 import androidx.compose.ui.platform.toUITextRange
 import androidx.compose.ui.text.TextRange
@@ -74,7 +75,6 @@ import platform.UIKit.UIKeyboardAppearance
 import platform.UIKit.UIKeyboardType
 import platform.UIKit.UIMenu
 import platform.UIKit.UIMenuElement
-import platform.UIKit.UIPressesEvent
 import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UIScrollView
 import platform.UIKit.UITextAutocapitalizationType
@@ -586,16 +586,28 @@ internal class NativeTextInputView
         onCut?.invoke()
     }
 
+    override fun select(sender: Any?) {
+        selectionWillChange()
+        input?.selectTextNearCursor()
+        selectionDidChange()
+    }
+
     override fun selectAll(sender: Any?) {
         onSelectAll?.invoke()
     }
+
+    // On iOS Select and Select All buttons appear only when text selection is empty.
+    // The presence of the onSelectAll lambda indicates that the select action is available.
+    private val showSelectAndSelectAllMenus: Boolean get() =
+        onSelectAll != null && hasText() && input?.getSelectedTextRange()?.length == 0
 
     override fun canPerformAction(action: COpaquePointer?, withSender: Any?): Boolean =
         when (NSStringFromSelector(action)) {
             "copy:" -> onCopy != null
             "paste:" -> onPaste != null
             "cut:" -> onCut != null
-            "selectAll:" -> onSelectAll != null
+            "selectAll:" -> showSelectAndSelectAllMenus
+            "select:" -> showSelectAndSelectAllMenus
             else -> super.canPerformAction(action, withSender)
         }
 

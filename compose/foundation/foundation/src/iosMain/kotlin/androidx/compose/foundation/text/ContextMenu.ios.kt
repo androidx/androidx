@@ -292,6 +292,7 @@ private class ContextMenuToolbarProvider(
                             copy = it.copy,
                             cut = it.cut,
                             paste = it.paste,
+                            select = null,
                             selectAll = it.selectAll,
                             customActions = it.customActions.map { action ->
                                 CMPEditMenuCustomAction(action.title, action.action)

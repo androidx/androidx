@@ -86,7 +86,7 @@ internal open class ComposeTextInputConnection(
                 view.removeFromSuperview()
             }
         }
-        textInputView.updateAvailableSystemActions(null, null, null, null)
+        textInputView.updateAvailableSystemActions(null, null, null, null, null)
     }
 
     override fun stateWillChange(textChanged: Boolean, selectionChanged: Boolean) {
@@ -124,6 +124,7 @@ internal open class ComposeTextInputConnection(
             copyBlock = copy,
             cut = cut,
             paste = paste,
+            select = null,
             selectAll = selectAll
         )
     }
@@ -151,6 +152,7 @@ internal open class ComposeTextInputConnection(
                 copy = onCopyRequested,
                 cut = onCutRequested,
                 paste = onPasteRequested,
+                select = null,
                 selectAll = onSelectAllRequested,
                 customActions = emptyList<CMPEditMenuCustomAction>()
             )

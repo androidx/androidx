@@ -21,13 +21,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.scene.ComposeSceneFocusManager
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ComposeTextInputConnection
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.NativeTextInputConnection
 import androidx.compose.ui.text.input.SelectionContainerConnection
+import androidx.compose.ui.text.input.TextEditingScope
+import androidx.compose.ui.text.input.TextEditorState
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputConnection
 import androidx.compose.ui.text.input.stateSnapshot
 import androidx.compose.ui.text.input.usingNativeTextInput
@@ -151,7 +160,32 @@ internal class UIKitTextInputService(
                     // session (requiring a PlatformTextInputMethodRequest) which is not applicable for
                     // SelectionContainer.
                     currentInputConnection = SelectionContainerConnection(
-                        view, coroutineScope, viewConfiguration, focusManager
+                        view = view,
+                        coroutineScope = coroutineScope,
+                        viewConfiguration = viewConfiguration,
+                        focusManager = focusManager
+                    )
+                    currentInputConnection?.start(
+                        object : PlatformTextInputMethodRequest {
+                            override val value: () -> TextFieldValue get() = { TextFieldValue() }
+                            override val state: TextEditorState = object : TextEditorState {
+                                override val selection: TextRange get() = TextRange(0, 0)
+                                override val composition: TextRange? get() = null
+                                override val length: Int get() = 0
+                                override fun get(index: Int): Char = ' '
+                                override fun subSequence(startIndex: Int, endIndex: Int): CharSequence = ""
+                                override val text: String get() = ""
+                            }
+                            override val imeOptions: ImeOptions get() = ImeOptions.Default
+                            override val onEditCommand: (List<EditCommand>) -> Unit get() = { _ -> }
+                            override val onImeAction: ((ImeAction) -> Unit)? get() = null
+                            override val textLayoutResult: () -> TextLayoutResult? get() = { null }
+                            override val focusedRectInRoot: () -> Rect? get() = { null }
+                            override val textFieldRectInRoot: () -> Rect? get() = { null }
+                            override val textClippingRectInRoot: () -> Rect? get() = { null }
+                            override val unclippedTextOffsetInRoot: () -> Offset? get() = { null }
+                            override val editText: (block: TextEditingScope.() -> Unit) -> Unit get() = { _ -> }
+                        }
                     )
                 }
                 (currentInputConnection as? ComposeTextInputConnection)?.showToolbarMenu(

@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.TextInputRange
 import androidx.compose.ui.platform.TextInputStringTokenizer
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextEditingDelegate
+import androidx.compose.ui.platform.selectTextNearCursor
 import androidx.compose.ui.platform.toTextRange
 import androidx.compose.ui.platform.toUITextRange
 import androidx.compose.ui.text.TextRange
@@ -50,7 +51,6 @@ import platform.UIKit.NSWritingDirectionNatural
 import platform.UIKit.UIKeyInputProtocol
 import platform.UIKit.UIKeyboardAppearance
 import platform.UIKit.UIKeyboardType
-import platform.UIKit.UIPressesEvent
 import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UITextAutocapitalizationType
 import platform.UIKit.UITextAutocorrectionType
@@ -111,6 +111,39 @@ internal class ComposeTextInputView(
 
     override fun endFloatingCursor() {
         input?.endFloatingCursor()
+    }
+
+    override fun showEditMenuAtRect(
+        targetRect: CValue<CGRect>,
+        copy: (() -> Unit)?,
+        cut: (() -> Unit)?,
+        paste: (() -> Unit)?,
+        select: (() -> Unit)?,
+        selectAll: (() -> Unit)?,
+        customActions: List<*>?
+    ) {
+        val patchedSelect = select ?: {
+            this.select()
+        }.takeIf { selectAll != null && showSelectMenu }
+
+        super.showEditMenuAtRect(
+            targetRect = targetRect,
+            copy = copy,
+            cut = cut,
+            paste = paste,
+            select = patchedSelect,
+            selectAll = selectAll,
+            customActions = customActions,
+        )
+    }
+
+    private val showSelectMenu: Boolean
+        get() = input?.getSelectedTextRange()?.length == 0 && input?.hasText() == true
+
+    private fun select() {
+        selectionWillChange()
+        input?.selectTextNearCursor()
+        selectionDidChange()
     }
 
     /**

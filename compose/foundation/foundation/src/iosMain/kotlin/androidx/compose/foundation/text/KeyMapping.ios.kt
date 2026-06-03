@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.ui.input.key.KeyEvent
-import org.jetbrains.skiko.OS
 
 internal actual val platformDefaultKeyMapping: KeyMapping = createPlatformDefaultKeyMapping()
 

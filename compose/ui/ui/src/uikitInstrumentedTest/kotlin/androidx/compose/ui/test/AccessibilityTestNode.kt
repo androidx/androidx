@@ -329,7 +329,7 @@ internal fun AccessibilityTestNode.normalized(): AccessibilityTestNode? {
     }
 }
 
-internal fun AccessibilityTestNode.assertVisibleInContainer() {
+internal val AccessibilityTestNode.isVisibleInContainer: Boolean get() {
     var frame = this.frame ?: DpRectZero()
     var iterator = parent
     while (iterator != null && iterator.element !is UIWindow) {
@@ -337,8 +337,12 @@ internal fun AccessibilityTestNode.assertVisibleInContainer() {
         iterator = iterator.parent
     }
 
+    return frame.width >= 1.dp && frame.height >= 1.dp
+}
+
+internal fun AccessibilityTestNode.assertVisibleInContainer() {
     assertTrue(
-        frame.width >= 1.dp && frame.height >= 1.dp,
+        isVisibleInContainer,
         "Element with frame ${this.frame} ($frame) is not visible or has very small size"
     )
 }

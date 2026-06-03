@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.toCGRect
 import kotlinx.cinterop.CValue
 import org.jetbrains.skia.BreakIterator
+import org.jetbrains.skia.BreakIterator.Companion.makeWordInstance
 import platform.CoreGraphics.CGRect
 import platform.Foundation.NSCharacterSet
 import platform.UIKit.NSWritingDirection
@@ -216,6 +217,74 @@ internal interface NativeTextEditingDelegate : TextEditingDelegate {
      */
     fun positionWithinRange(range: TextRange, farthestInDirection: PlatformTextLayoutDirection): Int?
 }
+
+internal fun TextEditingDelegate.selectTextNearCursor() {
+    val selection = getSelectedTextRange() ?: return
+    val text = textInRange(TextRange(0, endOfDocument())) ?: return
+
+    val range = wordSelectionRangeForCursor(text, selection.start) ?: return
+    if (range == selection) return
+
+    setSelectedTextRange(range)
+}
+
+/**
+ * Computes the range that the "Select" edit action should select for a collapsed caret at
+ * [cursor]: The behavior must mimic iOS Select text field action:
+ *
+ * 1. If a visible (non-whitespace) character immediately follows the caret, the word that
+ *    character belongs to is selected.
+ * 2. Otherwise, if a word precedes the caret, that word is selected together with any space
+ *    characters between the word's end and the caret (newlines excluded).
+ * 3. Otherwise (no word precedes the caret), the run of space characters following the caret,
+ *    up to the first visible character, is selected (newlines excluded).
+ *
+ * Returns `null` if there is nothing to select.
+ */
+private fun wordSelectionRangeForCursor(text: String, cursor: Int): TextRange? {
+    // Condition 1
+    if (cursor < text.length && text[cursor].isVisibleForSelection()) {
+        return wordRangeContaining(text, cursor)
+    }
+
+    // Condition 2
+    var wordEnd = cursor
+    while (wordEnd > 0 && text[wordEnd - 1].isSelectableSpace()) {
+        wordEnd--
+    }
+    if (wordEnd > 0 && text[wordEnd - 1].isVisibleForSelection()) {
+        val wordStart = wordStartPreceding(text, wordEnd)
+        return TextRange(wordStart, cursor)
+    }
+
+    // Condition 3
+    var spacesEnd = cursor
+    while (spacesEnd < text.length && text[spacesEnd].isSelectableSpace()) {
+        spacesEnd++
+    }
+    return if (spacesEnd > cursor) TextRange(cursor, spacesEnd) else null
+}
+
+/** Returns the boundaries of the word containing the visible character at [offset]. */
+private fun wordRangeContaining(text: String, offset: Int): TextRange {
+    val iterator = makeWordInstance()
+    iterator.setText(text)
+    val end = iterator.following(offset).takeIf { it != BreakIterator.DONE } ?: text.length
+    val start = iterator.preceding(end).takeIf { it != BreakIterator.DONE } ?: 0
+    return TextRange(start, end)
+}
+
+/** Returns the start boundary of the word that ends at [wordEnd]. */
+private fun wordStartPreceding(text: String, wordEnd: Int): Int {
+    val iterator = makeWordInstance()
+    iterator.setText(text)
+    return iterator.preceding(wordEnd).takeIf { it != BreakIterator.DONE } ?: 0
+}
+
+private fun Char.isNewlineForSelection(): Boolean =
+    NSCharacterSet.newlineCharacterSet.characterIsMember(code.toUShort())
+private fun Char.isSelectableSpace(): Boolean = isWhitespace() && !isNewlineForSelection()
+private fun Char.isVisibleForSelection(): Boolean = !isWhitespace()
 
 internal class TextInputPosition(val position: Int = 0) : UITextPosition() {
     override fun description(): String {

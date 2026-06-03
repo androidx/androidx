@@ -99,11 +99,11 @@ internal abstract class TextInputConnection(
 
     protected abstract fun detachView()
 
-    fun showKeyboard() {
+    open fun showKeyboard() {
         focusedViewsList?.addAndFocus(textInputView)
     }
 
-    fun dismissKeyboard() {
+    open fun dismissKeyboard() {
         focusedViewsList?.remove(textInputView, delayMillis = CLEAR_FOCUS_DELAY)
     }
 
