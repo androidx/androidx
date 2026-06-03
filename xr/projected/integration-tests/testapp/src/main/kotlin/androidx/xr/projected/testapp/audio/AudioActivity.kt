@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.projected.ProjectedContext
+import androidx.xr.projected.ProjectedDeviceController
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import java.io.File
 import java.io.FileInputStream
@@ -60,7 +62,10 @@ class AudioActivity : ComponentActivity() {
     lateinit var audioBuffer: ByteArray
     lateinit var connectedFlow: Flow<Boolean>
     var projectedContext: Context? = null
+    private var projectedDeviceController: ProjectedDeviceController? = null
     var errorMessage: String = ""
+    private val inputDevices = mutableStateListOf<String>()
+    private val outputDevices = mutableStateListOf<String>()
 
     private enum class RecordState {
         AWAITING_RECORDING,
@@ -77,6 +82,11 @@ class AudioActivity : ComponentActivity() {
         setContent { CreateAudioUi() }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        projectedDeviceController?.close()
+    }
+
     @Composable
     private fun CreateAudioUi() {
         val state = remember { mutableStateOf(RecordState.AWAITING_RECORDING) }
@@ -88,6 +98,12 @@ class AudioActivity : ComponentActivity() {
                 Text(errorMessage)
                 return
             }
+            Text("Input Devices:")
+            inputDevices.forEach { Text("- $it") }
+            Text("")
+            Text("Output Devices:")
+            outputDevices.forEach { Text("- $it") }
+            Text("")
             Text("State: ${state.value.name}")
             Button(
                 onClick = {
@@ -116,6 +132,12 @@ class AudioActivity : ComponentActivity() {
                     connectedState.value = connected
                     if (connected) {
                         createProjectedContext()
+                        try {
+                            projectedDeviceController =
+                                ProjectedDeviceController.create(this@AudioActivity)
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Error creating projected device controller: $e")
+                        }
                         projectedContext?.let {
                             if (
                                 ActivityCompat.checkSelfPermission(
@@ -128,11 +150,16 @@ class AudioActivity : ComponentActivity() {
                                 return@collect
                             }
                             audioInitialized.value = initAudio(it)
+                            updateAudioDevices()
                         }
                         Log.i(TAG, "Projected device is connected")
                     } else {
                         errorMessage = "Projected device is not connected."
                         audioInitialized.value = false
+                        inputDevices.clear()
+                        outputDevices.clear()
+                        projectedDeviceController?.close()
+                        projectedDeviceController = null
                         Log.w(TAG, "Projected device is not connected")
                     }
                 }
@@ -156,6 +183,19 @@ class AudioActivity : ComponentActivity() {
             RecordState.AWAITING_PLAYBACK -> "Play"
             RecordState.PLAYBACK -> "Playback in Progress"
         }
+
+    private fun updateAudioDevices() {
+        inputDevices.clear()
+        outputDevices.clear()
+        projectedDeviceController?.audioDevices?.forEach { device ->
+            if (device.isSource) {
+                inputDevices.add("${device.productName} (ID: ${device.id})")
+            }
+            if (device.isSink) {
+                outputDevices.add("${device.productName} (ID: ${device.id})")
+            }
+        }
+    }
 
     // Initialize the AudioRecord and AudioTrack for recording and playing back audio.
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
