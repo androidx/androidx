@@ -285,6 +285,7 @@ internal constructor(
                         declaredIn = pkProperty.element.enclosingElement,
                         properties = Properties(pkProperty),
                         autoGenerateId = true,
+                        algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
                     )
                 }
             } ?: emptyList()
@@ -296,6 +297,7 @@ internal constructor(
                         declaredIn = property.element.enclosingElement,
                         properties = Properties(property),
                         autoGenerateId = true,
+                        algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
                     )
                 } else {
                     null

@@ -356,10 +356,23 @@ open annotation class androidx.room3/OnConflictStrategy : kotlin/Annotation { //
 }
 
 open annotation class androidx.room3/PrimaryKey : kotlin/Annotation { // androidx.room3/PrimaryKey|null[0]
-    constructor <init>(kotlin/Boolean = ...) // androidx.room3/PrimaryKey.<init>|<init>(kotlin.Boolean){}[0]
+    constructor <init>(kotlin/Boolean = ..., androidx.room3/PrimaryKey.Algorithm = ...) // androidx.room3/PrimaryKey.<init>|<init>(kotlin.Boolean;androidx.room3.PrimaryKey.Algorithm){}[0]
 
+    final val algorithm // androidx.room3/PrimaryKey.algorithm|{}algorithm[0]
+        final fun <get-algorithm>(): androidx.room3/PrimaryKey.Algorithm // androidx.room3/PrimaryKey.algorithm.<get-algorithm>|<get-algorithm>(){}[0]
     final val autoGenerate // androidx.room3/PrimaryKey.autoGenerate|{}autoGenerate[0]
         final fun <get-autoGenerate>(): kotlin/Boolean // androidx.room3/PrimaryKey.autoGenerate.<get-autoGenerate>|<get-autoGenerate>(){}[0]
+
+    final enum class Algorithm : kotlin/Enum<androidx.room3/PrimaryKey.Algorithm> { // androidx.room3/PrimaryKey.Algorithm|null[0]
+        enum entry AUTOINCREMENT // androidx.room3/PrimaryKey.Algorithm.AUTOINCREMENT|null[0]
+        enum entry ROWID // androidx.room3/PrimaryKey.Algorithm.ROWID|null[0]
+
+        final val entries // androidx.room3/PrimaryKey.Algorithm.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.room3/PrimaryKey.Algorithm> // androidx.room3/PrimaryKey.Algorithm.entries.<get-entries>|<get-entries>#static(){}[0]
+
+        final fun valueOf(kotlin/String): androidx.room3/PrimaryKey.Algorithm // androidx.room3/PrimaryKey.Algorithm.valueOf|valueOf#static(kotlin.String){}[0]
+        final fun values(): kotlin/Array<androidx.room3/PrimaryKey.Algorithm> // androidx.room3/PrimaryKey.Algorithm.values|values#static(){}[0]
+    }
 }
 
 open annotation class androidx.room3/ProvidedAutoMigrationSpec : kotlin/Annotation { // androidx.room3/ProvidedAutoMigrationSpec|null[0]

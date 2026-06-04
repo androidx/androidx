@@ -393,9 +393,16 @@ package androidx.room3 {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PrimaryKey {
-    ctor @KotlinOnly public PrimaryKey(optional boolean autoGenerate);
+    ctor @KotlinOnly public PrimaryKey(optional boolean autoGenerate, optional androidx.room3.PrimaryKey.Algorithm algorithm);
+    method @InaccessibleFromKotlin public abstract androidx.room3.PrimaryKey.Algorithm algorithm() default androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT;
     method @InaccessibleFromKotlin public abstract boolean autoGenerate() default false;
+    property public abstract androidx.room3.PrimaryKey.Algorithm algorithm;
     property public abstract boolean autoGenerate;
+  }
+
+  public enum PrimaryKey.Algorithm {
+    enum_constant public static final androidx.room3.PrimaryKey.Algorithm AUTOINCREMENT;
+    enum_constant public static final androidx.room3.PrimaryKey.Algorithm ROWID;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedAutoMigrationSpec {

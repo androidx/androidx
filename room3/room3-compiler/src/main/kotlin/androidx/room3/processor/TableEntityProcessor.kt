@@ -16,6 +16,7 @@
 
 package androidx.room3.processor
 
+import androidx.room3.PrimaryKey.Algorithm as PrimaryKeyAlgorithm
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.ext.isNotError
@@ -406,6 +407,10 @@ internal constructor(
                     declaredIn = property.element.enclosingElement,
                     properties = Properties(property),
                     autoGenerateId = primaryKeyAnnotation["autoGenerate"]?.asBoolean() ?: false,
+                    algorithm =
+                        primaryKeyAnnotation["algorithm"]?.asEnum()?.let {
+                            PrimaryKeyAlgorithm.valueOf(it.name)
+                        } ?: PrimaryKeyAlgorithm.AUTOINCREMENT,
                 )
             }
         }
@@ -441,6 +446,7 @@ internal constructor(
                             declaredIn = typeElement,
                             properties = Properties(properties),
                             autoGenerateId = false,
+                            algorithm = PrimaryKeyAlgorithm.AUTOINCREMENT,
                         )
                     )
                 }
@@ -465,6 +471,10 @@ internal constructor(
         return embeddedProperties.mapNotNull { embeddedProperty ->
             embeddedProperty.property.element.getAnnotation(androidx.room3.PrimaryKey::class)?.let {
                 val autoGenerate = it["autoGenerate"]?.asBoolean() ?: false
+                val algorithm =
+                    it["algorithm"]?.asEnum()?.let { enumEntry ->
+                        PrimaryKeyAlgorithm.valueOf(enumEntry.name)
+                    } ?: PrimaryKeyAlgorithm.AUTOINCREMENT
                 context.checker.check(
                     !autoGenerate || embeddedProperty.dataClass.properties.size == 1,
                     embeddedProperty.property.element,
@@ -474,6 +484,7 @@ internal constructor(
                     declaredIn = embeddedProperty.property.element.enclosingElement,
                     properties = embeddedProperty.dataClass.properties,
                     autoGenerateId = autoGenerate,
+                    algorithm = algorithm,
                 )
             }
         }

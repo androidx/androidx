@@ -47,4 +47,38 @@ class PrimaryKeyBundleTest {
         val other = PrimaryKeyBundle(isAutoGenerate = true, columnNames = listOf("bar", "foo"))
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
+
+    @Test
+    fun schemaEquality_diffAlgorithm_autoGenerateTrue_notEqual() {
+        val bundle =
+            PrimaryKeyBundle(
+                isAutoGenerate = true,
+                columnNames = listOf("foo"),
+                algorithm = "AUTOINCREMENT",
+            )
+        val other =
+            PrimaryKeyBundle(
+                isAutoGenerate = true,
+                columnNames = listOf("foo"),
+                algorithm = "ROWID",
+            )
+        assertThat(bundle.isSchemaEqual(other)).isFalse()
+    }
+
+    @Test
+    fun schemaEquality_diffAlgorithm_autoGenerateFalse_equal() {
+        val bundle =
+            PrimaryKeyBundle(
+                isAutoGenerate = false,
+                columnNames = listOf("foo"),
+                algorithm = "AUTOINCREMENT",
+            )
+        val other =
+            PrimaryKeyBundle(
+                isAutoGenerate = false,
+                columnNames = listOf("foo"),
+                algorithm = "ROWID",
+            )
+        assertThat(bundle.isSchemaEqual(other)).isTrue()
+    }
 }

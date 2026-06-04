@@ -39,7 +39,17 @@ import org.junit.runner.RunWith
 class PrimaryKeyTest {
 
     @Entity
-    data class LongPKeyEntity(@PrimaryKey(autoGenerate = true) val pKey: Long, val data: String)
+    data class LongAutoIncPKeyEntity(
+        @PrimaryKey(autoGenerate = true, algorithm = PrimaryKey.Algorithm.AUTOINCREMENT)
+        val pKey: Long,
+        val data: String,
+    )
+
+    @Entity
+    data class LongRowIdPKeyEntity(
+        @PrimaryKey(autoGenerate = true, algorithm = PrimaryKey.Algorithm.ROWID) val pKey: Long,
+        val data: String,
+    )
 
     @Entity
     data class IntAutoIncPKeyEntity(
@@ -50,13 +60,23 @@ class PrimaryKeyTest {
     @Entity data class StringPKeyEntity(@PrimaryKey val pKey: String, val data: String)
 
     @Dao
-    interface LongPKeyDao {
-        @Insert fun insert(vararg items: LongPKeyEntity)
+    interface LongAutoIncPKeyDao {
+        @Insert fun insert(vararg items: LongAutoIncPKeyEntity)
 
-        @Insert fun insertAndGetId(item: LongPKeyEntity): Long
+        @Insert fun insertAndGetId(item: LongAutoIncPKeyEntity): Long
 
-        @Query("SELECT * FROM LongPKeyEntity WHERE pKey = :key")
-        fun find(key: Long): LongPKeyEntity?
+        @Query("SELECT * FROM LongAutoIncPKeyEntity WHERE pKey = :key")
+        fun find(key: Long): LongAutoIncPKeyEntity?
+    }
+
+    @Dao
+    interface LongRowIdPKeyDao {
+        @Insert fun insert(item: LongRowIdPKeyEntity)
+
+        @Insert fun insertAndGetId(item: LongRowIdPKeyEntity): Long
+
+        @Query("SELECT * FROM LongRowIdPKeyEntity WHERE pKey = :key")
+        fun find(key: Long): LongRowIdPKeyEntity?
     }
 
     @Dao
@@ -85,12 +105,20 @@ class PrimaryKeyTest {
     }
 
     @Database(
-        entities = [LongPKeyEntity::class, IntAutoIncPKeyEntity::class, StringPKeyEntity::class],
+        entities =
+            [
+                LongAutoIncPKeyEntity::class,
+                LongRowIdPKeyEntity::class,
+                IntAutoIncPKeyEntity::class,
+                StringPKeyEntity::class,
+            ],
         version = 1,
         exportSchema = false,
     )
     abstract class PKeyTestDatabase : RoomDatabase() {
-        abstract fun longDao(): LongPKeyDao
+        abstract fun longAutoIncDao(): LongAutoIncPKeyDao
+
+        abstract fun longRowIdDao(): LongRowIdPKeyDao
 
         abstract fun intDao(): IntPKeyDao
 
@@ -114,18 +142,26 @@ class PrimaryKeyTest {
 
     @Test
     fun longKey() {
-        db.longDao().insert(LongPKeyEntity(2L, "foo"))
-        val result = db.longDao().find(2L)
+        db.longAutoIncDao().insert(LongAutoIncPKeyEntity(2L, "foo"))
+        val result = db.longAutoIncDao().find(2L)
         assertNotNull(result)
         assertThat(result.data).isEqualTo("foo")
     }
 
     @Test
     fun longKeyAndGetKey() {
-        val key = db.longDao().insertAndGetId(LongPKeyEntity(2L, "foo"))
-        val result = db.longDao().find(key)
+        val key = db.longAutoIncDao().insertAndGetId(LongAutoIncPKeyEntity(2L, "foo"))
+        val result = db.longAutoIncDao().find(key)
         assertNotNull(result)
         assertThat(result.pKey).isEqualTo(2L)
+        assertThat(result.data).isEqualTo("foo")
+    }
+
+    @Test
+    fun autoincrementLong() {
+        db.longAutoIncDao().insert(LongAutoIncPKeyEntity(0L, "foo"))
+        val result = db.longAutoIncDao().find(1L)
+        assertNotNull(result)
         assertThat(result.data).isEqualTo("foo")
     }
 
@@ -156,6 +192,14 @@ class PrimaryKeyTest {
                 )
         val result = db.intDao().findByIds(keys)
         assertThat(result).containsExactly("foo1", "foo2", "foo3")
+    }
+
+    @Test
+    fun rowIdLong() {
+        val key = db.longRowIdDao().insertAndGetId(LongRowIdPKeyEntity(0, "foo"))
+        val result = db.longRowIdDao().find(key)
+        assertNotNull(result)
+        assertThat(result.data).isEqualTo("foo")
     }
 
     @Test
