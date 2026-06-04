@@ -18,6 +18,7 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 
 /**
  * Interface that allows you to retrieve a [ViewModelStore] associated with a particular
@@ -28,4 +29,30 @@ public interface NavViewModelStoreProvider {
     public fun get(key: String): ViewModelStore
 
     public fun clear(key: String)
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun NavViewModelStoreProvider(
+    viewModelStore: ViewModelStore? = null
+): NavViewModelStoreProvider =
+    NavViewModelStoreProviderImpl(
+        provider =
+            ViewModelStoreProvider(
+                parentStore = viewModelStore,
+                parentKey = "androidx.navigation.NavControllerViewModel",
+            )
+    )
+
+private class NavViewModelStoreProviderImpl(private val provider: ViewModelStoreProvider) :
+    NavViewModelStoreProvider {
+
+    override fun get(key: String): ViewModelStore {
+        return provider.getOrCreate(key)
+    }
+
+    override fun clear(key: String) {
+        provider.clearKey(key)
+    }
+
+    override fun toString(): String = "NavControllerViewModel(provider=$provider)"
 }
