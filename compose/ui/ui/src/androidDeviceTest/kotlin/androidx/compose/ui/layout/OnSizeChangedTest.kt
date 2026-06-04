@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -31,14 +30,15 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -52,9 +52,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class OnSizeChangedTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     private lateinit var activity: TestActivity
 
     @Before
@@ -66,35 +64,26 @@ class OnSizeChangedTest {
     @Test
     @SmallTest
     fun normalSizeChange() {
-        var latch = CountDownLatch(1)
         var changedSize = IntSize.Zero
         var sizePx by mutableStateOf(10)
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(10.toDp()).onSizeChanged {
-                            changedSize = it
-                            latch.countDown()
-                        }
-                    ) {
-                        Box(Modifier.requiredSize(sizePx.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.padding(10.toDp()).onSizeChanged { changedSize = it }) {
+                    Box(Modifier.requiredSize(sizePx.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertEquals(10, changedSize.height)
         assertEquals(10, changedSize.width)
 
-        latch = CountDownLatch(1)
         sizePx = 20
 
         // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertEquals(20, changedSize.height)
         assertEquals(20, changedSize.width)
     }
@@ -102,173 +91,144 @@ class OnSizeChangedTest {
     @Test
     @SmallTest
     fun internalSizeChange() {
-        var latch = CountDownLatch(1)
         var changedSize = IntSize.Zero
         var sizePx by mutableStateOf(10)
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(10.toDp())
-                            .onSizeChanged {
-                                changedSize = it
-                                latch.countDown()
-                            }
-                            .padding(sizePx.toDp())
-                    ) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier.padding(10.toDp())
+                        .onSizeChanged { changedSize = it }
+                        .padding(sizePx.toDp())
+                ) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertEquals(30, changedSize.height)
         assertEquals(30, changedSize.width)
 
-        latch = CountDownLatch(1)
         sizePx = 20
 
         // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertEquals(50, changedSize.height)
         assertEquals(50, changedSize.width)
     }
 
     @Test
     fun onlyInnerSizeChange() {
-        var latch = CountDownLatch(1)
         var changedSize = IntSize.Zero
         var sizePx by mutableStateOf(10)
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(sizePx.toDp()).onSizeChanged {
-                            changedSize = it
-                            latch.countDown()
-                        }
-                    ) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.padding(sizePx.toDp()).onSizeChanged { changedSize = it }) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertEquals(10, changedSize.height)
         assertEquals(10, changedSize.width)
 
-        latch = CountDownLatch(1)
         sizePx = 5
 
-        assertTrue(latch.await(500, TimeUnit.MILLISECONDS))
         // We've changed the padding, but the size of the contents didn't change
+        rule.waitForIdle()
         assertEquals(10, changedSize.height)
         assertEquals(10, changedSize.width)
     }
 
     @Test
     fun layoutButNoSizeChange() {
-        var latch = CountDownLatch(1)
         var changedSize = IntSize.Zero
         var sizePx by mutableStateOf(10)
+        var called = false
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(10.toDp()).onSizeChanged {
-                            changedSize = it
-                            latch.countDown()
-                        }
-                    ) {
-                        Box(
-                            Modifier.layout { measurable, _ ->
-                                val placeable =
-                                    measurable.measure(Constraints.fixed(sizePx, sizePx))
-                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                            }
-                        )
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier.padding(10.toDp()).onSizeChanged {
+                        changedSize = it
+                        called = true
                     }
+                ) {
+                    Box(
+                        Modifier.layout { measurable, _ ->
+                            val placeable = measurable.measure(Constraints.fixed(sizePx, sizePx))
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
+                    )
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertEquals(10, changedSize.height)
         assertEquals(10, changedSize.width)
 
-        latch = CountDownLatch(1)
+        called = false
         rule.runOnUiThread {
             sizePx = 20
             sizePx = 10
         }
 
         // We've triggered a layout, but the size didn't change.
-        assertFalse(latch.await(500, TimeUnit.MILLISECONDS))
+        rule.waitForIdle()
+        assertFalse(called)
     }
 
     @Test
     @MediumTest
     fun addedModifier() {
-        val latch1 = CountDownLatch(1)
-        val latch2 = CountDownLatch(1)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
         var addModifier by mutableStateOf(false)
+        var called2 = false
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    // Remember lambdas to avoid triggering a node update when the lambda changes
-                    val mod =
-                        if (addModifier)
-                            Modifier.onSizeChanged(
-                                remember {
-                                    {
-                                        changedSize2 = it
-                                        latch2.countDown()
-                                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                // Remember lambdas to avoid triggering a node update when the lambda changes
+                val mod =
+                    if (addModifier)
+                        Modifier.onSizeChanged(
+                            remember {
+                                {
+                                    changedSize2 = it
+                                    called2 = true
                                 }
-                            )
-                        else Modifier
-                    Box(
-                        // Remember lambdas to avoid triggering a node update when the lambda
-                        // changes
-                        Modifier.padding(10.toDp())
-                            .onSizeChanged(
-                                remember {
-                                    {
-                                        changedSize1 = it
-                                        latch1.countDown()
-                                    }
-                                }
-                            )
-                            .then(mod)
-                    ) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+                            }
+                        )
+                    else Modifier
+                Box(
+                    // Remember lambdas to avoid triggering a node update when the lambda
+                    // changes
+                    Modifier.padding(10.toDp())
+                        .onSizeChanged(remember { { changedSize1 = it } })
+                        .then(mod)
+                ) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch1.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
 
         addModifier = true
 
         // We've added an onSizeChanged modifier, so it must trigger another size change.
-        // The existing modifier will also be called, but onSizeChanged only invokes the lambda if
-        // the size changes, so we won't see it.
-        assertTrue(latch2.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(called2)
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
     }
@@ -276,23 +236,23 @@ class OnSizeChangedTest {
     @Test
     @MediumTest
     fun addedModifierNode() {
-        var sizeLatch1 = CountDownLatch(1)
-        val sizeLatch2 = CountDownLatch(1)
-        var placedLatch1 = CountDownLatch(1)
-        val placedLatch2 = CountDownLatch(1)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
         var addModifier by mutableStateOf(false)
+        var onRemeasuredCalled1 = false
+        var onRemeasuredCalled2 = false
+        var onPlacedCalled1 = false
+        var onPlacedCalled2 = false
 
         val node =
             object : LayoutAwareModifierNode, Modifier.Node() {
                 override fun onRemeasured(size: IntSize) {
                     changedSize1 = size
-                    sizeLatch1.countDown()
+                    onRemeasuredCalled1 = true
                 }
 
                 override fun onPlaced(coordinates: LayoutCoordinates) {
-                    placedLatch1.countDown()
+                    onPlacedCalled1 = true
                 }
             }
 
@@ -300,41 +260,41 @@ class OnSizeChangedTest {
             object : LayoutAwareModifierNode, Modifier.Node() {
                 override fun onRemeasured(size: IntSize) {
                     changedSize2 = size
-                    sizeLatch2.countDown()
+                    onRemeasuredCalled2 = true
                 }
 
                 override fun onPlaced(coordinates: LayoutCoordinates) {
-                    placedLatch2.countDown()
+                    onPlacedCalled2 = true
                 }
             }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    val mod = if (addModifier) Modifier.elementFor(node2) else Modifier
-                    Box(Modifier.padding(10.toDp()).elementFor(node).then(mod)) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                val mod = if (addModifier) Modifier.elementFor(node2) else Modifier
+                Box(Modifier.padding(10.toDp()).elementFor(node).then(mod)) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onRemeasured and onPlaced
-        assertTrue(sizeLatch1.await(1, TimeUnit.SECONDS))
-        assertTrue(placedLatch1.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(onRemeasuredCalled1)
+        assertTrue(onPlacedCalled1)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
 
-        sizeLatch1 = CountDownLatch(1)
-        placedLatch1 = CountDownLatch(1)
+        onRemeasuredCalled1 = false
+        onPlacedCalled1 = false
         addModifier = true
 
         // We've added a node, so it must trigger onRemeasured and onPlaced on the new node, and
         // the old node should see a relayout too
-        assertTrue(sizeLatch1.await(1, TimeUnit.SECONDS))
-        assertTrue(placedLatch1.await(1, TimeUnit.SECONDS))
-        assertTrue(sizeLatch2.await(1, TimeUnit.SECONDS))
-        assertTrue(placedLatch2.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(onRemeasuredCalled1)
+        assertTrue(onPlacedCalled1)
+        assertTrue(onRemeasuredCalled2)
+        assertTrue(onPlacedCalled2)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
         assertEquals(10, changedSize2.height)
@@ -344,83 +304,84 @@ class OnSizeChangedTest {
     @Test
     @MediumTest
     fun removedModifier() {
-        var latch1 = CountDownLatch(1)
-        val latch2 = CountDownLatch(1)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
         var addModifier by mutableStateOf(true)
+        var called1 = false
+        var called2 = false
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    // Remember lambdas to avoid triggering a node update when the lambda changes
-                    val mod =
-                        if (addModifier)
-                            Modifier.onSizeChanged(
-                                remember {
-                                    {
-                                        changedSize2 = it
-                                        latch2.countDown()
-                                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                // Remember lambdas to avoid triggering a node update when the lambda changes
+                val mod =
+                    if (addModifier)
+                        Modifier.onSizeChanged(
+                            remember {
+                                {
+                                    changedSize2 = it
+                                    called2 = true
                                 }
-                            )
-                        else Modifier
-                    Box(
-                        // Remember lambdas to avoid triggering a node update when the lambda
-                        // changes
-                        Modifier.padding(10.toDp())
-                            .onSizeChanged(
-                                remember {
-                                    {
-                                        changedSize1 = it
-                                        latch1.countDown()
-                                    }
+                            }
+                        )
+                    else Modifier
+                Box(
+                    // Remember lambdas to avoid triggering a node update when the lambda
+                    // changes
+                    Modifier.padding(10.toDp())
+                        .onSizeChanged(
+                            remember {
+                                {
+                                    changedSize1 = it
+                                    called1 = true
                                 }
-                            )
-                            .then(mod)
-                    ) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+                            }
+                        )
+                        .then(mod)
+                ) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch1.await(1, TimeUnit.SECONDS))
-        assertTrue(latch2.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(called1)
+        assertTrue(called2)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
 
-        latch1 = CountDownLatch(1)
+        called1 = false
         // Remove the modifier
         addModifier = false
 
         // We've removed a modifier, so the other modifier should not be informed since there was no
-        // layout change. (In any case onSizeChanged only invokes the lambda if the size changes,
-        // so this hopefully wouldn't fail anyway unless that caching behavior changes).
-        assertFalse(latch1.await(1, TimeUnit.SECONDS))
+        // layout change.
+        rule.waitForIdle()
+        assertFalse(called1)
     }
 
     @Test
     @MediumTest
     fun removedModifierNode() {
-        var latch1 = CountDownLatch(2)
-        val latch2 = CountDownLatch(2)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
         var addModifier by mutableStateOf(true)
+        var onRemeasuredCalled1 = 0
+        var onRemeasuredCalled2 = 0
+        var onPlacedCalled1 = 0
+        var onPlacedCalled2 = 0
 
         val node =
             object : LayoutAwareModifierNode, Modifier.Node() {
                 override fun onRemeasured(size: IntSize) {
                     changedSize1 = size
-                    latch1.countDown()
+                    onRemeasuredCalled1++
                 }
 
                 override fun onPlaced(coordinates: LayoutCoordinates) {
-                    latch1.countDown()
+                    onPlacedCalled1++
                 }
             }
 
@@ -428,111 +389,115 @@ class OnSizeChangedTest {
             object : LayoutAwareModifierNode, Modifier.Node() {
                 override fun onRemeasured(size: IntSize) {
                     changedSize2 = size
-                    latch2.countDown()
+                    onRemeasuredCalled2++
                 }
 
                 override fun onPlaced(coordinates: LayoutCoordinates) {
-                    latch2.countDown()
+                    onPlacedCalled2++
                 }
             }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    val mod = if (addModifier) Modifier.elementFor(node2) else Modifier
-                    Box(Modifier.padding(10.toDp()).elementFor(node).then(mod)) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                val mod = if (addModifier) Modifier.elementFor(node2) else Modifier
+                Box(Modifier.padding(10.toDp()).elementFor(node).then(mod)) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onRemeasured and onPlaced for both
-        assertTrue(latch1.await(1, TimeUnit.SECONDS))
-        assertTrue(latch2.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertEquals(1, onRemeasuredCalled1)
+        assertEquals(1, onPlacedCalled1)
+        assertEquals(1, onRemeasuredCalled2)
+        assertEquals(1, onPlacedCalled2)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
 
-        latch1 = CountDownLatch(2)
+        onRemeasuredCalled1 = 0
+        onPlacedCalled1 = 0
         // Remove the modifier node
         addModifier = false
 
         // We've removed a node, so the other node should not be informed since there was no layout
         // change
-        assertFalse(latch1.await(1, TimeUnit.SECONDS))
-        assertEquals(2, latch1.count)
+        rule.waitForIdle()
+        assertEquals(0, onRemeasuredCalled1)
+        assertEquals(0, onPlacedCalled1)
     }
 
     @Test
     @MediumTest
     fun updatedModifierLambda() {
-        val latch1 = CountDownLatch(1)
-        val latch2 = CountDownLatch(1)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
+        var called1 = false
+        var called2 = false
 
         var lambda1: (IntSize) -> Unit by
             mutableStateOf({
                 changedSize1 = it
-                latch1.countDown()
+                called1 = true
             })
 
         // Stable lambda so that this one won't change while we change lambda1
         val lambda2: (IntSize) -> Unit = {
             changedSize2 = it
-            latch2.countDown()
+            called2 = true
         }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(Modifier.padding(10.toDp()).onSizeChanged(lambda1).onSizeChanged(lambda2)) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.padding(10.toDp()).onSizeChanged(lambda1).onSizeChanged(lambda2)) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch1.await(1, TimeUnit.SECONDS))
-        assertTrue(latch2.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(called1)
+        assertTrue(called2)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
 
-        val newLatch = CountDownLatch(1)
+        var newCalled = false
         // Change lambda instance, this should cause us to invalidate and invoke callbacks again
         lambda1 = {
             changedSize1 = it
-            newLatch.countDown()
+            newCalled = true
         }
 
         // We updated the lambda on the first item, so the new lambda should be called
-        assertTrue(newLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(newCalled)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
-        // The existing modifier will also be called, but onSizeChanged only invokes the lambda if
-        // the size changes, so we won't see it.
     }
 
     @Test
     @MediumTest
     fun updatedModifierNode() {
-        val latch1 = CountDownLatch(2)
-        var latch2 = CountDownLatch(2)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
+        var onRemeasuredCalled1 = false
+        var onRemeasuredCalled2 = false
+        var onPlacedCalled1 = false
+        var onPlacedCalled2 = false
 
         var onRemeasuredLambda: (IntSize) -> Unit by
             mutableStateOf({
                 changedSize1 = it
-                latch1.countDown()
+                onRemeasuredCalled1 = true
             })
 
-        var onPlacedLambda: (LayoutCoordinates) -> Unit by mutableStateOf({ latch1.countDown() })
+        var onPlacedLambda: (LayoutCoordinates) -> Unit by
+            mutableStateOf({ onPlacedCalled1 = true })
 
         class Node1(
             var onRemeasuredLambda: (IntSize) -> Unit,
@@ -584,53 +549,57 @@ class OnSizeChangedTest {
             object : LayoutAwareModifierNode, Modifier.Node() {
                 override fun onRemeasured(size: IntSize) {
                     changedSize2 = size
-                    latch2.countDown()
+                    onRemeasuredCalled2 = true
                 }
 
                 override fun onPlaced(coordinates: LayoutCoordinates) {
-                    latch2.countDown()
+                    onPlacedCalled2 = true
                 }
             }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier.padding(10.toDp())
-                            .then(Node1Element(onRemeasuredLambda, onPlacedLambda))
-                            .elementFor(node2)
-                    ) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier.padding(10.toDp())
+                        .then(Node1Element(onRemeasuredLambda, onPlacedLambda))
+                        .elementFor(node2)
+                ) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch1.await(1, TimeUnit.SECONDS))
-        assertTrue(latch2.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(onRemeasuredCalled1)
+        assertTrue(onPlacedCalled1)
+        assertTrue(onRemeasuredCalled2)
+        assertTrue(onPlacedCalled2)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
 
-        latch2 = CountDownLatch(2)
-        val newLatch = CountDownLatch(2)
+        onRemeasuredCalled2 = false
+        onPlacedCalled2 = false
+        var newRemeasuredCalled = false
+        var newPlacedCalled = false
         // Change lambda instance, this should cause us to autoinvalidate and invoke callbacks again
         onRemeasuredLambda = {
             changedSize1 = it
-            newLatch.countDown()
+            newRemeasuredCalled = true
         }
-        onPlacedLambda = { newLatch.countDown() }
+        onPlacedLambda = { newPlacedCalled = true }
 
         // We updated the lambda on the first item, so the new lambda should be called
-        assertTrue(newLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(newRemeasuredCalled)
+        assertTrue(newPlacedCalled)
+        // Currently updating causes a relayout, so the existing node should also be invoked.
+        assertTrue(onRemeasuredCalled2)
+        assertTrue(onPlacedCalled2)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
-        // Currently updating causes a relayout, so the existing node should also be invoked. In
-        // the future this might be optimized so we only re-invoke the callbacks on the updated
-        // node, without causing a full relayout / affecting other nodes.
-        assertTrue(latch2.await(1, TimeUnit.SECONDS))
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
     }
@@ -638,22 +607,22 @@ class OnSizeChangedTest {
     @Test
     @SmallTest
     fun lazilyDelegatedModifierNode() {
-        val sizeLatch1 = CountDownLatch(1)
-        val sizeLatch2 = CountDownLatch(1)
-        val placedLatch1 = CountDownLatch(1)
-        val placedLatch2 = CountDownLatch(1)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
+        var onRemeasuredCalled1 = false
+        var onRemeasuredCalled2 = false
+        var onPlacedCalled1 = false
+        var onPlacedCalled2 = false
 
         val node =
             object : LayoutAwareModifierNode, Modifier.Node() {
                 override fun onRemeasured(size: IntSize) {
                     changedSize1 = size
-                    sizeLatch1.countDown()
+                    onRemeasuredCalled1 = true
                 }
 
                 override fun onPlaced(coordinates: LayoutCoordinates) {
-                    placedLatch1.countDown()
+                    onPlacedCalled1 = true
                 }
             }
 
@@ -664,39 +633,39 @@ class OnSizeChangedTest {
                         object : LayoutAwareModifierNode, Modifier.Node() {
                             override fun onRemeasured(size: IntSize) {
                                 changedSize2 = size
-                                sizeLatch2.countDown()
+                                onRemeasuredCalled2 = true
                             }
 
                             override fun onPlaced(coordinates: LayoutCoordinates) {
-                                placedLatch2.countDown()
+                                onPlacedCalled2 = true
                             }
                         }
                     )
                 }
             }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    val mod = Modifier.elementFor(node2)
-                    Box(Modifier.padding(10.toDp()).elementFor(node).then(mod)) {
-                        Box(Modifier.requiredSize(10.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                val mod = Modifier.elementFor(node2)
+                Box(Modifier.padding(10.toDp()).elementFor(node).then(mod)) {
+                    Box(Modifier.requiredSize(10.toDp()))
                 }
             }
         }
 
         // Initial setting will call onRemeasured and onPlaced
-        assertTrue(sizeLatch1.await(1, TimeUnit.SECONDS))
-        assertTrue(placedLatch1.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(onRemeasuredCalled1)
+        assertTrue(onPlacedCalled1)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
 
         rule.runOnUiThread { node2.addDelegate() }
 
         // We've delegated to a node, so it must trigger onRemeasured and onPlaced on the new node
-        assertTrue(sizeLatch2.await(1, TimeUnit.SECONDS))
-        assertTrue(placedLatch2.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(onRemeasuredCalled2)
+        assertTrue(onPlacedCalled2)
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
     }
@@ -719,9 +688,9 @@ class OnSizeChangedTest {
     @Test
     @SmallTest
     fun delegatedSizeChanged() {
-        var latch = CountDownLatch(1)
         var changedSize = IntSize.Zero
         var sizePx by mutableStateOf(10)
+        var called = false
         val node =
             object : DelegatingNode() {
                 val osc =
@@ -729,32 +698,32 @@ class OnSizeChangedTest {
                         object : LayoutAwareModifierNode, Modifier.Node() {
                             override fun onRemeasured(size: IntSize) {
                                 changedSize = size
-                                latch.countDown()
+                                called = true
                             }
                         }
                     )
             }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(Modifier.padding(10.toDp()).elementFor(node)) {
-                        Box(Modifier.requiredSize(sizePx.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.padding(10.toDp()).elementFor(node)) {
+                    Box(Modifier.requiredSize(sizePx.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(called)
         assertEquals(10, changedSize.height)
         assertEquals(10, changedSize.width)
 
-        latch = CountDownLatch(1)
+        called = false
         sizePx = 20
 
         // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(called)
         assertEquals(20, changedSize.height)
         assertEquals(20, changedSize.width)
     }
@@ -762,10 +731,11 @@ class OnSizeChangedTest {
     @Test
     @SmallTest
     fun multipleDelegatedSizeChanged() {
-        var latch = CountDownLatch(2)
         var changedSize1 = IntSize.Zero
         var changedSize2 = IntSize.Zero
         var sizePx by mutableStateOf(10)
+        var called1 = false
+        var called2 = false
         val node =
             object : DelegatingNode() {
                 val a =
@@ -773,7 +743,7 @@ class OnSizeChangedTest {
                         object : LayoutAwareModifierNode, Modifier.Node() {
                             override fun onRemeasured(size: IntSize) {
                                 changedSize1 = size
-                                latch.countDown()
+                                called1 = true
                             }
                         }
                     )
@@ -782,34 +752,37 @@ class OnSizeChangedTest {
                         object : LayoutAwareModifierNode, Modifier.Node() {
                             override fun onRemeasured(size: IntSize) {
                                 changedSize2 = size
-                                latch.countDown()
+                                called2 = true
                             }
                         }
                     )
             }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(Modifier.padding(10.toDp()).elementFor(node)) {
-                        Box(Modifier.requiredSize(sizePx.toDp()))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.padding(10.toDp()).elementFor(node)) {
+                    Box(Modifier.requiredSize(sizePx.toDp()))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(called1)
+        assertTrue(called2)
         assertEquals(10, changedSize1.height)
         assertEquals(10, changedSize1.width)
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
 
-        latch = CountDownLatch(2)
+        called1 = false
+        called2 = false
         sizePx = 20
 
         // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertTrue(called1)
+        assertTrue(called2)
         assertEquals(20, changedSize1.height)
         assertEquals(20, changedSize1.width)
         assertEquals(20, changedSize2.height)
@@ -819,15 +792,16 @@ class OnSizeChangedTest {
     @Test
     @SmallTest
     fun multipleDelegatedOnPlaced() {
-        var latch = CountDownLatch(2)
         var paddingDp by mutableStateOf(10)
+        var placedCalled1 = 0
+        var placedCalled2 = 0
         val node =
             object : DelegatingNode() {
                 val a =
                     delegate(
                         object : LayoutAwareModifierNode, Modifier.Node() {
                             override fun onPlaced(coordinates: LayoutCoordinates) {
-                                latch.countDown()
+                                placedCalled1++
                             }
                         }
                     )
@@ -835,29 +809,32 @@ class OnSizeChangedTest {
                     delegate(
                         object : LayoutAwareModifierNode, Modifier.Node() {
                             override fun onPlaced(coordinates: LayoutCoordinates) {
-                                latch.countDown()
+                                placedCalled2++
                             }
                         }
                     )
             }
 
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(Modifier.padding(paddingDp.toDp()).elementFor(node)) {
-                        Box(Modifier.requiredSize(10.dp))
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.padding(paddingDp.toDp()).elementFor(node)) {
+                    Box(Modifier.requiredSize(10.dp))
                 }
             }
         }
 
         // Initial setting will call onSizeChanged
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertEquals(1, placedCalled1)
+        assertEquals(1, placedCalled2)
 
-        latch = CountDownLatch(2)
+        placedCalled1 = 0
+        placedCalled2 = 0
         paddingDp = 20
 
         // We've changed the size of the contents, so we should receive a onSizeChanged call
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
+        assertEquals(1, placedCalled1)
+        assertEquals(1, placedCalled2)
     }
 }
