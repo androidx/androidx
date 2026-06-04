@@ -92,6 +92,7 @@ import androidx.xr.compose.testapp.movablescalable.MovableScalable
 import androidx.xr.compose.testapp.panelembeddedsubspace.PanelEmbeddedSubspace
 import androidx.xr.compose.testapp.panelvolume.PanelVolume
 import androidx.xr.compose.testapp.performance.LayoutPerformance
+import androidx.xr.compose.testapp.permissionsdialog.PermissionsDialog
 import androidx.xr.compose.testapp.pose.Pose
 import androidx.xr.compose.testapp.resizablepanel.ResizablePanel
 import androidx.xr.compose.testapp.rotatetolookatuser.RotateToLookAtUserActivity
@@ -343,6 +344,9 @@ class MainActivity : ComponentActivity() {
                             },
                             TestCase(getString(R.string.value_based_animation_test)) {
                                 startTest<Animation>()
+                            },
+                            TestCase(getString(R.string.enable_permission_dialog_test)) {
+                                startTest<PermissionsDialog>()
                             },
                             TestCase(getString(R.string.accessibility_test)) {
                                 startTest<AccessibilityActivity>()
