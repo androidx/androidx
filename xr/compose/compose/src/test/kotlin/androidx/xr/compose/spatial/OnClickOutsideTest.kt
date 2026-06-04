@@ -152,6 +152,35 @@ class OnClickOutsideTest {
         assertThat(clickOutsideCalled).isFalse()
     }
 
+    @Test
+    fun onClickOutside_onAttachStateChanged_updatesWindowManagerToken() {
+        composeTestRule.setContent {
+            Box(
+                modifier = Modifier.size(100.dp).onClickOutside(enabled = true, onClickOutside = {})
+            )
+        }
+
+        composeTestRule.runOnIdle {
+            val windowManagerGlobalClass = Class.forName("android.view.WindowManagerGlobal")
+            val getInstanceMethod = windowManagerGlobalClass.getMethod("getInstance")
+            val windowManagerGlobal = getInstanceMethod.invoke(null)
+            val mViewsField = windowManagerGlobalClass.getDeclaredField("mViews")
+            mViewsField.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            val views = mViewsField.get(windowManagerGlobal) as List<View>
+
+            // Find the InputCaptureView
+            val inputCaptureView =
+                views.find { it.javaClass.simpleName == "InputCaptureView" } as View
+            checkNotNull(inputCaptureView) { "Could not find InputCaptureView in WindowManager" }
+
+            // Verify that the layout token matches the target view's window token
+            val params = inputCaptureView.layoutParams as android.view.WindowManager.LayoutParams
+            val targetView = composeTestRule.activity.findViewById<View>(android.R.id.content)
+            assertThat(params.token).isEqualTo(targetView.applicationWindowToken)
+        }
+    }
+
     private fun triggerOutsideClick() {
         composeTestRule.runOnIdle {
             val windowManagerGlobalClass = Class.forName("android.view.WindowManagerGlobal")
