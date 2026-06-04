@@ -35,11 +35,11 @@
           "endGlobal": true
         },
         { "type": "variable", "name": "system.font_size", "value": 37.0 },
-        { "type": "variable", "name": "head1", "value": "42.0 * (@vars.system.font_size / 37.0)", "named": false },
-        { "type": "variable", "name": "priceDollars", "value": "64.0 * (@vars.system.font_size / 37.0)", "named": false },
-        { "type": "variable", "name": "priceCents", "value": "48.0 * (@vars.system.font_size / 37.0)", "named": false },
-        { "type": "variable", "name": "nameFontSize", "value": "32.0 * (@vars.system.font_size / 37.0)", "named": false },
-        { "type": "variable", "name": "defaultFontSize", "value": "32.0 * (@vars.system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "head1", "value": "42.0 * (@system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "priceDollars", "value": "64.0 * (@system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "priceCents", "value": "48.0 * (@system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "nameFontSize", "value": "32.0 * (@system.font_size / 37.0)", "named": false },
+        { "type": "variable", "name": "defaultFontSize", "value": "32.0 * (@system.font_size / 37.0)", "named": false },
         {
           "type": "column",
           "modifiers": [ { "fillMaxWidth": "NaN" }, { "background": "@colors.background" } ],
@@ -51,7 +51,7 @@
                 {
                   "type": "text",
                   "value": "Watchlist",
-                  "fontSize": "@vars.head1",
+                  "fontSize": "@head1",
                   "color": "@colors.textColor",
                   "modifiers": [ { "padding": 24.0 } ]
                 },
@@ -102,13 +102,13 @@
                                         {
                                           "type": "text",
                                           "textFromFloat": { "value": 47739.32, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} },
-                                          "fontSize": "@vars.priceDollars",
+                                          "fontSize": "@priceDollars",
                                           "color": "@colors.stockPrice"
                                         },
                                         {
                                           "type": "text",
                                           "textFromFloat": { "value": 47739.32, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} },
-                                          "fontSize": "@vars.priceCents",
+                                          "fontSize": "@priceCents",
                                           "color": "@colors.stockName"
                                         }
                                       ]
@@ -117,8 +117,8 @@
                                       "type": "row",
                                       "modifiers": [ { "padding": { "top": 16.0 } } ],
                                       "children": [
-                                        { "type": "text", "value": "Dow Jones", "fontSize": "@vars.nameFontSize", "color": "@colors.stockName" },
-                                        { "type": "text", "value": "-0.45%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor", "modifiers": [ { "padding": { "start": 8.0 } } ] }
+                                        { "type": "text", "value": "Dow Jones", "fontSize": "@nameFontSize", "color": "@colors.stockName" },
+                                        { "type": "text", "value": "-0.45%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor", "modifiers": [ { "padding": { "start": 8.0 } } ] }
                                       ]
                                     }
                                   ]
@@ -139,32 +139,32 @@
                               "commands": [
                                 { "type": "variable", "name": "cx", "value": "width / 2.0", "named": false },
                                 { "type": "variable", "name": "cy", "value": "height / 2.0", "named": false },
-                                { "type": "variable", "name": "rad", "value": "min(@vars.cx, @vars.cy)", "named": false },
+                                { "type": "variable", "name": "rad", "value": "min(@cx, @cy)", "named": false },
                                 { "type": "variable", "name": "stockValues", "value": [ @{stockDataJson} ], "vtype": "floatArrays", "named": false },
-                                { "type": "variable", "name": "margin", "value": "@vars.rad * 0.3", "named": false },
-                                { "type": "variable", "name": "lineBottom", "value": "height - @vars.margin", "named": false },
-                                { "type": "pathCreate", "id": "graphPath", "x": "@vars.margin", "y": "@vars.lineBottom" },
-                                { "type": "variable", "name": "maxValue", "value": "arrayMax(@vars.stockValues)", "named": false },
-                                { "type": "variable", "name": "minValue", "value": "arrayMin(@vars.stockValues) - 100.0", "named": false },
-                                { "type": "variable", "name": "xEnd", "value": "width - @vars.margin", "named": false },
+                                { "type": "variable", "name": "margin", "value": "@rad * 0.3", "named": false },
+                                { "type": "variable", "name": "lineBottom", "value": "height - @margin", "named": false },
+                                { "type": "pathCreate", "id": "graphPath", "x": "@margin", "y": "@lineBottom" },
+                                { "type": "variable", "name": "maxValue", "value": "arrayMax(@stockValues)", "named": false },
+                                { "type": "variable", "name": "minValue", "value": "arrayMin(@stockValues) - 100.0", "named": false },
+                                { "type": "variable", "name": "xEnd", "value": "width - @margin", "named": false },
                                 {
                                   "type": "loop",
-                                  "from": "@vars.margin", "step": 1.0, "until": "@vars.xEnd",
+                                  "from": "@margin", "step": 1.0, "until": "@xEnd",
                                   "index": "index",
                                   "commands": [
-                                    { "type": "variable", "name": "pos", "value": "(@vars.index - @vars.margin) / (width - @vars.margin * 2.0)", "named": false },
-                                    { "type": "variable", "name": "v", "value": "(arraySpline(@vars.stockValues, @vars.pos) - @vars.minValue) / (@vars.maxValue - @vars.minValue)", "named": false },
-                                    { "type": "variable", "name": "y", "value": "@vars.lineBottom - @vars.v * (@vars.lineBottom - @vars.margin)", "named": false },
-                                    { "type": "pathAppendLineTo", "path": "graphPath", "x": "@vars.index", "y": "@vars.y" }
+                                    { "type": "variable", "name": "pos", "value": "(@index - @margin) / (width - @margin * 2.0)", "named": false },
+                                    { "type": "variable", "name": "v", "value": "(arraySpline(@stockValues, @pos) - @minValue) / (@maxValue - @minValue)", "named": false },
+                                    { "type": "variable", "name": "y", "value": "@lineBottom - @v * (@lineBottom - @margin)", "named": false },
+                                    { "type": "pathAppendLineTo", "path": "graphPath", "x": "@index", "y": "@y" }
                                   ]
                                 },
-                                { "type": "pathAppendLineTo", "path": "graphPath", "x": "@vars.xEnd", "y": "@vars.lineBottom" },
+                                { "type": "pathAppendLineTo", "path": "graphPath", "x": "@xEnd", "y": "@lineBottom" },
                                 { "type": "pathAppendClose", "path": "graphPath" },
                                 {
                                   "type": "paint",
                                   "style": "fill",
                                   "linearGradient": {
-                                    "x1": 0.0, "y1": 0.0, "x2": 0.0, "y2": "@vars.lineBottom",
+                                    "x1": 0.0, "y1": 0.0, "x2": 0.0, "y2": "@lineBottom",
                                     "colors": [ "@colors.dotColor", 0 ],
                                     "stops": [ 0.0, 1.0 ],
                                     "tileMode": "clamp"
@@ -172,7 +172,7 @@
                                   "color": "#000000"
                                 },
                                 { "type": "save" },
-                                { "type": "clipRect", "left": "@vars.margin + 5.0", "top": "@vars.margin + 5.0", "right": "@vars.xEnd - 5.0", "bottom": "@vars.lineBottom - 5.0" },
+                                { "type": "clipRect", "left": "@margin + 5.0", "top": "@margin + 5.0", "right": "@xEnd - 5.0", "bottom": "@lineBottom - 5.0" },
                                 { "type": "drawPath", "path": "graphPath" },
                                 {
                                   "type": "paint",
@@ -202,8 +202,8 @@
                                       "type": "row",
                                       "verticalAlignment": "bottom",
                                       "children": [
-                                        { "type": "text", "textFromFloat": { "value": 6846.51, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
-                                        { "type": "text", "textFromFloat": { "value": 6846.51, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                        { "type": "text", "textFromFloat": { "value": 6846.51, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" },
+                                        { "type": "text", "textFromFloat": { "value": 6846.51, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" }
                                       ]
                                     },
                                     {
@@ -212,8 +212,8 @@
                                         {
                                           "type": "column",
                                           "children": [
-                                            { "type": "text", "value": "S&P 500", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
-                                            { "type": "text", "value": "-0.35%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                            { "type": "text", "value": "S&P 500", "fontSize": "@defaultFontSize", "color": "@colors.stockName" },
+                                            { "type": "text", "value": "-0.35%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" }
                                           ]
                                         },
                                         { "type": "spacer" },
@@ -241,8 +241,8 @@
                                       "type": "row",
                                       "verticalAlignment": "bottom",
                                       "children": [
-                                        { "type": "text", "textFromFloat": { "value": 23545.9, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
-                                        { "type": "text", "textFromFloat": { "value": 23545.9, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                        { "type": "text", "textFromFloat": { "value": 23545.9, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" },
+                                        { "type": "text", "textFromFloat": { "value": 23545.9, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" }
                                       ]
                                     },
                                     {
@@ -251,8 +251,8 @@
                                         {
                                           "type": "column",
                                           "children": [
-                                            { "type": "text", "value": "Nasdaq", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
-                                            { "type": "text", "value": "-0.14%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                            { "type": "text", "value": "Nasdaq", "fontSize": "@defaultFontSize", "color": "@colors.stockName" },
+                                            { "type": "text", "value": "-0.14%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" }
                                           ]
                                         },
                                         { "type": "spacer" },
@@ -280,8 +280,8 @@
                                       "type": "row",
                                       "verticalAlignment": "bottom",
                                       "children": [
-                                        { "type": "text", "textFromFloat": { "value": 2520.98, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
-                                        { "type": "text", "textFromFloat": { "value": 2520.98, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                        { "type": "text", "textFromFloat": { "value": 2520.98, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" },
+                                        { "type": "text", "textFromFloat": { "value": 2520.98, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" }
                                       ]
                                     },
                                     {
@@ -290,8 +290,8 @@
                                         {
                                           "type": "column",
                                           "children": [
-                                            { "type": "text", "value": "Russell", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
-                                            { "type": "text", "value": "-0.020%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                            { "type": "text", "value": "Russell", "fontSize": "@defaultFontSize", "color": "@colors.stockName" },
+                                            { "type": "text", "value": "-0.020%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" }
                                           ]
                                         },
                                         { "type": "spacer" },
@@ -319,8 +319,8 @@
                                     "type": "row",
                                     "verticalAlignment": "bottom",
                                     "children": [
-                                      { "type": "text", "textFromFloat": { "value": 21703.2, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" },
-                                      { "type": "text", "textFromFloat": { "value": 21703.2, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" }
+                                      { "type": "text", "textFromFloat": { "value": 21703.2, "whole": 8, "decimal": 0, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" },
+                                      { "type": "text", "textFromFloat": { "value": 21703.2, "whole": 0, "decimal": 2, "flags": @{Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" }
                                     ]
                                   },
                                   {
@@ -329,8 +329,8 @@
                                       {
                                         "type": "column",
                                         "children": [
-                                          { "type": "text", "value": "NYA", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" },
-                                          { "type": "text", "value": "-0.49%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" }
+                                          { "type": "text", "value": "NYA", "fontSize": "@defaultFontSize", "color": "@colors.stockName" },
+                                          { "type": "text", "value": "-0.49%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" }
                                         ]
                                       },
                                       { "type": "spacer" },
@@ -360,7 +360,7 @@
                             "verticalAlignment": "center",
                             "children": [
                               { "type": "text", "value": "+ ", "color": "@colors.followText", "fontSize": 48.0 },
-                              { "type": "text", "value": "Follow investments", "color": "@colors.followText", "fontSize": "@vars.defaultFontSize" }
+                              { "type": "text", "value": "Follow investments", "color": "@colors.followText", "fontSize": "@defaultFontSize" }
                             ]
                           }
                         ]
@@ -375,10 +375,10 @@
                       { "type": "variable", "name": "w", "value": "width", "named": false },
                       { "type": "variable", "name": "h", "value": "height", "named": false },
                       { "type": "variable", "name": "alpha", "value": { "value": "sign(max(0.0, touchTime - animationTime + 0.1))", "anim": 1.2 }, "named": false },
-                      { "type": "paint", "color": "@colors.stockName", "alpha": "@vars.alpha", "width": 10.0 },
+                      { "type": "paint", "color": "@colors.stockName", "alpha": "@alpha", "width": 10.0 },
                       { "type": "variable", "name": "len", "value": "h * h / sHeight", "named": false },
                       { "type": "variable", "name": "off", "value": "h * 0.0 / sHeight", "named": false },
-                      { "type": "drawLine", "x1": "@vars.w - 5.0", "y1": "@vars.off", "x2": "@vars.w - 5.0", "y2": "@vars.off + @vars.len" }
+                      { "type": "drawLine", "x1": "@w - 5.0", "y1": "@off", "x2": "@w - 5.0", "y2": "@off + @len" }
                     ]
                   }
                 ]

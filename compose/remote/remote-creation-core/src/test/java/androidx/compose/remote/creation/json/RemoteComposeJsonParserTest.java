@@ -295,7 +295,11 @@ public class RemoteComposeJsonParserTest {
         mParser.mVariables.put("myVar", 10.0f);
         org.junit.Assert.assertTrue(exprParser.isVariable("myVar"));
         org.junit.Assert.assertTrue(exprParser.isVariable("$vars.myVar"));
+        org.junit.Assert.assertTrue(exprParser.isVariable("@myVar"));
+        org.junit.Assert.assertTrue(exprParser.isVariable("$myVar"));
         org.junit.Assert.assertEquals(10.0f, exprParser.getVariableNan("myVar"), 0.001f);
+        org.junit.Assert.assertEquals(10.0f, exprParser.getVariableNan("@myVar"), 0.001f);
+        org.junit.Assert.assertEquals(10.0f, exprParser.getVariableNan("$myVar"), 0.001f);
     }
 
     @Test

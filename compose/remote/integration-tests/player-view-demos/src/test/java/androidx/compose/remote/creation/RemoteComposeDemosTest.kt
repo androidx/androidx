@@ -649,18 +649,18 @@ class RemoteComposeDemosTest {
             "variables": [
               { "name": "centerX", "value": "width / 2" },
               { "name": "centerY", "value": "height / 2" },
-              { "name": "radius", "value": "min(@vars.centerX, @vars.centerY)" },
+              { "name": "radius", "value": "min(@centerX, @centerY)" },
               { "name": "rot", "value": "time * 2 * 20 % 360" },
               { "name": "t1", "value": "sign((round(time * 2 / 18) + 1) % 3)" },
               { "name": "t2", "value": "sign(round(time * 2 / 18) % 3)" },
-              { "name": "rotX", "value": "@vars.rot * @vars.t1" },
-              { "name": "rotY", "value": "@vars.rot * @vars.t2" },
-              { "name": "pMatX", "value": "@vars.centerX * 0.4" },
-              { "name": "pMatY", "value": "@vars.centerX * -0.4" }
+              { "name": "rotX", "value": "@rot * @t1" },
+              { "name": "rotY", "value": "@rot * @t2" },
+              { "name": "pMatX", "value": "@centerX * 0.4" },
+              { "name": "pMatY", "value": "@centerX * -0.4" }
             ],
             "matrices": [
-              { "name": "world", "value": [ 6, "matrix:TRANSLATE_Z", "@vars.rotX", "matrix:ROT_X", "@vars.rotY", "matrix:ROT_Y" ] },
-              { "name": "pMatrix", "value": [ 60, 1, 0.1, 100, "matrix:PROJECTION", "@vars.pMatX", "@vars.pMatY", "matrix:SCALE2" ] }
+              { "name": "world", "value": [ 6, "matrix:TRANSLATE_Z", "@rotX", "matrix:ROT_X", "@rotY", "matrix:ROT_Y" ] },
+              { "name": "pMatrix", "value": [ 60, 1, 0.1, 100, "matrix:PROJECTION", "@pMatX", "@pMatY", "matrix:SCALE2" ] }
             ]
           },
           "root": {
@@ -674,11 +674,11 @@ class RemoteComposeDemosTest {
                 "modifiers": [ { "fillMaxWidth": 1.0 }, { "fillMaxHeight": 1.0 } ],
                 "commands": [
                   { "type": "paint", "color": "#444444", "style": "stroke" },
-                  { "type": "drawCircle", "cx": "@vars.centerX", "cy": "@vars.centerY", "radius": "@vars.radius" },
+                  { "type": "drawCircle", "cx": "@centerX", "cy": "@centerY", "radius": "@radius" },
                   { "type": "paint", "color": "#D3D3D3" },
                   { "type": "matrixMultiply", "matrix": "@matrices.world", "from": [-1, -1, -1], "out": ["v0x", "v0y", "v0z"] },
-                  { "type": "matrixMultiply", "matrix": "@matrices.pMatrix", "mType": 1, "from": ["@vars.v0x", "@vars.v0y", "@vars.v0z"], "out": ["t0x", "t0y", "t0z"] },
-                  { "type": "pathCreate", "x": "@vars.t0x + @vars.centerX", "y": "@vars.t0y + @vars.centerY", "id": "f0" },
+                  { "type": "matrixMultiply", "matrix": "@matrices.pMatrix", "mType": 1, "from": ["@v0x", "@v0y", "@v0z"], "out": ["t0x", "t0y", "t0z"] },
+                  { "type": "pathCreate", "x": "@t0x + @centerX", "y": "@t0y + @centerY", "id": "f0" },
                   { "type": "pathAppendClose", "path": "@paths.f0" }
                 ]
               }
@@ -802,7 +802,7 @@ class RemoteComposeDemosTest {
                 "children": [
                   {
                     "type": "text",
-                    "value": "@vars.priceText",
+                    "value": "@priceText",
                     "fontSize": 24,
                     "maxLines": 1
                   },
@@ -819,7 +819,7 @@ class RemoteComposeDemosTest {
                         "from": 0, "step": 10, "until": 100,
                         "index": "index",
                         "commands": [
-                          { "type": "pathAppendLineTo", "path": "@paths.p1", "x": "@vars.index", "y": "@vars.index * @vars.index * 0.01" }
+                          { "type": "pathAppendLineTo", "path": "@paths.p1", "x": "@index", "y": "@index * @index * 0.01" }
                         ]
                       },
                       { "type": "paint", "color": "#FF0000", "style": "stroke", "width": 2 },

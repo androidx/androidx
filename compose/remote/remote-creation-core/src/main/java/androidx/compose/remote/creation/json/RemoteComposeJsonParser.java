@@ -491,8 +491,8 @@ public class RemoteComposeJsonParser {
         int textId = -1;
         if (value instanceof String) {
             String s = (String) value;
-            if (s.startsWith("$vars.") || s.startsWith("@vars.")) {
-                String varName = s.substring(6);
+            if (isVariableRef(s)) {
+                String varName = getVariableNameFromRef(s);
                 Float varVal = mVariables.get(varName);
                 if (varVal != null) {
                     textId = varVal.intValue();
@@ -972,8 +972,8 @@ public class RemoteComposeJsonParser {
                     textId = ((Number) textObj).intValue();
                 } else if (textObj instanceof String) {
                     String str = (String) textObj;
-                    if (str.startsWith("$vars.") || str.startsWith("@vars.")) {
-                        String name = str.substring(6);
+                    if (isVariableRef(str)) {
+                        String name = getVariableNameFromRef(str);
                         Float val = mVariables.get(name);
                         if (val == null && mDeferredVariables.containsKey(name)) {
                             val = resolveDeferredVariable(name);
@@ -1430,9 +1430,8 @@ public class RemoteComposeJsonParser {
             if (s.equals("Infinity")) return Float.POSITIVE_INFINITY;
             if (s.equals("-Infinity")) return Float.NEGATIVE_INFINITY;
             if (s.equals("max")) return Float.MAX_VALUE;
-            if ((s.startsWith("$vars.") || s.startsWith("@vars."))
-                    && s.indexOf(' ') == -1 && s.length() > 6) {
-                String name = s.substring(6);
+            if (isVariableRef(s) && s.indexOf(' ') == -1) {
+                String name = getVariableNameFromRef(s);
                 Float id = mVariables.get(name);
                 if (id != null) return id;
                 if (mDeferredVariables.containsKey(name)) {
@@ -1523,8 +1522,8 @@ public class RemoteComposeJsonParser {
             return ((Number) textObj).intValue();
         } else if (textObj instanceof String) {
             String str = (String) textObj;
-            if (str.startsWith("$vars.") || str.startsWith("@vars.")) {
-                String name = str.substring(6);
+            if (isVariableRef(str)) {
+                String name = getVariableNameFromRef(str);
                 Float val = mVariables.get(name);
                 if (val == null && mDeferredVariables.containsKey(name)) {
                     val = resolveDeferredVariable(name);
@@ -1585,5 +1584,34 @@ public class RemoteComposeJsonParser {
     boolean isMathExpression(String s) {
         return s.contains("+") || s.contains("-") || s.contains("*") || s.contains("/")
                 || s.contains("%") || s.contains("(") || s.contains(")") || s.contains(",");
+    }
+
+    static boolean isVariableRef(String s) {
+        if (s == null || s.length() < 2) {
+            return false;
+        }
+        if (!s.startsWith("$") && !s.startsWith("@")) {
+            return false;
+        }
+        if (s.startsWith("$colors.") || s.startsWith("@colors.")) {
+            return false;
+        }
+        if (s.startsWith("$paths.") || s.startsWith("@paths.")) {
+            return false;
+        }
+        if (s.startsWith("$matrices.") || s.startsWith("@matrices.")) {
+            return false;
+        }
+        return true;
+    }
+
+    static String getVariableNameFromRef(String s) {
+        if (!isVariableRef(s)) {
+            return null;
+        }
+        if (s.startsWith("$vars.") || s.startsWith("@vars.")) {
+            return s.substring(6);
+        }
+        return s.substring(1);
     }
 }

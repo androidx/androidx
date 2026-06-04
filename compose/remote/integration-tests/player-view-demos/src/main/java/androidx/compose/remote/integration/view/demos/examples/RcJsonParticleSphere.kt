@@ -75,7 +75,7 @@ fun rcJsonParticleSphere(
                               } },
 
                               { "variable": { "name": "rad", "value": "min(w, h) * 0.3" } },
-                              { "drawCircle": { "cx": "@vars.cx", "cy": "@vars.cy", "radius": "@vars.rad" } },
+                              { "drawCircle": { "cx": "@cx", "cy": "@cy", "radius": "@rad" } },
                               { "addBitmap": { "image": "image" } },
 
                               { "paint": {
@@ -109,15 +109,15 @@ fun rcJsonParticleSphere(
                                         "commands": [
                                           {
                                             "particlesLoop": {
-                                              "system": "@vars.ps",
-                                              "equations": [ "@vars.lat", "@vars.lon", "@vars.pos" ],
+                                              "system": "@ps",
+                                              "equations": [ "@lat", "@lon", "@pos" ],
                                               "commands": [
                                                 { "save": {} },
-                                                { "variable": { "name": "x", "value": "cos(@vars.lon + (time * 0.2)) * sqrt(@vars.rad * @vars.rad - (cos(@vars.lat) * @vars.rad) * (cos(@vars.lat) * @vars.rad))", "commit": true } },
-                                                { "variable": { "name": "y", "value": "cos(@vars.lat) * @vars.rad", "commit": true } },
+                                                { "variable": { "name": "x", "value": "cos(@lon + (time * 0.2)) * sqrt(@rad * @rad - (cos(@lat) * @rad) * (cos(@lat) * @rad))", "commit": true } },
+                                                { "variable": { "name": "y", "value": "cos(@lat) * @rad", "commit": true } },
                                                 { "translate": {
-                                                  "dx": "@vars.x * (@vars.pos + 1.0) + @vars.cx - 1.0",
-                                                  "dy": "@vars.y * (@vars.pos + 1.0) + @vars.cy - 1.0"
+                                                  "dx": "@x * (@pos + 1.0) + @cx - 1.0",
+                                                  "dy": "@y * (@pos + 1.0) + @cy - 1.0"
                                                 } },
                                                 { "drawRoundRect": { "left": 0.0, "top": 0.0, "right": 4.0, "bottom": 4.0, "rx": 4.0, "ry": 4.0 } },
                                                 { "restore": {} }
@@ -138,7 +138,7 @@ fun rcJsonParticleSphere(
                                   { "textSize": 123.0 }
                                 ]
                               } },
-                              { "drawTextAnchored": { "text": "@vars.textId", "x": "cx", "y": "cy", "panX": 0.0, "panY": 0.0, "flags": 2 } }
+                              { "drawTextAnchored": { "text": "@textId", "x": "cx", "y": "cy", "panX": 0.0, "panY": 0.0, "flags": 2 } }
                             ]
                           }
                         }

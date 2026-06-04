@@ -63,36 +63,36 @@ fun rcJsonLinearRegression(
                 }
               } },
 
-              { "variable": { "name": "sumX", "value": "arraySum(@vars.rx)", "flush": true } },
-              { "variable": { "name": "sumY", "value": "arraySum(@vars.ry)", "flush": true } },
-              { "variable": { "name": "slope", "value": "(arrayLength(@vars.rx) * arraySumXY(@vars.rx, @vars.ry) - @vars.sumX * @vars.sumY) / (arrayLength(@vars.rx) * arraySumSqr(@vars.rx) - @vars.sumX * @vars.sumX)", "flush": true } },
-              { "variable": { "name": "intercept", "value": "(@vars.sumY - @vars.slope * @vars.sumX) / arrayLength(@vars.rx)", "flush": true } },
+              { "variable": { "name": "sumX", "value": "arraySum(@rx)", "flush": true } },
+              { "variable": { "name": "sumY", "value": "arraySum(@ry)", "flush": true } },
+              { "variable": { "name": "slope", "value": "(arrayLength(@rx) * arraySumXY(@rx, @ry) - @sumX * @sumY) / (arrayLength(@rx) * arraySumSqr(@rx) - @sumX * @sumX)", "flush": true } },
+              { "variable": { "name": "intercept", "value": "(@sumY - @slope * @sumX) / arrayLength(@rx)", "flush": true } },
 
               { "variable": { "name": "xRange", "value": "50.0 - 0.0", "flush": true } },
               { "variable": { "name": "yRange", "value": "40.0 - 0.0", "flush": true } },
               { "variable": { "name": "graphMax", "value": "40.0 + 0.05 * (40.0 - 0.0)", "flush": true } },
               { "variable": { "name": "graphMin", "value": "0.0 - 0.05 * (40.0 - 0.0)", "flush": true } },
 
-              { "variable": { "name": "marginL", "value": "20.0 * @vars.density + 2.0 * @vars.density" } },
-              { "variable": { "name": "marginT", "value": "20.0 * @vars.density + 2.0 * @vars.density" } },
+              { "variable": { "name": "marginL", "value": "20.0 * @density + 2.0 * @density" } },
+              { "variable": { "name": "marginT", "value": "20.0 * @density + 2.0 * @density" } },
 
               { "save": {} },
-              { "translate": { "dx": "@vars.marginL", "dy": "@vars.marginT" } },
+              { "translate": { "dx": "@marginL", "dy": "@marginT" } },
 
-              { "variable": { "name": "majorStepX_pow", "value": "pow(10.0, floor(log(@vars.xRange / 3.0)))", "flush": true } },
+              { "variable": { "name": "majorStepX_pow", "value": "pow(10.0, floor(log(@xRange / 3.0)))", "flush": true } },
 
-              { "variable": { "name": "scaleX", "value": "(@vars.w - 20.0 * @vars.density - 2.0 * @vars.density - @vars.marginL - 30.0 * @vars.density - 10.0 * @vars.density) / @vars.xRange", "flush": true } },
-              { "variable": { "name": "offsetX", "value": "30.0 * @vars.density - 0.0 * @vars.scaleX", "flush": true } },
-              { "variable": { "name": "scaleY", "value": "((10.0 * @vars.density + 50.0 * @vars.density) - (@vars.h - 20.0 * @vars.density - 2.0 * @vars.density - @vars.marginT)) / @vars.yRange", "flush": true } },
-              { "variable": { "name": "offsetY", "value": "(@vars.h - 20.0 * @vars.density - 2.0 * @vars.density - @vars.marginT - 50.0 * @vars.density) - @vars.scaleY * 0.0", "flush": true } },
+              { "variable": { "name": "scaleX", "value": "(@w - 20.0 * @density - 2.0 * @density - @marginL - 30.0 * @density - 10.0 * @density) / @xRange", "flush": true } },
+              { "variable": { "name": "offsetX", "value": "30.0 * @density - 0.0 * @scaleX", "flush": true } },
+              { "variable": { "name": "scaleY", "value": "((10.0 * @density + 50.0 * @density) - (@h - 20.0 * @density - 2.0 * @density - @marginT)) / @yRange", "flush": true } },
+              { "variable": { "name": "offsetY", "value": "(@h - 20.0 * @density - 2.0 * @density - @marginT - 50.0 * @density) - @scaleY * 0.0", "flush": true } },
 
-              { "paint": { "color": "#0000FF", "textSize": "@vars.density * 16.0" } },
+              { "paint": { "color": "#0000FF", "textSize": "@density * 16.0" } },
               { "paint": { "color": "#444444", "width": 2.0 } },
 
-              { "variable": { "name": "minorStepX_pow", "value": "pow(10.0, floor(log(@vars.xRange / 20.0)))", "flush": true } },
+              { "variable": { "name": "minorStepX_pow", "value": "pow(10.0, floor(log(@xRange / 20.0)))", "flush": true } },
 
-              { "variable": { "name": "y1", "value": "0.0 * @vars.scaleY + @vars.offsetY", "flush": true } },
-              { "variable": { "name": "y2", "value": "40.0 * @vars.scaleY + @vars.offsetY", "flush": true } },
+              { "variable": { "name": "y1", "value": "0.0 * @scaleY + @offsetY", "flush": true } },
+              { "variable": { "name": "y2", "value": "40.0 * @scaleY + @offsetY", "flush": true } },
 
               { "variable": { "name": "startX", "value": "(0.0)", "flush": true } },
               { "variable": { "name": "minorStepX", "value": [1073741824, 1092616192, -8388560, 1101004800, -5177340, -5177329, -5177330, -5177336, -8388548, 1073741824, -5177341, -8388560, 1101004800, -5177340, -8388548, -5177340, 1073741824, -5177342, -5177318, -8388548, 1084227584, -5177341, -8388560, 1101004800, -5177340, -8388548, -5177340, 1084227584, -5177342, -5177318, -5177337], "flush": true } },
@@ -100,15 +100,15 @@ fun rcJsonLinearRegression(
 
               {
                 "loop": {
-                  "from": "@vars.startX", "step": "@vars.minorStepX", "until": "@vars.endX",
+                  "from": "@startX", "step": "@minorStepX", "until": "@endX",
                   "index": "index", "noIndexText": true,
                   "commands": [
-                    { "variable": { "name": "plotX1", "value": "@vars.index * @vars.scaleX + @vars.offsetX" } },
+                    { "variable": { "name": "plotX1", "value": "@index * @scaleX + @offsetX" } },
                     { "drawLine": {
-                      "x1": "@vars.plotX1",
-                      "y1": "@vars.y1",
-                      "x2": "@vars.plotX1",
-                      "y2": "@vars.y2"
+                      "x1": "@plotX1",
+                      "y1": "@y1",
+                      "x2": "@plotX1",
+                      "y2": "@y2"
                     } }
                   ]
                 }
@@ -116,10 +116,10 @@ fun rcJsonLinearRegression(
 
               { "paint": { "color": "#444444", "width": 2.0 } },
 
-              { "variable": { "name": "minorStepY_pow", "value": "pow(10.0, floor(log(@vars.yRange / 20.0)))", "flush": true } },
+              { "variable": { "name": "minorStepY_pow", "value": "pow(10.0, floor(log(@yRange / 20.0)))", "flush": true } },
 
-              { "variable": { "name": "startX_scaled", "value": "@vars.startX * @vars.scaleX + @vars.offsetX", "flush": true } },
-              { "variable": { "name": "endX_scaled", "value": "@vars.endX * @vars.scaleX + @vars.offsetX", "flush": true } },
+              { "variable": { "name": "startX_scaled", "value": "@startX * @scaleX + @offsetX", "flush": true } },
+              { "variable": { "name": "endX_scaled", "value": "@endX * @scaleX + @offsetX", "flush": true } },
 
               { "variable": { "name": "startY", "value": "(0.0)", "flush": true } },
 
@@ -127,15 +127,15 @@ fun rcJsonLinearRegression(
 
               {
                 "loop": {
-                  "from": "@vars.startY", "step": "@vars.minorStepY", "until": "40.0 + 0.01",
+                  "from": "@startY", "step": "@minorStepY", "until": "40.0 + 0.01",
                   "index": "index", "noIndexText": true,
                   "commands": [
-                    { "variable": { "name": "plotY2", "value": "@vars.index * @vars.scaleY + @vars.offsetY" } },
+                    { "variable": { "name": "plotY2", "value": "@index * @scaleY + @offsetY" } },
                     { "drawLine": {
-                      "x1": "@vars.startX_scaled",
-                      "y1": "@vars.plotY2",
-                      "x2": "@vars.endX_scaled",
-                      "y2": "@vars.plotY2"
+                      "x1": "@startX_scaled",
+                      "y1": "@plotY2",
+                      "x2": "@endX_scaled",
+                      "y2": "@plotY2"
                     } }
                   ]
                 }
@@ -147,22 +147,22 @@ fun rcJsonLinearRegression(
 
               {
                 "loop": {
-                  "from": "@vars.startX", "step": "@vars.majorStepX", "until": "@vars.endX + 0.01",
+                  "from": "@startX", "step": "@majorStepX", "until": "@endX + 0.01",
                   "index": "index", "noIndexText": true,
                   "commands": [
-                    { "variable": { "name": "plotX3", "value": "@vars.index * @vars.scaleX + @vars.offsetX" } },
-                    { "variable": { "name": "lblId", "value": { "type": "textFromFloat", "value": "(@vars.index)", "whole": 5, "decimal": 1, "flags": 7 } } },
+                    { "variable": { "name": "plotX3", "value": "@index * @scaleX + @offsetX" } },
+                    { "variable": { "name": "lblId", "value": { "type": "textFromFloat", "value": "(@index)", "whole": 5, "decimal": 1, "flags": 7 } } },
                     { "drawTextAnchored": {
-                      "text": "@vars.lblId",
-                      "x": "@vars.plotX3",
-                      "y": "@vars.y1",
+                      "text": "@lblId",
+                      "x": "@plotX3",
+                      "y": "@y1",
                       "panX": 0.0, "panY": 1.5, "flags": 0
                     } },
                     { "drawLine": {
-                      "x1": "@vars.plotX3",
-                      "y1": "@vars.y1",
-                      "x2": "@vars.plotX3",
-                      "y2": "@vars.y2"
+                      "x1": "@plotX3",
+                      "y1": "@y1",
+                      "x2": "@plotX3",
+                      "y2": "@y2"
                     } }
                   ]
                 }
@@ -170,28 +170,28 @@ fun rcJsonLinearRegression(
 
               { "paint": { "color": "#888888", "width": 4.0 } },
 
-              { "variable": { "name": "majorStepY_pow", "value": "pow(10.0, floor(log(@vars.yRange / 5.0)))", "flush": true } },
-              { "variable": { "name": "end_scaled", "value": "@vars.startX * @vars.scaleX + @vars.offsetX", "flush": true } },
+              { "variable": { "name": "majorStepY_pow", "value": "pow(10.0, floor(log(@yRange / 5.0)))", "flush": true } },
+              { "variable": { "name": "end_scaled", "value": "@startX * @scaleX + @offsetX", "flush": true } },
               { "variable": { "name": "majorStepY", "value": [1092616192, -8388559, 1084227584, -5177340, -5177329, -5177330, -5177336, -8388526, 1073741824, -5177341, -8388559, 1084227584, -5177340, -8388526, -5177340, 1073741824, -5177342, -5177318, -8388526, 1084227584, -5177341, -8388559, 1084227584, -5177340, -8388526, -5177340, 1084227584, -5177342, -5177318], "flush": true } },
 
               {
                 "loop": {
-                  "from": "@vars.startY", "step": "@vars.majorStepY", "until": "40.0 + 0.01",
+                  "from": "@startY", "step": "@majorStepY", "until": "40.0 + 0.01",
                   "index": "index", "noIndexText": true,
                   "commands": [
-                    { "variable": { "name": "plotY4", "value": "@vars.index * @vars.scaleY + @vars.offsetY" } },
-                    { "variable": { "name": "lblIdY", "value": { "type": "textFromFloat", "value": "(@vars.index)", "whole": 5, "decimal": 1, "flags": 7 } } },
+                    { "variable": { "name": "plotY4", "value": "@index * @scaleY + @offsetY" } },
+                    { "variable": { "name": "lblIdY", "value": { "type": "textFromFloat", "value": "(@index)", "whole": 5, "decimal": 1, "flags": 7 } } },
                     { "drawTextAnchored": {
-                      "text": "@vars.lblIdY",
-                      "x": "30.0 * @vars.density",
-                      "y": "@vars.plotY4",
+                      "text": "@lblIdY",
+                      "x": "30.0 * @density",
+                      "y": "@plotY4",
                       "panX": 1.5, "panY": 0.0, "flags": 0
                     } },
                     { "drawLine": {
-                      "x1": "@vars.startX_scaled",
-                      "y1": "@vars.plotY4",
-                      "x2": "@vars.endX_scaled",
-                      "y2": "@vars.plotY4"
+                      "x1": "@startX_scaled",
+                      "y1": "@plotY4",
+                      "x2": "@endX_scaled",
+                      "y2": "@plotY4"
                     } }
                   ]
                 }
@@ -199,29 +199,29 @@ fun rcJsonLinearRegression(
 
               { "paint": { "color": "#FFFF00", "width": 4.0 } },
               { "drawLine": {
-                "x1": "@vars.offsetX",
-                "y1": "@vars.y1",
-                "x2": "@vars.offsetX",
-                "y2": "@vars.y2"
+                "x1": "@offsetX",
+                "y1": "@y1",
+                "x2": "@offsetX",
+                "y2": "@y2"
               } },
               { "paint": { "color": "#FFFF00", "width": 4.0 } },
               { "drawLine": {
-                "x1": "@vars.startX_scaled",
-                "y1": "@vars.offsetY",
-                "x2": "@vars.endX_scaled",
-                "y2": "@vars.offsetY"
+                "x1": "@startX_scaled",
+                "y1": "@offsetY",
+                "x2": "@endX_scaled",
+                "y2": "@offsetY"
               } },
 
               { "paint": { "color": "#000000", "style": "fill" } },
               {
                 "loop": {
-                  "from": 0.0, "step": 1.0, "until": "arrayLength(@vars.rx)",
+                  "from": 0.0, "step": 1.0, "until": "arrayLength(@rx)",
                   "index": "index", "noIndexText": true,
                   "commands": [
                     { "drawCircle": {
-                      "cx": "arrayGet(@vars.rx, @vars.index) * @vars.scaleX + @vars.offsetX",
-                      "cy": "arrayGet(@vars.ry, @vars.index) * @vars.scaleY + @vars.offsetY",
-                      "radius": "3.0 * @vars.density"
+                      "cx": "arrayGet(@rx, @index) * @scaleX + @offsetX",
+                      "cy": "arrayGet(@ry, @index) * @scaleY + @offsetY",
+                      "radius": "3.0 * @density"
                     } }
                   ]
                 }
@@ -232,7 +232,7 @@ fun rcJsonLinearRegression(
                   { "shader": 0 },
                   { "color": "#FF0000" },
                   { "style": "stroke" },
-                  { "width": "2.0 * @vars.density" },
+                  { "width": "2.0 * @density" },
                   { "color": "#0000FF" }
                 ]
               } },
@@ -241,15 +241,15 @@ fun rcJsonLinearRegression(
                   { "shader": 0 },
                   { "color": "#FF0000" },
                   { "style": "stroke" },
-                  { "width": "2.0 * @vars.density" }
+                  { "width": "2.0 * @density" }
                 ]
               } },
               { "pathExpression": {
                 "id": "regressionPath",
-                "expressionX": "a[0] * @vars.scaleX + @vars.offsetX",
-                "expressionY": "(a[0] * @vars.slope + @vars.intercept) * @vars.scaleY + @vars.offsetY",
-                "start": "@vars.startX",
-                "end": "@vars.endX",
+                "expressionX": "a[0] * @scaleX + @offsetX",
+                "expressionY": "(a[0] * @slope + @intercept) * @scaleY + @offsetY",
+                "start": "@startX",
+                "end": "@endX",
                 "count": 128.0,
                 "flags": 4
               } },
@@ -257,15 +257,15 @@ fun rcJsonLinearRegression(
 
               { "restore": {} },
 
-              { "paint": { "color": "#000000", "textSize": "16.0 * @vars.density" } },
-              { "variable": { "name": "slopeText", "value": { "type": "textFromFloat", "value": "@vars.slope", "whole": 5, "decimal": 2, "flags": 0 }, "commit": true } },
-              { "variable": { "name": "interceptText", "value": { "type": "textFromFloat", "value": "@vars.intercept", "whole": 5, "decimal": 2, "flags": 0 }, "commit": true } },
-              { "variable": { "name": "fullFormula", "value": { "type": "textMerge", "id1": "y = ", "id2": { "type": "textMerge", "id1": "@vars.slopeText", "id2": { "type": "textMerge", "id1": "x + ", "id2": "@vars.interceptText" } } } } },
+              { "paint": { "color": "#000000", "textSize": "16.0 * @density" } },
+              { "variable": { "name": "slopeText", "value": { "type": "textFromFloat", "value": "@slope", "whole": 5, "decimal": 2, "flags": 0 }, "commit": true } },
+              { "variable": { "name": "interceptText", "value": { "type": "textFromFloat", "value": "@intercept", "whole": 5, "decimal": 2, "flags": 0 }, "commit": true } },
+              { "variable": { "name": "fullFormula", "value": { "type": "textMerge", "id1": "y = ", "id2": { "type": "textMerge", "id1": "@slopeText", "id2": { "type": "textMerge", "id1": "x + ", "id2": "@interceptText" } } } } },
 
               { "drawTextAnchored": {
-                "text": "@vars.fullFormula",
-                "x": "50.0 * @vars.density",
-                "y": "50.0 * @vars.density",
+                "text": "@fullFormula",
+                "x": "50.0 * @density",
+                "y": "50.0 * @density",
                 "panX": 0.0, "panY": 0.0, "flags": 0
               } }
             ]

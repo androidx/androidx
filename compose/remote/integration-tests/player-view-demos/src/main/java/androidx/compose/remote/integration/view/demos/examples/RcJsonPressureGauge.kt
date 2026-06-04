@@ -44,31 +44,31 @@ fun rcJsonPressureGauge(
       "commands": [
         { "variable": { "name": "w", "value": "width", "commit": true } },
         { "variable": { "name": "h", "value": "height", "commit": true } },
-        { "variable": { "name": "cx", "value": "@vars.w / 2.0" } },
+        { "variable": { "name": "cx", "value": "@w / 2.0" } },
         { "variable": { "name": "density", "value": "density" } },
         { "variable": { "name": "deltaPressure", "value": "cos(time)" } },
 
-        { "paint": { "color": "#6A8DC7", "textSize": "@vars.density * 24.0" } },
+        { "paint": { "color": "#6A8DC7", "textSize": "@density * 24.0" } },
         { "drawTextAnchored": { "text": "PRESSURE", "x": 50.0, "y": 40.0, "panX": -1.0, "panY": 1.0, "flags": 0 } },
 
-        { "paint": { "style": "stroke", "width": "@vars.density * 6.0" } },
-        { "variable": { "name": "dialY", "value": "@vars.h / 2.0 + (min(@vars.w, @vars.h) / 2.0) * 0.1" } },
+        { "paint": { "style": "stroke", "width": "@density * 6.0" } },
+        { "variable": { "name": "dialY", "value": "@h / 2.0 + (min(@w, @h) / 2.0) * 0.1" } },
 
         {
           "save": {
             "commands": [
-              { "rotate": { "angle": -135.0, "pivotX": "@vars.cx", "pivotY": "@vars.dialY" } },
+              { "rotate": { "angle": -135.0, "pivotX": "@cx", "pivotY": "@dialY" } },
               {
                 "loop": {
                   "from": 0.0, "step": 5.0, "until": 265.0,
                   "index": "index",
                   "commands": [
-                    { "rotate": { "angle": 5.0, "pivotX": "@vars.cx", "pivotY": "@vars.dialY" } },
+                    { "rotate": { "angle": 5.0, "pivotX": "@cx", "pivotY": "@dialY" } },
                     { "drawLine": {
-                      "x1": "@vars.cx",
-                      "y1": "@vars.dialY - (min(@vars.w, @vars.h) / 2.0) * 0.8 + (min(@vars.w, @vars.h) / 2.0) * 0.2",
-                      "x2": "@vars.cx",
-                      "y2": "@vars.dialY - (min(@vars.w, @vars.h) / 2.0) * 0.8"
+                      "x1": "@cx",
+                      "y1": "@dialY - (min(@w, @h) / 2.0) * 0.8 + (min(@w, @h) / 2.0) * 0.2",
+                      "x2": "@cx",
+                      "y2": "@dialY - (min(@w, @h) / 2.0) * 0.8"
                     } }
                   ]
                 }
@@ -77,20 +77,20 @@ fun rcJsonPressureGauge(
           }
         },
 
-        { "variable": { "name": "tickLength", "value": "(min(@vars.w, @vars.h) / 2.0) * 0.2" } },
+        { "variable": { "name": "tickLength", "value": "(min(@w, @h) / 2.0) * 0.2" } },
 
         { "paint": {
             "ops": [
               {
                 "sweepGradient": {
-                  "centerX": "@vars.cx",
-                  "centerY": "@vars.dialY",
+                  "centerX": "@cx",
+                  "centerY": "@dialY",
                   "colors": [ "#00FFFFFF", "#99FFFFFF", "#00FFFFFF" ],
                   "stops": [ 0.01, 0.05, 0.09 ]
                 }
               },
               { "style": "stroke" },
-              { "width": "@vars.tickLength" },
+              { "width": "@tickLength" },
               { "strokeCap": "butt" }
             ]
         } },
@@ -98,12 +98,12 @@ fun rcJsonPressureGauge(
         {
           "save": {
             "commands": [
-              { "rotate": { "angle": "((sin(time) * 50.0 + 750.0) - 700.0) / 100.0 * 270.0 - 135.0 - 90.0 - 18.0", "pivotX": "@vars.cx", "pivotY": "@vars.dialY" } },
+              { "rotate": { "angle": "((sin(time) * 50.0 + 750.0) - 700.0) / 100.0 * 270.0 - 135.0 - 90.0 - 18.0", "pivotX": "@cx", "pivotY": "@dialY" } },
               { "drawArc": {
-                "left": "@vars.cx - ((min(@vars.w, @vars.h) / 2.0) * 0.8 - @vars.tickLength / 2.0)",
-                "top": "@vars.dialY - ((min(@vars.w, @vars.h) / 2.0) * 0.8 - @vars.tickLength / 2.0)",
-                "right": "@vars.cx + ((min(@vars.w, @vars.h) / 2.0) * 0.8 - @vars.tickLength / 2.0)",
-                "bottom": "@vars.dialY + ((min(@vars.w, @vars.h) / 2.0) * 0.8 - @vars.tickLength / 2.0)",
+                "left": "@cx - ((min(@w, @h) / 2.0) * 0.8 - @tickLength / 2.0)",
+                "top": "@dialY - ((min(@w, @h) / 2.0) * 0.8 - @tickLength / 2.0)",
+                "right": "@cx + ((min(@w, @h) / 2.0) * 0.8 - @tickLength / 2.0)",
+                "bottom": "@dialY + ((min(@w, @h) / 2.0) * 0.8 - @tickLength / 2.0)",
                 "startAngle": 18.0,
                 "sweepAngle": "cos(time) * -12.0"
               } }
@@ -116,19 +116,19 @@ fun rcJsonPressureGauge(
             "shader": 0,
             "color": "#FFFFFF",
             "style": "stroke",
-            "width": "@vars.density * 8.0",
+            "width": "@density * 8.0",
             "strokeCap": "round"
           }
         },
         {
           "save": {
             "commands": [
-              { "rotate": { "angle": "((sin(time) * 50.0 + 750.0) - 700.0) / 100.0 * 270.0 - 135.0", "pivotX": "@vars.cx", "pivotY": "@vars.dialY" } },
+              { "rotate": { "angle": "((sin(time) * 50.0 + 750.0) - 700.0) / 100.0 * 270.0 - 135.0", "pivotX": "@cx", "pivotY": "@dialY" } },
               { "drawLine": {
-                "x1": "@vars.cx",
-                "y1": "@vars.dialY - (min(@vars.w, @vars.h) / 2.0) * 0.8 + @vars.tickLength",
-                "x2": "@vars.cx",
-                "y2": "@vars.dialY - (min(@vars.w, @vars.h) / 2.0) * 0.8"
+                "x1": "@cx",
+                "y1": "@dialY - (min(@w, @h) / 2.0) * 0.8 + @tickLength",
+                "x2": "@cx",
+                "y2": "@dialY - (min(@w, @h) / 2.0) * 0.8"
               } }
             ]
           }
@@ -138,7 +138,7 @@ fun rcJsonPressureGauge(
           "paint": {
             "ops": [
               { "shader": 0 },
-              { "textSize": "@vars.density * 64.0" },
+              { "textSize": "@density * 64.0" },
               { "color": "#FFFFFF" },
               { "style": "fill" },
               { "width": 0.0 }
@@ -150,9 +150,9 @@ fun rcJsonPressureGauge(
           "conditionalOperations": {
             "condition": "lt",
             "v1": 0.0,
-            "v2": "@vars.deltaPressure",
+            "v2": "@deltaPressure",
             "commands": [
-              { "drawTextAnchored": { "text": "↑", "x": "@vars.cx", "y": "@vars.dialY", "panX": 0.0, "panY": -3.0, "flags": 0 } }
+              { "drawTextAnchored": { "text": "↑", "x": "@cx", "y": "@dialY", "panX": 0.0, "panY": -3.0, "flags": 0 } }
             ]
           }
         },
@@ -160,21 +160,21 @@ fun rcJsonPressureGauge(
           "conditionalOperations": {
             "condition": "ge",
             "v1": 0.0,
-            "v2": "@vars.deltaPressure",
+            "v2": "@deltaPressure",
             "commands": [
-              { "drawTextAnchored": { "text": "↓", "x": "@vars.cx", "y": "@vars.dialY", "panX": 0.0, "panY": -3.0, "flags": 0 } }
+              { "drawTextAnchored": { "text": "↓", "x": "@cx", "y": "@dialY", "panX": 0.0, "panY": -3.0, "flags": 0 } }
             ]
           }
         },
 
         { "variable": { "name": "pressure", "value": "sin(time) * 50.0 + 750.0" } },
-        { "variable": { "name": "textId", "value": { "type": "textFromFloat", "value": "@vars.pressure", "whole": 3, "decimal": 0, "flags": 3 } } },
-        { "drawTextAnchored": { "text": "@vars.textId", "x": "@vars.cx", "y": "@vars.dialY", "panX": 0.0, "panY": 0.0, "flags": 0 } },
+        { "variable": { "name": "textId", "value": { "type": "textFromFloat", "value": "@pressure", "whole": 3, "decimal": 0, "flags": 3 } } },
+        { "drawTextAnchored": { "text": "@textId", "x": "@cx", "y": "@dialY", "panX": 0.0, "panY": 0.0, "flags": 0 } },
 
-        { "paint": { "textSize": "@vars.density * 32.0" } },
-        { "drawTextAnchored": { "text": "mmHg", "x": "@vars.cx", "y": "@vars.dialY", "panX": 0.0, "panY": 4.0, "flags": 0 } },
-        { "drawTextAnchored": { "text": "Low", "x": "@vars.cx - ((min(@vars.w, @vars.h) / 2.0) * 0.8) * 0.6", "y": "@vars.dialY + ((min(@vars.w, @vars.h) / 2.0) * 0.8) * 0.9", "panX": 0.0, "panY": 0.0, "flags": 0 } },
-        { "drawTextAnchored": { "text": "High", "x": "@vars.cx + ((min(@vars.w, @vars.h) / 2.0) * 0.8) * 0.6", "y": "@vars.dialY + ((min(@vars.w, @vars.h) / 2.0) * 0.8) * 0.9", "panX": 0.0, "panY": 0.0, "flags": 0 } }
+        { "paint": { "textSize": "@density * 32.0" } },
+        { "drawTextAnchored": { "text": "mmHg", "x": "@cx", "y": "@dialY", "panX": 0.0, "panY": 4.0, "flags": 0 } },
+        { "drawTextAnchored": { "text": "Low", "x": "@cx - ((min(@w, @h) / 2.0) * 0.8) * 0.6", "y": "@dialY + ((min(@w, @h) / 2.0) * 0.8) * 0.9", "panX": 0.0, "panY": 0.0, "flags": 0 } },
+        { "drawTextAnchored": { "text": "High", "x": "@cx + ((min(@w, @h) / 2.0) * 0.8) * 0.6", "y": "@dialY + ((min(@w, @h) / 2.0) * 0.8) * 0.9", "panX": 0.0, "panY": 0.0, "flags": 0 } }
       ]
     }
   }
