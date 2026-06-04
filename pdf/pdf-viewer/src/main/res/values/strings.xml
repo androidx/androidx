@@ -56,6 +56,9 @@
          the '%' sign instead of the word 'percent', use double percent, '%%'. [CHAR LIMIT=40] -->
     <string name="desc_zoom">zoom <xliff:g example="66" id="first">%1$d</xliff:g> percent</string>
 
+    <!-- Content description for the PDF view. -->
+    <string name="desc_pdf_view">PDF view</string>
+
     <!-- Content description for a go-to within a document -->
     <string name="desc_goto">Go to</string>
 
