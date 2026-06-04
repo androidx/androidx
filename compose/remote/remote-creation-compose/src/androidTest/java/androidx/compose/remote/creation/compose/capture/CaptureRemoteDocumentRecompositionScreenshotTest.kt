@@ -72,16 +72,23 @@ class CaptureRemoteDocumentRecompositionScreenshotTest {
     private val TEST_TAG = "player_root"
 
     @Composable
-    fun RecomposingPlayer(flow: Flow<ByteArray>, size: Size, modifier: Modifier = Modifier) {
+    fun RecomposingPlayer(
+        flow: Flow<ByteArray>,
+        size: Size,
+        modifier: Modifier = Modifier,
+        onDocumentUpdated: (CoreDocument) -> Unit = {},
+    ) {
         val documentState = remember { mutableStateOf<CoreDocument?>(null) }
         LaunchedEffect(flow) {
             flow.collect { bytes ->
-                documentState.value =
+                val doc =
                     CoreDocument().apply {
                         initFromBuffer(
                             RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
                         )
                     }
+                documentState.value = doc
+                onDocumentUpdated(doc)
             }
         }
         Box(modifier = modifier.testTag(TEST_TAG).background(Color.White)) {
@@ -115,16 +122,19 @@ class CaptureRemoteDocumentRecompositionScreenshotTest {
                 },
             )
 
+        val receivedTexts = mutableListOf<String>()
+
         composeTestRule.setContent {
             RecomposingPlayer(
                 flow = flow,
                 size = size,
                 modifier = Modifier.size(width.dp, height.dp),
+                onDocumentUpdated = { doc -> receivedTexts.addAll(doc.mTextData.values) },
             )
         }
 
-        // Wait for initial render
-        composeTestRule.waitForIdle()
+        // Wait for initial render containing "Initial"
+        composeTestRule.waitUntil(timeoutMillis = 5000) { receivedTexts.contains("Initial") }
 
         // Capture initial screenshot
         val initialScreenshot = composeTestRule.onNodeWithTag(TEST_TAG).captureToImage()
@@ -135,8 +145,8 @@ class CaptureRemoteDocumentRecompositionScreenshotTest {
         // Update state to trigger recomposition
         composeTestRule.runOnUiThread { state.value = "Updated" }
 
-        // Wait for recomposition and player update
-        composeTestRule.waitForIdle()
+        // Wait for recomposition and player update containing "Updated"
+        composeTestRule.waitUntil(timeoutMillis = 5000) { receivedTexts.contains("Updated") }
 
         // Capture updated screenshot
         val updatedScreenshot = composeTestRule.onNodeWithTag(TEST_TAG).captureToImage()
