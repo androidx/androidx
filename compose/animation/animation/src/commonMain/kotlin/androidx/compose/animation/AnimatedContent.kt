@@ -78,6 +78,14 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMaxOfOrNull
 
+internal const val AnimatedContentDebug = false
+
+private inline fun animatedContentDebug(message: () -> String) {
+    if (AnimatedContentDebug) {
+        println("AnimatedContent, ${message()}")
+    }
+}
+
 /**
  * [AnimatedContent] is a container that automatically animates its content when [targetState]
  * changes. Its [content] for different target states is defined in a mapping between a target state
@@ -213,6 +221,13 @@ public class ContentTransform(
         internal set
 }
 
+internal fun ContentTransform.toDebugString(): String {
+    return "ContentTransform(targetContentEnter=$targetContentEnter, " +
+        "initialContentExit=$initialContentExit, " +
+        "targetContentZIndex=$targetContentZIndex, " +
+        "sizeTransform=$sizeTransform)"
+}
+
 /**
  * This creates a [SizeTransform] with the provided [clip] and [sizeAnimationSpec]. By default,
  * [clip] will be true. This means during the size animation, the content will be clipped to the
@@ -263,6 +278,10 @@ private class SizeTransformImpl(
         initialSize: IntSize,
         targetSize: IntSize,
     ): FiniteAnimationSpec<IntSize> = sizeAnimationSpec(initialSize, targetSize)
+
+    override fun toString(): String {
+        return "SizeTransform(clip=$clip)"
+    }
 }
 
 /**
@@ -1055,6 +1074,9 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
         currentlyVisible.clear()
         currentlyVisible.add(currentState)
     }
+    animatedContentDebug {
+        "Composing AnimatedContent. targetState: $targetState, currentState: ${currentState},"
+    }
     if (currentState == targetState && pendingTargetState == null) {
         if (currentlyVisible.size != 1 || currentlyVisible[0] != currentState) {
             currentlyVisible.clear()
@@ -1088,8 +1110,17 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
     if (currentState != targetState) {
         val id = currentlyVisible.indexOfFirst { contentKey(it) == contentKey(targetState) }
         if (id == -1) {
+            animatedContentDebug {
+                "Added new targetState: $targetState, " + "contentKey: ${contentKey(targetState)}"
+            }
             currentlyVisible.add(targetState)
         } else if (currentlyVisible[id] != targetState || id != currentlyVisible.size - 1) {
+            if (targetState != currentlyVisible[id]) {
+                animatedContentDebug {
+                    "Replaced state: ${currentlyVisible[id]} with targetState: $targetState, " +
+                        "due to the same contentKey: ${contentKey(targetState)}"
+                }
+            }
             currentlyVisible.removeAt(id)
             currentlyVisible.add(targetState)
         }
@@ -1174,7 +1205,7 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                     enter = specOnEnter.targetContentEnter,
                     exit = exit,
                     modifier =
-                        ZIndexModifierElement(specOnEnter.targetContentZIndex)
+                        ZIndexModifierElement(specOnEnter.targetContentZIndex, stateForContent)
                             .then(
                                 childData.apply {
                                     isTarget = stateForContent == targetState
@@ -1219,7 +1250,11 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
         }
     }
     val contentTransform =
-        remember(rootScope, segment, pendingTargetState) { transitionSpec(rootScope) }
+        remember(rootScope, segment, pendingTargetState) {
+            transitionSpec(rootScope).also {
+                animatedContentDebug { "transitionSpec changed to ${it.toDebugString()}" }
+            }
+        }
     val sizeModifier = rootScope.createSizeAnimationModifier(contentTransform)
     Layout(
         modifier = modifier.then(sizeModifier),
@@ -1370,21 +1405,30 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
  * content in [AnimatedContent]. This is used to avoid multiple allocations of `Modifier.layout`
  * lambdas.
  */
-private class ZIndexModifierElement(val zIndex: Float) : ModifierNodeElement<ZIndexModifierNode>() {
-    override fun create(): ZIndexModifierNode = ZIndexModifierNode(zIndex)
+private class ZIndexModifierElement(val zIndex: Float, val stateForContent: Any?) :
+    ModifierNodeElement<ZIndexModifierNode>() {
+    override fun create(): ZIndexModifierNode = ZIndexModifierNode(zIndex, stateForContent)
 
     override fun update(node: ZIndexModifierNode) {
         node.zIndex = zIndex
+        node.stateForContent = stateForContent
     }
 
     override fun equals(other: Any?): Boolean =
-        other is ZIndexModifierElement && other.zIndex == zIndex
+        other is ZIndexModifierElement &&
+            other.zIndex == zIndex &&
+            other.stateForContent == stateForContent
 
-    override fun hashCode(): Int = zIndex.hashCode()
+    override fun hashCode(): Int {
+        var result = zIndex.hashCode()
+        result = 31 * result + (stateForContent?.hashCode() ?: 0)
+        return result
+    }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "targetContentZIndex"
         properties["zIndex"] = zIndex
+        properties["stateForContent"] = stateForContent
     }
 }
 
@@ -1392,12 +1436,18 @@ private class ZIndexModifierElement(val zIndex: Float) : ModifierNodeElement<ZIn
  * A [LayoutModifierNode] that applies the specified [zIndex] during placement. This avoids
  * allocating a lambda on every placement pass.
  */
-private class ZIndexModifierNode(var zIndex: Float) : LayoutModifierNode, Modifier.Node() {
+private class ZIndexModifierNode(var zIndex: Float, var stateForContent: Any?) :
+    LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
-        return layout(placeable.width, placeable.height) { placeable.place(0, 0, zIndex = zIndex) }
+        return layout(placeable.width, placeable.height) {
+            animatedContentDebug {
+                "Placing content for state: $stateForContent at zIndex = $zIndex"
+            }
+            placeable.place(0, 0, zIndex = zIndex)
+        }
     }
 }
