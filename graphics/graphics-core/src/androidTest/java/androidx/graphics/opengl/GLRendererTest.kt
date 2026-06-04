@@ -283,6 +283,30 @@ class GLRendererTest {
         val width = 5
         val height = 8
         val reader = createImageReader(width, height)
+
+        val handlerThread = HandlerThread("ImageReaderListener").apply { start() }
+        val handler = Handler(handlerThread.looper)
+
+        val latestImageRef = AtomicReference<Image?>()
+        val imageAvailableLatch = CountDownLatch(1)
+
+        val acquiredCount = AtomicInteger(0)
+        reader.setOnImageAvailableListener(
+            { r ->
+                val image = r.acquireNextImage()
+                if (image != null) {
+                    val count = acquiredCount.incrementAndGet()
+                    if (count < numRenders) {
+                        image.close()
+                    } else {
+                        latestImageRef.set(image)
+                        imageAvailableLatch.countDown()
+                    }
+                }
+            },
+            handler,
+        )
+
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -301,9 +325,16 @@ class GLRendererTest {
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
         assertEquals(numRenders, renderCount.get())
 
-        val targetColor = Color.argb(255, 0, 0, 255)
-        verifyImageContent(width, height, reader.acquireLatestImage(), targetColor)
+        assertTrue(imageAvailableLatch.await(3000, TimeUnit.MILLISECONDS))
+        val latestImage = latestImageRef.get()
+        assertNotNull(latestImage)
 
+        val targetColor = Color.argb(255, 0, 0, 255)
+        verifyImageContent(width, height, latestImage!!, targetColor)
+
+        latestImage?.close()
+        reader.close()
+        handlerThread.quitSafely()
         glRenderer.stop(true)
     }
 
