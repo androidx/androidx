@@ -33,7 +33,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.M)
+@Config(sdk = [Config.ALL_SDKS])
 class Camera2QuirksTest {
     private val fakeCameraId: CameraId = RobolectricCameras.create()
 
@@ -88,7 +88,7 @@ class Camera2QuirksTest {
             .isTrue()
     }
 
-    @Config(sdk = [Build.VERSION_CODES.M, Build.VERSION_CODES.Q])
+    @Config(maxSdk = Build.VERSION_CODES.Q)
     @Test
     fun shouldCreateEmptyCaptureSessionBeforeClosing_strict_mode_off_outside_sdk_range() {
         // strict mode off by default
@@ -112,7 +112,7 @@ class Camera2QuirksTest {
             .isFalse()
     }
 
-    @Config(sdk = [Build.VERSION_CODES.M, Build.VERSION_CODES.Q])
+    @Config(maxSdk = Build.VERSION_CODES.Q)
     @Test
     fun shouldCreateEmptyCaptureSessionBeforeClosing_strict_mode_on_outside_sdk_range() {
         // strict mode off by default
@@ -142,7 +142,7 @@ class Camera2QuirksTest {
         assertThat(camera2Quirks.shouldWaitForCameraDeviceOnClosed(fakeCameraId)).isFalse()
     }
 
-    @Config(sdk = [Build.VERSION_CODES.M, Build.VERSION_CODES.S_V2])
+    @Config(maxSdk = Build.VERSION_CODES.S_V2)
     @Test
     fun shouldCloseCameraBeforeCreatingCaptureSession_strict_mode_off_within_sdk_range() {
         // strict mode off by default
@@ -166,7 +166,7 @@ class Camera2QuirksTest {
             .isFalse()
     }
 
-    @Config(sdk = [Build.VERSION_CODES.M, Build.VERSION_CODES.S_V2])
+    @Config(maxSdk = Build.VERSION_CODES.S_V2)
     @Test
     fun shouldCloseCameraBeforeCreatingCaptureSession_strict_mode_on_within_sdk_range() {
         val camera2Quirks =
@@ -177,7 +177,7 @@ class Camera2QuirksTest {
             .isFalse()
     }
 
-    @Config(sdk = [Build.VERSION_CODES.M, Build.VERSION_CODES.TIRAMISU])
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun shouldCloseCameraBeforeCreatingCaptureSession_strict_mode_on_outside_sdk_range() {
         val camera2Quirks =
@@ -188,7 +188,7 @@ class Camera2QuirksTest {
             .isFalse()
     }
 
-    @Config(sdk = [Build.VERSION_CODES.M, Build.VERSION_CODES.TIRAMISU])
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun getRepeatingRequestFrameCountForCapture_strict_mode_off() {
         val camera2Quirks =
@@ -206,7 +206,7 @@ class Camera2QuirksTest {
             .isEqualTo(repeat.toInt())
     }
 
-    @Config(sdk = [Build.VERSION_CODES.M, Build.VERSION_CODES.TIRAMISU])
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun getRepeatingRequestFrameCountForCapture_strict_mode_on() {
         val camera2Quirks =

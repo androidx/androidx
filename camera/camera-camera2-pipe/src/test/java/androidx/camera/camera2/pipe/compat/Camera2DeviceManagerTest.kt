@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.compat
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.hardware.camera2.CameraDevice
-import android.os.Build
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
@@ -57,7 +56,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.M)
+@Config(sdk = [Config.ALL_SDKS])
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class Camera2DeviceManagerImplTest {
     private val testScope = TestScope()
