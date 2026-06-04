@@ -37,7 +37,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
-import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -135,13 +134,12 @@ sealed interface ComposeScene : AutoCloseable {
     override fun close()
 
     /**
-     * An object through which the composable content of the scene can be queried for its size
-     * properties.
+     * Measures the scene's content with given constraints and returns the resulting size.
      */
-    val measurableContent: MeasurableRootContent
+    fun measureContent(constraints: Constraints): IntSize
 
     /**
-     * Invalidates position of [ComposeScene] in window. It will trigger callbacks like
+     * Invalidates position of [ComposeScene] in the window. It will trigger callbacks like
      * [Modifier.onGloballyPositioned] so they can recalculate actual position in the window.
      *
      * @see PlatformContext.convertLocalToWindowPosition
@@ -329,7 +327,5 @@ fun ComposeScene.hasInvalidations(): Boolean =
  */
 @InternalComposeUiApi
 fun ComposeScene.unconstrainedSize(): IntSize {
-    return measurableContent.measuringIn(Constraints()) {
-        IntSize(it.measuredWidth, it.measuredHeight)
-    }
+    return measureContent(Constraints())
 }

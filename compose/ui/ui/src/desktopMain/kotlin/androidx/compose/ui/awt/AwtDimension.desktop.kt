@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.layout
+package androidx.compose.ui.awt
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.ExperimentalUnitApi
+import java.awt.Dimension
+
 
 /**
- * Creates a layout with no content. It's usually used to add modifier to the hierarchy.
- *
- * @param modifier The modifier to be applied to the layout.
+ * The value indicating an "unspecified" dimension in an [Dimension] object.
  */
-@Composable
-internal fun EmptyLayout(modifier: Modifier) = Layout(
-    content = {},
-    modifier = modifier,
-    measurePolicy = { _, _ ->
-        layout(0, 0) {}
-    }
-)
+@ExperimentalUnitApi
+const val UNSPECIFIED_DIMENSION_VALUE: Int = -1
+
+
+/**
+ * Returns a [Dimension] with both width and height unspecified.
+ */
+@ExperimentalUnitApi
+fun UnspecifiedDimension(): Dimension =
+    Dimension(UNSPECIFIED_DIMENSION_VALUE, UNSPECIFIED_DIMENSION_VALUE)

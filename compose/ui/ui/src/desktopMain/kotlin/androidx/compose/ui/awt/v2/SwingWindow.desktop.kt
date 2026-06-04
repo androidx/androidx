@@ -31,9 +31,10 @@ import androidx.compose.ui.awt.SwingWindow
 import androidx.compose.ui.awt.toAwtRectangleSizeRoundedUp
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.layout.MeasurableRootContent
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.requireReal
 import androidx.compose.ui.util.ComponentUpdater
 import androidx.compose.ui.util.componentListenerRef
@@ -312,7 +313,7 @@ internal fun Window.initializeBounds(
     boundsRequests: ReceiveChannel<WindowBoundsProvider>,
     currentBounds: DpRect?,
     parentWindow: Window?,
-    measurableContentProvider: () -> MeasurableRootContent
+    measureContent: (Constraints) -> IntSize
 ) {
     var boundsRequest = boundsRequests.tryReceive().getOrNull()
 
@@ -320,20 +321,20 @@ internal fun Window.initializeBounds(
     if (boundsRequest != null) {
         // Apply all pending requests
         while (boundsRequest != null) {
-            setBoundsFrom(boundsRequest, parentWindow, measurableContentProvider)
+            setBoundsFrom(boundsRequest, parentWindow, measureContent)
             boundsRequest = boundsRequests.tryReceive().getOrNull()
         }
     } else if (currentBounds != null) {
         bounds = currentBounds.toAwtRectangleSizeRoundedUp()
     } else {
-        setBoundsFrom(WindowBoundsProvider.Default, parentWindow, measurableContentProvider)
+        setBoundsFrom(WindowBoundsProvider.Default, parentWindow, measureContent)
     }
 }
 
 internal fun Window.setBoundsFrom(
     boundsProvider: WindowBoundsProvider,
     parentWindow: Window?,
-    measurableContentProvider: () -> MeasurableRootContent
+    measureContent: (Constraints) -> IntSize
 ) {
     if (!isDisplayable) {
         // Give it a preferred size to avoid measuring via ComposeSceneMediator.preferredSize
@@ -345,7 +346,7 @@ internal fun Window.setBoundsFrom(
     val scope = WindowGeometryProviderScope(
         parentWindow = parentWindow,
         window = this,
-        measurableContentProvider = measurableContentProvider
+        measureContent = measureContent
     )
     with(scope) {
         bounds = boundsProvider.getBounds().requireReal().toAwtRectangleSizeRoundedUp()
@@ -353,11 +354,11 @@ internal fun Window.setBoundsFrom(
 }
 
 private fun ComposeWindow.initializeBounds(state: WindowState) {
-    initializeBounds(state.boundsRequests, state._bounds, null, ::measurableContent)
+    initializeBounds(state.boundsRequests, state._bounds, null, ::measureContent)
 }
 
 private fun ComposeWindow.setBoundsFrom(boundsProvider: WindowBoundsProvider) {
-    setBoundsFrom(boundsProvider, null, ::measurableContent)
+    setBoundsFrom(boundsProvider, null, ::measureContent)
 }
 
 internal fun Window.setScreenFrom(screenProvider: WindowScreenProvider) {

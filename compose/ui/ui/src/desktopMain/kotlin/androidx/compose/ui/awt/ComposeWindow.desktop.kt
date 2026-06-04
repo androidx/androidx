@@ -21,10 +21,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.ExperimentalUnitApi
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -32,6 +34,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.savedstate.SavedState
 import java.awt.Component
 import java.awt.ComponentOrientation
+import java.awt.Dimension
 import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
@@ -197,13 +200,6 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
         return composePanel.saveState()
     }
 
-    /**
-     * Returns an object through which the composable content of the window can be queried for its
-     * size preferences, such as its intrinsic size.
-     */
-    @ExperimentalComposeUiApi
-    val measurableContent: MeasurableRootContent by composePanel::measurableContent
-
     override fun dispose() {
         super.dispose()
         composePanel.dispose()
@@ -217,6 +213,30 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     override fun setResizable(value: Boolean) {
         super.setResizable(value)
         undecoratedWindowResizer.enabled = isUndecorated && isResizable
+    }
+
+    private fun Dimension.actualize(): Dimension {
+        return composePanel.actualizeSize(this, insets)
+    }
+
+    /**
+     * Sets the preferred size of the window.
+     *
+     * The width and height of [size] can either be a regular, specific, value or
+     * [UNSPECIFIED_DIMENSION_VALUE], which means the content will
+     * determine the preferred size on the corresponding axis. The content will be measured
+     * unconstrained on that axis, and the resulting size will be used.
+     */
+    @Suppress("RedundantOverride")
+    override fun setPreferredSize(size: Dimension?) {
+        super.setPreferredSize(size)
+    }
+
+    @OptIn(ExperimentalUnitApi::class)
+    @Suppress("RedundantNullableReturnType")  // https://youtrack.jetbrains.com/issue/KT-31094
+    override fun getPreferredSize(): Dimension? {
+        val size = if (isPreferredSizeSet) super.getPreferredSize() else UnspecifiedDimension()
+        return size.actualize()
     }
 
     /**
@@ -350,4 +370,8 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
         set(value) {
             composePanel.showLayoutBounds = value
         }
+
+    internal fun measureContent(constraints: Constraints): IntSize {
+        return composePanel.measureContent(constraints)
+    }
 }

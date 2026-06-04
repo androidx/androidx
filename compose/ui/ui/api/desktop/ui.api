@@ -561,6 +561,7 @@ public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog {
 	public fun addMouseWheelListener (Ljava/awt/event/MouseWheelListener;)V
 	public fun dispose ()V
 	public final fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
+	public fun getPreferredSize ()Ljava/awt/Dimension;
 	public final fun getRenderApi ()Lorg/jetbrains/skiko/GraphicsApi;
 	public final fun getUndecoratedResizerThickness-D9Ej5fM ()F
 	public final fun getWindowHandle ()J
@@ -574,6 +575,7 @@ public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog {
 	public final fun setCompositionLocalContext (Landroidx/compose/runtime/CompositionLocalContext;)V
 	public final fun setContent (Lkotlin/jvm/functions/Function3;)V
 	public fun setLocale (Ljava/util/Locale;)V
+	public fun setPreferredSize (Ljava/awt/Dimension;)V
 	public fun setResizable (Z)V
 	public final fun setTransparent (Z)V
 	public fun setUndecorated (Z)V
@@ -588,6 +590,8 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun addFocusListener (Ljava/awt/event/FocusListener;)V
 	public fun addNotify ()V
 	public fun getFocusTraversalKeysEnabled ()Z
+	public fun getMaximumSize ()Ljava/awt/Dimension;
+	public fun getMinimumSize ()Ljava/awt/Dimension;
 	public fun getPreferredSize ()Ljava/awt/Dimension;
 	public final fun getRenderApi ()Lorg/jetbrains/skiko/GraphicsApi;
 	public fun hasFocus ()Z
@@ -607,6 +611,9 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun setFocusTraversalKeysEnabled (Z)V
 	public fun setFocusable (Z)V
 	public fun setLocale (Ljava/util/Locale;)V
+	public fun setMaximumSize (Ljava/awt/Dimension;)V
+	public fun setMinimumSize (Ljava/awt/Dimension;)V
+	public fun setPreferredSize (Ljava/awt/Dimension;)V
 	public fun setRequestFocusEnabled (Z)V
 }
 
@@ -624,6 +631,7 @@ public final class androidx/compose/ui/awt/ComposeWindow : javax/swing/JFrame {
 	public fun dispose ()V
 	public final fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
 	public final fun getPlacement ()Landroidx/compose/ui/window/WindowPlacement;
+	public fun getPreferredSize ()Ljava/awt/Dimension;
 	public final fun getRenderApi ()Lorg/jetbrains/skiko/GraphicsApi;
 	public final fun getUndecoratedResizerThickness-D9Ej5fM ()F
 	public final fun getWindowHandle ()J
@@ -640,6 +648,7 @@ public final class androidx/compose/ui/awt/ComposeWindow : javax/swing/JFrame {
 	public fun setLocale (Ljava/util/Locale;)V
 	public final fun setMinimized (Z)V
 	public final fun setPlacement (Landroidx/compose/ui/window/WindowPlacement;)V
+	public fun setPreferredSize (Ljava/awt/Dimension;)V
 	public fun setResizable (Z)V
 	public final fun setTransparent (Z)V
 	public fun setUndecorated (Z)V

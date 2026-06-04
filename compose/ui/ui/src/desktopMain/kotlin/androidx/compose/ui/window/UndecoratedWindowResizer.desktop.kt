@@ -68,6 +68,10 @@ internal class UndecoratedWindowResizer(
                     Constraints.fixed(width.coerceAtLeast(0), height.coerceAtLeast(0))
                 )
 
+                require(constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
+                    "UndecoratedWindowResizer requires bounded width and height constraints"
+                }
+
                 val left = measurables[0].measureSide(b, constraints.maxHeight - 2 * b)
                 val right = measurables[1].measureSide(b, constraints.maxHeight - 2 * b)
                 val top = measurables[2].measureSide(constraints.maxWidth - 2 * b, b)

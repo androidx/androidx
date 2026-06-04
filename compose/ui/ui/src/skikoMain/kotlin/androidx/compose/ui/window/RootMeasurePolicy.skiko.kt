@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastMaxOfOrDefault
 import kotlin.math.min
 
 internal fun RootMeasurePolicy(
@@ -36,15 +36,20 @@ internal fun RootMeasurePolicy(
     usePlatformDefaultWidth: Boolean,
     calculatePosition: MeasureScope.(contentSize: IntSize) -> IntOffset,
 ) = MeasurePolicy { measurables, constraints ->
-    val platformConstraints = applyPlatformConstrains(
+    val platformConstraints = applyPlatformConstraints(
         constraints, platformInsets, usePlatformDefaultWidth
     )
     val placeables = measurables.fastMap { it.measure(platformConstraints) }
-    layout(constraints.maxWidth, constraints.maxHeight) {
-        val contentSize = IntSize(
-            width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth,
-            height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
-        )
+    val contentSize = IntSize(
+        width = placeables.fastMaxOfOrDefault(constraints.minWidth) { it.width },
+        height = placeables.fastMaxOfOrDefault(constraints.minHeight) { it.height }
+    )
+
+    // When unconstrained, use content size as layout dimensions to allow the content's
+    // preferred size to be measured
+    val width = if (constraints.hasBoundedWidth) constraints.maxWidth else contentSize.width
+    val height = if (constraints.hasBoundedHeight) constraints.maxHeight else contentSize.height
+    layout(width, height) {
         val position = calculatePosition(contentSize)
         placeables.fastForEach {
             it.place(position.x, position.y)
@@ -52,7 +57,7 @@ internal fun RootMeasurePolicy(
     }
 }
 
-private fun Density.applyPlatformConstrains(
+private fun Density.applyPlatformConstraints(
     constraints: Constraints,
     platformInsets: PlatformInsets,
     usePlatformDefaultWidth: Boolean

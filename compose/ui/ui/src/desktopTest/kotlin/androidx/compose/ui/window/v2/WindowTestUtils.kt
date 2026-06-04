@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.window.v2
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -30,57 +29,69 @@ import java.awt.Dimension
 import java.awt.Window
 
 
-abstract class EmptyMeasurePolicy : MeasurePolicy {
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
-        constraints: Constraints
-    ): MeasureResult {
-        return layout(1, 1) {}
-    }
-}
-
-
 @Composable
-fun BoxWithIntrinsicSize(
-    minWidth: (IntrinsicMeasureScope.(Int) -> Int)? = null,
-    maxWidth: (IntrinsicMeasureScope.(Int) -> Int)? = null,
-    minHeight: (IntrinsicMeasureScope.(Int) -> Int)? = null,
-    maxHeight: (IntrinsicMeasureScope.(Int) -> Int)? = null,
+fun BoxWithGivenSize(
+    width: (IntrinsicMeasureScope.(Int) -> Int)? = null,
+    height: (IntrinsicMeasureScope.(Int) -> Int)? = null,
 ) {
-    Box {
-        Layout(
-            measurePolicy = object : EmptyMeasurePolicy() {
-                override fun IntrinsicMeasureScope.minIntrinsicWidth(
-                    measurables: List<IntrinsicMeasurable>,
-                    height: Int
-                ): Int {
-                    return minWidth?.invoke(this, height) ?: 0
+    Layout(
+        measurePolicy = object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult {
+                val w = when {
+                    constraints.hasFixedWidth -> constraints.maxWidth
+                    constraints.hasBoundedHeight -> width(constraints.maxHeight)
+                    constraints.hasBoundedWidth -> constraints.maxWidth
+                    else -> error("Can't measure width with given constraints")
+                }
+                val h = when {
+                    constraints.hasFixedHeight -> constraints.maxHeight
+                    constraints.hasBoundedWidth -> height(constraints.maxWidth)
+                    constraints.hasBoundedHeight -> constraints.maxHeight
+                    else -> error("Can't measure height with given constraints")
                 }
 
-                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                    measurables: List<IntrinsicMeasurable>,
-                    height: Int
-                ): Int {
-                    return maxWidth?.invoke(this, height) ?: 0
-                }
+                return layout(w, h) {}
+            }
 
-                override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                    measurables: List<IntrinsicMeasurable>,
-                    width: Int
-                ): Int {
-                    return minHeight?.invoke(this, width) ?: 0
-                }
+            private fun IntrinsicMeasureScope.width(height: Int) =
+                width?.invoke(this, height) ?: 0
 
-                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                    measurables: List<IntrinsicMeasurable>,
-                    width: Int
-                ): Int {
-                    return maxHeight?.invoke(this, width) ?: 0
-                }
-            },
-            content = {}
-        )
-    }
+            private fun IntrinsicMeasureScope.height(width: Int) =
+                height?.invoke(this, width) ?: 0
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return width(height)
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return width(height)
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return height(width)
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return height(width)
+            }
+        },
+        content = {}
+    )
 }
 
 val Window.contentSize

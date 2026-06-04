@@ -21,6 +21,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,9 +38,13 @@ import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.sendMousePress
 import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.WindowExceptionHandler
+import androidx.compose.ui.window.copy
 import androidx.compose.ui.window.density
+import androidx.compose.ui.window.plus
 import androidx.compose.ui.window.runApplicationTest
 import androidx.savedstate.SavedState
 import com.google.common.truth.Truth.assertThat
@@ -318,8 +323,71 @@ class ComposeDialogTest {
             savedState = window.saveState()
         }
 
-        testWindow(savedState) { window ->
+        testWindow(savedState) {
             assertThat(lastState).isEqualTo(6)
+        }
+    }
+
+    @OptIn(ExperimentalUnitApi::class)
+    fun testComposeDialogSizeSetting(
+        setSizeFunction: ComposeDialog.(Dimension) -> Unit
+    ) = runApplicationTest {
+        val intrinsicSize = Dimension(500, 400)
+        val dialog = ComposeDialog().apply {
+            setContent {
+                Box(Modifier.fillMaxSize().size(intrinsicSize.width.dp, intrinsicSize.height.dp))
+            }
+        }
+
+        try {
+            val appliedSize = Dimension(300, 200)
+            dialog.pack()
+            val windowInsets = dialog.insets
+            val intrinsicWindowSize = intrinsicSize + windowInsets
+
+            dialog.setSizeFunction(appliedSize)
+            awaitIdle()
+            assertThat(dialog.size).isEqualTo(appliedSize)
+
+            dialog.setSizeFunction(appliedSize.copy(height = UNSPECIFIED_DIMENSION_VALUE))
+            awaitIdle()
+            assertThat(dialog.size).isEqualTo(appliedSize.copy(height = intrinsicWindowSize.height))
+
+            dialog.setSizeFunction(appliedSize.copy(width = UNSPECIFIED_DIMENSION_VALUE))
+            awaitIdle()
+            assertThat(dialog.size).isEqualTo(appliedSize.copy(width = intrinsicWindowSize.width))
+
+            dialog.setSizeFunction(UnspecifiedDimension())
+            awaitIdle()
+            assertThat(dialog.size).isEqualTo(intrinsicWindowSize)
+        } finally {
+            dialog.dispose()
+        }
+    }
+
+    @Test
+    fun `ComposeDialog setPreferredSize`() = testComposeDialogSizeSetting {
+        this.preferredSize = it
+        pack()
+    }
+
+    @Test
+    fun `ComposeDialog with popup prefSize`() = runApplicationTest {
+        val dialog = ComposeDialog().apply {
+            setContent {
+                Box(Modifier.size(100.dp))
+                Popup {
+                    Box(Modifier.size(500.dp))
+                }
+            }
+        }
+
+        try {
+            dialog.pack()
+            val size = dialog.size
+            assertThat(size).isEqualTo(Dimension(500, 500) + dialog.insets)
+        } finally {
+            dialog.dispose()
         }
     }
 

@@ -36,11 +36,11 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
-import androidx.compose.ui.layout.MeasurableRootContent
 import androidx.compose.ui.node.RootNodeOwner
 import androidx.compose.ui.platform.FrameRecomposer
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -54,6 +54,8 @@ import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.window.getDialogScrimBlendMode
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.max
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Constructs a multi-layer [ComposeScene] using the specified parameters. Unlike
@@ -200,11 +202,19 @@ private class CanvasLayersComposeSceneImpl(
         super.close()
     }
 
-    override val measurableContent: MeasurableRootContent
-        get() {
-            check(!isClosed) { "measurableContent requested after ComposeScene is closed" }
-            return mainOwner.measurableRootContent
+    override fun measureContent(constraints: Constraints): IntSize {
+        val mainSize = mainOwner.measureContentWithConstraints(constraints)
+        if (layers.isEmpty()) return mainSize
+
+        var width = mainSize.width
+        var height = mainSize.height
+        layers.fastForEach { layer ->
+            val layerSize = layer.owner.measureContentWithConstraints(constraints)
+            width = max(width, layerSize.width)
+            height = max(height, layerSize.height)
         }
+        return IntSize(width, height)
+    }
 
     override fun invalidatePositionInWindow() {
         check(!isClosed) { "invalidatePositionInWindow called after ComposeScene is closed" }

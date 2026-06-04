@@ -44,12 +44,12 @@ class WindowTypingLocationTest: BaseWindowTextFieldTest() {
 
         fun assertMovedRight(before: Rectangle, after: Rectangle) {
             assert(after.x > before.x) {
-                "InputMethods X text location after typing (${after.x} should be greater than" +
-                    " before (${before.x})), but isn't"
+                "InputMethods X text location after typing (${after.x}) should be greater than" +
+                    " before (${before.x}), but isn't"
             }
             assert(after.y == before.y) {
-                "InputMethods Y text location after typing (${after.y} should be the same as" +
-                    " before (${before.y})), but isn't"
+                "InputMethods Y text location after typing (${after.y}) should be the same as" +
+                    " before (${before.y}), but isn't"
             }
         }
 

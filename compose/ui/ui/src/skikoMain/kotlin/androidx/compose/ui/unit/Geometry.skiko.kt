@@ -99,6 +99,13 @@ internal inline fun IntSize.toRect(): Rect =
     Rect(0f, 0f, width.toFloat(), height.toFloat())
 
 @Stable
+internal fun IntSize.toDpSize(density: Density): DpSize {
+    with(density) {
+        return DpSize(width.toDp(), height.toDp())
+    }
+}
+
+@Stable
 internal fun DpSize.roundToIntSize() = IntSize(
     width = width.value.roundToInt(),
     height = height.value.roundToInt()
