@@ -18,8 +18,8 @@ package androidx.navigation.internal
 
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavControllerViewModel
 import androidx.navigation.NavDestination
+import androidx.navigation.NavViewModelStoreProvider
 import androidx.savedstate.SavedState
 import androidx.savedstate.read
 import androidx.savedstate.savedState
@@ -59,14 +59,14 @@ internal class NavBackStackEntryStateImpl {
         destination: NavDestination,
         args: SavedState?,
         hostLifecycleState: Lifecycle.State,
-        viewModel: NavControllerViewModel?,
+        viewModelStoreProvider: NavViewModelStoreProvider?,
     ): NavBackStackEntry {
         return NavBackStackEntry.create(
             context,
             destination,
             args,
             hostLifecycleState,
-            viewModel,
+            viewModelStoreProvider,
             id,
             savedState,
         )

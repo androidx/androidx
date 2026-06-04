@@ -21,7 +21,8 @@ open annotation class androidx.navigation/NavOptionsDsl : kotlin/Annotation { //
 abstract interface androidx.navigation/FloatingWindow // androidx.navigation/FloatingWindow|null[0]
 
 abstract interface androidx.navigation/NavViewModelStoreProvider { // androidx.navigation/NavViewModelStoreProvider|null[0]
-    abstract fun getViewModelStore(kotlin/String): androidx.lifecycle/ViewModelStore // androidx.navigation/NavViewModelStoreProvider.getViewModelStore|getViewModelStore(kotlin.String){}[0]
+    abstract fun clear(kotlin/String) // androidx.navigation/NavViewModelStoreProvider.clear|clear(kotlin.String){}[0]
+    abstract fun get(kotlin/String): androidx.lifecycle/ViewModelStore // androidx.navigation/NavViewModelStoreProvider.get|get(kotlin.String){}[0]
 }
 
 abstract interface androidx.navigation/SupportingPane // androidx.navigation/SupportingPane|null[0]
