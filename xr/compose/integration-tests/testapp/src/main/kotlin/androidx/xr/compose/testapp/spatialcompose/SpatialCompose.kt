@@ -459,7 +459,7 @@ class SpatialCompose : ComponentActivity() {
 
             dragonEntity.value?.let { entity ->
                 val animation = entity.animations.find { it.name == "Fast_Flying" }
-                animation?.start(GltfAnimationStartOptions(shouldLoop = false))
+                animation?.start(GltfAnimationStartOptions(shouldLoop = true))
                 dragonAnimationState.value = animation?.animationState ?: AnimationState.STOPPED
             }
         }
