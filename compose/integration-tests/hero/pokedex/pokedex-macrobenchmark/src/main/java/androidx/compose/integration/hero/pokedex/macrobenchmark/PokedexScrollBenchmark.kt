@@ -88,6 +88,7 @@ class PokedexScrollBenchmark(
     @OptIn(ExperimentalMetricApi::class)
     private fun benchmarkScroll(
         action: String,
+        enableScrollbar: Boolean = true,
         setupBlock: MacrobenchmarkScope.() -> Unit,
         measureBlock: MacrobenchmarkScope.() -> Unit,
     ) =
@@ -111,6 +112,7 @@ class PokedexScrollBenchmark(
                     action = action,
                     enableSharedTransitionScope = enableSharedTransitionScope,
                     enableSharedElementTransitions = enableSharedElementTransitions,
+                    enableScrollbar = enableScrollbar,
                 )
                 startActivityAndWait(intent)
                 setupBlock()
