@@ -46,9 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.opengl.EGLExt
@@ -90,8 +88,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /** Activity to test the Anchor APIs. */
-class AnchorsPlanesHitTestActivity :
-    ComponentActivity(), DefaultLifecycleObserver, SampleRender.Companion.Renderer {
+class AnchorsPlanesHitTestActivity : ComponentActivity(), SampleRender.Companion.Renderer {
     companion object {
         private const val TAG = "AnchorsPlanesHitTestActivity"
         private const val MAX_HIT_TEST_RESULTS = 10
@@ -157,7 +154,7 @@ class AnchorsPlanesHitTestActivity :
     }
 
     override fun onResume() {
-        super<ComponentActivity>.onResume()
+        super.onResume()
         if (::session.isInitialized) {
             val supervisorJob = SupervisorJob()
             val scope = CoroutineScope(supervisorJob + lifecycleScope.coroutineContext)
@@ -174,9 +171,15 @@ class AnchorsPlanesHitTestActivity :
         }
     }
 
-    override fun onPause(owner: LifecycleOwner) {
-        super<ComponentActivity>.onPause()
+    override fun onPause() {
+        super.onPause()
         if (::surfaceView.isInitialized) {
+            surfaceView.queueEvent {
+                image?.let {
+                    EGLExt.eglDestroyImageKHR(EGL14.eglGetCurrentDisplay(), it)
+                    image = null
+                }
+            }
             surfaceView.onPause()
         }
         if (::updatePlanesJob.isInitialized) {
@@ -250,14 +253,17 @@ class AnchorsPlanesHitTestActivity :
         if (cameraState != null && cameraState.transformCoordinates2D != null) {
             backgroundRenderer.updateDisplayGeometry(cameraState.transformCoordinates2D!!)
         }
-        if (perceptionState?.arDeviceState?.trackingState == TrackingState.TRACKING) {
-            if (image != null) {
-                EGLExt.eglDestroyImageKHR(EGL14.eglGetCurrentDisplay(), image!!)
-            }
+        // TODO(b/519686129): Use perceptionState?.arDeviceState?.trackingState ==
+        // TrackingState.TRACKING
+        // once the tracking state issue is resolved. Using cameraState?.hardwareBuffer as a
+        // workaround
+        // to render background feed.
+        cameraState?.hardwareBuffer?.let { hardwareBuffer ->
+            image?.let { EGLExt.eglDestroyImageKHR(EGL14.eglGetCurrentDisplay(), it) }
             image =
                 EGLExt.eglCreateImageFromHardwareBuffer(
                     EGL14.eglGetCurrentDisplay(),
-                    cameraState?.hardwareBuffer!!,
+                    hardwareBuffer,
                 )
             maybeThrowGLException(
                 "Failed to create image from hardware buffer",
@@ -268,15 +274,17 @@ class AnchorsPlanesHitTestActivity :
                 backgroundRenderer.cameraColorTexture.textureId,
             )
             maybeThrowGLException("Failed to bind texture", "glBindTexture")
-            EGLExt.glEGLImageTargetTexture2DOES(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, image!!)
-            maybeThrowGLException(
-                "Failed to set image target texture",
-                "glEGLImageTargetTexture2DOES",
-            )
-            backgroundRenderer.drawBackground(render)
+            image?.let {
+                EGLExt.glEGLImageTargetTexture2DOES(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, it)
+                maybeThrowGLException(
+                    "Failed to set image target texture",
+                    "glEGLImageTargetTexture2DOES",
+                )
+                backgroundRenderer.drawBackground(render)
+            }
 
             // If not tracking, don't draw 3D objects.
-            if (perceptionState.arDeviceState.trackingState == TrackingState.PAUSED) {
+            if (perceptionState?.arDeviceState?.trackingState != TrackingState.TRACKING) {
                 return
             }
 
