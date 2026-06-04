@@ -47,6 +47,7 @@ import androidx.xr.arcore.HandJointType
 import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
+import androidx.xr.arcore.testapp.common.asString
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.HandTrackingMode
@@ -364,7 +365,8 @@ class HandTrackingActivity : ComponentActivity() {
 
                     val leftHandState = leftHand.state.collectAsState().value
                     Text(
-                        text = "Left hand tracking is active: ${leftHandState.trackingState}",
+                        text =
+                            "Left hand tracking is active: ${leftHandState.trackingState.asString()}",
                         fontSize = 22.sp,
                     )
                     if (leftHandState.trackingState == TrackingState.TRACKING) {
@@ -377,7 +379,8 @@ class HandTrackingActivity : ComponentActivity() {
 
                     val rightHandState = rightHand.state.collectAsState().value
                     Text(
-                        text = "Right hand tracking is active: ${rightHandState.trackingState}",
+                        text =
+                            "Right hand tracking is active: ${rightHandState.trackingState.asString()}",
                         fontSize = 22.sp,
                     )
                     if (rightHandState.trackingState == TrackingState.TRACKING) {

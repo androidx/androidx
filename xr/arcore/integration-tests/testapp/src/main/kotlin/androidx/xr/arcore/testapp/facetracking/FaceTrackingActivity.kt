@@ -50,6 +50,7 @@ import androidx.xr.arcore.FaceConfidenceRegion
 import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
+import androidx.xr.arcore.testapp.common.asString
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.FaceTrackingMode
@@ -201,7 +202,7 @@ class FaceTrackingActivity : ComponentActivity() {
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
                         modifier = Modifier.padding(20.dp),
                     ) {
-                        Text("Face Tracking State: ${faceState.trackingState}")
+                        Text("Face Tracking State: ${faceState.trackingState.asString()}")
                     }
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
