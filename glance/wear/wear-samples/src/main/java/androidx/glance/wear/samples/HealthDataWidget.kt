@@ -75,13 +75,8 @@ private fun HealthDataWidgetContent() {
             PackageManager.PERMISSION_GRANTED
     }
 
-    val isHeartRateAvailable =
-        DataTypes.heartRateAccuracy
-            .isEqualTo(DataTypes.HEART_RATE_ACCURACY_LOW)
-            .or(DataTypes.heartRateAccuracy.isEqualTo(DataTypes.HEART_RATE_ACCURACY_MEDIUM))
-            .or(DataTypes.heartRateAccuracy.isEqualTo(DataTypes.HEART_RATE_ACCURACY_HIGH))
-
-    val heartRateStr = isHeartRateAvailable.select(DataTypes.heartRateBpm.toRemoteString(), "--".rs)
+    val heartRateStr =
+        DataTypes.isHeartRateBpmAvailable.select(DataTypes.heartRateBpm.toRemoteString(), "--".rs)
     val dailyStepsStr =
         DataTypes.isDailyStepsAvailable.select(DataTypes.dailySteps.toRemoteString(), "--".rs)
     val dailyCaloriesStr =
