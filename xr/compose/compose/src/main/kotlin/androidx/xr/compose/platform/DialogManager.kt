@@ -34,5 +34,5 @@ internal class DefaultDialogManager : DialogManager {
 
 internal val LocalDialogManager: ProvidableCompositionLocal<DialogManager> =
     compositionLocalWithComputedDefaultOf {
-        LocalComposeXrOwners.currentValue?.dialogManager ?: DefaultDialogManager()
+        LocalComposeXrOwners.currentValue.dialogManager
     }

@@ -17,10 +17,14 @@
 package androidx.xr.compose.testing
 
 import android.content.pm.PackageManager
+import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.xr.compose.R
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
+import kotlinx.coroutines.Dispatchers
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.stub
 
 /**
  * A specialized [ComponentActivity] designed to provide a Spatial environment for testing
@@ -60,10 +64,21 @@ import org.mockito.kotlin.whenever
  * ```
  */
 public class SubspaceTestingActivity : ComponentActivity() {
-    private val _packageManager: PackageManager = mock<PackageManager>()
+    private val _packageManager: PackageManager =
+        mock<PackageManager>().stub {
+            on { hasSystemFeature(FEATURE_XR_API_SPATIAL) } doReturn true
+        }
 
-    init {
-        whenever(_packageManager.hasSystemFeature(FEATURE_XR_API_SPATIAL)).thenReturn(true)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // TODO: b/517544830 - Investigate why tests hang indefinitely when using Dispatchers.Main
+        // directly for session factory dispatcher. For now, we override the dispatcher to utilize
+        // Dispatchers.Main.immediate so that coroutines resolve immediately within testing threads.
+        window.decorView.setTag(
+            R.id.compose_xr_session_factory_dispatcher,
+            Dispatchers.Main.immediate,
+        )
     }
 
     override fun getPackageManager() = _packageManager
@@ -81,6 +96,6 @@ public class SubspaceTestingActivity : ComponentActivity() {
      *   availability is read upon initialization.
      */
     public fun disableXr() {
-        whenever(_packageManager.hasSystemFeature(FEATURE_XR_API_SPATIAL)).thenReturn(false)
+        _packageManager.stub { on { hasSystemFeature(FEATURE_XR_API_SPATIAL) } doReturn false }
     }
 }

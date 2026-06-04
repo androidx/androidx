@@ -17,7 +17,9 @@
 <resources>
     <item name="compose_xr_owner_locals" type="id" />
     <item name="compose_xr_session" type="id" />
+    <item name="compose_xr_session_mutex" type="id" />
     <item name="compose_xr_session_factory" type="id" />
+    <item name="compose_xr_session_factory_dispatcher" type="id" />
     <item name="compose_xr_panel_volume_constraints" type="id" />
     <item name="compose_xr_registered_roots" type="id" />
     <item name="compose_xr_main_panel_owner_queue" type="id" />

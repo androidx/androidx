@@ -34,7 +34,7 @@ import androidx.xr.scenecore.scene
  */
 public val LocalSpatialCapabilities: ProvidableCompositionLocal<SpatialCapabilities> =
     compositionLocalWithComputedDefaultOf {
-        LocalComposeXrOwners.currentValue?.spatialCapabilities ?: SpatialCapabilities.NoCapabilities
+        LocalComposeXrOwners.currentValue.spatialCapabilities ?: SpatialCapabilities.NoCapabilities
     }
 
 /**

@@ -436,8 +436,8 @@ class SpatialCompose : ComponentActivity() {
     @Composable
     fun DragonEntity() {
         val session = LocalSession.current ?: return
-        val dragonModel = remember { mutableStateOf<GltfModel?>(null) }
-        val dragonEntity = remember { mutableStateOf<GltfModelEntity?>(null) }
+        val dragonModel = remember(session) { mutableStateOf<GltfModel?>(null) }
+        val dragonEntity = remember(session) { mutableStateOf<GltfModelEntity?>(null) }
 
         val dragonAnimationState = remember {
             androidx.compose.runtime.mutableStateOf(AnimationState.STOPPED)
@@ -445,7 +445,7 @@ class SpatialCompose : ComponentActivity() {
         var entitySize by remember { mutableStateOf(FloatSize3d(1f, 1f, 1f)) }
 
         // Actions to run once.
-        LaunchedEffect(Unit) {
+        LaunchedEffect(session) {
             dragonModel.value =
                 GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
 
@@ -501,9 +501,9 @@ class SpatialCompose : ComponentActivity() {
     fun XyzArrows(modifier: SubspaceModifier = SubspaceModifier) {
         val session = LocalSession.current ?: return
         var rotation by remember { mutableStateOf(Quaternion.Identity) }
-        var gltfModel by remember { mutableStateOf<GltfModel?>(null) }
+        var gltfModel by remember(session) { mutableStateOf<GltfModel?>(null) }
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(session) {
             gltfModel = GltfModel.create(session, Paths.get("models", "xyzArrows.glb"))
             val pi = 3.14159F
             val timeSource = Clock.systemUTC()

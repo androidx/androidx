@@ -110,7 +110,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
     @SubspaceComposable
     @Composable
     private fun MainContent() {
-        val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+        val session = LocalSession.current ?: return
         session.configure(
             Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
         )

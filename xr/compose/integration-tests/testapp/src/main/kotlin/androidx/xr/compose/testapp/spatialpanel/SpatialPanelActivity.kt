@@ -84,10 +84,7 @@ class SpatialPanelActivity : ComponentActivity() {
         val tag = "SpatialPanelActivity"
 
         var panelOffset by remember { mutableStateOf(Offset(0f, 0f)) }
-        val session =
-            checkNotNull(LocalSession.current) {
-                "LocalSession.current was null. Session must be available."
-            }
+        val session = LocalSession.current ?: return
 
         val testResults = remember { mutableStateListOf<TestResult>() }
         var testResult: Boolean

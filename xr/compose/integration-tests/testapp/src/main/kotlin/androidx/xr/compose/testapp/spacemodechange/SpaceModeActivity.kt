@@ -59,10 +59,7 @@ class SpaceModeActivity : ComponentActivity() {
     @Composable
     fun SpaceModeContent() {
         val tag = "SpaceModeActivity"
-        val session =
-            checkNotNull(LocalSession.current) {
-                "LocalSession.current was null. Session must be available."
-            }
+        val session = LocalSession.current ?: return
 
         val testResults = remember { mutableStateListOf<TestResult>() }
         var fullSpaceCallbackReceived by remember { mutableStateOf(false) }

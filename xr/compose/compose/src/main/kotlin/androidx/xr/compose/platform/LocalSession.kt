@@ -27,5 +27,5 @@ import androidx.xr.runtime.Session
  */
 public val LocalSession: ProvidableCompositionLocal<Session?> =
     compositionLocalWithComputedDefaultOf {
-        LocalComposeXrOwners.currentValue?.session
+        LocalComposeXrOwners.currentValue.session
     }

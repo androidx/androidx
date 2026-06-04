@@ -114,10 +114,8 @@ class SpatialGltfModelActivity : ComponentActivity() {
 
     @Composable
     fun SpatialContent(state: DragonControlState) {
-        val session = LocalSession.current
-        LaunchedEffect(session) {
-            state.initializeSession(checkNotNull(session) { "session must be initialized" })
-        }
+        val session = LocalSession.current ?: return
+        LaunchedEffect(session) { state.initializeSession(session) }
 
         SpatialRow {
             DragonModel(state = state, modifier = SubspaceModifier.fillMaxWidth(0.7f))
