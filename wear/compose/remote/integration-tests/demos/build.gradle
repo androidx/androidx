@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":compose:remote:remote-player-compose"))
     implementation(project(":compose:remote:remote-player-view"))
     implementation(project(":compose:remote:remote-player-core"))
+    implementation(project(":compose:remote:remote-player-compose-testutils"))
     implementation(project(":compose:remote:remote-tooling-preview"))
     implementation(project(":wear:compose:remote:remote-material3"))
     implementation(project(":wear:compose:remote:remote-material3-samples"))

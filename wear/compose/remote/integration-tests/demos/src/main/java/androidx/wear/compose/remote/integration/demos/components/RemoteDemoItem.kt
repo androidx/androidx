@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.integration.demos.components
 
+import android.content.Context
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
@@ -33,6 +34,9 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.RemappingTypefaceResolver
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
@@ -124,10 +128,21 @@ fun RemoteDemoItem(
             documentHeight = documentHeight ?: getDefaultHeight(),
             modifier = modifier,
             debugMode = 0,
-            update = { player -> setDynamicColors(dynamicColors, player) },
+            update = { player ->
+                setDynamicColors(dynamicColors, player)
+                configureTypefaceResolver(player, context)
+            },
             onNamedAction = { _, _, _ -> },
         )
     }
+}
+
+@Suppress("RestrictedApiAndroidX")
+private fun configureTypefaceResolver(player: RemoteComposePlayer, context: Context) {
+    val current = player.typefaceResolver ?: FallbackCreateTypefaceResolver()
+    val remappingResolver = RemappingTypefaceResolver(current).apply { remapType(0, "roboto-flex") }
+    val downloadableResolver = DownloadableTypefaceResolver(context, remappingResolver)
+    player.setTypefaceResolver(downloadableResolver)
 }
 
 @Suppress("RestrictedApiAndroidX")

@@ -42,6 +42,7 @@ dependencies {
     api(project(":compose:remote:remote-player-view"))
     implementation(libs.junit)
     implementation(libs.testRunner)
+    implementation("androidx.core:core:1.19.0")
     implementation("androidx.compose.runtime:runtime:1.8.3")
     implementation("androidx.compose.foundation:foundation:1.8.3")
     implementation("androidx.compose.ui:ui:1.8.3")
@@ -55,4 +56,8 @@ dependencies {
     implementation(project(":compose:ui:ui-test"))
     implementation(project(":test:screenshot:screenshot"))
     implementation(libs.mockitoCore)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
 }
