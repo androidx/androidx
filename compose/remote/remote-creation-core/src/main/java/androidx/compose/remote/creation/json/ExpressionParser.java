@@ -254,11 +254,11 @@ class ExpressionParser {
      * @return true if the token is a valid variable reference
      */
     public boolean isVariable(String token) {
-        if (token.startsWith("$vars.")
-                || token.startsWith("@vars.")) {
-            if (token.length() <= 6) return false;
-            for (int i = 6; i < token.length(); i++) {
-                char c = token.charAt(i);
+        if (RemoteComposeJsonParser.isVariableRef(token)) {
+            String name = RemoteComposeJsonParser.getVariableNameFromRef(token);
+            if (name == null || name.isEmpty()) return false;
+            for (int i = 0; i < name.length(); i++) {
+                char c = name.charAt(i);
                 if (!Character.isLetterOrDigit(c) && c != '_' && c != '.') {
                     return false;
                 }
@@ -309,8 +309,8 @@ class ExpressionParser {
             case "rand()":
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 39);
             default:
-                if (token.startsWith("$vars.") || token.startsWith("@vars.")) {
-                    String name = token.substring(6);
+                if (RemoteComposeJsonParser.isVariableRef(token)) {
+                    String name = RemoteComposeJsonParser.getVariableNameFromRef(token);
                     Float id = mParser.mVariables.get(name);
                     if (id != null) return id;
                     if (mParser.mDeferredVariables.containsKey(name)) {

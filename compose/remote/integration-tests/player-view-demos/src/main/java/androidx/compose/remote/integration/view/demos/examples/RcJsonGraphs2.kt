@@ -62,7 +62,7 @@ fun rcJsonGraphs2(
                       { "variable": { "name": "transX", "value": [ 1092616192, -8388581, -5177341, 1073741824, -8388581, -5177341, -5177343 ], "flush": true } },
                       { "variable": { "name": "transY", "value": [ 1092616192, -8388581, -5177341, 1073741824, -8388581, -5177341, -5177343 ], "flush": true } },
 
-                      { "translate": { "dx": "@vars.transX", "dy": "@vars.transY" } },
+                      { "translate": { "dx": "@transX", "dy": "@transY" } },
 
                       { "variable": { "name": "majorStepX_pow", "value": [ 1092616192, -8388563, 1077936128, -5177340, -5177329, -5177330, -5177336 ], "flush": true } },
                       { "variable": { "name": "scaleX", "value": [ -8388566, 1073741824, -8388581, -5177341, -5177342, -8388559, -5177342, 1106247680, -8388581, -5177341, -5177342, 1092616192, -8388581, -5177341, -5177342, -8388563, -5177340 ], "flush": true } },
@@ -71,7 +71,7 @@ fun rcJsonGraphs2(
                       { "variable": { "name": "offsetY", "value": [ -8388565, 1073741824, -8388581, -5177341, -5177342, -8388558, -5177342, 1112014848, -8388581, -5177341, -5177342, -8388554, -1082130432, -8388607, -5177326, 1069547520, -5177343, 1092616192, -5177341, -5177334, -5177341, -5177341, -5177342 ], "flush": true } },
 
                       { "variable": { "name": "textSize", "value": [ -8388581, 1098907648, -5177341 ], "flush": true } },
-                      { "paint": { "color": "#0000FF", "textSize": "@vars.textSize" } },
+                      { "paint": { "color": "#0000FF", "textSize": "@textSize" } },
                       { "paint": { "color": "#444444", "width": 2.0 } },
 
                       { "variable": { "name": "minorStepX_pow", "value": [ 1092616192, -8388563, 1101004800, -5177340, -5177329, -5177330, -5177336 ], "flush": true } },
@@ -84,11 +84,11 @@ fun rcJsonGraphs2(
 
                       {
                         "loop": {
-                          "from": "@vars.startX", "step": "@vars.minorStepX", "until": "@vars.endX",
+                          "from": "@startX", "step": "@minorStepX", "until": "@endX",
                           "index": "x1", "noIndexText": true,
                           "commands": [
                             { "variable": { "name": "sx1", "value": [ -8388545, -8388556, -5177341, -8388555, -5177343 ], "flush": true } },
-                            { "drawLine": { "x1": "@vars.sx1", "y1": "@vars.minY_scaled", "x2": "@vars.sx1", "y2": "@vars.maxY_scaled" } }
+                            { "drawLine": { "x1": "@sx1", "y1": "@minY_scaled", "x2": "@sx1", "y2": "@maxY_scaled" } }
                           ]
                         }
                       },
@@ -104,11 +104,11 @@ fun rcJsonGraphs2(
 
                       {
                         "loop": {
-                          "from": "@vars.minY", "step": "@vars.minorStepY", "until": "@vars.endY_plus",
+                          "from": "@minY", "step": "@minorStepY", "until": "@endY_plus",
                           "index": "y1", "noIndexText": true,
                           "commands": [
                             { "variable": { "name": "sy1", "value": [ -8388537, -8388554, -5177341, -8388553, -5177343 ], "flush": true } },
-                            { "drawLine": { "x1": "@vars.x1", "y1": "@vars.sy1", "x2": "@vars.x2", "y2": "@vars.sy1" } }
+                            { "drawLine": { "x1": "@x1", "y1": "@sy1", "x2": "@x2", "y2": "@sy1" } }
                           ]
                         }
                       },
@@ -120,14 +120,14 @@ fun rcJsonGraphs2(
 
                       {
                         "loop": {
-                          "from": "@vars.startX", "step": "@vars.majorStepX", "until": "@vars.endX_plus",
+                          "from": "@startX", "step": "@majorStepX", "until": "@endX_plus",
                           "index": "x2", "noIndexText": true,
                           "commands": [
                             { "variable": { "name": "valX", "value": [ -8388533 ], "flush": true } },
-                            { "variable": { "name": "textX", "value": { "type": "textFromFloat", "value": "@vars.valX", "whole": 5, "decimal": 1, "flags": 7 }, "commit": true } },
+                            { "variable": { "name": "textX", "value": { "type": "textFromFloat", "value": "@valX", "whole": 5, "decimal": 1, "flags": 7 }, "commit": true } },
                             { "variable": { "name": "posX", "value": [ -8388533, -8388556, -5177341, -8388555, -5177343 ], "flush": true } },
-                            { "drawTextAnchored": { "text": "@vars.textX", "x": "@vars.posX", "y": "@vars.minY_scaled", "panX": 0.0, "panY": 1.5, "flags": 0 } },
-                            { "drawLine": { "x1": "@vars.posX", "y1": "@vars.minY_scaled", "x2": "@vars.posX", "y2": "@vars.maxY_scaled" } }
+                            { "drawTextAnchored": { "text": "@textX", "x": "@posX", "y": "@minY_scaled", "panX": 0.0, "panY": 1.5, "flags": 0 } },
+                            { "drawLine": { "x1": "@posX", "y1": "@minY_scaled", "x2": "@posX", "y2": "@maxY_scaled" } }
                           ]
                         }
                       },
@@ -141,23 +141,23 @@ fun rcJsonGraphs2(
 
                       {
                         "loop": {
-                          "from": "@vars.minY", "step": "@vars.majorStepY", "until": "@vars.endY_plus2",
+                          "from": "@minY", "step": "@majorStepY", "until": "@endY_plus2",
                           "index": "y2", "noIndexText": true,
                           "commands": [
                             { "variable": { "name": "valY", "value": [ -8388525 ], "flush": true } },
-                            { "variable": { "name": "textY", "value": { "type": "textFromFloat", "value": "@vars.valY", "whole": 5, "decimal": 1, "flags": 7 }, "commit": true } },
+                            { "variable": { "name": "textY", "value": { "type": "textFromFloat", "value": "@valY", "whole": 5, "decimal": 1, "flags": 7 }, "commit": true } },
                             { "variable": { "name": "labelX", "value": [ 1106247680, -8388581, -5177341 ], "flush": true } },
                             { "variable": { "name": "posY", "value": [ -8388525, -8388554, -5177341, -8388553, -5177343 ], "flush": true } },
-                            { "drawTextAnchored": { "text": "@vars.textY", "x": "@vars.labelX", "y": "@vars.posY", "panX": 1.5, "panY": 0.0, "flags": 0 } },
-                            { "drawLine": { "x1": "@vars.x1", "y1": "@vars.posY", "x2": "@vars.x2", "y2": "@vars.posY" } }
+                            { "drawTextAnchored": { "text": "@textY", "x": "@labelX", "y": "@posY", "panX": 1.5, "panY": 0.0, "flags": 0 } },
+                            { "drawLine": { "x1": "@x1", "y1": "@posY", "x2": "@x2", "y2": "@posY" } }
                           ]
                         }
                       },
 
                       { "paint": { "color": "#FFFF00", "width": 4.0 } },
-                      { "drawLine": { "x1": "@vars.offsetX", "y1": "@vars.minY_scaled", "x2": "@vars.offsetX", "y2": "@vars.maxY_scaled" } },
+                      { "drawLine": { "x1": "@offsetX", "y1": "@minY_scaled", "x2": "@offsetX", "y2": "@maxY_scaled" } },
                       { "paint": { "color": "#FFFF00", "width": 4.0 } },
-                      { "drawLine": { "x1": "@vars.x1", "y1": "@vars.offsetY", "x2": "@vars.x2", "y2": "@vars.offsetY" } },
+                      { "drawLine": { "x1": "@x1", "y1": "@offsetY", "x2": "@x2", "y2": "@offsetY" } },
 
                       { "variable": { "name": "strokeWidth", "value": [ 1073741824, -8388581, -5177341 ], "flush": true } },
                       { "paint": {
@@ -165,16 +165,16 @@ fun rcJsonGraphs2(
                           { "shader": 0 },
                           { "color": "#FF0000" },
                           { "style": "stroke" },
-                          { "width": "@vars.strokeWidth" }
+                          { "width": "@strokeWidth" }
                         ]
                       } },
 
                       { "pathExpression": {
                         "id": "graphPath",
-                        "expressionX": "a[0] * @vars.scaleX + @vars.offsetX",
-                        "expressionY": "min((abs((sin(time) + 1.5) * 10.0)), 15.0) * sin(a[0] * 0.3 + time) * sin(a[0] * 7.0) * @vars.scaleY + @vars.offsetY",
-                        "start": "@vars.startX",
-                        "end": "@vars.endX",
+                        "expressionX": "a[0] * @scaleX + @offsetX",
+                        "expressionY": "min((abs((sin(time) + 1.5) * 10.0)), 15.0) * sin(a[0] * 0.3 + time) * sin(a[0] * 7.0) * @scaleY + @offsetY",
+                        "start": "@startX",
+                        "end": "@endX",
                         "count": 128.0,
                         "flags": 4
                       } },

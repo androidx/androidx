@@ -87,11 +87,11 @@ fun rcJsonTicker(
               }
             },
             { "variable": { "name": "system.font_size", "value": 37.0, "export": true } },
-            { "variable": { "name": "head1", "value": "42.0 * (@vars.system.font_size / 37.0)" } },
-            { "variable": { "name": "priceDollars", "value": "64.0 * (@vars.system.font_size / 37.0)" } },
-            { "variable": { "name": "priceCents", "value": "48.0 * (@vars.system.font_size / 37.0)" } },
-            { "variable": { "name": "nameFontSize", "value": "32.0 * (@vars.system.font_size / 37.0)" } },
-            { "variable": { "name": "defaultFontSize", "value": "32.0 * (@vars.system.font_size / 37.0)" } }
+            { "variable": { "name": "head1", "value": "42.0 * (@system.font_size / 37.0)" } },
+            { "variable": { "name": "priceDollars", "value": "64.0 * (@system.font_size / 37.0)" } },
+            { "variable": { "name": "priceCents", "value": "48.0 * (@system.font_size / 37.0)" } },
+            { "variable": { "name": "nameFontSize", "value": "32.0 * (@system.font_size / 37.0)" } },
+            { "variable": { "name": "defaultFontSize", "value": "32.0 * (@system.font_size / 37.0)" } }
           ]
         },
         {
@@ -105,7 +105,7 @@ fun rcJsonTicker(
                     {
                       "text": {
                         "value": "Watchlist",
-                        "fontSize": "@vars.head1",
+                        "fontSize": "@head1",
                         "color": "@colors.textColor",
                         "modifiers": [ { "padding": 24.0 } ]
                       }
@@ -158,14 +158,14 @@ fun rcJsonTicker(
                                                       "text": {
                                                         "textFromFloat": { "value": 47739.32, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} },
                                                         "color": "@colors.stockPrice",
-                                                        "fontSize": "@vars.priceDollars"
+                                                        "fontSize": "@priceDollars"
                                                       }
                                                     },
                                                     {
                                                       "text": {
                                                         "textFromFloat": { "value": 47739.32, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} },
                                                         "color": "@colors.stockName",
-                                                        "fontSize": "@vars.priceCents"
+                                                        "fontSize": "@priceCents"
                                                       }
                                                     }
                                                   ]
@@ -175,8 +175,8 @@ fun rcJsonTicker(
                                                 "row": {
                                                   "modifiers": [ { "padding": { "top": 16.0 } } ],
                                                   "children": [
-                                                    { "text": { "value": "Dow Jones", "fontSize": "@vars.nameFontSize", "color": "@colors.stockName" } },
-                                                    { "text": { "value": "-0.45%", "fontSize": "@vars.nameFontSize", "color": "@colors.dotColor", "modifiers": [ { "padding": { "start": 8.0 } } ] } }
+                                                    { "text": { "value": "Dow Jones", "fontSize": "@nameFontSize", "color": "@colors.stockName" } },
+                                                    { "text": { "value": "-0.45%", "fontSize": "@nameFontSize", "color": "@colors.dotColor", "modifiers": [ { "padding": { "start": 8.0 } } ] } }
                                                   ]
                                                 }
                                               }
@@ -199,42 +199,42 @@ fun rcJsonTicker(
                                           "commands": [
                                             { "variable": { "name": "w", "value": "width", "commit": true } },
                                             { "variable": { "name": "h", "value": "height", "commit": true } },
-                                            { "variable": { "name": "cx", "value": "@vars.w / 2.0", "commit": true } },
-                                            { "variable": { "name": "cy", "value": "@vars.h / 2.0", "commit": true } },
-                                            { "variable": { "name": "rad", "value": "min(@vars.cx, @vars.cy)", "commit": true } },
+                                            { "variable": { "name": "cx", "value": "@w / 2.0", "commit": true } },
+                                            { "variable": { "name": "cy", "value": "@h / 2.0", "commit": true } },
+                                            { "variable": { "name": "rad", "value": "min(@cx, @cy)", "commit": true } },
                                             { "variable": { "name": "stockValues", "value": [ ${stockDataJson} ], "vtype": "floatArrays" } },
-                                            { "variable": { "name": "margin", "value": "@vars.rad * 0.3", "commit": true } },
-                                            { "variable": { "name": "lineBottom", "value": "@vars.h - @vars.margin", "commit": true } },
-                                            { "pathCreate": { "id": "graphPath", "x": "@vars.margin", "y": "@vars.lineBottom" } },
-                                            { "variable": { "name": "maxValue", "value": "arrayMax(@vars.stockValues)", "commit": true } },
-                                            { "variable": { "name": "minValue", "value": "arrayMin(@vars.stockValues) - 100.0", "commit": true } },
-                                            { "variable": { "name": "xEnd", "value": "@vars.w - @vars.margin", "commit": true } },
+                                            { "variable": { "name": "margin", "value": "@rad * 0.3", "commit": true } },
+                                            { "variable": { "name": "lineBottom", "value": "@h - @margin", "commit": true } },
+                                            { "pathCreate": { "id": "graphPath", "x": "@margin", "y": "@lineBottom" } },
+                                            { "variable": { "name": "maxValue", "value": "arrayMax(@stockValues)", "commit": true } },
+                                            { "variable": { "name": "minValue", "value": "arrayMin(@stockValues) - 100.0", "commit": true } },
+                                            { "variable": { "name": "xEnd", "value": "@w - @margin", "commit": true } },
                                             {
                                               "loop": {
-                                                "from": "@vars.margin", "step": 1.0, "until": "@vars.xEnd",
+                                                "from": "@margin", "step": 1.0, "until": "@xEnd",
                                                 "index": "index",
                                                 "commands": [
-                                                  { "variable": { "name": "pos", "value": "(@vars.index - @vars.margin) / (@vars.w - @vars.margin * 2.0)", "commit": true } },
-                                                  { "variable": { "name": "v", "value": "(arraySpline(@vars.stockValues, @vars.pos) - @vars.minValue) / (@vars.maxValue - @vars.minValue)", "commit": true } },
-                                                  { "variable": { "name": "y", "value": "@vars.lineBottom - @vars.v * (@vars.lineBottom - @vars.margin)", "commit": true } },
-                                                  { "pathAppendLineTo": { "path": "graphPath", "x": "@vars.index", "y": "@vars.y" } }
+                                                  { "variable": { "name": "pos", "value": "(@index - @margin) / (@w - @margin * 2.0)", "commit": true } },
+                                                  { "variable": { "name": "v", "value": "(arraySpline(@stockValues, @pos) - @minValue) / (@maxValue - @minValue)", "commit": true } },
+                                                  { "variable": { "name": "y", "value": "@lineBottom - @v * (@lineBottom - @margin)", "commit": true } },
+                                                  { "pathAppendLineTo": { "path": "graphPath", "x": "@index", "y": "@y" } }
                                                 ]
                                               }
                                             },
-                                            { "pathAppendLineTo": { "path": "graphPath", "x": "@vars.xEnd", "y": "@vars.lineBottom" } },
+                                            { "pathAppendLineTo": { "path": "graphPath", "x": "@xEnd", "y": "@lineBottom" } },
                                             { "pathAppendClose": { "path": "graphPath" } },
                                             {
                                               "paint": {
                                                 "ops": [
                                                   { "style": "fill" },
-                                                  { "linearGradient": { "x1": 0.0, "y1": 0.0, "x2": 0.0, "y2": "@vars.lineBottom", "colors": [ "@colors.dotColor", 0 ], "tileMode": 0 } },
+                                                  { "linearGradient": { "x1": 0.0, "y1": 0.0, "x2": 0.0, "y2": "@lineBottom", "colors": [ "@colors.dotColor", 0 ], "tileMode": 0 } },
                                                   { "pathEffect": null },
                                                   { "color": "#000000" }
                                                 ]
                                               }
                                             },
                                             { "save": {} },
-                                            { "clipRect": { "left": "@vars.margin + 5.0", "top": "@vars.margin + 5.0", "right": "@vars.xEnd - 5.0", "bottom": "@vars.lineBottom - 5.0" } },
+                                            { "clipRect": { "left": "@margin + 5.0", "top": "@margin + 5.0", "right": "@xEnd - 5.0", "bottom": "@lineBottom - 5.0" } },
                                             { "drawPath": "graphPath" },
                                             {
                                               "paint": {
@@ -268,8 +268,8 @@ fun rcJsonTicker(
                                                   "row": {
                                                     "verticalAlignment": "bottom",
                                                     "children": [
-                                                      { "text": { "textFromFloat": { "value": 6846.51, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" } },
-                                                      { "text": { "textFromFloat": { "value": 6846.51, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" } }
+                                                      { "text": { "textFromFloat": { "value": 6846.51, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" } },
+                                                      { "text": { "textFromFloat": { "value": 6846.51, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" } }
                                                     ]
                                                   }
                                                 },
@@ -277,8 +277,8 @@ fun rcJsonTicker(
                                                   "row": [
                                                     {
                                                       "column": [
-                                                        { "text": { "value": "S&P 500", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" } },
-                                                        { "text": { "value": "-0.35%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" } }
+                                                        { "text": { "value": "S&P 500", "fontSize": "@defaultFontSize", "color": "@colors.stockName" } },
+                                                        { "text": { "value": "-0.35%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" } }
                                                       ]
                                                     },
                                                     { "spacer": {} },
@@ -307,8 +307,8 @@ fun rcJsonTicker(
                                                   "row": {
                                                     "verticalAlignment": "bottom",
                                                     "children": [
-                                                      { "text": { "textFromFloat": { "value": 23545.9, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" } },
-                                                      { "text": { "textFromFloat": { "value": 23545.9, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" } }
+                                                      { "text": { "textFromFloat": { "value": 23545.9, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" } },
+                                                      { "text": { "textFromFloat": { "value": 23545.9, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" } }
                                                     ]
                                                   }
                                                 },
@@ -316,8 +316,8 @@ fun rcJsonTicker(
                                                   "row": [
                                                     {
                                                       "column": [
-                                                        { "text": { "value": "Nasdaq", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" } },
-                                                        { "text": { "value": "-0.14%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" } }
+                                                        { "text": { "value": "Nasdaq", "fontSize": "@defaultFontSize", "color": "@colors.stockName" } },
+                                                        { "text": { "value": "-0.14%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" } }
                                                       ]
                                                     },
                                                     { "spacer": {} },
@@ -346,8 +346,8 @@ fun rcJsonTicker(
                                                   "row": {
                                                     "verticalAlignment": "bottom",
                                                     "children": [
-                                                      { "text": { "textFromFloat": { "value": 2520.98, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" } },
-                                                      { "text": { "textFromFloat": { "value": 2520.98, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" } }
+                                                      { "text": { "textFromFloat": { "value": 2520.98, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" } },
+                                                      { "text": { "textFromFloat": { "value": 2520.98, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" } }
                                                     ]
                                                   }
                                                 },
@@ -355,8 +355,8 @@ fun rcJsonTicker(
                                                   "row": [
                                                     {
                                                       "column": [
-                                                        { "text": { "value": "Russell", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" } },
-                                                        { "text": { "value": "-0.020%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" } }
+                                                        { "text": { "value": "Russell", "fontSize": "@defaultFontSize", "color": "@colors.stockName" } },
+                                                        { "text": { "value": "-0.020%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" } }
                                                       ]
                                                     },
                                                     { "spacer": {} },
@@ -385,8 +385,8 @@ fun rcJsonTicker(
                                                   "row": {
                                                     "verticalAlignment": "bottom",
                                                     "children": [
-                                                      { "text": { "textFromFloat": { "value": 21703.2, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceDollars", "color": "@colors.stockPrice" } },
-                                                      { "text": { "textFromFloat": { "value": 21703.2, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@vars.priceCents", "color": "@colors.stockName" } }
+                                                      { "text": { "textFromFloat": { "value": 21703.2, "whole": 8, "decimal": 0, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceDollars", "color": "@colors.stockPrice" } },
+                                                      { "text": { "textFromFloat": { "value": 21703.2, "whole": 0, "decimal": 2, "flags": ${Rc.TextFromFloat.PAD_PRE_NONE or Rc.TextFromFloat.GROUPING_BY3 or Rc.TextFromFloat.PAD_AFTER_ZERO} }, "fontSize": "@priceCents", "color": "@colors.stockName" } }
                                                     ]
                                                   }
                                                 },
@@ -394,8 +394,8 @@ fun rcJsonTicker(
                                                   "row": [
                                                     {
                                                       "column": [
-                                                        { "text": { "value": "NYA", "fontSize": "@vars.defaultFontSize", "color": "@colors.stockName" } },
-                                                        { "text": { "value": "-0.49%", "fontSize": "@vars.defaultFontSize", "color": "@colors.dotColor" } }
+                                                        { "text": { "value": "NYA", "fontSize": "@defaultFontSize", "color": "@colors.stockName" } },
+                                                        { "text": { "value": "-0.49%", "fontSize": "@defaultFontSize", "color": "@colors.dotColor" } }
                                                       ]
                                                     },
                                                     { "spacer": {} },
@@ -428,7 +428,7 @@ fun rcJsonTicker(
                                           "verticalAlignment": "center",
                                           "children": [
                                             { "text": { "value": "+ ", "color": "@colors.followText", "fontSize": 48.0 } },
-                                            { "text": { "value": "Follow investments", "color": "@colors.followText", "fontSize": "@vars.defaultFontSize" } }
+                                            { "text": { "value": "Follow investments", "color": "@colors.followText", "fontSize": "@defaultFontSize" } }
                                           ]
                                         }
                                       }
@@ -453,15 +453,15 @@ fun rcJsonTicker(
                       "paint": {
                         "ops": [
                           { "color": "@colors.stockName" },
-                          { "alpha": "@vars.alpha" },
+                          { "alpha": "@alpha" },
                           { "width": 10.0 }
                         ]
                       }
                     },
                     { "variable": { "name": "safeSize", "value": "max(1.0, sHeight)", "commit": true } },
-                    { "variable": { "name": "len", "value": "h * h / @vars.safeSize", "commit": true } },
-                    { "variable": { "name": "off", "value": "h * 0.0 / @vars.safeSize", "commit": true } },
-                    { "drawLine": { "x1": "@vars.w - 5.0", "y1": "@vars.off", "x2": "@vars.w - 5.0", "y2": "@vars.off + @vars.len" } }
+                    { "variable": { "name": "len", "value": "h * h / @safeSize", "commit": true } },
+                    { "variable": { "name": "off", "value": "h * 0.0 / @safeSize", "commit": true } },
+                    { "drawLine": { "x1": "@w - 5.0", "y1": "@off", "x2": "@w - 5.0", "y2": "@off + @len" } }
                   ]
                 }
               }

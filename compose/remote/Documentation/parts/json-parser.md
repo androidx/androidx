@@ -11,7 +11,7 @@ The `RemoteComposeJsonParser` provides a standardized way to define RemoteCompos
 - **Ordered Modifiers**: Styling and transformation operations are stored in an optional `"modifiers"` array to ensure they are applied in a deterministic functional order.
 - **Ordered Children/Commands**: Nested layout components are stored in a `"children"` array, while drawing commands for canvas components are stored in a `"commands"` array.
 - **Deterministic Resource Ordering**: Resources like `colors`, `variables`, `paths`, and `matrices` can be defined as an array of objects (`[ { "name": "n", "value": "v" } ]`) or as a map of key-value pairs. The parser scans the `root` array for `resources` and `variable` commands and parses them *before* root component initialization, enabling bit-for-bit identity with code-generated documents.
-- **Infix Expressions**: Dynamic math is represented as infix strings (e.g., `"a + b * sin(time)"`) which are parsed into the underlying expression engine. Expressions can refer to other variables using `$vars.name` or `@vars.name`.
+- **Infix Expressions**: Dynamic math is represented as infix strings (e.g., `"a + b * sin(time)"`) which are parsed into the underlying expression engine. Expressions can refer to other variables using `@name` (or `$name`), or the legacy `@vars.name` / `$vars.name` format.
 
 ---
 
@@ -99,7 +99,7 @@ Layout components recursively descend using `parseComponent(JSONObject)` and `pa
 
 The text component supports advanced dynamic formatting and text overflow capabilities:
 
-- `"value"`: The plain text string. Supports variable lookups (e.g. `"$vars.message"` / `@vars.message`).
+- `"value"`: The plain text string. Supports variable lookups (e.g. `"$message"` / `@message`, or the legacy `$vars.message` / `@vars.message`).
 - `"textFromFloat"`: Sub-object to dynamically format a floating-point variable as text:
   ```json
   "textFromFloat": {
@@ -202,7 +202,7 @@ Paint attributes can be specified via individual commands or a unified `"paint"`
 - `"loop"`: Repeats drawing commands in a range:
   - `"from"`, `"until"`: Loop boundaries.
   - `"step"`: Increment step value (defaults to `1.0`).
-  - `"index"`: Loop iterator variable name (defaults to `"i"`). Accessible inside loop expressions using `$vars.i`.
+  - `"index"`: Loop iterator variable name (defaults to `"i"`). Accessible inside loop expressions using `@i` (or `$i`).
   - `"commands"`: A nested array of drawing commands.
 - `"global"`:
   A canvas drawing command wrapper. When used, all nested drawing commands placed in its `"commands"` array are wrapped in a global context in the writer and automatically hoisted/rewritten to the very beginning of the output compiled binary document. It is nesting-safe and merges with other global components.
@@ -307,7 +307,7 @@ Equations can reference real-time system environment variables:
 #### Custom Variable Lookups
 
 Custom variables declared in the `"resources"` block can be referenced using prefix lookups:
-- `$vars.variableName` or `@vars.variableName`
+- `@variableName` or `$variableName` (or legacy `$vars.variableName` / `@vars.variableName`)
 - `$matrices.matrixName` or `@matrices.matrixName`
 
 #### Mathematical Functions (33 Functions Supported)
@@ -373,7 +373,7 @@ The following example showcases deterministic themed resource definitions, globa
               "drawCircle": {
                 "cx": "width / 2",
                 "cy": "height / 2",
-                "radius": "$vars.pulse"
+                "radius": "@pulse"
               }
             }
           ]
