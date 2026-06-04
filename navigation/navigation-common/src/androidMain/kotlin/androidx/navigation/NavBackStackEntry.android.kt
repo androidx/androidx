@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.internal.NavBackStackEntryImpl
 import androidx.navigation.internal.NavContext
 import androidx.savedstate.SavedState
@@ -131,9 +132,7 @@ private constructor(
     actual override val defaultViewModelCreationExtras: CreationExtras
         get() {
             val extras = impl.defaultViewModelCreationExtras
-            (context?.getApplication() as? Application)?.let { application ->
-                extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
-            }
+            extras.setPlatformExtras(context)
             return extras
         }
 
@@ -169,5 +168,13 @@ private constructor(
 
     override fun toString(): String {
         return impl.toString()
+    }
+}
+
+internal actual fun randomUuid(): String = UUID.randomUUID().toString()
+
+internal actual fun MutableCreationExtras.setPlatformExtras(context: NavContext?) {
+    (context?.getApplication() as? Application)?.let { application ->
+        this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
     }
 }

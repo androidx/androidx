@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavBackStackEntryKt")
+@file:JvmMultifileClass
+
 package androidx.navigation
 
 import androidx.annotation.MainThread
@@ -26,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.internal.NavBackStackEntryImpl
 import androidx.navigation.internal.NavContext
 import androidx.savedstate.SavedState
@@ -34,6 +38,8 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.read
 import kotlin.experimental.and
 import kotlin.experimental.or
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.random.Random
 
 public actual class NavBackStackEntry
@@ -92,27 +98,7 @@ private constructor(
                 savedState,
             )
 
-        @OptIn(ExperimentalStdlibApi::class)
-        internal actual fun randomUUID(): String {
-            val bytes =
-                Random.nextBytes(16).also {
-                    it[6] = it[6] and 0x0f // clear version
-                    it[6] = it[6] or 0x40 // set to version 4
-                    it[8] = it[8] and 0x3f // clear variant
-                    it[8] = it[8] or 0x80.toByte() // set to IETF variant
-                }
-            return buildString(capacity = 36) {
-                append(bytes.toHexString(0, 4))
-                append('-')
-                append(bytes.toHexString(4, 6))
-                append('-')
-                append(bytes.toHexString(6, 8))
-                append('-')
-                append(bytes.toHexString(8, 10))
-                append('-')
-                append(bytes.toHexString(10))
-            }
-        }
+        internal actual fun randomUUID(): String = randomUuid()
     }
 
     private val impl: NavBackStackEntryImpl = NavBackStackEntryImpl(this)
@@ -175,4 +161,30 @@ private constructor(
         sb.append(destination)
         return sb.toString()
     }
+}
+
+@OptIn(ExperimentalStdlibApi::class)
+internal actual fun randomUuid(): String {
+    val bytes =
+        Random.nextBytes(16).also {
+            it[6] = it[6] and 0x0f // clear version
+            it[6] = it[6] or 0x40 // set to version 4
+            it[8] = it[8] and 0x3f // clear variant
+            it[8] = it[8] or 0x80.toByte() // set to IETF variant
+        }
+    return buildString(capacity = 36) {
+        append(bytes.toHexString(0, 4))
+        append('-')
+        append(bytes.toHexString(4, 6))
+        append('-')
+        append(bytes.toHexString(6, 8))
+        append('-')
+        append(bytes.toHexString(8, 10))
+        append('-')
+        append(bytes.toHexString(10))
+    }
+}
+
+internal actual fun MutableCreationExtras.setPlatformExtras(context: NavContext?) {
+    // no-op
 }
