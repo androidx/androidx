@@ -87,6 +87,21 @@ class AppFunctionServiceEntryPointCompilerTest {
     }
 
     @Test
+    fun testAppFunctionEntryPoint_withRequiresApi_generatesServiceClassWithRequiresApi() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/RequiresApiEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "MyRequiresApiService.kt",
+            goldenFileName = "entrypoints/MyRequiresApiService.KT",
+        )
+    }
+
+    @Test
     fun testMissingSuperClass_hasCompileError() {
         val report =
             compilationTestHelper.compileAll(

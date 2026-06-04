@@ -31,7 +31,9 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionInvent
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionRequestClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionResponseClass
+import androidx.appfunctions.compiler.core.IntrospectionHelper.RequiresApiAnnotation
 import androidx.appfunctions.compiler.core.ProcessingException
+import androidx.appfunctions.compiler.core.findAnnotation
 import androidx.appfunctions.compiler.core.fromCamelCaseToScreamingSnakeCase
 import androidx.appfunctions.compiler.core.logException
 import androidx.appfunctions.compiler.core.toTypeName
@@ -43,6 +45,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -137,6 +140,20 @@ class AppFunctionServiceEntryPointProcessor(
                 .addFunction(buildExecuteFunction(serviceEntryPoint))
                 .addFunction(buildResolveInventory(serviceEntryPoint))
                 .addType(buildCompanionObject(serviceEntryPoint))
+
+        val requiresApiAnnotation =
+            serviceDeclaration.annotations.findAnnotation(RequiresApiAnnotation.CLASS_NAME)
+        if (requiresApiAnnotation != null) {
+            val annotationBuilder = AnnotationSpec.builder(RequiresApiAnnotation.CLASS_NAME)
+            for (argument in requiresApiAnnotation.arguments) {
+                val name = argument.name?.asString()
+                val value = argument.value
+                if (value != null && name != null) {
+                    annotationBuilder.addMember("%L = %L", name, value)
+                }
+            }
+            serviceClassBuilder.addAnnotation(annotationBuilder.build())
+        }
 
         val fileSpec =
             FileSpec.builder(packageName, serviceName).addType(serviceClassBuilder.build()).build()

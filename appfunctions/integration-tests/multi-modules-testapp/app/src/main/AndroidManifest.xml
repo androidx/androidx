@@ -28,7 +28,8 @@
             android:name=".SimpleAppFunctionService"
             android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
             android:enabled="@bool/is_at_least_sdk_37"
-            android:exported="true">
+            android:exported="true"
+            tools:targetApi="36">
             <property
                 android:name="android.app.appfunctions.schema"
                 android:value="app_functions_schema.xsd" />

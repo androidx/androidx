@@ -36,6 +36,10 @@ object IntrospectionHelper {
         const val PROPERTY_MESSAGE = "message"
     }
 
+    object RequiresApiAnnotation {
+        val CLASS_NAME = ClassName("androidx.annotation", "RequiresApi")
+    }
+
     object AppFunctionAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_SERVICE_PACKAGE_NAME, "AppFunction")
         val CLASS_NAME_BASE = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunction")
@@ -354,9 +358,7 @@ object IntrospectionHelper {
 
     /** [AnnotationSpec] for @RequiresApi(33) */
     val RESTRICT_API_TO_33_ANNOTATION =
-        AnnotationSpec.builder(ClassName("androidx.annotation", "RequiresApi"))
-            .addMember("%L", 33)
-            .build()
+        AnnotationSpec.builder(RequiresApiAnnotation.CLASS_NAME).addMember("%L", 33).build()
 
     val PARCELABLE_CLASS_NAME = ClassName("android.os", "Parcelable")
 }
