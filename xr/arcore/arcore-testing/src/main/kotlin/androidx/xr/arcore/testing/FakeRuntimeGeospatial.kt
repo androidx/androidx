@@ -63,6 +63,12 @@ public class FakeRuntimeGeospatial(
 
     override var geospatialPose: GeospatialPose = GeospatialPose()
 
+    override var horizontalAccuracy: Double = 0.0
+
+    override var verticalAccuracy: Double = 0.0
+
+    override var orientationYawAccuracy: Double = 0.0
+
     public var nextGeospatialPoseResult: GeospatialPoseResult? = null
 
     public var nextPose: Pose? = null

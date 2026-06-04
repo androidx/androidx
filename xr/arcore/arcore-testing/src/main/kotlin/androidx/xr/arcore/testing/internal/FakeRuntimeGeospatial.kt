@@ -36,6 +36,15 @@ internal class FakeRuntimeGeospatial(
     override val geospatialPose: GeospatialPose
         get() = expectedGeospatialPose
 
+    override val horizontalAccuracy: Double
+        get() = expectedHorizontalAccuracy
+
+    override val verticalAccuracy: Double
+        get() = expectedVerticalAccuracy
+
+    override val orientationYawAccuracy: Double
+        get() = expectedOrientationYawAccuracy
+
     var expectedPose: Pose = Pose()
     var expectedGeospatialPose: GeospatialPose = GeospatialPose(0.0, 0.0, 0.0, Quaternion.Identity)
     var expectedHorizontalAccuracy: Double = 0.0

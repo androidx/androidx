@@ -105,10 +105,19 @@ class GeospatialTest {
         runTest(testDispatcher) {
             val underTest = Geospatial.getInstance(session)
             arCoreTestRule.geospatialTester.state = Geospatial.GeospatialTrackingState.RUNNING
+            val expectedPose = GeospatialPose(1.0, 2.0, 3.0, Quaternion(1f, 2f, 3f, 4f))
+            arCoreTestRule.geospatialTester.expectedGeospatialPose = expectedPose
+            arCoreTestRule.geospatialTester.expectedHorizontalAccuracy = 1.2
+            arCoreTestRule.geospatialTester.expectedVerticalAccuracy = 3.4
+            arCoreTestRule.geospatialTester.expectedOrientationYawAccuracy = 5.6
             advanceUntilIdle()
 
             assertThat(underTest.state.value.geospatialTrackingState)
                 .isEqualTo(Geospatial.GeospatialTrackingState.RUNNING)
+            assertThat(underTest.state.value.geospatialPose).isEqualTo(expectedPose)
+            assertThat(underTest.state.value.horizontalAccuracy).isEqualTo(1.2)
+            assertThat(underTest.state.value.verticalAccuracy).isEqualTo(3.4)
+            assertThat(underTest.state.value.orientationYawAccuracy).isEqualTo(5.6)
         }
 
     @Test

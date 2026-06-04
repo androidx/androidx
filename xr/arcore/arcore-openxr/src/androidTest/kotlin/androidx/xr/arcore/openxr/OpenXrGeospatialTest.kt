@@ -68,6 +68,29 @@ class OpenXrGeospatialTest {
     }
 
     @Test
+    fun update_whenRunning_updatesGeospatialProperties() = initOpenXrRuntimeAndRunTest {
+        runTest {
+            ensureGeospatialRunning()
+
+            // The values below come from `xrLocateGeospatialPoseFromPoseANDROIDX2` in
+            // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
+            assertThat(underTest.state).isEqualTo(Geospatial.State.RUNNING)
+            assertThat(underTest.geospatialPose)
+                .isEqualTo(
+                    GeospatialPose(
+                        latitude = 37.422,
+                        longitude = -122.084,
+                        altitude = 10.0,
+                        eastUpSouthQuaternion = Quaternion(0f, 0f, 0f, 1f),
+                    )
+                )
+            assertThat(underTest.horizontalAccuracy).isEqualTo(1.0)
+            assertThat(underTest.verticalAccuracy).isEqualTo(2.0)
+            assertThat(underTest.orientationYawAccuracy).isEqualTo(3.0)
+        }
+    }
+
+    @Test
     fun createGeospatialPoseFromPose_returnsGeospatialPose() = initOpenXrRuntimeAndRunTest {
         runTest {
             ensureGeospatialRunning()

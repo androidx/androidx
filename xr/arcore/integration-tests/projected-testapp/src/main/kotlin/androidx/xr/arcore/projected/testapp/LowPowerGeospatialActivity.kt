@@ -236,8 +236,6 @@ class LowPowerGeospatialActivity : ComponentActivity() {
             }
 
         val deviceGeoPoseState = geospatialState.geospatialPose
-        val deviceGeoPose =
-            deviceGeoPoseState ?: (geoPoseResult as? CreateGeospatialPoseFromPoseSuccess)?.pose
 
         val localPoseResult =
             remember(deviceGeoPoseState, geospatialState.geospatialTrackingState) {
@@ -266,7 +264,12 @@ class LowPowerGeospatialActivity : ComponentActivity() {
             Column(modifier = Modifier.align(Alignment.TopStart)) {
                 DashboardHeader(geospatialState, arDeviceState)
                 LocalTrackingSection(arDeviceState)
-                GeospatialTrackingSection(deviceGeoPose, geoPoseResult, arDeviceState)
+                GeospatialTrackingSection(
+                    geospatialState.geospatialPose,
+                    geospatialState.horizontalAccuracy,
+                    geospatialState.verticalAccuracy,
+                    geospatialState.orientationYawAccuracy,
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
                 HudTitleText("— CONVERSION VALUES —")
@@ -312,33 +315,20 @@ class LowPowerGeospatialActivity : ComponentActivity() {
 
     @Composable
     private fun GeospatialTrackingSection(
-        dispGeoPose: GeospatialPose?,
-        locResult: CreateGeospatialPoseFromPoseResult?,
-        arDeviceState: ArDevice.State?,
+        dispGeoPose: GeospatialPose,
+        horizontalAccuracy: Double,
+        verticalAccuracy: Double,
+        orientationYawAccuracy: Double,
     ) {
-        if (dispGeoPose != null) {
-            HudDataText(dispGeoPose.toFormattedString())
-        } else {
-            HudDataText("Lat/Lon: N/A | Alt: N/A")
-        }
-
-        if (locResult is CreateGeospatialPoseFromPoseSuccess) {
-            HudDataText(locResult.toAccuracyString())
-        } else {
-            HudDataText("Acc(H/V/Yaw): N/A")
-        }
-
-        if (dispGeoPose != null) {
-            val eusStr = dispGeoPose.eastUpSouthQuaternion.toFormattedString()
-            HudDataText("EUS Quat: $eusStr")
-        } else {
-            HudDataText("EUS Quat: N/A")
-        }
-
-        if (arDeviceState != null) {
-            val orientStr = getOrientationDescription(arDeviceState.devicePose.rotation)
-            HudDataText("Orientation: $orientStr")
-        }
+        HudDataText(dispGeoPose.toFormattedString())
+        HudDataText(
+            "Acc(H/V/Yaw): %.1fm / %.1fm / %.1f°"
+                .format(horizontalAccuracy, verticalAccuracy, orientationYawAccuracy)
+        )
+        val eusStr = dispGeoPose.eastUpSouthQuaternion.toFormattedString()
+        HudDataText("EUS Quat: $eusStr")
+        val orientStr = getOrientationDescription(dispGeoPose.eastUpSouthQuaternion)
+        HudDataText("Orientation: $orientStr")
     }
 
     @Composable
@@ -375,10 +365,6 @@ class LowPowerGeospatialActivity : ComponentActivity() {
 
     private fun GeospatialPose.toFormattedString(): String =
         "Lat/Lon: %.6f, %.6f | Alt: %.1fm".format(latitude, longitude, altitude)
-
-    private fun CreateGeospatialPoseFromPoseSuccess.toAccuracyString(): String =
-        "Acc(H/V/Yaw): %.1fm / %.1fm / %.1f°"
-            .format(horizontalAccuracy, verticalAccuracy, orientationYawAccuracy)
 
     private fun calculateLocalConversionText(
         localPoseResult: CreatePoseFromGeospatialPoseResult?,

@@ -417,6 +417,12 @@ class XrResourcesManagerTest {
 
         override val geospatialPose: GeospatialPose = GeospatialPose()
 
+        override val horizontalAccuracy: Double = 0.0
+
+        override val verticalAccuracy: Double = 0.0
+
+        override val orientationYawAccuracy: Double = 0.0
+
         override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose = Pose()
 
         override fun createGeospatialPoseFromPose(

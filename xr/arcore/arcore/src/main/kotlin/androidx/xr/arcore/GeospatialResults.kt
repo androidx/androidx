@@ -93,7 +93,7 @@ private class CreatePoseFromGeospatialPoseResultHidden() : CreatePoseFromGeospat
  * @property horizontalAccuracy the estimated horizontal accuracy in meters with respect to latitude
  *   and longitude
  * @property verticalAccuracy the estimated altitude accuracy in meters
- * @property orientationYawAccuracy the estimated orientation yaw angle accuracy
+ * @property orientationYawAccuracy the estimated orientation yaw angle accuracy in degrees
  */
 public class CreateGeospatialPoseFromPoseSuccess
 internal constructor(
