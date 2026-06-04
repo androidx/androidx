@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.compose.spatial
 
 import android.annotation.SuppressLint
@@ -58,12 +57,9 @@ private class OutsideClickNodeElement(var enabled: Boolean, var onClickOutside: 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as OutsideClickNodeElement
-
         if (enabled != other.enabled) return false
         if (onClickOutside !== other.onClickOutside) return false
-
         return true
     }
 
@@ -79,7 +75,6 @@ internal class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> 
     PointerInputModifierNode,
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode {
-
     private var inputCaptureView: InputCaptureView? = null
     private var job: Job? = null
 
@@ -137,7 +132,8 @@ internal class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> 
  * This default View constructor is used by tooling (as per a warning in Android Studio). In
  * practice, use the constructor that takes a targetView and onOutsideInput.
  */
-private class InputCaptureView private constructor(context: Context) : View(context) {
+private class InputCaptureView private constructor(context: Context) :
+    View(context), View.OnAttachStateChangeListener {
     constructor(targetView: View, onInput: () -> Unit) : this(targetView.context) {
         this.targetView = targetView
         this.onInput = onInput
@@ -155,24 +151,44 @@ private class InputCaptureView private constructor(context: Context) : View(cont
 
     private val windowManager: WindowManager =
         context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private var isAddedToWindowManager = false
+
+    override fun onViewAttachedToWindow(v: View) {
+        updateToken(v)
+    }
+
+    override fun onViewDetachedFromWindow(v: View) {
+        hide()
+    }
 
     var targetView: View? = null
         set(value) {
-            if (field != value && value != null) {
-                updateLayoutParams<WindowManager.LayoutParams> {
-                    // Get the Window token from the parent view
-                    token = value.applicationWindowToken
-                    // This view should have zero size as its only purpose is to capture global
-                    // touch events.
-                    width = 0
-                    height = 0
-                }
-                if (isAttachedToWindow) {
-                    windowManager.updateViewLayout(this, layoutParams)
+            if (field != value) {
+                field?.removeOnAttachStateChangeListener(this)
+                if (value != null) {
+                    value.addOnAttachStateChangeListener(this)
+                    updateToken(value)
                 }
             }
             field = value
         }
+
+    private fun updateToken(view: View) {
+        val currentToken = view.applicationWindowToken
+        if (currentToken != null) {
+            updateLayoutParams<WindowManager.LayoutParams> {
+                // Get the Window token from the parent view
+                token = currentToken
+                // This view should have zero size as its only purpose is to capture global
+                // touch events.
+                width = 0
+                height = 0
+            }
+            if (isAttachedToWindow && isAddedToWindowManager) {
+                windowManager.updateViewLayout(this, layoutParams)
+            }
+        }
+    }
 
     private var onInput: () -> Unit = {}
 
@@ -186,10 +202,24 @@ private class InputCaptureView private constructor(context: Context) : View(cont
     }
 
     fun hide() {
-        windowManager.removeView(this)
+        if (isAddedToWindowManager) {
+            windowManager.removeView(this)
+            isAddedToWindowManager = false
+        }
     }
 
     fun show() {
-        windowManager.addView(this, layoutParams)
+        if (!isAddedToWindowManager) {
+            updateLayoutParams<WindowManager.LayoutParams> {
+                if (token == null) {
+                    token = targetView?.applicationWindowToken
+                }
+            }
+            val params = layoutParams as? WindowManager.LayoutParams
+            if (params?.token != null) {
+                windowManager.addView(this, layoutParams)
+                isAddedToWindowManager = true
+            }
+        }
     }
 }
