@@ -39,6 +39,9 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
+ * The function may have a return type of `Int` indicating the amount of items updated by the
+ * operation.
+ *
  * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
  * object types that will be interpreted as partial entities. For example:
  * ```

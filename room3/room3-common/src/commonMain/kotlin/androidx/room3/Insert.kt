@@ -41,6 +41,22 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
+ * The insert function may have a return type of `Long` if a single item is inserted denoting the
+ * `rowid` of the newly inserted item or `-1` if no item was inserted. If multiple items are
+ * inserted then the return type maybe be of `LongArray` or `List<Array>` containing the ids of the
+ * inserted items.
+ *
+ * ```
+ * @Dao
+ * interface MusicDao {
+ *     @Insert(onConflict = OnConflictStrategy.IGNORE)
+ *     suspend fun insertSong(song: Song): Long
+ *
+ *     @Insert(onConflict = OnConflictStrategy.IGNORE)
+ *     suspend fun insertListOfSongs(List<Song>): List<Long>
+ * }
+ * ```
+ *
  * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
  * object types that will be interpreted as partial entities. For example:
  * ```
