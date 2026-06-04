@@ -134,7 +134,7 @@ public open class RemoteEnum<T : Enum<T>>(
         }
 
         return enumEntries.fastFold((-1).ri) { acc, value ->
-            intValue.eq(value.ordinal.ri).select(mapping(value), acc)
+            intValue.isEqualTo(value.ordinal.ri).select(mapping(value), acc)
         }
     }
 

@@ -291,7 +291,7 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
      * @param other The other [RemoteBoolean] to compare with.
      * @return A new [RemoteBoolean] representing the result of the equality comparison.
      */
-    public fun isEqualTo(other: RemoteBoolean): RemoteBoolean = intValue eq other.intValue
+    public fun isEqualTo(other: RemoteBoolean): RemoteBoolean = intValue.isEqualTo(other.intValue)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated("Use isEqualTo instead", ReplaceWith("isEqualTo(other)"))
@@ -306,7 +306,8 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
      * @param other The other [RemoteBoolean] to compare with.
      * @return A new [RemoteBoolean] representing the result of the inequality comparison.
      */
-    public fun isNotEqualTo(other: RemoteBoolean): RemoteBoolean = intValue ne other.intValue
+    public fun isNotEqualTo(other: RemoteBoolean): RemoteBoolean =
+        intValue.isNotEqualTo(other.intValue)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated("Use isNotEqualTo instead", ReplaceWith("isNotEqualTo(other)"))

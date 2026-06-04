@@ -112,6 +112,106 @@ class RemoteIntTest {
     }
 
     @Test
+    fun isEqualTo() {
+        val b0 = RemoteInt(10).isEqualTo(RemoteInt(10))
+        val b1 = RemoteInt(10).isEqualTo(RemoteInt(20))
+        val result0 = b0.select(RemoteInt(1), RemoteInt(0))
+        val result1 = b1.select(RemoteInt(1), RemoteInt(0))
+        val result0Id = result0.getIdForCreationState(creationState)
+        val result1Id = result1.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(result0Id)).isEqualTo(1)
+        assertThat(context.getInteger(result1Id)).isEqualTo(0)
+    }
+
+    @Test
+    fun isNotEqualTo() {
+        val b0 = RemoteInt(10).isNotEqualTo(RemoteInt(10))
+        val b1 = RemoteInt(10).isNotEqualTo(RemoteInt(20))
+        val result0 = b0.select(RemoteInt(1), RemoteInt(0))
+        val result1 = b1.select(RemoteInt(1), RemoteInt(0))
+        val result0Id = result0.getIdForCreationState(creationState)
+        val result1Id = result1.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(result0Id)).isEqualTo(0)
+        assertThat(context.getInteger(result1Id)).isEqualTo(1)
+    }
+
+    @Test
+    fun isLessThan() {
+        val b0 = RemoteInt(10).isLessThan(RemoteInt(20))
+        val b1 = RemoteInt(10).isLessThan(RemoteInt(10))
+        val b2 = RemoteInt(20).isLessThan(RemoteInt(10))
+        val result0 = b0.select(RemoteInt(1), RemoteInt(0))
+        val result1 = b1.select(RemoteInt(1), RemoteInt(0))
+        val result2 = b2.select(RemoteInt(1), RemoteInt(0))
+        val result0Id = result0.getIdForCreationState(creationState)
+        val result1Id = result1.getIdForCreationState(creationState)
+        val result2Id = result2.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(result0Id)).isEqualTo(1)
+        assertThat(context.getInteger(result1Id)).isEqualTo(0)
+        assertThat(context.getInteger(result2Id)).isEqualTo(0)
+    }
+
+    @Test
+    fun isLessThanOrEqual() {
+        val b0 = RemoteInt(10).isLessThanOrEqual(RemoteInt(20))
+        val b1 = RemoteInt(10).isLessThanOrEqual(RemoteInt(10))
+        val b2 = RemoteInt(20).isLessThanOrEqual(RemoteInt(10))
+        val result0 = b0.select(RemoteInt(1), RemoteInt(0))
+        val result1 = b1.select(RemoteInt(1), RemoteInt(0))
+        val result2 = b2.select(RemoteInt(1), RemoteInt(0))
+        val result0Id = result0.getIdForCreationState(creationState)
+        val result1Id = result1.getIdForCreationState(creationState)
+        val result2Id = result2.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(result0Id)).isEqualTo(1)
+        assertThat(context.getInteger(result1Id)).isEqualTo(1)
+        assertThat(context.getInteger(result2Id)).isEqualTo(0)
+    }
+
+    @Test
+    fun isGreaterThan() {
+        val b0 = RemoteInt(20).isGreaterThan(RemoteInt(10))
+        val b1 = RemoteInt(10).isGreaterThan(RemoteInt(10))
+        val b2 = RemoteInt(10).isGreaterThan(RemoteInt(20))
+        val result0 = b0.select(RemoteInt(1), RemoteInt(0))
+        val result1 = b1.select(RemoteInt(1), RemoteInt(0))
+        val result2 = b2.select(RemoteInt(1), RemoteInt(0))
+        val result0Id = result0.getIdForCreationState(creationState)
+        val result1Id = result1.getIdForCreationState(creationState)
+        val result2Id = result2.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(result0Id)).isEqualTo(1)
+        assertThat(context.getInteger(result1Id)).isEqualTo(0)
+        assertThat(context.getInteger(result2Id)).isEqualTo(0)
+    }
+
+    @Test
+    fun isGreaterThanOrEqual() {
+        val b0 = RemoteInt(20).isGreaterThanOrEqual(RemoteInt(10))
+        val b1 = RemoteInt(10).isGreaterThanOrEqual(RemoteInt(10))
+        val b2 = RemoteInt(10).isGreaterThanOrEqual(RemoteInt(20))
+        val result0 = b0.select(RemoteInt(1), RemoteInt(0))
+        val result1 = b1.select(RemoteInt(1), RemoteInt(0))
+        val result2 = b2.select(RemoteInt(1), RemoteInt(0))
+        val result0Id = result0.getIdForCreationState(creationState)
+        val result1Id = result1.getIdForCreationState(creationState)
+        val result2Id = result2.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(result0Id)).isEqualTo(1)
+        assertThat(context.getInteger(result1Id)).isEqualTo(1)
+        assertThat(context.getInteger(result2Id)).isEqualTo(0)
+    }
+
+    @Test
     fun toRemoteString() {
         val sum = RemoteInt(100) + 20
         val sumString = sum.toRemoteString(DecimalFormat("##0"))
