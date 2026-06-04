@@ -201,7 +201,17 @@ private constructor(
         throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)
-        return result.columnTypes[index]
+        // Combine response column type with a type check since column type is only determined
+        // from the first row and requires handling subsequent rows with null / non-null values.
+        val cachedType = result.columnTypes[index]
+        val guessedType = result.getCellType(rowIndex, index)
+        return if (guessedType == SQLITE_DATA_NULL) {
+            SQLITE_DATA_NULL
+        } else if (cachedType == SQLITE_DATA_NULL) {
+            guessedType
+        } else {
+            cachedType
+        }
     }
 
     override suspend fun step(): Boolean {
