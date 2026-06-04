@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -33,27 +34,27 @@ import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
-import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.waitAndScreenShot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -66,11 +67,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ShadowTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     private lateinit var activity: TestActivity
-    private lateinit var drawLatch: CountDownLatch
 
     private val rectShape =
         object : Shape {
@@ -84,8 +82,6 @@ class ShadowTest {
     @Before
     fun setup() {
         activity = rule.activity
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        drawLatch = CountDownLatch(1)
         isDebugInspectorInfoEnabled = true
     }
 
@@ -97,20 +93,16 @@ class ShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun shadowDrawn() {
-        rule.runOnUiThreadIR { activity.setContent { ShadowContainer() } }
+        rule.setContent { ShadowContainer() }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         takeScreenShot(12).apply { hasShadow() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun shadowDrawnInsideRenderNode() {
-        rule.runOnUiThreadIR {
-            activity.setContent { ShadowContainer(modifier = Modifier.graphicsLayer()) }
-        }
+        rule.setContent { ShadowContainer(modifier = Modifier.graphicsLayer()) }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         takeScreenShot(12).apply { hasShadow() }
     }
 
@@ -118,10 +110,9 @@ class ShadowTest {
     @Test
     fun switchFromShadowToNoShadow() {
         val elevation = mutableStateOf(10.dp)
-        rule.runOnUiThreadIR { activity.setContent { ShadowContainer(elevation = elevation) } }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        rule.setContent { ShadowContainer(elevation = elevation) }
         takeScreenShot(12).apply { hasShadow() }
-        rule.runOnUiThreadIR { elevation.value = 0.dp }
+        rule.runOnUiThread { elevation.value = 0.dp }
 
         takeScreenShot(12).apply { hasNoShadow() }
     }
@@ -131,14 +122,11 @@ class ShadowTest {
     fun switchFromNoShadowToShadowWithNestedRepaintBoundaries() {
         val elevation = mutableStateOf(0.dp)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                ShadowContainer(modifier = Modifier.graphicsLayer(clip = true), elevation)
-            }
+        rule.setContent {
+            ShadowContainer(modifier = Modifier.graphicsLayer(clip = true), elevation)
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        rule.runOnUiThreadIR { elevation.value = 12.dp }
+        rule.runOnIdle { elevation.value = 12.dp }
 
         takeScreenShot(12).apply { hasShadow() }
     }
@@ -146,23 +134,20 @@ class ShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun opacityAppliedForTheShadow() {
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
-                    val elevation = with(LocalDensity.current) { 4.dp.toPx() }
-                    AtLeastSize(
-                        size = 10,
-                        modifier =
-                            Modifier.graphicsLayer(
-                                shadowElevation = elevation,
-                                shape = rectShape,
-                                alpha = 0.5f,
-                            ),
-                    ) {}
-                }
+        rule.setContent {
+            AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
+                val elevation = with(LocalDensity.current) { 4.dp.toPx() }
+                AtLeastSize(
+                    size = 10,
+                    modifier =
+                        Modifier.graphicsLayer(
+                            shadowElevation = elevation,
+                            shape = rectShape,
+                            alpha = 0.5f,
+                        ),
+                ) {}
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         takeScreenShot(12).apply {
             val shadowColor = color(width / 2, height - 1)
             // assert the shadow is still visible
@@ -177,24 +162,21 @@ class ShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     fun colorsAppliedForTheShadow() {
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
-                    val elevation = with(LocalDensity.current) { 4.dp.toPx() }
-                    AtLeastSize(
-                        size = 10,
-                        modifier =
-                            Modifier.graphicsLayer(
-                                shadowElevation = elevation,
-                                shape = rectShape,
-                                ambientShadowColor = Color(0xFFFF00FF),
-                                spotShadowColor = Color(0xFFFF00FF),
-                            ),
-                    ) {}
-                }
+        rule.setContent {
+            AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
+                val elevation = with(LocalDensity.current) { 4.dp.toPx() }
+                AtLeastSize(
+                    size = 10,
+                    modifier =
+                        Modifier.graphicsLayer(
+                            shadowElevation = elevation,
+                            shape = rectShape,
+                            ambientShadowColor = Color(0xFFFF00FF),
+                            spotShadowColor = Color(0xFFFF00FF),
+                        ),
+                ) {}
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         takeScreenShot(12).apply {
             val shadowColor = color(width / 2, height - 1)
             // assert the shadow is still visible
@@ -210,30 +192,26 @@ class ShadowTest {
     fun emitShadowLater() {
         val model = mutableStateOf(false)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
-                    val shadow =
-                        if (model.value) {
-                            Modifier.shadow(8.dp, rectShape)
-                        } else {
-                            Modifier
-                        }
-                    AtLeastSize(size = 10, modifier = shadow) {}
-                }
+        rule.setContent {
+            AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
+                val shadow =
+                    if (model.value) {
+                        Modifier.shadow(8.dp, rectShape)
+                    } else {
+                        Modifier
+                    }
+                AtLeastSize(size = 10, modifier = shadow) {}
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.value = true }
+        rule.runOnIdle { model.value = true }
 
         takeScreenShot(12).apply { hasShadow() }
     }
 
     @Test
     fun testInspectorValue() {
-        rule.runOnUiThreadIR {
+        rule.runOnUiThread {
             val modifier = Modifier.shadow(4.0.dp).first() as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("shadow")
             assertThat(modifier.valueOverride).isNull()
@@ -253,56 +231,51 @@ class ShadowTest {
         val elevation = mutableStateOf(0f)
         val color = mutableStateOf(Color.Blue)
         val underColor = mutableStateOf(Color.Transparent)
+        var drawCount = 0
+        var elevationReadCount = 0
         val modifier =
             Modifier.graphicsLayer()
                 .background(underColor)
-                .drawLatchModifier()
-                .graphicsLayer { shadowElevation = elevation.value }
+                .drawBehind { drawCount++ }
+                .graphicsLayer {
+                    shadowElevation = elevation.value
+                    elevationReadCount++
+                }
                 .background(color)
 
-        rule.runOnUiThread { activity.setContent { androidx.compose.ui.FixedSize(30, modifier) } }
+        rule.setContent { androidx.compose.ui.FixedSize(30, modifier) }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        rule.runOnIdle {
+            elevationReadCount = 0
+            drawCount = 0
+            elevation.value = 1f
+        }
 
-        drawLatch = CountDownLatch(1)
-
-        rule.runOnUiThread { color.value = Color.Red }
-
-        Assert.assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
-
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread { elevation.value = 1f }
-
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        drawLatch = CountDownLatch(1)
-
-        rule.runOnUiThread {
+        rule.runOnIdle {
+            assertEquals(1, elevationReadCount)
+            assertEquals(1, drawCount)
             elevation.value = 2f // elevation was already 1, so it doesn't need to enableZ again
         }
-        Assert.assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
 
-        rule.runOnUiThread {
+        rule.runOnIdle {
+            assertEquals(1, drawCount)
+            assertEquals(2, elevationReadCount)
             elevation.value = 0f // going to 0 doesn't trigger invalidation
         }
-        Assert.assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
 
-        rule.runOnUiThread {
+        rule.runOnIdle {
+            assertEquals(1, drawCount)
+            assertEquals(3, elevationReadCount)
             elevation.value = 1f // going to 1 won't invalidate because it was last drawn with Z
         }
-        Assert.assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
 
-        rule.runOnUiThread {
+        rule.runOnIdle {
+            assertEquals(1, drawCount)
+            assertEquals(4, elevationReadCount)
+
             elevation.value = 0f
             underColor.value = Color.Black
         }
-
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        drawLatch = CountDownLatch(1)
-
-        rule.runOnUiThread { elevation.value = 1f }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
     }
 
     @Composable
@@ -326,13 +299,6 @@ class ShadowTest {
         assertNotEquals(color(width / 2, height - 1), Color.White)
     }
 
-    private fun Modifier.background(color: Color): Modifier = drawBehind {
-        drawRect(color)
-        drawLatch.countDown()
-    }
-
-    fun Modifier.drawLatchModifier() = drawBehind { drawLatch.countDown() }
-
     private fun Modifier.background(color: State<Color>) = drawBehind {
         if (color.value != Color.Transparent) {
             drawRect(color.value)
@@ -342,7 +308,8 @@ class ShadowTest {
     // waitAndScreenShot() requires API level 26
     @RequiresApi(Build.VERSION_CODES.O)
     private fun takeScreenShot(width: Int, height: Int = width): Bitmap {
-        val bitmap = rule.waitAndScreenShot()
+        rule.waitForIdle()
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
         assertEquals(width, bitmap.width)
         assertEquals(height, bitmap.height)
         return bitmap
