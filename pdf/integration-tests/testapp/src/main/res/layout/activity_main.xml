@@ -83,11 +83,12 @@
 
     <ImageButton
         android:id="@+id/preference_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/preference_string"
+        android:scaleType="center"
         android:src="@drawable/ic_settings"
         app:layout_constraintBottom_toBottomOf="@+id/launch_button"
         app:layout_constraintEnd_toEndOf="parent"

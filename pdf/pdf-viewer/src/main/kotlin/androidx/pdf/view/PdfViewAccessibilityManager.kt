@@ -63,6 +63,10 @@ internal class PdfViewAccessibilityManager(
     private val fastScrollVerticalThumbDrawableId = FAST_SCROLLER_OFFSET + 1
     private val fastScrollPageIndicatorBackgroundDrawableId = FAST_SCROLLER_OFFSET + 2
 
+    init {
+        pdfView.contentDescription = pdfView.context.getString(R.string.desc_pdf_view)
+    }
+
     public override fun getVirtualViewAt(x: Float, y: Float): Int {
         val visiblePages = pageLayoutManager.visiblePages
 
