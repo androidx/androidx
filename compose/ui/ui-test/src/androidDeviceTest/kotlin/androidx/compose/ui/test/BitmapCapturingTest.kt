@@ -142,7 +142,9 @@ class BitmapCapturingTest(val config: TestConfig) {
 
     @Test
     fun capturePopup_verifyBackground() {
-        setContent { Box { Popup { Box(Modifier.background(Color.Red)) { Text("Hello") } } } }
+        setContent {
+            Box { Popup { Box(Modifier.size(50.dp).background(Color.Red)) { Text("Hello") } } }
+        }
 
         rule.onNode(isPopup()).captureToImage().assertContainsColor(Color.Red)
     }
@@ -212,7 +214,7 @@ class BitmapCapturingTest(val config: TestConfig) {
         }
 
         val visibleFrame = Rect()
-        rule.activity.window.decorView.getWindowVisibleDisplayFrame(visibleFrame)
+        rule.runOnIdle { rule.activity.window.decorView.getWindowVisibleDisplayFrame(visibleFrame) }
         val expectedWidthPx = visibleFrame.width()
         val expectedHeightPx = visibleFrame.height()
 
