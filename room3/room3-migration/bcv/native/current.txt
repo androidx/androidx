@@ -255,8 +255,10 @@ final class androidx.room3.migration.bundle/IndexBundle : androidx.room3.migrati
 }
 
 final class androidx.room3.migration.bundle/PrimaryKeyBundle : androidx.room3.migration.bundle/SchemaEquality<androidx.room3.migration.bundle/PrimaryKeyBundle> { // androidx.room3.migration.bundle/PrimaryKeyBundle|null[0]
-    constructor <init>(kotlin/Boolean, kotlin.collections/List<kotlin/String>) // androidx.room3.migration.bundle/PrimaryKeyBundle.<init>|<init>(kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0]
+    constructor <init>(kotlin/Boolean, kotlin.collections/List<kotlin/String>, kotlin/String = ...) // androidx.room3.migration.bundle/PrimaryKeyBundle.<init>|<init>(kotlin.Boolean;kotlin.collections.List<kotlin.String>;kotlin.String){}[0]
 
+    final val algorithm // androidx.room3.migration.bundle/PrimaryKeyBundle.algorithm|{}algorithm[0]
+        final fun <get-algorithm>(): kotlin/String // androidx.room3.migration.bundle/PrimaryKeyBundle.algorithm.<get-algorithm>|<get-algorithm>(){}[0]
     final val columnNames // androidx.room3.migration.bundle/PrimaryKeyBundle.columnNames|{}columnNames[0]
         final fun <get-columnNames>(): kotlin.collections/List<kotlin/String> // androidx.room3.migration.bundle/PrimaryKeyBundle.columnNames.<get-columnNames>|<get-columnNames>(){}[0]
     final val isAutoGenerate // androidx.room3.migration.bundle/PrimaryKeyBundle.isAutoGenerate|{}isAutoGenerate[0]

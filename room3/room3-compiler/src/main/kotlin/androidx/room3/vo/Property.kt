@@ -125,9 +125,11 @@ data class Property(
     }
 
     /** definition to be used in create query */
-    fun databaseDefinition(autoIncrementPKey: Boolean): String {
+    fun databaseDefinition(autoGeneratePKey: androidx.room3.PrimaryKey.Algorithm?): String {
         val columnSpec = StringBuilder("")
-        if (autoIncrementPKey) {
+        if (autoGeneratePKey == androidx.room3.PrimaryKey.Algorithm.ROWID) {
+            columnSpec.append(" PRIMARY KEY")
+        } else if (autoGeneratePKey == androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT) {
             columnSpec.append(" PRIMARY KEY AUTOINCREMENT")
         }
         if (nonNull) {

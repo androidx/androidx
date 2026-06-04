@@ -59,10 +59,14 @@ open class Entity(
 
     private fun createTableQuery(tableName: String): String {
         val definitions =
-            (this@Entity.properties.map {
-                    val autoIncrement =
-                        primaryKey.autoGenerateId && primaryKey.properties.contains(it)
-                    it.databaseDefinition(autoIncrement)
+            (properties.map {
+                    it.databaseDefinition(
+                        if (primaryKey.autoGenerateId && primaryKey.properties.contains(it)) {
+                            primaryKey.algorithm
+                        } else {
+                            null
+                        }
+                    )
                 } + createPrimaryKeyDefinition() + createForeignKeyDefinitions())
                 .filterNotNull()
         return buildString {

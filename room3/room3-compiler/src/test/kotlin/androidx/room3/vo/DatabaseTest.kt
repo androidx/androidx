@@ -45,7 +45,12 @@ class DatabaseTest {
                             properties = emptyList(),
                             embeddedProperties = emptyList(),
                             primaryKey =
-                                PrimaryKey(mock(XElement::class.java), Properties(), false),
+                                PrimaryKey(
+                                    declaredIn = mock(XElement::class.java),
+                                    properties = Properties(),
+                                    autoGenerateId = false,
+                                    algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
+                                ),
                             indices =
                                 listOf(
                                     Index(

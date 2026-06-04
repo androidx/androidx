@@ -17,6 +17,7 @@
 package androidx.room3.migration.bundle
 
 import androidx.annotation.RestrictTo
+import androidx.room3.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,9 +27,13 @@ import kotlinx.serialization.Serializable
 public class PrimaryKeyBundle(
     @SerialName("autoGenerate") public val isAutoGenerate: Boolean,
     @SerialName("columnNames") public val columnNames: List<String>,
+    @SerialName("algorithm") public val algorithm: String = PrimaryKey.Algorithm.AUTOINCREMENT.name,
 ) : SchemaEquality<PrimaryKeyBundle> {
 
     override fun isSchemaEqual(other: PrimaryKeyBundle): Boolean {
-        return columnNames == other.columnNames && isAutoGenerate == other.isAutoGenerate
+        return columnNames == other.columnNames &&
+            isAutoGenerate == other.isAutoGenerate &&
+            // Only check algorithm if autoGenerate is true
+            (!isAutoGenerate || algorithm == other.algorithm)
     }
 }

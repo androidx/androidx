@@ -82,7 +82,13 @@ class EntityTest {
             type = mock(XType::class.java),
             properties = emptyList(),
             embeddedProperties = emptyList(),
-            primaryKey = PrimaryKey(mock(XElement::class.java), Properties(), false),
+            primaryKey =
+                PrimaryKey(
+                    declaredIn = mock(XElement::class.java),
+                    properties = Properties(),
+                    autoGenerateId = false,
+                    algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
+                ),
             indices = emptyList(),
             foreignKeys = foreignKeys,
             constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),

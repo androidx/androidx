@@ -15,6 +15,7 @@
  */
 package androidx.room3.vo
 
+import androidx.room3.PrimaryKey as PrimaryKeyAnnotation
 import androidx.room3.compiler.processing.XElement
 import androidx.room3.migration.bundle.PrimaryKeyBundle
 
@@ -23,16 +24,28 @@ data class PrimaryKey(
     val declaredIn: XElement?,
     override val properties: Properties,
     val autoGenerateId: Boolean,
+    val algorithm: PrimaryKeyAnnotation.Algorithm,
 ) : HasSchemaIdentity, HasProperties {
     companion object {
-        val MISSING = PrimaryKey(null, Properties(), false)
+        val MISSING =
+            PrimaryKey(
+                declaredIn = null,
+                properties = Properties(),
+                autoGenerateId = false,
+                algorithm = PrimaryKeyAnnotation.Algorithm.AUTOINCREMENT,
+            )
     }
 
     fun toHumanReadableString(): String {
         return "PrimaryKey[${properties.joinToString(separator = ", ", transform = Property::getPath) }]"
     }
 
-    fun toBundle(): PrimaryKeyBundle = PrimaryKeyBundle(autoGenerateId, columnNames)
+    fun toBundle(): PrimaryKeyBundle = PrimaryKeyBundle(autoGenerateId, columnNames, algorithm.name)
 
-    override fun getIdKey() = "$autoGenerateId-$columnNames"
+    override fun getIdKey(): String =
+        if (autoGenerateId && algorithm != PrimaryKeyAnnotation.Algorithm.AUTOINCREMENT) {
+            "$autoGenerateId-${algorithm.name}-$columnNames"
+        } else {
+            "$autoGenerateId-$columnNames"
+        }
 }

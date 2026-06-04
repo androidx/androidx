@@ -1477,6 +1477,46 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun primaryKey_algorithm_rowid() {
+        listOf("long", "Long", "Integer", "int").forEach { type ->
+            singleEntity(
+                """
+                @PrimaryKey(autoGenerate = true, algorithm = androidx.room3.PrimaryKey.Algorithm.ROWID)
+                public $type id;
+                """
+            ) { entity, _ ->
+                assertThat(entity.primaryKey.properties.size, `is`(1))
+                assertThat(entity.primaryKey.properties.firstOrNull()?.name, `is`("id"))
+                assertThat(entity.primaryKey.autoGenerateId, `is`(true))
+                assertThat(
+                    entity.primaryKey.algorithm,
+                    `is`(androidx.room3.PrimaryKey.Algorithm.ROWID),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun primaryKey_algorithm_autoincrement() {
+        listOf("long", "Long", "Integer", "int").forEach { type ->
+            singleEntity(
+                """
+                @PrimaryKey(autoGenerate = true, algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT)
+                public $type id;
+                """
+            ) { entity, _ ->
+                assertThat(entity.primaryKey.properties.size, `is`(1))
+                assertThat(entity.primaryKey.properties.firstOrNull()?.name, `is`("id"))
+                assertThat(entity.primaryKey.autoGenerateId, `is`(true))
+                assertThat(
+                    entity.primaryKey.algorithm,
+                    `is`(androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT),
+                )
+            }
+        }
+    }
+
+    @Test
     fun primaryKey_nonNull_notNeeded() {
         listOf("long", "Long", "Integer", "int").forEach { type ->
             singleEntity(

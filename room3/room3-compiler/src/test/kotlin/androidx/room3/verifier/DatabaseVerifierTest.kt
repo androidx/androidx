@@ -420,7 +420,13 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
             properties = fields.toList(),
             embeddedProperties = emptyList(),
             indices = emptyList(),
-            primaryKey = PrimaryKey(null, Properties(fields.take(1)), false),
+            primaryKey =
+                PrimaryKey(
+                    declaredIn = null,
+                    properties = Properties(fields.take(1)),
+                    autoGenerateId = false,
+                    algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
+                ),
             foreignKeys = emptyList(),
             constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
             shadowTableName = null,
