@@ -28,6 +28,7 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
+import androidx.compose.remote.core.CustomContext
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.ClipPath
@@ -100,6 +101,10 @@ internal class ComposePaintContext(
                     )
             }
         }
+    }
+
+    override fun setCustomSupport(customSupport: CustomContext) {
+        throw RuntimeException("No Custom components supported")
     }
 
     override fun scale(scaleX: Float, scaleY: Float) {

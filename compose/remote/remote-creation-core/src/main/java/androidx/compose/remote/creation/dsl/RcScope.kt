@@ -57,6 +57,16 @@ public interface RcScope {
         content: RcScope.() -> Unit = {},
     )
 
+    /** Adds a platform-specific [Custom] layout manager node to host native views. */
+    public fun Custom(
+        config: String,
+        properties: List<CustomProperty> = emptyList(),
+        modifier: Modifier = Modifier,
+        content: RcScope.() -> Unit = {},
+    )
+
+    public fun RcRoot(content: RcScope.() -> Unit = {})
+
     /** Adds a [Column] layout to the document. */
     public fun Column(
         modifier: Modifier = Modifier,
@@ -205,7 +215,7 @@ public interface RcScope {
 
     public operator fun RcText.plus(v: RcText): RcText = textMerge(this, v)
 
-    public operator fun String.plus(v: RcText): RcText = textMerge(remoteText(this), v)
+    public infix fun String.join(v: RcText): RcText = textMerge(remoteText(this), v)
 
     public operator fun RcText.plus(v: String): RcText = textMerge(this, remoteText(v))
 

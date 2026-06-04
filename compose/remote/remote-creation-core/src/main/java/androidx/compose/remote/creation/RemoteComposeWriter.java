@@ -67,6 +67,7 @@ import androidx.compose.remote.core.operations.TextLength;
 import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout;
+import androidx.compose.remote.core.operations.layout.managers.Custom;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
 import androidx.compose.remote.core.operations.loom.PatternArgument;
@@ -89,6 +90,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -3449,6 +3451,26 @@ public class RemoteComposeWriter {
 
     /** End a box layout */
     public void endBox() {
+        mBuffer.addContainerEnd();
+        mBuffer.addContainerEnd();
+    }
+
+    /** Start a custom native component layout */
+    public void startCustom(
+            @NonNull RecordingModifier modifier,
+            @NonNull String config,
+            @NonNull List<Custom.CustomProperty> properties) {
+        int configId = textCreateId(config);
+        Custom.apply(mBuffer.getBuffer(), modifier.getComponentId(), -1, configId,
+                properties);
+        for (RecordingModifier.Element m : modifier.getList()) {
+            m.write(this);
+        }
+        mBuffer.addContentStart();
+    }
+
+    /** End a custom native component layout */
+    public void endCustom() {
         mBuffer.addContainerEnd();
         mBuffer.addContainerEnd();
     }

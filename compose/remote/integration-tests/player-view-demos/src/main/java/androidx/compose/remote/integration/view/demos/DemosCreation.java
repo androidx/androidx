@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 
 import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslCustomComponentDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizActivityRingsKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizBatteryRadialGaugeKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslDataVizCalendarHeatmapKt;
@@ -50,6 +51,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslRcSimpleSwitchKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslServerSideKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSmallAnimatedKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSpreadSheetKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslStopwatchKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSysVarKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTextDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTouchDemoKt;
@@ -64,6 +66,8 @@ import androidx.compose.remote.integration.view.demos.examples.ColorCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.ColorThemeCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.CountdownKt;
 import androidx.compose.remote.integration.view.demos.examples.Cube3DKt;
+import androidx.compose.remote.integration.view.demos.examples.CubeSphereTransitionShader2Kt;
+import androidx.compose.remote.integration.view.demos.examples.CubeSphereTransitionShaderKt;
 import androidx.compose.remote.integration.view.demos.examples.DataVizDemosKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoAnchorText;
 import androidx.compose.remote.integration.view.demos.examples.DemoAttributedString;
@@ -186,15 +190,25 @@ public abstract class DemosCreation {
         boolean dsl = true;
         if (dsl) {
             return new ArrayList<>(Arrays.asList(
-                    get("0/001/DslDrawWithContentDemo",
+                    get("0/000/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
+
+                    getpc("0/002/CubeSphereTransitionShader",
+                            CubeSphereTransitionShader2Kt::createCubeSphereTransitionShader2),
+                    getpc("0/003/CubeSphereTransitionShader",
+                            CubeSphereTransitionShaderKt::createCubeSphereTransitionShader),
+                    get("0/001/DslCustomComponentDemo",
+                            DslCustomComponentDemoKt::dslCustomComponentDemo),
+                    get("0/004/DslDrawWithContentDemo",
                             DslDrawWithContentDemoKt::dslDrawWithContentDemo),
-                    get("0/002/DslCollapsiblePriorityDemo",
+                    get("0/005/DslCollapsiblePriorityDemo",
                             DslCollapsiblePriorityDemoKt::dslCollapsiblePriorityDemo),
-                    get("0/003/DslLayoutComputeDemo", DslLayoutComputeDemoKt::dslLayoutComputeDemo),
-                    get("0/004/DslFontAxisDemo", DslFontAxisDemoKt::dslFontAxisDemo),
-                    getpc("0/005/SphereTimeShader", SphereTimeShaderKt::sphereTimeShader),
-                    get("0/006/Ticker", RcDslTickerKt::dslTicker),
-                    get("0/007/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
+                    get("0/006/DslLayoutComputeDemo", DslLayoutComputeDemoKt::dslLayoutComputeDemo),
+                    get("0/007/DslFontAxisDemo", DslFontAxisDemoKt::dslFontAxisDemo),
+                    getpc("0/008/SphereTimeShader", SphereTimeShaderKt::sphereTimeShader),
+                    get("0/009/Ticker", RcDslTickerKt::dslTicker),
+                    get("0/010/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
+                    getpc("0/011/particleSphere", ParticleSphereKt::particleSphere),
+
                     get("0/02/DataVizActivityRings",
                             DslDataVizActivityRingsKt::dslDemoActivityRings),
                     get("0/03/DataVizBatteryRadialGauge",

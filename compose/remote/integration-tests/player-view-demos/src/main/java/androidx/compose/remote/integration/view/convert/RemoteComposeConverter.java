@@ -238,6 +238,56 @@ public class RemoteComposeConverter {
         return 0f;
     }
 
+    /**
+     * Calculate the diff between two strings.
+     *
+     * @param a input string
+     * @param b input string
+     * @return diff string
+     */
+    public static @NonNull String diff(@NonNull String a, @NonNull String b) {
+        int m = a.length();
+        int n = b.length();
+
+        // dp[i][j] will store the length of LCS of a[0..i-1] and b[0..j-1]
+        int[][] dp = new int[m + 1][n + 1];
+
+        // Build the LCS matrix
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (a.charAt(i - 1) == b.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        // Backtrack from the bottom-right corner to construct the diff output
+        StringBuilder result = new StringBuilder();
+        int i = m, j = n;
+
+        while (i > 0 || j > 0) {
+            if (i > 0 && j > 0 && a.charAt(i - 1) == b.charAt(j - 1)) {
+                // Characters are the same, keep them as is
+                result.insert(0, a.charAt(i - 1));
+                i--;
+                j--;
+            } else if (j > 0 && (i == 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+                // Character was added in string b
+                result.insert(0, "+" + b.charAt(j - 1));
+                j--;
+            } else if (i > 0 && (j == 0 || dp[i - 1][j] >= dp[i][j - 1])) {
+                // Character was deleted from string a
+                result.insert(0, "-" + a.charAt(i - 1));
+                i--;
+            }
+        }
+
+        return result.toString();
+    }
+
+
     @SuppressLint("RestrictedApiAndroidX")
     private static JSONObject encodeField(WireBuffer buffer, OpcodeRegistry.FieldSpec spec,
             JSONArray currentFields, int opcode) throws JSONException {

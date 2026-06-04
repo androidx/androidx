@@ -47,6 +47,7 @@ import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.loom.PatternCallback;
 import androidx.compose.remote.core.semantics.ScrollableComponent;
 import androidx.compose.remote.player.core.RemoteDocument;
+import androidx.compose.remote.player.core.platform.AndroidCustomContext;
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
 import androidx.compose.remote.player.core.platform.BitmapLoader;
 import androidx.compose.remote.player.core.platform.SettingsRetriever;
@@ -532,6 +533,14 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @RestrictTo(LIBRARY_GROUP)
     public void setBitmapLoader(@NonNull BitmapLoader bitmapLoader) {
         ((AndroidRemoteContext) mInner.getRemoteContext()).setBitmapLoader(bitmapLoader);
+    }
+
+    /**
+     * Sets a custom support on the RemoteContext.
+     * @param androidCustomSupport new custom support handler
+     */
+    public void setCustomSupport(@Nullable AndroidCustomContext androidCustomSupport) {
+        mInner.setCustomSupport(androidCustomSupport);
     }
 
     /**

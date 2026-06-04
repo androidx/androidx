@@ -79,6 +79,13 @@ public abstract class PaintContext {
         matrixSave();
     }
 
+    /**
+     * Set the custom support
+     * @param customSupport
+     */
+    public void setCustomSupport(@NonNull CustomContext customSupport) {
+    }
+
     public @NonNull RemoteClock getClock() {
         return mContext.getClock();
     }

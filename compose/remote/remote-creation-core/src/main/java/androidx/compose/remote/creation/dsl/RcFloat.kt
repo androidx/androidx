@@ -28,6 +28,7 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_HR
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC
 import androidx.compose.remote.core.RemoteContext.FLOAT_WEEK_DAY
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
@@ -182,6 +183,14 @@ open public class RcFloat {
         )
     }
 
+    public operator fun set(index: RcFloat, value: RcFloat) {
+        writer?.setArrayValue(Utils.idFromNan(this.id), index.toFloat(), value.toFloat())
+    }
+
+    public operator fun set(index: Int, value: RcFloat) {
+        writer?.setArrayValue(Utils.idFromNan(this.id), index.toFloat(), value.toFloat())
+    }
+
     public operator fun get(index: Int): RcFloat {
         return RcFloat(
             writer,
@@ -232,12 +241,12 @@ open public class RcFloat {
         before: Int = 2,
         after: Int = 1,
         flags: Int = Rc.TextFromFloat.PAD_AFTER_ZERO,
-    ): Int {
+    ): RcText {
         val w = writer
         if (w == null) {
             throw IllegalStateException("writer is null")
         }
-        return w.createTextFromFloat(this.toFloat(), before, after, flags)
+        return RcText(w.createTextFromFloat(this.toFloat(), before, after, flags))
     }
 
     /** Returns an [RcFloat] representing the absolute value of this expression. */

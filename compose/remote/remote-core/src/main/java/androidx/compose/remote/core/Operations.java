@@ -131,6 +131,7 @@ import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumn
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout;
 import androidx.compose.remote.core.operations.layout.managers.CoreText;
+import androidx.compose.remote.core.operations.layout.managers.Custom;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
 import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
@@ -340,6 +341,7 @@ public class Operations {
     public static final int TEXT_STYLE = 242;
     public static final int MODIFIER_DIMENSION_CONSTRAINTS = 243;
     public static final int LAYOUT_STATE = 217;
+    public static final int LAYOUT_CUSTOM = 93;
 
     public static final int LAYOUT_IMAGE = 234;
 
@@ -502,6 +504,7 @@ public class Operations {
             sMapV7AndroidXExperimental.put(MACRO_ARGUMENT, PatternArgument::read);
             sMapV7AndroidXExperimental.put(MACRO_BLOCK, PatternBlock::read);
             sMapV7AndroidXExperimental.put(MACRO_FOR_EACH, PatternForEach::read);
+            sMapV7AndroidXExperimental.put(LAYOUT_CUSTOM, Custom::read);
         }
         return sMapV7AndroidXExperimental;
     }

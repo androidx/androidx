@@ -47,6 +47,7 @@ import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.loom.PatternCallback;
 import androidx.compose.remote.player.core.RemoteDocument;
+import androidx.compose.remote.player.core.platform.AndroidCustomContext;
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
 
 import org.jspecify.annotations.NonNull;
@@ -86,6 +87,7 @@ public class RemoteComposeView extends FrameLayout
     long mLongPressTimeout;
     long mDoubleTapTimeout;
 
+    AndroidCustomContext mAndroidCustomContext = null;
     AndroidRemoteContext mARContext;
     Map<Integer, Object> mResolvedData = null;
     PatternCallback mPatternCallback = null;
@@ -231,6 +233,7 @@ public class RemoteComposeView extends FrameLayout
         mStart = clock.nanoTime();
         mLastFrameCall = clock.millis();
         mARContext = new AndroidRemoteContext(clock);
+        mARContext.setAndroidContext(getContext());
         mARContext.setEdgeEffectBuilder(() -> new EdgeEffect(getContext()));
     }
 
@@ -631,6 +634,14 @@ public class RemoteComposeView extends FrameLayout
         requestLayout();
     }
 
+    /**
+     * Set a custom support object
+     * @param androidCustomSupport the custom support object
+     */
+    public void setCustomSupport(@Nullable AndroidCustomContext androidCustomSupport) {
+        mAndroidCustomContext = androidCustomSupport;
+    }
+
     /** Interface to receive click events on components. */
     public interface ClickCallbacks {
         /**
@@ -957,6 +968,9 @@ public class RemoteComposeView extends FrameLayout
             mARContext.currentTime = mClock.millis();
             mARContext.setDebug(mDebug);
             mARContext.useCanvas(canvas);
+            if (mARContext.getPaintContext() != null && mAndroidCustomContext != null) {
+                mARContext.getPaintContext().setCustomSupport(mAndroidCustomContext);
+            }
             mARContext.mWidth = getWidth();
             mARContext.mHeight = getHeight();
             mDocument.paint(mARContext, theme);
