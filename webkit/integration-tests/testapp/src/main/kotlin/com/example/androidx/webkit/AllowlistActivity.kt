@@ -69,9 +69,7 @@ class AllowlistActivity : AppCompatActivity() {
         }
 
         // Set the allowlist and load the test site.
-        allowlistSafeBrowsingTestSite {
-            allowListWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE)
-        }
+        allowlistSafeBrowsingTestSite { allowListWebView.loadUrl(TEST_SAFE_BROWSING_SITE) }
 
         onBackPressedDispatcher.addCallback(
             object : OnBackPressedCallback(true) {
@@ -104,7 +102,7 @@ class AllowlistActivity : AppCompatActivity() {
     private fun allowlistSafeBrowsingTestSite(onSuccess: Runnable? = null) {
         // Configure an allowlist of domains. Pages/resources loaded from these domains will never
         // be checked by Safe Browsing (until a new allowlist is applied).
-        val allowList = setOf(SafeBrowsingHelpers.TEST_SAFE_BROWSING_DOMAIN)
+        val allowList = setOf(TEST_SAFE_BROWSING_DOMAIN)
         WebViewCompat.setSafeBrowsingAllowlist(allowList) { success ->
             if (success) {
                 onSuccess?.run()

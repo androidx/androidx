@@ -63,10 +63,10 @@ class FullPageInterstitialActivity : AppCompatActivity() {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
                     WebSettingsCompat.setSafeBrowsingEnabled(webView.settings, true)
                 }
-                webView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE)
+                webView.loadUrl(TEST_SAFE_BROWSING_SITE)
             }
             ContentType.RESTRICTED_CONTENT -> webView.loadUrl(RESTRICTED_CONTENT_SITE)
-            else -> webView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE)
+            else -> webView.loadUrl(TEST_SAFE_BROWSING_SITE)
         }
 
         onBackPressedDispatcher.addCallback(

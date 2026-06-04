@@ -18,7 +18,6 @@ package com.example.androidx.webkit
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
@@ -26,29 +25,29 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
 /**
- * An [Activity] to demonstrate Safe Browsing behavior with a [WebView] instance which is attached
- * to the view hierarchy, but marked as [View.INVISIBLE]. In this case, the WebView will immediately
- * emit a network error via [WebViewClient.onReceivedError] (or the other `#onReceivedError`
- * overload). The network error code should be [WebViewClient.ERROR_UNSAFE_RESOURCE].
+ * An [Activity] to demonstrate Safe Browsing behavior with a [WebView] instance which is detached
+ * from the view hierarchy. This behaves identically to [InvisibleActivity]: the WebView emits a
+ * network error with error code [WebViewClient.ERROR_UNSAFE_RESOURCE].
  *
- * @see UnattachedActivity
+ * @see InvisibleActivity
  */
-class InvisibleActivity : AppCompatActivity() {
+class UnattachedActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_invisible)
-        setTitle(R.string.invisible_activity_title)
+
+        setContentView(R.layout.activity_unattached)
+        setTitle(R.string.unattached_activity_title)
         setUpDemoAppActivity()
 
-        with(findViewById<WebView>(R.id.invisible_webview)) {
+        with(WebView(this)) {
             if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
                 WebSettingsCompat.setSafeBrowsingEnabled(this.settings, true)
             }
 
             webViewClient =
-                ErrorLoggingWebViewClient(this@InvisibleActivity.findViewById(R.id.net_errors))
-            loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+                ErrorLoggingWebViewClient(this@UnattachedActivity.findViewById(R.id.net_errors))
+            loadUrl(MALWARE_URL)
         }
     }
 }

@@ -49,10 +49,10 @@ class SmallInterstitialActivity : AppCompatActivity() {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
                     WebSettingsCompat.setSafeBrowsingEnabled(webView.settings, true)
                 }
-                webView.loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+                webView.loadUrl(MALWARE_URL)
             }
             ContentType.RESTRICTED_CONTENT -> webView.loadUrl(RESTRICTED_CONTENT_URL)
-            else -> webView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE)
+            else -> webView.loadUrl(TEST_SAFE_BROWSING_SITE)
         }
     }
 }

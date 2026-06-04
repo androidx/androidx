@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -40,7 +41,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 
-/** An {@link Activity} to exercise WebStorageCompat related functionality. */
+/** An [Activity] to exercise WebStorageCompat related functionality. */
 class WebStorageCompatActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView

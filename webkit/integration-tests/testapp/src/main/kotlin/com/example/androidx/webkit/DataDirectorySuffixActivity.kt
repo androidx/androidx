@@ -39,7 +39,7 @@ class DataDirectorySuffixActivity : AppCompatActivity() {
                 WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
             )
         ) {
-            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available)
+            showMessage(R.string.webkit_api_not_available)
             return
         }
 
