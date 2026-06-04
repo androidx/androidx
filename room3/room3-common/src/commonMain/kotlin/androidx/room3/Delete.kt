@@ -34,9 +34,12 @@ import kotlin.reflect.KClass
  *     suspend fun deleteSongs(vararg songs: Song)
  *
  *     @Delete
- *     suspend fun deleteAlbumAndSongs(album: Album, songs: List<Song>)
+ *     suspend fun deleteAlbumAndSongs(album: Album, songs: List<Song>): Int
  * }
  * ```
+ *
+ * The function may have a return type of `Int` indicating the amount of items deleted by the
+ * operation.
  *
  * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
  * object types that will be interpreted as partial entities. For example:

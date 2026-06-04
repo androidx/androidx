@@ -43,6 +43,22 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
+ * The upsert function may have a return type of `Long` if a single item is inserted denoting the
+ * `rowid` of the newly inserted item or `-1` if no item was inserted, and instead it was updated.
+ * If multiple items are inserted then the return type may be of `LongArray` or `List<Array>`
+ * containing the ids of the inserted items.
+ *
+ * ```
+ * @Dao
+ * interface MusicDao {
+ *     @Upsert
+ *     suspend fun upsertSong(song: Song): Long
+ *
+ *     @Upsert
+ *     suspend fun upsertListOfSongs(List<Song>): List<Long>
+ * }
+ * ```
+ *
  * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
  * object types that will be interpreted as partial entities. For example:
  * ```
