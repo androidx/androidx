@@ -72,7 +72,6 @@ import androidx.compose.material3.tokens.SegmentedMenuTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -1703,10 +1702,6 @@ private constructor(
  * implementation.
  */
 interface DropdownMenuPopupPositionProvider : PopupPositionProvider {
-    /** State holding the calculated [TransformOrigin] of the dropdown menu popup. */
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    val transformOriginState: MutableState<TransformOrigin>
-
     /**
      * The calculated [TransformOrigin] of the dropdown menu popup relative to its anchor.
      *

@@ -1317,7 +1317,6 @@ package androidx.compose.material3 {
 
   public interface DropdownMenuPopupPositionProvider extends androidx.compose.ui.window.PopupPositionProvider {
     method @BytecodeOnly public long getTransformOrigin-SzJe1aQ();
-    method @BytecodeOnly public androidx.compose.runtime.MutableState! getTransformOriginState();
     property public abstract androidx.compose.ui.graphics.TransformOrigin transformOrigin;
   }
 
