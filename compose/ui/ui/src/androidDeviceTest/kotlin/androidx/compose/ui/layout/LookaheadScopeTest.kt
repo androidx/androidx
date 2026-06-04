@@ -90,7 +90,6 @@ import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -142,7 +141,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -2125,24 +2123,18 @@ class LookaheadScopeTest {
 
     @Test
     fun forceMeasureLookaheadRootInParentsMeasurePass() {
-        var show by mutableStateOf(false)
+        var size by mutableStateOf(200)
         var lookaheadOffset: Offset? = null
         var offset: Offset? = null
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 // Mutate this state in measure
                 Box(Modifier.fillMaxSize()) {
-                    val size by
-                        produceState(initialValue = 200) {
-                            delay(500)
-                            value = 600 - value
-                        }
                     LazyColumn(
                         Modifier.layout { measurable, _ ->
-                            // Mutate this state in measure. This state will later be used in
-                            // descendant's
-                            // composition.
-                            show = size > 300
+                            // Read this state in measure, and update the constraints used to
+                            // measure children. The constraints change should trigger remeasurement
+                            // of children, as well as re-placement.
                             measurable.measure(Constraints.fixed(size, size)).run {
                                 layout(width, height) { place(0, 0) }
                             }
@@ -2152,42 +2144,32 @@ class LookaheadScopeTest {
                             SubcomposeLayout(Modifier.fillMaxSize()) {
                                 val placeable =
                                     subcompose(Unit) {
-                                            // read the value to force a recomposition
                                             Box(Modifier.requiredSize(222.dp)) {
                                                 LookaheadScope {
-                                                    AnimatedContent(
-                                                        show,
-                                                        Modifier.requiredSize(200.dp),
+                                                    Box(
+                                                        modifier = Modifier.requiredSize(200.dp),
+                                                        contentAlignment = Alignment.TopStart,
                                                     ) {
-                                                        if (it) {
-                                                            Row(
-                                                                Modifier.fillMaxSize().layout {
-                                                                    measurable,
-                                                                    constraints ->
-                                                                    val p =
-                                                                        measurable.measure(
-                                                                            constraints
-                                                                        )
-                                                                    layout(p.width, p.height) {
-                                                                        coordinates
-                                                                            ?.positionInRoot()
-                                                                            .let {
-                                                                                if (
-                                                                                    isLookingAhead
-                                                                                ) {
-                                                                                    lookaheadOffset =
-                                                                                        it
-                                                                                } else {
-                                                                                    offset = it
-                                                                                }
+                                                        Row(
+                                                            Modifier.fillMaxSize().layout {
+                                                                measurable,
+                                                                constraints ->
+                                                                val p =
+                                                                    measurable.measure(constraints)
+                                                                layout(p.width, p.height) {
+                                                                    coordinates
+                                                                        ?.positionInRoot()
+                                                                        .let {
+                                                                            if (isLookingAhead) {
+                                                                                lookaheadOffset = it
+                                                                            } else {
+                                                                                offset = it
                                                                             }
-                                                                        p.place(0, 0)
-                                                                    }
+                                                                        }
+                                                                    p.place(0, 0)
                                                                 }
-                                                            ) {}
-                                                        } else {
-                                                            Row(Modifier.size(10.dp)) {}
-                                                        }
+                                                            }
+                                                        ) {}
                                                     }
                                                 }
                                             }
@@ -2203,7 +2185,11 @@ class LookaheadScopeTest {
                 }
             }
         }
-        rule.waitUntil(2000) { show }
+        rule.waitForIdle()
+        assertEquals(Offset(-250f, 0f), lookaheadOffset)
+        assertEquals(Offset(-250f, 0f), offset)
+
+        size = 400
         rule.waitForIdle()
 
         assertEquals(Offset(-150f, 0f), lookaheadOffset)
