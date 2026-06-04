@@ -36,6 +36,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.measureTime
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
@@ -241,8 +242,15 @@ internal class WebApplicationScope(
      * due to DomInputStrategy implementation relying on animation frame events.
      */
     internal suspend fun awaitAnimationFrame() {
-        suspendCancellableCoroutine { continuation ->
-            window.requestAnimationFrame { continuation.resumeWith(Result.success(Unit)) }
+        measureTime {
+            suspendCancellableCoroutine { continuation ->
+                window.requestAnimationFrame { continuation.resumeWith(Result.success(Unit)) }
+            }
+        }.also {
+            if (it.inWholeMilliseconds > 60) {
+                // Longer raf could cause tests flakiness, so let's print it for diagnostics
+                println("raf took ${it.inWholeMilliseconds}ms\n")
+            }
         }
     }
 

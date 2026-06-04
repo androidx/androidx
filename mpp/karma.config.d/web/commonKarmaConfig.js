@@ -24,7 +24,14 @@ function configLaunchers(config) {
 
                 // https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/internals/preferences.html
                 // Records the version of the policy notified to the user. This preference is also used on Android, used in tests, it allows to skip the notification check.
-                'datareporting.policy.dataSubmissionPolicyBypassNotification': true
+                'datareporting.policy.dataSubmissionPolicyBypassNotification': true,
+
+                // The properties to stabilize the tests running in Firefox on CI:
+                'layout.frame_rate': 30, // less CPU-heavy
+                'dom.timeout.background_throttling_max_budget': -1,
+                'dom.min_background_timeout_value': 4,
+                'privacy.reduceTimerPrecision': false,
+                'dom.suspend_inactive.enabled': false
             }
         },
         SafariForComposeTests: {
