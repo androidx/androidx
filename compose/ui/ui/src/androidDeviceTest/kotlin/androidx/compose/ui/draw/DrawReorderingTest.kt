@@ -17,9 +17,6 @@
 package androidx.compose.ui.draw
 
 import android.os.Build
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -37,6 +34,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.padding
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.validateSquareColors
 import androidx.compose.ui.zIndex
@@ -44,11 +42,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,348 +51,209 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DrawReorderingTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
     @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
-
-    private lateinit var activity: TestActivity
-    private lateinit var drawLatch: CountDownLatch
-
-    @Before
-    fun setup() {
-        activity = rule.activity
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        drawLatch = CountDownLatch(1)
-    }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testDrawingOrderWhenWePlaceItemsInTheNaturalOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(10, Modifier.padding(10).background(Color.White))
-                        FixedSize(
-                            30,
-                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
-                        )
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables.forEach { child -> child.placeRelative(0, 0) }
-                    }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(10, Modifier.padding(10).background(Color.White))
+                    FixedSize(30, Modifier.graphicsLayer().background(Color.Red))
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables.forEach { child -> child.placeRelative(0, 0) }
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testDrawingOrderWhenWePlaceItemsInTheReverseOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(10, Modifier.padding(10).background(Color.White))
-                        FixedSize(
-                            30,
-                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
-                        )
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables.reversed().forEach { child -> child.placeRelative(0, 0) }
-                    }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(10, Modifier.padding(10).background(Color.White))
+                    FixedSize(30, Modifier.graphicsLayer().background(Color.Red))
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables.reversed().forEach { child -> child.placeRelative(0, 0) }
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testDrawingOrderIsOverriddenWithZIndexModifierWhenWePlaceItemsInTheReverseOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(10, Modifier.padding(10).background(Color.White))
-                        FixedSize(
-                            30,
-                            Modifier.graphicsLayer()
-                                .background(Color.Red)
-                                .zIndex(1f)
-                                .drawLatchModifier(),
-                        )
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables.reversed().forEach { child -> child.placeRelative(0, 0) }
-                    }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(10, Modifier.padding(10).background(Color.White))
+                    FixedSize(30, Modifier.graphicsLayer().background(Color.Red).zIndex(1f))
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables.reversed().forEach { child -> child.placeRelative(0, 0) }
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testDrawingOrderIsOverriddenWithZIndexWhenWePlaceItemsInTheReverseOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(10, Modifier.padding(10).background(Color.White))
-                        FixedSize(
-                            30,
-                            Modifier.graphicsLayer()
-                                .background(Color.Red)
-                                .zIndex(1f)
-                                .drawLatchModifier(),
-                        )
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables.reversed().forEach { child ->
-                            child.place(0, 0, zIndex = placeables.indexOf(child).toFloat())
-                        }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(10, Modifier.padding(10).background(Color.White))
+                    FixedSize(30, Modifier.graphicsLayer().background(Color.Red).zIndex(1f))
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables.reversed().forEach { child ->
+                        child.place(0, 0, zIndex = placeables.indexOf(child).toFloat())
                     }
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testCustomDrawingOrderForThreeItems() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(
-                            30,
-                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
-                        )
-                        FixedSize(10, Modifier.padding(10).background(Color.White))
-                        FixedSize(
-                            30,
-                            Modifier.graphicsLayer().background(Color.Blue).drawLatchModifier(),
-                        )
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables[2].place(0, 0)
-                        placeables[0].place(0, 0)
-                        placeables[1].place(0, 0)
-                    }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30, Modifier.graphicsLayer().background(Color.Red))
+                    FixedSize(10, Modifier.padding(10).background(Color.White))
+                    FixedSize(30, Modifier.graphicsLayer().background(Color.Blue))
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables[2].place(0, 0)
+                    placeables[0].place(0, 0)
+                    placeables[1].place(0, 0)
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     fun placingTheSameItemTwiceIsNotAllowedAsItBreaksTheDrawingOrder() {
         var exception: Throwable? = null
-        val latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(content = { FixedSize(30) }) { measurables, constraints ->
-                    val placeables = measurables.first().measure(constraints)
-                    layout(30, 30) {
+        rule.setContent {
+            Layout(content = { FixedSize(30) }) { measurables, constraints ->
+                val placeables = measurables.first().measure(constraints)
+                layout(30, 30) {
+                    placeables.place(0, 0)
+                    try {
                         placeables.place(0, 0)
-                        try {
-                            placeables.place(0, 0)
-                        } catch (e: Throwable) {
-                            exception = e
-                        }
-                        latch.countDown()
+                    } catch (e: Throwable) {
+                        exception = e
                     }
                 }
             }
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
         assertNotNull(exception)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testSiblingZOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
-                    FixedSize(
-                        30,
-                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
-                    )
-                }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
+                FixedSize(30, Modifier.graphicsLayer().background(Color.Red))
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testUncleZOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
-                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
+                FixedSize(30, Modifier.background(Color.Red))
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testCousinZOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, Modifier.padding(10)) {
-                        FixedSize(10, Modifier.zIndex(1f).background(Color.Green))
-                    }
-                    FixedSize(30, Modifier.background(Color.Red))
-                    FixedSize(10, Modifier.padding(10)) {
-                        FixedSize(10, Modifier.background(Color.White).drawLatchModifier())
-                    }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10)) {
+                    FixedSize(10, Modifier.zIndex(1f).background(Color.Green))
+                }
+                FixedSize(30, Modifier.background(Color.Red))
+                FixedSize(10, Modifier.padding(10)) {
+                    FixedSize(10, Modifier.background(Color.White))
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testCousinZOrder2() {
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, Modifier.padding(10)) {
-                        FixedSize(10, Modifier.zIndex(1f).background(Color.Green))
-                    }
-                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10)) {
+                    FixedSize(10, Modifier.zIndex(1f).background(Color.Green))
                 }
+                FixedSize(30, Modifier.background(Color.Red))
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testChangingZOrder() {
         val state = mutableStateOf(0f)
-        val view = View(activity)
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, Modifier.padding(10).zIndex(state.value).background(Color.Black))
-                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                    FixedSize(10, Modifier.padding(10).background(Color.White))
-                }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10).zIndex(state.value).background(Color.Black))
+                FixedSize(30, Modifier.background(Color.Red))
+                FixedSize(10, Modifier.padding(10).background(Color.White))
             }
-            activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
 
-        val onDrawListener =
-            object : ViewTreeObserver.OnDrawListener {
-                override fun onDraw() {
-                    drawLatch.countDown()
-                }
-            }
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            state.value = 1f
-            view.invalidate()
-        }
+        rule.runOnUiThread { state.value = 1f }
 
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Black,
-            size = 10,
-            drawLatch = drawLatch,
-        )
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            state.value = 0f
-            view.invalidate()
-        }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Black, size = 10)
+
+        rule.runOnUiThread { state.value = 0f }
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
@@ -412,55 +268,21 @@ class DrawReorderingTest {
                 }
             }
         val modifier1 = Modifier.padding(10).then(zIndex).background(Color.White)
-        val modifier2 = Modifier.background(Color.Red).drawLatchModifier()
-        val view = View(activity)
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, modifier1)
-                    FixedSize(30, modifier2)
-                }
+        val modifier2 = Modifier.background(Color.Red)
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, modifier1)
+                FixedSize(30, modifier2)
             }
-            activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
 
-        val onDrawListener =
-            object : ViewTreeObserver.OnDrawListener {
-                override fun onDraw() {
-                    drawLatch.countDown()
-                }
-            }
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            state.value = 1f
-            view.invalidate()
-        }
+        rule.runOnUiThread { state.value = 1f }
 
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            state.value = 0f
-            view.invalidate()
-        }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.runOnUiThread { state.value = 0f }
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
     }
 
     @Test
@@ -468,83 +290,39 @@ class DrawReorderingTest {
     fun testChangingZOrderUncle() {
         val state = mutableStateOf(0f)
         val elevation = Modifier.graphicsLayer { shadowElevation = state.value }
-        val view = View(activity)
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(30) {
-                        FixedSize(10, Modifier.padding(10).then(elevation).background(Color.Black))
-                    }
-                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                    FixedSize(10, Modifier.padding(10).background(Color.White))
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(30) {
+                    FixedSize(10, Modifier.padding(10).then(elevation).background(Color.Black))
                 }
+                FixedSize(30, Modifier.background(Color.Red))
+                FixedSize(10, Modifier.padding(10).background(Color.White))
             }
-            activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
-        val onDrawListener =
-            object : ViewTreeObserver.OnDrawListener {
-                override fun onDraw() {
-                    drawLatch.countDown()
-                }
-            }
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            state.value = 1f
-            view.invalidate()
-        }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+
+        rule.runOnUiThread { state.value = 1f }
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testChangingReorderedChildSize() {
         val size = mutableStateOf(10)
-        val view = View(activity)
-        rule.runOnUiThread {
-            activity.setContent {
-                AtLeastSize(size = 30, modifier = Modifier.background(Color.Red)) {
-                    FixedSize(size, Modifier.padding(10).zIndex(1f).background(Color.White))
-                    FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                }
+        rule.setContent {
+            AtLeastSize(size = 30, modifier = Modifier.background(Color.Red)) {
+                FixedSize(size, Modifier.padding(10).zIndex(1f).background(Color.White))
+                FixedSize(30, Modifier.background(Color.Red))
             }
-            activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
-        val onDrawListener =
-            object : ViewTreeObserver.OnDrawListener {
-                override fun onDraw() {
-                    drawLatch.countDown()
-                }
-            }
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            size.value = 20
-            view.invalidate()
-        }
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+
+        rule.runOnUiThread { size.value = 20 }
         rule.validateSquareColors(
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 20,
             totalSize = 40,
-            drawLatch = drawLatch,
         )
     }
 
@@ -552,278 +330,172 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testInvalidateReorderedChild() {
         val color = mutableStateOf(Color.Red)
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
-                    FixedSize(30, Modifier.background(color.value).drawLatchModifier())
-                }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
+                FixedSize(30, Modifier.background(color.value))
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
-        drawLatch = CountDownLatch(1)
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+
         rule.runOnUiThread { color.value = Color.Blue }
-        rule.validateSquareColors(
-            outerColor = Color.Blue,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun sumOfAllZIndexesIsUsed() {
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(
-                        10,
-                        Modifier.padding(10).zIndex(2f).zIndex(2f).background(Color.White),
-                    )
-                    FixedSize(
-                        30,
-                        Modifier.zIndex(4f).zIndex(-1f).background(Color.Red).drawLatchModifier(),
-                    )
-                }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10).zIndex(2f).zIndex(2f).background(Color.White))
+                FixedSize(30, Modifier.zIndex(4f).zIndex(-1f).background(Color.Red))
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testInvalidateParentOfReorderedChild() {
         val color = mutableStateOf(Color.Red)
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
-                    FixedSize(30, Modifier.background(color.value).drawLatchModifier())
-                }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
+                FixedSize(30, Modifier.background(color.value))
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
-        drawLatch = CountDownLatch(1)
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+
         rule.runOnUiThread { color.value = Color.Blue }
-        rule.validateSquareColors(
-            outerColor = Color.Blue,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testShadowSizeIsNotCausingReorder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30) {
-                    FixedSize(
-                        10,
-                        Modifier.padding(10)
-                            .graphicsLayer(shadowElevation = 1f)
-                            .background(Color.White),
-                    )
-                    FixedSize(
-                        30,
-                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
-                    )
-                }
+        rule.setContent {
+            FixedSize(size = 30) {
+                FixedSize(
+                    10,
+                    Modifier.padding(10).graphicsLayer(shadowElevation = 1f).background(Color.White),
+                )
+                FixedSize(30, Modifier.graphicsLayer().background(Color.Red))
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun placeOrderIsUsedWhenParentProvidedSameZIndex() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30) {
-                            FixedSize(10, Modifier.padding(10).background(Color.White))
-                        }
-                        FixedSize(30) {
-                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                        }
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables[0].place(0, 0, zIndex = 1f)
-                        placeables[1].place(0, 0, zIndex = 1f)
-                    }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30) { FixedSize(10, Modifier.padding(10).background(Color.White)) }
+                    FixedSize(30) { FixedSize(30, Modifier.background(Color.Red)) }
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables[0].place(0, 0, zIndex = 1f)
+                    placeables[1].place(0, 0, zIndex = 1f)
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.Red,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun placeOrderIsUsedWhenParentProvidedSameZIndex_reversePlaceOrder() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30) {
-                            FixedSize(10, Modifier.padding(10).background(Color.White))
-                        }
-                        FixedSize(30) {
-                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                        }
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables[1].place(0, 0, zIndex = 1f)
-                        placeables[0].place(0, 0, zIndex = 1f)
-                    }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30) { FixedSize(10, Modifier.padding(10).background(Color.White)) }
+                    FixedSize(30) { FixedSize(30, Modifier.background(Color.Red)) }
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables[1].place(0, 0, zIndex = 1f)
+                    placeables[0].place(0, 0, zIndex = 1f)
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun parentProvidedZIndexSummedWithTheOneFromModifier() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30, Modifier.zIndex(2f)) {
-                            FixedSize(10, Modifier.padding(10).background(Color.White))
-                        }
-                        FixedSize(30) {
-                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                        }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30, Modifier.zIndex(2f)) {
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
                     }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables[0].place(0, 0, zIndex = 1f)
-                        placeables[1].place(0, 0, zIndex = 2f)
-                    }
+                    FixedSize(30) { FixedSize(30, Modifier.background(Color.Red)) }
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables[0].place(0, 0, zIndex = 1f)
+                    placeables[1].place(0, 0, zIndex = 2f)
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun placeRelativePassesZIndex() {
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30) {
-                            FixedSize(10, Modifier.padding(10).background(Color.White))
-                        }
-                        FixedSize(30) {
-                            FixedSize(30, Modifier.background(Color.Red).drawLatchModifier())
-                        }
-                    }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables[0].placeRelative(0, 0, zIndex = 1f)
-                        placeables[1].placeRelative(0, 0, zIndex = -1f)
-                    }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30) { FixedSize(10, Modifier.padding(10).background(Color.White)) }
+                    FixedSize(30) { FixedSize(30, Modifier.background(Color.Red)) }
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables[0].placeRelative(0, 0, zIndex = 1f)
+                    placeables[1].placeRelative(0, 0, zIndex = -1f)
                 }
             }
         }
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun whenSecondChildAddedLaterDrawingOrderIsStillCorrect() {
         var needSecondChild by mutableStateOf(false)
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30) {
-                            FixedSize(
-                                10,
-                                Modifier.padding(10).background(Color.White).drawLatchModifier(),
-                            )
-                        }
-                        if (needSecondChild) {
-                            FixedSize(30) { FixedSize(30, Modifier.background(Color.Red)) }
-                        }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30) { FixedSize(10, Modifier.padding(10).background(Color.White)) }
+                    if (needSecondChild) {
+                        FixedSize(30) { FixedSize(30, Modifier.background(Color.Red)) }
                     }
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables[0].placeRelative(0, 0, zIndex = 1f)
-                        placeables.getOrNull(1)?.placeRelative(0, 0)
-                    }
+                }
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables[0].placeRelative(0, 0, zIndex = 1f)
+                    placeables.getOrNull(1)?.placeRelative(0, 0)
                 }
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        rule.runOnUiThread {
-            drawLatch = CountDownLatch(1)
-            needSecondChild = true
-        }
+        rule.waitForIdle()
+        rule.runOnUiThread { needSecondChild = true }
 
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
     }
 
     @Test
@@ -839,48 +511,41 @@ class DrawReorderingTest {
                     placeable.place(0, 0)
                 }
             }
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30, childRelayoutModifier) {
-                            FixedSize(10, Modifier.padding(10).background(Color.White))
-                        }
-                        FixedSize(30, childRelayoutModifier) {
-                            FixedSize(30, Modifier.background(Color.Red))
-                        }
-                    },
-                    modifier = Modifier.drawLatchModifier(),
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        if (!reverseOrder) {
-                            placeables[0].place(0, 0)
-                            placeables[1].place(0, 0)
-                        } else {
-                            placeables[1].place(0, 0)
-                            placeables[0].place(0, 0)
-                        }
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30, childRelayoutModifier) {
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
+                    }
+                    FixedSize(30, childRelayoutModifier) {
+                        FixedSize(30, Modifier.background(Color.Red))
+                    }
+                },
+                modifier = Modifier,
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    if (!reverseOrder) {
+                        placeables[0].place(0, 0)
+                        placeables[1].place(0, 0)
+                    } else {
+                        placeables[1].place(0, 0)
+                        placeables[0].place(0, 0)
                     }
                 }
             }
         }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
 
         rule.runOnUiThread {
-            drawLatch = CountDownLatch(1)
             reverseOrder = true
             childRelayoutCount = 0
         }
 
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+
         rule.runOnUiThread {
             // changing drawing order doesn't require child's layer block rerun
             assertThat(childRelayoutCount).isEqualTo(0)
@@ -900,50 +565,41 @@ class DrawReorderingTest {
                     placeable.place(0, 0)
                 }
             }
-        rule.runOnUiThread {
-            activity.setContent {
-                Layout(
-                    content = {
-                        FixedSize(30, childRelayoutModifier) {
-                            FixedSize(10, Modifier.padding(10).background(Color.White))
-                        }
-                        FixedSize(30, childRelayoutModifier) {
-                            FixedSize(30, Modifier.background(Color.Red))
-                        }
-                    },
-                    modifier = Modifier.drawLatchModifier(),
-                ) { measurables, _ ->
-                    val newConstraints = Constraints.fixed(30, 30)
-                    val placeables = measurables.map { m -> m.measure(newConstraints) }
-                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
-                        placeables[0].place(0, 0)
-                        placeables[1].place(0, 0, zIndex)
+        rule.setContent {
+            Layout(
+                content = {
+                    FixedSize(30, childRelayoutModifier) {
+                        FixedSize(10, Modifier.padding(10).background(Color.White))
                     }
+                    FixedSize(30, childRelayoutModifier) {
+                        FixedSize(30, Modifier.background(Color.Red))
+                    }
+                },
+                modifier = Modifier,
+            ) { measurables, _ ->
+                val newConstraints = Constraints.fixed(30, 30)
+                val placeables = measurables.map { m -> m.measure(newConstraints) }
+                layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                    placeables[0].place(0, 0)
+                    placeables[1].place(0, 0, zIndex)
                 }
             }
         }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        rule.waitForIdle()
 
         rule.runOnUiThread {
-            drawLatch = CountDownLatch(1)
             zIndex = -1f
             childRelayoutCount = 0
         }
 
-        rule.validateSquareColors(
-            outerColor = Color.Red,
-            innerColor = Color.White,
-            size = 10,
-            drawLatch = drawLatch,
-        )
+        rule.validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+
         rule.runOnUiThread {
             // changing zIndex doesn't require child's layer block rerun
             assertThat(childRelayoutCount).isEqualTo(0)
         }
     }
-
-    fun Modifier.drawLatchModifier() = drawBehind { drawLatch.countDown() }
 }
 
 @Composable
