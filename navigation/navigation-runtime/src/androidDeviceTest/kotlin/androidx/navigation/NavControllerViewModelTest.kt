@@ -31,9 +31,9 @@ class NavControllerViewModelTest {
     @Test
     fun testGetViewModelStore() {
         val navGraphId = UUID.randomUUID().toString()
-        val viewModel = NavControllerViewModel()
-        val viewModelStore = viewModel.getViewModelStore(navGraphId)
-        assertThat(viewModel.getViewModelStore(navGraphId)).isSameInstanceAs(viewModelStore)
+        val viewModel = NavControllerViewModel.getInstance(ViewModelStore())
+        val viewModelStore = viewModel.get(navGraphId)
+        assertThat(viewModel.get(navGraphId)).isSameInstanceAs(viewModelStore)
     }
 
     @Test
@@ -47,11 +47,11 @@ class NavControllerViewModelTest {
     fun testClear() {
         val viewModel = NavControllerViewModel.getInstance(ViewModelStore())
         val navGraphId = UUID.randomUUID().toString()
-        val viewModelStore = viewModel.getViewModelStore(navGraphId)
+        val viewModelStore = viewModel.get(navGraphId)
         assertThat(viewModelStore).isNotNull()
 
         viewModel.clear(navGraphId)
-        assertThat(viewModel.getViewModelStore(navGraphId)).isNotSameInstanceAs(viewModelStore)
+        assertThat(viewModel.get(navGraphId)).isNotSameInstanceAs(viewModelStore)
     }
 
     @Test
@@ -59,14 +59,13 @@ class NavControllerViewModelTest {
         val baseViewModelStore = ViewModelStore()
         val viewModel = NavControllerViewModel.getInstance(baseViewModelStore)
         val navGraphId = UUID.randomUUID().toString()
-        val navGraphViewModelStore = viewModel.getViewModelStore(navGraphId)
+        val navGraphViewModelStore = viewModel.get(navGraphId)
         // test clearing two viewmodel stores.
-        viewModel.getViewModelStore(UUID.randomUUID().toString())
+        viewModel.get(UUID.randomUUID().toString())
 
         assertThat(navGraphViewModelStore).isNotNull()
 
         baseViewModelStore.clear()
-        assertThat(viewModel.getViewModelStore(navGraphId))
-            .isNotSameInstanceAs(navGraphViewModelStore)
+        assertThat(viewModel.get(navGraphId)).isNotSameInstanceAs(navGraphViewModelStore)
     }
 }

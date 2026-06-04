@@ -124,7 +124,7 @@ internal class NavBackStackEntryImpl(val entry: NavBackStackEntry) {
                 "You must call setViewModelStore() on your NavHostController before " +
                     "accessing the ViewModelStore of a navigation graph."
             }
-            return viewModelStoreProvider.getViewModelStore(id)
+            return viewModelStoreProvider.get(id)
         }
 
     internal val defaultViewModelProviderFactory: ViewModelProvider.Factory = defaultFactory

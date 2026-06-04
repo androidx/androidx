@@ -25,5 +25,7 @@ import androidx.lifecycle.ViewModelStore
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NavViewModelStoreProvider {
-    public fun getViewModelStore(backStackEntryId: String): ViewModelStore
+    public fun get(key: String): ViewModelStore
+
+    public fun clear(key: String)
 }

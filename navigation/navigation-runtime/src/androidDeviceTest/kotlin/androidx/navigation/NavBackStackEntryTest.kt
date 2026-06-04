@@ -304,7 +304,7 @@ class NavBackStackEntryTest {
                 NavDestination(TestNavigator()),
                 null,
                 Lifecycle.State.STARTED,
-                NavControllerViewModel(),
+                NavControllerViewModel.create(),
             )
         entry.maxLifecycle = Lifecycle.State.CREATED
 
@@ -318,7 +318,7 @@ class NavBackStackEntryTest {
             NavBackStackEntry.create(
                 NavContext(ApplicationProvider.getApplicationContext()),
                 NavDestination(TestNavigator()),
-                viewModelStoreProvider = NavControllerViewModel(),
+                viewModelStoreProvider = NavControllerViewModel.create(),
             )
 
         try {
@@ -345,7 +345,7 @@ class NavBackStackEntryTest {
             NavBackStackEntry.create(
                 NavContext(ApplicationProvider.getApplicationContext()),
                 NavDestination(TestNavigator()),
-                viewModelStoreProvider = NavControllerViewModel(),
+                viewModelStoreProvider = NavControllerViewModel.create(),
             )
         entry.updateState()
 
@@ -359,7 +359,7 @@ class NavBackStackEntryTest {
             NavBackStackEntry.create(
                 NavContext(ApplicationProvider.getApplicationContext()),
                 NavDestination(TestNavigator()),
-                viewModelStoreProvider = NavControllerViewModel(),
+                viewModelStoreProvider = NavControllerViewModel.create(),
             )
         entry.maxLifecycle = Lifecycle.State.CREATED
         // Immediately destroy the NavBackStackEntry

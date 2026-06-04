@@ -61,8 +61,11 @@ constructor(
         object : NavViewModelStoreProvider {
             private val viewModelStores = mutableMapOf<String, ViewModelStore>()
 
-            override fun getViewModelStore(backStackEntryId: String) =
-                viewModelStores.getOrPut(backStackEntryId) { ViewModelStore() }
+            override fun get(key: String) = viewModelStores.getOrPut(key) { ViewModelStore() }
+
+            override fun clear(key: String) {
+                viewModelStores.remove(key)
+            }
         }
 
     private val savedStates = mutableMapOf<String, SavedState>()
@@ -166,7 +169,7 @@ constructor(
                         entry.maxLifecycle = Lifecycle.State.DESTROYED
                         if (!saveState) {
                             savedStates.remove(entry.id)
-                            viewModelStoreProvider.getViewModelStore(entry.id).clear()
+                            viewModelStoreProvider.get(entry.id).clear()
                         }
                     } else {
                         entry.maxLifecycle = Lifecycle.State.CREATED
