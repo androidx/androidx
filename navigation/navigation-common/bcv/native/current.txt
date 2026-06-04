@@ -228,8 +228,6 @@ final class androidx.navigation/NavArgumentBuilder { // androidx.navigation/NavA
 }
 
 final class androidx.navigation/NavBackStackEntry : androidx.lifecycle/HasDefaultViewModelProviderFactory, androidx.lifecycle/LifecycleOwner, androidx.lifecycle/ViewModelStoreOwner, androidx.savedstate/SavedStateRegistryOwner { // androidx.navigation/NavBackStackEntry|null[0]
-    constructor <init>(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState? = ...) // androidx.navigation/NavBackStackEntry.<init>|<init>(androidx.navigation.NavBackStackEntry;androidx.savedstate.SavedState?){}[0]
-
     final val arguments // androidx.navigation/NavBackStackEntry.arguments|{}arguments[0]
         final fun <get-arguments>(): androidx.savedstate/SavedState? // androidx.navigation/NavBackStackEntry.arguments.<get-arguments>|<get-arguments>(){}[0]
     final val defaultViewModelCreationExtras // androidx.navigation/NavBackStackEntry.defaultViewModelCreationExtras|{}defaultViewModelCreationExtras[0]
@@ -262,6 +260,7 @@ final class androidx.navigation/NavBackStackEntry : androidx.lifecycle/HasDefaul
 
     final object Companion { // androidx.navigation/NavBackStackEntry.Companion|null[0]
         final fun create(androidx.navigation.internal/NavContext?, androidx.navigation/NavDestination, androidx.savedstate/SavedState? = ..., androidx.lifecycle/Lifecycle.State = ..., androidx.navigation/NavViewModelStoreProvider? = ..., kotlin/String = ..., androidx.savedstate/SavedState? = ...): androidx.navigation/NavBackStackEntry // androidx.navigation/NavBackStackEntry.Companion.create|create(androidx.navigation.internal.NavContext?;androidx.navigation.NavDestination;androidx.savedstate.SavedState?;androidx.lifecycle.Lifecycle.State;androidx.navigation.NavViewModelStoreProvider?;kotlin.String;androidx.savedstate.SavedState?){}[0]
+        final fun create(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState? = ...): androidx.navigation/NavBackStackEntry // androidx.navigation/NavBackStackEntry.Companion.create|create(androidx.navigation.NavBackStackEntry;androidx.savedstate.SavedState?){}[0]
     }
 }
 

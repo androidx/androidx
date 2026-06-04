@@ -58,10 +58,14 @@ public expect class NavBackStackEntry :
     internal val viewModelStoreProvider: NavViewModelStoreProvider?
     internal val savedState: SavedState?
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(entry: NavBackStackEntry, arguments: SavedState? = entry.arguments)
-
     public companion object {
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun create(
+            entry: NavBackStackEntry,
+            arguments: SavedState? = entry.arguments,
+        ): NavBackStackEntry
+
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun create(
             context: NavContext?,
