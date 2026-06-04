@@ -270,4 +270,6 @@ fun defaultComposeScrollingMetrics(): List<Metric> =
             label = "composeDraw",
             mode = TraceSectionMetric.Mode.Sum,
         ),
+        MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
+        MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
     )
