@@ -71,6 +71,9 @@ public object DataTypes {
     /**
      * Current heart rate, in beats per minute.
      *
+     * Check [isHeartRateBpmAvailable] or [heartRateAccuracy] for more detailed information to
+     * determine if this metric is available on the host.
+     *
      * Required permissions are:
      * * API < 36: [Manifest.permission.BODY_SENSORS]
      * * API >= 36: [HealthPermissions.READ_HEART_RATE]
@@ -100,6 +103,23 @@ public object DataTypes {
             name = HEART_RATE_ACCURACY_METRIC_KEY,
             defaultValue = HEART_RATE_ACCURACY_UNKNOWN.constantValue,
         )
+
+    /**
+     * Returns `true` if [heartRateBpm] is available on the host, `false` otherwise.
+     *
+     * Heart rate availability is determined by the sensor's contact and reliability. It is
+     * considered available if [heartRateAccuracy] is [HEART_RATE_ACCURACY_LOW],
+     * [HEART_RATE_ACCURACY_MEDIUM], or [HEART_RATE_ACCURACY_HIGH].
+     *
+     * A health data type may be unavailable if the permission wasn't granted or if the host cannot
+     * retrieve it.
+     *
+     * If `false`, [heartRateBpm] will return its default value.
+     */
+    public val isHeartRateBpmAvailable: RemoteBoolean =
+        heartRateAccuracy
+            .isGreaterThanOrEqual(HEART_RATE_ACCURACY_LOW)
+            .and(heartRateAccuracy.isLessThanOrEqual(HEART_RATE_ACCURACY_HIGH))
 
     /**
      * The total step count over a day.
