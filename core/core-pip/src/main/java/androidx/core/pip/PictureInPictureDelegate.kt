@@ -19,6 +19,7 @@ package androidx.core.pip
 import android.app.Activity
 import android.content.res.Configuration
 import android.os.Build
+import android.util.Log
 import androidx.core.app.PictureInPictureModeChangedInfo
 import androidx.core.app.PictureInPictureParamsCompat
 import androidx.core.app.PictureInPictureProvider
@@ -133,7 +134,11 @@ public open class PictureInPictureDelegate(pictureInPictureProvider: PictureInPi
         val validatedParams = PictureInPictureParamsValidator.validate(pictureInPictureParamsCompat)
         this@PictureInPictureDelegate.pictureInPictureParamsCompat = validatedParams
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            pictureInPictureProviderRef.get()?.setPictureInPictureParams(validatedParams)
+            try {
+                pictureInPictureProviderRef.get()?.setPictureInPictureParams(validatedParams)
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "setPictureInPictureParams failed", e)
+            }
         }
     }
 
@@ -163,6 +168,10 @@ public open class PictureInPictureDelegate(pictureInPictureProvider: PictureInPi
          *   [Event.ENTERED] and [Event.EXITED], it is `null` otherwise.
          */
         public fun onPictureInPictureEvent(event: Event, config: Configuration?)
+    }
+
+    private companion object {
+        private const val TAG = "PictureInPictureDelegate"
     }
 
     /** Represents the PiP event emitted from the system. */
