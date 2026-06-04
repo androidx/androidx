@@ -48,6 +48,7 @@ import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.width
@@ -75,12 +76,19 @@ class MovableScalable : ComponentActivity() {
     @SubspaceComposable
     private fun SpatialContent() {
         val density = LocalDensity.current
-        var zOffset by remember { mutableStateOf(0.dp) }
+        var offsetX by remember { mutableStateOf(0.dp) }
+        var offsetY by remember { mutableStateOf(0.dp) }
+        var offsetZ by remember { mutableStateOf(0.dp) }
         var changedScale by remember { mutableFloatStateOf(1.0F) }
         var scaleForPanel by remember { mutableFloatStateOf(1.0F) }
         val customMovement: (SpatialMoveEvent) -> Unit = { moveEvent ->
+            val deltaX = moveEvent.pose.translation.x - moveEvent.previousPose.translation.x
+            val deltaY = moveEvent.pose.translation.y - moveEvent.previousPose.translation.y
+            val deltaZ = moveEvent.pose.translation.z - moveEvent.previousPose.translation.z
             with(density) {
-                zOffset = moveEvent.pose.translation.z.toDp()
+                offsetX += deltaX.toDp()
+                offsetY += deltaY.toDp()
+                offsetZ += deltaZ.toDp()
                 changedScale = moveEvent.scale
             }
         }
@@ -96,10 +104,11 @@ class MovableScalable : ComponentActivity() {
             }
             SpatialRow(horizontalArrangement = SpatialArrangement.spacedBy(40.dp)) {
                 SpatialPanel(
-                    SubspaceModifier.height(200.dp)
+                    SubspaceModifier.offset(offsetX, offsetY, offsetZ)
+                        .height(200.dp)
                         .width(200.dp)
                         .scale(scaleForPanel)
-                        .transformingMovable(onMove = customMovement)
+                        .movable(onMove = customMovement)
                 ) {
                     Box(
                         modifier = Modifier.background(Purple80).fillMaxSize(),
@@ -128,7 +137,7 @@ class MovableScalable : ComponentActivity() {
                     }
                 }
                 SpatialPanel(
-                    SubspaceModifier.offset(z = zOffset)
+                    SubspaceModifier.offset(z = offsetZ)
                         .height(200.dp)
                         .width(200.dp)
                         .transformingMovable()
@@ -142,7 +151,7 @@ class MovableScalable : ComponentActivity() {
                             verticalArrangement = Arrangement.Center,
                         ) {
                             Text(text = "Movable Non Scalable Panel", textAlign = TextAlign.Center)
-                            Text(text = "Offset by z $zOffset", textAlign = TextAlign.Center)
+                            Text(text = "Offset by z $offsetZ", textAlign = TextAlign.Center)
                         }
                     }
                 }
