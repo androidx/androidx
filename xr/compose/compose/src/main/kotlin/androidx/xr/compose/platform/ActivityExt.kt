@@ -27,6 +27,7 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.scene
 import java.util.function.Consumer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -41,13 +42,28 @@ import kotlinx.coroutines.sync.withLock
  * In home space, the visible space may be shared with other applications; however, applications in
  * home space will have their spatial capabilities and physical bounds limited.
  *
- * This suspend function will complete once the application has successfully entered home space.
- * Cancelling this suspend function does not cancel the request to switch spaces. This should not
- * throw any exceptions and will do nothing on devices that do not support XR spaces. This request
- * will be cancelled if `requestHomeSpace` or [requestFullSpace] is called before this request
- * completes.
+ * This function suspends until the application has successfully entered home space.
+ *
+ * ### Concurrency and Multiple Calls
+ * Only one space transition request can be active at a time. If this function (or
+ * [requestFullSpace]) is called while a previous space request is still pending, the previous
+ * request's coroutine will be cancelled, throwing a [CancellationException] to its caller. The new
+ * request will then proceed.
+ *
+ * ### Cancellation
+ * If the coroutine is cancelled (either manually, because the Activity was destroyed, or due to a
+ * newer request), this function will throw a [CancellationException].
+ *
+ * Note: Cancelling this coroutine only cancels the *wait* for the transition to complete. The
+ * transition request itself has already been sent to the system and may still execute.
+ *
+ * ### Device Support
+ * On devices that do not support XR spaces, this function will do nothing and return immediately.
+ * However, it may propagate other runtime exceptions thrown by the underlying XR session.
  *
  * See [modes in XR](https://developer.android.com/design/ui/xr/guides/foundations#modes).
+ *
+ * @throws CancellationException if the request is cancelled before completion.
  */
 public suspend fun ComponentActivity.requestHomeSpace(): Unit = requestSpaceMode(Space.Home)
 
@@ -58,13 +74,28 @@ public suspend fun ComponentActivity.requestHomeSpace(): Unit = requestSpaceMode
  * capabilities will be expanded, and its physical bounds will expand to fill the entire virtual
  * space.
  *
- * This suspend function will complete once the application has successfully entered full space.
- * Cancelling this suspend function does not cancel the request to switch spaces. This should not
- * throw any exceptions and will do nothing on devices that do not support XR spaces. This request
- * will be cancelled if `requestFullSpace` or [requestHomeSpace] is called before this request
- * completes.
+ * This function suspends until the application has successfully entered full space.
+ *
+ * ### Concurrency and Multiple Calls
+ * Only one space transition request can be active at a time. If this function (or
+ * [requestHomeSpace]) is called while a previous space request is still pending, the previous
+ * request's coroutine will be cancelled, throwing a [CancellationException] to its caller. The new
+ * request will then proceed.
+ *
+ * ### Cancellation
+ * If the coroutine is cancelled (either manually, because the Activity was destroyed, or due to a
+ * newer request), this function will throw a [CancellationException].
+ *
+ * Note: Cancelling this coroutine only cancels the *wait* for the transition to complete. The
+ * transition request itself has already been sent to the system and may still execute.
+ *
+ * ### Device Support
+ * On devices that do not support XR spaces, this function will do nothing and return immediately.
+ * However, it may propagate other runtime exceptions thrown by the underlying XR session.
  *
  * See [modes in XR](https://developer.android.com/design/ui/xr/guides/foundations#modes).
+ *
+ * @throws CancellationException if the request is cancelled before completion.
  */
 public suspend fun ComponentActivity.requestFullSpace(): Unit = requestSpaceMode(Space.Full)
 

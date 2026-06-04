@@ -30,6 +30,7 @@ import androidx.xr.scenecore.runtime.RenderingEntityFactory
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -212,7 +213,16 @@ class ActivityExtKtTest {
 
         assertThat(testRuntime.activitySpace.onBoundsChangedListeners).isEmpty()
         testRuntime.requestFullSpaceMode()
-        val job = launch { composeTestRule.activity.requestHomeSpace() }
+
+        var thrownException: Throwable? = null
+        val job = launch {
+            try {
+                composeTestRule.activity.requestHomeSpace()
+            } catch (t: Throwable) {
+                thrownException = t
+                throw t
+            }
+        }
 
         advanceUntilIdle()
         assertThat(testRuntime.activitySpace.onBoundsChangedListeners).hasSize(1)
@@ -222,6 +232,7 @@ class ActivityExtKtTest {
         advanceUntilIdle()
         assertThat(testRuntime.activitySpace.onBoundsChangedListeners).hasSize(1)
         assertThat(job).isCancelled()
+        assertThat(thrownException).isInstanceOf(CancellationException::class.java)
         assertThat(job2).isActive()
 
         job2.cancelAndJoin()
