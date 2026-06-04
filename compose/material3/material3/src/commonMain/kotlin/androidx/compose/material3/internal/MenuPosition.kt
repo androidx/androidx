@@ -26,7 +26,6 @@ import androidx.compose.material3.MenuPositionScopeImpl
 import androidx.compose.material3.MenuVerticalMargin
 import androidx.compose.material3.calculateTransformOrigin
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -286,10 +285,6 @@ internal data class DropdownMenuPositionProvider(
     val horizontalMargin: Int = with(density) { MenuHorizontalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> },
 ) : DropdownMenuPopupPositionProvider {
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    override val transformOriginState: MutableState<TransformOrigin> =
-        mutableStateOf(TransformOrigin.Center)
-
     override var transformOrigin by mutableStateOf(TransformOrigin.Center)
         private set
 

@@ -155,8 +155,6 @@ abstract interface androidx.compose.material3/DateRangePickerState { // androidx
 abstract interface androidx.compose.material3/DropdownMenuPopupPositionProvider : androidx.compose.ui.window/PopupPositionProvider { // androidx.compose.material3/DropdownMenuPopupPositionProvider|null[0]
     abstract val transformOrigin // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOrigin|{}transformOrigin[0]
         abstract fun <get-transformOrigin>(): androidx.compose.ui.graphics/TransformOrigin // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOrigin.<get-transformOrigin>|<get-transformOrigin>(){}[0]
-    abstract val transformOriginState // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOriginState|{}transformOriginState[0]
-        abstract fun <get-transformOriginState>(): androidx.compose.runtime/MutableState<androidx.compose.ui.graphics/TransformOrigin> // androidx.compose.material3/DropdownMenuPopupPositionProvider.transformOriginState.<get-transformOriginState>|<get-transformOriginState>(){}[0]
 }
 
 abstract interface androidx.compose.material3/FloatingActionButtonMenuScope { // androidx.compose.material3/FloatingActionButtonMenuScope|null[0]

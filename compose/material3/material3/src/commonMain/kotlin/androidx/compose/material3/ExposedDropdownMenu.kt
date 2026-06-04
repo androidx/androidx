@@ -1273,10 +1273,6 @@ internal class ExposedDropdownMenuPositionProvider(
     val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> },
 ) : DropdownMenuPopupPositionProvider {
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    override val transformOriginState: MutableState<TransformOrigin> =
-        mutableStateOf(TransformOrigin.Center)
-
     override var transformOrigin by mutableStateOf(TransformOrigin.Center)
         private set
 
