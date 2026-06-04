@@ -55,6 +55,7 @@ import android.text.TextUtils;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CustomContext;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RcPlatformServices;
@@ -81,7 +82,8 @@ import java.util.Objects;
  * operations on Android.
  */
 @RestrictTo(LIBRARY_GROUP)
-public class AndroidPaintContext extends PaintContext {
+public class AndroidPaintContext extends PaintContext implements CustomContext {
+
     private static final Shader.TileMode[] TILE_MODES = Shader.TileMode.values();
 
     private static Shader.@NonNull TileMode tileModeFromInt(int value) {
@@ -99,6 +101,95 @@ public class AndroidPaintContext extends PaintContext {
     RenderNode mNode = null;
     Canvas mPreviousCanvas = null;
     private TypefaceResolver mTypefaceResolver;
+    private AndroidCustomContext mCustomSupport = null;
+
+    /**
+     * Set the custom support for this platform.
+     *
+     * @param customSupport the custom support to use
+     */
+
+    @Override
+    public void setCustomSupport(@NonNull CustomContext customSupport) {
+        this.mCustomSupport = (AndroidCustomContext) customSupport;
+        mCustomSupport.setCanvas(mCanvas);
+        mCustomSupport.setRemoteContext(mContext);
+        android.content.Context androidContext =
+                ((AndroidRemoteContext) mContext).getAndroidContext();
+        if (androidContext != null) {
+            mCustomSupport.setContext(androidContext);
+        }
+    }
+
+    @Override
+    public void createCustom(int id, @NonNull String config) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        android.content.Context androidContext =
+                ((AndroidRemoteContext) mContext).getAndroidContext();
+        if (androidContext != null) {
+            mCustomSupport.setContext(androidContext);
+            mCustomSupport.createCustom(id, config);
+        }
+    }
+
+    @Override
+    public void configureCustom(int id, int type, @NonNull String value) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        mCustomSupport.configureCustom(id, type, value);
+    }
+
+    @Override
+    public void configureCustom(int id, int type, int value) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        mCustomSupport.configureCustom(id, type, value);
+    }
+
+    @Override
+    public void configureCustom(int id, int type, float value) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        mCustomSupport.configureCustom(id, type, value);
+    }
+
+    @Override
+    public void measureCustom(int id, float @NonNull [] bounds) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        mCustomSupport.measureCustom(id, bounds);
+    }
+
+    @Override
+    public void layoutCustom(int id, float @NonNull [] bounds) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        mCustomSupport.layoutCustom(id, bounds);
+    }
+
+    @Override
+    public boolean touchCustom(int id, int type, float x, float y) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        return mCustomSupport.touchCustom(id, type, x, y);
+    }
+
+    @Override
+    public void drawCustom(int id) {
+        if (mCustomSupport == null) {
+            throw new RuntimeException("No Custom components supported");
+        }
+        mCustomSupport.setCanvas(mCanvas);
+        mCustomSupport.drawCustom(id);
+    }
 
     public AndroidPaintContext(@NonNull RemoteContext context, @NonNull Canvas canvas) {
         super(context);
@@ -116,6 +207,9 @@ public class AndroidPaintContext extends PaintContext {
 
     public void setCanvas(@NonNull Canvas canvas) {
         this.mCanvas = mMainCanvas = canvas;
+        if (mCustomSupport != null) {
+            mCustomSupport.setCanvas(canvas);
+        }
     }
 
     @Override
@@ -136,16 +230,16 @@ public class AndroidPaintContext extends PaintContext {
     /**
      * Draw an image onto the canvas
      *
-     * @param imageId the id of the image
-     * @param srcLeft left coordinate of the source area
-     * @param srcTop top coordinate of the source area
-     * @param srcRight right coordinate of the source area
+     * @param imageId   the id of the image
+     * @param srcLeft   left coordinate of the source area
+     * @param srcTop    top coordinate of the source area
+     * @param srcRight  right coordinate of the source area
      * @param srcBottom bottom coordinate of the source area
-     * @param dstLeft left coordinate of the destination area
-     * @param dstTop top coordinate of the destination area
-     * @param dstRight right coordinate of the destination area
+     * @param dstLeft   left coordinate of the destination area
+     * @param dstTop    top coordinate of the destination area
+     * @param dstRight  right coordinate of the destination area
      * @param dstBottom bottom coordinate of the destination area
-     * @param cdId the id of the content description
+     * @param cdId      the id of the content description
      */
     @Override
     public void drawBitmap(
@@ -1124,8 +1218,9 @@ public class AndroidPaintContext extends PaintContext {
                 }
 
                 Shader.TileMode[] mTileModes =
-                        new Shader.TileMode[] {
-                            Shader.TileMode.CLAMP, Shader.TileMode.REPEAT, Shader.TileMode.MIRROR
+                        new Shader.TileMode[]{
+                                Shader.TileMode.CLAMP, Shader.TileMode.REPEAT,
+                                Shader.TileMode.MIRROR
                         };
 
                 @Override
@@ -1242,15 +1337,15 @@ public class AndroidPaintContext extends PaintContext {
             float bottomEnd) {
         Path roundedPath = new Path();
         float[] radii =
-                new float[] {
-                    topStart,
-                    topStart,
-                    topEnd,
-                    topEnd,
-                    bottomEnd,
-                    bottomEnd,
-                    bottomStart,
-                    bottomStart
+                new float[]{
+                        topStart,
+                        topStart,
+                        topEnd,
+                        topEnd,
+                        bottomEnd,
+                        bottomEnd,
+                        bottomStart,
+                        bottomStart
                 };
 
         roundedPath.addRoundRect(0f, 0f, width, height, radii, android.graphics.Path.Direction.CW);
@@ -1279,11 +1374,11 @@ public class AndroidPaintContext extends PaintContext {
         Path p1 = getPath(path1, 0, 1);
         Path p2 = getPath(path2, 0, 1);
         Path.Op[] op = {
-            Path.Op.DIFFERENCE,
-            Path.Op.INTERSECT,
-            Path.Op.REVERSE_DIFFERENCE,
-            Path.Op.UNION,
-            Path.Op.XOR,
+                Path.Op.DIFFERENCE,
+                Path.Op.INTERSECT,
+                Path.Op.REVERSE_DIFFERENCE,
+                Path.Op.UNION,
+                Path.Op.XOR,
         };
         Path p = new Path(p1);
         p.op(p2, op[operation]);

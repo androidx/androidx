@@ -24,6 +24,7 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
@@ -64,6 +65,64 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.startStateLayout(modifier.toRecordingModifier(), stateIndex.id.toInt())
         RcScopeImpl(writer).content()
         writer.endStateLayout()
+    }
+
+    override fun Custom(
+        config: String,
+        properties: List<CustomProperty>,
+        modifier: Modifier,
+        content: RcScope.() -> Unit,
+    ) {
+        val corePropList: List<Custom.CustomProperty> =
+            properties.map {
+                when (it.mDataType) {
+                    CustomProperty.INT_PROP ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.INT_PROP,
+                            it.mIntValue,
+                        )
+
+                    CustomProperty.STRING_PROP ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.STRING_PROP,
+                            it.mIntValue,
+                        )
+
+                    CustomProperty.FLOAT_PROP ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.FLOAT_PROP,
+                            it.mFloatValue,
+                        )
+
+                    CustomProperty.FLOAT_RETURN ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.FLOAT_RETURN,
+                            it.mFloatValue,
+                        )
+
+                    CustomProperty.TEXT_RETURN ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.TEXT_RETURN,
+                            it.mIntValue,
+                        )
+
+                    else -> {
+                        throw RuntimeException("UNKNOWN TYPE")
+                    }
+                }
+            }
+        writer.startCustom(modifier.toRecordingModifier(), config, corePropList)
+        RcScopeImpl(writer).content()
+        writer.endCustom()
+    }
+
+    override fun RcRoot(content: RcScope.() -> Unit) {
+        writer.root { RcScopeImpl(writer).content() }
     }
 
     override fun Column(

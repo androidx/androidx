@@ -64,6 +64,7 @@ import androidx.compose.remote.core.CoreDocument.ShaderControl;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeWriter;
+import androidx.compose.remote.integration.view.demos.customviews.AndroidCustomSupport;
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths;
 import androidx.compose.remote.integration.view.demos.utils.RCDoc;
 import androidx.compose.remote.player.core.RemoteDocument;
@@ -746,6 +747,7 @@ public class ExperimentRecyclerActivity extends Activity {
             super(context);
             setOrientation(VERTICAL);
             mPlayer = new RemoteComposePlayer(context);
+            mPlayer.setCustomSupport(new AndroidCustomSupport());
             mTitle = new TextView(context);
             mStats = new TextView(context);
             mPlayer.setShaderControl(new ShaderControl() {

@@ -26,7 +26,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter
-import kotlin.jvm.JvmInline
+import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
 
 /** Type-safe reference for remote text resources. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -989,6 +989,77 @@ internal constructor(
             val halfW = width / 2f
             val halfH = height / 2f
             return RcRect(center.x - halfW, center.y - halfH, center.x + halfW, center.y + halfH)
+        }
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Suppress("NoByteOrShort")
+public class CustomProperty {
+    public val mType: Short
+    public val mDataType: Short
+    public val mIntValue: Int
+    public val mFloatValue: Float
+
+    public val isFloat: Boolean
+        get() {
+            return (mDataType.toInt() and 1) == 1
+        }
+
+    public fun isString(): Boolean {
+        return (mDataType == STRING_PROP)
+    }
+
+    public constructor(type: Short, dataType: Short, value: Int) {
+        mType = type
+        mDataType = dataType
+        mIntValue = value
+        mFloatValue = 0f
+    }
+
+    public constructor(type: Short, dataType: Short, value: Float) {
+        mType = type
+        mDataType = dataType
+        mFloatValue = value
+        mIntValue = 0
+    }
+
+    public constructor(type: Short, dataType: Short, value: RcFloat) {
+        mType = type
+        mDataType = dataType
+        mFloatValue = value.toFloat()
+        mIntValue = 0
+    }
+
+    public fun getFloatValue(): RcFloat {
+        return RcFloat(mFloatValue)
+    }
+
+    public fun getStringValue(): RcText {
+        return RcText(mIntValue)
+    }
+
+    public companion object {
+        public const val INT_PROP: Short = 0
+        public const val FLOAT_PROP: Short = 1
+        public const val STRING_PROP: Short = 2
+        public const val FLOAT_RETURN: Short = 3
+        public const val TEXT_RETURN: Short = 4
+
+        public fun color(type: Short, value: RcColorValue): CustomProperty =
+            CustomProperty(type, INT_PROP, value.id)
+
+        public fun text(type: Short, value: RcText): CustomProperty =
+            CustomProperty(type, STRING_PROP, value.id)
+
+        public fun returnFloat(type: Short, scope: RcScope): CustomProperty {
+            val id = (scope as RcScopeImpl).writer.createFloatId()
+            return CustomProperty(type, FLOAT_RETURN, id)
+        }
+
+        public fun returnText(type: Short, scope: RcScope): CustomProperty {
+            val id = (scope as RcScopeImpl).writer.nextId()
+            return CustomProperty(type, TEXT_RETURN, id)
         }
     }
 }
