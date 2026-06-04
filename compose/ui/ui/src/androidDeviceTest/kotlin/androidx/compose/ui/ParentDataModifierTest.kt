@@ -15,7 +15,11 @@
  */
 package androidx.compose.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
@@ -24,6 +28,7 @@ import androidx.compose.ui.layout.LayoutIdParentData
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.LayoutModifierNode
@@ -184,6 +189,38 @@ class ParentDataModifierTest {
             }
         }
         rule.runOnIdle { assertEquals("data", parentDataValue) }
+    }
+
+    @Test
+    fun remeasureOnParentDataChanged() {
+        var size by mutableStateOf(10)
+        var measuredSize = 0
+
+        class ParentInt(val x: Int) : ParentDataModifier {
+            override fun Density.modifyParentData(parentData: Any?): Any = x
+        }
+        rule.setContent {
+            Layout(
+                content = {
+                    val parentInt = ParentInt(size)
+                    println("recompose: $size $parentInt")
+                    Box(parentInt)
+                }
+            ) { measurables, constraints ->
+                val boxSize = measurables[0].parentData as Int
+                assertEquals(size, boxSize)
+                val placeable = measurables[0].measure(constraints)
+                measuredSize = boxSize
+                layout(boxSize, boxSize) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(measuredSize, 10)
+            println("change size to 20")
+            size = 20
+        }
+        rule.runOnIdle { assertEquals(measuredSize, 20) }
     }
 }
 

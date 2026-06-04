@@ -181,11 +181,10 @@ internal class SpyGestureModifier : PointerInputModifier {
             }
         }
 
-    // We only need this because IR compiler doesn't like converting lambdas to Runnables
-    @Suppress("DEPRECATION")
-    internal fun androidx.test.rule.ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
-        val runnable = Runnable { block() }
-        runOnUiThread(runnable)
+    internal fun androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, *>.runOnUiThreadIR(
+        block: () -> Unit
+    ) {
+        runOnUiThread(block)
     }
 }
 
