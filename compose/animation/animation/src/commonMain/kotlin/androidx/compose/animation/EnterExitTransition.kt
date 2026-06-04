@@ -131,15 +131,17 @@ public sealed class EnterTransition {
             "EnterTransition.None"
         } else {
             data.run {
-                "EnterTransition: \n" +
+                "EnterTransition: " +
                     "Fade - " +
                     fade?.toString() +
-                    ",\nSlide - " +
+                    ", Slide - " +
                     slide?.toString() +
-                    ",\nShrink - " +
+                    ", Shrink - " +
                     changeSize?.toString() +
-                    ",\nScale - " +
-                    scale?.toString()
+                    ", Scale - " +
+                    scale?.toString() +
+                    ", Veil - " +
+                    veil?.toString()
             }
         }
 
@@ -229,16 +231,18 @@ public sealed class ExitTransition {
             KeepUntilTransitionsFinished -> "ExitTransition.KeepUntilTransitionsFinished"
             else ->
                 data.run {
-                    "ExitTransition: \n" +
+                    "ExitTransition:  " +
                         "Fade - " +
                         fade?.toString() +
-                        ",\nSlide - " +
+                        ",  Slide - " +
                         slide?.toString() +
-                        ",\nShrink - " +
+                        ",  Shrink - " +
                         changeSize?.toString() +
-                        ",\nScale - " +
+                        ",  Scale - " +
                         scale?.toString() +
-                        ",\nKeepUntilTransitionsFinished - " +
+                        ",  Veil - " +
+                        veil?.toString() +
+                        ",  KeepUntilTransitionsFinished - " +
                         hold
                 }
         }
