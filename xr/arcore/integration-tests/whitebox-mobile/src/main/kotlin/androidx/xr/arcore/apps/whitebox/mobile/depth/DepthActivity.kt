@@ -62,6 +62,7 @@ import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Matrix4
 import com.google.ar.core.exceptions.DeadlineExceededException
@@ -96,9 +97,15 @@ class DepthActivity : ComponentActivity(), SampleRender.Companion.Renderer {
     private var selectedDepthMode by mutableStateOf(DepthMode.RAW)
 
     private val rawConfig =
-        Config.Builder().setDepthEstimation(DepthEstimationMode.RAW_ONLY).build()
+        Config.Builder()
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+            .setDepthEstimation(DepthEstimationMode.RAW_ONLY)
+            .build()
     private val smoothConfig =
-        Config.Builder().setDepthEstimation(DepthEstimationMode.SMOOTH_ONLY).build()
+        Config.Builder()
+            .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+            .setDepthEstimation(DepthEstimationMode.SMOOTH_ONLY)
+            .build()
     private var configurationMutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {
