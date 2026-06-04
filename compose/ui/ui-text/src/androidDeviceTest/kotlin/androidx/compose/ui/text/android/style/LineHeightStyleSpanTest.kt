@@ -17,11 +17,13 @@
 package androidx.compose.ui.text.android.style
 
 import android.graphics.Paint.FontMetricsInt
+import android.text.SpannableString
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.Fixed
 import androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.Minimum
 import androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.Tight
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
@@ -1388,4 +1390,214 @@ private fun LineHeightStyleSpan.chooseHeight(start: Int, end: Int, fontMetricsIn
         lineHeight = 0,
         fontMetricsInt = fontMetricsInt,
     )
+}
+
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+class LineHeightStyleSpanDensityTest {
+
+    @OptIn(InternalPlatformTextApi::class)
+    @Test
+    fun chooseHeight_mixedFontSizes_perLine_calculatesCorrectHeights() {
+        val span =
+            LineHeightStyleSpan(
+                startIndex = 0,
+                endIndex = 30,
+                lineHeight = 30f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = false,
+                topRatio = 0.5f,
+                mode = LineHeightStyle.Mode.PerLine,
+            )
+
+        // Line 1: Tall text size (natural height = 115)
+        val fmLine1 = FontMetricsInt(ascent = -90, descent = 25)
+
+        span.chooseHeight(
+            text = SpannableString("Tall Line Text"),
+            start = 0,
+            end = 14,
+            spanStartVertical = 0,
+            lineHeight = 30,
+            fontMetricsInt = fmLine1,
+        )
+        // Since natural height (115) > target height (30), tall metrics should be preserved
+        assertThat(fmLine1.ascent).isEqualTo(-90)
+        assertThat(fmLine1.descent).isEqualTo(25)
+
+        // Line 2: Small text size (natural height = 25)
+        // The framework passes clean metrics for Line 2 (not polluted by Line 1).
+        val fmLine2 = FontMetricsInt(ascent = -20, descent = 5)
+
+        span.chooseHeight(
+            text = SpannableString("Tall Line Text\nSmall Line Text"),
+            start = 15,
+            end = 30,
+            spanStartVertical = 115,
+            lineHeight = 30,
+            fontMetricsInt = fmLine2,
+        )
+
+        // Verify that Line 2's height is expanded to target 30
+        assertThat(fmLine2.lineHeight()).isEqualTo(30)
+        assertThat(fmLine2.ascent).isEqualTo(-22)
+        assertThat(fmLine2.descent).isEqualTo(8)
+    }
+
+    @OptIn(InternalPlatformTextApi::class)
+    @Test
+    fun chooseHeight_platformMetricsReuse_doesNotCompound() {
+        val span =
+            LineHeightStyleSpan(
+                startIndex = 0,
+                endIndex = 30,
+                lineHeight = 30f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = false,
+                topRatio = 0.5f,
+                mode = LineHeightStyle.Mode.PerLine,
+            )
+
+        // Line 1: Natural height = 25. Target = 30.
+        val fm = FontMetricsInt(ascent = -20, descent = 5)
+
+        span.chooseHeight(
+            text = SpannableString("Line 1\nLine 2"),
+            start = 0,
+            end = 6,
+            spanStartVertical = 0,
+            lineHeight = 30,
+            fontMetricsInt = fm,
+        )
+
+        // Verify Line 1 output is padded to target 30
+        assertThat(fm.lineHeight()).isEqualTo(30)
+        assertThat(fm.ascent).isEqualTo(-22)
+        assertThat(fm.descent).isEqualTo(8)
+
+        // Line 2: The platform reuses and passes the mutated fm output from Line 1.
+        // We verify that passing the mutated fm to chooseHeight on Line 2 returns early
+        // and does NOT compound (meaning it doesn't pad it again to 35).
+        span.chooseHeight(
+            text = SpannableString("Line 1\nLine 2"),
+            start = 7,
+            end = 13,
+            spanStartVertical = 30,
+            lineHeight = 30,
+            fontMetricsInt = fm, // Reused mutated fm from Line 1
+        )
+
+        // Verify metrics did not compound and remained at exactly target 30
+        assertThat(fm.lineHeight()).isEqualTo(30)
+        assertThat(fm.ascent).isEqualTo(-22)
+        assertThat(fm.descent).isEqualTo(8)
+    }
+
+    @OptIn(InternalPlatformTextApi::class)
+    @Test
+    fun chooseHeight_perLine_trimLastLineBottom_multiLine_trimsBottomPadding() {
+        val span =
+            LineHeightStyleSpan(
+                startIndex = 0,
+                endIndex = 13,
+                lineHeight = 30f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = true,
+                topRatio = 0.5f,
+                mode = LineHeightStyle.Mode.PerLine,
+            )
+
+        // Line 1: Natural height = 25 (ascent = -20, descent = 5). Target = 30.
+        val fmLine1 = FontMetricsInt(ascent = -20, descent = 5)
+        span.chooseHeight(
+            text = SpannableString("Line 1\nLine 2"),
+            start = 0,
+            end = 6,
+            spanStartVertical = 0,
+            lineHeight = 30,
+            fontMetricsInt = fmLine1,
+        )
+
+        // Line 1 is not the last line: descent is padded to 8 (+3), ascent to -22 (-2)
+        assertThat(fmLine1.lineHeight()).isEqualTo(30)
+        assertThat(fmLine1.ascent).isEqualTo(-22)
+        assertThat(fmLine1.descent).isEqualTo(8)
+
+        // Line 2 (last line): Android StaticLayout measures Line 2 with fresh natural metrics
+        // from TextPaint.getFontMetricsInt(): ascent = -20, descent = 5.
+        val fmLine2 = FontMetricsInt(ascent = -20, descent = 5)
+        span.chooseHeight(
+            text = SpannableString("Line 1\nLine 2"),
+            start = 7,
+            end = 13,
+            spanStartVertical = 30,
+            lineHeight = 30,
+            fontMetricsInt = fmLine2,
+        )
+
+        // Line 2 is the last line: trimLastLineBottom trims descent back to naturalDescent (5),
+        // while ascent gets the target ascent (-22).
+        assertThat(fmLine2.ascent).isEqualTo(-22)
+        assertThat(fmLine2.descent).isEqualTo(5)
+        assertThat(span.lastDescentDiff).isEqualTo(0)
+    }
+
+    @OptIn(InternalPlatformTextApi::class)
+    @Test
+    fun chooseHeight_perLine_trimBoth_multiLine_trimsTopAndBottomOnBoundaries() {
+        val span =
+            LineHeightStyleSpan(
+                startIndex = 0,
+                endIndex = 20,
+                lineHeight = 30f,
+                trimFirstLineTop = true,
+                trimLastLineBottom = true,
+                topRatio = 0.5f,
+                mode = LineHeightStyle.Mode.PerLine,
+            )
+
+        // Line 1 (first line): trimFirstLineTop = true
+        val fmLine1 = FontMetricsInt(ascent = -20, descent = 5)
+        span.chooseHeight(
+            text = SpannableString("Line 1\nLine 2\nLine 3"),
+            start = 0,
+            end = 6,
+            spanStartVertical = 0,
+            lineHeight = 30,
+            fontMetricsInt = fmLine1,
+        )
+        // First line: ascent is trimmed to natural (-20), descent is padded to 8 (+3)
+        assertThat(fmLine1.ascent).isEqualTo(-20)
+        assertThat(fmLine1.descent).isEqualTo(8)
+        assertThat(span.firstAscentDiff).isEqualTo(0)
+
+        // Line 2 (middle line): neither first nor last line
+        val fmLine2 = FontMetricsInt(ascent = -20, descent = 5)
+        span.chooseHeight(
+            text = SpannableString("Line 1\nLine 2\nLine 3"),
+            start = 7,
+            end = 13,
+            spanStartVertical = 28,
+            lineHeight = 30,
+            fontMetricsInt = fmLine2,
+        )
+        // Middle line: both top and bottom get padded (height = 30)
+        assertThat(fmLine2.ascent).isEqualTo(-22)
+        assertThat(fmLine2.descent).isEqualTo(8)
+
+        // Line 3 (last line): trimLastLineBottom = true
+        val fmLine3 = FontMetricsInt(ascent = -20, descent = 5)
+        span.chooseHeight(
+            text = SpannableString("Line 1\nLine 2\nLine 3"),
+            start = 14,
+            end = 20,
+            spanStartVertical = 58,
+            lineHeight = 30,
+            fontMetricsInt = fmLine3,
+        )
+        // Last line: ascent is padded to -22, descent is trimmed to natural (5)
+        assertThat(fmLine3.ascent).isEqualTo(-22)
+        assertThat(fmLine3.descent).isEqualTo(5)
+        assertThat(span.lastDescentDiff).isEqualTo(0)
+    }
 }
