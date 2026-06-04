@@ -54,7 +54,7 @@ class EntityRegistryTest {
     private lateinit var gltfModel: GltfModel
     private lateinit var gltfModelEntity: GltfModelEntity
     private lateinit var panelEntity: PanelEntity
-    private lateinit var anchorEntity: AnchorEntity
+    private lateinit var anchorSpace: AnchorSpace
     private lateinit var activityPanelEntity: ActivityPanelEntity
     private lateinit var entity: Entity
 
@@ -84,40 +84,28 @@ class EntityRegistryTest {
     fun creatingEntity_addsEntityToEntityRegistry() {
         createEntity()
         createPanelEntity()
-        createAnchorEntity()
+        createAnchorSpace()
         createActivityPanelEntity()
         createGltfEntity()
 
         // The entityRegistry contains activity space.
         assertThat(entityRegistry.getAllEntities().size).isAtLeast(5)
         assertThat(entityRegistry.getAllEntities())
-            .containsAtLeast(
-                entity,
-                panelEntity,
-                anchorEntity,
-                activityPanelEntity,
-                gltfModelEntity,
-            )
+            .containsAtLeast(entity, panelEntity, anchorSpace, activityPanelEntity, gltfModelEntity)
     }
 
     @Test
     fun getEntityByType_returnsEntityOfType() {
         createEntity()
         createPanelEntity()
-        createAnchorEntity()
+        createAnchorSpace()
         createActivityPanelEntity()
         createGltfEntity()
 
         assertThat(entityRegistry.getEntities<Entity>())
-            .containsAtLeast(
-                entity,
-                panelEntity,
-                anchorEntity,
-                activityPanelEntity,
-                gltfModelEntity,
-            )
+            .containsAtLeast(entity, panelEntity, anchorSpace, activityPanelEntity, gltfModelEntity)
         assertThat(entityRegistry.getEntities<PanelEntity>()).contains(panelEntity)
-        assertThat(entityRegistry.getEntities<AnchorEntity>()).containsExactly(anchorEntity)
+        assertThat(entityRegistry.getEntities<AnchorSpace>()).containsExactly(anchorSpace)
         assertThat(entityRegistry.getEntities<ActivityPanelEntity>())
             .containsExactly(activityPanelEntity)
         assertThat(entityRegistry.getEntities<GltfModelEntity>()).containsExactly(gltfModelEntity)
@@ -127,18 +115,12 @@ class EntityRegistryTest {
     fun disposeEntity_removesEntityFromEntityRegistry() {
         createEntity()
         createPanelEntity()
-        createAnchorEntity()
+        createAnchorSpace()
         createActivityPanelEntity()
         createGltfEntity()
         assertThat(entityRegistry.getAllEntities().size).isAtLeast(5)
         assertThat(entityRegistry.getAllEntities())
-            .containsAtLeast(
-                entity,
-                panelEntity,
-                anchorEntity,
-                activityPanelEntity,
-                gltfModelEntity,
-            )
+            .containsAtLeast(entity, panelEntity, anchorSpace, activityPanelEntity, gltfModelEntity)
 
         entity.disposeInternal()
 
@@ -150,18 +132,12 @@ class EntityRegistryTest {
     fun clearEntityRegistry_removesAllEntityFromEntityRegistry() {
         createEntity()
         createPanelEntity()
-        createAnchorEntity()
+        createAnchorSpace()
         createActivityPanelEntity()
         createGltfEntity()
         assertThat(entityRegistry.getAllEntities().size).isAtLeast(5)
         assertThat(entityRegistry.getAllEntities())
-            .containsAtLeast(
-                entity,
-                panelEntity,
-                anchorEntity,
-                activityPanelEntity,
-                gltfModelEntity,
-            )
+            .containsAtLeast(entity, panelEntity, anchorSpace, activityPanelEntity, gltfModelEntity)
 
         entityRegistry.clear()
 
@@ -172,18 +148,12 @@ class EntityRegistryTest {
     fun removeRtEntity_removesEntityFromEntityRegistry() {
         createEntity()
         createPanelEntity()
-        createAnchorEntity()
+        createAnchorSpace()
         createActivityPanelEntity()
         createGltfEntity()
         assertThat(entityRegistry.getAllEntities().size).isAtLeast(5)
         assertThat(entityRegistry.getAllEntities())
-            .containsAtLeast(
-                entity,
-                panelEntity,
-                anchorEntity,
-                activityPanelEntity,
-                gltfModelEntity,
-            )
+            .containsAtLeast(entity, panelEntity, anchorSpace, activityPanelEntity, gltfModelEntity)
 
         entityRegistry.removeEntity(panelEntity.rtEntity)
 
@@ -219,9 +189,9 @@ class EntityRegistryTest {
             )
     }
 
-    private fun createAnchorEntity() {
-        anchorEntity =
-            AnchorEntity.create(
+    private fun createAnchorSpace() {
+        anchorSpace =
+            AnchorSpace.create(
                 session,
                 entityRegistry,
                 FloatSize2d(),

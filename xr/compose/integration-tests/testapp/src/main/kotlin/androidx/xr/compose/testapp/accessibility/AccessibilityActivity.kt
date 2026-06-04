@@ -77,7 +77,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
@@ -130,7 +130,7 @@ class AccessibilityActivity : ComponentActivity() {
                             Card("GLTF Entities") {
                                 GltfEntityUI(onToggle = { showGltfEntities = it })
                             }
-                            Card("Anchor Entity") { AnchorEntityUI() }
+                            Card("Anchor Space") { AnchorSpaceUI() }
                         }
                         Column(
                             verticalArrangement = Arrangement.Center,
@@ -387,9 +387,9 @@ class AccessibilityActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AnchorEntityUI() {
+    fun AnchorSpaceUI() {
         val gltfEntity = remember { mutableStateOf<GltfModelEntity?>(null) }
-        val anchorEntity = remember { mutableStateOf<AnchorEntity?>(null) }
+        val anchorSpace = remember { mutableStateOf<AnchorSpace?>(null) }
         val scope = rememberCoroutineScope()
 
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -402,11 +402,11 @@ class AccessibilityActivity : ComponentActivity() {
                             val model =
                                 GltfModel.create(session, Paths.get("models", "xyzArrows.glb"))
                             gltfEntity.value = createModelEntity(model, "", anchorPose.translation)
-                            anchorEntity.value =
-                                AnchorEntity.create(session, anchor = anchorResult.anchor)
-                            gltfEntity.value?.parent = anchorEntity.value
-                            anchorEntity.value?.contentDescription =
-                                "Anchor Entity at ${anchorPose.translation}"
+                            anchorSpace.value =
+                                AnchorSpace.create(session, anchor = anchorResult.anchor)
+                            gltfEntity.value?.parent = anchorSpace.value
+                            anchorSpace.value?.contentDescription =
+                                "Anchor Space at ${anchorPose.translation}"
                         }
 
                         is AnchorCreateResourcesExhausted -> {
@@ -422,8 +422,8 @@ class AccessibilityActivity : ComponentActivity() {
                 Text("Create Anchor", fontSize = 20.sp)
             }
             Button({
-                anchorEntity.value?.parent = null
-                anchorEntity.value = null
+                anchorSpace.value?.parent = null
+                anchorSpace.value = null
                 gltfEntity.value?.parent = null
                 gltfEntity.value = null
             }) {

@@ -161,7 +161,7 @@ internal fun RtMoveEvent.toMoveEvent(entityRegistry: EntityRegistry): MoveEvent 
         entityRegistry.getEntityForRtEntity(initialParent)!!,
         updatedParent?.let {
             entityRegistry.getEntityForRtEntity(it)
-                ?: AnchorEntity.create(it as RtAnchorEntity, entityRegistry)
+                ?: AnchorSpace.create(it as RtAnchorEntity, entityRegistry)
         },
     )
 }

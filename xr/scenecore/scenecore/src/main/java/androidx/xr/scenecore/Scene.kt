@@ -109,8 +109,8 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * consistency when the current activity transitions to the Home Space or when a new activity is
      * launched.
      *
-     * Unmovable Entities, such as [AnchorEntity] or [ActivitySpace], cannot be set as the
-     * [Scene.keyEntity] and will throw [IllegalArgumentException] if set.
+     * Spaces, such as [AnchorSpace] or [ActivitySpace], cannot be set as the [Scene.keyEntity] and
+     * will throw [IllegalArgumentException] if set.
      *
      * By default, this is set to [mainPanelEntity]. This field can be `null` if the key entity was
      * cleared by setting this value to `null`. When `null`, the default listener takes no action
@@ -126,8 +126,8 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
     public var keyEntity: Entity? = null
         set(value) {
             when (value) {
-                is AnchorEntity ->
-                    throw IllegalArgumentException("AnchorEntity cannot be set as the keyEntity.")
+                is AnchorSpace ->
+                    throw IllegalArgumentException("AnchorSpace cannot be set as the keyEntity.")
 
                 is ActivitySpace ->
                     throw IllegalArgumentException("ActivitySpace cannot be set as the keyEntity.")
@@ -346,9 +346,9 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
 
     /**
      * Adds a listener to be invoked when the spatial visibility of the rendered content of the
-     * entire scene (all entities, including children of [AnchorEntity]s and [ActivitySpace])
-     * changes within the user's field of view. In Home Space Mode, the listener continues to
-     * monitor the spatial visibility of the application's main panel.
+     * entire scene (all entities, including children of [AnchorSpace]s and [ActivitySpace]) changes
+     * within the user's field of view. In Home Space Mode, the listener continues to monitor the
+     * spatial visibility of the application's main panel.
      *
      * This API only checks if the bounding box of all rendered content (even if partially
      * transparent) is within the user's field of view. Content not rendered due to full
@@ -372,7 +372,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
 
     /**
      * Adds a listener to be invoked on the main thread executor when the spatial visibility of the
-     * rendered content of the entire scene (all entities, including children of [AnchorEntity]s and
+     * rendered content of the entire scene (all entities, including children of [AnchorSpace]s and
      * [ActivitySpace]) changes within the user's field of view. In Home Space Mode, the listener
      * continues to monitor the spatial visibility of the application's main panel.
      *

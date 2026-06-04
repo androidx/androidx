@@ -58,7 +58,7 @@
             android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:exported="true" />
         <activity
-            android:name=".anchorentity.AnchorEntityActivity"
+            android:name=".anchorspace.AnchorSpaceActivity"
             android:exported="true" />
         <activity
             android:name=".fieldofviewvisibility.FieldOfViewVisibilityActivity"

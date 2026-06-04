@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference
  * additional behaviors.
  *
  * There are several subtypes of Entities. These include Entities with special positions, (e.g.
- * [ActivitySpace] and [AnchorEntity]) as well as those which are used to render different types of
+ * [ActivitySpace] and [AnchorSpace]) as well as those which are used to render different types of
  * content (e.g. [PanelEntity] and [GltfModelEntity]).
  */
 public open class Entity
@@ -109,7 +109,7 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
      * so as the parent moves, this Entity will move with it. Setting the parent to `null` will
      * remove the Entity from the scene graph.
      */
-    public var parent: Entity?
+    public open var parent: Entity?
         get() {
             checkNotDisposed()
             return _parent.get()
@@ -306,7 +306,9 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
     internal open fun disposeInternal() {
         if (isDisposed) return
         // Clear the parent to remove this entity from the parent's children list.
-        parent = null
+        if (this !is SpaceEntity) {
+            parent = null
+        }
 
         // Detach immediate children.
         val childrenToDetach =

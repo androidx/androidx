@@ -53,7 +53,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.runtime.MoveEvent
@@ -600,7 +600,7 @@ class AnchorableModifierTest {
                 getRotationMatrixFromAxes(expectedPanelX, expectedPanelY, planeNormal).rotation
             val expectedPose = Pose(expectedTranslation, expectedRotation)
             assertPose(entity.getPose(Space.ACTIVITY), expectedPose, TOLERANCE)
-            assertThat(entity.parent).isInstanceOf(AnchorEntity::class.java)
+            assertThat(entity.parent).isInstanceOf(AnchorSpace::class.java)
         }
     }
 
@@ -674,7 +674,7 @@ class AnchorableModifierTest {
                 getRotationMatrixFromAxes(expectedPanelX, expectedPanelY, planeNormal).rotation
             val expectedPose = Pose(expectedTranslation, expectedRotation)
             assertPose(entity.getPose(Space.ACTIVITY), expectedPose, TOLERANCE)
-            assertThat(entity.parent).isInstanceOf(AnchorEntity::class.java)
+            assertThat(entity.parent).isInstanceOf(AnchorSpace::class.java)
         }
     }
 

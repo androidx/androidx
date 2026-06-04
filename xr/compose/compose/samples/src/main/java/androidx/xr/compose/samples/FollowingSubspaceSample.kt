@@ -46,7 +46,7 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 
 @Sampled
 @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -85,7 +85,7 @@ public fun FollowingSubspaceSample() {
         var anchor =
             remember(session) {
                 when (val anchorResult = Anchor.create(session, Pose.Identity)) {
-                    is AnchorCreateSuccess -> AnchorEntity.create(session, anchorResult.anchor)
+                    is AnchorCreateSuccess -> AnchorSpace.create(session, anchorResult.anchor)
                     else -> {
                         Log.e(TAG, "Failed to create anchor: ${anchorResult::class.simpleName}")
                         null
@@ -94,7 +94,7 @@ public fun FollowingSubspaceSample() {
             }
         if (anchor != null) {
             FollowingSubspace(
-                target = FollowTarget.Anchor(anchorEntity = anchor),
+                target = FollowTarget.Anchor(anchorSpace = anchor),
                 behavior = FollowBehavior.Tight,
                 modifier = SubspaceModifier.rotate(pitch = -90f, yaw = 0f, roll = 0f),
             ) {

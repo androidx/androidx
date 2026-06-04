@@ -146,11 +146,11 @@ class SceneTest {
                 "test1",
                 parent = session.scene.activitySpace,
             )
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         assertThat(session.scene.getEntitiesOfType(Entity::class.java))
-            .containsAtLeast(panelEntity, anchorEntity)
+            .containsAtLeast(panelEntity, anchorSpace)
     }
 
     private companion object {
@@ -398,15 +398,15 @@ class SceneTest {
     }
 
     @Test
-    fun keyEntity_setWithAnchorEntity_throwsIllegalArgumentException() {
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+    fun keyEntity_setWithAnchorSpace_throwsIllegalArgumentException() {
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         val exception =
-            assertFailsWith<IllegalArgumentException> { session.scene.keyEntity = anchorEntity }
+            assertFailsWith<IllegalArgumentException> { session.scene.keyEntity = anchorSpace }
         assertThat(exception)
             .hasMessageThat()
-            .isEqualTo("AnchorEntity cannot be set as the keyEntity.")
+            .isEqualTo("AnchorSpace cannot be set as the keyEntity.")
     }
 
     @Test

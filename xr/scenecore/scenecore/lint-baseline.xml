@@ -7,42 +7,6 @@
         errorLine1="        runTest(testDispatcher) {"
         errorLine2="        ~~~~~~~">
         <location
-            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runTest(testDispatcher) {"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runTest(testDispatcher) {"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runTest(testDispatcher) {"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/test/java/androidx/xr/scenecore/AnchorEntityTest.kt"/>
-    </issue>
-
-    <issue
-        id="KotlinRunTestResultUnused"
-        message="Result of runTest is ignored."
-        errorLine1="        runTest(testDispatcher) {"
-        errorLine2="        ~~~~~~~">
-        <location
             file="src/test/java/androidx/xr/scenecore/MovableComponentTest.kt"/>
     </issue>
 

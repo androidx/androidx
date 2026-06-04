@@ -419,8 +419,8 @@ public annotation class ExperimentalFollowingSubspaceApi
  * When the target parameter is specified to be [FollowTarget.Anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
  * specific spatial locations. The visual stability of the anchored content depends on the
- * underlying system's ability to track the [androidx.xr.scenecore.AnchorEntity]. For Creating,
- * loading, and persisting anchors, please check [androidx.xr.scenecore.AnchorEntity] for more
+ * underlying system's ability to track the [androidx.xr.scenecore.AnchorSpace]. For Creating,
+ * loading, and persisting anchors, please check [androidx.xr.scenecore.AnchorSpace] for more
  * information
  *
  * This composable is a no-op in non-XR environments (i.e., Phone and Tablet).
@@ -488,7 +488,7 @@ public fun FollowingSubspace(
     if (target is AnchorTarget && behavior == FollowBehavior.Tight) {
         Subspace(
             modifier = modifier,
-            subspaceRootNode = target.anchorEntity,
+            subspaceRootNode = target.anchorSpace,
             allowUnboundedSubspace = allowUnboundedSubspace,
             content = content,
         )
@@ -574,7 +574,7 @@ private fun rememberRecenterSignal(
                 // Anchors live outside the ActivitySpace, so if the ActivitySpace moves, the
                 // relative position to the anchor must be manually updated.
                 subspaceTrailingEntity.poseInMeters =
-                    targetValue.anchorEntity.getPose(Space.ACTIVITY)
+                    targetValue.anchorSpace.getPose(Space.ACTIVITY)
             } else {
                 // If the activity space moves, this should be the new origin.
                 subspaceRootNode.setPose(Pose.Identity)

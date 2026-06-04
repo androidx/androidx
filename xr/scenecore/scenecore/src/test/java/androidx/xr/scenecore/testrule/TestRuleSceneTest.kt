@@ -30,7 +30,7 @@ import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.ActivityPanelEntity
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelClippingConfig
 import androidx.xr.scenecore.PanelEntity
@@ -163,11 +163,11 @@ class TestRuleSceneTest {
                 "test1",
                 parent = session.scene.activitySpace,
             )
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         assertThat(session.scene.getEntitiesOfType(Entity::class.java))
-            .containsAtLeast(panelEntity, anchorEntity)
+            .containsAtLeast(panelEntity, anchorSpace)
     }
 
     // TODO - b/502272748: Once the deprecated set method is removed this can be removed
@@ -495,15 +495,15 @@ class TestRuleSceneTest {
     }
 
     @Test
-    fun keyEntity_setWithAnchorEntity_throwsIllegalArgumentException() {
-        val anchorEntity =
-            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
+    fun keyEntity_setWithAnchorSpace_throwsIllegalArgumentException() {
+        val anchorSpace =
+            AnchorSpace.create(session, FloatSize2d(), PlaneOrientation.ALL, PlaneSemanticType.ALL)
 
         val exception =
-            assertFailsWith<IllegalArgumentException> { session.scene.keyEntity = anchorEntity }
+            assertFailsWith<IllegalArgumentException> { session.scene.keyEntity = anchorSpace }
         assertThat(exception)
             .hasMessageThat()
-            .isEqualTo("AnchorEntity cannot be set as the keyEntity.")
+            .isEqualTo("AnchorSpace cannot be set as the keyEntity.")
     }
 
     @Test

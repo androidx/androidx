@@ -28,7 +28,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import java.lang.Runnable
@@ -463,11 +463,11 @@ public sealed interface FollowTarget {
         /**
          * Targeting an anchor allows content to be positioned relative to that anchor's location.
          *
-         * @param anchorEntity represents the anchor which this
+         * @param anchorSpace represents the anchor which this
          *   [androidx.xr.compose.spatial.FollowingSubspace] will be tethered to. As the anchor
          *   moves, so will the [androidx.xr.compose.spatial.FollowingSubspace]
          */
-        public fun Anchor(anchorEntity: AnchorEntity): FollowTarget = AnchorTarget(anchorEntity)
+        public fun Anchor(anchorSpace: AnchorSpace): FollowTarget = AnchorTarget(anchorSpace)
     }
 }
 
@@ -510,38 +510,38 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
 }
 
 /**
- * A Trackable Anchor entity that wraps an [AnchorEntity] from SceneCore and implements
+ * A Trackable Anchor entity that wraps an [AnchorSpace] from SceneCore and implements
  * [FollowTarget] to provide a stream of pose updates.
  *
- * This implementation is designed to be constructed directly from an existing [AnchorEntity]
+ * This implementation is designed to be constructed directly from an existing [AnchorSpace]
  * instance provided by the developer.
  */
-internal class AnchorTarget(val anchorEntity: AnchorEntity) : FollowTargetFlow {
+internal class AnchorTarget(val anchorSpace: AnchorSpace) : FollowTargetFlow {
     private val pose: Pose
-        get() = anchorEntity.getPose(Space.ACTIVITY)
+        get() = anchorSpace.getPose(Space.ACTIVITY)
 
     /**
-     * A Flow that emits the latest pose updates whenever the underlying [AnchorEntity] is updated
-     * by the system's perception stack.
+     * A Flow that emits the latest pose updates whenever the underlying [AnchorSpace] is updated by
+     * the system's perception stack.
      */
     override val poseUpdates: Flow<Pose> = callbackFlow {
         // Send the initial pose immediately upon collection.
         trySend(pose)
 
         val updateListener = Runnable { trySend(pose) }
-        anchorEntity.addOriginChangedListener(updateListener)
+        anchorSpace.addOriginChangedListener(updateListener)
 
         // Unregister the listener when the collector cancels or finishes.
-        awaitClose { anchorEntity.removeOriginChangedListener(updateListener) }
+        awaitClose { anchorSpace.removeOriginChangedListener(updateListener) }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AnchorTarget) return false
-        return anchorEntity == other.anchorEntity
+        return anchorSpace == other.anchorSpace
     }
 
     override fun hashCode(): Int {
-        return anchorEntity.hashCode()
+        return anchorSpace.hashCode()
     }
 }

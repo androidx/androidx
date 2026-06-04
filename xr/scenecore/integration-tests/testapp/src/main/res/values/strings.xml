@@ -23,8 +23,7 @@
     <string name="switch_to_fsm_button_text">Switch To FSM</string>
     <string name="switch_to_hsm_button_text">Switch To HSM</string>
     <string name="spatial_capabilities_test">Spatial Capabilities Test</string>
-    <string name="spawn_anchor_entity_button_text">Spawn Anchor Entity</string>
-
+    <string name="spawn_anchor_space_button_text">Spawn Anchor Space</string>
     <string name="cuj_activity_panel_test">Activity Panel Test Case</string>
     <string name="cuj_anchor_test">Anchoring Test Case</string>
     <string name="cuj_spatial_capabilities_test">Spatial Capabilities Test Case</string>

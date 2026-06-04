@@ -39,7 +39,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.math.Vector3.Companion.distance
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
@@ -73,7 +73,7 @@ class TransformationActivity : AppCompatActivity() {
     private var movableActive = MutableStateFlow(false)
     private lateinit var solarSystemEntityModel: GltfModel
     private lateinit var staticEntityModel: GltfModel
-    private var anchor: AnchorEntity? = null
+    private var anchor: AnchorSpace? = null
     private lateinit var sunEntity: GltfModelEntity
     private lateinit var planetEntity: GltfModelEntity
     private lateinit var moonEntity: GltfModelEntity
@@ -144,7 +144,7 @@ class TransformationActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 while (true) {
                     val anchorState =
-                        anchor?.state ?: AnchorEntity.State.UNANCHORED // Handle null anchor
+                        anchor?.state ?: AnchorSpace.State.UNANCHORED // Handle null anchor
                     for (panel in debugTextPanelsToUpdate) {
                         if (panel.trackedEntity == null) continue // Skip if no tracked entity
                         if (panel == anchorDebugPanel) {
@@ -177,7 +177,7 @@ class TransformationActivity : AppCompatActivity() {
 
     private fun createAnchor() {
         anchor =
-            AnchorEntity.create(
+            AnchorSpace.create(
                 session!!,
                 FloatSize2d(0.1f, 0.1f),
                 PlaneOrientation.ALL,
@@ -256,7 +256,7 @@ class TransformationActivity : AppCompatActivity() {
     private fun updateDebugTextPanel(
         view: DebugTextLinearView,
         trackedEntity: Entity,
-        anchorState: AnchorEntity.State,
+        anchorState: AnchorSpace.State,
     ) {
         // Need to handle IllegalArgumentException from the anchorEntity's getPose
         val localPose =
@@ -288,7 +288,7 @@ class TransformationActivity : AppCompatActivity() {
         view.setLine("MainPanelSpacePose", mainPanelSpacePose.toFormattedString())
 
         val trackedEntityWorldPos = trackedEntity.getPose(Space.REAL_WORLD).translation
-        if (anchor != null && anchorState == AnchorEntity.State.ANCHORED) {
+        if (anchor != null && anchorState == AnchorSpace.State.ANCHORED) {
             val anchorSpacePose = trackedEntity.transformPoseTo(Pose.Identity, anchor!!)
             view.setLine("AnchorSpacePose", anchorSpacePose.toFormattedString())
             val anchorWorldPos = anchor!!.getPose(Space.REAL_WORLD).translation
@@ -501,12 +501,12 @@ class TransformationActivity : AppCompatActivity() {
         return sqrt(position.x * position.x + position.y * position.y + position.z * position.z)
     }
 
-    private fun AnchorEntity.State.toFormattedString(): String =
+    private fun AnchorSpace.State.toFormattedString(): String =
         when (this) {
-            AnchorEntity.State.UNANCHORED -> "UNANCHORED"
-            AnchorEntity.State.ANCHORED -> "ANCHORED"
-            AnchorEntity.State.TIMED_OUT -> "TIMED_OUT"
-            AnchorEntity.State.ERROR -> "ERROR"
+            AnchorSpace.State.UNANCHORED -> "UNANCHORED"
+            AnchorSpace.State.ANCHORED -> "ANCHORED"
+            AnchorSpace.State.TIMED_OUT -> "TIMED_OUT"
+            AnchorSpace.State.ERROR -> "ERROR"
             else -> "UNKNOWN"
         }
 

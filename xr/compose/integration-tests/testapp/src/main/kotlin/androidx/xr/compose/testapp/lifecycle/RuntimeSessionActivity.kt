@@ -55,7 +55,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import java.nio.file.Paths
@@ -172,10 +172,10 @@ class RuntimeSessionActivity : BaseLifecycleTestActivity() {
             is AnchorCreateSuccess -> {
                 Log.i(TAG, "[$activityName] [PASS] ANCHOR_SPAWN: success: ${result.anchor}")
                 val anchor = result.anchor
-                val anchorEntity = AnchorEntity.create(session, anchor)
+                val anchorSpace = AnchorSpace.create(session, anchor)
                 val gltfEntity = GltfModelEntity.create(session, model, Pose.Identity)
                 gltfEntity.setScale(0.5f)
-                anchorEntity.addChild(gltfEntity)
+                anchorSpace.addChild(gltfEntity)
                 Log.i(TAG, "[$activityName] [PASS] Visual entity attached to anchor.")
                 return anchor
             }

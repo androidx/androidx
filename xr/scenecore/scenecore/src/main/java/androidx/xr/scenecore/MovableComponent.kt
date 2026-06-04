@@ -53,11 +53,11 @@ import kotlinx.coroutines.flow.StateFlow
  * [MovableComponent.createSystemMovable] will create the Component and move the attached Entity
  * when the user drags it to a position recommended by the system.
  * [MovableComponent.createAnchorable] will create the Component, move the attached Entity when the
- * user drags it, and also potentially reparent the Entity to a new [AnchorEntity]. This will occur
+ * user drags it, and also potentially reparent the Entity to a new [AnchorSpace]. This will occur
  * if the user lets go of the Entity near a perception plane that matches the settings in the
  * provided [AnchorPlacement].
  *
- * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
+ * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
  * [Entity.addComponent] to an Entity with these types will return false.
  */
 public class MovableComponent
@@ -76,7 +76,7 @@ private constructor(
 
     private val sceneRuntime = session.sceneRuntime
     private val anchorable = !anchorPlacement.isEmpty()
-    private var createdAnchorEntity: AnchorEntity? = null
+    private var createdAnchorSpace: AnchorSpace? = null
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val rtMovableComponent: RtMovableComponent by lazy {
@@ -184,7 +184,7 @@ private constructor(
         }
 
     override fun onAttach(entity: Entity): Boolean {
-        if (entity is AnchorEntity || entity is ActivitySpace) {
+        if (entity is AnchorSpace || entity is ActivitySpace) {
             return false
         }
         if (this.entity != null) {
@@ -306,14 +306,14 @@ private constructor(
                 val anchorResult = anchorablePlane.createAnchor(Pose.Identity)
                 if (anchorResult is AnchorCreateSuccess) {
                     updatedPose = poseToAnchor
-                    updatedParent = AnchorEntity.create(session, anchorResult.anchor)
-                    createdAnchorEntity = updatedParent
+                    updatedParent = AnchorSpace.create(session, anchorResult.anchor)
+                    createdAnchorSpace = updatedParent
                 }
             }
         } else {
             entity?.let { entity ->
                 if (
-                    entity.parent == createdAnchorEntity &&
+                    entity.parent == createdAnchorSpace &&
                         moveEvent.moveState == MoveEvent.MOVE_STATE_END
                 ) {
                     updatedParent = session.scene.activitySpace
@@ -329,7 +329,7 @@ private constructor(
 
         // If the parent of the entity is changing, update its scale to reflect the ratio of the
         // scale of the initial parent to the scale of the updated parent. This preserves activity
-        // space scaling when anchoring to an AnchorEntity, and removes it when anchoring back to
+        // space scaling when anchoring to an AnchorSpace, and removes it when anchoring back to
         // the activity space.
         if (updatedParent != null && updatedParent != initialParent) {
             entity?.let {
@@ -346,12 +346,12 @@ private constructor(
                 entity.parent = updatedParent
                 if (
                     prevParent != null &&
-                        prevParent == createdAnchorEntity &&
+                        prevParent == createdAnchorSpace &&
                         disposeParentOnReAnchor &&
                         prevParent.children.isEmpty()
                 ) {
                     prevParent?.disposeInternal()
-                    createdAnchorEntity = null
+                    createdAnchorSpace = null
                 }
             }
             entity.setPose(updatedPose)
@@ -438,7 +438,7 @@ private constructor(
          * When created with this function the MovableComponent will not move or rescale the Entity,
          * but it could be done using the [EntityMoveListener.onMoveUpdate] callback.
          *
-         * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
+         * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
          * [Entity.addComponent] to an Entity with these types will return false.
          *
          * @param session The [Session] instance.
@@ -479,7 +479,7 @@ private constructor(
          * [EntityMoveListener] can be attached to received callbacks when the Entity is being
          * moved.
          *
-         * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
+         * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
          * [Entity.addComponent] to an Entity with these types will return false.
          *
          * @param session The [Session] instance.
@@ -578,12 +578,12 @@ private constructor(
          * Component will enable the user to translate the Entity by pointing and dragging on it.
          *
          * When created with this function the MovableComponent will move and potentially Anchor the
-         * Entity. When anchored a new [AnchorEntity] will be created and set as the parent of the
-         * Entity. If the entity is moved off of a created [AnchorEntity] it will be reparented to
+         * Entity. When anchored a new [AnchorSpace] will be created and set as the parent of the
+         * Entity. If the entity is moved off of a created [AnchorSpace] it will be reparented to
          * the [ActivitySpace]. An [EntityMoveListener] can be attached to receive callbacks when
-         * the Entity is being moved and to see if it was reparented to an AnchorEntity.
+         * the Entity is being moved and to see if it was reparented to an AnchorSpace.
          *
-         * This component cannot be attached to an AnchorEntity or to the ActivitySpace. Calling
+         * This component cannot be attached to an AnchorSpace or to the ActivitySpace. Calling
          * [Entity.addComponent] to an Entity with these types will return false.
          *
          * This functionality requires [Session] to be called with
@@ -596,9 +596,9 @@ private constructor(
          * @param anchorPlacement A Set containing different [AnchorPlacement] for how to anchor the
          *   Entity with a MovableComponent. When empty this Entity will not be anchored.
          * @param disposeParentOnReAnchor A Boolean, which if set to true, when an Entity is moved
-         *   off of an [AnchorEntity] that was created by the underlying MovableComponent, and the
-         *   AnchorEntity has no other children, the AnchorEntity will be disposed, and the
-         *   underlying Anchor will be detached.
+         *   off of an [AnchorSpace] that was created by the underlying MovableComponent, and the
+         *   AnchorSpace has no other children, the AnchorSpace will be disposed, and the underlying
+         *   Anchor will be detached.
          * @return MovableComponent instance.
          * @throws IllegalArgumentException if created with an Empty Set of for anchorPlacement
          */

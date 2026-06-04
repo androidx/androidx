@@ -25,7 +25,7 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorEntity.State
+import androidx.xr.scenecore.AnchorSpace.State
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.HitTestResult
 import androidx.xr.scenecore.HitTestResult.SurfaceType

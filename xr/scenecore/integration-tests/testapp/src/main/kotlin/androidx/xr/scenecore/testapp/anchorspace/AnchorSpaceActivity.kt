@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.testapp.anchorentity
+package androidx.xr.scenecore.testapp.anchorspace
 
 import android.content.Context
 import android.os.Bundle
@@ -32,7 +32,7 @@ import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.BoundsComponent
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfModel
@@ -50,9 +50,9 @@ import java.nio.file.Paths
 import java.util.function.BiConsumer
 import kotlinx.coroutines.launch
 
-class AnchorEntityActivity : AppCompatActivity() {
+class AnchorSpaceActivity : AppCompatActivity() {
     private var session: Session? = null
-    private lateinit var anchorEntity: AnchorEntity
+    private lateinit var mAnchorSpace: AnchorSpace
     private lateinit var xyzModel: GltfModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,13 +80,13 @@ class AnchorEntityActivity : AppCompatActivity() {
         // Recreate button
         findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
             it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@AnchorEntityActivity) }
+            it.setOnClickListener { ActivityCompat.recreate(this@AnchorSpaceActivity) }
         }
 
         // Spawn button
         val button: Button = findViewById(R.id.spawn_activity_panel_button)
-        button.text = getString(R.string.spawn_anchor_entity_button_text)
-        button.setOnClickListener { createAnchorEntity(this) }
+        button.text = getString(R.string.spawn_anchor_space_button_text)
+        button.setOnClickListener { createAnchorSpace(this) }
     }
 
     override fun onResume() {
@@ -113,7 +113,7 @@ class AnchorEntityActivity : AppCompatActivity() {
             }
         }
 
-    private fun createAnchorEntity(context: Context) {
+    private fun createAnchorSpace(context: Context) {
         lifecycleScope.launch {
             session!!.configure(
                 Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
@@ -122,8 +122,8 @@ class AnchorEntityActivity : AppCompatActivity() {
             xyzModel = GltfModel.create(session!!, XYZ_ARROWS_MODEL)
 
             // Create anchored gltf entity
-            anchorEntity =
-                AnchorEntity.create(
+            mAnchorSpace =
+                AnchorSpace.create(
                     session!!,
                     FloatSize2d(0.1f, 0.1f),
                     PlaneOrientation.ALL,
@@ -138,7 +138,7 @@ class AnchorEntityActivity : AppCompatActivity() {
                     )
                     .also {
                         it.setScale(1f)
-                        anchorEntity.addChild(it)
+                        mAnchorSpace.addChild(it)
                         it.setEnabled(true)
                     }
 

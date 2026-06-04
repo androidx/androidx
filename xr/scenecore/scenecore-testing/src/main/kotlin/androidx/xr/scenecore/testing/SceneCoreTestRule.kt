@@ -20,7 +20,7 @@ import android.media.AudioTrack
 import android.media.MediaPlayer
 import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.ActivitySpace
-import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.BoundsComponent
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
@@ -97,7 +97,7 @@ public class SceneCoreTestRule : ExternalResource() {
         } else {
             when (entity) {
                 is ActivityPanelEntity -> ActivityPanelEntityTester.create(entity)
-                is AnchorEntity -> AnchorEntityTester.create(entity)
+                is AnchorSpace -> AnchorSpaceTester.create(entity)
                 is GltfModelEntity -> GltfModelEntityTester.create(entity)
                 is MeshEntity -> MeshEntityTester.create(entity)
                 is PanelEntity -> PanelEntityTester.create(entity)
