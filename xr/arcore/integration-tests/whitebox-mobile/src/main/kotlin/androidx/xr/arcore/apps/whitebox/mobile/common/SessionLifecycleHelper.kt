@@ -25,6 +25,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -43,7 +44,7 @@ import androidx.xr.runtime.SessionCreateUnsupportedDevice
  */
 class SessionLifecycleHelper(
     val activity: ComponentActivity,
-    val config: Config = Config.Builder().build(),
+    val config: Config = Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build(),
     val onSessionAvailable: (Session) -> Unit = {},
     val onSessionCreateActionRequired: (SessionCreateResult) -> Unit = {},
 ) {
