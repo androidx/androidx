@@ -16,7 +16,12 @@
 
 package androidx.sqlite.driver.web
 
+import androidx.sqlite.SQLITE_DATA_BLOB
+import androidx.sqlite.SQLITE_DATA_FLOAT
+import androidx.sqlite.SQLITE_DATA_NULL
+import androidx.sqlite.SQLITE_DATA_TEXT
 import org.khronos.webgl.Int8Array
+import org.khronos.webgl.Uint8Array
 
 /* Object container of a prepared statement result. */
 internal actual class StatementResult(
@@ -43,5 +48,15 @@ internal actual class StatementResult(
 
     actual fun getString(rowIndex: Int, columnIndex: Int): String {
         return rows[rowIndex][columnIndex].unsafeCast<String>()
+    }
+
+    actual fun getCellType(rowIndex: Int, columnIndex: Int): Int {
+        val value = rows[rowIndex][columnIndex] ?: return SQLITE_DATA_NULL
+        return when (value) {
+            is String -> SQLITE_DATA_TEXT
+            is Number -> SQLITE_DATA_FLOAT
+            is Uint8Array -> SQLITE_DATA_BLOB
+            else -> SQLITE_DATA_NULL
+        }
     }
 }

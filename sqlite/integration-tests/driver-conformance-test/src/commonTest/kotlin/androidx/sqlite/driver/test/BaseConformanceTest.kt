@@ -286,6 +286,46 @@ abstract class BaseConformanceTest {
     }
 
     @Test
+    fun bindTextThenNullAndReadNull() = testWithConnection { connection ->
+        connection.executeSQL("CREATE TABLE Test (col TEXT)")
+        connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
+            it.bindText(1, "hello")
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+            it.reset()
+            it.bindNull(1)
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        connection.prepare("SELECT * FROM Test").use {
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.isNull(0)).isFalse()
+            assertThat(it.getText(0)).isEqualTo("hello")
+
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.isNull(0)).isTrue()
+        }
+    }
+
+    @Test
+    fun bindNullThenTextAndReadText() = testWithConnection { connection ->
+        connection.executeSQL("CREATE TABLE Test (col TEXT)")
+        connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
+            it.bindNull(1)
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+            it.reset()
+            it.bindText(1, "hello")
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        connection.prepare("SELECT * FROM Test").use {
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.isNull(0)).isTrue()
+
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.isNull(0)).isFalse()
+            assertThat(it.getText(0)).isEqualTo("hello")
+        }
+    }
+
+    @Test
     open fun bindInvalidParam() = testWithConnection { connection ->
         connection.executeSQL("CREATE TABLE Test (col)")
         connection.prepare("SELECT 1 FROM Test").use {

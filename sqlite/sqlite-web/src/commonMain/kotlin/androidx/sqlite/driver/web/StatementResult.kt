@@ -28,4 +28,6 @@ internal expect class StatementResult {
     fun getLong(rowIndex: Int, columnIndex: Int): Long
 
     fun getString(rowIndex: Int, columnIndex: Int): String
+
+    fun getCellType(rowIndex: Int, columnIndex: Int): Int
 }
