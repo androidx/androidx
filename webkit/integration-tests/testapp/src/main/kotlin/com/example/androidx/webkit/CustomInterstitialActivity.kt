@@ -59,7 +59,7 @@ class CustomInterstitialActivity : AppCompatActivity() {
         webView =
             findViewById<WebView>(R.id.custom_interstitial_webview).apply {
                 webViewClient = customWebViewClient
-                loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE)
+                loadUrl(TEST_SAFE_BROWSING_SITE)
             }
     }
 

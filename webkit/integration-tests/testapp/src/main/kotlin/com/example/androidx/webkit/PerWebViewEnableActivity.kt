@@ -44,15 +44,15 @@ class PerWebViewEnableActivity : AppCompatActivity() {
 
         findViewById<WebView>(R.id.enabled_webview).run {
             WebSettingsCompat.setSafeBrowsingEnabled(settings, true)
-            loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+            loadUrl(MALWARE_URL)
         }
         findViewById<WebView>(R.id.disabled_webview).run {
             WebSettingsCompat.setSafeBrowsingEnabled(settings, false)
-            loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+            loadUrl(MALWARE_URL)
         }
         // defaultWebView will defer to the EnableSafeBrowsing metadata manifest tag. If that's
         // not set, then Safe Browsing will be enabled by default for WebViews >= M66, per
         // https://blog.chromium.org/2018/04/protecting-webview-with-safe-browsing.html.
-        findViewById<WebView>(R.id.default_webview).loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+        findViewById<WebView>(R.id.default_webview).loadUrl(MALWARE_URL)
     }
 }

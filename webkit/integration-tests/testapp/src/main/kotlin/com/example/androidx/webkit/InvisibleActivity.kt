@@ -16,42 +16,39 @@
 
 package com.example.androidx.webkit
 
+import android.app.Activity
 import android.os.Bundle
-import android.util.DisplayMetrics
+import android.view.View
 import android.webkit.WebView
-import android.widget.LinearLayout
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
-import kotlin.math.ceil
 
-class GiantInterstitialActivity : AppCompatActivity() {
+/**
+ * An [Activity] to demonstrate Safe Browsing behavior with a [WebView] instance which is attached
+ * to the view hierarchy, but marked as [View.INVISIBLE]. In this case, the WebView will immediately
+ * emit a network error via [WebViewClient.onReceivedError] (or the other `#onReceivedError`
+ * overload). The network error code should be [WebViewClient.ERROR_UNSAFE_RESOURCE].
+ *
+ * @see UnattachedActivity
+ */
+class InvisibleActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setContentView(R.layout.activity_giant_interstitial)
-        setTitle(R.string.giant_interstitial_activity_title)
+        setContentView(R.layout.activity_invisible)
+        setTitle(R.string.invisible_activity_title)
         setUpDemoAppActivity()
 
-        val displayMetrics = DisplayMetrics()
-        @Suppress("DEPRECATION") windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val height = ceil(displayMetrics.heightPixels * SCALE_FACTOR).toInt()
-        val width = ceil(displayMetrics.widthPixels * SCALE_FACTOR).toInt()
-        val params = LinearLayout.LayoutParams(width, height)
-
-        findViewById<WebView>(R.id.giant_webview).apply {
-            layoutParams = params
-
+        with(findViewById<WebView>(R.id.invisible_webview)) {
             if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
                 WebSettingsCompat.setSafeBrowsingEnabled(this.settings, true)
             }
 
-            loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+            webViewClient =
+                ErrorLoggingWebViewClient(this@InvisibleActivity.findViewById(R.id.net_errors))
+            loadUrl(MALWARE_URL)
         }
-    }
-
-    companion object {
-        private const val SCALE_FACTOR = 1.1
     }
 }

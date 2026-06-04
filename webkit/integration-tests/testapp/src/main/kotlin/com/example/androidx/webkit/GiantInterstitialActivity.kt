@@ -16,38 +16,42 @@
 
 package com.example.androidx.webkit
 
-import android.app.Activity
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import kotlin.math.ceil
 
-/**
- * An [Activity] to demonstrate Safe Browsing behavior with a [WebView] instance which is detached
- * from the view hierarchy. This behaves identically to [InvisibleActivity]: the WebView emits a
- * network error with error code [WebViewClient.ERROR_UNSAFE_RESOURCE].
- *
- * @see InvisibleActivity
- */
-class UnattachedActivity : AppCompatActivity() {
+class GiantInterstitialActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_unattached)
-        setTitle(R.string.unattached_activity_title)
+        setContentView(R.layout.activity_giant_interstitial)
+        setTitle(R.string.giant_interstitial_activity_title)
         setUpDemoAppActivity()
 
-        with(WebView(this)) {
+        val displayMetrics = DisplayMetrics()
+        @Suppress("DEPRECATION") windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val height = ceil(displayMetrics.heightPixels * SCALE_FACTOR).toInt()
+        val width = ceil(displayMetrics.widthPixels * SCALE_FACTOR).toInt()
+        val params = LinearLayout.LayoutParams(width, height)
+
+        findViewById<WebView>(R.id.giant_webview).apply {
+            layoutParams = params
+
             if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
                 WebSettingsCompat.setSafeBrowsingEnabled(this.settings, true)
             }
 
-            webViewClient =
-                ErrorLoggingWebViewClient(this@UnattachedActivity.findViewById(R.id.net_errors))
-            loadUrl(SafeBrowsingHelpers.MALWARE_URL)
+            loadUrl(MALWARE_URL)
         }
+    }
+
+    companion object {
+        private const val SCALE_FACTOR = 1.1
     }
 }

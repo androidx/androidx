@@ -55,10 +55,10 @@ class MediumInterstitialActivity : AppCompatActivity() {
 
         val safeBrowsingPagesMap =
             mapOf(
-                R.id.malware_webview to SafeBrowsingHelpers.MALWARE_URL,
-                R.id.phishing_webview to SafeBrowsingHelpers.PHISHING_URL,
-                R.id.unwanted_software_webview to SafeBrowsingHelpers.UNWANTED_SOFTWARE_URL,
-                R.id.billing_webview to SafeBrowsingHelpers.BILLING_URL,
+                R.id.malware_webview to MALWARE_URL,
+                R.id.phishing_webview to PHISHING_URL,
+                R.id.unwanted_software_webview to UNWANTED_SOFTWARE_URL,
+                R.id.billing_webview to BILLING_URL,
             )
         // Add more threat types (here and in the layout), if we support more in the future.
 
