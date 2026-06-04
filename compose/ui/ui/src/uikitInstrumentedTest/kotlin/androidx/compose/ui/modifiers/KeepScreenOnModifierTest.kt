@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.keepScreenOn
 import androidx.compose.ui.test.UIKitInstrumentedTest
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.window.Dialog
 import kotlin.native.runtime.GC
 import kotlin.native.runtime.NativeRuntimeApi
 import kotlin.test.Test
@@ -47,6 +48,27 @@ internal class KeepScreenOnModifierTest {
     }
 
     @Test
+    fun testFlagOnWhenModifierAddedAfterInitialComposition() = runUIKitInstrumentedTest {
+        cleanupMemory()
+
+        var attach by mutableStateOf(false)
+
+        setContent {
+            if (attach) {
+                Box(Modifier.keepScreenOn())
+            }
+        }
+
+        assertFalse(isKeepScreenOnEnabled)
+
+        attach = true
+
+        waitForIdle()
+
+        assertTrue(isKeepScreenOnEnabled)
+    }
+
+    @Test
     fun testFlagOffWhenModifierRemoved() = runUIKitInstrumentedTest {
         cleanupMemory()
 
@@ -65,6 +87,58 @@ internal class KeepScreenOnModifierTest {
         waitForIdle()
 
         assertFalse(isKeepScreenOnEnabled)
+    }
+
+    @Test
+    fun testFlagOffWhenModifierRemovedWithoutRecreatingElement() = runUIKitInstrumentedTest {
+        cleanupMemory()
+
+        var enabled by mutableStateOf(true)
+
+        setContent {
+            Box(
+                modifier = if (enabled) {
+                    Modifier.keepScreenOn()
+                } else {
+                    Modifier
+                }
+            )
+        }
+
+        assertTrue(isKeepScreenOnEnabled)
+
+        enabled = false
+
+        waitForIdle()
+
+        assertFalse(isKeepScreenOnEnabled)
+    }
+
+    @Test
+    fun testFlagOnWhenModifierReattachedAfterRemoval() = runUIKitInstrumentedTest {
+        cleanupMemory()
+
+        var attach by mutableStateOf(true)
+
+        setContent {
+            if (attach) {
+                Box(Modifier.keepScreenOn())
+            }
+        }
+
+        assertTrue(isKeepScreenOnEnabled)
+
+        attach = false
+
+        waitForIdle()
+
+        assertFalse(isKeepScreenOnEnabled)
+
+        attach = true
+
+        waitForIdle()
+
+        assertTrue(isKeepScreenOnEnabled)
     }
 
     @Test
@@ -168,7 +242,6 @@ internal class KeepScreenOnModifierTest {
         assertTrue(isKeepScreenOnEnabled)
     }
 
-
     @Test
     fun testFlagOffWhenAllModifiersRemoved() = runUIKitInstrumentedTest {
         cleanupMemory()
@@ -189,6 +262,54 @@ internal class KeepScreenOnModifierTest {
         assertTrue(isKeepScreenOnEnabled)
 
         attach = false
+
+        waitForIdle()
+
+        assertFalse(isKeepScreenOnEnabled)
+    }
+
+    @Test
+    fun testFlagOffWhenComposeSceneDisposed() = runUIKitInstrumentedTest {
+        cleanupMemory()
+
+        setContent {
+            Box(Modifier.keepScreenOn())
+        }
+
+        assertTrue(isKeepScreenOnEnabled)
+
+        stopComposeScene()
+
+        waitForIdle()
+
+        assertFalse(isKeepScreenOnEnabled)
+    }
+
+    @Test
+    fun testKeepScreenOnInDialog() = runUIKitInstrumentedTest {
+        cleanupMemory()
+
+        var showDialog by mutableStateOf(false)
+
+        setContent {
+            Box {
+                if (showDialog) {
+                    Dialog(onDismissRequest = {}) {
+                        Box(Modifier.keepScreenOn())
+                    }
+                }
+            }
+        }
+
+        assertFalse(isKeepScreenOnEnabled)
+
+        showDialog = true
+
+        waitForIdle()
+
+        assertTrue(isKeepScreenOnEnabled)
+
+        showDialog = false
 
         waitForIdle()
 
