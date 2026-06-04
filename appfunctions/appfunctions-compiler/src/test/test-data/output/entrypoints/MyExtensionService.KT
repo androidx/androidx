@@ -16,7 +16,7 @@ public class MyExtensionService : ExtensionEntryPoint() {
     request
   ) { parameters ->
     when (request.functionIdentifier) {
-      "com.testdata.ExtensionEntryPoint#simpleFunction" -> {
+      FUNCTION_ID_SIMPLE_FUNCTION -> {
         this.simpleFunction(
           parameters["int"] as Int,
           parameters["string"] as String,
@@ -31,4 +31,9 @@ public class MyExtensionService : ExtensionEntryPoint() {
   }
 
   override fun resolveInventory(): AppFunctionInventory = `$ExtensionEntryPoint_AppFunctionInventory`()
+
+  public companion object {
+    public const val FUNCTION_ID_SIMPLE_FUNCTION: String =
+        "com.testdata.ExtensionEntryPoint#simpleFunction"
+  }
 }

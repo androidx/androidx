@@ -16,7 +16,7 @@ public class MySimpleService : SimpleEntryPoint() {
     request
   ) { parameters ->
     when (request.functionIdentifier) {
-      "com.testdata.SimpleEntryPoint#simpleFunction" -> {
+      FUNCTION_ID_SIMPLE_FUNCTION -> {
         this.simpleFunction(
           parameters["int"] as Int,
           parameters["string"] as String,
@@ -31,4 +31,9 @@ public class MySimpleService : SimpleEntryPoint() {
   }
 
   override fun resolveInventory(): AppFunctionInventory = `$SimpleEntryPoint_AppFunctionInventory`()
+
+  public companion object {
+    public const val FUNCTION_ID_SIMPLE_FUNCTION: String =
+        "com.testdata.SimpleEntryPoint#simpleFunction"
+  }
 }

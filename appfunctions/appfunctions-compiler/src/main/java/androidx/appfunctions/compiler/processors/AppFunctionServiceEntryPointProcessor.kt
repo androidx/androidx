@@ -18,6 +18,7 @@ package androidx.appfunctions.compiler.processors
 
 import androidx.annotation.VisibleForTesting
 import androidx.appfunctions.compiler.AppFunctionCompiler
+import androidx.appfunctions.compiler.core.AnnotatedAppFunction
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionServiceEntryPoint
 import androidx.appfunctions.compiler.core.AppFunctionInventoryCodeBuilder
@@ -31,6 +32,7 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServic
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionRequestClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionResponseClass
 import androidx.appfunctions.compiler.core.ProcessingException
+import androidx.appfunctions.compiler.core.fromCamelCaseToScreamingSnakeCase
 import androidx.appfunctions.compiler.core.logException
 import androidx.appfunctions.compiler.core.toTypeName
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -46,6 +48,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.buildCodeBlock
 
@@ -80,7 +83,6 @@ class AppFunctionServiceEntryPointProcessor(
 ) : SymbolProcessor {
     private var isProcessed = false
 
-    // TODO(b/463909015): Generate IDs for each AppFunction.
     override fun process(resolver: Resolver): List<KSAnnotated> {
         if (isProcessed) return emptyList()
         isProcessed = true
@@ -134,6 +136,7 @@ class AppFunctionServiceEntryPointProcessor(
                 .addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
                 .addFunction(buildExecuteFunction(serviceEntryPoint))
                 .addFunction(buildResolveInventory(serviceEntryPoint))
+                .addType(buildCompanionObject(serviceEntryPoint))
 
         val fileSpec =
             FileSpec.builder(packageName, serviceName).addType(serviceClassBuilder.build()).build()
@@ -203,9 +206,7 @@ class AppFunctionServiceEntryPointProcessor(
             beginControlFlow("when (request.functionIdentifier)")
             for (appFunction in serviceEntryPoint.appFunctions) {
                 val function = appFunction.appFunctionDeclaration
-                val identifier =
-                    appFunction.getAppFunctionIdentifier(serviceEntryPoint.serviceDeclaration)
-                beginControlFlow("%S ->", identifier)
+                beginControlFlow("%L ->", getFunctionIdConstantPropertyName(appFunction))
                 add("this.%N(\n", function.simpleName.asString())
                 indent()
                 for (param in function.parameters) {
@@ -227,6 +228,40 @@ class AppFunctionServiceEntryPointProcessor(
         }
     }
 
+    private fun buildCompanionObject(
+        serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint
+    ): TypeSpec {
+        val functionIdPropertySpecList = buildList {
+            for (annotatedAppFunction in serviceEntryPoint.appFunctions) {
+                val id =
+                    annotatedAppFunction.getAppFunctionIdentifier(
+                        serviceEntryPoint.serviceDeclaration
+                    )
+                val propertyName = getFunctionIdConstantPropertyName(annotatedAppFunction)
+                add(
+                    PropertySpec.builder(name = propertyName, type = String::class)
+                        .addModifiers(KModifier.CONST)
+                        .initializer("%S", id)
+                        .build()
+                )
+            }
+        }
+        return TypeSpec.companionObjectBuilder()
+            .apply {
+                for (functionIdPropertySpec in functionIdPropertySpecList) {
+                    addProperty(functionIdPropertySpec)
+                }
+            }
+            .build()
+    }
+
+    private fun getFunctionIdConstantPropertyName(
+        annotatedAppFunction: AnnotatedAppFunction
+    ): String {
+        val functionSimpleName = annotatedAppFunction.appFunctionDeclaration.simpleName.asString()
+        return FUNCTION_ID_PREFIX + functionSimpleName.fromCamelCaseToScreamingSnakeCase()
+    }
+
     @VisibleForTesting
     class Provider : SymbolProcessorProvider {
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
@@ -239,5 +274,6 @@ class AppFunctionServiceEntryPointProcessor(
 
     private companion object {
         const val XML_PACKAGE_NAME = "assets"
+        const val FUNCTION_ID_PREFIX = "FUNCTION_ID_"
     }
 }

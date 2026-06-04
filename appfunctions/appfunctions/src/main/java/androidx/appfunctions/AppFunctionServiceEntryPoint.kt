@@ -63,18 +63,24 @@ package androidx.appfunctions
  * artifacts:
  * - **A concrete service implementation:** The compiler generates a subclass of your abstract class
  *   (`BaseMyAppFunctionService` in the example above) with the name specified in the [serviceName]
- *   parameter. The generated service has a structure like:
+ *   parameter. In addition to the generated `executeFunction` implementation, the function IDs that
+ *   can be used with [AppFunctionManager.setAppFunctionEnabled] are also available in the companion
+ *   object. The generated service has the following structure:
  * ```
  * public class MyAppFunctionService : BaseMyAppFunctionService() {
  *   override suspend fun executeFunction(
  *     request: ExecuteAppFunctionRequest
  *   ): ExecuteAppFunctionResponse {
  *     return when (request.functionIdentifier) {
- *       "add" -> {
+ *       FUNCTION_ID_ADD -> {
  *         add(request.parameters.getInt("a"), request.getParameters.getInt("b"))
  *       }
  *       ...
  *     }.toAppFunctionResponse()
+ *   }
+ *
+ *   public companion object {
+ *     public const val FUNCTION_ID_ADD: String = <id>
  *   }
  * }
  * ```
