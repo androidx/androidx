@@ -273,14 +273,6 @@ public inline fun checkApi(requiredApi: Int, methodName: String) {
     }
 }
 
-/** Asserts that this method was invoked on Android L (API 21) or higher. */
-public inline fun checkLOrHigher(methodName: String): Unit =
-    checkApi(Build.VERSION_CODES.LOLLIPOP, methodName)
-
-/** Asserts that this method was invoked on Android M (API 23) or higher. */
-public inline fun checkMOrHigher(methodName: String): Unit =
-    checkApi(Build.VERSION_CODES.M, methodName)
-
 /** Asserts that this method was invoked on Android N (API 24) or higher. */
 public inline fun checkNOrHigher(methodName: String): Unit =
     checkApi(Build.VERSION_CODES.N, methodName)
