@@ -30,7 +30,6 @@ import androidx.navigation.NavBackStackEntryState
 import androidx.navigation.NavController
 import androidx.navigation.NavController.NavControllerNavigatorState
 import androidx.navigation.NavController.OnDestinationChangedListener
-import androidx.navigation.NavControllerViewModel
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.createRoute
@@ -1709,11 +1708,9 @@ internal class NavControllerImpl(
     }
 
     internal fun setViewModelStore(viewModelStore: ViewModelStore) {
-        if (viewModelStoreProvider == NavControllerViewModel.getInstance(viewModelStore)) {
-            return
-        }
+        if (viewModelStoreProvider != null) return
         check(backQueue.isEmpty()) { "ViewModelStore should be set before setGraph call" }
-        viewModelStoreProvider = NavControllerViewModel.getInstance(viewModelStore)
+        viewModelStoreProvider = NavViewModelStoreProvider(viewModelStore)
     }
 
     internal fun getViewModelStoreOwner(navGraphId: Int): ViewModelStoreOwner {
