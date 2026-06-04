@@ -18,7 +18,6 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.ScrollState
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
@@ -34,10 +33,6 @@ public class RemoteScrollState(
     public val notches: Int,
 ) {
     public constructor(position: Float, notches: Int) : this(MutableRemoteFloat(position), notches)
-
-    public fun toComposeUi(): ScrollState {
-        return ScrollState(0)
-    }
 }
 
 @Composable
