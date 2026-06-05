@@ -55,6 +55,7 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
  * experience where the user is immediately prompted for a permission after hitting cancel in the
  * rationale UI.
  */
+@Deprecated("Use ProjectedActivityCompat.requestPermissions() instead.")
 @ExperimentalProjectedApi
 public class ProjectedPermissionsResultContract :
     ActivityResultContract<List<ProjectedPermissionsRequestParams>, Map<String, Boolean>>() {

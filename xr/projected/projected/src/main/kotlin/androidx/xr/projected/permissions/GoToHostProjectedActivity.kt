@@ -41,7 +41,7 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
  * An activity to be displayed on the Projected device that requests the user to act on the
  * permission request on the host device. See [ProjectedPermissionsResultContract] for details.
  */
-@Suppress("ForbiddenSuperClass")
+@Suppress("ForbiddenSuperClass", "DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @OptIn(ExperimentalProjectedApi::class)
 public class GoToHostProjectedActivity :

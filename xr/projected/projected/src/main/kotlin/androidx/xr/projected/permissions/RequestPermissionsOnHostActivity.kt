@@ -50,7 +50,7 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
  * An Activity to display rationale and request permissions on the host display. See
  * [ProjectedPermissionsResultContract] for details.
  */
-@Suppress("ForbiddenSuperClass")
+@Suppress("ForbiddenSuperClass", "DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @OptIn(ExperimentalProjectedApi::class)
 public class RequestPermissionsOnHostActivity : AppCompatActivity() {
