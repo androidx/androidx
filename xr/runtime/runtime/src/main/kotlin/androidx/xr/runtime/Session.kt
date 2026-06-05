@@ -380,9 +380,14 @@ public constructor(
      * [androidx.xr.runtime.XrDevice] before configuring. Example:
      * [androidx.xr.runtime.XrDevice.isGeospatialModeSupported].
      *
-     * It is recommended to use and modify an instance of [Config.Builder] to maintain the current
-     * desired configuration state. A instance of [Config] to pass to this function can be created
-     * using [Config.Builder.build].
+     * It is recommended to modify the current [Config] to avoid unnecessarily resetting the system.
+     * This can be done using [Config.Builder] as follows:
+     * ```kotlin
+     * val newConfig = Config.Builder(session.config)
+     *     .setFeature(Feature.ENABLED)
+     *     .build()
+     * session.configure(newConfig)
+     * ```
      *
      * Note that enabling most configurations will increase hardware resource consumption and should
      * only be enabled if needed.
