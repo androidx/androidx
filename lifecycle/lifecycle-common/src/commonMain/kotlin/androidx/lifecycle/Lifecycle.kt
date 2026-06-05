@@ -141,18 +141,16 @@ public abstract class Lifecycle {
          * @return the state that will result from this event
          */
         public val targetState: State
-            get() {
+            get() =
                 when (this) {
                     ON_CREATE,
-                    ON_STOP -> return State.CREATED
+                    ON_STOP -> State.CREATED
                     ON_START,
-                    ON_PAUSE -> return State.STARTED
-                    ON_RESUME -> return State.RESUMED
-                    ON_DESTROY -> return State.DESTROYED
-                    ON_ANY -> {}
+                    ON_PAUSE -> State.STARTED
+                    ON_RESUME -> State.RESUMED
+                    ON_DESTROY -> State.DESTROYED
+                    ON_ANY -> throw IllegalArgumentException("$this has no target state")
                 }
-                throw IllegalArgumentException("$this has no target state")
-            }
 
         public companion object {
             /**
