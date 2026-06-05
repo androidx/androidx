@@ -108,6 +108,49 @@ public interface FrameBuffer : AutoCloseable {
     public fun removeAll(predicate: ((FrameReference) -> Boolean)? = null): List<Frame>
 
     /**
+     * Remove and close the first entry in [FrameBuffer] that matches the optional [predicate]
+     * filter.
+     *
+     * If [predicate] is null, the first entry in the buffer is removed. If the entry contains an
+     * unclosed underlying [Frame], the [Frame] will be closed. If [predicate] is provided, the
+     * first entry that matches the filter is removed and closed. If a matching entry is found and
+     * removed, true is returned; otherwise, false is returned.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the first entry is removed and closed.
+     * @return true if a matching entry was found and removed, false otherwise.
+     */
+    public fun releaseFirst(predicate: ((FrameReference) -> Boolean)? = null): Boolean
+
+    /**
+     * Remove and close the last entry in [FrameBuffer] that matches the optional [predicate]
+     * filter.
+     *
+     * If [predicate] is null, the last entry in the buffer is removed. If the entry contains an
+     * unclosed underlying [Frame], the [Frame] will be closed. If [predicate] is provided, the last
+     * entry that matches the filter is removed and closed. If a matching entry is found and
+     * removed, true is returned; otherwise, false is returned.
+     *
+     * @param predicate An optional filter function to apply. If null, no filtering is performed and
+     *   the last entry is removed and closed.
+     * @return true if a matching entry was found and removed, false otherwise.
+     */
+    public fun releaseLast(predicate: ((FrameReference) -> Boolean)? = null): Boolean
+
+    /**
+     * Remove and close all entries in [FrameBuffer] that match the optional [predicate] filter.
+     *
+     * If [predicate] is null, all entries in the buffer are removed. If any entry contains an
+     * unclosed underlying [Frame], the [Frame] will be closed. If [predicate] is provided, all
+     * entries that match the filter are removed and closed.
+     *
+     * @param predicate An optional filter function to apply. If null, all entries are matched and
+     *   removed.
+     * @return true if at least one matching entry was found and removed, false otherwise.
+     */
+    public fun releaseAll(predicate: ((FrameReference) -> Boolean)? = null): Boolean
+
+    /**
      * The last FrameReference in the buffer, or null if the buffer is empty. No frame references
      * are removed by this call.
      */
