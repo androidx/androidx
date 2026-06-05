@@ -324,6 +324,11 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int length = buffer.readInt();
         GraphicsLayerModifierOperation op = new GraphicsLayerModifierOperation();
+        if (length < 0 || length > op.mValues.length
+                || length > (buffer.getSize() - buffer.getIndex()) / 8) {
+            throw new RuntimeException(
+                    "attempt to allocate an invalid number of attributes: " + length);
+        }
         for (int i = 0; i < length; i++) {
             op.readAttributeValue(buffer);
         }
@@ -335,6 +340,10 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
         int tag = buffer.readInt();
         int dataType = tag >> 10;
         int index = (short) (tag & 0x3F);
+        if (index < 0 || index >= mValues.length) {
+            throw new RuntimeException(
+                    "attempt to read an invalid attribute index: " + index);
+        }
         if (index == BLUR_RADIUS_X || index == BLUR_RADIUS_Y) {
             mHasBlurEffect = true;
             mValues[HAS_BLUR].setValue(1);
