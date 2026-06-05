@@ -36,36 +36,72 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/** Represents the expected result of a space request. */
+public sealed interface SpaceRequestResult {
+    /** The application successfully transitioned to the requested space. */
+    public object Success : SpaceRequestResult
+
+    /** The device or environment does not support XR space transitions. */
+    public object Unsupported : SpaceRequestResult
+
+    /**
+     * The space transition failed due to a system error or exception.
+     *
+     * @param cause the underlying exception or cause of the error
+     * @property cause the underlying exception or cause of the error
+     */
+    public class Error(public val cause: Throwable) : SpaceRequestResult {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Error
+
+            return cause == other.cause
+        }
+
+        override fun hashCode(): Int {
+            return cause.hashCode()
+        }
+
+        override fun toString(): String {
+            return "Error(cause=$cause)"
+        }
+    }
+
+    /**
+     * Prevents exhaustive `when` usage for Kotlin consumers, making it safe to add new public
+     * result types in future releases.
+     */
+    private object Hidden : SpaceRequestResult
+}
+
 /**
  * Request that the system places the application into home space mode.
  *
  * In home space, the visible space may be shared with other applications; however, applications in
  * home space will have their spatial capabilities and physical bounds limited.
  *
- * This function suspends until the application has successfully entered home space.
+ * This suspend function initiates an asynchronous OS-level space change and will resume with
+ * [SpaceRequestResult.Success] once the application has successfully entered home space. If the
+ * device does not support XR spaces, it will resume immediately with
+ * [SpaceRequestResult.Unsupported].
  *
- * ### Concurrency and Multiple Calls
- * Only one space transition request can be active at a time. If this function (or
- * [requestFullSpace]) is called while a previous space request is still pending, the previous
- * request's coroutine will be cancelled, throwing a [CancellationException] to its caller. The new
- * request will then proceed.
- *
- * ### Cancellation
- * If the coroutine is cancelled (either manually, because the Activity was destroyed, or due to a
- * newer request), this function will throw a [CancellationException].
- *
- * Note: Cancelling this coroutine only cancels the *wait* for the transition to complete. The
- * transition request itself has already been sent to the system and may still execute.
- *
- * ### Device Support
- * On devices that do not support XR spaces, this function will do nothing and return immediately.
- * However, it may propagate other runtime exceptions thrown by the underlying XR session.
+ * Note: Because Full Space Mode and Home Space Mode changes are OS-level system changes, the space
+ * switch cannot be aborted mid-flight once initiated. Cancelling this coroutine unregisters the
+ * bounds listener but does not interrupt the ongoing space change. If [requestFullSpace] or
+ * `requestHomeSpace` is called again before this request completes, the coroutine suspended on this
+ * call will be cancelled with a `CancellationException`.
  *
  * See [modes in XR](https://developer.android.com/design/ui/xr/guides/foundations#modes).
  *
+ * @return [SpaceRequestResult.Success] if the application successfully enters home space,
+ *   [SpaceRequestResult.Unsupported] if the device does not support XR spaces, or
+ *   [SpaceRequestResult.Error] if a system error occurs.
  * @throws CancellationException if the request is cancelled before completion.
  */
-public suspend fun ComponentActivity.requestHomeSpace(): Unit = requestSpaceMode(Space.Home)
+public suspend fun ComponentActivity.requestHomeSpace(): SpaceRequestResult =
+    requestSpaceMode(Space.Home)
 
 /**
  * Request that the system places the application into full space mode.
@@ -74,34 +110,37 @@ public suspend fun ComponentActivity.requestHomeSpace(): Unit = requestSpaceMode
  * capabilities will be expanded, and its physical bounds will expand to fill the entire virtual
  * space.
  *
- * This function suspends until the application has successfully entered full space.
+ * This suspend function initiates an asynchronous OS-level space change and will resume with
+ * [SpaceRequestResult.Success] once the application has successfully entered full space. If the
+ * device does not support XR spaces, it will resume immediately with
+ * [SpaceRequestResult.Unsupported].
  *
- * ### Concurrency and Multiple Calls
- * Only one space transition request can be active at a time. If this function (or
- * [requestHomeSpace]) is called while a previous space request is still pending, the previous
- * request's coroutine will be cancelled, throwing a [CancellationException] to its caller. The new
- * request will then proceed.
- *
- * ### Cancellation
- * If the coroutine is cancelled (either manually, because the Activity was destroyed, or due to a
- * newer request), this function will throw a [CancellationException].
- *
- * Note: Cancelling this coroutine only cancels the *wait* for the transition to complete. The
- * transition request itself has already been sent to the system and may still execute.
- *
- * ### Device Support
- * On devices that do not support XR spaces, this function will do nothing and return immediately.
- * However, it may propagate other runtime exceptions thrown by the underlying XR session.
+ * Note: Because Full Space Mode and Home Space Mode changes are OS-level system changes, the space
+ * switch cannot be aborted mid-flight once initiated. Cancelling this coroutine unregisters the
+ * bounds listener but does not interrupt the ongoing space change. If `requestFullSpace` or
+ * [requestHomeSpace] is called again before this request completes, the coroutine suspended on this
+ * call will be cancelled with a `CancellationException`.
  *
  * See [modes in XR](https://developer.android.com/design/ui/xr/guides/foundations#modes).
  *
+ * @return [SpaceRequestResult.Success] if the application successfully enters full space,
+ *   [SpaceRequestResult.Unsupported] if the device does not support XR spaces, or
+ *   [SpaceRequestResult.Error] if a system error occurs.
  * @throws CancellationException if the request is cancelled before completion.
  */
-public suspend fun ComponentActivity.requestFullSpace(): Unit = requestSpaceMode(Space.Full)
+public suspend fun ComponentActivity.requestFullSpace(): SpaceRequestResult =
+    requestSpaceMode(Space.Full)
 
-private suspend fun ComponentActivity.requestSpaceMode(space: Space): Unit =
+private suspend fun ComponentActivity.requestSpaceMode(space: Space): SpaceRequestResult =
     lifecycleAwareCoroutineScope {
-        val session = getOrCreateSession() ?: return@lifecycleAwareCoroutineScope
+        if (!SpatialConfiguration.hasXrSpatialFeature(this@requestSpaceMode)) {
+            return@lifecycleAwareCoroutineScope SpaceRequestResult.Unsupported
+        }
+
+        val session =
+            getOrCreateSession()
+                ?: return@lifecycleAwareCoroutineScope SpaceRequestResult.Unsupported
+
         val currentJob = coroutineContext[Job]
 
         spaceRequestMutex.withLock {
@@ -119,7 +158,16 @@ private suspend fun ComponentActivity.requestSpaceMode(space: Space): Unit =
             }
         }
 
-        session.requestAndAwaitSpaceChange(space)
+        return@lifecycleAwareCoroutineScope try {
+            session.requestAndAwaitSpaceChange(space)
+            SpaceRequestResult.Success
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) {
+                throw e
+            }
+
+            SpaceRequestResult.Error(e)
+        }
     }
 
 private val Activity.spaceRequestMutex: Mutex
@@ -193,6 +241,7 @@ private suspend fun <R> ComponentActivity.lifecycleAwareCoroutineScope(
     block: suspend CoroutineScope.() -> R
 ): R = coroutineScope {
     val currentJob = coroutineContext[Job]
+
     // If the lifecycle of the Activity completes then cancel the job.
     val lifecycleHandle =
         lifecycleScope.coroutineContext[Job]?.invokeOnCompletion { currentJob?.cancel() }

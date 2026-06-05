@@ -2,13 +2,30 @@
 package androidx.xr.compose.platform {
 
   public final class ActivityExtKt {
-    method public static suspend Object? requestFullSpace(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend Object? requestHomeSpace(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? requestFullSpace(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super androidx.xr.compose.platform.SpaceRequestResult>);
+    method public static suspend Object? requestHomeSpace(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super androidx.xr.compose.platform.SpaceRequestResult>);
   }
 
   public final class LocalSessionKt {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.runtime.Session?> getLocalSession();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.runtime.Session?> LocalSession;
+  }
+
+  public sealed nonexhaustive interface SpaceRequestResult {
+  }
+
+  public static final class SpaceRequestResult.Error implements androidx.xr.compose.platform.SpaceRequestResult {
+    ctor public SpaceRequestResult.Error(Throwable cause);
+    method @InaccessibleFromKotlin public Throwable getCause();
+    property public Throwable cause;
+  }
+
+  public static final class SpaceRequestResult.Success implements androidx.xr.compose.platform.SpaceRequestResult {
+    field public static final androidx.xr.compose.platform.SpaceRequestResult.Success INSTANCE;
+  }
+
+  public static final class SpaceRequestResult.Unsupported implements androidx.xr.compose.platform.SpaceRequestResult {
+    field public static final androidx.xr.compose.platform.SpaceRequestResult.Unsupported INSTANCE;
   }
 
   public sealed nonexhaustive interface SpatialCapabilities {
