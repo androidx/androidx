@@ -63,7 +63,7 @@ fun RcMacroDemo(): RemoteComposeContext {
                 column(Modifier.fillMaxSize(), horizontal = ColumnLayout.CENTER) {
                     text("Macro Buttons Demo", fontSize = 60f, modifier = Modifier.padding(20))
                     val contentId = addText("Placeholder")
-                    text(contentId)
+                    text(contentId, textStyleId = -1)
                     flow {
                         for (i in 0..10) {
                             MyButton(contentId, "Action " + ('A' + i), "new $i", 30f)
@@ -147,7 +147,12 @@ private fun RemoteComposeContextAndroid.DefineMyButton() {
                     .padding(24)
                     .onClick(ValueStringChange(textTargetId, clickDataParam))
             ) {
-                text(labelParam, fontSize = floatId(fontSizeParam), color = 0xFF333333.toInt())
+                text(
+                    labelParam,
+                    textStyleId = -1,
+                    fontSize = floatId(fontSizeParam),
+                    color = 0xFF333333.toInt(),
+                )
             }
         }
 }
@@ -165,14 +170,19 @@ private fun RemoteComposeContextAndroid.DefineGlimmerButton() {
                 Modifier.padding(16)
                     .clip(RoundedRectShape(corner, corner, corner, corner))
                     // .background(0xFFE0E0E0.toInt())
-                    .background(Color.argb(100, 255, 255, 255))
+                    .background(0x64FFFFFF)
                     .padding(4)
                     .clip(RoundedRectShape(corner, corner, corner, corner))
-                    .background(Color.argb(100, 100, 100, 100))
+                    .background(0x64646464)
                     .padding(24)
                     .onClick(ValueStringChange(textTargetId, clickDataParam))
             ) {
-                text(labelParam, fontSize = floatId(fontSizeParam), color = Color.WHITE)
+                text(
+                    labelParam,
+                    textStyleId = -1,
+                    fontSize = floatId(fontSizeParam),
+                    color = Color.WHITE,
+                )
             }
         }
 }

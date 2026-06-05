@@ -42,8 +42,8 @@ fun RcStyleMacroDemo(): RemoteComposeContext {
             RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
         ),
     ) {
-        val primaryColor = addColor(Color.parseColor("#6200EE"))
-        val secondaryColor = addColor(Color.parseColor("#03DAC6"))
+        val primaryColor = addColor(0xFF6200EE.toInt())
+        val secondaryColor = addColor(0xFF03DAC6.toInt())
 
         val buttonStyleId = DefineButtonStyleMacro()
         val cardStyleId = DefineCardStyleMacro()

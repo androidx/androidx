@@ -114,11 +114,11 @@ private fun RemoteComposeContextAndroid.defineCounterButton(): Int {
                     ValueFloatExpressionChange(localCounterIntId, Utils.idFromNan(nextValueExprId))
                 )
         ) {
-            text(labelParam, fontSize = 28f, color = Color.BLACK)
+            text(labelParam, textStyleId = -1, fontSize = 28f, color = Color.BLACK)
             row {
                 text("Count: ", fontSize = 24f, color = Color.DKGRAY)
                 // Display the current value of the local counter (via the converted text ID)
-                text(localTextId, fontSize = 24f, color = Color.BLUE)
+                text(localTextId, textStyleId = -1, fontSize = 24f, color = Color.BLUE)
             }
         }
     }

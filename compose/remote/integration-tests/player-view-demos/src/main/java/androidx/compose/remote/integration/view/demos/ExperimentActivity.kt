@@ -133,8 +133,12 @@ import androidx.compose.remote.integration.view.demos.examples.demoGraphs2
 import androidx.compose.remote.integration.view.demos.examples.demoLinearRegression
 import androidx.compose.remote.integration.view.demos.examples.rcJsonGraphs2
 import androidx.compose.remote.integration.view.demos.examples.rcJsonLinearRegression
+import androidx.compose.remote.integration.view.demos.examples.rcJsonMacroDemo
+import androidx.compose.remote.integration.view.demos.examples.rcJsonMacroLocalDemo
 import androidx.compose.remote.integration.view.demos.examples.rcJsonParticleSphere
 import androidx.compose.remote.integration.view.demos.examples.rcJsonPressureGauge
+import androidx.compose.remote.integration.view.demos.examples.rcJsonReferencedOperationsMacroDemo
+import androidx.compose.remote.integration.view.demos.examples.rcJsonStyleMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.rcJsonTextDemo8
 import androidx.compose.remote.integration.view.demos.examples.rcJsonTicker
 import androidx.compose.remote.integration.view.demos.examples.shaderFireworks
@@ -395,6 +399,10 @@ class ExperimentActivity : ComponentActivity() {
                     getpc("Referenced Macro") { RcReferencedMacroDemo() },
                     getpc("Macro Inclusion") { RcReferencedOperationsMacroDemo() },
                     getpc("Style Macros") { RcStyleMacroDemo() },
+                    getpc("JSON Macros") { rcJsonMacroDemo() },
+                    getpc("JSON Local Macros") { rcJsonMacroLocalDemo() },
+                    getpc("JSON Macro Inclusion") { rcJsonReferencedOperationsMacroDemo() },
+                    getpc("JSON Style Macros") { rcJsonStyleMacroDemo() },
                     getpc("Simple Switch") { RcSimpleSwitchDemo() },
                     getpc("Switch DSL") { RcSwitchWidgetDemo() },
                     getpc("Slanted button") { SlantedButtonDemo() },

@@ -16,11 +16,24 @@
 package androidx.compose.remote.creation.json;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.creation.actions.Action;
+import androidx.compose.remote.creation.actions.ValueFloatChange;
+import androidx.compose.remote.creation.actions.ValueFloatExpressionChange;
+import androidx.compose.remote.creation.actions.ValueIntegerChange;
+import androidx.compose.remote.creation.actions.ValueIntegerExpressionChange;
+import androidx.compose.remote.creation.actions.ValueStringChange;
 import androidx.compose.remote.creation.dsl.RcFloat;
 import androidx.compose.remote.creation.dsl.VerticalScrollRcFloatModifier;
+import androidx.compose.remote.creation.modifiers.ClickActionModifier;
+import androidx.compose.remote.creation.modifiers.IncludeReferencedOperationsModifier;
+import androidx.compose.remote.creation.modifiers.MacroCallModifier;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class to register default layout modifiers into the JSON parser.
@@ -81,6 +94,8 @@ class DefaultModifierParsers {
             String bg = mod.getString(key);
             if (bg.startsWith("$colors.") || bg.startsWith("@colors.")) {
                 recordingModifier.backgroundId((short) parser.parseColor(bg));
+            } else if (RemoteComposeJsonParser.isVariableRef(bg)) {
+                recordingModifier.backgroundId(parser.parseColor(bg));
             } else {
                 recordingModifier.background(parser.parseColor(bg));
             }
@@ -93,6 +108,14 @@ class DefaultModifierParsers {
         });
         p.registerModifierParser("verticalweight", (mod, key, recordingModifier, parser) -> {
             recordingModifier.verticalWeight((float) mod.getDouble(key));
+        });
+        p.registerModifierParser("border", (mod, key, recordingModifier, parser) -> {
+            JSONObject b = mod.getJSONObject(key);
+            float width = (float) b.getDouble("width");
+            float corner = (float) b.getDouble("cornerRadius");
+            int color = parser.parseColor(b.getString("color"));
+            int shape = b.optInt("shape", 0);
+            recordingModifier.border(width, corner, color, shape);
         });
         p.registerModifierParser("verticalscroll", (mod, key, recordingModifier, parser) -> {
             RcFloat positionRc = new RcFloat(parser.getWriter(), parser.parseFloat(mod.get(key)));
@@ -121,5 +144,75 @@ class DefaultModifierParsers {
         p.registerModifierParser("id", (mod, key, recordingModifier, parser) -> {
             recordingModifier.componentId(mod.getInt(key));
         });
+        p.registerModifierParser("includemacro", (mod, key, recordingModifier, parser) -> {
+            org.json.JSONObject callObj = mod.getJSONObject(key);
+            String name = callObj.getString("pattern");
+            int patternId = parser.getWriter().textCreateId(name);
+            JSONArray args = callObj.getJSONArray("arguments");
+            int[] argIds = new int[args.length()];
+            for (int i = 0; i < args.length(); i++) {
+                argIds[i] = parser.resolveTextId(args.get(i));
+            }
+            recordingModifier.then(new MacroCallModifier(patternId, argIds));
+        });
+        p.registerModifierParser("include", (mod, key, recordingModifier, parser) -> {
+            int styleId = parser.resolveTextId(mod.get(key));
+            recordingModifier.then(new IncludeReferencedOperationsModifier(styleId));
+        });
+        p.registerModifierParser("onclick", (mod, key, recordingModifier, parser) -> {
+            Object clickVal = mod.get(key);
+            List<Action> actions = new ArrayList<>();
+            if (clickVal instanceof JSONArray) {
+                JSONArray arr = (JSONArray) clickVal;
+                for (int i = 0; i < arr.length(); i++) {
+                    actions.add(parseAction(arr.getJSONObject(i), parser));
+                }
+            } else if (clickVal instanceof JSONObject) {
+                actions.add(parseAction((JSONObject) clickVal, parser));
+            }
+            recordingModifier.then(new ClickActionModifier(actions));
+        });
+    }
+
+    private static Action parseAction(
+            JSONObject obj, RemoteComposeJsonParser parser) throws JSONException {
+        String type = obj.getString("type");
+        int targetId = parser.resolveTextId(obj.get("targetId"));
+        switch (type) {
+            case "ValueFloatExpressionChange": {
+                float valNan = parser.parseFloat(obj.get("value"));
+                int valId = androidx.compose.remote.core.operations.Utils.idFromNan(valNan);
+                return new ValueFloatExpressionChange(targetId, valId);
+            }
+            case "ValueFloatChange": {
+                float val = parser.parseFloat(obj.get("value"));
+                return new ValueFloatChange(targetId, val);
+            }
+            case "ValueIntegerChange": {
+                int val = obj.getInt("value");
+                return new ValueIntegerChange(targetId, val);
+            }
+            case "ValueIntegerExpressionChange": {
+                long val = obj.getLong("value");
+                return new ValueIntegerExpressionChange(targetId, val);
+            }
+            case "ValueStringChange": {
+                Object valObj = obj.get("value");
+                if (valObj instanceof String) {
+                    String s = (String) valObj;
+                    if (RemoteComposeJsonParser.isVariableRef(s)) {
+                        int strId = parser.resolveTextId(s);
+                        return new ValueStringChange(targetId, strId);
+                    } else {
+                        return new ValueStringChange(targetId, s);
+                    }
+                } else {
+                    int strId = parser.resolveTextId(valObj);
+                    return new ValueStringChange(targetId, strId);
+                }
+            }
+            default:
+                throw new JSONException("Unknown action type: " + type);
+        }
     }
 }

@@ -6,8 +6,11 @@ The `RemoteComposeJsonParser` provides a standardized way to define RemoteCompos
 
 ## Core Principles
 
-- **Polymorphism via `type`**: Every component, modifier, or drawing command is a JSON object with a mandatory `"type"` key (e.g., `"column"`, `"drawCircle"`, `"padding"`).
-- **Flat Attributes**: Component-specific properties (like `id`, `value`, `alignment`, or `source`) are top-level keys within the object.
+- **Polymorphism via Component-Specific Key or `type`**: Every component, modifier, or drawing command is represented as a JSON object. For components inside hierarchy lists (like `root`, `children`), the parser supports two syntaxes:
+  - **Short/Key Shorthand Syntax (Recommended)**: The component type name serves directly as the JSON key, containing a nested object of properties (e.g., `{ "column": { ... } }`, `{ "text": { ... } }`).
+  - **Explicit Type Syntax**: The object uses a mandatory `"type"` key (e.g., `{ "type": "column", ... }`, `{ "type": "text", ... }`).
+  - *Note*: Helper objects representing modifiers, shapes (like `RoundedRect`), or click actions (like `ValueStringChange`) must continue to use the explicit `"type"` key.
+- **Flat Attributes**: Component-specific properties (like `id`, `value`, `alignment`, or `source`) are top-level keys within the component object.
 - **Ordered Modifiers**: Styling and transformation operations are stored in an optional `"modifiers"` array to ensure they are applied in a deterministic functional order.
 - **Ordered Children/Commands**: Nested layout components are stored in a `"children"` array, while drawing commands for canvas components are stored in a `"commands"` array.
 - **Deterministic Resource Ordering**: Resources like `colors`, `variables`, `paths`, and `matrices` can be defined as an array of objects (`[ { "name": "n", "value": "v" } ]`) or as a map of key-value pairs. The parser scans the `root` array for `resources` and `variable` commands and parses them *before* root component initialization, enabling bit-for-bit identity with code-generated documents.
@@ -110,6 +113,7 @@ The text component supports advanced dynamic formatting and text overflow capabi
   }
   ```
 - `"fontSize"`: Number or expression specifying the font size (defaults to `TextStyle.DEFAULT_FONT_SIZE` which is `16.0f`).
+- `"fontWeight"`: Font weight of the text. Supports a float value (e.g., `400.0`, `700.0`). Defaults to `TextStyle.DEFAULT_FONT_WEIGHT`.
 - `"color"`: The text color, specified as a hex string (`"#RRGGBB"`) or referencing a color resource (`"$colors.primary"`).
 - `"maxLines"`: The maximum number of lines to display.
 - `"textAlign"`: Alignment of the text. Supports `"left"`, `"right"`, `"center"`, `"justify"`, `"start"`, and `"end"`.
@@ -165,6 +169,7 @@ The `"canvas"` component renders custom shapes via its `"commands"` array.
 - `"drawCircle"`: `cx`, `cy`, `radius`.
 - `"drawOval"`: `left`, `top`, `right`, `bottom`.
 - `"drawRoundRect"`: `left`, `top`, `right`, `bottom`, `rx`, `ry`.
+- `"drawArc"`: `left`, `top`, `right`, `bottom`, `startAngle`, `sweepAngle`.
 - `"drawPath"`: Draws a predefined path specified by `"path"` ID or path name reference (`"$paths.name"`).
 
 #### Paint Operations & Configurations
@@ -381,6 +386,89 @@ The following example showcases deterministic themed resource definitions, globa
       }
     ]
   }
+}
+```
+
+### 8. Loom Templates & Referenced Operations
+
+The JSON parser supports defining and reusing binary Component Templates (Loom) and shared styles (Referenced Operations).
+
+#### Defining and Inflating Templates
+
+A component template is defined once using `definePattern`, and can be called either using `patternInflation` or using the pattern's name directly as a custom component type:
+
+> [!IMPORTANT]
+> The template `name` defined in `definePattern` must be unique and cannot override pre-existing registered component names (like `box`, `column`, `row`, `text`, etc.). Attempting to override a pre-existing component parser will fail and throw a `JSONException`.
+
+```json
+{
+  "type": "definePattern",
+  "name": "MyCard",
+  "parameters": ["title", "color"],
+  "locals": ["internalState"],
+  "children": [
+    {
+      "type": "variable",
+      "name": "internalState",
+      "value": 0
+    },
+    {
+      "type": "column",
+      "modifiers": [
+        { "background": "@color" }
+      ],
+      "children": [
+        { "type": "text", "value": "@title" },
+        { "type": "patternArgument", "parameterIndex": 0 }
+      ]
+    }
+  ]
+}
+```
+
+To inflate the template, call it by name and pass parameter values as standard key-value fields. Children slots (using `patternArgument`) can be populated at the call site by wrapping children inside `patternBlock`:
+
+```json
+{
+  "type": "MyCard",
+  "title": "Welcome Card",
+  "color": "#FF0000",
+  "children": [
+    {
+      "type": "patternBlock",
+      "parameterIndex": 0,
+      "children": [
+        { "type": "text", "value": "Card Body Slot Content" }
+      ]
+    }
+  ]
+}
+```
+
+#### Shared Styles (Referenced Operations)
+
+Static groups of layout modifiers can be compiled once using `referencedOperations` and applied to components via the `include` modifier:
+
+```json
+{
+  "type": "referencedOperations",
+  "name": "CardStyle",
+  "modifiers": [
+    { "padding": 16 },
+    { "background": "#E0E0E0" }
+  ]
+}
+```
+
+At any component call site, include the style reference using the `include` modifier:
+
+```json
+{
+  "type": "column",
+  "modifiers": [
+    { "include": "@CardStyle" }
+  ],
+  "children": [ ... ]
 }
 ```
 

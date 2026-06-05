@@ -113,6 +113,13 @@ public class RemoteComposeJsonParser {
     }
 
     /**
+     * Check if a component parser is registered.
+     */
+    public boolean hasComponentParser(@NonNull String type) {
+        return mComponentParsers.containsKey(type.toLowerCase());
+    }
+
+    /**
      * Register a custom layout modifier parser.
      *
      * @param key the lower-case modifier key name (e.g. "custom_modifier")
@@ -271,8 +278,10 @@ public class RemoteComposeJsonParser {
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject item = normalizeComponent(arr.getJSONObject(i));
                         String type = item.optString("type");
-                        if (type.equals("resources") || type.equals("variable")
-                                || type.equals("global")) {
+                        String typeLower = type.toLowerCase();
+                        if (typeLower.equals("resources") || typeLower.equals("variable")
+                                || typeLower.equals("global") || typeLower.equals("definepattern")
+                                || typeLower.equals("referencedoperations")) {
                             parseComponent(item);
                         }
                     }
@@ -284,7 +293,10 @@ public class RemoteComposeJsonParser {
                             for (int i = 0; i < arr.length(); i++) {
                                 JSONObject item = normalizeComponent(arr.getJSONObject(i));
                                 String type = item.optString("type");
-                                if (!type.equals("resources") && !type.equals("variable")) {
+                                String typeLower = type.toLowerCase();
+                                if (!typeLower.equals("resources") && !typeLower.equals("variable")
+                                        && !typeLower.equals("definepattern")
+                                        && !typeLower.equals("referencedoperations")) {
                                     parseComponent(item);
                                 }
                             }
@@ -298,16 +310,20 @@ public class RemoteComposeJsonParser {
                 } else {
                     JSONObject component = normalizeComponent((JSONObject) r);
                     String type = component.optString("type");
+                    String typeLower = type.toLowerCase();
                     mInFirstPass = true;
-                    if (type.equals("resources") || type.equals("variable")
-                            || type.equals("global")) {
+                    if (typeLower.equals("resources") || typeLower.equals("variable")
+                            || typeLower.equals("global") || typeLower.equals("definepattern")
+                            || typeLower.equals("referencedoperations")) {
                         parseComponent(component);
                     }
                     mInFirstPass = false;
 
                     mWriter.root(() -> {
                         try {
-                            if (!type.equals("resources") && !type.equals("variable")) {
+                            if (!typeLower.equals("resources") && !typeLower.equals("variable")
+                                    && !typeLower.equals("definepattern")
+                                    && !typeLower.equals("referencedoperations")) {
                                 parseComponent(component);
                             }
                             while (mGlobalNesting > 0) {
@@ -489,19 +505,8 @@ public class RemoteComposeJsonParser {
         }
 
         int textId = -1;
-        if (value instanceof String) {
-            String s = (String) value;
-            if (isVariableRef(s)) {
-                String varName = getVariableNameFromRef(s);
-                Float varVal = mVariables.get(varName);
-                if (varVal != null) {
-                    textId = varVal.intValue();
-                } else {
-                    textId = mWriter.addText(s);
-                }
-            } else {
-                textId = mWriter.addText(s);
-            }
+        if (value != null) {
+            textId = resolveTextId(value);
         } else if (!Float.isNaN(textFromFloat)) {
             textId = mWriter.createTextFromFloat(
                     textFromFloat, textFromFloatWhole, textFromFloatDecimal, textFromFloatFlags);
@@ -534,6 +539,10 @@ public class RemoteComposeJsonParser {
                 ? parseFloat(component.get("fontSize"))
                 : TextStyle.DEFAULT_FONT_SIZE;
 
+        float fontWeight = component.has("fontWeight")
+                ? parseFloat(component.get("fontWeight"))
+                : TextStyle.DEFAULT_FONT_WEIGHT;
+
         mWriter.textComponent(
                 modifier,
                 textId,
@@ -544,7 +553,7 @@ public class RemoteComposeJsonParser {
                 -1f,
                 -1f,
                 0, // fontstyle
-                TextStyle.DEFAULT_FONT_WEIGHT,
+                fontWeight,
                 null, // fontFamily
                 parseTextAlign(component.optString("textAlign", "start")),
                 overflow,
@@ -967,28 +976,7 @@ public class RemoteComposeJsonParser {
                 break;
             case "drawTextAnchored": {
                 Object textObj = command.get("text");
-                int textId;
-                if (textObj instanceof Number) {
-                    textId = ((Number) textObj).intValue();
-                } else if (textObj instanceof String) {
-                    String str = (String) textObj;
-                    if (isVariableRef(str)) {
-                        String name = getVariableNameFromRef(str);
-                        Float val = mVariables.get(name);
-                        if (val == null && mDeferredVariables.containsKey(name)) {
-                            val = resolveDeferredVariable(name);
-                        }
-                        if (val != null) {
-                            textId = (int) val.floatValue();
-                        } else {
-                            throw new JSONException("Variable not found: " + name);
-                        }
-                    } else {
-                        textId = mWriter.textCreateId(str);
-                    }
-                } else {
-                    throw new JSONException("Invalid text parameter: " + textObj);
-                }
+                int textId = resolveTextId(textObj);
                 mWriter.drawTextAnchored(
                         textId,
                         parseFloat(command.get("x")),
@@ -1079,10 +1067,15 @@ public class RemoteComposeJsonParser {
                 }
                 float id = Utils.asNan(indexId);
                 mWriter.startLoop(indexId, from, step, until);
-                float prev = mVariables.getOrDefault(index, Float.NaN);
+                boolean hasPrev = mVariables.containsKey(index);
+                float prev = hasPrev ? mVariables.get(index) : Float.NaN;
                 mVariables.put(index, id);
                 parseCommands(command.getJSONArray("commands"));
-                mVariables.put(index, prev);
+                if (hasPrev) {
+                    mVariables.put(index, prev);
+                } else {
+                    mVariables.remove(index);
+                }
                 mWriter.endLoop();
                 break;
             }
@@ -1183,10 +1176,24 @@ public class RemoteComposeJsonParser {
                         mWriter.setStringName(id, varName);
                     }
                     mPaths.put(varName, id);
+                } else if (varType.equals("color")) {
+                    boolean commit = command.optBoolean("commit", false);
+                    if (mInFirstPass || commit) {
+                        int colorVal = parseColor(command.getString("value"));
+                        int colorId;
+                        if (named) {
+                            colorId = mWriter.addNamedColor(varName, colorVal);
+                        } else {
+                            colorId = mWriter.addColor(colorVal);
+                        }
+                        mVariables.put(varName, (float) colorId);
+                    } else {
+                        mDeferredVariables.put(varName, command);
+                    }
                 } else if (varType.equals("string")) {
                     boolean commit = command.optBoolean("commit", false);
                     if (mInFirstPass || commit) {
-                        int textId = mWriter.textCreateId(command.getString("value"));
+                        int textId = resolveTextId(command.get("value"));
                         mVariables.put(varName, (float) textId);
                         if (named) {
                             mWriter.setStringName(textId, varName);
@@ -1200,7 +1207,39 @@ public class RemoteComposeJsonParser {
                     if (mInFirstPass || commit || flush) {
                         float varVal;
                         Object val = command.get("value");
-                        if (val instanceof JSONObject) {
+                        int targetId = -1;
+                        if (mVariables.containsKey(varName)) {
+                            float existingVal = mVariables.get(varName);
+                            if (Float.isNaN(existingVal)) {
+                                targetId = Utils.idFromNan(existingVal);
+                            } else {
+                                targetId = (int) existingVal;
+                            }
+                        }
+
+                        if (targetId != -1) {
+                            if (val instanceof org.json.JSONArray
+                                    || val instanceof org.json.JSONObject) {
+                                varVal = Utils.asNan(targetId);
+                            } else if (val instanceof String && isMathExpression((String) val)) {
+                                float[] exp = parseFloatExpression(val);
+                                mWriter.getBuffer().addAnimatedFloat(targetId, exp);
+                                varVal = Utils.asNan(targetId);
+                            } else {
+                                float floatVal;
+                                if (val instanceof Number) {
+                                    floatVal = ((Number) val).floatValue();
+                                } else {
+                                    floatVal = parseFloat(val);
+                                }
+                                if (Float.isNaN(floatVal)) {
+                                    varVal = floatVal;
+                                } else {
+                                    mWriter.getBuffer().addFloat(targetId, floatVal);
+                                    varVal = Utils.asNan(targetId);
+                                }
+                            }
+                        } else if (val instanceof JSONObject) {
                             JSONObject vo = (JSONObject) val;
                             if (vo.optString("type", "").equals("textFromFloat")) {
                                 float floatVal = parseFloat(vo.get("value"));
@@ -1314,7 +1353,7 @@ public class RemoteComposeJsonParser {
     }
 
     @NonNull Shape parseShape(@NonNull JSONObject obj) throws JSONException {
-        String type = obj.getString("type");
+        String type = obj.getString("type").toLowerCase();
         switch (type) {
             case "circle":
                 return new CircleShape();
@@ -1325,15 +1364,25 @@ public class RemoteComposeJsonParser {
                         (float) obj.optDouble("right", 100),
                         (float) obj.optDouble("bottom", 100)
                 );
-            case "roundRect":
-                float r = (float) obj.optDouble("radius", 0);
-                return new RoundedRectShape(r, r, r, r);
+            case "roundrect":
+            case "roundedrect":
+                if (obj.has("radius")) {
+                    float r = (float) obj.optDouble("radius", 0);
+                    return new RoundedRectShape(r, r, r, r);
+                } else {
+                    return new RoundedRectShape(
+                            (float) obj.optDouble("topStart", 0),
+                            (float) obj.optDouble("topEnd", 0),
+                            (float) obj.optDouble("bottomStart", 0),
+                            (float) obj.optDouble("bottomEnd", 0)
+                    );
+                }
             default:
                 throw new JSONException("Unknown shape type: " + type);
         }
     }
 
-    private @NonNull RecordingModifier parseModifiers(
+    @NonNull RecordingModifier parseModifiers(
             @Nullable JSONArray modifiers) throws JSONException {
         RecordingModifier recordingModifier = new RecordingModifier();
         if (modifiers == null) return recordingModifier;
@@ -1468,6 +1517,19 @@ public class RemoteComposeJsonParser {
                 if (id == null) throw new JSONException("Color not found: " + name);
                 return id;
             }
+            if (isVariableRef(colorStr)) {
+                String name = getVariableNameFromRef(colorStr);
+                Float id = mVariables.get(name);
+                if (id != null) {
+                    if (Float.isNaN(id)) {
+                        return androidx.compose.remote.core.operations.Utils.idFromNan(id);
+                    }
+                    return id.intValue();
+                }
+                if (mDeferredVariables.containsKey(name)) {
+                    return (int) resolveDeferredVariable(name);
+                }
+            }
             if (colorStr.startsWith("#")) {
                 long rawColor = Long.parseLong(colorStr.substring(1), 16);
                 if (colorStr.length() <= 7) {
@@ -1519,7 +1581,14 @@ public class RemoteComposeJsonParser {
 
     int resolveTextId(Object textObj) throws JSONException {
         if (textObj instanceof Number) {
-            return ((Number) textObj).intValue();
+            Number num = (Number) textObj;
+            if (num instanceof Double || num instanceof Float
+                    || num instanceof java.math.BigDecimal) {
+                float val = num.floatValue();
+                return androidx.compose.remote.core.operations.Utils.idFromNan(
+                        mWriter.addFloatConstant(val));
+            }
+            return num.intValue();
         } else if (textObj instanceof String) {
             String str = (String) textObj;
             if (isVariableRef(str)) {
@@ -1529,6 +1598,9 @@ public class RemoteComposeJsonParser {
                     val = resolveDeferredVariable(name);
                 }
                 if (val != null) {
+                    if (Float.isNaN(val)) {
+                        return androidx.compose.remote.core.operations.Utils.idFromNan(val);
+                    }
                     return (int) val.floatValue();
                 } else {
                     throw new JSONException("Variable not found: " + name);
