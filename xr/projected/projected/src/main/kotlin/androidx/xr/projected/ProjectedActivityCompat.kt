@@ -16,21 +16,39 @@
 
 package androidx.xr.projected
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityOptions
+import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.ResultReceiver
+import android.view.Display.DEFAULT_DISPLAY
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
+import androidx.annotation.WorkerThread
 import androidx.xr.projected.ProjectedActivityCompat.Companion.create
 import androidx.xr.projected.binding.ProjectedServiceConnection
 import androidx.xr.projected.binding.ProjectedServiceConnection.ProjectedIntentAction.Companion.ACTION_BIND
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.platform.IProjectedInputEventListener
+import androidx.xr.projected.platform.IProjectedPermissionRequestCallback
 import androidx.xr.projected.platform.IProjectedService
 import androidx.xr.projected.platform.ProjectedInputEvent
+import androidx.xr.projected.platform.ProjectedPermissionRequestData
+import androidx.xr.projected.platform.ProjectedPermissionRequestState
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * Class providing Projected device-specific features for Activity, like listening to Projected
@@ -83,6 +101,10 @@ private constructor(
     }
 
     public companion object {
+
+        private const val LAUNCH_HOST_ACTIVITY_FLAGS =
+            Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
         /**
          * Connects to the service providing features for Projected devices and returns the
          * [ProjectedActivityCompat] when the connection is established.
@@ -127,6 +149,193 @@ private constructor(
             return ProjectedActivityCompat(
                 serviceConnection,
                 projectedService = serviceConnection.connect(),
+            )
+        }
+
+        /**
+         * Requests permissions to be granted to this application. These permissions must be
+         * declared in your manifest, they should not be granted to your app, and they should have
+         * protection level dangerous, regardless of whether they are declared by the platform or a
+         * third-party app.
+         *
+         * When this method is called from a Projected [Activity], a new activity will be launched
+         * on the Projected device and another activity will be launched on the host device (e.g.
+         * phone). The Projected activity will request the user to go to the host activity to act on
+         * the permission request. The host activity will request permissions on behalf of the
+         * calling application and the system dialog for permission requests will appear for the
+         * user to grant/deny the permission.
+         *
+         * After the user has acted on the permission request, both the Projected activity and host
+         * activity will finish and the results will be delivered to the
+         * [Activity.onRequestPermissionsResult] method overridden by the activity passed to this
+         * method.
+         *
+         * @throws IllegalStateException if the projected service is not found or binding is not
+         *   permitted
+         * @throws IllegalArgumentException if provided Activity is not running on a Projected
+         *   device
+         */
+        @WorkerThread
+        @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+        @JvmStatic
+        public fun requestPermissions(
+            activity: Activity,
+            permissions: Array<String>,
+            @IntRange(from = 0) requestCode: Int,
+        ) {
+            require(
+                ProjectedContext.isProjectedDeviceContext(activity),
+                { "Provided Activity is not running on a Projected device." },
+            )
+            val serviceConnection = ProjectedServiceConnection(activity, ACTION_BIND)
+            runBlocking {
+                val projectedService = serviceConnection.connect()
+                val componentName =
+                    ComponentName(activity, TrampolineRequestPermissionsOnHostActivity::class.java)
+                projectedService.launchProjectedPermissionRequest(
+                    ProjectedPermissionRequestData().apply { this.permissions = permissions },
+                    createPermissionRequestCallback(
+                        activity,
+                        permissions,
+                        componentName,
+                        requestCode,
+                        projectedService,
+                        serviceConnection,
+                    ),
+                )
+            }
+        }
+
+        private fun createPermissionRequestCallback(
+            activity: Activity,
+            permissions: Array<String>,
+            componentName: ComponentName,
+            requestCode: Int,
+            projectedService: IProjectedService,
+            serviceConnection: ProjectedServiceConnection,
+        ): IProjectedPermissionRequestCallback.Stub {
+            val activityWeakReference = WeakReference(activity)
+            return object : IProjectedPermissionRequestCallback.Stub() {
+
+                @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+                override fun onProjectedPermissionRequestStateChanged(
+                    state: Int,
+                    pendingIntent: PendingIntent?,
+                ) {
+                    val activityReference = activityWeakReference.get()
+                    if (activityReference == null) {
+                        serviceConnection.disconnect()
+                        return
+                    }
+
+                    when (state) {
+                        ProjectedPermissionRequestState.ALLOWED -> {
+                            val pendingIntent =
+                                checkNotNull(
+                                    pendingIntent,
+                                    {
+                                        "Intent to launch a Projected activity has not been provided."
+                                    },
+                                )
+
+                            activityReference.startIntentSenderForResult(
+                                pendingIntent.intentSender,
+                                /* requestCode= */ 0,
+                                /* fillInIntent= */ null,
+                                /* flagsMask= */ 0,
+                                /* flagsValues= */ 0,
+                                /* extraFlags= */ 0,
+                                /* options= */ null,
+                            )
+
+                            val resultReceiver =
+                                createResultReceiver(
+                                    projectedService,
+                                    activityReference,
+                                    requestCode,
+                                    serviceConnection,
+                                )
+
+                            val intent =
+                                Intent().apply {
+                                    component = componentName
+                                    putExtra(
+                                        ProjectedPermissionsConstants.EXTRA_RESULT_RECEIVER,
+                                        resultReceiver,
+                                    )
+                                    putExtra(
+                                        ProjectedPermissionsConstants.EXTRA_PERMISSIONS,
+                                        permissions,
+                                    )
+                                    addFlags(LAUNCH_HOST_ACTIVITY_FLAGS)
+                                }
+
+                            startActivityOnHost(activityReference, intent)
+                        }
+                        ProjectedPermissionRequestState.DENIED -> {
+                            val grantResults =
+                                IntArray(permissions.size) { PackageManager.PERMISSION_DENIED }
+                            activityReference.onRequestPermissionsResult(
+                                requestCode,
+                                permissions,
+                                grantResults,
+                                activityReference.deviceId,
+                            )
+                            serviceConnection.disconnect()
+                        }
+                    }
+                }
+
+                override fun getInterfaceVersion(): Int = VERSION
+            }
+        }
+
+        private fun createResultReceiver(
+            projectedService: IProjectedService,
+            activity: Activity,
+            requestCode: Int,
+            serviceConnection: ProjectedServiceConnection,
+        ): ResultReceiver {
+            val activityWeakReference = WeakReference(activity)
+            return object : ResultReceiver(Handler(Looper.getMainLooper())) {
+                @SuppressLint("PrimitiveInCollection")
+                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                    projectedService.finishProjectedPermissionRequest()
+                    val activityReference = activityWeakReference.get()
+                    if (activityReference != null) {
+                        val permissions =
+                            resultData?.getStringArray(
+                                ProjectedPermissionsConstants.RESULT_DATA_PERMISSIONS
+                            ) ?: emptyArray()
+                        val grantResults =
+                            resultData?.getIntArray(
+                                ProjectedPermissionsConstants.RESULT_DATA_GRANT_RESULTS
+                            ) ?: intArrayOf()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                            activityReference.onRequestPermissionsResult(
+                                requestCode,
+                                permissions,
+                                grantResults,
+                                activityReference.deviceId,
+                            )
+                        } else {
+                            activityReference.onRequestPermissionsResult(
+                                requestCode,
+                                permissions,
+                                grantResults,
+                            )
+                        }
+                    }
+                    serviceConnection.disconnect()
+                }
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private fun startActivityOnHost(context: Context, intent: Intent) {
+            context.startActivity(
+                intent,
+                ActivityOptions.makeBasic().setLaunchDisplayId(DEFAULT_DISPLAY).toBundle(),
             )
         }
     }

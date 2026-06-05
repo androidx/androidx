@@ -13,6 +13,7 @@ package androidx.xr.projected {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
     method @Deprecated public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> getProjectedInputEvents();
+    method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) @WorkerThread public static void requestPermissions(android.app.Activity activity, String[] permissions, @IntRange(from=0L) int requestCode);
     property public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> projectedInputEvents;
     field public static final androidx.xr.projected.ProjectedActivityCompat.Companion Companion;
   }
@@ -20,6 +21,7 @@ package androidx.xr.projected {
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedActivityCompat.Companion {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
     method @Deprecated public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) @WorkerThread public void requestPermissions(android.app.Activity activity, String[] permissions, @IntRange(from=0L) int requestCode);
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedContext {
