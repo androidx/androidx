@@ -61,12 +61,6 @@ public interface FrameBuffer : AutoCloseable {
     public val frameFlow: SharedFlow<FrameReference>
 
     /**
-     * The first FrameReference in the buffer, or null if the buffer is empty. No frames or
-     * references are removed by this call.
-     */
-    public fun peekFirstReference(): FrameReference?
-
-    /**
      * Removes the first entry in [FrameBuffer] that matches the optional [predicate] filter.
      *
      * If [predicate] is null, the first entry in the buffer is removed. If [predicate] is provided,
@@ -149,6 +143,12 @@ public interface FrameBuffer : AutoCloseable {
      * @return true if at least one matching entry was found and removed, false otherwise.
      */
     public fun releaseAll(predicate: ((FrameReference) -> Boolean)? = null): Boolean
+
+    /**
+     * The first FrameReference in the buffer, or null if the buffer is empty. No frames or
+     * references are removed by this call.
+     */
+    public fun peekFirstReference(): FrameReference?
 
     /**
      * The last FrameReference in the buffer, or null if the buffer is empty. No frame references
