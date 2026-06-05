@@ -39,6 +39,7 @@ import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEn
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.maybeRemoveEarpieceIfWiredEndpointPresent
+import androidx.core.telecom.internal.utils.Utils.Companion.toCallTypeCompat
 import java.util.function.Consumer
 import kotlin.Int
 import kotlin.coroutines.CoroutineContext
@@ -581,6 +582,12 @@ internal open class CallSession(
         mPlatformInterface?.answer(videoState, Runnable::run, CallControlReceiver(result))
         val callControlResult = result.await()
         moveState(callControlResult, CallStateEvent.ACTIVE)
+        if (callControlResult is CallControlResult.Success) {
+            if (VERSION.SDK_INT < VERSION_CODES.VANILLA_ICE_CREAM) {
+                mCallType = videoState
+                callChannels.callTypeChannel.trySend(videoState)
+            }
+        }
         return callControlResult
     }
 
@@ -686,7 +693,10 @@ internal open class CallSession(
     override fun onAnswer(videoState: Int, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(coroutineContext).launch {
             try {
-                onAnswerCallback(videoState)
+                val jetpackCallType = toCallTypeCompat(videoState)
+                mCallType = jetpackCallType
+                callChannels.callTypeChannel.trySend(jetpackCallType)
+                onAnswerCallback(jetpackCallType)
                 wasCompleted.accept(true)
                 onStateChangedCallback.emit(CallStateEvent.ACTIVE)
             } catch (e: Exception) {
