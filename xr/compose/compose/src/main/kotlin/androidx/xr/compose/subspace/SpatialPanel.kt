@@ -19,9 +19,11 @@ package androidx.xr.compose.subspace
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewParent
+import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CornerSize
@@ -365,23 +367,34 @@ public fun <T : View> SpatialAndroidViewPanel(
             interactionPolicy = interactionPolicy,
         )
     val dialogManager = LocalDialogManager.current
-    val context = LocalContext.current
     val parentView = LocalView.current
 
     @Suppress("UnnecessaryLambdaCreation")
     AndroidViewPanel(
-        factory = { factory(context) },
-        modifier = finalModifier,
-        update = { view ->
-            if (dialogManager.isSpatialDialogActive.value) {
-                view.foreground = DEFAULT_SCRIM_ALPHA.toDrawable()
-                view.setOnClickListener { dialogManager.isSpatialDialogActive.value = false }
-            } else {
-                view.foreground = Color.TRANSPARENT.toDrawable()
-                view.setOnClickListener(null)
+        factory = { context ->
+            TouchBlockingFrameLayout(context).apply {
+                addView(
+                    factory(context),
+                    FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                    ),
+                )
             }
-            view.setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent)
-            update(view)
+        },
+        modifier = finalModifier,
+        update = { wrapper ->
+            val isDialogActive = dialogManager.isSpatialDialogActive.value
+            wrapper.blockTouches = isDialogActive
+            if (isDialogActive) {
+                wrapper.foreground = DEFAULT_SCRIM_ALPHA.toDrawable()
+            } else {
+                wrapper.foreground = Color.TRANSPARENT.toDrawable()
+            }
+            wrapper.setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent)
+
+            @Suppress("UNCHECKED_CAST") val innerView = wrapper.getChildAt(0) as T
+            update(innerView)
         },
         shape = shape,
     )
@@ -508,9 +521,7 @@ public fun SpatialPanel(
                                     .matchParentSize() // This sizes the overlay without affecting
                                     // the parent's size.
                                     .pointerInput(Unit) {
-                                        detectTapGestures {
-                                            dialogManager.isSpatialDialogActive.value = false
-                                        }
+                                        detectTapGestures { /* Prevent clicks to compose */ }
                                     }
                         )
                     }
@@ -782,10 +793,7 @@ public fun SpatialActivityPanel(
             val localContext = LocalContext.current
             val scrimView =
                 remember(localContext) {
-                    View(localContext).apply {
-                        foreground = DEFAULT_SCRIM_ALPHA.toDrawable()
-                        setOnClickListener { dialogManager.isSpatialDialogActive.value = false }
-                    }
+                    View(localContext).apply { foreground = DEFAULT_SCRIM_ALPHA.toDrawable() }
                 }
 
             val entityName = "ScrimPanel"
@@ -924,4 +932,12 @@ internal fun buildSpatialPanelModifier(
     }
 
     return finalModifier
+}
+
+private class TouchBlockingFrameLayout(context: Context) : FrameLayout(context) {
+    var blockTouches = false
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        return blockTouches || super.onInterceptTouchEvent(ev)
+    }
 }

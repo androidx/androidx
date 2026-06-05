@@ -811,7 +811,7 @@ private fun PanelScrim() {
         Box(
             modifier =
                 Modifier.fillMaxSize().pointerInput(Unit) {
-                    detectTapGestures { dialogManager.isSpatialDialogActive.value = false }
+                    detectTapGestures { /* Prevent clicks to compose */ }
                 }
         )
     }

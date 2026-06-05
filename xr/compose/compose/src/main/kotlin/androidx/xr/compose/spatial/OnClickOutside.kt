@@ -32,6 +32,8 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -99,6 +101,11 @@ internal class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> 
 
     internal fun onGlobalInput() {
         if (!isAttached) return
+        val view = currentValueOf(LocalView)
+        val lifecycleState = view.findViewTreeLifecycleOwner()?.lifecycle?.currentState
+        if (!view.isShown || lifecycleState != Lifecycle.State.RESUMED) {
+            return
+        }
         if (enabled && (job == null || job?.isCompleted == true)) {
             job =
                 coroutineScope.launch {

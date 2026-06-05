@@ -153,6 +153,60 @@ class OnClickOutsideTest {
     }
 
     @Test
+    fun onClickOutside_whenActivityNotResumed_doesNotTriggerCallback() {
+        var clickOutsideCalled = false
+        composeTestRule.setContent {
+            Box(
+                modifier =
+                    Modifier.size(100.dp)
+                        .onClickOutside(
+                            enabled = true,
+                            onClickOutside = { clickOutsideCalled = true },
+                        )
+            )
+        }
+
+        // Move the activity to STARTED state (not RESUMED)
+        composeTestRule.activityRule.scenario.moveToState(
+            androidx.lifecycle.Lifecycle.State.STARTED
+        )
+
+        triggerOutsideClick()
+
+        composeTestRule.mainClock.advanceTimeBy(150)
+        composeTestRule.waitForIdle()
+
+        assertThat(clickOutsideCalled).isFalse()
+    }
+
+    @Test
+    fun onClickOutside_whenViewNotShown_doesNotTriggerCallback() {
+        var clickOutsideCalled = false
+        composeTestRule.setContent {
+            Box(
+                modifier =
+                    Modifier.size(100.dp)
+                        .onClickOutside(
+                            enabled = true,
+                            onClickOutside = { clickOutsideCalled = true },
+                        )
+            )
+        }
+
+        // Hide the activity content view (making view.isShown evaluate to false)
+        composeTestRule.runOnIdle {
+            composeTestRule.activity.findViewById<View>(android.R.id.content).visibility = View.GONE
+        }
+
+        triggerOutsideClick()
+
+        composeTestRule.mainClock.advanceTimeBy(150)
+        composeTestRule.waitForIdle()
+
+        assertThat(clickOutsideCalled).isFalse()
+    }
+
+    @Test
     fun onClickOutside_onAttachStateChanged_updatesWindowManagerToken() {
         composeTestRule.setContent {
             Box(
