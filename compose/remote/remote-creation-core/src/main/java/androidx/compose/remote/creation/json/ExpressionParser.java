@@ -270,6 +270,8 @@ class ExpressionParser {
         if (mParser.mEmittedVariables.containsKey(token)) return true;
         return token.equals("time") || token.equals("seconds")
                 || token.equals("width") || token.equals("height")
+                || token.equals("windowWidth") || token.equals("windowHeight")
+                || token.equals("windowWidth()") || token.equals("windowHeight()")
                 || token.equals("componentWidth") || token.equals("componentHeight")
                 || token.equals("componentWidth()") || token.equals("componentHeight()")
                 || token.equals("touchX") || token.equals("touchY") || token.equals("fontSize")
@@ -291,6 +293,12 @@ class ExpressionParser {
             case "a[2]": return Utils.asNan(AnimatedFloatExpression.OFFSET + 72);
             case "time": return Utils.asNan(1 /* ID_CONTINUOUS_SEC */);
             case "seconds": return Utils.asNan(2 /* FLOAT_TIME_IN_SEC */);
+            case "windowWidth":
+            case "windowWidth()":
+                return Utils.asNan(5 /* Rc.System.WINDOW_WIDTH */);
+            case "windowHeight":
+            case "windowHeight()":
+                return Utils.asNan(6 /* Rc.System.WINDOW_HEIGHT */);
             case "width":
             case "componentWidth":
             case "componentWidth()":

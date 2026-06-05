@@ -380,6 +380,148 @@ public class RemoteComposeJsonParserTest {
         org.junit.Assert.assertNotEquals(0f, parseAnim);
     }
 
+    @Test
+    public void testDefinePatternOverridePreExistingComponentThrows() {
+        String json = "{"
+                + "  \"root\": ["
+                + "    {"
+                + "      \"type\": \"definePattern\","
+                + "      \"name\": \"box\","
+                + "      \"parameters\": [\"label\"],"
+                + "      \"children\": []"
+                + "    }"
+                + "  ]"
+                + "}";
+        try {
+            mParser.parse(json);
+            org.junit.Assert.fail(
+                    "Should have thrown JSONException for overriding pre-existing component");
+        } catch (JSONException e) {
+            org.junit.Assert.assertTrue(e.getMessage()
+                    .contains("Cannot override pre-existing component: box"));
+        }
+    }
+
+    @Test
+    public void testLoomTemplatesAndReferencedOperations() throws JSONException {
+        String json = "{"
+                + "  \"root\": ["
+                + "    {"
+                + "      \"type\": \"definePattern\","
+                + "      \"name\": \"MyButton\","
+                + "      \"parameters\": [\"label\", \"color\"],"
+                + "      \"children\": ["
+                + "        {"
+                + "          \"type\": \"box\","
+                + "          \"modifiers\": ["
+                + "            { \"background\": \"@color\" }"
+                + "          ],"
+                + "          \"children\": ["
+                + "            {"
+                + "              \"type\": \"text\","
+                + "              \"value\": \"@label\""
+                + "            }"
+                + "          ]"
+                + "        }"
+                + "      ]"
+                + "    },"
+                + "    {"
+                + "      \"type\": \"referencedOperations\","
+                + "      \"name\": \"MySharedStyle\","
+                + "      \"modifiers\": ["
+                + "        { \"padding\": 16 }"
+                + "      ]"
+                + "    },"
+                + "    {"
+                + "      \"type\": \"column\","
+                + "      \"modifiers\": ["
+                + "        { \"include\": \"@MySharedStyle\" }"
+                + "      ],"
+                + "      \"children\": ["
+                + "        {"
+                + "          \"type\": \"MyButton\","
+                + "          \"label\": \"Click Me\","
+                + "          \"color\": \"#FF0000\""
+                + "        },"
+                + "        {"
+                + "          \"type\": \"patternInflation\","
+                + "          \"pattern\": \"MyButton\","
+                + "          \"arguments\": [\"Cancel\", \"#00FF00\"]"
+                + "        }"
+                + "      ]"
+                + "    }"
+                + "  ]"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void testMacroLocalState() throws JSONException {
+        String json = "{"
+                + "  \"root\": ["
+                + "    {"
+                + "      \"type\": \"definePattern\","
+                + "      \"name\": \"CounterButton\","
+                + "      \"parameters\": [\"label\"],"
+                + "      \"locals\": [\"counter\"],"
+                + "      \"children\": ["
+                + "        {"
+                + "          \"type\": \"variable\","
+                + "          \"name\": \"counter\","
+                + "          \"value\": 0"
+                + "        },"
+                + "        {"
+                + "          \"type\": \"variable\","
+                + "          \"name\": \"displayText\","
+                + "          \"vtype\": \"string\","
+                + "          \"value\": {"
+                + "            \"type\": \"textFromFloat\","
+                + "            \"value\": \"@counter\","
+                + "            \"decimal\": 0,"
+                + "            \"whole\": 3,"
+                + "            \"flags\": 0"
+                + "          }"
+                + "        },"
+                + "        {"
+                + "          \"type\": \"column\","
+                + "          \"children\": ["
+                + "            {"
+                + "              \"type\": \"text\","
+                + "              \"value\": \"@label\""
+                + "            },"
+                + "            {"
+                + "              \"type\": \"row\","
+                + "              \"children\": ["
+                + "                { \"type\": \"text\", \"value\": \"Count: \" },"
+                + "                { \"type\": \"text\", \"value\": \"@displayText\" }"
+                + "              ]"
+                + "            }"
+                + "          ]"
+                + "        }"
+                + "      ]"
+                + "    },"
+                + "    {"
+                + "      \"type\": \"column\","
+                + "      \"children\": ["
+                + "        {"
+                + "          \"type\": \"CounterButton\","
+                + "          \"label\": \"Button Alpha\""
+                + "        },"
+                + "        {"
+                + "          \"type\": \"CounterButton\","
+                + "          \"label\": \"Button Beta\""
+                + "        }"
+                + "      ]"
+                + "    }"
+                + "  ]"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
     private static class MockPlatform implements RcPlatformServices {
         @Override
         public float[] pathToFloatArray(Object path) {

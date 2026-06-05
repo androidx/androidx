@@ -49,12 +49,20 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.view.demos.dsl.dslDemoPressureGauge
 import androidx.compose.remote.integration.view.demos.dsl.dslTicker
+import androidx.compose.remote.integration.view.demos.examples.RcMacroDemo
+import androidx.compose.remote.integration.view.demos.examples.RcMacroLocalDemo
+import androidx.compose.remote.integration.view.demos.examples.RcReferencedOperationsMacroDemo
+import androidx.compose.remote.integration.view.demos.examples.RcStyleMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo8
 import androidx.compose.remote.integration.view.demos.examples.demoGraphs2
 import androidx.compose.remote.integration.view.demos.examples.demoLinearRegression
 import androidx.compose.remote.integration.view.demos.examples.rcJsonGraphs2
 import androidx.compose.remote.integration.view.demos.examples.rcJsonLinearRegression
+import androidx.compose.remote.integration.view.demos.examples.rcJsonMacroDemo
+import androidx.compose.remote.integration.view.demos.examples.rcJsonMacroLocalDemo
 import androidx.compose.remote.integration.view.demos.examples.rcJsonPressureGauge
+import androidx.compose.remote.integration.view.demos.examples.rcJsonReferencedOperationsMacroDemo
+import androidx.compose.remote.integration.view.demos.examples.rcJsonStyleMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.rcJsonTextDemo8
 import androidx.compose.remote.integration.view.demos.examples.rcJsonTicker
 import androidx.compose.remote.player.core.RemoteDocument
@@ -94,9 +102,42 @@ class RemoteComposeDemosTest {
             System.setOut(originalOut)
         }
 
-        opcodesFile.printWriter().use { out ->
-            for (op in operations) out.println(op.deepToString("  "))
+        fun writeOps(ops: List<Operation>, out: java.io.PrintWriter, indent: String) {
+            for (op in ops) {
+                out.println(op.deepToString(indent))
+                val bodyBytes =
+                    when (op) {
+                        is androidx.compose.remote.core.operations.loom.PatternDefine ->
+                            op.getBody()
+                        is androidx.compose.remote.core.operations.ReferencedOperations ->
+                            op.getBody()
+                        else -> null
+                    }
+                if (bodyBytes != null && bodyBytes.isNotEmpty()) {
+                    out.println("$indent  BODY BYTES [${bodyBytes.size} bytes]:")
+                    out.println(
+                        "$indent    " + bodyBytes.joinToString(" ") { String.format("%02X", it) }
+                    )
+                    val subBuffer = RemoteComposeBuffer(7)
+                    subBuffer.setVersion(7, 513)
+                    subBuffer.addHeader(
+                        shortArrayOf(androidx.compose.remote.core.operations.Header.DOC_PROFILES),
+                        arrayOf<Any>(513),
+                    )
+                    subBuffer.getBuffer().write(bodyBytes)
+                    val subOps = ArrayList<Operation>()
+                    try {
+                        subBuffer.inflateFromBuffer(subOps)
+                    } catch (e: Exception) {
+                        out.println("$indent  [Failed to inflate body: ${e.message}]")
+                    }
+                    val bodyOpsOnly = subOps.drop(1) // drop the header
+                    writeOps(bodyOpsOnly, out, "$indent  ")
+                }
+            }
         }
+
+        opcodesFile.printWriter().use { out -> writeOps(operations, out, "  ") }
 
         offsetsFile.printWriter().use { out ->
             captured
@@ -109,6 +150,38 @@ class RemoteComposeDemosTest {
 
     private fun dumpOnMismatch(label: String, dsl: ByteArray, json: ByteArray): Boolean {
         if (!dsl.contentEquals(json)) {
+            val firstDiff = dsl.zip(json).indexOfFirst { it.first != it.second }
+            val diffIndex = if (firstDiff == -1) Math.min(dsl.size, json.size) else firstDiff
+            println(
+                "### FIRST DIFFERENCE AT INDEX $diffIndex (DSL size: ${dsl.size}, JSON size: ${json.size})"
+            )
+
+            fun hexDumpContext(arr: ByteArray, start: Int, end: Int): String {
+                val sb = StringBuilder()
+                for (i in start until end) {
+                    if (i < 0 || i >= arr.size) {
+                        sb.append("   ")
+                    } else {
+                        sb.append(String.format("%02X ", arr[i]))
+                    }
+                }
+                sb.append(" | ")
+                for (i in start until end) {
+                    if (i < 0 || i >= arr.size) {
+                        sb.append(" ")
+                    } else {
+                        val c = arr[i].toInt().toChar()
+                        if (c in ' '..'~') sb.append(c) else sb.append('.')
+                    }
+                }
+                return sb.toString()
+            }
+
+            val startIdx = Math.max(0, diffIndex - 16)
+            val endIdx = Math.min(Math.max(dsl.size, json.size), diffIndex + 16)
+            println("  DSL:  ${hexDumpContext(dsl, startIdx, endIdx)}")
+            println("  JSON: ${hexDumpContext(json, startIdx, endIdx)}")
+
             val dslFile = scratch("${label}_dsl_bytes.bin")
             val jsonFile = scratch("${label}_json_bytes.bin")
             val dslOpcodes = scratch("${label}_dsl_opcodes.txt")
@@ -195,6 +268,46 @@ class RemoteComposeDemosTest {
         val jsonBytes = rcJsonTextDemo8().buffer()
         dumpOnMismatch("text8", dslBytes, jsonBytes)
         assertArrayEquals("TextDemo8 DSL and JSON should be identical", dslBytes, jsonBytes)
+    }
+
+    @Test
+    fun testRcDslMacroLocalComparison() {
+        val platform = MockPlatform()
+        val dslBytes = RcMacroLocalDemo().buffer()
+        val jsonBytes = rcJsonMacroLocalDemo(platform).buffer()
+        dumpOnMismatch("macro_local", dslBytes, jsonBytes)
+        assertArrayEquals("MacroLocal DSL and JSON should be identical", dslBytes, jsonBytes)
+    }
+
+    @Test
+    fun testRcDslMacroComparison() {
+        val platform = MockPlatform()
+        val dslBytes = RcMacroDemo().buffer()
+        val jsonBytes = rcJsonMacroDemo(platform).buffer()
+        dumpOnMismatch("macro", dslBytes, jsonBytes)
+        assertArrayEquals("Macro DSL and JSON should be identical", dslBytes, jsonBytes)
+    }
+
+    @Test
+    fun testRcDslStyleMacroComparison() {
+        val platform = MockPlatform()
+        val dslBytes = RcStyleMacroDemo().buffer()
+        val jsonBytes = rcJsonStyleMacroDemo(platform).buffer()
+        dumpOnMismatch("style_macro", dslBytes, jsonBytes)
+        assertArrayEquals("StyleMacro DSL and JSON should be identical", dslBytes, jsonBytes)
+    }
+
+    @Test
+    fun testRcDslReferencedOperationsMacroComparison() {
+        val platform = MockPlatform()
+        val dslBytes = RcReferencedOperationsMacroDemo().buffer()
+        val jsonBytes = rcJsonReferencedOperationsMacroDemo(platform).buffer()
+        dumpOnMismatch("referenced_operations_macro", dslBytes, jsonBytes)
+        assertArrayEquals(
+            "ReferencedOperationsMacro DSL and JSON should be identical",
+            dslBytes,
+            jsonBytes,
+        )
     }
 
     @Test

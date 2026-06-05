@@ -111,6 +111,7 @@ private fun RemoteComposeContextAndroid.DefineCardMacro() {
         ) {
             text(
                 titleParam,
+                textStyleId = -1,
                 fontSize = 35f,
                 color = Color.BLUE,
                 modifier = Modifier.padding(0f, 0f, 0f, 10f),
