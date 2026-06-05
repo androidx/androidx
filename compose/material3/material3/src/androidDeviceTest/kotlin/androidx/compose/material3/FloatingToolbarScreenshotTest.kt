@@ -54,7 +54,6 @@ import org.junit.runners.Parameterized
 @MediumTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class FloatingToolbarScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())

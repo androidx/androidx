@@ -138,7 +138,9 @@ import kotlinx.coroutines.launch
  * positioned anywhere on the screen and floats over the rest of the content.
  *
  * Note: This component will stay expanded to maintain the toolbar visibility for users with touch
- * exploration services enabled (e.g., TalkBack).
+ * exploration services enabled (e.g., TalkBack). When touch exploration is not enabled, this
+ * component can be collapsed or hidden based on its [expanded] state and any provided
+ * [scrollBehavior].
  *
  * @sample androidx.compose.material3.samples.ExpandableHorizontalFloatingToolbarSample
  * @sample androidx.compose.material3.samples.OverflowingHorizontalFloatingToolbarSample
@@ -166,8 +168,8 @@ import kotlinx.coroutines.launch
  * @param content the main content of this FloatingToolbar. The default layout here is a [Row], so
  *   content inside will be placed horizontally.
  */
+// TODO: b/520030940 - Upload image asset and reference here
 @OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun HorizontalFloatingToolbar(
     expanded: Boolean,
@@ -203,7 +205,6 @@ fun HorizontalFloatingToolbar(
  * Provides the default behavior of the [HorizontalFloatingToolbar] component. This implementation
  * is used when no override is specified.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
 object DefaultHorizontalFloatingToolbarOverride : HorizontalFloatingToolbarOverride {
     @Composable
@@ -241,7 +242,9 @@ object DefaultHorizontalFloatingToolbarOverride : HorizontalFloatingToolbarOverr
  * controls the visibility of the actions with a slide animations.
  *
  * Note: This component will stay expanded to maintain the toolbar visibility for users with touch
- * exploration services enabled (e.g., TalkBack).
+ * exploration services enabled (e.g., TalkBack). When touch exploration is not enabled, this
+ * component can be collapsed or hidden based on its [expanded] state and any provided
+ * [scrollBehavior].
  *
  * In case the toolbar is aligned to the right or the left of the screen, you may apply a
  * [FloatingToolbarDefaults.floatingToolbarVerticalNestedScroll] `Modifier` to update the [expanded]
@@ -297,7 +300,6 @@ object DefaultHorizontalFloatingToolbarOverride : HorizontalFloatingToolbarOverr
  *   content inside will be placed horizontally.
  */
 @OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun HorizontalFloatingToolbar(
     expanded: Boolean,
@@ -338,7 +340,6 @@ fun HorizontalFloatingToolbar(
  * Provides the default behavior of the [HorizontalFloatingToolbar] component that includes a
  * Floating Action Button. This implementation is used when no override is specified.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
 object DefaultHorizontalFloatingToolbarWithFabOverride : HorizontalFloatingToolbarWithFabOverride {
     @Composable
@@ -369,7 +370,9 @@ object DefaultHorizontalFloatingToolbarWithFabOverride : HorizontalFloatingToolb
  * positioned anywhere on the screen and floats over the rest of the content.
  *
  * Note: This component will stay expanded to maintain the toolbar visibility for users with touch
- * exploration services enabled (e.g., TalkBack).
+ * exploration services enabled (e.g., TalkBack). When touch exploration is not enabled, this
+ * component can be collapsed or hidden based on its [expanded] state and any provided
+ * [scrollBehavior].
  *
  * @sample androidx.compose.material3.samples.ExpandableVerticalFloatingToolbarSample
  * @sample androidx.compose.material3.samples.OverflowingVerticalFloatingToolbarSample
@@ -398,7 +401,6 @@ object DefaultHorizontalFloatingToolbarWithFabOverride : HorizontalFloatingToolb
  *   so content inside will be placed vertically.
  */
 @OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun VerticalFloatingToolbar(
     expanded: Boolean,
@@ -435,7 +437,6 @@ fun VerticalFloatingToolbar(
  * implementation is used when no override is specified.
  */
 @ExperimentalMaterial3ComponentOverrideApi
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 object DefaultVerticalFloatingToolbarOverride : VerticalFloatingToolbarOverride {
     @Composable
     override fun VerticalFloatingToolbarOverrideScope.VerticalFloatingToolbar() {
@@ -472,7 +473,9 @@ object DefaultVerticalFloatingToolbarOverride : VerticalFloatingToolbarOverride 
  * animations.
  *
  * Note: This component will stay expanded to maintain the toolbar visibility for users with touch
- * exploration services enabled (e.g., TalkBack).
+ * exploration services enabled (e.g., TalkBack). When touch exploration is not enabled, this
+ * component can be collapsed or hidden based on its [expanded] state and any provided
+ * [scrollBehavior].
  *
  * In case the toolbar is aligned to the top or the bottom of the screen, you may apply a
  * [FloatingToolbarDefaults.floatingToolbarVerticalNestedScroll] `Modifier` to update the [expanded]
@@ -521,7 +524,6 @@ object DefaultVerticalFloatingToolbarOverride : VerticalFloatingToolbarOverride 
  *   so content inside will be placed vertically.
  */
 @OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun VerticalFloatingToolbar(
     expanded: Boolean,
@@ -560,7 +562,6 @@ fun VerticalFloatingToolbar(
  * This override provides the default behavior of the [VerticalFloatingToolbar] with FAB component.
  * This implementation is used when no override is specified.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
 object DefaultVerticalFloatingToolbarWithFabOverride : VerticalFloatingToolbarWithFabOverride {
     @Composable
@@ -592,7 +593,6 @@ object DefaultVerticalFloatingToolbarWithFabOverride : VerticalFloatingToolbarWi
  *
  * @see [FloatingToolbarDefaults.exitAlwaysScrollBehavior]
  */
-@ExperimentalMaterial3ExpressiveApi
 @Stable
 sealed interface FloatingToolbarScrollBehavior : NestedScrollConnection {
 
@@ -637,8 +637,7 @@ sealed interface FloatingToolbarScrollBehavior : NestedScrollConnection {
  * @param flingAnimationSpec an [DecayAnimationSpec] that defines how to fling the floating toolbar
  *   when the user flings the toolbar itself, or the content below it
  */
-@ExperimentalMaterial3ExpressiveApi
-class ExitAlwaysFloatingToolbarScrollBehavior(
+private class ExitAlwaysFloatingToolbarScrollBehavior(
     override val exitDirection: FloatingToolbarExitDirection,
     override val state: FloatingToolbarState,
     override val snapAnimationSpec: AnimationSpec<Float>,
@@ -728,9 +727,8 @@ class ExitAlwaysFloatingToolbarScrollBehavior(
     }
 }
 
-// TODO tokens
+// TODO: b/520069108 - Add tokens
 /** Contains default values used for the floating toolbar implementations. */
-@ExperimentalMaterial3ExpressiveApi
 object FloatingToolbarDefaults {
 
     /** Default size used for [HorizontalFloatingToolbar] and [VerticalFloatingToolbar] container */
@@ -798,14 +796,13 @@ object FloatingToolbarDefaults {
         return MotionSchemeKeyTokens.FastSpatial.value()
     }
 
-    // TODO: note that this scroll behavior may impact assistive technologies making the component
-    //  inaccessible.
-    //  See @sample androidx.compose.material3.samples.ScrollableHorizontalFloatingToolbar on how
-    //  to disable scrolling when touch exploration is enabled.
     /**
      * Returns a [FloatingToolbarScrollBehavior]. A floating toolbar that is set up with this
      * [FloatingToolbarScrollBehavior] will immediately collapse when the content is pulled up, and
-     * will immediately appear when the content is pulled down.
+     * will immediately appear when the content is pulled down. Note that this scroll behavior may
+     * impact assistive technologies making the component inaccessible.
+     * See @sample androidx.compose.material3.samples.ScrollableHorizontalFloatingToolbarSample on
+     * how to disable scrolling when touch exploration is enabled.
      *
      * @param exitDirection indicates the direction towards which the floating toolbar exits the
      *   screen
@@ -819,7 +816,6 @@ object FloatingToolbarDefaults {
      *   bar when the user flings the toolbar itself, or the content below it
      */
     // TODO Load the motionScheme tokens from the component tokens file
-    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun exitAlwaysScrollBehavior(
         exitDirection: FloatingToolbarExitDirection,
@@ -1270,7 +1266,6 @@ object FloatingToolbarDefaults {
  * @param fabContainerColor the container color for an adjacent floating action button.
  * @param fabContentColor the content color for an adjacent floating action button
  */
-@ExperimentalMaterial3ExpressiveApi
 @Immutable
 class FloatingToolbarColors(
     val toolbarContainerColor: Color,
@@ -1324,7 +1319,6 @@ class FloatingToolbarColors(
  * @see FloatingToolbarDefaults.StandardFloatingActionButton
  * @see FloatingToolbarDefaults.VibrantFloatingActionButton
  */
-@ExperimentalMaterial3ExpressiveApi
 @JvmInline
 value class FloatingToolbarHorizontalFabPosition
 internal constructor(@Suppress("unused") private val value: Int) {
@@ -1350,7 +1344,6 @@ internal constructor(@Suppress("unused") private val value: Int) {
  * @see FloatingToolbarDefaults.StandardFloatingActionButton
  * @see FloatingToolbarDefaults.VibrantFloatingActionButton
  */
-@ExperimentalMaterial3ExpressiveApi
 @JvmInline
 value class FloatingToolbarVerticalFabPosition
 internal constructor(@Suppress("unused") private val value: Int) {
@@ -1380,7 +1373,6 @@ internal constructor(@Suppress("unused") private val value: Int) {
  *   should be between zero and [initialOffsetLimit].
  * @param initialContentOffset the initial value for [FloatingToolbarState.contentOffset]
  */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun rememberFloatingToolbarState(
     initialOffsetLimit: Float = -Float.MAX_VALUE,
@@ -1398,7 +1390,6 @@ fun rememberFloatingToolbarState(
  *
  * In most cases, this state will be created via [rememberFloatingToolbarState].
  */
-@ExperimentalMaterial3ExpressiveApi
 interface FloatingToolbarState {
 
     /**
@@ -1452,7 +1443,6 @@ interface FloatingToolbarState {
  *   should be between zero and [initialOffsetLimit].
  * @param initialContentOffset the initial value for [FloatingToolbarState.contentOffset]
  */
-@ExperimentalMaterial3ExpressiveApi
 fun FloatingToolbarState(
     initialOffsetLimit: Float,
     initialOffset: Float,
@@ -1460,7 +1450,6 @@ fun FloatingToolbarState(
 ): FloatingToolbarState =
     FloatingToolbarStateImpl(initialOffsetLimit, initialOffset, initialContentOffset)
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Stable
 private class FloatingToolbarStateImpl(
     initialOffsetLimit: Float,
@@ -1485,7 +1474,6 @@ private class FloatingToolbarStateImpl(
  * Settles the toolbar by flinging, in case the given velocity is greater than zero, and snapping
  * after the fling settles.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private suspend fun settleFloatingToolbar(
     state: FloatingToolbarState,
     velocity: Float,
@@ -1535,7 +1523,6 @@ private suspend fun settleFloatingToolbar(
     return Velocity(0f, remainingVelocity)
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun FloatingToolbarState.collapsedFraction() =
     if (offsetLimit != 0f) {
         offset / offsetLimit
@@ -1547,7 +1534,6 @@ private fun FloatingToolbarState.collapsedFraction() =
  * The possible directions for a [HorizontalFloatingToolbar] or [VerticalFloatingToolbar], used to
  * determine the exit direction when a [FloatingToolbarScrollBehavior] is attached.
  */
-@ExperimentalMaterial3ExpressiveApi
 @JvmInline
 value class FloatingToolbarExitDirection
 internal constructor(@Suppress("unused") private val value: Int) {
@@ -1576,7 +1562,6 @@ internal constructor(@Suppress("unused") private val value: Int) {
 }
 
 /** A layout for a horizontal floating toolbar. */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HorizontalFloatingToolbarLayout(
     modifier: Modifier,
@@ -1668,7 +1653,6 @@ private fun HorizontalFloatingToolbarLayout(
 }
 
 /** A layout for a horizontal floating toolbar that has a FAB next to it. */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HorizontalFloatingToolbarWithFabLayout(
     modifier: Modifier,
@@ -1807,7 +1791,6 @@ private fun HorizontalFloatingToolbarWithFabLayout(
 }
 
 /** A layout for a vertical floating toolbar. */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun VerticalFloatingToolbarLayout(
     modifier: Modifier,
@@ -1900,7 +1883,6 @@ private fun VerticalFloatingToolbarLayout(
 }
 
 /** A layout for a vertical floating toolbar that has a FAB above or below it. */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun VerticalFloatingToolbarWithFabLayout(
     modifier: Modifier,
@@ -2227,7 +2209,6 @@ interface HorizontalFloatingToolbarOverride {
  * @property content the main content of this FloatingToolbar. The default layout here is a [Row],
  *   so content inside will be placed horizontally.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
 class HorizontalFloatingToolbarOverrideScope
 internal constructor(
@@ -2303,7 +2284,6 @@ interface HorizontalFloatingToolbarWithFabOverride {
  * @property content the main content of this floating toolbar. The default layout here is a [Row],
  *   so content inside will be placed horizontally.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
 class HorizontalFloatingToolbarWithFabOverrideScope
 internal constructor(
@@ -2367,7 +2347,6 @@ interface VerticalFloatingToolbarOverride {
  * @param content the main content of this FloatingToolbar. The default layout here is a [Column],
  *   so content inside will be placed vertically.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
 class VerticalFloatingToolbarOverrideScope
 internal constructor(
@@ -2442,7 +2421,6 @@ interface VerticalFloatingToolbarWithFabOverride {
  * @param content the main content of this FloatingToolbar. The default layout here is a [Column],
  *   so content inside will be placed vertically.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ComponentOverrideApi
 class VerticalFloatingToolbarWithFabOverrideScope
 internal constructor(
