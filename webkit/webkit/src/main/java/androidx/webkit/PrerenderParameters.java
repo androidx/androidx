@@ -48,8 +48,18 @@ public final class PrerenderParameters {
     /**
      * Returns the expected No-Vary-Search header data used to match subsequent navigations
      * to this prerender.
+     * @deprecated Use {@link #getExpectedNoVarySearchHeader()} instead.
      */
+    @Deprecated
     public @Nullable NoVarySearchHeader getExpectedNoVarySearchData() {
+        return mExpectedNoVarySearchHeader;
+    }
+
+    /**
+     * Returns the expected No-Vary-Search header data used to match subsequent navigations
+     * to this prerender.
+     */
+    public @Nullable NoVarySearchHeader getExpectedNoVarySearchHeader() {
         return mExpectedNoVarySearchHeader;
     }
 
@@ -122,18 +132,40 @@ public final class PrerenderParameters {
         /**
          * Sets the
          * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search">No-Vary-Search</a>
-         * data that's expected to be returned via the header in the prefetch's response.
+         * data that's expected to be returned via the header in the prerender's response.
          * <p>
          * This is used to help determine if
-         * WebView#loadUrl should either use an in-flight prefetch response to
+         * WebView#loadUrl should either use an in-flight prerender response to
          * render the web contents or handle the URL as it typically does
          * (i.e. start a network request).
          * @param expectedNoVarySearchHeader The No-Vary-Search data expected to be returned in
-         *                                   the prefetch's response.
+         *                                   the prerender's response.
+         * @return This builder instance for chaining.
+         * @deprecated Please use {@link #setExpectedNoVarySearchHeader}
+         */
+        @Profile.ExperimentalUrlPrefetch
+        @Deprecated
+        public @NonNull Builder setExpectedNoVarySearchData(
+                @NonNull NoVarySearchHeader expectedNoVarySearchHeader) {
+            mExpectedNoVarySearchHeader = expectedNoVarySearchHeader;
+            return this;
+        }
+
+        /**
+         * Sets the
+         * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search">No-Vary-Search</a>
+         * data that's expected to be returned via the header in the prerender's response.
+         * <p>
+         * This is used to help determine if
+         * WebView#loadUrl should either use an in-flight prerender response to
+         * render the web contents or handle the URL as it typically does
+         * (i.e. start a network request).
+         * @param expectedNoVarySearchHeader The No-Vary-Search data expected to be returned in
+         *                                   the prerender's response.
          * @return This builder instance for chaining.
          */
         @Profile.ExperimentalUrlPrefetch
-        public @NonNull Builder setExpectedNoVarySearchData(
+        public @NonNull Builder setExpectedNoVarySearchHeader(
                 @NonNull NoVarySearchHeader expectedNoVarySearchHeader) {
             mExpectedNoVarySearchHeader = expectedNoVarySearchHeader;
             return this;

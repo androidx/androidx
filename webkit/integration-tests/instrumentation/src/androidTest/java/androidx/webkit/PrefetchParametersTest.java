@@ -40,7 +40,7 @@ public class PrefetchParametersTest {
         PrefetchParameters.Builder builder = new PrefetchParameters.Builder();
         PrefetchParameters parameters = builder.build();
         assertTrue(parameters.getAdditionalHeaders().isEmpty());
-        assertNull(parameters.getExpectedNoVarySearchData());
+        assertNull(parameters.getExpectedNoVarySearchHeader());
         assertFalse(parameters.isJavaScriptEnabled());
         assertNull(parameters.getVariationsId());
     }
@@ -55,7 +55,7 @@ public class PrefetchParametersTest {
         builder.setVariationsId(123);
 
         NoVarySearchHeader noVarySearchHeader = NoVarySearchHeader.neverVaryHeader();
-        builder.setExpectedNoVarySearchData(noVarySearchHeader);
+        builder.setExpectedNoVarySearchHeader(noVarySearchHeader);
 
         PrefetchParameters parameters = builder.build();
 
@@ -63,7 +63,7 @@ public class PrefetchParametersTest {
         assertEquals("value1", parameters.getAdditionalHeaders().get("key1"));
         assertTrue(parameters.isJavaScriptEnabled());
         assertEquals(Integer.valueOf(123), parameters.getVariationsId());
-        assertEquals(noVarySearchHeader, parameters.getExpectedNoVarySearchData());
+        assertEquals(noVarySearchHeader, parameters.getExpectedNoVarySearchHeader());
     }
 
     @Test

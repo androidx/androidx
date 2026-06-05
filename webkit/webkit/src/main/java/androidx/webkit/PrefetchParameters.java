@@ -52,10 +52,23 @@ public final class PrefetchParameters {
     /**
      * Returns the expected No-Vary-Search header data used to match subsequent navigations
      * to this prefetch.
+     *
+     * @deprecated This is just an update in naming, and this method will disappear in a future
+     * release. Use {@link #getExpectedNoVarySearchHeader()} instead.
      */
+    @Deprecated
     public @Nullable NoVarySearchHeader getExpectedNoVarySearchData() {
         return mExpectedNoVarySearchHeader;
     }
+
+    /**
+     * Returns the expected No-Vary-Search header data used to match subsequent navigations
+     * to this prefetch.
+     */
+    public @Nullable NoVarySearchHeader getExpectedNoVarySearchHeader() {
+        return mExpectedNoVarySearchHeader;
+    }
+
 
     /**
      * Returns whether JavaScript is enabled for the prefetch, which influences the sending
@@ -106,7 +119,7 @@ public final class PrefetchParameters {
          * {@link android.webkit.WebView#loadUrl(String, Map)}'s logic and is subject to change
          * in the future.
          *
-         * @param key The header key.
+         * @param key   The header key.
          * @param value The header value.
          * @return This builder instance for chaining.
          */
@@ -147,13 +160,39 @@ public final class PrefetchParameters {
          * @param expectedNoVarySearchHeader The No-Vary-Search data expected to be returned in
          *                                   the prefetch's response.
          * @return This builder instance for chaining.
+         * @deprecated This is just an update in naming, and this method will disappear in a
+         * future release. Please use
+         * {@link #setExpectedNoVarySearchHeader(NoVarySearchHeader)}
          */
         @Profile.ExperimentalUrlPrefetch
+        @Deprecated
         public @NonNull Builder setExpectedNoVarySearchData(
                 @NonNull NoVarySearchHeader expectedNoVarySearchHeader) {
             mExpectedNoVarySearchHeader = expectedNoVarySearchHeader;
             return this;
         }
+
+        /**
+         * Sets the
+         * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search">No-Vary-Search</a>
+         * data that's expected to be returned via the header in the prefetch's response.
+         * <p>
+         * This is used to help determine if
+         * WebView#loadUrl should either use an in-flight prefetch response to
+         * render the web contents or handle the URL as it typically does
+         * (i.e. start a network request).
+         *
+         * @param expectedNoVarySearchHeader The No-Vary-Search data expected to be returned in
+         *                                   the prefetch's response.
+         * @return This builder instance for chaining.
+         */
+        @Profile.ExperimentalUrlPrefetch
+        public @NonNull Builder setExpectedNoVarySearchHeader(
+                @NonNull NoVarySearchHeader expectedNoVarySearchHeader) {
+            mExpectedNoVarySearchHeader = expectedNoVarySearchHeader;
+            return this;
+        }
+
 
         /**
          * Set whether the page that is loaded will have JavaScript enabled.

@@ -19,6 +19,7 @@ package androidx.webkit;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -87,8 +88,10 @@ public class NoVarySearchHeader {
             @NonNull List<String> consideredQueryParameters) {
         this.varyOnKeyOrder = varyOnKeyOrder;
         this.ignoreDifferencesInParameters = ignoreDifferencesInParameters;
-        this.ignoredQueryParameters = ignoredQueryParameters;
-        this.consideredQueryParameters = consideredQueryParameters;
+        this.ignoredQueryParameters = Collections.unmodifiableList(
+                new ArrayList<>(ignoredQueryParameters));
+        this.consideredQueryParameters = Collections.unmodifiableList(
+                new ArrayList<>(consideredQueryParameters));
     }
 
 
@@ -99,7 +102,8 @@ public class NoVarySearchHeader {
      */
     @Profile.ExperimentalUrlPrefetch
     public static @NonNull NoVarySearchHeader neverVaryHeader() {
-        return new NoVarySearchHeader(false, true, new ArrayList<>(), new ArrayList<>());
+        return new NoVarySearchHeader(false, true, Collections.emptyList(),
+                Collections.emptyList());
     }
 
     /**
@@ -109,7 +113,8 @@ public class NoVarySearchHeader {
      */
     @Profile.ExperimentalUrlPrefetch
     public static @NonNull NoVarySearchHeader alwaysVaryHeader() {
-        return new NoVarySearchHeader(true, false, new ArrayList<>(), new ArrayList<>());
+        return new NoVarySearchHeader(true, false, Collections.emptyList(),
+                Collections.emptyList());
     }
 
     /**
@@ -128,7 +133,7 @@ public class NoVarySearchHeader {
     public static @NonNull NoVarySearchHeader neverVaryExcept(
             boolean varyOnOrdering,
             @NonNull List<String> consideredQueryParameters) {
-        return new NoVarySearchHeader(varyOnOrdering, true, new ArrayList<>(),
+        return new NoVarySearchHeader(varyOnOrdering, true, Collections.emptyList(),
                 consideredQueryParameters);
     }
 
@@ -149,7 +154,7 @@ public class NoVarySearchHeader {
             boolean varyOnOrdering,
             @NonNull List<String> ignoredQueryParameters) {
         return new NoVarySearchHeader(varyOnOrdering, false,
-                ignoredQueryParameters, new ArrayList<>());
+                ignoredQueryParameters, Collections.emptyList());
     }
 
 }

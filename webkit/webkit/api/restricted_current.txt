@@ -133,7 +133,8 @@ package androidx.webkit {
 
   @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public final class PrefetchParameters {
     method public java.util.Map<java.lang.String!,java.lang.String!> getAdditionalHeaders();
-    method public androidx.webkit.NoVarySearchHeader? getExpectedNoVarySearchData();
+    method @Deprecated public androidx.webkit.NoVarySearchHeader? getExpectedNoVarySearchData();
+    method public androidx.webkit.NoVarySearchHeader? getExpectedNoVarySearchHeader();
     method public Integer? getVariationsId();
     method public boolean isJavaScriptEnabled();
   }
@@ -143,7 +144,8 @@ package androidx.webkit {
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder addAdditionalHeader(String, String);
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder addAdditionalHeaders(java.util.Map<java.lang.String!,java.lang.String!>);
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters build();
-    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder setExpectedNoVarySearchData(androidx.webkit.NoVarySearchHeader);
+    method @Deprecated @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder setExpectedNoVarySearchData(androidx.webkit.NoVarySearchHeader);
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder setExpectedNoVarySearchHeader(androidx.webkit.NoVarySearchHeader);
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder setJavaScriptEnabled(boolean);
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder setVariationsId(Integer?);
   }
@@ -159,7 +161,8 @@ package androidx.webkit {
 
   @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public final class PrerenderParameters {
     method public java.util.Map<java.lang.String!,java.lang.String!> getAdditionalHeaders();
-    method public androidx.webkit.NoVarySearchHeader? getExpectedNoVarySearchData();
+    method @Deprecated public androidx.webkit.NoVarySearchHeader? getExpectedNoVarySearchData();
+    method public androidx.webkit.NoVarySearchHeader? getExpectedNoVarySearchHeader();
     method public Integer? getVariationsId();
   }
 
@@ -168,7 +171,8 @@ package androidx.webkit {
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrerenderParameters.Builder addAdditionalHeader(String, String);
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrerenderParameters.Builder addAdditionalHeaders(java.util.Map<java.lang.String!,java.lang.String!>);
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrerenderParameters build();
-    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrerenderParameters.Builder setExpectedNoVarySearchData(androidx.webkit.NoVarySearchHeader);
+    method @Deprecated @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrerenderParameters.Builder setExpectedNoVarySearchData(androidx.webkit.NoVarySearchHeader);
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrerenderParameters.Builder setExpectedNoVarySearchHeader(androidx.webkit.NoVarySearchHeader);
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrerenderParameters.Builder setVariationsId(Integer?);
   }
 

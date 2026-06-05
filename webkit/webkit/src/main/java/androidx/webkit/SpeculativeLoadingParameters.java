@@ -53,7 +53,7 @@ public final class SpeculativeLoadingParameters {
     public SpeculativeLoadingParameters(@NonNull PrefetchParameters prefetchParameters) {
         this(
                 prefetchParameters.getAdditionalHeaders(),
-                prefetchParameters.getExpectedNoVarySearchData(),
+                prefetchParameters.getExpectedNoVarySearchHeader(),
                 prefetchParameters.isJavaScriptEnabled(),
                 prefetchParameters.getVariationsId()
         );
@@ -63,7 +63,7 @@ public final class SpeculativeLoadingParameters {
     public SpeculativeLoadingParameters(@NonNull PrerenderParameters prerenderParameters) {
         this(
                 prerenderParameters.getAdditionalHeaders(),
-                prerenderParameters.getExpectedNoVarySearchData(),
+                prerenderParameters.getExpectedNoVarySearchHeader(),
                 false,
                 prerenderParameters.getVariationsId()
         );
