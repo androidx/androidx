@@ -42,7 +42,7 @@ internal constructor(
     private val lock = Any()
     @GuardedBy("lock") private val buffers = mutableListOf<FrameBufferImpl>()
     @GuardedBy("lock") private var streams = mutableSetOf<StreamId>()
-    @GuardedBy("lock") private var parameters = mutableMapOf<Any, Any>()
+    @GuardedBy("lock") private var parameters = mutableMapOf<Any, Any?>()
 
     internal fun attach(
         streams: Set<StreamId>,
@@ -75,7 +75,7 @@ internal constructor(
     @GuardedBy("lock")
     private fun updateStreamsAndParameters(): Boolean {
         val newStreams = mutableSetOf<StreamId>()
-        val newParameters = mutableMapOf<Any, Any>()
+        val newParameters = mutableMapOf<Any, Any?>()
         for (buffer in buffers) {
             newStreams.addAll(buffer.streams)
 
@@ -91,9 +91,7 @@ internal constructor(
                     "Conflicting parameter values: $key has different values (${newParameters[key]} and $value)."
                 }
 
-                if (value != null) {
-                    newParameters[key] = value
-                }
+                newParameters[key] = value
             }
         }
         val modified: Boolean = newStreams != streams || newParameters != parameters

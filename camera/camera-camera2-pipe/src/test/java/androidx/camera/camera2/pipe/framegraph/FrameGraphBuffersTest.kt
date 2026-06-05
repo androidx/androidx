@@ -86,8 +86,8 @@ class FrameGraphBuffersTest {
             advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
-            val parameters: Map<CaptureRequest.Key<*>, Any> = mapOf(CAPTURE_REQUEST_KEY to 2)
-            val extras: Map<Metadata.Key<*>, Any> = mapOf(TEST_KEY to 5)
+            val parameters: Map<CaptureRequest.Key<*>, Any?> = mapOf(CAPTURE_REQUEST_KEY to 2)
+            val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
             assertThat(frame.request.streams).isEqualTo(listOf(streamId1, streamId2))
             assertThat(frame.request.parameters).isEqualTo(parameters)
             assertThat(frame.request.extras).isEqualTo(extras)
@@ -104,9 +104,9 @@ class FrameGraphBuffersTest {
                 )
             val frameBuffer2 =
                 frameGraphBuffers.attach(setOf(streamId2), mapOf(TEST_NULLABLE_KEY to 42), 1)
-            var parameters: Map<CaptureRequest.Key<*>, Any> =
+            var parameters: Map<CaptureRequest.Key<*>, Any?> =
                 mapOf(CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to 42)
-            val extras: Map<Metadata.Key<*>, Any> = mapOf(TEST_KEY to 5)
+            val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
             advanceUntilIdle()
 
             assertThat(simulator.simulateNextFrame().request.streams)
@@ -121,7 +121,7 @@ class FrameGraphBuffersTest {
             assertThat(simulator.simulateNextFrame().request.streams).isEqualTo(listOf(streamId2))
             assertThat(simulator.simulateNextFrame().request.parameters).isEqualTo(parameters)
             assertThat(simulator.simulateNextFrame().request.extras)
-                .isEqualTo(emptyMap<Metadata.Key<*>, Any>())
+                .isEqualTo(emptyMap<Metadata.Key<*>, Any?>())
 
             frameBuffer2.close()
         }

@@ -56,8 +56,8 @@ public value class RequestNumber(public val value: Long)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Request(
     public val streams: List<StreamId>,
-    public val parameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
-    public val extras: Map<Metadata.Key<*>, Any> = emptyMap(),
+    public val parameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
+    public val extras: Map<Metadata.Key<*>, Any?> = emptyMap(),
     public val listeners: List<Listener> = emptyList(),
     public val template: RequestTemplate? = null,
     public val inputRequest: InputRequest? = null,
@@ -435,11 +435,11 @@ public fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
 public fun Request.formatForLogs(): String = "Request($streams)@${Integer.toHexString(hashCode())}"
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Map<Any, Any>.filterToCaptureRequestParameters(): Map<CaptureRequest.Key<*>, Any> =
+public fun Map<Any, Any?>.filterToCaptureRequestParameters(): Map<CaptureRequest.Key<*>, Any?> =
     this.filterKeys { it is CaptureRequest.Key<*> }.mapKeys { it.key as CaptureRequest.Key<*> }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Map<Any, Any>.filterToMetadataParameters(): Map<Metadata.Key<*>, Any> =
+public fun Map<Any, Any?>.filterToMetadataParameters(): Map<Metadata.Key<*>, Any?> =
     this.filterKeys { it is Metadata.Key<*> }.mapKeys { it.key as Metadata.Key<*> }
 
 /** Utility function to help deal with the unsafe nature of the typed Key/Value pairs. */
