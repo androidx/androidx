@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+@file:JvmName("NavBackStackEntryKt")
+@file:JvmMultifileClass
 
 package androidx.navigation
 
@@ -28,12 +29,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.internal.NavContext
 import androidx.navigation.serialization.decodeArguments
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.savedState
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
@@ -168,3 +172,7 @@ public fun <T> NavBackStackEntry.toRoute(route: KClass<*>): T {
     val typeMap = destination.arguments.mapValues { it.value.type }
     return route.serializer().decodeArguments(savedState, typeMap) as T
 }
+
+internal expect fun randomUuid(): String
+
+internal expect fun MutableCreationExtras.setPlatformExtras(context: NavContext?)
