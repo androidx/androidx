@@ -96,7 +96,6 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class FloatingToolbarTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
@@ -134,22 +133,23 @@ class FloatingToolbarTest {
 
     @Test
     fun horizontalFloatingToolbar_custom_scrolledPositioning() {
-        val scrollBehavior =
-            ExitAlwaysFloatingToolbarScrollBehavior(
-                exitDirection = Bottom,
-                state =
-                    FloatingToolbarState(
-                        initialOffsetLimit = -Float.MAX_VALUE,
-                        initialOffset = 0f,
-                        initialContentOffset = 0f,
-                    ),
-                snapAnimationSpec = spring(),
-                flingAnimationSpec = splineBasedDecay<Float>(rule.density),
-            )
+        lateinit var scrollBehavior: FloatingToolbarScrollBehavior
         lateinit var colors: FloatingToolbarColors
 
         rule.setMaterialContent(lightColorScheme()) {
             colors = FloatingToolbarDefaults.standardFloatingToolbarColors()
+            scrollBehavior =
+                FloatingToolbarDefaults.exitAlwaysScrollBehavior(
+                    exitDirection = Bottom,
+                    state =
+                        FloatingToolbarState(
+                            initialOffsetLimit = -Float.MAX_VALUE,
+                            initialOffset = 0f,
+                            initialContentOffset = 0f,
+                        ),
+                    snapAnimationSpec = spring(),
+                    flingAnimationSpec = splineBasedDecay<Float>(rule.density),
+                )
             HorizontalFloatingToolbar(
                 modifier = Modifier.testTag(FloatingToolbarTestTag).offset(y = -ScreenOffset),
                 expanded = false,
@@ -225,22 +225,23 @@ class FloatingToolbarTest {
 
     @Test
     fun verticalFloatingToolbar_custom_scrolledPositioning() {
-        val scrollBehavior =
-            ExitAlwaysFloatingToolbarScrollBehavior(
-                exitDirection = End,
-                state =
-                    FloatingToolbarState(
-                        initialOffsetLimit = -Float.MAX_VALUE,
-                        initialOffset = 0f,
-                        initialContentOffset = 0f,
-                    ),
-                snapAnimationSpec = spring(),
-                flingAnimationSpec = splineBasedDecay<Float>(rule.density),
-            )
+        lateinit var scrollBehavior: FloatingToolbarScrollBehavior
         lateinit var colors: FloatingToolbarColors
 
         rule.setMaterialContent(lightColorScheme()) {
             colors = FloatingToolbarDefaults.standardFloatingToolbarColors()
+            scrollBehavior =
+                FloatingToolbarDefaults.exitAlwaysScrollBehavior(
+                    exitDirection = End,
+                    state =
+                        FloatingToolbarState(
+                            initialOffsetLimit = -Float.MAX_VALUE,
+                            initialOffset = 0f,
+                            initialContentOffset = 0f,
+                        ),
+                    snapAnimationSpec = spring(),
+                    flingAnimationSpec = splineBasedDecay<Float>(rule.density),
+                )
             VerticalFloatingToolbar(
                 modifier = Modifier.testTag(FloatingToolbarTestTag).offset(x = -ScreenOffset),
                 expanded = false,
