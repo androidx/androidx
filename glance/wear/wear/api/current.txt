@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.glance.wear {
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AssociateWithGlanceWearWidget {
+    ctor @KotlinOnly public AssociateWithGlanceWearWidget(kotlin.reflect.KClass<? extends androidx.glance.wear.GlanceWearWidget> value);
+    method @InaccessibleFromKotlin public abstract Class<? extends androidx.glance.wear.GlanceWearWidget> value();
+    property public abstract kotlin.reflect.KClass<? extends androidx.glance.wear.GlanceWearWidget> value;
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearApi {
   }
 

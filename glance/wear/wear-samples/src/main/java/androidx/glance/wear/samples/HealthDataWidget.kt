@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.glance.wear.AssociateWithGlanceWearWidget
 import androidx.glance.wear.ExperimentalGlanceWearApi
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.GlanceWearWidgetService
@@ -46,11 +47,12 @@ import androidx.glance.wear.color
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.health.DataTypes
 
+@AssociateWithGlanceWearWidget(HealthDataWidget::class)
 class HealthDataWidgetService : GlanceWearWidgetService() {
     override val widget: GlanceWearWidget = HealthDataWidget()
 }
 
-private class HealthDataWidget : GlanceWearWidget() {
+internal class HealthDataWidget : GlanceWearWidget() {
     override suspend fun provideWidgetData(
         context: Context,
         params: WearWidgetParams,
