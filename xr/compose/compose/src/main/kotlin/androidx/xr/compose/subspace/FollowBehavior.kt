@@ -17,10 +17,12 @@
 package androidx.xr.compose.subspace
 
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.withFrameNanos
 import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
@@ -32,6 +34,8 @@ import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import java.lang.Runnable
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.pow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -75,15 +79,19 @@ public sealed class FollowBehavior protected constructor() {
         public val Tight: FollowBehavior = TightFollowBehavior
 
         /**
-         * Creates a behavior where the content smoothly animates to follow the target's movements,
-         * creating a comfortable "soft follow" effect. This is implemented with the Hermite easing
-         * algorithm, which accelerates the content then slows it down towards the end of the
-         * motion, giving it a sense of real world physics. The use of the Hermite algorithm is not
-         * optional but the total duration of the motion can be modified.
+         * Creates a behavior where the content smoothly animates to follow the target's movements.
+         *
+         * This behavior is driven by a critically damped spring physics model, which uses
+         * exponential decay to smoothly decelerate the trailing entity as it approaches the target.
+         * The entity will accelerate to catch up and then decelerate without overshoot, simulating
+         * real-world physical inertia.
+         *
+         * The use of this spring/exponential decay model is not optional, but the total duration of
+         * the motion can be configured via [durationMs].
          *
          * @param durationMs Amount of milliseconds it takes for the content to catch up to the
-         *   user. Default is `DEFAULT_SOFT_DURATION_MS` milliseconds. A value less than
-         *   `MIN_SOFT_DURATION_MS` will be rounded up to `MIN_SOFT_DURATION_MS` to allow enough
+         *   user. Default is [DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
+         *   [MIN_SOFT_DURATION_MS] will be rounded up to [MIN_SOFT_DURATION_MS] to allow enough
          *   time to complete the content movement.
          * @return A [FollowBehavior] instance configured for soft following.
          */
@@ -91,6 +99,18 @@ public sealed class FollowBehavior protected constructor() {
             @IntRange(from = MIN_SOFT_DURATION_MS.toLong())
             durationMs: Int = DEFAULT_SOFT_DURATION_MS
         ): FollowBehavior = SoftFollowBehavior(durationMs)
+
+        /**
+         * Creates a behavior where the content animates to follow the target's movements using an
+         * exponential decay algorithm.
+         *
+         * This behavior is driven by a first-order exponential decay model, matching the system's
+         * native HeadFollower implementation.
+         *
+         * @return A [FollowBehavior] instance configured for exponential decay.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun ExponentialDecay(): FollowBehavior = ExponentialDecayFollowBehavior()
 
         @TestOnly
         @VisibleForTesting
@@ -101,7 +121,7 @@ public sealed class FollowBehavior protected constructor() {
 /**
  * Creates a behavior where the content smoothly animates to follow the user's movements, creating a
  * comfortable "soft follow" effect. This is the implementation for SoftFollowing which is
- * accessible through the public interface as FollowBehavior.soft()
+ * accessible through the public interface as FollowBehavior.Soft()
  *
  * @param durationMs Amount of milliseconds it takes for the content to catch up to the user.
  *   Default is [FollowBehavior.DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
@@ -293,6 +313,208 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
     }
 }
 
+@OptIn(ExperimentalFollowingSubspaceApi::class)
+internal class ExponentialDecayFollowBehavior : FollowBehavior() {
+    override suspend fun configure(
+        session: Session,
+        trailingEntity: CoreGroupEntity,
+        target: FollowTarget,
+        dimensions: TrackedDimensions,
+    ) = coroutineScope {
+        val isAnimating = AtomicBoolean(false)
+        val initialPoseMeter: Pose = trailingEntity.poseInMeters
+        val followTargetFlow = target as? FollowTargetFlow ?: return@coroutineScope
+        var currentTargetPoseMeter = Pose.Identity
+
+        withContext(dispatcherOverride) {
+            val pose: Pose = target.poseUpdates.first()
+            currentTargetPoseMeter =
+                applyTrackedDimensions(
+                    pose = pose,
+                    dimensions = dimensions,
+                    fallbackPose = initialPoseMeter,
+                )
+            trailingEntity.poseInMeters = currentTargetPoseMeter
+            trailingEntity.enabled = true
+
+            followTargetFlow.poseUpdates.collect { pose ->
+                currentTargetPoseMeter =
+                    applyTrackedDimensions(
+                        pose = pose,
+                        dimensions = dimensions,
+                        fallbackPose = initialPoseMeter,
+                    )
+
+                if (
+                    !hasSignificantPoseChange(
+                        pose1 = trailingEntity.poseInMeters,
+                        pose2 = currentTargetPoseMeter,
+                        translationThreshold = TRANSLATION_THRESHOLD,
+                        rotationThreshold = ROTATION_THRESHOLD,
+                    )
+                ) {
+                    return@collect
+                }
+                if (!isAnimating.compareAndSet(false, true)) {
+                    return@collect
+                }
+                launch {
+                    try {
+                        animate(trailingEntity, targetPoseProvider = { currentTargetPoseMeter })
+                    } finally {
+                        isAnimating.set(false)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Animates the trailing entity to smoothly follow the target.
+     *
+     * On each frame, this calculates the elapsed time since the last frame and uses an exponential
+     * decay formula to determine the next position. The animation stops when the entity is close
+     * enough to the target.
+     */
+    private suspend fun animate(trailingEntity: CoreGroupEntity, targetPoseProvider: () -> Pose) {
+        var lastFrameTimeNanos: Long = System.nanoTime()
+
+        while (true) {
+            val currentFrameTimeNanos: Long = withFrameNanos { it }
+
+            // Calculate elapsed time (dt) in seconds, clamped between 1ms and 100ms
+            // to prevent large motion jumps due to frame drops or thread suspension.
+            val dtNanos: Long =
+                (currentFrameTimeNanos - lastFrameTimeNanos).coerceIn(1_000_000L, 100_000_000L)
+            val dtSeconds = dtNanos / 1_000_000_000f
+            lastFrameTimeNanos = currentFrameTimeNanos
+
+            // Calculate the frame-rate independent interpolation factor using exponential decay.
+            // The general formula for exponential decay interpolation is:
+            //   1 - base^dtSeconds
+            //
+            // where "base" is a constant that corresponds to the level of friction in the system.
+            // Here, we use (1 / LERP_DIVISOR) as our decay base, giving:
+            //   decayFactor = 1 - (1 / LERP_DIVISOR)^dtSeconds
+            //
+            // The decay factor will start at zero, quickly approach 1 and level off.
+            val decayFactor = 1.0f - (1.0f / LERP_DIVISOR).pow(dtSeconds)
+
+            // Interpolate between the current pose and the target pose using the decay factor.
+            val currentPose = trailingEntity.poseInMeters
+            val targetPose = targetPoseProvider()
+            val nextPose = Pose.lerp(currentPose, targetPose, decayFactor)
+            trailingEntity.poseInMeters = nextPose
+
+            // If the gap to the target is significant, keep the animation going.
+            if (
+                hasSignificantPoseChange(
+                    pose1 = nextPose,
+                    pose2 = targetPose,
+                    translationThreshold = SETTLE_TRANSLATION_THRESHOLD,
+                    rotationThreshold = SETTLE_ROTATION_THRESHOLD,
+                )
+            ) {
+                continue
+            }
+
+            trailingEntity.poseInMeters = targetPose
+            break
+        }
+    }
+
+    private fun hasSignificantPoseChange(
+        pose1: Pose,
+        pose2: Pose,
+        translationThreshold: Float,
+        rotationThreshold: Float,
+    ): Boolean {
+        val translationDelta: Float = (pose1.translation - pose2.translation).length
+        val rotationDelta: Float = Quaternion.angle(pose1.rotation, pose2.rotation)
+
+        return translationDelta > translationThreshold || rotationDelta > rotationThreshold
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    private fun applyTrackedDimensions(
+        pose: Pose,
+        dimensions: TrackedDimensions,
+        fallbackPose: Pose,
+    ): Pose {
+        return Pose(
+            translation =
+                Vector3(
+                    x =
+                        getTrackedValue(
+                            isTracked = dimensions.isTranslationXTracked,
+                            currentValue = pose.translation.x,
+                            fallbackValue = fallbackPose.translation.x,
+                        ),
+                    y =
+                        getTrackedValue(
+                            isTracked = dimensions.isTranslationYTracked,
+                            currentValue = pose.translation.y,
+                            fallbackValue = fallbackPose.translation.y,
+                        ),
+                    z =
+                        getTrackedValue(
+                            isTracked = dimensions.isTranslationZTracked,
+                            currentValue = pose.translation.z,
+                            fallbackValue = fallbackPose.translation.z,
+                        ),
+                ),
+            rotation =
+                Quaternion(
+                    x =
+                        getTrackedValue(
+                            isTracked = dimensions.isRotationXTracked,
+                            currentValue = pose.rotation.x,
+                            fallbackValue = fallbackPose.rotation.x,
+                        ),
+                    y =
+                        getTrackedValue(
+                            isTracked = dimensions.isRotationYTracked,
+                            currentValue = pose.rotation.y,
+                            fallbackValue = fallbackPose.rotation.y,
+                        ),
+                    z =
+                        getTrackedValue(
+                            isTracked = dimensions.isRotationZTracked,
+                            currentValue = pose.rotation.z,
+                            fallbackValue = fallbackPose.rotation.z,
+                        ),
+                    w = pose.rotation.w,
+                ),
+        )
+    }
+
+    private fun getTrackedValue(
+        isTracked: Boolean,
+        currentValue: Float,
+        fallbackValue: Float,
+    ): Float {
+        return if (isTracked) currentValue else fallbackValue
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ExponentialDecayFollowBehavior) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+
+    private companion object {
+        private const val LERP_DIVISOR = 18000f
+        private const val SETTLE_TRANSLATION_THRESHOLD: Float = 0.01f
+        private const val SETTLE_ROTATION_THRESHOLD: Float = 0.01f
+        private const val TRANSLATION_THRESHOLD: Float = 0.1f
+        private const val ROTATION_THRESHOLD: Float = 3f
+    }
+}
+
 /**
  * This is the implementation for StaticFollowBehavior which is accessible through the public
  * interface as FollowBehavior.static()
@@ -308,7 +530,7 @@ internal object StaticFollowBehavior : FollowBehavior() {
         if (target is FollowTargetFlow) {
             withContext(dispatcherOverride) {
                 // Suspends until the first item is emitted, then cancel automatically.
-                val firstPose = target.poseUpdates.first()
+                val firstPose: Pose = target.poseUpdates.first()
 
                 // The pose should be updated first before enabling.
                 trailingEntity.poseInMeters = firstPose
@@ -330,7 +552,7 @@ internal object TightFollowBehavior : FollowBehavior() {
         target: FollowTarget,
         dimensions: TrackedDimensions,
     ) {
-        var isInitialized = false
+        var isInitialized: Boolean = false
 
         if (target is FollowTargetFlow) {
             withContext(dispatcherOverride) {
@@ -481,14 +703,14 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
     val offset: Pose = DEFAULT_OFFSET
 
     override val poseUpdates: Flow<Pose> =
-        ArDevice.getInstance(session)
+        ArDevice.getInstance(session = session)
             .state
             // TODO(b/448689233): Initial head pose data is not reliable.
             .onStart { delay(INITIAL_POSE_DELAY_MS) }
             .map { state ->
                 session.scene.perceptionSpace.transformPoseTo(
-                    state.devicePose,
-                    session.scene.activitySpace,
+                    pose = state.devicePose,
+                    destination = session.scene.activitySpace,
                 )
             }
 
@@ -505,7 +727,7 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
     internal companion object {
         const val INITIAL_POSE_DELAY_MS: Long = 1000
         // Distance to stay away from the target in meters.
-        val DEFAULT_OFFSET: Pose = Pose(translation = Vector3(0f, 0f, -.5f))
+        val DEFAULT_OFFSET: Pose = Pose(translation = Vector3(x = 0f, y = 0f, z = -.5f))
     }
 }
 
@@ -526,7 +748,7 @@ internal class AnchorTarget(val anchorSpace: AnchorSpace) : FollowTargetFlow {
      */
     override val poseUpdates: Flow<Pose> = callbackFlow {
         // Send the initial pose immediately upon collection.
-        trySend(pose)
+        trySend(element = pose)
 
         val updateListener = Runnable { trySend(pose) }
         anchorSpace.addOriginChangedListener(updateListener)

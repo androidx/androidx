@@ -15,6 +15,7 @@
  */
 package androidx.xr.compose.testapp.followingsubspace
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,12 +41,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -77,6 +80,11 @@ import androidx.xr.runtime.DeviceTrackingMode
 import java.time.LocalDate
 import java.time.format.TextStyle
 
+private enum class UiBehaviorSelection {
+    SOFT,
+    EXPONENTIAL_DECAY,
+}
+
 data class TodoItem(val description: String, val isCompleted: Boolean)
 
 class FollowingSubspaceActivity : ComponentActivity() {
@@ -86,6 +94,7 @@ class FollowingSubspaceActivity : ComponentActivity() {
         setContent { MainContent() }
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalMaterial3Api::class)
     @Composable
     private fun MainContent() {
@@ -103,6 +112,14 @@ class FollowingSubspaceActivity : ComponentActivity() {
         }
         // State for the soft follow duration slider
         var softFollowDuration by remember { mutableIntStateOf(1000) }
+        var uiBehaviorSelection by remember { mutableStateOf(UiBehaviorSelection.SOFT) }
+        val selectedBehavior =
+            remember(uiBehaviorSelection, softFollowDuration) {
+                when (uiBehaviorSelection) {
+                    UiBehaviorSelection.SOFT -> FollowBehavior.Soft(durationMs = softFollowDuration)
+                    UiBehaviorSelection.EXPONENTIAL_DECAY -> FollowBehavior.ExponentialDecay()
+                }
+            }
 
         FollowingSubspace(
             target = FollowTarget.ArDevice(session),
@@ -144,7 +161,7 @@ class FollowingSubspaceActivity : ComponentActivity() {
                     isRotationYTracked = true,
                     isRotationZTracked = false,
                 ),
-            behavior = FollowBehavior.Soft(durationMs = softFollowDuration),
+            behavior = selectedBehavior,
         ) {
             SpatialPanel(SubspaceModifier.height(200.dp).width(450.dp).offset(y = (-50).dp)) {
                 Box(Modifier.fillMaxSize().background(Color.Cyan)) {
@@ -160,11 +177,54 @@ class FollowingSubspaceActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        PanelHeader("HEAD LOCKED")
-                        SoftFollowSlider(
-                            duration = softFollowDuration,
-                            onDurationChange = { softFollowDuration = it.toInt() },
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier =
+                                    Modifier.clickable {
+                                        uiBehaviorSelection = UiBehaviorSelection.SOFT
+                                    },
+                            ) {
+                                RadioButton(
+                                    selected = (uiBehaviorSelection == UiBehaviorSelection.SOFT),
+                                    onClick = { uiBehaviorSelection = UiBehaviorSelection.SOFT },
+                                )
+                                Text("Soft", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier =
+                                    Modifier.clickable {
+                                        uiBehaviorSelection = UiBehaviorSelection.EXPONENTIAL_DECAY
+                                    },
+                            ) {
+                                RadioButton(
+                                    selected =
+                                        (uiBehaviorSelection ==
+                                            UiBehaviorSelection.EXPONENTIAL_DECAY),
+                                    onClick = {
+                                        uiBehaviorSelection = UiBehaviorSelection.EXPONENTIAL_DECAY
+                                    },
+                                )
+                                Text(
+                                    "ExponentialDecay",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+
+                        if (uiBehaviorSelection == UiBehaviorSelection.SOFT) {
+                            SoftFollowSlider(
+                                duration = softFollowDuration,
+                                onDurationChange = { softFollowDuration = it.toInt() },
+                            )
+                        }
                     }
                 }
             }
@@ -232,7 +292,6 @@ class FollowingSubspaceActivity : ComponentActivity() {
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFE2F0EA)),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    PanelHeader("TODO LIST - BODY LOCKED")
                     todoItems.forEachIndexed { index, item ->
                         Row(
                             modifier = Modifier.fillMaxWidth().clickable { onItemClick(item) },
@@ -286,7 +345,6 @@ class FollowingSubspaceActivity : ComponentActivity() {
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    PanelHeader("CALENDAR - BODY LOCKED")
                     Text(
                         text = "$currentMonth $currentYear",
                         fontSize = 18.sp,
@@ -351,13 +409,5 @@ class FollowingSubspaceActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    @Composable
-    private fun PanelHeader(title: String) {
-        Text(text = title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-        Spacer(Modifier.height(8.dp))
-        Box(Modifier.width(150.dp).height(2.dp).background(Color.DarkGray))
-        Spacer(Modifier.height(16.dp))
     }
 }
