@@ -112,6 +112,15 @@ package androidx.benchmark {
     method public void captureStop(long timeNs, long[] output, int offset);
   }
 
+  @SuppressCompatibility public final class TraceProcessorExtensions {
+    method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
+    method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, optional long timeoutMs, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
+    method @BytecodeOnly @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static Object! runServer$default(androidx.benchmark.traceprocessor.TraceProcessor.Companion!, long, kotlin.jvm.functions.Function1!, int, Object!);
+    method @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle startServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion);
+    method @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle startServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, optional long timeoutMs);
+    method @BytecodeOnly @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle! startServer$default(androidx.benchmark.traceprocessor.TraceProcessor.Companion!, long, int, Object!);
+  }
+
 }
 
 package androidx.benchmark.perfetto {

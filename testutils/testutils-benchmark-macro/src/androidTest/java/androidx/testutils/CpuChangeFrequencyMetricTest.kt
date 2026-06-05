@@ -22,8 +22,8 @@ import androidx.benchmark.Outputs
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest

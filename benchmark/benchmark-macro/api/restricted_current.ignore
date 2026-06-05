@@ -1,8 +1,10 @@
 // Baseline format: 1.0
 BecameUnchecked: androidx.benchmark.macro.MetricResultExtensionsKt:
     Removed class androidx.benchmark.macro.MetricResultExtensionsKt from compatibility checked API surface
-BecameUnchecked: androidx.benchmark.macro.TraceProcessorExtensionsKt:
-    Removed class androidx.benchmark.macro.TraceProcessorExtensionsKt from compatibility checked API surface
+
+
+RemovedClass: androidx.benchmark.macro.TraceProcessorExtensionsKt:
+    Binary breaking change: Removed class androidx.benchmark.macro.TraceProcessorExtensionsKt
 
 
 RemovedFromKotlin: androidx.benchmark.macro.BaselineProfileResult#getBaselineProfiles():

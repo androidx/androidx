@@ -21,8 +21,8 @@ import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.MemoryUsageMetric.SubMetric
 import androidx.benchmark.macro.createTempFileFromAsset
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest

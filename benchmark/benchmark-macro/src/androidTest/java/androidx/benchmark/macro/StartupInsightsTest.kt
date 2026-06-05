@@ -20,6 +20,7 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.InsightSummary
 import androidx.benchmark.createInsightSummaries
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.Insight
 import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.StartupInsights
