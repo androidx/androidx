@@ -48,8 +48,8 @@ internal data class State3A(
  * parameter for autofocus is intentionally excluded since they are usually submitted as a single
  * request.
  */
-internal fun State3A.toCaptureRequestParameterMap(): Map<CaptureRequest.Key<*>, Any> {
-    return mutableMapOf<CaptureRequest.Key<*>, Any>().apply {
+internal fun State3A.toCaptureRequestParameterMap(): Map<CaptureRequest.Key<*>, Any?> {
+    return mutableMapOf<CaptureRequest.Key<*>, Any?>().apply {
         aeMode?.let { put(CaptureRequest.CONTROL_AE_MODE, it.value) }
         afMode?.let { put(CaptureRequest.CONTROL_AF_MODE, it.value) }
         awbMode?.let { put(CaptureRequest.CONTROL_AWB_MODE, it.value) }
@@ -153,6 +153,6 @@ internal class GraphState3A @Inject constructor() {
     }
 
     /** Reads the current state and returns it as a map for building a [CaptureRequest]. */
-    fun toCaptureRequestParametersMap(): Map<CaptureRequest.Key<*>, Any> =
+    fun toCaptureRequestParametersMap(): Map<CaptureRequest.Key<*>, Any?> =
         this.current.toCaptureRequestParameterMap()
 }
