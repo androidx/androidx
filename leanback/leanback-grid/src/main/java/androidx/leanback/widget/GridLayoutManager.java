@@ -1247,8 +1247,26 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mOrientation == HORIZONTAL ? sTempRect.width() : sTempRect.height();
     }
 
-    private int getViewCenter(View view) {
-        return (mOrientation == HORIZONTAL) ? getViewCenterX(view) : getViewCenterY(view);
+    /**
+     * Returns calculated offset in pixels for alignment key line.
+     * The value is calculated from {@link BaseGridView}'s window alignment settings. A default
+     * value is center of the {@link BaseGridView}.
+     *
+     * @return The calculated offset in pixels for alignment key line.
+     */
+    public int getWindowKeyLine() {
+        return mWindowAlignment.mainAxis().calculateKeyline();
+    }
+
+    /**
+     * Returns calculated center of the child view in the parent {@link BaseGridView}.
+     * The value is calculated from item alignment settings.  A default value is center of the child
+     * view.
+     *
+     * @return The calculated center of the child view in the parent {@link BaseGridView}.
+     */
+    public int getViewCenter(@NonNull View child) {
+        return (mOrientation == HORIZONTAL) ? getViewCenterX(child) : getViewCenterY(child);
     }
 
     private int getViewCenterSecondary(View view) {
