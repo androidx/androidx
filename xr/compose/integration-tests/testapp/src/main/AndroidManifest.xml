@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.HAND_TRACKING" />
     <uses-permission android:name="android.permission.HEAD_TRACKING" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -263,6 +264,13 @@
         <activity
             android:name=".EmptyActivity"
             android:exported="true"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialaudio.SpatialAudioActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="@string/spatial_audio_test"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <property
             android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"
