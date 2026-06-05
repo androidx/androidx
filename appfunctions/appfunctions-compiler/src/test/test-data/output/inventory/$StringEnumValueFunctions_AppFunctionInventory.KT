@@ -18,7 +18,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * StringEnumValueFunctions.....kt
+ * StringEnumValueFunctions.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$StringEnumValueFunctions_AppFunctionInventory` : AppFunctionInventory {

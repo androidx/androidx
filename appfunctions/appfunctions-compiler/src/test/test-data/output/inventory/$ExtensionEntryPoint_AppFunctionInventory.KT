@@ -16,7 +16,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * ExtensionEntryPoint.....kt
+ * ExtensionEntryPoint.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$ExtensionEntryPoint_AppFunctionInventory` : AppFunctionInventory {

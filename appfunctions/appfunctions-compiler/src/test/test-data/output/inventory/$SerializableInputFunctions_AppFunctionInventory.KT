@@ -19,7 +19,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * SerializableInputFunctions.....kt
+ * SerializableInputFunctions.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$SerializableInputFunctions_AppFunctionInventory` : AppFunctionInventory {

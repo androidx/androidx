@@ -22,10 +22,10 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * OneOfFunctions.....kt
- * NonSealedOneOfSerializable.....kt
- * OneOfSealedClass.....kt
- * OneOfSealedInterface.....kt
+ * OneOfFunctions.kt
+ * NonSealedOneOfSerializable.kt
+ * OneOfSealedClass.kt
+ * OneOfSealedInterface.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {

@@ -16,7 +16,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * DeprecatedFunction.....kt
+ * DeprecatedFunction.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$DeprecatedFunction_AppFunctionInventory` : AppFunctionInventory {

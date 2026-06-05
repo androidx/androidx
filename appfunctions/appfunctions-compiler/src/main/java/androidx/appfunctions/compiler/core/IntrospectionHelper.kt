@@ -40,6 +40,11 @@ object IntrospectionHelper {
         val CLASS_NAME = ClassName("androidx.annotation", "RequiresApi")
     }
 
+    object AndroidEntryPointAnnotation {
+        val CLASS_NAME = ClassName("dagger.hilt.android", "AndroidEntryPoint")
+        const val PROPERTY_VALUE = "value"
+    }
+
     object AppFunctionAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_SERVICE_PACKAGE_NAME, "AppFunction")
         val CLASS_NAME_BASE = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunction")

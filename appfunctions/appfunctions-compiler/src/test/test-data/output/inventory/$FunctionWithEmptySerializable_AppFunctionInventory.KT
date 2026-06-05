@@ -17,7 +17,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * FunctionWithEmptySerializable.....kt
+ * FunctionWithEmptySerializable.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$FunctionWithEmptySerializable_AppFunctionInventory` : AppFunctionInventory {

@@ -17,7 +17,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * ParcelablePrimitiveFunctions.....kt
+ * ParcelablePrimitiveFunctions.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$ParcelablePrimitiveFunctions_AppFunctionInventory` : AppFunctionInventory {

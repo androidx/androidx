@@ -20,10 +20,10 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * AppFunctionWithInputFromDifferentPackage.....kt
- * DiffPackageSchemas.....kt
- * DiffPackageSerializable.....kt
- * AnotherDiffPackageSerializable.....kt
+ * AppFunctionWithInputFromDifferentPackage.kt
+ * DiffPackageSchemas.kt
+ * DiffPackageSerializable.kt
+ * AnotherDiffPackageSerializable.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$AppFunctionWithInputFromDifferentPackage_AppFunctionInventory` : AppFunctionInventory {

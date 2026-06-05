@@ -18,8 +18,8 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * RecursiveSerializableInputFunctions.....kt
- * RecursiveSerializable.....kt
+ * RecursiveSerializableInputFunctions.kt
+ * RecursiveSerializable.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$RecursiveSerializableInputFunctions_AppFunctionInventory` : AppFunctionInventory {

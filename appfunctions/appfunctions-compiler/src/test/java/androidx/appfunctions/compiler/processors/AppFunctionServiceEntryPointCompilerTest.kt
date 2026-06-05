@@ -111,7 +111,27 @@ class AppFunctionServiceEntryPointCompilerTest {
 
         compilationTestHelper.assertErrorWithMessage(
             report,
-            "lass must extend either " +
+            "Class must extend either " +
+                "androidx.appfunctions.AppFunctionService or " +
+                "androidx.appfunctions.ExtensionsAppFunctionService",
+        )
+    }
+
+    @Test
+    fun testHiltIncorrectSuperClass_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames =
+                    listOf(
+                        "entrypoints/invalid/HiltNonAppFunctionServiceEntryPoint.KT",
+                        "dagger/hilt/android/AndroidEntryPoint.JAVA",
+                    ),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            "Class must extend either " +
                 "androidx.appfunctions.AppFunctionService or " +
                 "androidx.appfunctions.ExtensionsAppFunctionService",
         )
@@ -157,6 +177,24 @@ class AppFunctionServiceEntryPointCompilerTest {
         compilationTestHelper.assertErrorWithMessage(
             report,
             "Class must have at least one AppFunction",
+        )
+    }
+
+    @Test
+    fun testHiltAppFunctionServiceEntryPoint_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames =
+                    listOf(
+                        "entrypoints/valid/HiltAppFunctionServiceEntryPoint.KT",
+                        "dagger/hilt/android/AndroidEntryPoint.JAVA",
+                    )
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "MyHiltAppFunctionServiceEntryPoint.kt",
+            goldenFileName = "entrypoints/MyHiltAppFunctionServiceEntryPoint.KT",
         )
     }
 }
