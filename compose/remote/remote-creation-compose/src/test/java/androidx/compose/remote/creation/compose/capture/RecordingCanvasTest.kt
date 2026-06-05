@@ -26,10 +26,10 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
@@ -465,7 +465,7 @@ class RecordingCanvasTest {
     fun testDrawToOffscreenBitmapBuffered() {
         val dummyBitmap =
             object :
-                RemoteBitmap(
+                RemoteImageBitmap(
                     null,
                     RemoteOperationCacheKey(DummyEnum.VALUE, emptyList<RemoteStateCacheKey>()),
                 ) {
@@ -497,7 +497,7 @@ class RecordingCanvasTest {
     fun testDrawToOffscreenBitmap_Nested_StateImbalance() {
         val outerBitmap =
             object :
-                RemoteBitmap(
+                RemoteImageBitmap(
                     null,
                     RemoteOperationCacheKey(DummyEnum.VALUE, emptyList<RemoteStateCacheKey>()),
                 ) {
@@ -510,7 +510,7 @@ class RecordingCanvasTest {
 
         val innerBitmap =
             object :
-                RemoteBitmap(
+                RemoteImageBitmap(
                     null,
                     RemoteOperationCacheKey(DummyEnum.VALUE, emptyList<RemoteStateCacheKey>()),
                 ) {
@@ -721,7 +721,7 @@ class RecordingCanvasTest {
 
     @Test
     fun testDrawBitmap_DoesNotDoubleBuffer() {
-        val bitmap = RemoteBitmap.createForId(42)
+        val bitmap = RemoteImageBitmap.createForId(42)
         recordingCanvas.drawBitmap(bitmap, null, android.graphics.Rect(0, 0, 10, 10), Paint())
 
         assertThat(fakeBuffer.calls).isEmpty()
@@ -737,7 +737,7 @@ class RecordingCanvasTest {
 
     @Test
     fun testDrawBitmap_RemoteFloat_DoesNotDoubleBuffer() {
-        val bitmap = RemoteBitmap.createForId(42)
+        val bitmap = RemoteImageBitmap.createForId(42)
         val left = RemoteFloat.createNamedRemoteFloat("left", 10f)
         val top = RemoteFloat.createNamedRemoteFloat("top", 20f)
         recordingCanvas.drawBitmap(bitmap, left, top, Paint())

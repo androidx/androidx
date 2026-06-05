@@ -42,11 +42,11 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.RemoteSweepShader
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -497,7 +497,7 @@ class RecordingCanvasTest {
             (HEIGHT - 20).rf,
             Paint().apply { color = Color.YELLOW },
         )
-        val bitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val bitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         recordingCanvas.drawToOffscreenBitmap(bitmap, Color.TRANSPARENT) {
             recordingCanvas.drawOval(
                 20.rf,
@@ -545,7 +545,7 @@ class RecordingCanvasTest {
             (HEIGHT - 20).rf,
             Paint().apply { color = Color.YELLOW },
         )
-        val bitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val bitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         recordingCanvas.drawToOffscreenBitmap(bitmap, Color.TRANSPARENT) {
             recordingCanvas.drawOval(
                 20.rf,
@@ -590,7 +590,7 @@ class RecordingCanvasTest {
         )
 
         // Create the outer offscreen bitmap.
-        val outerBitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val outerBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         recordingCanvas.drawToOffscreenBitmap(outerBitmap, Color.TRANSPARENT) {
             // Draw a blue background on the outer bitmap.
             recordingCanvas.drawRect(
@@ -604,7 +604,7 @@ class RecordingCanvasTest {
             recordingCanvas.save()
 
             // Create the inner (nested) offscreen bitmap.
-            val innerBitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH / 2, HEIGHT / 2)
+            val innerBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH / 2, HEIGHT / 2)
             recordingCanvas.drawToOffscreenBitmap(innerBitmap, Color.TRANSPARENT) {
                 // Draw a red circle in the inner bitmap.
                 recordingCanvas.drawOval(

@@ -25,11 +25,11 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
-class RemoteBitmapTest {
+class RemoteImageBitmapTest {
 
     @Test
     fun remoteBitmap_cacheKey() {
-        val bitmap = RemoteBitmap.createOffscreenRemoteBitmap(100, 100)
+        val bitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(100, 100)
 
         val cacheKey = bitmap.cacheKey
 
@@ -40,7 +40,7 @@ class RemoteBitmapTest {
     fun mutableRemoteBitmap_smokeTest() {
         val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
         val imageBitmap = bitmap.asImageBitmap()
-        val mutableBitmap = MutableRemoteBitmap(imageBitmap)
+        val mutableBitmap = MutableRemoteImageBitmap(imageBitmap)
         val constantValue = mutableBitmap.constantValueOrNull
 
         assertThat(constantValue).isEqualTo(imageBitmap)

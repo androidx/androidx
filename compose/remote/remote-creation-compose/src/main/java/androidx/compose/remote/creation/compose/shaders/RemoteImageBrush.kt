@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.shaders
 
@@ -22,8 +21,8 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
@@ -33,29 +32,10 @@ import androidx.compose.ui.graphics.TileMode as ComposeTileMode
 import androidx.compose.ui.graphics.toAndroidTileMode
 import androidx.compose.ui.layout.ContentScale
 
-/**
- * Creates a texture brush with a specified [bitmap].
- *
- * @param bitmap The [RemoteBitmap] to use
- * @param tileModeX The [ComposeTileMode] to use for the bitmap in the x-axis. Defaults to
- *   [ComposeTileMode.Clamp] to repeat the edge pixels
- * @param tileModeY The [ComposeTileMode] to use for the bitmap in the y-axis. Defaults to
- *   [ComposeTileMode.Clamp] to repeat the edge pixels
- * @param contentScale The [ContentScale] to use when scaling the bitmap.
- */
-@Stable
-public fun RemoteBrush.Companion.bitmap(
-    bitmap: RemoteBitmap,
-    tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
-    tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
-    contentScale: ContentScale = ContentScale.None,
-): RemoteBitmapBrush = RemoteBitmapBrush(bitmap, tileModeX, tileModeY, contentScale)
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteBitmapShader(
-    public var bitmap: RemoteBitmap,
-    public var tileModeX: ComposeTileMode,
-    public var tileModeY: ComposeTileMode,
+internal class RemoteImageShader(
+    public val bitmap: RemoteImageBitmap,
+    public val tileModeX: ComposeTileMode,
+    public val tileModeY: ComposeTileMode,
 ) : RemoteShader() {
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
         paintBundle.setTextureShader(
@@ -70,17 +50,17 @@ public class RemoteBitmapShader(
     override var remoteMatrix3x3: RemoteMatrix3x3? = null
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-public data class RemoteBitmapBrush(
-    public var bitmap: RemoteBitmap,
-    public var tileModeX: ComposeTileMode,
-    public var tileModeY: ComposeTileMode,
-    public var contentScale: ContentScale,
+internal data class RemoteImageBrush(
+    public val bitmap: RemoteImageBitmap,
+    public val tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
+    public val tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
+    public val contentScale: ContentScale = ContentScale.None,
 ) : RemoteBrush() {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
-        return RemoteBitmapShader(bitmap, tileModeX, tileModeY).apply {
+        return RemoteImageShader(bitmap, tileModeX, tileModeY).apply {
             remoteMatrix3x3 = createScaleMatrix(size)
         }
     }
@@ -137,3 +117,21 @@ public data class RemoteBitmapBrush(
             RemoteMatrix3x3.createScaleY(finalScaleY)
     }
 }
+
+/**
+ * Creates a texture brush with a specified [image].
+ *
+ * @param image The [RemoteImageBitmap] to use
+ * @param tileModeX The [ComposeTileMode] to use for the bitmap in the x-axis. Defaults to
+ *   [ComposeTileMode.Clamp] to repeat the edge pixels
+ * @param tileModeY The [ComposeTileMode] to use for the bitmap in the y-axis. Defaults to
+ *   [ComposeTileMode.Clamp] to repeat the edge pixels
+ * @param contentScale The [ContentScale] to use when scaling the bitmap.
+ */
+@Stable
+public fun RemoteBrush.Companion.image(
+    image: RemoteImageBitmap,
+    tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
+    tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
+    contentScale: ContentScale = ContentScale.None,
+): RemoteBrush = RemoteImageBrush(image, tileModeX, tileModeY, contentScale)

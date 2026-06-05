@@ -23,9 +23,9 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -410,7 +410,7 @@ public class RemoteCanvas(
 
     /** Draws a bitmap at ([left], [top]) using the specified [paint]. */
     public fun drawBitmap(
-        bitmap: RemoteBitmap,
+        bitmap: RemoteImageBitmap,
         left: RemoteFloat,
         top: RemoteFloat,
         paint: RemotePaint? = null,
@@ -424,7 +424,7 @@ public class RemoteCanvas(
 
     /** Draws a bitmap scaled to the destination rectangle. */
     public fun drawScaledBitmap(
-        bitmap: RemoteBitmap,
+        bitmap: RemoteImageBitmap,
         srcLeft: RemoteFloat,
         srcTop: RemoteFloat,
         srcRight: RemoteFloat,
@@ -555,7 +555,7 @@ public class RemoteCanvas(
     }
 
     /** Instructs the player to draw [drawCommands] into [bitmap]. */
-    public fun drawToOffscreenBitmap(bitmap: RemoteBitmap, drawCommands: () -> Unit) {
+    public fun drawToOffscreenBitmap(bitmap: RemoteImageBitmap, drawCommands: () -> Unit) {
         val bitmapId = bitmap.id
         val lastDrawToBitmapId = internalCanvas.currentDrawToBitmapId
         val childSpan = internalCanvas.buffer.createChildSpan()
@@ -582,7 +582,7 @@ public class RemoteCanvas(
      * [clearColor] before any [drawCommands] are processed.
      */
     public fun drawToOffscreenBitmap(
-        bitmap: RemoteBitmap,
+        bitmap: RemoteImageBitmap,
         @androidx.annotation.ColorInt clearColor: Int,
         drawCommands: () -> Unit,
     ) {
