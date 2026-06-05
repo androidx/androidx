@@ -83,23 +83,23 @@ class RemoteStateTest {
     }
 
     @Test
-    fun cachesRemoteBitmap() = runTest {
+    fun cachesRemoteImageBitmap() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
                 val blue =
-                    rememberNamedRemoteBitmap("blue") {
+                    rememberNamedRemoteImageBitmap("blue") {
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                             .apply { setPixel(0, 0, Color.Blue.toArgb()) }
                             .asImageBitmap()
                     }
                 val red =
-                    rememberNamedRemoteBitmap("red") {
+                    rememberNamedRemoteImageBitmap("red") {
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                             .apply { setPixel(0, 0, Color.Red.toArgb()) }
                             .asImageBitmap()
                     }
                 val blue2 =
-                    rememberNamedRemoteBitmap("blue", url = "https://example.org/favicon.ico")
+                    rememberNamedRemoteImageBitmap("blue", url = "https://example.org/favicon.ico")
 
                 AssertSameSameDifferent(blue, blue2, red)
             }

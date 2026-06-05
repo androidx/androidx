@@ -20,9 +20,9 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -152,7 +152,7 @@ internal constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawImage(
-        image: RemoteBitmap,
+        image: RemoteImageBitmap,
         topLeft: RemoteOffset = RemoteOffset.Zero,
         paint: RemotePaint? = RemotePaint(),
     ) {
@@ -163,7 +163,7 @@ internal constructor(
     /** Draws a bitmap scaled to the destination rectangle. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawScaledBitmap(
-        image: RemoteBitmap,
+        image: RemoteImageBitmap,
         srcOffset: RemoteOffset = RemoteOffset.Zero,
         srcSize: RemoteSize = RemoteSize(image.width, image.height),
         dstOffset: RemoteOffset = RemoteOffset.Zero,
@@ -381,7 +381,7 @@ internal constructor(
 
     /** Draws into an offscreen bitmap and executes [body]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun drawToOffscreenBitmap(bitmap: RemoteBitmap, body: RemoteDrawScope.() -> Unit) {
+    public fun drawToOffscreenBitmap(bitmap: RemoteImageBitmap, body: RemoteDrawScope.() -> Unit) {
         remoteCanvas.drawToOffscreenBitmap(bitmap) { this.body() }
     }
 

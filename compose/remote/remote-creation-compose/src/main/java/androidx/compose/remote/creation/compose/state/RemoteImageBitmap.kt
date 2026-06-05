@@ -29,10 +29,10 @@ import androidx.compose.ui.graphics.asAndroidBitmap
  * Abstract base class for all remote bitmap representations in Compose Remote, this class extends
  * [RemoteState<ImageBitmap>].
  *
- * `RemoteBitmap` represents an image value that can be a constant, a named variable, or an
+ * `RemoteImageBitmap` represents an image value that can be a constant, a named variable, or an
  * offscreen buffer.
  */
-public abstract class RemoteBitmap
+public abstract class RemoteImageBitmap
 internal constructor(
     public override val constantValueOrNull: ImageBitmap?,
     cacheKey: RemoteStateCacheKey,
@@ -78,46 +78,48 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
-         * Creates a [RemoteBitmap] instance from a [ImageBitmap] value. This factory method can be
-         * used with or without an explicit [RemoteComposeCreationState].
+         * Creates a [RemoteImageBitmap] instance from a [ImageBitmap] value. This factory method
+         * can be used with or without an explicit [RemoteComposeCreationState].
          *
          * @param value The [ImageBitmap] value.
-         * @return A [RemoteBitmap] representing the provided bitmap.
+         * @return A [RemoteImageBitmap] representing the provided bitmap.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public operator fun invoke(value: ImageBitmap): MutableRemoteBitmap {
-            return MutableRemoteBitmap(value, cacheKey = RemoteConstantCacheKey(value)) {
+        public operator fun invoke(value: ImageBitmap): MutableRemoteImageBitmap {
+            return MutableRemoteImageBitmap(value, cacheKey = RemoteConstantCacheKey(value)) {
                 creationState ->
                 creationState.document.addBitmap(value.asAndroidBitmap())
             }
         }
 
         /**
-         * Creates a [RemoteBitmap] referencing a remote ID.
+         * Creates a [RemoteImageBitmap] referencing a remote ID.
          *
          * @param id The remote ID.
-         * @return A [RemoteBitmap] referencing the ID.
+         * @return A [RemoteImageBitmap] referencing the ID.
          */
-        internal fun createForId(id: Int): RemoteBitmap =
-            MutableRemoteBitmap(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id)) { id }
+        internal fun createForId(id: Int): RemoteImageBitmap =
+            MutableRemoteImageBitmap(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id)) {
+                id
+            }
 
         /**
-         * Creates a named [RemoteBitmap] with an initial value.
+         * Creates a named [RemoteImageBitmap] with an initial value.
          *
          * Named remote bitmaps can be set via AndroidRemoteContext.setNamedBitmap.
          *
          * @param name A unique name to identify this state within its [domain].
          * @param defaultValue The initial [ImageBitmap] value for the named remote bitmap.
          * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
-         * @return A [RemoteBitmap] representing the named bitmap.
+         * @return A [RemoteImageBitmap] representing the named bitmap.
          */
         @JvmStatic
-        public fun createNamedRemoteBitmap(
+        public fun createNamedRemoteImageBitmap(
             name: String,
             defaultValue: ImageBitmap,
             domain: RemoteState.Domain = RemoteState.Domain.User,
-        ): RemoteBitmap =
-            MutableRemoteBitmap(
+        ): RemoteImageBitmap =
+            MutableRemoteImageBitmap(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
@@ -128,15 +130,15 @@ internal constructor(
             }
 
         /**
-         * Creates a [RemoteBitmap] with the specified [width] and [height].
+         * Creates a [RemoteImageBitmap] with the specified [width] and [height].
          *
-         * @param width The width of the [RemoteBitmap] to create
-         * @param height The height of the [RemoteBitmap] to create
-         * @return A [RemoteBitmap] with the specified [width] and [height].
+         * @param width The width of the [RemoteImageBitmap] to create
+         * @param height The height of the [RemoteImageBitmap] to create
+         * @return A [RemoteImageBitmap] with the specified [width] and [height].
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun createOffscreenRemoteBitmap(width: Int, height: Int): RemoteBitmap =
-            object : RemoteBitmap(null, RemoteStateInstanceKey()) {
+        public fun createOffscreenRemoteBitmap(width: Int, height: Int): RemoteImageBitmap =
+            object : RemoteImageBitmap(null, RemoteStateInstanceKey()) {
                 public override val constantValueOrNull: ImageBitmap? = null
 
                 public override fun writeToDocument(
@@ -146,14 +148,16 @@ internal constructor(
     }
 }
 
-/** A mutable implementation of [RemoteBitmap] that holds its value in a [MutableState<Bitmap>]. */
-public class MutableRemoteBitmap
+/**
+ * A mutable implementation of [RemoteImageBitmap] that holds its value in a [MutableState<Bitmap>].
+ */
+public class MutableRemoteImageBitmap
 internal constructor(
     constantValueOrNull: ImageBitmap?,
     cacheKey: RemoteStateCacheKey?,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) :
-    RemoteBitmap(constantValueOrNull, cacheKey ?: RemoteStateInstanceKey()),
+    RemoteImageBitmap(constantValueOrNull, cacheKey ?: RemoteStateInstanceKey()),
     MutableRemoteState<ImageBitmap> {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -165,10 +169,10 @@ internal constructor(
          * Creates a new mutable state (allocates an ID).
          *
          * @param initialValue The initial value for the state.
-         * @return A new [MutableRemoteBitmap] instance.
+         * @return A new [MutableRemoteImageBitmap] instance.
          */
-        public operator fun invoke(initialValue: ImageBitmap): MutableRemoteBitmap {
-            return MutableRemoteBitmap(initialValue, cacheKey = RemoteStateInstanceKey()) {
+        public operator fun invoke(initialValue: ImageBitmap): MutableRemoteImageBitmap {
+            return MutableRemoteImageBitmap(initialValue, cacheKey = RemoteStateInstanceKey()) {
                 creationState ->
                 creationState.document.addBitmap(initialValue.asAndroidBitmap())
             }
@@ -178,10 +182,12 @@ internal constructor(
          * Maps an existing mutable ID to a state instance.
          *
          * @param id The existing mutable ID.
-         * @return A [MutableRemoteBitmap] instance mapping to the ID.
+         * @return A [MutableRemoteImageBitmap] instance mapping to the ID.
          */
-        internal fun createMutableForId(id: Int): MutableRemoteBitmap =
-            MutableRemoteBitmap(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id)) { id }
+        internal fun createMutableForId(id: Int): MutableRemoteImageBitmap =
+            MutableRemoteImageBitmap(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id)) {
+                id
+            }
     }
 }
 
@@ -189,13 +195,13 @@ internal constructor(
  * Factory for mutable remote bitmap state.
  *
  * @param initialValue The initial [ImageBitmap] value.
- * @return A [MutableRemoteBitmap] instance that will be remembered across recompositions.
+ * @return A [MutableRemoteImageBitmap] instance that will be remembered across recompositions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-public fun rememberMutableRemoteBitmap(initialValue: ImageBitmap): MutableRemoteBitmap {
+public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteImageBitmap {
     return remember {
-        MutableRemoteBitmap(constantValueOrNull = null, cacheKey = RemoteStateInstanceKey()) {
+        MutableRemoteImageBitmap(constantValueOrNull = null, cacheKey = RemoteStateInstanceKey()) {
             creationState ->
             creationState.document.addBitmap(initialValue.asAndroidBitmap())
         }
@@ -207,18 +213,18 @@ public fun rememberMutableRemoteBitmap(initialValue: ImageBitmap): MutableRemote
  *
  * @param name The unique name for this remote bitmap.
  * @param domain The domain of the named bitmap (defaults to [RemoteState.Domain.User]).
- * @param value A lambda that provides the [RemoteBitmap] expression.
- * @return A [RemoteBitmap] representing the named remote bitmap expression.
+ * @param value A lambda that provides the [RemoteImageBitmap] expression.
+ * @return A [RemoteImageBitmap] representing the named remote bitmap expression.
  */
 @Composable
-public fun rememberNamedRemoteBitmap(
+public fun rememberNamedRemoteImageBitmap(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> ImageBitmap,
-): RemoteBitmap {
+): RemoteImageBitmap {
     return rememberNamedState(name, domain) {
         val bitmap = value()
-        MutableRemoteBitmap(
+        MutableRemoteImageBitmap(
             constantValueOrNull = null,
             cacheKey = RemoteNamedCacheKey(domain, name),
         ) { creationState ->
@@ -229,16 +235,16 @@ public fun rememberNamedRemoteBitmap(
 
 /** A Composable function to remember and provide a **named** remote bitmap from a URL. */
 @Composable
-public fun rememberNamedRemoteBitmap(
+public fun rememberNamedRemoteImageBitmap(
     name: String,
     url: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteBitmap {
+): RemoteImageBitmap {
     return rememberNamedState(name, domain) {
         // We create a bitmap of the specified dimensions as a placeholder. The actual bitmap will
         // be loaded from the URL on the remote side. Providing accurate dimensions can prevent
         // unnecessary relayouts.
-        MutableRemoteBitmap(
+        MutableRemoteImageBitmap(
             constantValueOrNull = null,
             cacheKey = RemoteNamedCacheKey(domain, name),
         ) { creationState ->
@@ -247,10 +253,10 @@ public fun rememberNamedRemoteBitmap(
     }
 }
 
-/** Extension property to convert a [ImageBitmap] to a [RemoteBitmap]. */
-public val ImageBitmap.rb: RemoteBitmap
+/** Extension property to convert a [ImageBitmap] to a [RemoteImageBitmap]. */
+public val ImageBitmap.rb: RemoteImageBitmap
     get() {
-        return MutableRemoteBitmap(
+        return MutableRemoteImageBitmap(
             constantValueOrNull = this,
             cacheKey = RemoteConstantCacheKey(this),
         ) { creationState ->

@@ -255,8 +255,8 @@ package androidx.compose.remote.creation.compose.layout {
   }
 
   public final class RemoteImageKt {
-    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteImage(androidx.compose.remote.creation.compose.state.RemoteBitmap remoteBitmap, androidx.compose.remote.creation.compose.state.RemoteString? contentDescription, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.ui.layout.ContentScale contentScale, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
-    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteImage(androidx.compose.remote.creation.compose.state.RemoteBitmap, androidx.compose.remote.creation.compose.state.RemoteString?, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.ui.layout.ContentScale?, androidx.compose.remote.creation.compose.state.RemoteFloat?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteImage(androidx.compose.remote.creation.compose.state.RemoteImageBitmap remoteBitmap, androidx.compose.remote.creation.compose.state.RemoteString? contentDescription, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.ui.layout.ContentScale contentScale, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteImage(androidx.compose.remote.creation.compose.state.RemoteImageBitmap, androidx.compose.remote.creation.compose.state.RemoteString?, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.ui.layout.ContentScale?, androidx.compose.remote.creation.compose.state.RemoteFloat?, androidx.compose.runtime.Composer?, int, int);
   }
 
   public final class RemoteOffset {
@@ -521,12 +521,12 @@ package androidx.compose.remote.creation.compose.modifier {
 
 package androidx.compose.remote.creation.compose.painter {
 
-  public final class RemoteBitmapPainterKt {
-    method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteBitmap(androidx.compose.remote.creation.compose.state.RemoteBitmap image);
-  }
-
   public final class RemoteColorPainterKt {
     method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor color);
+  }
+
+  public final class RemoteImageBitmapPainterKt {
+    method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteImageBitmap(androidx.compose.remote.creation.compose.state.RemoteImageBitmap image);
   }
 
   public abstract class RemotePainter {
@@ -550,6 +550,12 @@ package androidx.compose.remote.creation.compose.shaders {
   }
 
   public static final class RemoteBrush.Companion {
+  }
+
+  public final class RemoteImageBrushKt {
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shaders.RemoteBrush image(androidx.compose.remote.creation.compose.shaders.RemoteBrush.Companion, androidx.compose.remote.creation.compose.state.RemoteImageBitmap image, optional androidx.compose.ui.graphics.TileMode tileModeX, optional androidx.compose.ui.graphics.TileMode tileModeY, optional androidx.compose.ui.layout.ContentScale contentScale);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shaders.RemoteBrush image-nsIUJo0(androidx.compose.remote.creation.compose.shaders.RemoteBrush.Companion, androidx.compose.remote.creation.compose.state.RemoteImageBitmap, int, int, androidx.compose.ui.layout.ContentScale);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shaders.RemoteBrush! image-nsIUJo0$default(androidx.compose.remote.creation.compose.shaders.RemoteBrush.Companion!, androidx.compose.remote.creation.compose.state.RemoteImageBitmap!, int, int, androidx.compose.ui.layout.ContentScale!, int, Object!);
   }
 
   public final class RemoteLinearGradientKt {
@@ -620,14 +626,6 @@ package androidx.compose.remote.creation.compose.state {
     property public abstract T? constantValueOrNull;
   }
 
-  public final class MutableRemoteBitmap extends androidx.compose.remote.creation.compose.state.RemoteBitmap implements androidx.compose.remote.creation.compose.state.MutableRemoteState<androidx.compose.ui.graphics.ImageBitmap> {
-    field public static final androidx.compose.remote.creation.compose.state.MutableRemoteBitmap.Companion Companion;
-  }
-
-  public static final class MutableRemoteBitmap.Companion {
-    method public operator androidx.compose.remote.creation.compose.state.MutableRemoteBitmap invoke(androidx.compose.ui.graphics.ImageBitmap initialValue);
-  }
-
   public final class MutableRemoteBoolean extends androidx.compose.remote.creation.compose.state.RemoteBoolean implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Boolean> {
     property public Boolean? constantValueOrNull;
     field public static final androidx.compose.remote.creation.compose.state.MutableRemoteBoolean.Companion Companion;
@@ -655,6 +653,14 @@ package androidx.compose.remote.creation.compose.state {
 
   public static final class MutableRemoteFloat.Companion {
     method public operator androidx.compose.remote.creation.compose.state.MutableRemoteFloat invoke(float initialValue);
+  }
+
+  public final class MutableRemoteImageBitmap extends androidx.compose.remote.creation.compose.state.RemoteImageBitmap implements androidx.compose.remote.creation.compose.state.MutableRemoteState<androidx.compose.ui.graphics.ImageBitmap> {
+    field public static final androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap.Companion Companion;
+  }
+
+  public static final class MutableRemoteImageBitmap.Companion {
+    method public operator androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap invoke(androidx.compose.ui.graphics.ImageBitmap initialValue);
   }
 
   public final class MutableRemoteInt extends androidx.compose.remote.creation.compose.state.RemoteInt implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Integer> {
@@ -686,25 +692,6 @@ package androidx.compose.remote.creation.compose.state {
 
   public static final class MutableRemoteString.Companion {
     method public operator androidx.compose.remote.creation.compose.state.MutableRemoteString invoke(String initialValue);
-  }
-
-  public abstract class RemoteBitmap extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.graphics.ImageBitmap> {
-    method public static final androidx.compose.remote.creation.compose.state.RemoteBitmap createNamedRemoteBitmap(String name, androidx.compose.ui.graphics.ImageBitmap defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ImageBitmap? getConstantValueOrNull();
-    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
-    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getWidth();
-    property public androidx.compose.ui.graphics.ImageBitmap? constantValueOrNull;
-    property public final androidx.compose.remote.creation.compose.state.RemoteFloat height;
-    property public final androidx.compose.remote.creation.compose.state.RemoteFloat width;
-  }
-
-  public final class RemoteBitmapKt {
-    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteBitmap getRb(androidx.compose.ui.graphics.ImageBitmap);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteBitmap rememberNamedRemoteBitmap(String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteBitmap rememberNamedRemoteBitmap(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.ImageBitmap> value);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteBitmap rememberNamedRemoteBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteBitmap rememberNamedRemoteBitmap(String, String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
-    property public static androidx.compose.remote.creation.compose.state.RemoteBitmap androidx.compose.ui.graphics.ImageBitmap.rb;
   }
 
   public class RemoteBoolean extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Boolean> {
@@ -905,6 +892,25 @@ package androidx.compose.remote.creation.compose.state {
     method public static androidx.compose.remote.creation.compose.state.RemoteFloat tan(androidx.compose.remote.creation.compose.state.RemoteFloat a);
     method public static androidx.compose.remote.creation.compose.state.RemoteFloat toDeg(androidx.compose.remote.creation.compose.state.RemoteFloat a);
     method public static androidx.compose.remote.creation.compose.state.RemoteFloat toRad(androidx.compose.remote.creation.compose.state.RemoteFloat a);
+  }
+
+  public abstract class RemoteImageBitmap extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.graphics.ImageBitmap> {
+    method public static final androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, androidx.compose.ui.graphics.ImageBitmap defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ImageBitmap? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getWidth();
+    property public androidx.compose.ui.graphics.ImageBitmap? constantValueOrNull;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat height;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat width;
+  }
+
+  public final class RemoteImageBitmapKt {
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap getRb(androidx.compose.ui.graphics.ImageBitmap);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.ImageBitmap> value);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String, String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
+    property public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap androidx.compose.ui.graphics.ImageBitmap.rb;
   }
 
   @androidx.compose.runtime.Stable public abstract class RemoteInt extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Integer> {

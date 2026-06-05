@@ -34,11 +34,11 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -469,7 +469,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     }
 
     public fun drawBitmap(
-        bitmap: RemoteBitmap,
+        bitmap: RemoteImageBitmap,
         left: RemoteFloat,
         top: RemoteFloat,
         paint: Paint?,
@@ -501,7 +501,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         drawBitmap(bitmap.asImageBitmap(), src, dst, paint)
     }
 
-    public fun drawBitmap(bitmap: RemoteBitmap, src: Rect?, dst: Rect, paint: Paint?) {
+    public fun drawBitmap(bitmap: RemoteImageBitmap, src: Rect?, dst: Rect, paint: Paint?) {
         val left = dst.left.toFloat()
         val top = dst.top.toFloat()
         val right = dst.right.toFloat()
@@ -1354,9 +1354,9 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     }
 
     /**
-     * Draws a scaled portion of a [RemoteBitmap] into a destination rectangle.
+     * Draws a scaled portion of a [RemoteImageBitmap] into a destination rectangle.
      *
-     * @param image The [RemoteBitmap] to draw.
+     * @param image The [RemoteImageBitmap] to draw.
      * @param srcLeft The left coordinate of the source rectangle in the image.
      * @param srcTop The top coordinate of the source rectangle in the image.
      * @param srcRight The right coordinate of the source rectangle in the image.
@@ -1370,7 +1370,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param contentDescription An optional content description for accessibility.
      */
     public fun drawScaledBitmap(
-        image: RemoteBitmap,
+        image: RemoteImageBitmap,
         srcLeft: RemoteFloat,
         srcTop: RemoteFloat,
         srcRight: RemoteFloat,
@@ -1521,10 +1521,11 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
     /**
      * Instructs the player to draw [drawCommands] into [bitmap].
      *
-     * @param bitmap The [RemoteBitmap] to draw to.
-     * @param drawCommands The commands the player will execute in the offscreen buffer.
+     * @param bitmap The [RemoteImageBitmap] to draw to.
+     * @param drawCommands The commands the player will execute in the offscreen buffer. Profiler
+     *   hooks will be executed.
      */
-    public fun drawToOffscreenBitmap(bitmap: RemoteBitmap, drawCommands: () -> Unit) {
+    public fun drawToOffscreenBitmap(bitmap: RemoteImageBitmap, drawCommands: () -> Unit) {
         val bitmapId = bitmap.getIdForCreationState(creationState)
         val lastDrawToBitmapId = currentDrawToBitmapId
         val childSpan = recordInChildSpan {
@@ -1550,12 +1551,12 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * Instructs the player to draw [drawCommands] into [bitmap] which will be cleared with
      * [clearColor] before any [drawCommands] are processed.
      *
-     * @param bitmap The [RemoteBitmap] to draw to.
+     * @param bitmap The [RemoteImageBitmap] to draw to.
      * @param clearColor The color the created offscreen bitmap will be cleared with.
      * @param drawCommands The commands the player will execute in the offscreen buffer.
      */
     public fun drawToOffscreenBitmap(
-        bitmap: RemoteBitmap,
+        bitmap: RemoteImageBitmap,
         @ColorInt clearColor: Int,
         drawCommands: () -> Unit,
     ) {

@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
@@ -33,7 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 
 internal class RemoteImageNode : RemoteComposeNode() {
     var image: Any? = null
-    var remoteBitmap: RemoteBitmap? = null
+    var remoteBitmap: RemoteImageBitmap? = null
     var contentScale: ContentScale = ContentScale.Fit
     var alpha: RemoteFloat = RemoteFloat(1f)
     var contentDescription: RemoteString? = null
@@ -78,10 +78,10 @@ public fun RemoteImage(
 }
 
 /**
- * A composable that lays out and draws a given [RemoteBitmap]. This is the remote equivalent of
- * [androidx.compose.foundation.Image].
+ * A composable that lays out and draws a given [RemoteImageBitmap]. This is the remote equivalent
+ * of [androidx.compose.foundation.Image].
  *
- * @param remoteBitmap the [RemoteBitmap] to be drawn.
+ * @param remoteBitmap the [RemoteImageBitmap] to be drawn.
  * @param contentDescription the Text used by accessibility services to describe what this image
  *   represents.
  * @param modifier the [RemoteModifier] to be applied to this layout node.
@@ -92,7 +92,7 @@ public fun RemoteImage(
 @Composable
 @RemoteComposable
 public fun RemoteImage(
-    remoteBitmap: RemoteBitmap,
+    remoteBitmap: RemoteImageBitmap,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
     contentScale: ContentScale = ContentScale.Fit,

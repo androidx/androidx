@@ -25,7 +25,7 @@ import androidx.compose.remote.creation.compose.capture.createCreationDisplayInf
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBitmap
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.test.R
@@ -74,7 +74,7 @@ class RemoteImageTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val avatarImage =
-                rememberNamedRemoteBitmap(name = "avatarImage") {
+                rememberNamedRemoteImageBitmap(name = "avatarImage") {
                     createImage(size, size).asImageBitmap()
                 }
             RemoteImage(
@@ -96,7 +96,7 @@ class RemoteImageTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val backgroundImage =
-                rememberNamedRemoteBitmap(name = "backgroundImage") {
+                rememberNamedRemoteImageBitmap(name = "backgroundImage") {
                     createImage(size, size).asImageBitmap()
                 }
             RemoteImage(
@@ -119,7 +119,7 @@ class RemoteImageTest {
         ) {
             // Without PlayerState API, will be blank
             val dummyImage =
-                rememberNamedRemoteBitmap(
+                rememberNamedRemoteImageBitmap(
                     name = "dummy",
                     url = "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                 )
@@ -163,7 +163,7 @@ class RemoteImageTest {
                     createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat()))
             ) {
                 val dummyImage =
-                    rememberNamedRemoteBitmap(
+                    rememberNamedRemoteImageBitmap(
                         name = "dummy",
                         url = "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                     )
