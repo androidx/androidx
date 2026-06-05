@@ -40,7 +40,7 @@ public class PrerenderParametersTest {
         PrerenderParameters parameters = builder.build();
 
         assertTrue(parameters.getAdditionalHeaders().isEmpty());
-        assertNull(parameters.getExpectedNoVarySearchData());
+        assertNull(parameters.getExpectedNoVarySearchHeader());
         assertNull(parameters.getVariationsId());
     }
 
@@ -52,14 +52,14 @@ public class PrerenderParametersTest {
         builder.addAdditionalHeader("key1", "value1");
         builder.setVariationsId(123);
         NoVarySearchHeader noVarySearchHeader = NoVarySearchHeader.neverVaryHeader();
-        builder.setExpectedNoVarySearchData(noVarySearchHeader);
+        builder.setExpectedNoVarySearchHeader(noVarySearchHeader);
 
         PrerenderParameters parameters = builder.build();
 
         assertEquals(1, parameters.getAdditionalHeaders().size());
         assertEquals("value1", parameters.getAdditionalHeaders().get("key1"));
         assertEquals(Integer.valueOf(123), parameters.getVariationsId());
-        assertEquals(noVarySearchHeader, parameters.getExpectedNoVarySearchData());
+        assertEquals(noVarySearchHeader, parameters.getExpectedNoVarySearchHeader());
     }
 
     @Test
