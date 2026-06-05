@@ -27,9 +27,8 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
-import androidx.xr.runtime.internal.ApkNotInstalledException
 import androidx.xr.runtime.internal.JxrRuntime
-import androidx.xr.runtime.internal.UnsupportedDeviceException
+import androidx.xr.runtime.testing.SessionTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertFailsWith
@@ -45,6 +44,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -57,6 +57,7 @@ class SessionTest {
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
     private lateinit var testDispatcher: TestDispatcher
+    @Rule @JvmField val sessionTestRule = SessionTestRule()
 
     @Before
     fun setUp() {
@@ -179,8 +180,7 @@ class SessionTest {
 
     @Test
     fun create_arcoreNotInstalledException_returnsApkRequiredResult() {
-        StubPerceptionRuntimeFactory.lifecycleCreateException =
-            ApkNotInstalledException(ARCORE_PACKAGE_NAME)
+        sessionTestRule.createResult = SessionCreateApkRequired(ARCORE_PACKAGE_NAME)
         activityController.create()
 
         val result = Session.create(context = activity)
@@ -191,7 +191,7 @@ class SessionTest {
 
     @Test
     fun create_arcoreUnsupportedDeviceException_returnsUnsupportedDeviceResult() {
-        StubPerceptionRuntimeFactory.lifecycleCreateException = UnsupportedDeviceException()
+        sessionTestRule.createResult = SessionCreateUnsupportedDevice()
         activityController.create()
 
         val result = Session.create(context = activity)
@@ -354,6 +354,35 @@ class SessionTest {
             )
         }
         assertThat(underTest.config).isEqualTo(currentConfig)
+    }
+
+    @Test
+    fun configure_faceTrackingNotCalibrated_returnsSessionConfigureCalibrationRequire() {
+        sessionTestRule.configureResult =
+            SessionConfigureCalibrationRequired(
+                RequiredCalibrationType.REQUIRED_CALIBRATION_TYPE_FACE_TRACKING
+            )
+        activityController.create().start().resume()
+        underTest = createSession()
+
+        val result = underTest.configure(Config.Builder().build())
+
+        assertThat(result).isInstanceOf(SessionConfigureCalibrationRequired::class.java)
+        assertThat((result as SessionConfigureCalibrationRequired).calibrationType)
+            .isEqualTo(RequiredCalibrationType.REQUIRED_CALIBRATION_TYPE_FACE_TRACKING)
+    }
+
+    @Test
+    fun configure_missingDependency_returnsSessionConfigureLibraryNotLinked() {
+        activityController.create().start().resume()
+        underTest = createSession()
+        sessionTestRule.configureResult = SessionConfigureLibraryNotLinked(ARCORE_PACKAGE_NAME)
+
+        val result = underTest.configure(Config.Builder().build())
+
+        assertThat(result).isInstanceOf(SessionConfigureLibraryNotLinked::class.java)
+        assertThat((result as SessionConfigureLibraryNotLinked).libraryName)
+            .isEqualTo(ARCORE_PACKAGE_NAME)
     }
 
     @Test
