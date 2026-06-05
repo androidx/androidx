@@ -196,6 +196,186 @@ class GlanceWearWidgetManagerTest {
             )
         verify(widgetCache).update(any())
     }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun fetchActiveWidgets_whenCacheEmpty_withAssociateWithGlanceWearWidget_doesNotInstantiateService() =
+        runTest {
+            val componentAnnotated = ComponentName(context, AnnotatedWidgetService::class.java)
+            val tileProviderAnnotated: TileProvider = mock {
+                on { componentName } doReturn componentAnnotated
+                on { containerType } doReturn TilesManager.WIDGET_CONTAINER_TYPE_LARGE
+            }
+            val tileInstanceAnnotated: TileInstance = mock {
+                on { tileProvider } doReturn tileProviderAnnotated
+                on { id } doReturn 3
+            }
+
+            whenever(tilesManager.getActiveTiles(any(), any())).thenAnswer { invocationOnMock ->
+                val executor = invocationOnMock.getArgument<Executor>(0)
+                val outcomeReceiver =
+                    invocationOnMock.getArgument<OutcomeReceiver<List<TileInstance>, Exception>>(1)
+                executor.execute { outcomeReceiver.onResult(listOf(tileInstanceAnnotated)) }
+            }
+            whenever(widgetCache.getServiceToWidgetMapping()).thenReturn(emptyMap())
+
+            // Mock PackageManager to list our service in queries.
+            val shadowPackageManager = Shadows.shadowOf(context.packageManager)
+            val filter = IntentFilter(WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER)
+            shadowPackageManager.addServiceIfNotPresent(componentAnnotated)
+            shadowPackageManager.addIntentFilterForService(componentAnnotated, filter)
+
+            val widgets = widgetManager.fetchActiveWidgets(TestWidget3::class)
+
+            assertThat(widgets)
+                .containsExactly(
+                    ActiveWearWidgetHandle(
+                        provider = componentAnnotated,
+                        instanceId =
+                            WidgetInstanceId(WidgetInstanceId.WIDGET_CAROUSEL_NAMESPACE, 3),
+                        containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                    )
+                )
+            verify(widgetCache).update(any())
+        }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun fetchActiveWidgets_withClassArg_whenClassMismatches_returnsEmpty() = runTest {
+        val componentAnnotated = ComponentName(context, AnnotatedWidgetService::class.java)
+        val tileProviderAnnotated: TileProvider = mock {
+            on { componentName } doReturn componentAnnotated
+            on { containerType } doReturn TilesManager.WIDGET_CONTAINER_TYPE_LARGE
+        }
+        val tileInstanceAnnotated: TileInstance = mock {
+            on { tileProvider } doReturn tileProviderAnnotated
+            on { id } doReturn 3
+        }
+
+        whenever(tilesManager.getActiveTiles(any(), any())).thenAnswer { invocationOnMock ->
+            val executor = invocationOnMock.getArgument<Executor>(0)
+            val outcomeReceiver =
+                invocationOnMock.getArgument<OutcomeReceiver<List<TileInstance>, Exception>>(1)
+            executor.execute { outcomeReceiver.onResult(listOf(tileInstanceAnnotated)) }
+        }
+        whenever(widgetCache.getServiceToWidgetMapping()).thenReturn(emptyMap())
+
+        // Mock PackageManager to list our service in queries.
+        val shadowPackageManager = Shadows.shadowOf(context.packageManager)
+        val filter = IntentFilter(WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER)
+        shadowPackageManager.addServiceIfNotPresent(componentAnnotated)
+        shadowPackageManager.addIntentFilterForService(componentAnnotated, filter)
+
+        // Query with TestWidget1 (a mismatch with the annotation which points to TestWidget3)
+        val widgets = widgetManager.fetchActiveWidgets(TestWidget1::class)
+
+        // It should return empty because the actual mapped widget class is TestWidget3
+        assertThat(widgets).isEmpty()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun fetchActiveWidgets_whenFallbackThrowsUninitializedPropertyAccess_ignoresServiceSafely() =
+        runTest {
+            val componentUninitialized =
+                ComponentName(context, UninitializedWidgetService::class.java)
+            val tileProviderUninitialized: TileProvider = mock {
+                on { componentName } doReturn componentUninitialized
+                on { containerType } doReturn TilesManager.WIDGET_CONTAINER_TYPE_LARGE
+            }
+            val tileInstanceUninitialized: TileInstance = mock {
+                on { tileProvider } doReturn tileProviderUninitialized
+                on { id } doReturn 4
+            }
+
+            whenever(tilesManager.getActiveTiles(any(), any())).thenAnswer { invocationOnMock ->
+                val executor = invocationOnMock.getArgument<Executor>(0)
+                val outcomeReceiver =
+                    invocationOnMock.getArgument<OutcomeReceiver<List<TileInstance>, Exception>>(1)
+                executor.execute { outcomeReceiver.onResult(listOf(tileInstanceUninitialized)) }
+            }
+            whenever(widgetCache.getServiceToWidgetMapping()).thenReturn(emptyMap())
+
+            // Mock PackageManager to list our service in queries.
+            val shadowPackageManager = Shadows.shadowOf(context.packageManager)
+            val filter = IntentFilter(WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER)
+            shadowPackageManager.addServiceIfNotPresent(componentUninitialized)
+            shadowPackageManager.addIntentFilterForService(componentUninitialized, filter)
+
+            // UninitializedWidgetService throws UninitializedPropertyAccessException. By querying
+            // for TestWidget1,
+            // we trigger mapping recovery, which ignores the broken service safely, causing the
+            // result to be empty.
+            val widgets = widgetManager.fetchActiveWidgets(TestWidget1::class)
+            assertThat(widgets).isEmpty()
+        }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun fetchActiveWidgets_whenClassLoadingThrowsClassNotFound_ignoresServiceSafely() = runTest {
+        val componentNonExistent = ComponentName(context, "androidx.glance.wear.NonExistentService")
+        val tileProviderNonExistent: TileProvider = mock {
+            on { componentName } doReturn componentNonExistent
+            on { containerType } doReturn TilesManager.WIDGET_CONTAINER_TYPE_LARGE
+        }
+        val tileInstanceNonExistent: TileInstance = mock {
+            on { tileProvider } doReturn tileProviderNonExistent
+            on { id } doReturn 5
+        }
+
+        whenever(tilesManager.getActiveTiles(any(), any())).thenAnswer { invocationOnMock ->
+            val executor = invocationOnMock.getArgument<Executor>(0)
+            val outcomeReceiver =
+                invocationOnMock.getArgument<OutcomeReceiver<List<TileInstance>, Exception>>(1)
+            executor.execute { outcomeReceiver.onResult(listOf(tileInstanceNonExistent)) }
+        }
+        whenever(widgetCache.getServiceToWidgetMapping()).thenReturn(emptyMap())
+
+        // Mock PackageManager to list the non-existent service in queries.
+        val shadowPackageManager = Shadows.shadowOf(context.packageManager)
+        val filter = IntentFilter(WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER)
+        shadowPackageManager.addServiceIfNotPresent(componentNonExistent)
+        shadowPackageManager.addIntentFilterForService(componentNonExistent, filter)
+
+        // Querying with TestWidget1 will trigger package recovery, which fails to load the
+        // nonexistent class,
+        // safely ignoring it, causing the list to be empty.
+        val widgets = widgetManager.fetchActiveWidgets(TestWidget1::class)
+        assertThat(widgets).isEmpty()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun fetchActiveWidgets_whenFallbackThrowsRuntimeException_ignoresServiceSafely() = runTest {
+        val componentCrashing = ComponentName(context, CrashingWidgetService::class.java)
+        val tileProviderCrashing: TileProvider = mock {
+            on { componentName } doReturn componentCrashing
+            on { containerType } doReturn TilesManager.WIDGET_CONTAINER_TYPE_LARGE
+        }
+        val tileInstanceCrashing: TileInstance = mock {
+            on { tileProvider } doReturn tileProviderCrashing
+            on { id } doReturn 6
+        }
+
+        whenever(tilesManager.getActiveTiles(any(), any())).thenAnswer { invocationOnMock ->
+            val executor = invocationOnMock.getArgument<Executor>(0)
+            val outcomeReceiver =
+                invocationOnMock.getArgument<OutcomeReceiver<List<TileInstance>, Exception>>(1)
+            executor.execute { outcomeReceiver.onResult(listOf(tileInstanceCrashing)) }
+        }
+        whenever(widgetCache.getServiceToWidgetMapping()).thenReturn(emptyMap())
+
+        // Mock PackageManager to list our crashing service in queries.
+        val shadowPackageManager = Shadows.shadowOf(context.packageManager)
+        val filter = IntentFilter(WearWidgetProviderInfo.ACTION_BIND_WIDGET_PROVIDER)
+        shadowPackageManager.addServiceIfNotPresent(componentCrashing)
+        shadowPackageManager.addIntentFilterForService(componentCrashing, filter)
+
+        // Querying with TestWidget1 will trigger mapping recovery, which catches and ignores
+        // constructor level RuntimeExceptions safely
+        val widgets = widgetManager.fetchActiveWidgets(TestWidget1::class)
+        assertThat(widgets).isEmpty()
+    }
 }
 
 private open class TestWidget1 : GlanceWearWidget() {
@@ -212,10 +392,44 @@ private open class TestWidget2 : GlanceWearWidget() {
     ): WearWidgetData = mock()
 }
 
+private open class TestWidget3 : GlanceWearWidget() {
+    override suspend fun provideWidgetData(
+        context: Context,
+        params: WearWidgetParams,
+    ): WearWidgetData = mock()
+}
+
 public class TestWidgetService1 : GlanceWearWidgetService() {
     override val widget: GlanceWearWidget = TestWidget1()
 }
 
 public class TestWidgetService2 : GlanceWearWidgetService() {
     override val widget: GlanceWearWidget = TestWidget2()
+}
+
+@AssociateWithGlanceWearWidget(TestWidget3::class)
+public class AnnotatedWidgetService : GlanceWearWidgetService() {
+    init {
+        throw AssertionError("Service should not be instantiated")
+    }
+
+    override val widget: GlanceWearWidget
+        get() = throw AssertionError("Service should not be instantiated")
+}
+
+public class UninitializedWidgetService : GlanceWearWidgetService() {
+    override val widget: GlanceWearWidget
+        get() =
+            throw UninitializedPropertyAccessException(
+                "lateinit property widget has not been initialized"
+            )
+}
+
+public class CrashingWidgetService : GlanceWearWidgetService() {
+    init {
+        throw RuntimeException("Simulated constructor crash")
+    }
+
+    override val widget: GlanceWearWidget
+        get() = throw AssertionError("Should not be accessed")
 }
