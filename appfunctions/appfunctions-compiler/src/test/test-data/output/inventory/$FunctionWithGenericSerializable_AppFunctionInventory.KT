@@ -20,7 +20,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * FunctionWithGenericSerializable.....kt
+ * FunctionWithGenericSerializable.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$FunctionWithGenericSerializable_AppFunctionInventory` : AppFunctionInventory {

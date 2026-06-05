@@ -20,8 +20,8 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * FunctionWithSerializableProxyInput.....kt
- * SerializableWithProxyType.....kt
+ * FunctionWithSerializableProxyInput.kt
+ * SerializableWithProxyType.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$FunctionWithSerializableProxyInput_AppFunctionInventory` : AppFunctionInventory {

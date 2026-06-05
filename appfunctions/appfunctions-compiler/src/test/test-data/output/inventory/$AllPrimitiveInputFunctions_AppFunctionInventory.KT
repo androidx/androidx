@@ -22,7 +22,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * AllPrimitiveInputFunctions.....kt
+ * AllPrimitiveInputFunctions.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$AllPrimitiveInputFunctions_AppFunctionInventory` : AppFunctionInventory {

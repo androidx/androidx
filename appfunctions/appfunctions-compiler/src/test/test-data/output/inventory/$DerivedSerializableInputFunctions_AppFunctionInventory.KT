@@ -21,8 +21,8 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * DerivedSerializableInputFunctions.....kt
- * DerivedSerializable.....kt
+ * DerivedSerializableInputFunctions.kt
+ * DerivedSerializable.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$DerivedSerializableInputFunctions_AppFunctionInventory` : AppFunctionInventory {

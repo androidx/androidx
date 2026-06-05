@@ -18,7 +18,7 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * SerializableOutputFunctions.....kt
+ * SerializableOutputFunctions.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$SerializableOutputFunctions_AppFunctionInventory` : AppFunctionInventory {

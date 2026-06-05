@@ -23,8 +23,8 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * FakeAllPrimitiveParamsImpl.....kt
- * FakeSchemas.....kt
+ * FakeAllPrimitiveParamsImpl.kt
+ * FakeSchemas.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$FakeAllPrimitiveArrayParamsImpl_AppFunctionInventory` : AppFunctionInventory {

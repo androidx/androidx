@@ -15,8 +15,8 @@ import kotlin.collections.Map
 
 /**
  * Source Files:
- * FakeAllPrimitiveReturnsImpl.....kt
- * FakeSchemas.....kt
+ * FakeAllPrimitiveReturnsImpl.kt
+ * FakeSchemas.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$UnitReturnImpl_AppFunctionInventory` : AppFunctionInventory {
