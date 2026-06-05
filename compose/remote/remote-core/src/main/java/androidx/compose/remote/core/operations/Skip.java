@@ -147,6 +147,9 @@ public class Skip extends Operation implements SerializableToString, Serializabl
         short conditionType = (short) buffer.readInt();
         int value = buffer.readInt();
         int skipLength = buffer.readInt();
+        if (skipLength < 0) {
+            throw new RuntimeException("you cannot skp backwards");
+        }
         Skip skip = new Skip(conditionType, value, skipLength, buffer.getSystemInfo());
         if (skip.needsToSkip()) {
             buffer.setIndex(buffer.getIndex() + skip.mSkipLength);

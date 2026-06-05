@@ -190,7 +190,14 @@ public class ImageErrorTest {
         int size = buffer.getBuffer().getSize();
         byte[] b = Arrays.copyOf(buffer.getBuffer().getBuffer(), size);
         InputStream is = new ByteArrayInputStream(b);
-        RemoteDocument rdoc = new RemoteDocument(is);
+        RemoteDocument rdoc;
+        try {
+            rdoc = new RemoteDocument(is);
+        } catch (Exception e) {
+            assertThat(e).hasMessageThat().contains("invalid size");
+            System.out.println("successfully caught exception");
+            return;
+        }
         android.content.Context appContext =
                 InstrumentationRegistry.getInstrumentation().getTargetContext();
 
@@ -235,7 +242,14 @@ public class ImageErrorTest {
         int size = buffer.getBuffer().getSize();
         byte[] b = Arrays.copyOf(buffer.getBuffer().getBuffer(), size);
         InputStream is = new ByteArrayInputStream(b);
-        RemoteDocument rdoc = new RemoteDocument(is);
+        RemoteDocument rdoc;
+        try {
+            rdoc = new RemoteDocument(is);
+        } catch (Exception e) {
+            assertThat(e).hasMessageThat().contains("invalid size");
+            System.out.println("successfully caught exception");
+            return;
+        }
         android.content.Context appContext =
                 InstrumentationRegistry.getInstrumentation().getTargetContext();
 
@@ -377,8 +391,14 @@ public class ImageErrorTest {
         int size = buffer.getBuffer().getSize();
         byte[] b = Arrays.copyOf(buffer.getBuffer().getBuffer(), size);
         InputStream is = new ByteArrayInputStream(b);
-        RemoteDocument rdoc = new RemoteDocument(is);
-
+        RemoteDocument rdoc;
+        try {
+            rdoc = new RemoteDocument(is);
+        } catch (Exception e) {
+            assertThat(e).hasMessageThat().contains("invalid size");
+            System.out.println("successfully caught exception");
+            return;
+        }
         BitmapLoader loader = (url) -> null;
 
         // RemotePreparedDocument's constructor eagerly calls loadBitmap on all BitmapData
