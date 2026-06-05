@@ -552,7 +552,7 @@ internal class GraphLoop(
     private suspend fun processShutdown(commands: MutableList<GraphCommand>) {
         currentRepeatingRequest = null
         currentGraphParameters = GraphParameters()
-        currentGraph3AParameters = emptyMap<Any, Any>()
+        currentGraph3AParameters = emptyMap<Any, Any?>()
 
         // Abort and remove all commands during shutdown.
         for (idx in commands.indices) {
@@ -640,7 +640,7 @@ internal class GraphLoop(
     private fun buildAndSubmit(
         isRepeating: Boolean,
         requests: List<Request>,
-        oneTimeRequiredParameters: Map<*, Any?> = emptyMap<Any, Any>(),
+        oneTimeRequiredParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
     ): Boolean {
         val processor = currentRequestProcessor
         if (processor == null) return false

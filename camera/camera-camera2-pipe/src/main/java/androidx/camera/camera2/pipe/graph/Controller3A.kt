@@ -104,18 +104,18 @@ constructor(
             )
 
         val parameterForAfTriggerStart =
-            mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_START)
+            mapOf<CaptureRequest.Key<*>, Any?>(CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_START)
 
         val parameterForAfTriggerCancel =
-            mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL)
+            mapOf<CaptureRequest.Key<*>, Any?>(CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL)
 
         private val parametersForAePrecapture =
-            mapOf<CaptureRequest.Key<*>, Any>(
+            mapOf<CaptureRequest.Key<*>, Any?>(
                 CONTROL_AE_PRECAPTURE_TRIGGER to CONTROL_AE_PRECAPTURE_TRIGGER_START
             )
 
         private val parametersForAePrecaptureAndAfTrigger =
-            mapOf<CaptureRequest.Key<*>, Any>(
+            mapOf<CaptureRequest.Key<*>, Any?>(
                 CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_START,
                 CONTROL_AE_PRECAPTURE_TRIGGER to CONTROL_AE_PRECAPTURE_TRIGGER_START,
             )
@@ -153,15 +153,15 @@ constructor(
             mapOf(CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL, CONTROL_AE_LOCK to true)
 
         private val unlock3APostCaptureUnlockAeParams =
-            mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false)
+            mapOf<CaptureRequest.Key<*>, Any?>(CONTROL_AE_LOCK to false)
 
         private val aePrecaptureCancelParams =
-            mapOf<CaptureRequest.Key<*>, Any>(
+            mapOf<CaptureRequest.Key<*>, Any?>(
                 CONTROL_AE_PRECAPTURE_TRIGGER to CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL
             )
 
         private val aePrecaptureAndAfCancelParams =
-            mapOf<CaptureRequest.Key<*>, Any>(
+            mapOf<CaptureRequest.Key<*>, Any?>(
                 CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL,
                 CONTROL_AE_PRECAPTURE_TRIGGER to CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL,
             )
@@ -660,7 +660,7 @@ constructor(
      *   either frame limit or time limit was reached.
      */
     private fun lock3AForCapture(
-        triggerCondition: Map<CaptureRequest.Key<*>, Any>? = null,
+        triggerCondition: Map<CaptureRequest.Key<*>, Any?>? = null,
         lockedCondition: ((FrameMetadata) -> Boolean)? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,

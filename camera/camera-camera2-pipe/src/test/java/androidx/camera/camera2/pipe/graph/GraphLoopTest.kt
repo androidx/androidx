@@ -1233,6 +1233,38 @@ class GraphLoopTest {
         }
 
     @Test
+    fun graph3AParametersPropagateNullParameters() =
+        testScope.runTest {
+            graphLoop.requestProcessor = grp1
+            graphLoop.repeatingRequest = request1
+            advanceUntilIdle()
+
+            graphLoop.graph3AParameters = mapOf(TEST_KEY to null)
+            advanceUntilIdle()
+
+            assertThat(csp1.events.size).isEqualTo(2)
+            assertThat(csp1.events[1].isRepeating).isTrue()
+            assertThat(csp1.events[1].requiredParameters).containsKey(TEST_KEY)
+            assertThat(csp1.events[1].requiredParameters[TEST_KEY]).isNull()
+        }
+
+    @Test
+    fun triggerCommandsPropagateNullParameters() =
+        testScope.runTest {
+            graphLoop.requestProcessor = grp1
+            graphLoop.repeatingRequest = request1
+            advanceUntilIdle()
+
+            graphLoop.trigger(mapOf(TEST_KEY to null))
+            advanceUntilIdle()
+
+            assertThat(csp1.events.size).isEqualTo(2)
+            assertThat(csp1.events[1].isCapture).isTrue()
+            assertThat(csp1.events[1].requiredParameters).containsKey(TEST_KEY)
+            assertThat(csp1.events[1].requiredParameters[TEST_KEY]).isNull()
+        }
+
+    @Test
     fun updateRequestListenersInvokeSubmitRequestWithRequiredListeners() =
         testScope.runTest {
             graphLoop.requestProcessor = grp1
