@@ -68,6 +68,7 @@ class HelloArAugmentedImageActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val configBuilder = Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL)
         val augmentedImageDatabase = AugmentedImageDatabase()
         try {
             val inputStream = this.assets.open("images/earth.jpg")
@@ -79,6 +80,7 @@ class HelloArAugmentedImageActivity : ComponentActivity() {
             )
 
             inputStream.close()
+            configBuilder.setAugmentedImageDatabase(augmentedImageDatabase)
         } catch (e: IOException) {
             Log.e(ACTIVITY_NAME, "Something went wrong loading the image from assets.")
         }
@@ -87,12 +89,10 @@ class HelloArAugmentedImageActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config.Builder()
-                    .setAugmentedImageDatabase(augmentedImageDatabase)
-                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
-                    .build(),
+                configBuilder.build(),
                 onSessionAvailable = { session ->
                     this.session = session
+                    augmentedImageRenderer.startRendering(session, lifecycleScope)
 
                     setContent {
                         Subspace {

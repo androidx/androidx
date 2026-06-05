@@ -84,15 +84,12 @@ internal class QrCodeRenderer {
 
         val entity = GltfModelEntity.create(_session, _qrCodeModel!!)
         entity.setEnabled(false)
+        entity.parent = _session.scene.activitySpace
         return entity
     }
 
     private fun scaledExtents(extents: FloatSize2d): Vector3 {
-        return Vector3(
-            extents.width * MODEL_SCALING_FACTOR,
-            MODEL_DEPTH,
-            extents.height * MODEL_SCALING_FACTOR,
-        )
+        return Vector3(extents.width, MODEL_DEPTH, extents.height)
     }
 
     private suspend fun updateAndRenderQrCode(qrCode: QrCode) {
@@ -155,7 +152,6 @@ internal class QrCodeRenderer {
 
     private companion object {
         private const val PANEL_RESIZE_UPDATE_COUNT = 50
-        private const val MODEL_SCALING_FACTOR = 1f / 1.7f / 2f
         private const val MODEL_DEPTH = .001f
         private const val DEFAULT_QR_CODE_MODEL = "BoundingBoxGreen.glb"
         private const val PAUSED_ALPHA = 0.25f

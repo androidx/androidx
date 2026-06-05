@@ -74,6 +74,7 @@ class HelloArQrCodeActivity : ComponentActivity() {
                     .build(),
                 onSessionAvailable = { session ->
                     this.session = session
+                    qrCodeRenderer.startRendering(session, lifecycleScope)
 
                     setContent {
                         Subspace {
