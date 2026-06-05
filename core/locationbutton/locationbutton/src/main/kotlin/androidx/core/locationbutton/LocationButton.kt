@@ -82,6 +82,31 @@ constructor(
     /** Client callback for location button events, provided by apps. */
     internal var locationButtonListener: LocationButtonListener? = null
 
+    /**
+     * The [Activity] that hosts this button.
+     *
+     * This activity is used to host the location button. If not explicitly set, the library will
+     * attempt to resolve the hosting activity by traversing the [Context] wrapper chain of the
+     * context passed to the constructor.
+     */
+    public var parentActivity: Activity? = null
+        set(value) {
+            val oldActivity = findActivityOrNull()
+            field = value
+            val newActivity = findActivityOrNull()
+
+            if (isAttachedToWindow && isRemoteButtonSupported) {
+                if (newActivity != oldActivity) {
+                    if (isRemoteSessionActive) {
+                        closeSession()
+                    }
+                    if (newActivity != null) {
+                        openSession()
+                    }
+                }
+            }
+        }
+
     /** Once initialized, can't add more views. */
     private var initialized = false
 
@@ -124,7 +149,7 @@ constructor(
         val surfaceView = surfaceView ?: return@Runnable
         val delegate = remoteDelegate ?: return@Runnable
 
-        delegate.openSession(findActivity(), getDisplayId(), surfaceView)
+        delegate.openSession(requireActivity(), getDisplayId(), surfaceView)
     }
 
     override fun onAttachedToWindow() {
@@ -447,13 +472,21 @@ constructor(
             }
     }
 
-    private fun findActivity(): Activity {
+    private fun requireActivity(): Activity =
+        checkNotNull(findActivityOrNull()) {
+            "LocationButton must be hosted within an Activity context"
+        }
+
+    private fun findActivityOrNull(): Activity? {
+        parentActivity?.let {
+            return it
+        }
         var context = context
         while (context is ContextWrapper) {
             if (context is Activity) return context
             context = context.baseContext
         }
-        throw IllegalStateException("LocationButton must be hosted within an Activity context")
+        return null
     }
 
     // enforce restrictions on adding child views to this ViewGroup
@@ -527,8 +560,8 @@ constructor(
         get() = localButtonView.visibility == View.VISIBLE
 
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public fun checkActivityContextForTesting() {
-        findActivity()
+    public fun resolveActivityForTesting(): Activity {
+        return requireActivity()
     }
 
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)

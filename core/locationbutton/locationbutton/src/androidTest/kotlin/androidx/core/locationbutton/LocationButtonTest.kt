@@ -166,10 +166,57 @@ public class LocationButtonTest {
 
             val exception =
                 assertThrows(IllegalStateException::class.java) {
-                    button.checkActivityContextForTesting()
+                    button.resolveActivityForTesting()
                 }
             assertThat(exception.message)
                 .contains("LocationButton must be hosted within an Activity context")
+        }
+    }
+
+    @Test
+    public fun testParentActivityPropertySymmetry() {
+        activityRule.scenario.onActivity { activity ->
+            val button = LocationButton(activity)
+
+            // Initially null
+            assertThat(button.parentActivity).isNull()
+
+            // Set and get
+            button.parentActivity = activity
+            assertThat(button.parentActivity).isSameInstanceAs(activity)
+
+            // Clear and get null
+            button.parentActivity = null
+            assertThat(button.parentActivity).isNull()
+        }
+    }
+
+    @Test
+    public fun testResolveActivityFallbackToContext() {
+        activityRule.scenario.onActivity { activity ->
+            // Construct with Activity context
+            val button = LocationButton(activity)
+
+            // parentActivity is null, but it should resolve to the activity context
+            val resolved = button.resolveActivityForTesting()
+            assertThat(resolved).isSameInstanceAs(activity)
+        }
+    }
+
+    @Test
+    public fun testLocationButtonWithParentActivity() {
+        activityRule.scenario.onActivity { activity ->
+            val themedContext =
+                androidx.appcompat.view.ContextThemeWrapper(
+                    activity.applicationContext,
+                    androidx.appcompat.R.style.Theme_AppCompat,
+                )
+            val button = LocationButton(themedContext)
+            button.parentActivity = activity
+
+            // Assert that it returns the exact activity we set
+            val resolvedActivity = button.resolveActivityForTesting()
+            assertThat(resolvedActivity).isSameInstanceAs(activity)
         }
     }
 
