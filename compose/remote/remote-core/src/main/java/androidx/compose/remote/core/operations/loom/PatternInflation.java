@@ -141,6 +141,10 @@ public class PatternInflation extends Operation implements Container, ComponentD
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int id = buffer.readId();
         int argCount = buffer.readInt();
+        if (argCount < 0 || argCount > (buffer.getSize() - buffer.getIndex()) / 4) {
+            throw new RuntimeException(
+                    "attempt to allocate an array of invalid size: " + argCount);
+        }
         int[] argIds = new int[argCount];
         for (int i = 0; i < argCount; i++) {
             argIds[i] = buffer.readId();

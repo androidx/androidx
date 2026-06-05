@@ -113,11 +113,19 @@ public class PatternDefine extends Operation implements Container {
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int id = buffer.readId();
         int paramCount = buffer.readInt();
+        if (paramCount < 0 || paramCount > (buffer.getSize() - buffer.getIndex()) / 4) {
+            throw new RuntimeException(
+                    "attempt to allocate an array of invalid size: " + paramCount);
+        }
         int[] paramIds = new int[paramCount];
         for (int i = 0; i < paramCount; i++) {
             paramIds[i] = buffer.readId();
         }
         int skipLength = buffer.readInt();
+        if (skipLength < 0 || skipLength > (buffer.getSize() - buffer.getIndex())) {
+            throw new RuntimeException(
+                    "attempt to allocate a byte array of invalid size: " + skipLength);
+        }
         PatternDefine macro = new PatternDefine(id, paramIds);
         operations.add(macro);
         if (skipLength > 0) {

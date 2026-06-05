@@ -779,4 +779,70 @@ public class MacroTest {
         // If it didn't crash, it's success!
         assertTrue(true);
     }
+
+    @Test
+    public void testPatternInflationBoundsCheck() {
+        WireBuffer buffer = new WireBuffer();
+        // Write standard header or setup buffer size
+        buffer.reset(100);
+        buffer.start(Operations.MACRO_CALL);
+        buffer.writeInt(101); // macro id
+        buffer.writeInt(Integer.MAX_VALUE); // huge argCount
+        buffer.setIndex(0);
+
+        // Read operation type
+        int opType = buffer.readOperationType();
+        assertEquals(Operations.MACRO_CALL, opType);
+
+        java.util.List<Operation> operations = new java.util.ArrayList<>();
+        try {
+            PatternInflation.read(buffer, operations);
+            org.junit.Assert.fail("Should throw RuntimeException due to invalid argument count");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("attempt to allocate an array of invalid size"));
+        }
+    }
+
+    @Test
+    public void testPatternDefineParamCountBoundsCheck() {
+        WireBuffer buffer = new WireBuffer();
+        buffer.reset(100);
+        buffer.start(Operations.MACRO_DEFINE);
+        buffer.writeInt(101); // macro id
+        buffer.writeInt(Integer.MAX_VALUE); // huge paramCount
+        buffer.setIndex(0);
+
+        int opType = buffer.readOperationType();
+        assertEquals(Operations.MACRO_DEFINE, opType);
+
+        java.util.List<Operation> operations = new java.util.ArrayList<>();
+        try {
+            PatternDefine.read(buffer, operations);
+            org.junit.Assert.fail("Should throw RuntimeException due to invalid parameter count");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("attempt to allocate an array of invalid size"));
+        }
+    }
+
+    @Test
+    public void testPatternDefineSkipLengthBoundsCheck() {
+        WireBuffer buffer = new WireBuffer();
+        buffer.reset(100);
+        buffer.start(Operations.MACRO_DEFINE);
+        buffer.writeInt(101); // macro id
+        buffer.writeInt(0); // paramCount
+        buffer.writeInt(Integer.MAX_VALUE); // huge skipLength
+        buffer.setIndex(0);
+
+        int opType = buffer.readOperationType();
+        assertEquals(Operations.MACRO_DEFINE, opType);
+
+        java.util.List<Operation> operations = new java.util.ArrayList<>();
+        try {
+            PatternDefine.read(buffer, operations);
+            org.junit.Assert.fail("Should throw RuntimeException due to invalid skipLength");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("attempt to allocate a byte array of invalid size"));
+        }
+    }
 }
