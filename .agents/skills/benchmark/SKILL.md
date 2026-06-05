@@ -28,8 +28,8 @@ Microbenchmarks measure fine-grained performance (e.g., individual component mea
     - **Example:** `./gradlew :compose:ui:ui-benchmark:connectedReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.tests_regex=.*MyBenchmark.myMethod.*`
     - **Validation:** Always verify the console output to ensure only the intended number of tests were executed (e.g., `Finished 1 tests`). If more tests ran than expected, refine your regex.
 - **Preparation:**
-    1. Run `./benchmark/gradle-plugin/src/main/resources/scripts/lockClocks.sh`.
-    2. Run `./benchmark/gradle-plugin/src/main/resources/scripts/disableJit.sh` to stabilize the platform.
+    1. Run `./benchmark/gradle-plugin/src/main/resources/scripts/disableJit.sh` to stabilize the platform.
+    2. Run `./benchmark/gradle-plugin/src/main/resources/scripts/lockClocks.sh`. Make sure it is run /after/ disabling JIT.
 - **Errors:** Do **NOT** suppress configuration errors; they guide proper device setup.
 
 ### Analysis
