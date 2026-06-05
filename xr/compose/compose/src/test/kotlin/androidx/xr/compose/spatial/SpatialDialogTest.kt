@@ -1105,7 +1105,7 @@ class SpatialDialogTest {
         composeTestRule.setContent {
             SpatialDialog(onDismissRequest = {}) { Text("Fallback Content") }
         }
-        composeTestRule.onNodeWithText("Fallback Content")
+        composeTestRule.onNodeWithText("Fallback Content").assertExists()
 
         ShadowActivityEmbeddingController.isEmbedded = false
     }

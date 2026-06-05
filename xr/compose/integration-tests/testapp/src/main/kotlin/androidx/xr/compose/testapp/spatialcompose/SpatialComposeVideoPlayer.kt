@@ -98,6 +98,8 @@ import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.transformingMovable
 import androidx.xr.compose.subspace.layout.transformingResizable
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.media.PointSourceExoplayerAudioOutput
+import androidx.xr.compose.subspace.media.spatializedAudioOutput
 import androidx.xr.compose.testapp.common.isDrmSupported
 import androidx.xr.compose.testapp.common.isMvHevcSupported
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -113,6 +115,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.InputEvent.Action
 import androidx.xr.scenecore.MovableComponent
+import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import java.io.File
@@ -339,7 +342,6 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                 SphereVideoControlPanel(isVideoHovered)
             }
         } else {
-
             SpatialColumn {
                 SpatialPanel(SubspaceModifier.height(600.dp).width(600.dp).transformingMovable()) {
                     CommonTestScaffold(
@@ -349,7 +351,8 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     ) { padding ->
                         Column(
                             modifier =
-                                Modifier.background(Color.LightGray).fillMaxSize().padding(padding)
+                                Modifier.background(Color.LightGray).fillMaxSize().padding(padding),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
                             BackHandler {
                                 Log.i(
@@ -368,7 +371,6 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                         }
 
                                         Button(
-                                            modifier = Modifier.padding(vertical = 8.dp),
                                             enabled = videoUri != null,
                                             onClick = {
                                                 menuState.value =
@@ -379,7 +381,6 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                         }
 
                                         Button(
-                                            modifier = Modifier.padding(bottom = 8.dp),
                                             enabled = videoUri != null,
                                             onClick = {
                                                 menuState.value =
@@ -746,12 +747,21 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
     @Composable
     fun VideoInSpatialPanel() {
+        val audioOutput = remember { PointSourceExoplayerAudioOutput(session, PointSourceParams()) }
+
         SpatialPanel(
-            modifier = SubspaceModifier.width(600.dp).height(600.dp).transformingMovable()
+            modifier =
+                SubspaceModifier.width(600.dp)
+                    .height(600.dp)
+                    .transformingMovable()
+                    .spatializedAudioOutput(audioOutput)
         ) {
             AndroidExternalSurface {
                 onSurface { surface, _, _ ->
-                    val player = ExoPlayer.Builder(this@SpatialComposeVideoPlayer).build()
+                    val player =
+                        ExoPlayer.Builder(this@SpatialComposeVideoPlayer)
+                            .setAudioOutputProvider(audioOutput.audioOutputProvider)
+                            .build()
                     exoPlayer = player
                     player.setVideoSurface(surface)
                     player.setMediaItem(getMediaItem())
@@ -891,6 +901,8 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
             )
         oldFeatheringType = featheringType
 
+        val audioOutput = remember { PointSourceExoplayerAudioOutput(session, PointSourceParams()) }
+
         // The resizable modifier overrides the automatic width/height resizing logic when switching
         // stereo modes.
         SpatialExternalSurface(
@@ -901,6 +913,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     .height(
                         if (stereoMode == StereoMode.TopBottom) videoHeight / 2 else videoHeight
                     )
+                    .spatializedAudioOutput(audioOutput)
                     .transformingMovable()
                     .transformingResizable(),
             interactionPolicy =
@@ -914,7 +927,10 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                 else SpatialExternalSurfaceProtection.None,
         ) {
             onSurfaceCreated {
-                val player = ExoPlayer.Builder(this@SpatialComposeVideoPlayer).build()
+                val player =
+                    ExoPlayer.Builder(this@SpatialComposeVideoPlayer)
+                        .setAudioOutputProvider(audioOutput.audioOutputProvider)
+                        .build()
                 exoPlayer = player
                 player.setVideoSurface(it)
                 player.setMediaItem(getMediaItem())

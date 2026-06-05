@@ -1411,6 +1411,40 @@ package androidx.xr.compose.subspace.layout {
 
 }
 
+package androidx.xr.compose.subspace.media {
+
+  public final class PointSourceExoplayerAudioOutput extends androidx.xr.compose.subspace.media.SpatializedExoplayerAudioOutput {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public PointSourceExoplayerAudioOutput(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
+    method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams getParams();
+    method @InaccessibleFromKotlin public void setParams(androidx.xr.scenecore.PointSourceParams);
+    property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+    property public androidx.xr.scenecore.PointSourceParams params;
+  }
+
+  public final class SoundFieldExoplayerAudioOutput extends androidx.xr.compose.subspace.media.SpatializedExoplayerAudioOutput {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public SoundFieldExoplayerAudioOutput(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundFieldAttributes soundFieldAttributes);
+    method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+  }
+
+  public abstract sealed nonexhaustive class SpatializedAudioOutput {
+  }
+
+  public final class SpatializedAudioOutputKt {
+    method public static androidx.xr.compose.subspace.media.SpatializedAudioOutput asSpatializedAudioOutput(androidx.xr.scenecore.SoundEffectPoolComponent);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.xr.compose.subspace.media.PointSourceExoplayerAudioOutput rememberPointSourceExoplayerAudioOutput(androidx.xr.scenecore.PointSourceParams params);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.xr.compose.subspace.media.PointSourceExoplayerAudioOutput rememberPointSourceExoplayerAudioOutput(androidx.xr.scenecore.PointSourceParams, androidx.compose.runtime.Composer?, int);
+    method public static androidx.xr.compose.subspace.layout.SubspaceModifier spatializedAudioOutput(androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.compose.subspace.media.SpatializedAudioOutput spatializedAudioOutput);
+  }
+
+  public abstract class SpatializedExoplayerAudioOutput extends androidx.xr.compose.subspace.media.SpatializedAudioOutput {
+    method @InaccessibleFromKotlin public abstract androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    property public abstract androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+  }
+
+}
+
 package androidx.xr.compose.subspace.node {
 
   @kotlin.PublishedApi internal interface ComposeSubspaceNode {

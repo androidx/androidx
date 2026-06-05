@@ -1494,7 +1494,7 @@ class SpatialPopupTest {
         ShadowActivityEmbeddingController.isEmbedded = true
 
         composeTestRule.setContent { SpatialPopup { Text("Fallback Content") } }
-        composeTestRule.onNodeWithText("Fallback Content")
+        composeTestRule.onNodeWithText("Fallback Content").assertExists()
 
         ShadowActivityEmbeddingController.isEmbedded = false
     }
