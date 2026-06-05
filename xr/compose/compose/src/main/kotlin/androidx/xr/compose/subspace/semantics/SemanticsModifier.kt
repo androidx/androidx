@@ -25,6 +25,19 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
 /**
  * Add semantics key/value pairs to the layout node, for use in testing, accessibility, etc.
  *
+ * **Mental Model (Picture Frame vs. Canvas):** When building a combined UI in Compose for XR, think
+ * of a Subspace node (such as `SpatialPanel`) as a "Picture Frame" existing in 3D space, and the
+ * standard 2D Compose UI elements inside it as the "Canvas".
+ * - Use [SubspaceModifier.semantics] on the 3D container (the frame) to provide spatial properties
+ *   (such as [testTag] and [contentDescription]) for 3D placement, anchoring, or testing.
+ * - Use standard [androidx.compose.ui.semantics.semantics] modifiers on the 2D Compose composables
+ *   (the canvas) for fine-grained user interactions and TalkBack accessibility.
+ *
+ * **Interop & Merging Guidance:** The 3D Subspace semantics tree and the 2D foundational semantics
+ * tree operate as distinct hierarchies. Spatial containers do not support merging descendant
+ * semantics (`mergeDescendants = true`).
+ *
+ * @sample androidx.xr.compose.samples.SubspaceSemanticsModifierSample
  * @param properties Builder block where the semantics properties are defined.
  */
 @JvmName("semanticsSubspace")
