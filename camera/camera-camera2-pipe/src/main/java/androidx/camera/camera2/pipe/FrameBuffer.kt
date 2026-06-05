@@ -61,65 +61,6 @@ public interface FrameBuffer : AutoCloseable {
     public val frameFlow: SharedFlow<FrameReference>
 
     /**
-     * Removes the first frame reference in the buffer or null if the buffer is empty.
-     *
-     * The frame reference is removed from the buffer.
-     */
-    @Deprecated("Use removeFirst instead.") public fun removeFirstReference(): FrameReference?
-
-    /**
-     * Removes the last frame reference in the buffer or null if the buffer is empty.
-     *
-     * The frame reference is removed from the buffer.
-     */
-    @Deprecated("Use removeLast instead.") public fun removeLastReference(): FrameReference?
-
-    /**
-     * Removes all the frame reference in the buffer or empty if the buffer is empty.
-     *
-     * The frame references are removed from the buffer.
-     */
-    @Deprecated("Use removeAll instead.") public fun removeAllReferences(): List<FrameReference>
-
-    /**
-     * Removes the first entry in [FrameBuffer] that matches the [FrameReference] filter. If a match
-     * is found, the entry is removed from the buffer. The frame will be returned if the entry has a
-     * valid [Frame]. Otherwise, null is returned.
-     *
-     * @param predicate The filter function to apply.
-     * @return The [Frame] of the first buffer entry that matches the filter, or null if a match is
-     *   not found or the matching entry does not have a frame.
-     */
-    @Deprecated("Use removeFirst(predicate) instead.")
-    public fun removeFirstFrameReferenceAndAcquire(predicate: (FrameReference) -> Boolean): Frame?
-
-    /**
-     * Removes the last entry in [FrameBuffer] that matches the [FrameReference] filter. If a match
-     * is found, the entry is removed from the buffer. The frame will be returned if the entry has a
-     * valid [Frame]. Otherwise, null is returned.
-     *
-     * @param predicate The filter function to apply.
-     * @return The [Frame] of the last buffer entry that matches the filter, or null if a match is
-     *   not found or the matching entry does not have a frame.
-     */
-    @Deprecated("Use removeLast(predicate) instead.")
-    public fun removeLastFrameReferenceAndAcquire(predicate: (FrameReference) -> Boolean): Frame?
-
-    /**
-     * Removes the all entries in [FrameBuffer] that matches the [FrameReference] filter. If a match
-     * is found, the entry is removed from the buffer. The frame will be returned if the entry has a
-     * valid [Frame]. Otherwise, null is returned.
-     *
-     * @param predicate The filter function to apply.
-     * @return The [Frame] of all entries that matches the filter, or null if a match is not found
-     *   or the matching entry does not have a frame.
-     */
-    @Deprecated("Use removeAll(predicate) instead.")
-    public fun removeAllFrameReferencesAndAcquire(
-        predicate: (FrameReference) -> Boolean
-    ): List<Frame>
-
-    /**
      * The first FrameReference in the buffer, or null if the buffer is empty. No frames or
      * references are removed by this call.
      */
@@ -196,7 +137,6 @@ public interface FrameBuffer : AutoCloseable {
  * [FrameBuffer], such as peeking at or removing frames.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("DEPRECATION")
 public object FrameBuffers {
     /**
      * Returns the first frame in the buffer without removing its reference, or null if the buffer
@@ -218,35 +158,4 @@ public object FrameBuffers {
     @JvmStatic
     public fun FrameBuffer.tryPeekAll(): List<Frame> =
         this.peekAllReferences().mapNotNull { it.tryAcquire() }
-
-    /**
-     * Removes the first frame reference in the buffer and returns the corresponding Frame, or null
-     * if the buffer is empty.
-     *
-     * The frame is removed from the buffer.
-     */
-    @Deprecated("Use removeFirst instead.")
-    @JvmStatic
-    public fun FrameBuffer.tryRemoveFirst(): Frame? = this.removeFirstReference()?.tryAcquire()
-
-    /**
-     * Removes the last frame reference in the buffer and returns the corresponding Frame, or null
-     * if the buffer is empty.
-     *
-     * The frame is removed from the buffer.
-     */
-    @Deprecated("Use removeLast instead.")
-    @JvmStatic
-    public fun FrameBuffer.tryRemoveLast(): Frame? = this.removeLastReference()?.tryAcquire()
-
-    /**
-     * Removes all the frame references in the buffer and returns the corresponding Frame(s), or
-     * empty if the buffer is empty.
-     *
-     * The frames are removed from the buffer.
-     */
-    @Deprecated("Use removeAll instead.")
-    @JvmStatic
-    public fun FrameBuffer.tryRemoveAll(): List<Frame> =
-        this.removeAllReferences().mapNotNull { it.tryAcquire() }
 }

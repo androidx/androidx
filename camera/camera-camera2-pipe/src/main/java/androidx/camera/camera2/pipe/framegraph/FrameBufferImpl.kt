@@ -143,69 +143,6 @@ internal class FrameBufferImpl(
         frameToClose?.close()
     }
 
-    @Deprecated("Use removeFirst instead.")
-    override fun removeFirstReference(): FrameReference? =
-        synchronized(lock) {
-            if (closed) return null
-            frameQueue.removeFirstOrNull()?.let { entry ->
-                _size.value = frameQueue.size
-                entry.frameReference
-            }
-        }
-
-    @Deprecated("Use removeLast instead.")
-    override fun removeLastReference(): FrameReference? =
-        synchronized(lock) {
-            if (closed) return null
-            frameQueue.removeLastOrNull()?.let { entry ->
-                _size.value = frameQueue.size
-                entry.frameReference
-            }
-        }
-
-    @Deprecated("Use removeAll instead")
-    override fun removeAllReferences(): List<FrameReference> =
-        synchronized(lock) {
-            if (closed) return emptyList()
-            val references = frameQueue.map { it.frameReference }
-            frameQueue.clear()
-            _size.value = 0
-            references
-        }
-
-    @Deprecated("Use removeFirst instead")
-    override fun removeFirstFrameReferenceAndAcquire(
-        predicate: (FrameReference) -> Boolean
-    ): Frame? = removeAndAcquire(predicate, reversed = false)
-
-    @Deprecated("Use removeLast instead")
-    override fun removeLastFrameReferenceAndAcquire(
-        predicate: (FrameReference) -> Boolean
-    ): Frame? = removeAndAcquire(predicate, reversed = true)
-
-    @Deprecated("Use removeAll instead")
-    override fun removeAllFrameReferencesAndAcquire(
-        predicate: (FrameReference) -> Boolean
-    ): List<Frame> =
-        synchronized(lock) {
-            if (closed) return emptyList()
-
-            val iterator = frameQueue.iterator()
-
-            val removedFrames = mutableListOf<Frame>()
-            while (iterator.hasNext()) {
-                val bufferEntry = iterator.next()
-                if (predicate(bufferEntry.frameReference)) {
-                    iterator.remove()
-                    bufferEntry.tryAcquireFrameForExternalUse()?.let { frame ->
-                        removedFrames.add(frame)
-                    }
-                }
-            }
-            _size.value = frameQueue.size
-            return removedFrames
-        }
-
     override fun removeFirst(predicate: ((FrameReference) -> Boolean)?): Frame? =
         removeAndAcquire(predicate ?: { true }, reversed = false)
 
