@@ -5,6 +5,7 @@
 [iosArm64]: Removed declaration getViewModelStore(kotlin/String) from androidx.navigation/NavViewModelStoreProvider
 [iosArm64]: Added declaration clear(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
 [iosArm64]: Added declaration get(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
+[iosArm64]: Removed declaration <init>(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState?) from androidx.navigation/NavBackStackEntry
 [iosArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
 [iosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
 [iosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
@@ -17,6 +18,7 @@
 [iosSimulatorArm64]: Removed declaration getViewModelStore(kotlin/String) from androidx.navigation/NavViewModelStoreProvider
 [iosSimulatorArm64]: Added declaration clear(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
 [iosSimulatorArm64]: Added declaration get(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
+[iosSimulatorArm64]: Removed declaration <init>(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState?) from androidx.navigation/NavBackStackEntry
 [iosSimulatorArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
 [iosSimulatorArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
 [iosSimulatorArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
@@ -29,6 +31,7 @@
 [linuxArm64]: Removed declaration getViewModelStore(kotlin/String) from androidx.navigation/NavViewModelStoreProvider
 [linuxArm64]: Added declaration clear(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
 [linuxArm64]: Added declaration get(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
+[linuxArm64]: Removed declaration <init>(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState?) from androidx.navigation/NavBackStackEntry
 [linuxArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
 [linuxArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
 [linuxArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
@@ -41,6 +44,7 @@
 [linuxX64]: Removed declaration getViewModelStore(kotlin/String) from androidx.navigation/NavViewModelStoreProvider
 [linuxX64]: Added declaration clear(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
 [linuxX64]: Added declaration get(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
+[linuxX64]: Removed declaration <init>(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState?) from androidx.navigation/NavBackStackEntry
 [linuxX64]: Removed declaration <init>() from androidx.navigation/NavOptions
 [linuxX64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
 [linuxX64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
@@ -53,6 +57,7 @@
 [macosArm64]: Removed declaration getViewModelStore(kotlin/String) from androidx.navigation/NavViewModelStoreProvider
 [macosArm64]: Added declaration clear(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
 [macosArm64]: Added declaration get(kotlin/String) to androidx.navigation/NavViewModelStoreProvider
+[macosArm64]: Removed declaration <init>(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState?) from androidx.navigation/NavBackStackEntry
 [macosArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
 [macosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
 [macosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass

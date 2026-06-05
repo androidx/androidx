@@ -52,24 +52,27 @@ private constructor(
     HasDefaultViewModelProviderFactory,
     SavedStateRegistryOwner {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual constructor(
-        entry: NavBackStackEntry,
-        arguments: SavedState?,
-    ) : this(
-        entry.context,
-        entry.destination,
-        arguments,
-        entry.hostLifecycleState,
-        entry.viewModelStoreProvider,
-        entry.id,
-        entry.savedState,
-    ) {
-        impl.hostLifecycleState = entry.hostLifecycleState
-        impl.maxLifecycle = entry.maxLifecycle
-    }
-
     public actual companion object {
+
+        @RestrictTo(value = [RestrictTo.Scope.LIBRARY_GROUP])
+        public actual fun create(
+            entry: NavBackStackEntry,
+            arguments: SavedState?,
+        ): NavBackStackEntry =
+            NavBackStackEntry(
+                    entry.context,
+                    entry.destination,
+                    arguments,
+                    entry.hostLifecycleState,
+                    entry.viewModelStoreProvider,
+                    entry.id,
+                    entry.savedState,
+                )
+                .apply {
+                    impl.hostLifecycleState = entry.hostLifecycleState
+                    impl.maxLifecycle = entry.maxLifecycle
+                }
+
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public actual fun create(
             context: NavContext?,

@@ -1254,7 +1254,8 @@ internal class NavControllerImpl(
         while (backQueue.lastIndex >= nodeIndex) {
             val oldEntry = backQueue.removeLastKt()
             unlinkChildFromParent(oldEntry)
-            val newEntry = NavBackStackEntry(oldEntry, oldEntry.destination.addInDefaultArgs(args))
+            val newEntry =
+                NavBackStackEntry.create(oldEntry, oldEntry.destination.addInDefaultArgs(args))
             tempBackQueue.addFirst(newEntry)
         }
 
