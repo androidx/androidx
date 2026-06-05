@@ -27,7 +27,6 @@ import android.os.ParcelUuid
 import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.DisconnectCause
-import android.telecom.VideoProfile
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -46,6 +45,8 @@ import androidx.core.telecom.internal.utils.EndpointUtils.Companion.maybeRemoveE
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.toCallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.toCallEndpointsCompat
 import androidx.core.telecom.internal.utils.Utils.Companion.isBuildAtLeastP
+import androidx.core.telecom.internal.utils.Utils.Companion.toCallTypeCompat
+import androidx.core.telecom.internal.utils.Utils.Companion.toVideoProfileState
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -512,9 +513,11 @@ internal class CallSessionLegacy(
         CoroutineScope(coroutineContext).launch { onStateChangedCallback.emit(callState) }
     }
 
-    fun answer(videoState: Int): CallControlResult {
-        setVideoState(videoState)
+    fun answer(callType: Int): CallControlResult {
+        setVideoState(toVideoProfileState(callType))
         setConnectionActive()
+        mCallType = callType
+        callChannels.callTypeChannel.trySend(callType)
         return CallControlResult.Success()
     }
 
@@ -539,24 +542,6 @@ internal class CallSessionLegacy(
         // **Notify the platform with the translated state**
         setVideoState(platformVideoState)
         return CallControlResult.Success()
-    }
-
-    /** Translates an androidx CallType to a platform VideoProfile state. */
-    fun toVideoProfileState(callType: Int): Int {
-        return when (callType) {
-            CallAttributesCompat.CALL_TYPE_AUDIO_CALL -> {
-                Log.i(TAG, "AUDIO_CALL -> VideoProfile.STATE_AUDIO_ONLY")
-                VideoProfile.STATE_AUDIO_ONLY
-            }
-            CallAttributesCompat.CALL_TYPE_VIDEO_CALL -> {
-                Log.i(TAG, "VIDEO_CALL -> VideoProfile.STATE_BIDIRECTIONAL")
-                VideoProfile.STATE_BIDIRECTIONAL
-            }
-            else -> {
-                Log.w(TAG, "Unknown callType=[$callType], defaulting to audio.")
-                VideoProfile.STATE_AUDIO_ONLY
-            }
-        }
     }
 
     fun setConnectionActive(): CallControlResult {
@@ -714,7 +699,10 @@ internal class CallSessionLegacy(
             // Note the slight deviation here where onAnswer does not put the call into an ACTIVE
             // state as it does in the platform. This behavior is intentional for this path.
             try {
-                onAnswerCallback(videoState)
+                val jetpackCallType = toCallTypeCompat(videoState)
+                mCallType = jetpackCallType
+                callChannels.callTypeChannel.trySend(jetpackCallType)
+                onAnswerCallback(jetpackCallType)
                 setConnectionActive()
                 setVideoState(videoState)
             } catch (e: Exception) {

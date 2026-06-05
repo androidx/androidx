@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
+import android.telecom.VideoProfile
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -187,13 +188,76 @@ internal class Utils {
         ): Bundle {
             val extras = Bundle()
             extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, handle)
-            if (!callAttributes.isOutgoingCall()) {
+            val platformVideoState = toVideoProfileState(callAttributes.callType)
+            if (callAttributes.isOutgoingCall()) {
+                extras.putInt(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, platformVideoState)
+            } else {
                 extras.putParcelable(
                     TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
                     callAttributes.address,
                 )
+                extras.putInt(TelecomManager.EXTRA_INCOMING_VIDEO_STATE, platformVideoState)
             }
             return extras
+        }
+
+        fun toVideoProfileState(callType: Int): Int {
+            return when (callType) {
+                CallAttributesCompat.CALL_TYPE_AUDIO_CALL -> {
+                    Log.i(TAG, "toVideoProfileState: AUDIO_CALL -> VideoProfile.STATE_AUDIO_ONLY")
+                    VideoProfile.STATE_AUDIO_ONLY
+                }
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL -> {
+                    Log.i(
+                        TAG,
+                        "toVideoProfileState: VIDEO_CALL -> VideoProfile.STATE_BIDIRECTIONAL",
+                    )
+                    VideoProfile.STATE_BIDIRECTIONAL
+                }
+                else -> {
+                    Log.w(
+                        TAG,
+                        "toVideoProfileState: Unknown callType=[$callType], defaulting to audio.",
+                    )
+                    VideoProfile.STATE_AUDIO_ONLY
+                }
+            }
+        }
+
+        fun toCallTypeCompat(videoState: Int): Int {
+            return when (videoState) {
+                // Unfixed platform VideoProfile constants
+                VideoProfile.STATE_AUDIO_ONLY -> {
+                    Log.i(
+                        TAG,
+                        "toCallTypeCompat: VideoProfile.STATE_AUDIO_ONLY (0) -> AUDIO_CALL (1)",
+                    )
+                    CallAttributesCompat.CALL_TYPE_AUDIO_CALL
+                }
+                VideoProfile.STATE_BIDIRECTIONAL -> {
+                    Log.i(
+                        TAG,
+                        "toCallTypeCompat: VideoProfile.STATE_BIDIRECTIONAL (3) -> VIDEO_CALL (2)",
+                    )
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+                }
+                // Fixed platform CallAttributes constants
+                CallAttributesCompat.CALL_TYPE_AUDIO_CALL -> {
+                    Log.i(TAG, "toCallTypeCompat: Already Jetpack AUDIO_CALL (1)")
+                    CallAttributesCompat.CALL_TYPE_AUDIO_CALL
+                }
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL -> {
+                    Log.i(TAG, "toCallTypeCompat: Already Jetpack VIDEO_CALL (2)")
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+                }
+                else -> {
+                    Log.w(
+                        TAG,
+                        "toCallTypeCompat: Unknown videoState=[$videoState], defaulting to audio.",
+                    )
+                    CallAttributesCompat.CALL_TYPE_AUDIO_CALL
+                }
+            }
         }
     }
 }
