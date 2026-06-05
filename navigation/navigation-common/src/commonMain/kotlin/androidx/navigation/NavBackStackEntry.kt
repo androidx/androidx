@@ -30,11 +30,13 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.navigation.internal.NavBackStackEntryImpl
 import androidx.navigation.internal.NavContext
 import androidx.navigation.serialization.decodeArguments
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.read
 import androidx.savedstate.savedState
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
@@ -49,54 +51,22 @@ import kotlinx.serialization.serializer
  * stack, the lifecycle will be destroyed, state will no longer be saved, and ViewModels will be
  * cleared.
  */
-@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-public expect class NavBackStackEntry :
+public class NavBackStackEntry
+private constructor(
+    internal val context: NavContext?,
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var destination: NavDestination,
+    internal val immutableArgs: SavedState? = null,
+    internal var hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
+    internal val viewModelStoreProvider: NavViewModelStoreProvider? = null,
+    public val id: String = randomUuid(),
+    internal val savedState: SavedState? = null,
+) :
     LifecycleOwner,
     ViewModelStoreOwner,
     HasDefaultViewModelProviderFactory,
     SavedStateRegistryOwner {
 
-    internal val context: NavContext?
-    internal val immutableArgs: SavedState?
-    internal var hostLifecycleState: Lifecycle.State
-    internal val viewModelStoreProvider: NavViewModelStoreProvider?
-    internal val savedState: SavedState?
-
-    public companion object {
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun create(
-            entry: NavBackStackEntry,
-            arguments: SavedState? = entry.arguments,
-        ): NavBackStackEntry
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun create(
-            context: NavContext?,
-            destination: NavDestination,
-            arguments: SavedState? = null,
-            hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
-            viewModelStoreProvider: NavViewModelStoreProvider? = null,
-            id: String = randomUUID(),
-            savedState: SavedState? = null,
-        ): NavBackStackEntry
-
-        internal fun randomUUID(): String
-    }
-
-    /**
-     * The destination associated with this entry
-     *
-     * @return The destination that is currently visible to users
-     */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var destination: NavDestination
-
-    /**
-     * The unique ID that serves as the identity of this entry
-     *
-     * @return the unique ID of this entry
-     */
-    public val id: String
+    private val impl: NavBackStackEntryImpl = NavBackStackEntryImpl(entry = this)
 
     /**
      * The arguments used for this entry. Note that the arguments of a NavBackStackEntry are
@@ -105,10 +75,10 @@ public expect class NavBackStackEntry :
      *
      * @return The arguments used when this entry was created
      */
-    public val arguments: SavedState?
+    public val arguments: SavedState? by impl::arguments
 
     /** The [SavedStateHandle] for this entry. */
-    @get:MainThread public val savedStateHandle: SavedStateHandle
+    @get:MainThread public val savedStateHandle: SavedStateHandle by lazy { impl.savedStateHandle }
 
     /**
      * {@inheritDoc}
@@ -117,17 +87,26 @@ public expect class NavBackStackEntry :
      * [androidx.navigation.NavHostController.setLifecycleOwner], the Lifecycle will be capped at
      * [Lifecycle.State.CREATED].
      */
-    override val lifecycle: Lifecycle
+    override val lifecycle: Lifecycle by impl::lifecycle
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var maxLifecycle: Lifecycle.State
+        get() = impl.maxLifecycle
+        set(value) {
+            impl.maxLifecycle = value
+        }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun handleLifecycleEvent(event: Lifecycle.Event)
+    public fun handleLifecycleEvent(event: Lifecycle.Event) {
+        impl.handleLifecycleEvent(event)
+    }
 
     /** Update the state to be the lower of the two constraints: */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun updateState()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun updateState() {
+        impl.updateState()
+    }
 
     /**
      * {@inheritDoc}
@@ -136,15 +115,105 @@ public expect class NavBackStackEntry :
      *   [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
      *   [androidx.navigation.NavHostController.setViewModelStore].
      */
-    public override val viewModelStore: ViewModelStore
+    public override val viewModelStore: ViewModelStore by impl::viewModelStore
 
-    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory by
+        impl::defaultViewModelProviderFactory
 
     override val defaultViewModelCreationExtras: CreationExtras
+        get() {
+            val extras = impl.defaultViewModelCreationExtras
+            extras.setPlatformExtras(context)
+            return extras
+        }
 
-    override val savedStateRegistry: SavedStateRegistry
+    override val savedStateRegistry: SavedStateRegistry by impl::savedStateRegistry
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun saveState(outBundle: SavedState)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun saveState(outBundle: SavedState) {
+        impl.saveState(outBundle)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is NavBackStackEntry) return false
+
+        val argsMatch =
+            if (immutableArgs == other.immutableArgs) {
+                true
+            } else if (immutableArgs != null && other.immutableArgs != null) {
+                immutableArgs.read { contentDeepEquals(other.immutableArgs) }
+            } else {
+                false
+            }
+
+        return id == other.id &&
+            destination == other.destination &&
+            lifecycle == other.lifecycle &&
+            savedStateRegistry == other.savedStateRegistry &&
+            argsMatch
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + destination.hashCode()
+        immutableArgs?.read { result = 31 * result + contentDeepHashCode() }
+        result = 31 * result + lifecycle.hashCode()
+        result = 31 * result + savedStateRegistry.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append(this::class.simpleName)
+        sb.append("($id)")
+        sb.append(" destination=")
+        sb.append(destination)
+        return sb.toString()
+    }
+
+    public companion object {
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun create(
+            entry: NavBackStackEntry,
+            arguments: SavedState? = entry.arguments,
+        ): NavBackStackEntry =
+            NavBackStackEntry(
+                    entry.context,
+                    entry.destination,
+                    arguments,
+                    entry.hostLifecycleState,
+                    entry.viewModelStoreProvider,
+                    entry.id,
+                    entry.savedState,
+                )
+                .apply {
+                    impl.hostLifecycleState = entry.hostLifecycleState
+                    impl.maxLifecycle = entry.maxLifecycle
+                }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun create(
+            context: NavContext?,
+            destination: NavDestination,
+            arguments: SavedState? = null,
+            hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
+            viewModelStoreProvider: NavViewModelStoreProvider? = null,
+            id: String = randomUuid(),
+            savedState: SavedState? = null,
+        ): NavBackStackEntry =
+            NavBackStackEntry(
+                context,
+                destination,
+                arguments,
+                hostLifecycleState,
+                viewModelStoreProvider,
+                id,
+                savedState,
+            )
+
+        internal fun randomUUID(): String = randomUuid()
+    }
 }
 
 /**
