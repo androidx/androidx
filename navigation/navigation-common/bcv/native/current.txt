@@ -252,6 +252,7 @@ final class androidx.navigation/NavBackStackEntry : androidx.lifecycle/HasDefaul
         final fun <get-maxLifecycle>(): androidx.lifecycle/Lifecycle.State // androidx.navigation/NavBackStackEntry.maxLifecycle.<get-maxLifecycle>|<get-maxLifecycle>(){}[0]
         final fun <set-maxLifecycle>(androidx.lifecycle/Lifecycle.State) // androidx.navigation/NavBackStackEntry.maxLifecycle.<set-maxLifecycle>|<set-maxLifecycle>(androidx.lifecycle.Lifecycle.State){}[0]
 
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation/NavBackStackEntry.equals|equals(kotlin.Any?){}[0]
     final fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.navigation/NavBackStackEntry.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
     final fun hashCode(): kotlin/Int // androidx.navigation/NavBackStackEntry.hashCode|hashCode(){}[0]
     final fun saveState(androidx.savedstate/SavedState) // androidx.navigation/NavBackStackEntry.saveState|saveState(androidx.savedstate.SavedState){}[0]
