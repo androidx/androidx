@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.Icons
@@ -473,12 +474,12 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
                     val previousItemPadding =
                         configs[index - 1]
                             .compressionLimit
-                            .calculateRightPadding(layoutDirection)
+                            .calculateEndPadding(layoutDirection)
                             .toPx()
                     val nextItemPadding =
                         configs[index + 1]
                             .compressionLimit
-                            .calculateRightPadding(layoutDirection)
+                            .calculateEndPadding(layoutDirection)
                             .toPx()
                     val growth =
                         (animatables[index].value *
@@ -489,9 +490,11 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
                                 ))
                             .roundToInt()
                     // We are a middle button, so we must compress both neighbors
-                    widths[index - 1] -= growth
-                    widths[index + 1] -= growth
-                    actualGrowth = 2 * growth
+                    val growthLeft = min(growth, widths[index - 1])
+                    val growthRight = min(growth, widths[index + 1])
+                    widths[index - 1] -= growthLeft
+                    widths[index + 1] -= growthRight
+                    actualGrowth = growthLeft + growthRight
                 } else {
                     if (index == 0) {
                         // We are the first item, so we need to compress the next item
@@ -499,28 +502,30 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
                         val nextItemPadding =
                             configs[index + 1]
                                 .compressionLimit
-                                .calculateRightPadding(layoutDirection)
+                                .calculateEndPadding(layoutDirection)
                                 .toPx()
                         val targetGrowth =
                             (animatables[index].value *
                                     min(expandedRatio * widths[index], nextItemPadding))
                                 .roundToInt()
-                        widths[index + 1] -= targetGrowth
-                        actualGrowth = targetGrowth
+                        val growthRight = min(targetGrowth, widths[index + 1])
+                        widths[index + 1] -= growthRight
+                        actualGrowth = growthRight
                     } else {
                         // We are the last item, so we need to compress the previous item
                         // We constrain the growth by the paddings of the previous item
                         val previousItemPadding =
                             configs[index - 1]
                                 .compressionLimit
-                                .calculateRightPadding(layoutDirection)
+                                .calculateEndPadding(layoutDirection)
                                 .toPx()
                         val targetGrowth =
                             (animatables[index].value *
                                     min(expandedRatio * widths[index], previousItemPadding))
                                 .roundToInt()
-                        widths[index - 1] -= targetGrowth
-                        actualGrowth = targetGrowth
+                        val growthLeft = min(targetGrowth, widths[index - 1])
+                        widths[index - 1] -= growthLeft
+                        actualGrowth = growthLeft
                     }
                 }
 
@@ -736,18 +741,20 @@ private class ButtonGroupMeasurePolicy(
                                     (expandedRatio * widths[index] / 2f),
                                     configs[index - 1]
                                         .compressionLimit
-                                        .calculateRightPadding(layoutDirection)
+                                        .calculateEndPadding(layoutDirection)
                                         .toPx(),
                                     configs[index + 1]
                                         .compressionLimit
-                                        .calculateRightPadding(layoutDirection)
+                                        .calculateEndPadding(layoutDirection)
                                         .toPx(),
                                 ))
                             .roundToInt()
                     // We are a middle button, so we must compress both neighbors
-                    widths[index - 1] -= targetGrowth
-                    widths[index + 1] -= targetGrowth
-                    actualGrowth = 2 * targetGrowth
+                    val growthLeft = min(targetGrowth, widths[index - 1])
+                    val growthRight = min(targetGrowth, widths[index + 1])
+                    widths[index - 1] -= growthLeft
+                    widths[index + 1] -= growthRight
+                    actualGrowth = growthLeft + growthRight
                 } else {
                     if (index == 0) {
                         // We are the first item, so we need to compress the next item
@@ -757,12 +764,13 @@ private class ButtonGroupMeasurePolicy(
                                         expandedRatio * widths[index],
                                         configs[index + 1]
                                             .compressionLimit
-                                            .calculateRightPadding(layoutDirection)
+                                            .calculateEndPadding(layoutDirection)
                                             .toPx(),
                                     ))
                                 .roundToInt()
-                        widths[index + 1] -= targetGrowth
-                        actualGrowth = targetGrowth
+                        val growthRight = min(targetGrowth, widths[index + 1])
+                        widths[index + 1] -= growthRight
+                        actualGrowth = growthRight
                     } else {
                         // We are the last item, so we need to compress the previous item
                         val targetGrowth =
@@ -771,12 +779,13 @@ private class ButtonGroupMeasurePolicy(
                                         expandedRatio * widths[index],
                                         configs[index - 1]
                                             .compressionLimit
-                                            .calculateRightPadding(layoutDirection)
+                                            .calculateEndPadding(layoutDirection)
                                             .toPx(),
                                     ))
                                 .roundToInt()
-                        widths[index - 1] -= targetGrowth
-                        actualGrowth = targetGrowth
+                        val growthLeft = min(targetGrowth, widths[index - 1])
+                        widths[index - 1] -= growthLeft
+                        actualGrowth = growthLeft
                     }
                 }
 

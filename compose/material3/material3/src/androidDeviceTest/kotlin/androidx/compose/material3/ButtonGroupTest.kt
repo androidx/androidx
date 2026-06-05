@@ -26,12 +26,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -46,6 +48,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1507,5 +1510,195 @@ class ButtonGroupTest {
         // We have 10.dp of padding, but since the desired change is less than that we can expand
         // fully to the desired width of 50.dp - 7.5.dp = 42.5.dp.
         bButton.assertWidthIsEqualTo(42.5.dp)
+    }
+
+    @Test
+    fun buttonGroup_asymmetricPadding_ltr_buttonSizing() {
+        val width = 100.dp
+        val expandedRatio = 0.5f
+        val paddingA = PaddingValues(start = 40.dp, end = 10.dp)
+        val paddingC = PaddingValues(start = 40.dp, end = 10.dp)
+
+        val interactionSources = List(3) { MutableInteractionSource() }
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                ButtonGroup(
+                    overflowIndicator = {},
+                    expandedRatio = expandedRatio,
+                    horizontalArrangement = Arrangement.spacedBy(0.dp),
+                ) {
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                onClick = {},
+                                modifier =
+                                    Modifier.width(width)
+                                        .animateWidth(interactionSources[0], paddingA)
+                                        .testTag(aButton),
+                                interactionSource = interactionSources[0],
+                                contentPadding = paddingA,
+                            ) {
+                                Text("A")
+                            }
+                        },
+                        menuContent = {},
+                    )
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                onClick = {},
+                                modifier =
+                                    Modifier.width(width)
+                                        .animateWidth(interactionSources[1])
+                                        .testTag(bButton),
+                                interactionSource = interactionSources[1],
+                            ) {
+                                Text("B")
+                            }
+                        },
+                        menuContent = {},
+                    )
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                onClick = {},
+                                modifier =
+                                    Modifier.width(width)
+                                        .animateWidth(interactionSources[2], paddingC)
+                                        .testTag(cButton),
+                                interactionSource = interactionSources[2],
+                                contentPadding = paddingC,
+                            ) {
+                                Text("C")
+                            }
+                        },
+                        menuContent = {},
+                    )
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(bButton).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        rule.waitForIdle()
+
+        val aButtonNode = rule.onNodeWithTag(aButton)
+        val bButtonNode = rule.onNodeWithTag(bButton)
+        val cButtonNode = rule.onNodeWithTag(cButton)
+
+        // B wants to expand by: 100 * 0.5 = 50.dp, meaning 25.dp on each side.
+        // A has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
+        // Expected width of A: 100 - 10 = 90.dp
+        aButtonNode.assertWidthIsEqualTo(90.dp)
+
+        // C has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
+        // Expected width of C: 100 - 10 = 90.dp
+        cButtonNode.assertWidthIsEqualTo(90.dp)
+
+        // B should expand by the actual growth: 10.dp (from A) + 10.dp (from C) = 20.dp.
+        // Expected width of B: 100 + 20 = 120.dp
+        bButtonNode.assertWidthIsEqualTo(120.dp)
+    }
+
+    @Test
+    fun buttonGroup_asymmetricPadding_rtl_buttonSizing() {
+        val width = 100.dp
+        val expandedRatio = 0.5f
+        val paddingA = PaddingValues(start = 40.dp, end = 10.dp)
+        val paddingC = PaddingValues(start = 40.dp, end = 10.dp)
+
+        val interactionSources = List(3) { MutableInteractionSource() }
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(Modifier.testTag(wrapperTestTag)) {
+                    ButtonGroup(
+                        overflowIndicator = {},
+                        expandedRatio = expandedRatio,
+                        horizontalArrangement = Arrangement.spacedBy(0.dp),
+                    ) {
+                        customItem(
+                            buttonGroupContent = {
+                                Button(
+                                    onClick = {},
+                                    modifier =
+                                        Modifier.width(width)
+                                            .animateWidth(interactionSources[0], paddingA)
+                                            .testTag(aButton),
+                                    interactionSource = interactionSources[0],
+                                    contentPadding = paddingA,
+                                ) {
+                                    Text("A")
+                                }
+                            },
+                            menuContent = {},
+                        )
+                        customItem(
+                            buttonGroupContent = {
+                                Button(
+                                    onClick = {},
+                                    modifier =
+                                        Modifier.width(width)
+                                            .animateWidth(interactionSources[1])
+                                            .testTag(bButton),
+                                    interactionSource = interactionSources[1],
+                                ) {
+                                    Text("B")
+                                }
+                            },
+                            menuContent = {},
+                        )
+                        customItem(
+                            buttonGroupContent = {
+                                Button(
+                                    onClick = {},
+                                    modifier =
+                                        Modifier.width(width)
+                                            .animateWidth(interactionSources[2], paddingC)
+                                            .testTag(cButton),
+                                    interactionSource = interactionSources[2],
+                                    contentPadding = paddingC,
+                                ) {
+                                    Text("C")
+                                }
+                            },
+                            menuContent = {},
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(bButton).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        rule.waitForIdle()
+
+        val aButtonNode = rule.onNodeWithTag(aButton)
+        val bButtonNode = rule.onNodeWithTag(bButton)
+        val cButtonNode = rule.onNodeWithTag(cButton)
+
+        // B wants to expand by: 100 * 0.5 = 50.dp, meaning 25.dp on each side.
+        // A has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
+        // Expected width of A: 100 - 10 = 90.dp
+        aButtonNode.assertWidthIsEqualTo(90.dp)
+
+        // C has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
+        // Expected width of C: 100 - 10 = 90.dp
+        cButtonNode.assertWidthIsEqualTo(90.dp)
+
+        // B should expand by the actual growth: 10.dp (from A) + 10.dp (from C) = 20.dp.
+        // Expected width of B: 100 + 20 = 120.dp
+        bButtonNode.assertWidthIsEqualTo(120.dp)
     }
 }
