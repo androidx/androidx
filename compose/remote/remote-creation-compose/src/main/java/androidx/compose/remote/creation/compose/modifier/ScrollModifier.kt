@@ -18,7 +18,6 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -39,8 +38,10 @@ public class RemoteScrollState(
 public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
     val state = LocalRemoteComposeCreationState.current
     val scrollState = remember {
-        val positionId = Utils.asNan(state.document.nextId())
-        RemoteScrollState(positionId, evenNotches)
+        // TODO(b/520313106) - It shouldn't be writing id at this point.
+        val positionId = state.document.nextId()
+        val position = MutableRemoteFloat(positionId)
+        RemoteScrollState(position, evenNotches)
     }
     return scrollState
 }
