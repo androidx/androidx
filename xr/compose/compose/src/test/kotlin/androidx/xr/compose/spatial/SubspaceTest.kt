@@ -224,6 +224,8 @@ class SubspaceTest {
     ) {
         val arDevice = fakeRuntime.perceptionManager.arDevice
         arDevice.devicePose = arDevice.devicePose.translate(translation = offset)
+        testDispatcher.scheduler.advanceUntilIdle()
+        fakeRuntime.allowOneMoreCallToUpdate()
         advanceTimeBy(fakeRuntime, durationMs)
     }
 
@@ -1655,8 +1657,8 @@ class SubspaceTest {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val animationTime = 2200
-            val subAnimationTime = 1500L
+            val animationTime = 2000
+            val subAnimationTime = 500L
 
             composeTestRule.setContent {
                 FollowingSubspace(
@@ -1667,12 +1669,11 @@ class SubspaceTest {
             }
 
             val unitVector = Vector3(x = 1F, y = 1F, z = 1F)
-            val arDevice = fakeRuntime.perceptionManager.arDevice
-            arDevice.devicePose = arDevice.devicePose.translate(translation = unitVector)
-
-            // TODO(b/491579552): Update unit test to use runCurrent instead of advanceTimeBy
-            testDispatcher.scheduler.advanceTimeBy(subAnimationTime)
-            fakeRuntime.allowOneMoreCallToUpdate()
+            translateDevice(
+                fakeRuntime = fakeRuntime,
+                offset = unitVector,
+                durationMs = subAnimationTime,
+            )
 
             // The first device pose should cause the subspace to instantly spawn at that location.
             // The animation durationMs parameter only affects subsequent movements.
@@ -1682,8 +1683,11 @@ class SubspaceTest {
 
             // Demonstrate how the next pose movement is not completed if adequate time is not
             // given.
-            arDevice.devicePose = arDevice.devicePose.translate(translation = unitVector)
-            advanceTimeBy(fakeRuntime, subAnimationTime)
+            translateDevice(
+                fakeRuntime = fakeRuntime,
+                offset = unitVector,
+                durationMs = subAnimationTime,
+            )
 
             subspaceTranslation =
                 assertExistenceAndGetNodeWorldPose("FollowingSubspace").translation
