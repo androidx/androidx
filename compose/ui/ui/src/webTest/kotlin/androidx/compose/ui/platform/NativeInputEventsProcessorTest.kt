@@ -508,10 +508,9 @@ class NativeInputEventsProcessorTest {
         assertEquals(0, communicator.keyboardEvents.size)
 
         // 2. Simulate arrow navigation through accent options
-        processor.registerEvent(keyEvent(key = "ArrowRight", code = "ArrowRight"))
-        processor.registerEvent(compositionStart())
+        processor.registerEvent(keyEvent(key = "ArrowRight", code = "ArrowRight", isComposing = true))
         processor.registerEvent(
-            beforeInput("insertText", "è").asInputEventExt().apply {
+            beforeInput("insertText", "è", isComposing = true).asInputEventExt().apply {
                 textRangeStart = 0
                 textRangeEnd = 1
             }

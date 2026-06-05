@@ -82,7 +82,7 @@ internal class DomInputStrategy(
     private val tabKeyCode = Key.Tab.keyCode.toInt()
 
     private fun initEvents() {
-
+        // Whenever new type of event is processed, don't forget to sync the NativeInputEventsProcessor::runCheckpoint isIME check
         htmlInput.addEventListener("keydown", { evt ->
             nativeInputEventsProcessor.registerEvent(evt as KeyboardEvent)
 
@@ -109,10 +109,6 @@ internal class DomInputStrategy(
 
                 nativeInputEventsProcessor.registerEvent(evt)
             }
-        })
-
-        htmlInput.addEventListener("compositionstart", { evt ->
-            nativeInputEventsProcessor.registerEvent(evt as CompositionEvent)
         })
 
         htmlInput.addEventListener("compositionend", { evt ->

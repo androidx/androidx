@@ -102,9 +102,7 @@ internal abstract class NativeInputEventsProcessor(
         collectedEvents.sortBy { it.timeStamp.toInt() }
 
         val isInIMEComposition = collectedEvents.fastAny {
-            it.type == "compositionstart"
-                || it.type == "compositionupdate"
-                || it.type == "compositionend"
+                it.type == "compositionend"
                 || it.type == "keydown" && (it as KeyboardEvent).isComposing
                 || it.type == "beforeinput" && (it as InputEvent).isComposing
         }
