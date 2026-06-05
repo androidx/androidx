@@ -21,20 +21,31 @@ package androidx.navigation
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.enableSavedStateHandles
+import androidx.lifecycle.get
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import androidx.navigation.internal.NavBackStackEntryImpl
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.internal.NavContext
 import androidx.navigation.serialization.decodeArguments
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.read
 import androidx.savedstate.savedState
@@ -66,7 +77,16 @@ private constructor(
     HasDefaultViewModelProviderFactory,
     SavedStateRegistryOwner {
 
-    private val impl: NavBackStackEntryImpl = NavBackStackEntryImpl(entry = this)
+    private val savedStateRegistryController = SavedStateRegistryController.create(this)
+    private var savedStateRegistryAttached = false
+    private val defaultFactory by lazy { SavedStateViewModelFactory() }
+
+    private val lifecycleRegistry = LifecycleRegistry(this)
+
+    /** Used to create the [SavedStateViewModel] */
+    private val navResultSavedStateFactory by lazy {
+        viewModelFactory { initializer { SavedStateViewModel(createSavedStateHandle()) } }
+    }
 
     /**
      * The arguments used for this entry. Note that the arguments of a NavBackStackEntry are
@@ -75,10 +95,28 @@ private constructor(
      *
      * @return The arguments used when this entry was created
      */
-    public val arguments: SavedState? by impl::arguments
+    public val arguments: SavedState?
+        get() =
+            if (immutableArgs == null) {
+                null
+            } else {
+                savedState { putAll(immutableArgs) }
+            }
 
     /** The [SavedStateHandle] for this entry. */
-    @get:MainThread public val savedStateHandle: SavedStateHandle by lazy { impl.savedStateHandle }
+    @get:MainThread
+    public val savedStateHandle: SavedStateHandle by lazy {
+        check(savedStateRegistryAttached) {
+            "You cannot access the NavBackStackEntry's SavedStateHandle until it is added to " +
+                "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
+                "reaches the CREATED state)."
+        }
+        check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
+                "NavBackStackEntry is destroyed."
+        }
+        ViewModelProvider.create(this, navResultSavedStateFactory).get<SavedStateViewModel>().handle
+    }
 
     /**
      * {@inheritDoc}
@@ -87,25 +125,41 @@ private constructor(
      * [androidx.navigation.NavHostController.setLifecycleOwner], the Lifecycle will be capped at
      * [Lifecycle.State.CREATED].
      */
-    override val lifecycle: Lifecycle by impl::lifecycle
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var maxLifecycle: Lifecycle.State
-        get() = impl.maxLifecycle
-        set(value) {
-            impl.maxLifecycle = value
+    public var maxLifecycle: Lifecycle.State = Lifecycle.State.INITIALIZED
+        set(maxState) {
+            field = maxState
+            updateState()
         }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun handleLifecycleEvent(event: Lifecycle.Event) {
-        impl.handleLifecycleEvent(event)
+        hostLifecycleState = event.targetState
+        updateState()
     }
 
     /** Update the state to be the lower of the two constraints: */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState() {
-        impl.updateState()
+        if (!savedStateRegistryAttached) {
+            savedStateRegistryController.performAttach()
+            savedStateRegistryAttached = true
+            if (viewModelStoreProvider != null) {
+                enableSavedStateHandles()
+            }
+            // Perform the restore just once, the first time updateState() is called
+            // and specifically *before* we move up the Lifecycle
+            savedStateRegistryController.performRestore(savedState)
+        }
+        if (hostLifecycleState.ordinal < maxLifecycle.ordinal) {
+            lifecycleRegistry.currentState = hostLifecycleState
+        } else {
+            lifecycleRegistry.currentState = maxLifecycle
+        }
     }
 
     /**
@@ -115,23 +169,43 @@ private constructor(
      *   [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
      *   [androidx.navigation.NavHostController.setViewModelStore].
      */
-    public override val viewModelStore: ViewModelStore by impl::viewModelStore
+    public override val viewModelStore: ViewModelStore
+        get() {
+            check(savedStateRegistryAttached) {
+                "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
+                    "the NavController's back stack (i.e., the Lifecycle of the " +
+                    "NavBackStackEntry reaches the CREATED state)."
+            }
+            check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                "You cannot access the NavBackStackEntry's ViewModels after the " +
+                    "NavBackStackEntry is destroyed."
+            }
+            checkNotNull(viewModelStoreProvider) {
+                "You must call setViewModelStore() on your NavHostController before " +
+                    "accessing the ViewModelStore of a navigation graph."
+            }
+            return viewModelStoreProvider.get(id)
+        }
 
-    override val defaultViewModelProviderFactory: ViewModelProvider.Factory by
-        impl::defaultViewModelProviderFactory
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+        get() = defaultFactory
 
     override val defaultViewModelCreationExtras: CreationExtras
         get() {
-            val extras = impl.defaultViewModelCreationExtras
+            val extras = MutableCreationExtras()
+            extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+            extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+            arguments?.let { args -> extras[DEFAULT_ARGS_KEY] = args }
             extras.setPlatformExtras(context)
             return extras
         }
 
-    override val savedStateRegistry: SavedStateRegistry by impl::savedStateRegistry
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun saveState(outBundle: SavedState) {
-        impl.saveState(outBundle)
+        savedStateRegistryController.performSave(outBundle)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -163,12 +237,12 @@ private constructor(
     }
 
     override fun toString(): String {
-        val sb = StringBuilder()
-        sb.append(this::class.simpleName)
-        sb.append("($id)")
-        sb.append(" destination=")
-        sb.append(destination)
-        return sb.toString()
+        return buildString {
+            append(this::class.simpleName)
+            append("($id)")
+            append(" destination=")
+            append(destination)
+        }
     }
 
     public companion object {
@@ -188,8 +262,8 @@ private constructor(
                     entry.savedState,
                 )
                 .apply {
-                    impl.hostLifecycleState = entry.hostLifecycleState
-                    impl.maxLifecycle = entry.maxLifecycle
+                    hostLifecycleState = entry.hostLifecycleState
+                    maxLifecycle = entry.maxLifecycle
                 }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -215,6 +289,8 @@ private constructor(
         internal fun randomUUID(): String = randomUuid()
     }
 }
+
+private class SavedStateViewModel(val handle: SavedStateHandle) : ViewModel()
 
 /**
  * Returns route as an object of type [T]
