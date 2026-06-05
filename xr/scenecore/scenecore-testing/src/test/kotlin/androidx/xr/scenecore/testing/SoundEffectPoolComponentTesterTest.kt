@@ -25,6 +25,7 @@ import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.SoundEffectPool
 import androidx.xr.scenecore.SoundEffectPoolComponent
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertThrows
@@ -54,7 +55,7 @@ class SoundEffectPoolComponentTesterTest {
     private lateinit var tester: SoundEffectPoolComponentTester
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

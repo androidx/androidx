@@ -25,6 +25,7 @@ import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +40,7 @@ class FakePerceptionRuntimeFactoryTest {
         FakePerceptionRuntimeFactory.createNewFakeRuntime = true
         activityRule.scenario.onActivity {
             assertThat(
-                    (Session.create(it) as SessionCreateSuccess)
+                    (runBlocking { Session.create(it) } as SessionCreateSuccess)
                         .session
                         .runtimes
                         .filterIsInstance<PerceptionRuntime>()

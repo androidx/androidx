@@ -104,9 +104,7 @@ import androidx.xr.scenecore.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.scenecore.testapp.visibility.VisibilityActivity
 import java.text.SimpleDateFormat
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private var session: Session? = null
@@ -116,8 +114,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        createSessionAndSetupUi()
-
         setContent {
             IntegrationTestsAppTheme {
                 Scaffold(
@@ -134,6 +130,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        createSessionAndSetupUi()
     }
 
     @Composable
@@ -311,7 +309,7 @@ class MainActivity : AppCompatActivity() {
     private fun createSessionAndSetupUi() {
         // Create the session in a separate thread to avoid StrictMode DiskRead Violations
         lifecycleScope.launch {
-            val createdSession = withContext(Dispatchers.IO) { sessionManager.createSession() }
+            val createdSession = sessionManager.createSession()
             if (createdSession == null) {
                 finish()
             } else {

@@ -48,6 +48,7 @@ import kotlin.test.assertFailsWith
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -80,7 +81,7 @@ class PerceptionStateExtenderTest {
         get() = PerceptionStateExtender.perceptionStateMap
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         testDispatcher = StandardTestDispatcher()
         testScope = TestScope(testDispatcher)
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)

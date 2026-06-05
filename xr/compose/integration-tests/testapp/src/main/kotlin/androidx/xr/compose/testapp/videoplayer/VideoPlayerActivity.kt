@@ -130,23 +130,30 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session = (Session.create(context = this) as SessionCreateSuccess).session
-        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
-        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
-        arDevice = ArDevice.getInstance(session)
-
-        checkExternalStoragePermission()
-
-        // Load texture
         lifecycleScope.launch {
-            alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))
-        }
+            val sessionResult = Session.create(context = this@VideoPlayerActivity)
+            if (sessionResult is SessionCreateSuccess) {
+                session = sessionResult.session
+                session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+                session.configure(
+                    Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+                )
+                arDevice = ArDevice.getInstance(session)
 
-        setContent {
-            if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-                SpatialVideoPlayerUi()
+                checkExternalStoragePermission()
+
+                // Load texture
+                alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))
+
+                setContent {
+                    if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
+                        SpatialVideoPlayerUi()
+                    } else {
+                        VideoPlayerUi()
+                    }
+                }
             } else {
-                VideoPlayerUi()
+                finish()
             }
         }
     }

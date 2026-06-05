@@ -56,47 +56,49 @@ class StandaloneActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.common_test_panel)
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-
-        // Disable default scale overrides on key entity from Spatial Mode events
-        session?.scene?.setSpaceChangedListener { event ->
-            session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
-        }
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
-
-        // Set toolbar
-        val toolbar: Toolbar = findViewById(R.id.top_app_bar_activity_panel)
-        setSupportActionBar(toolbar)
-        toolbar.setTitle(getString(R.string.cuj_standalone_test))
-        toolbar.setNavigationOnClickListener { this.finish() }
-
-        // Hide center button
-        findViewById<Button>(R.id.spawn_activity_panel_button).visibility = View.GONE
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@StandaloneActivity) }
-        }
-
-        // Create a single panel with text
-        @SuppressLint("InflateParams")
-        val panelEntityView = layoutInflater.inflate(R.layout.standalone_panel, null)
-        val panelEntity =
-            PanelEntity.create(
-                session!!,
-                panelEntityView,
-                IntSize2d(720, 480),
-                "panel_entity",
-                Pose(Vector3(0f, -0.25f, 0.1f)),
-                parent = session!!.scene.mainPanelEntity,
-            )
-
         lifecycleScope.launch {
-            // load 3D Model
-            val model = load3DModel()
-            createModelSolarSystem(session!!, model)
+            session = SessionManager(this@StandaloneActivity).createSession()
+            if (session == null) this@StandaloneActivity.finish()
+
+            // Disable default scale overrides on key entity from Spatial Mode events
+            session?.scene?.setSpaceChangedListener { event ->
+                session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
+            }
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+
+            // Set toolbar
+            val toolbar: Toolbar = findViewById(R.id.top_app_bar_activity_panel)
+            setSupportActionBar(toolbar)
+            toolbar.setTitle(getString(R.string.cuj_standalone_test))
+            toolbar.setNavigationOnClickListener { this@StandaloneActivity.finish() }
+
+            // Hide center button
+            findViewById<Button>(R.id.spawn_activity_panel_button).visibility = View.GONE
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@StandaloneActivity) }
+            }
+
+            // Create a single panel with text
+            @SuppressLint("InflateParams")
+            val panelEntityView = layoutInflater.inflate(R.layout.standalone_panel, null)
+            val panelEntity =
+                PanelEntity.create(
+                    session!!,
+                    panelEntityView,
+                    IntSize2d(720, 480),
+                    "panel_entity",
+                    Pose(Vector3(0f, -0.25f, 0.1f)),
+                    parent = session!!.scene.mainPanelEntity,
+                )
+
+            lifecycleScope.launch {
+                // load 3D Model
+                val model = load3DModel()
+                createModelSolarSystem(session!!, model)
+            }
         }
     }
 

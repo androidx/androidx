@@ -28,6 +28,7 @@ import androidx.xr.scenecore.SoundFieldAttributes
 import androidx.xr.scenecore.SpatialSoundPool
 import androidx.xr.scenecore.SpatializerConstants
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
@@ -47,7 +48,7 @@ class SpatialSoundPoolTesterTest {
     private lateinit var soundPool: SoundPool
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result =
             Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)

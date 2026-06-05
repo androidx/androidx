@@ -41,6 +41,7 @@ import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Before
@@ -94,7 +95,13 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         val activityController = Robolectric.buildActivity(Activity::class.java)
         val activity = activityController.create().start().get()
         session =
-            (Session.create(activity, testDispatcher, TestLifecycleOwner(Lifecycle.State.RESUMED))
+            (runBlocking {
+                    Session.create(
+                        activity,
+                        testDispatcher,
+                        TestLifecycleOwner(Lifecycle.State.RESUMED),
+                    )
+                }
                     as SessionCreateSuccess)
                 .session
         val taskNode = xrExtensions.createNode()

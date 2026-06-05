@@ -28,16 +28,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.scene
+import kotlinx.coroutines.launch
 
 class SecondActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val session = (Session.create(context = this) as SessionCreateSuccess).session
-
-        setContent { ActivityContent(session) }
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@SecondActivity)
+            if (sessionResult is SessionCreateSuccess) {
+                val session = sessionResult.session
+                setContent { ActivityContent(session) }
+            } else {
+                finish()
+            }
+        }
     }
 
     @Composable

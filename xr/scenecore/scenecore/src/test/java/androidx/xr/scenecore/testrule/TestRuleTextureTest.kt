@@ -44,7 +44,7 @@ class TestRuleTextureTest {
     private lateinit var activity: ComponentActivity
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activity = Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
         val testDispatcher = StandardTestDispatcher()
         val result =

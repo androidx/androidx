@@ -21,6 +21,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
@@ -32,6 +33,7 @@ import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import androidx.xr.scenecore.testapp.common.managers.SpatialEnvironmentManager
 import androidx.xr.scenecore.testapp.common.managers.SurfaceEntityManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 
 class AccessibilityTestActivity : AppCompatActivity() {
     private var session: Session? = null
@@ -43,24 +45,28 @@ class AccessibilityTestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_accessibility_test)
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session!!.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+        lifecycleScope.launch {
+            session = SessionManager(this@AccessibilityTestActivity).createSession()
+            if (session == null) this@AccessibilityTestActivity.finish()
+            session!!.configure(
+                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+            )
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
-        // toolbar
-        findViewById<Toolbar>(R.id.top_app_bar).also {
-            setSupportActionBar(it)
-            it.setNavigationOnClickListener { this@AccessibilityTestActivity.finish() }
+            // toolbar
+            findViewById<Toolbar>(R.id.top_app_bar).also {
+                setSupportActionBar(it)
+                it.setNavigationOnClickListener { this@AccessibilityTestActivity.finish() }
+            }
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@AccessibilityTestActivity) }
+            }
+
+            setupMainPanel()
         }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@AccessibilityTestActivity) }
-        }
-
-        setupMainPanel()
     }
 
     override fun onDestroy() {

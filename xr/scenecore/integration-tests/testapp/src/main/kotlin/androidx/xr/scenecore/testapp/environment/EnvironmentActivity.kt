@@ -90,69 +90,71 @@ class EnvironmentActivity : AppCompatActivity() {
             insets
         }
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session!!.configure(
-            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
-        )
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
-
-        // toolbar
-        findViewById<Toolbar>(R.id.environment_topAppBar).also {
-            setSupportActionBar(it)
-            it.setNavigationOnClickListener { this@EnvironmentActivity.finish() }
-            it.setTitle(getString(R.string.cuj_environment_test))
-        }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@EnvironmentActivity) }
-        }
-
-        // fsm/hsm toggle
-        findViewById<Button>(R.id.environment_toggle_hsm_fsm).also { button ->
-            button.text = getString(R.string.switch_to_hsm_button_text)
-            button.setOnClickListener { button.text = toggleMode() }
-        }
-
-        // Create event log view
-        createEventLogRecyclerView()
-
-        // Toggle passthrough
-        val togglePassthroughButton = findViewById<Button>(R.id.environment_toggle_passthrough)
-        togglePassthroughButton.setOnClickListener { togglePassthrough() }
-        togglePassthroughButton.visibility = View.GONE
-
-        // Event listeners
-        addSpatialEventListeners()
-
-        // Opacity
-        manageOpacity()
-
-        // Set initial environment preference
-        session!!.scene.spatialEnvironment.preferredSpatialEnvironment = null
-        spatialEnvironmentPreference =
-            session!!.scene.spatialEnvironment.preferredSpatialEnvironment
-
-        // handle Log capabilities
-        findViewById<Button>(R.id.environment_log_spatial_capabilities).setOnClickListener {
-            addEvent(EventType.CAPABILITIES_CHANGED, logCapabilities(session!!))
-        }
-
-        // Add other handlers
         lifecycleScope.launch {
-            // load environment resources
-            loadResources()
+            session = SessionManager(this@EnvironmentActivity).createSession()
+            if (session == null) this@EnvironmentActivity.finish()
+            session!!.configure(
+                Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+            )
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
-            // add lighting handlers
-            imageBasedLightingAssetButtonHandlers()
+            // toolbar
+            findViewById<Toolbar>(R.id.environment_topAppBar).also {
+                setSupportActionBar(it)
+                it.setNavigationOnClickListener { this@EnvironmentActivity.finish() }
+                it.setTitle(getString(R.string.cuj_environment_test))
+            }
 
-            // add geometry handlers
-            geometryHandlers()
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@EnvironmentActivity) }
+            }
 
-            // add image based lighting and geometry handlers
-            imageBasedLightingAssetAndGeometryHandlers()
+            // fsm/hsm toggle
+            findViewById<Button>(R.id.environment_toggle_hsm_fsm).also { button ->
+                button.text = getString(R.string.switch_to_hsm_button_text)
+                button.setOnClickListener { button.text = toggleMode() }
+            }
+
+            // Create event log view
+            createEventLogRecyclerView()
+
+            // Toggle passthrough
+            val togglePassthroughButton = findViewById<Button>(R.id.environment_toggle_passthrough)
+            togglePassthroughButton.setOnClickListener { togglePassthrough() }
+            togglePassthroughButton.visibility = View.GONE
+
+            // Event listeners
+            addSpatialEventListeners()
+
+            // Opacity
+            manageOpacity()
+
+            // Set initial environment preference
+            session!!.scene.spatialEnvironment.preferredSpatialEnvironment = null
+            spatialEnvironmentPreference =
+                session!!.scene.spatialEnvironment.preferredSpatialEnvironment
+
+            // handle Log capabilities
+            findViewById<Button>(R.id.environment_log_spatial_capabilities).setOnClickListener {
+                addEvent(EventType.CAPABILITIES_CHANGED, logCapabilities(session!!))
+            }
+
+            // Add other handlers
+            lifecycleScope.launch {
+                // load environment resources
+                loadResources()
+
+                // add lighting handlers
+                imageBasedLightingAssetButtonHandlers()
+
+                // add geometry handlers
+                geometryHandlers()
+
+                // add image based lighting and geometry handlers
+                imageBasedLightingAssetAndGeometryHandlers()
+            }
         }
     }
 

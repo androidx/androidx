@@ -115,18 +115,27 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "onCreate")
 
-        val session = (Session.create(context = this) as SessionCreateSuccess).session
-        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
-        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@VideoPlayerDrmTestActivity)
+            if (sessionResult is SessionCreateSuccess) {
+                val session = sessionResult.session
+                session.configure(
+                    Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+                )
+                session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
-        if (movableComponentMp == null) {
-            movableComponentMp = MovableComponent.createSystemMovable(session)
-            val unused = session.scene.mainPanelEntity.addComponent(movableComponentMp!!)
+                if (movableComponentMp == null) {
+                    movableComponentMp = MovableComponent.createSystemMovable(session)
+                    val unused = session.scene.mainPanelEntity.addComponent(movableComponentMp!!)
+                }
+
+                setContent { BootstrapUi(session, activity) }
+
+                checkExternalStoragePermission()
+            } else {
+                finish()
+            }
         }
-
-        setContent { BootstrapUi(session, activity) }
-
-        checkExternalStoragePermission()
     }
 
     override fun onDestroy() {

@@ -61,7 +61,7 @@ class MeshEntityTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Before
-    fun setUp() = runBlocking {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

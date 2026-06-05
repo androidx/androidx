@@ -58,35 +58,37 @@ class AnchorSpaceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session?.scene?.keyEntity = null
+        lifecycleScope.launch {
+            session = SessionManager(this@AnchorSpaceActivity).createSession()
+            if (session == null) this@AnchorSpaceActivity.finish()
+            session?.scene?.keyEntity = null
 
-        // View
-        setContentView(R.layout.common_test_panel)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+            // View
+            setContentView(R.layout.common_test_panel)
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                insets
+            }
+
+            // toolbar
+            findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
+                setSupportActionBar(it)
+                it.setTitle(resources.getString(R.string.cuj_anchor_test))
+                it.setNavigationOnClickListener { this@AnchorSpaceActivity.finish() }
+            }
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@AnchorSpaceActivity) }
+            }
+
+            // Spawn button
+            val button: Button = findViewById(R.id.spawn_activity_panel_button)
+            button.text = getString(R.string.spawn_anchor_space_button_text)
+            button.setOnClickListener { createAnchorSpace(this@AnchorSpaceActivity) }
         }
-
-        // toolbar
-        findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
-            setSupportActionBar(it)
-            it.setTitle(resources.getString(R.string.cuj_anchor_test))
-            it.setNavigationOnClickListener { this.finish() }
-        }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@AnchorSpaceActivity) }
-        }
-
-        // Spawn button
-        val button: Button = findViewById(R.id.spawn_activity_panel_button)
-        button.text = getString(R.string.spawn_anchor_space_button_text)
-        button.setOnClickListener { createAnchorSpace(this) }
     }
 
     override fun onResume() {

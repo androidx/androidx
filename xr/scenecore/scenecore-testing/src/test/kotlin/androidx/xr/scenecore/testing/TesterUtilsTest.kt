@@ -58,6 +58,7 @@ import androidx.xr.scenecore.runtime.SpatializerConstants as RtSpatializerConsta
 import androidx.xr.scenecore.runtime.SurfaceEntity.EdgeFeather as RtEdgeFeather
 import androidx.xr.scenecore.runtime.SurfaceEntity.Shape as RtShape
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -78,7 +79,7 @@ class TesterUtilsTest {
     private lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

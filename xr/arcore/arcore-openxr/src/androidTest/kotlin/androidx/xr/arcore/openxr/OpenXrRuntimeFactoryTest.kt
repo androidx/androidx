@@ -25,6 +25,7 @@ import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -55,7 +56,7 @@ class OpenXrRuntimeFactoryTest {
 
         activityRule.scenario.onActivity {
             assertThat(
-                    (Session.create(context = it) as SessionCreateSuccess)
+                    (runBlocking { Session.create(context = it) } as SessionCreateSuccess)
                         .session
                         .runtimes
                         .filterIsInstance<PerceptionRuntime>()

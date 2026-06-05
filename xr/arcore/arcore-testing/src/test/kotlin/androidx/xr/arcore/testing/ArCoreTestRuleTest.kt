@@ -22,6 +22,7 @@ import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.PlaneType
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Before
@@ -47,7 +48,7 @@ class ArCoreTestRuleTest {
 
         activityController.create().start().resume()
 
-        Session.create(context = activity, coroutineContext = testDispatcher)
+        runBlocking { Session.create(context = activity, coroutineContext = testDispatcher) }
     }
 
     @Test

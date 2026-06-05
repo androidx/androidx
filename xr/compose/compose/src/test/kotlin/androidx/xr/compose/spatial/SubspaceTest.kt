@@ -129,6 +129,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -211,7 +212,7 @@ class SubspaceTest {
     private fun configureSessionWithDeviceTrackingMode(
         mode: DeviceTrackingMode = DeviceTrackingMode.SPATIAL
     ): Session {
-        val result = Session.create(composeTestRule.activity, testDispatcher)
+        val result = runBlocking { Session.create(composeTestRule.activity, testDispatcher) }
         val session = assertIs<SessionCreateSuccess>(result).session
         session.configure(Config.Builder(session.config).setDeviceTracking(mode).build())
 

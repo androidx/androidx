@@ -28,6 +28,7 @@ import androidx.xr.scenecore.SpatialAudioTrack
 import androidx.xr.scenecore.SpatializerConstants
 import androidx.xr.scenecore.testing.internal.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -53,7 +54,7 @@ class SpatialAudioTrackTesterTest {
     private lateinit var underTest: SpatialAudioTrackTester
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

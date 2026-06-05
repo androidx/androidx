@@ -48,6 +48,7 @@ import kotlin.test.assertNotNull
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -176,7 +177,7 @@ class MovableComponentTest {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
 
-        val result = Session.create(activity, testDispatcher)
+        val result = runBlocking { Session.create(activity, testDispatcher) }
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         session = (result as SessionCreateSuccess).session
         session.configure(
@@ -199,7 +200,7 @@ class MovableComponentTest {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
 
-        val result = Session.create(activity, testDispatcher)
+        val result = runBlocking { Session.create(activity, testDispatcher) }
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         session = (result as SessionCreateSuccess).session
         sceneRuntime = session.sceneRuntime

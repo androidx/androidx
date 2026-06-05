@@ -45,22 +45,24 @@ class HandTrackingTest : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hand_tracking_test)
 
-        session =
-            SessionManager(this).createSession()?.also {
-                it.configure(Config.Builder().setHandTracking(HandTrackingMode.BOTH).build())
-                it.scene.keyEntity = it.scene.mainPanelEntity
+        lifecycleScope.launch {
+            session =
+                SessionManager(this@HandTrackingTest).createSession()?.also {
+                    it.configure(Config.Builder().setHandTracking(HandTrackingMode.BOTH).build())
+                    it.scene.keyEntity = it.scene.mainPanelEntity
+                }
+
+            // Toolbar action
+            findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
+                setSupportActionBar(it)
+                it.setNavigationOnClickListener { finish() }
             }
 
-        // Toolbar action
-        findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
-            setSupportActionBar(it)
-            it.setNavigationOnClickListener { finish() }
+            // Set up tracking for both hands
+            val currentSession = session ?: return@launch
+            setupHandTracking(Hand.left(currentSession) as Trackable<Hand.State>)
+            setupHandTracking(Hand.right(currentSession) as Trackable<Hand.State>)
         }
-
-        // Set up tracking for both hands
-        val currentSession = session ?: return
-        setupHandTracking(Hand.left(currentSession) as Trackable<Hand.State>)
-        setupHandTracking(Hand.right(currentSession) as Trackable<Hand.State>)
     }
 
     /** Creates an entity that tracks a given hand and attaches a visual model to it. */

@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
@@ -42,6 +43,7 @@ import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.function.Consumer
+import kotlinx.coroutines.launch
 
 class ActivityPanelActivity : AppCompatActivity() {
     private lateinit var activityPanelEntity: ActivityPanelEntity
@@ -58,64 +60,72 @@ class ActivityPanelActivity : AppCompatActivity() {
             insets
         }
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session?.scene?.keyEntity = null
+        lifecycleScope.launch {
+            session = SessionManager(this@ActivityPanelActivity).createSession()
+            if (session == null) this@ActivityPanelActivity.finish()
+            session?.scene?.keyEntity = null
 
-        // Set toolbar
-        findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
-            setSupportActionBar(it)
-            it.setTitle(getString(R.string.cuj_activity_panel_test))
-            it.setNavigationOnClickListener { this.finish() }
-        }
+            // Set toolbar
+            findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
+                setSupportActionBar(it)
+                it.setTitle(getString(R.string.cuj_activity_panel_test))
+                it.setNavigationOnClickListener { this@ActivityPanelActivity.finish() }
+            }
 
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@ActivityPanelActivity) }
-        }
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@ActivityPanelActivity) }
+            }
 
-        // Create activity panel entity
-        activityPanelEntity =
-            ActivityPanelEntity.create(
-                session!!,
-                IntSize2d(640, 480),
-                ACTIVITY_NAME,
-                parent = session!!.scene.activitySpace,
-            )
+            // Create activity panel entity
+            activityPanelEntity =
+                ActivityPanelEntity.create(
+                    session!!,
+                    IntSize2d(640, 480),
+                    ACTIVITY_NAME,
+                    parent = session!!.scene.activitySpace,
+                )
 
-        // Set button listener
-        val button: Button = findViewById(R.id.spawn_activity_panel_button)
-        button.setOnClickListener {
-            // Check spatial capabilities of the session
-            if (session!!.scene.spatialCapabilities.contains(SpatialCapability.EMBED_ACTIVITY)) {
+            // Set button listener
+            val button: Button = findViewById(R.id.spawn_activity_panel_button)
+            button.setOnClickListener {
+                // Check spatial capabilities of the session
+                if (
+                    session!!.scene.spatialCapabilities.contains(SpatialCapability.EMBED_ACTIVITY)
+                ) {
 
-                if (!secondaryPanelLaunched) {
-                    // Set the pose for the activity panel
-                    activityPanelEntity.setPose(Pose(Vector3(0f, 0.6f, .05f)))
-                    // Create intent to launch a new activity in the panel
-                    val intent = Intent(this, ActivityPanel::class.java)
-                    intent.putExtra("NAV_ICON", false)
-                    // Launch an activity in the panel
-                    activityPanelEntity.startActivity(intent)
-                    // Add movable component
-                    val movableComponent = MovableComponent.createSystemMovable(session!!)
-                    activityPanelEntity.addComponent(movableComponent)
-                    movableComponent.size = getSizeInLocalSpace(activityPanelEntity)
-                    // Add resizeable component
-                    val resizeListener =
-                        Consumer<ResizeEvent> { resizeEvent: ResizeEvent ->
-                            (resizeEvent.entity as PanelEntity).size = resizeEvent.newSize.to2d()
-                        }
-                    val resizeableComponent =
-                        ResizableComponent.create(session!!, resizeEventListener = resizeListener)
-                    activityPanelEntity.addComponent(resizeableComponent)
-                    activityPanelEntity.parent = session!!.scene.mainPanelEntity
+                    if (!secondaryPanelLaunched) {
+                        // Set the pose for the activity panel
+                        activityPanelEntity.setPose(Pose(Vector3(0f, 0.6f, .05f)))
+                        // Create intent to launch a new activity in the panel
+                        val intent = Intent(this@ActivityPanelActivity, ActivityPanel::class.java)
+                        intent.putExtra("NAV_ICON", false)
+                        // Launch an activity in the panel
+                        activityPanelEntity.startActivity(intent)
+                        // Add movable component
+                        val movableComponent = MovableComponent.createSystemMovable(session!!)
+                        activityPanelEntity.addComponent(movableComponent)
+                        movableComponent.size = getSizeInLocalSpace(activityPanelEntity)
+                        // Add resizeable component
+                        val resizeListener =
+                            Consumer<ResizeEvent> { resizeEvent: ResizeEvent ->
+                                (resizeEvent.entity as PanelEntity).size =
+                                    resizeEvent.newSize.to2d()
+                            }
+                        val resizeableComponent =
+                            ResizableComponent.create(
+                                session!!,
+                                resizeEventListener = resizeListener,
+                            )
+                        activityPanelEntity.addComponent(resizeableComponent)
+                        activityPanelEntity.parent = session!!.scene.mainPanelEntity
 
-                    secondaryPanelLaunched = true
+                        secondaryPanelLaunched = true
+                    }
+                } else {
+                    Log.e(ACTIVITY_NAME, "permission denied")
                 }
-            } else {
-                Log.e(ACTIVITY_NAME, "permission denied")
             }
         }
     }

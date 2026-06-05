@@ -72,7 +72,7 @@ class TestRuleSpatialEnvironmentTest {
     private lateinit var gltfModelEntity: GltfModelEntity
 
     @Before
-    fun setUp() = runBlocking {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result =
             Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)

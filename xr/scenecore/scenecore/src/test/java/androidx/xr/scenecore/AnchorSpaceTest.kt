@@ -50,6 +50,7 @@ import kotlin.time.toJavaDuration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -85,7 +86,7 @@ class AnchorSpaceTest {
     @Before
     @Suppress("DEPRECATION")
     // TODO: b/494308962 Remove references to arcore-testing Fakes
-    fun setup() {
+    fun setup(): Unit = runBlocking {
         testDispatcher = StandardTestDispatcher()
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
@@ -450,7 +451,7 @@ class AnchorSpaceTest {
         MemoryUtils.assertGarbageCollected(anchorSpaceRef)
     }
 
-    private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher) {
+    private suspend fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher) {
         val result =
             Session.create(
                 activity,

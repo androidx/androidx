@@ -64,6 +64,7 @@ import androidx.xr.runtime.UnstableNativeResourceApi
 import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.getNativeInstanceData
 import androidx.xr.runtime.getNativeSessionData
+import kotlin.coroutines.coroutineContext
 
 class NativeDataActivity : ComponentActivity() {
 
@@ -241,7 +242,7 @@ class NativeDataActivity : ComponentActivity() {
 
     @OptIn(UnstableNativeResourceApi::class)
     @Suppress("RestrictedApiAndroidX")
-    private fun runTests() {
+    private suspend fun runTests() {
         // Test 1: Invalid Extensions
         val invalidExtensions = listOf("XR_INVALID_EXTENSION_NAME")
         try {
@@ -269,7 +270,12 @@ class NativeDataActivity : ComponentActivity() {
         try {
             XrDevice.getCurrentDevice(this, extensionsToInject)
 
-            val result = Session.create(this, lifecycleOwner = customLifecycleOwner)
+            val result =
+                Session.create(
+                    this,
+                    coroutineContext = coroutineContext,
+                    lifecycleOwner = customLifecycleOwner,
+                )
             if (result is androidx.xr.runtime.SessionCreateSuccess) {
                 validExtensionInjectResult =
                     "Success: Injected extensions & created XR session successfully."

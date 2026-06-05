@@ -66,6 +66,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.DrmConfiguration
@@ -120,12 +121,13 @@ import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import java.io.File
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 class SpatialComposeVideoPlayer : ComponentActivity() {
     private val TAG = "SpatialComposeVideoPlayer"
     private lateinit var mediaPlayer: MediaPlayer
 
-    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
+    private lateinit var session: Session
 
     private var surfaceEntity: SurfaceEntity? = null
     private var movableComponent: MovableComponent? = null
@@ -172,37 +174,48 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        session.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
-        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
-        val file = File(defaultVideoUri)
-        if (file.exists()) {
-            mediaUriState.value = Uri.fromFile(file)
-        }
-
-        if (!File(drmVideoUri).exists()) {
-            Toast.makeText(
-                    this@SpatialComposeVideoPlayer,
-                    "Drm file does not exist. Please adb push the asset if using drm.",
-                    Toast.LENGTH_LONG,
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@SpatialComposeVideoPlayer)
+            if (sessionResult is SessionCreateSuccess) {
+                session = sessionResult.session
+                session.configure(
+                    Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
                 )
-                .show()
-        }
+                session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
-        // For a transparent SpatialMainPanel.
-        window.setBackgroundDrawableResource(android.R.color.transparent)
+                val file = File(defaultVideoUri)
+                if (file.exists()) {
+                    mediaUriState.value = Uri.fromFile(file)
+                }
 
-        setContent {
-            Box(
-                modifier =
-                    Modifier.fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.25f))
-                        .padding(16.dp)
-            ) {
-                Button(onClick = { releaseMediaPlayer() }) { Text("Close") }
+                if (!File(drmVideoUri).exists()) {
+                    Toast.makeText(
+                            this@SpatialComposeVideoPlayer,
+                            "Drm file does not exist. Please adb push the asset if using drm.",
+                            Toast.LENGTH_LONG,
+                        )
+                        .show()
+                }
+
+                // For a transparent SpatialMainPanel.
+                window.setBackgroundDrawableResource(android.R.color.transparent)
+
+                setContent {
+                    Box(
+                        modifier =
+                            Modifier.fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.25f))
+                                .padding(16.dp)
+                    ) {
+                        Button(onClick = { releaseMediaPlayer() }) { Text("Close") }
+                    }
+
+                    Subspace(allowUnboundedSubspace = true) { VideoOptionsContent(session) }
+                }
+            } else {
+                finish()
             }
-
-            Subspace(allowUnboundedSubspace = true) { VideoOptionsContent(session) }
         }
     }
 

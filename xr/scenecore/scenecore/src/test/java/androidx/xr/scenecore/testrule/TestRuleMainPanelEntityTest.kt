@@ -37,6 +37,7 @@ import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.lang.ref.WeakReference
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -64,7 +65,7 @@ class TestRuleMainPanelEntityTest {
     private lateinit var mainPanelEntityTester: MainPanelEntityTester
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =
