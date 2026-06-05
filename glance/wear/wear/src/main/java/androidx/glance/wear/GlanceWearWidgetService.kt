@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
+import androidx.annotation.CallSuper
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetProviderInfo
@@ -44,6 +45,9 @@ import kotlinx.coroutines.launch
  */
 public abstract class GlanceWearWidgetService : LifecycleService() {
 
+    // Ensure super is called for lifecycle methods. Clients should not rely on the lifecycle of
+    // the service.
+    @CallSuper
     @SuppressLint("RestrictedApiAndroidX")
     @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
     override fun onCreate() {
@@ -52,7 +56,6 @@ public abstract class GlanceWearWidgetService : LifecycleService() {
         // would be used, for the 1.6 renderer and the player that has a bug in it.
         RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis =
             RendererVersion.fromPlHostPackage(this) > RendererVersion(1, 6, 0)
-        // TODO: b/483999057 - Add CallSuper annotation to lifecycle methods.
         if (!isRobolectricBuild()) {
             updateServiceMapping()
         }
@@ -91,6 +94,19 @@ public abstract class GlanceWearWidgetService : LifecycleService() {
 
             else -> null
         }
+    }
+
+    // Ensure super is called for lifecycle methods. Clients should not rely on the lifecycle of
+    // the service.
+    @CallSuper
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int =
+        super.onStartCommand(intent, flags, startId)
+
+    // Ensure super is called for lifecycle methods. Clients should not rely on the lifecycle of
+    // the service.
+    @CallSuper
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     private fun updateServiceMapping() {
