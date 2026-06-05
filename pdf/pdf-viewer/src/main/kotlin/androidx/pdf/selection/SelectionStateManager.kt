@@ -56,6 +56,7 @@ import androidx.pdf.view.layout.PageLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -118,7 +119,11 @@ internal class SelectionStateManager(
      * Replay at few values in case of an UI signal issued while [androidx.pdf.view.PdfView] is not
      * collecting
      */
-    private val _selectionUiSignalBus = MutableSharedFlow<SelectionUiSignal>(replay = 3)
+    private val _selectionUiSignalBus =
+        MutableSharedFlow<SelectionUiSignal>(
+            replay = 3,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
 
     /**
      * This [SharedFlow] serves as an event bus of sorts to signal our host
