@@ -294,7 +294,7 @@ constructor(
         }
     }
 
-    private fun CameraGraph.Session.update3A(parameters: Map<CaptureRequest.Key<*>, Any>?) {
+    private fun CameraGraph.Session.update3A(parameters: Map<CaptureRequest.Key<*>, Any?>?) {
         val aeMode =
             parameters.getIntOrNull(CaptureRequest.CONTROL_AE_MODE)?.let {
                 AeMode.fromIntOrNull(it)
@@ -330,7 +330,7 @@ constructor(
         }
     }
 
-    private fun Map<CaptureRequest.Key<*>, Any>?.getIntOrNull(key: CaptureRequest.Key<*>): Int? =
+    private fun Map<CaptureRequest.Key<*>, Any?>?.getIntOrNull(key: CaptureRequest.Key<*>): Int? =
         this?.get(key) as? Int
 
     public inner class RequestListener : Request.Listener {

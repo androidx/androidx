@@ -46,7 +46,7 @@ internal class AndroidFrameMetadata(
     override val frameNumber: FrameNumber
         get() = FrameNumber(captureResult.frameNumber)
 
-    override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
+    override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any?>()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =

@@ -156,9 +156,10 @@ class FrameGraphImplTest {
             val frame = frameGraph.simulateNextFrame()
             advanceUntilIdle()
             assertThat(frame.request.streams).isEqualTo(listOf(stream1, stream2))
-            val parameters: Map<CaptureRequest.Key<*>, Any> = mapOf(CAPTURE_REQUEST_KEY to 2)
+            val parameters: Map<CaptureRequest.Key<*>, Any?> =
+                mapOf(CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to null)
             assertThat(frame.request.parameters).isEqualTo(parameters)
-            val extras: Map<Metadata.Key<*>, Any> = mapOf(TEST_KEY to 5)
+            val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
             assertThat(frame.request.extras).isEqualTo(extras)
         }
 
@@ -173,6 +174,53 @@ class FrameGraphImplTest {
             assertThrows<IllegalStateException> {
                 frameGraph.captureWith(setOf(stream1, stream2), mapOf(CAPTURE_REQUEST_KEY to 3))
             }
+        }
+
+    @Test
+    fun captureWithNullParameter_propagatesNullToRequest() =
+        testScope.runTest {
+            initialize(this)
+            val stream = frameGraph.streams[streamConfig1]!!.id
+
+            val buffer1 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to 42))
+            advanceUntilIdle()
+            assertThat(frameGraph.simulateNextFrame().request.parameters)
+                .containsEntry(TEST_NULLABLE_KEY, 42)
+            buffer1.close()
+
+            val buffer2 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to null))
+            advanceUntilIdle()
+            assertThat(frameGraph.simulateNextFrame().request.parameters)
+                .containsEntry(TEST_NULLABLE_KEY, null)
+
+            buffer2.close()
+        }
+
+    @Test
+    fun captureWithNullParameter_nullToNonNullToNull() =
+        testScope.runTest {
+            initialize(this)
+            val stream = frameGraph.streams[streamConfig1]!!.id
+
+            val buffer1 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to null))
+            advanceUntilIdle()
+            assertThat(frameGraph.simulateNextFrame().request.parameters)
+                .containsEntry(TEST_NULLABLE_KEY, null)
+            buffer1.close()
+            advanceUntilIdle()
+
+            val buffer2 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to 42))
+            advanceUntilIdle()
+            assertThat(frameGraph.simulateNextFrame().request.parameters)
+                .containsEntry(TEST_NULLABLE_KEY, 42)
+            buffer2.close()
+            advanceUntilIdle()
+
+            val buffer3 = frameGraph.captureWith(setOf(stream), mapOf(TEST_NULLABLE_KEY to null))
+            advanceUntilIdle()
+            assertThat(frameGraph.simulateNextFrame().request.parameters)
+                .containsEntry(TEST_NULLABLE_KEY, null)
+            buffer3.close()
         }
 
     @Test
