@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import static androidx.compose.remote.core.Limits.MAX_PARTICLE_COUNT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.VAR1;
@@ -180,6 +181,10 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport, 
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int id = buffer.readId();
         int particleCount = buffer.readInt();
+        if (MAX_PARTICLE_COUNT < particleCount) {
+            throw new RuntimeException(
+                    particleCount + " particles more than max = " + MAX_PARTICLE_COUNT);
+        }
         int varLen = buffer.readInt();
         if (varLen > MAX_FLOAT_ARRAY) {
             throw new RuntimeException(varLen + " map entries more than max = " + MAX_FLOAT_ARRAY);

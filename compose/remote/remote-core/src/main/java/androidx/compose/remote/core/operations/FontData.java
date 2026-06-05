@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.BYTE_ARRAY;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -117,7 +118,8 @@ public class FontData extends Operation implements SerializableToString, Seriali
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int fontId = buffer.readId();
         int type = buffer.readInt();
-        byte[] fontData = buffer.readBuffer();
+
+        byte[] fontData = buffer.readBuffer(Limits.MAX_FONT_DATA);
         FontData bitmapData = new FontData(fontId, type, fontData);
         operations.add(bitmapData);
     }

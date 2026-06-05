@@ -16,6 +16,7 @@
 package androidx.compose.remote.core.operations.utilities;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.operations.utilities.easing.CubicEasing;
 import androidx.compose.remote.core.operations.utilities.easing.MonotonicSpline;
 
@@ -1125,6 +1126,9 @@ public class AnimatedFloatExpression {
                 id = fromNaN(mStack[sp - 1]);
                 assert mCollectionsAccess != null;
                 int last = (int) mStack[sp];
+                if (last > Limits.MAX_SUM_TILL_ITERATIONS) {
+                    throw new RuntimeException("Too many iterations in A_SUM_TILL");
+                }
                 sum = 0;
                 for (int j = 0; j <= last; j++) {
                     sum += mCollectionsAccess.getFloatValue(id, j);

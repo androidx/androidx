@@ -666,7 +666,7 @@ public class PaintBundle implements Serializable {
         int gradientType = (cmd >> 16);
 
         int len = 0xFF & array[ret++]; // maximum 256 colors
-
+        int colorLen = len;
         int[] colors = null;
         if (len > 0) {
             colors = new int[len];
@@ -677,6 +677,9 @@ public class PaintBundle implements Serializable {
         len = array[ret++];
         float[] stops = null;
         if (len > 0 && colors != null) {
+            if (len != colorLen) { // length should be 0 or the same as colors
+                throw new RuntimeException("bad gradient length");
+            }
             stops = new float[len];
             for (int j = 0; j < colors.length; j++) {
                 stops[j] = Float.intBitsToFloat(array[ret++]);

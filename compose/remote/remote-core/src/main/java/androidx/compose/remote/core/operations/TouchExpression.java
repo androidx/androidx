@@ -716,13 +716,18 @@ public class TouchExpression extends Operation
         int stopLogic = buffer.readInt();
         int stopLen = stopLogic & 0xFFFF;
         int stopMode = stopLogic >> 16;
-
+        if (stopLen > Limits.MAX_TOUCH_STOPS) {
+            throw new RuntimeException(
+                    "stops too long: " + stopLen + " > " + Limits.MAX_TOUCH_STOPS);
+        }
         float[] stopsData = new float[stopLen];
         for (int i = 0; i < stopsData.length; i++) {
             stopsData[i] = buffer.readNanId();
         }
         int easingLen = buffer.readInt();
-
+        if (easingLen > Limits.MAX_EASING_LEN) {
+            throw new RuntimeException("Easing spec too long: " + easingLen);
+        }
         float[] easingData = new float[easingLen];
         for (int i = 0; i < easingData.length; i++) {
             easingData[i] = buffer.readNanId();

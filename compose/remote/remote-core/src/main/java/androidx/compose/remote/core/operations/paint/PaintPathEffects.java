@@ -17,6 +17,7 @@
 package androidx.compose.remote.core.operations.paint;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.operations.Utils;
 
 import org.jspecify.annotations.NonNull;
@@ -147,7 +148,11 @@ public abstract class PaintPathEffects {
          */
         public static @NonNull PaintPathEffects decode(float @NonNull [] data, int offset) {
             float phase = data[offset];
-            float[] intervals = new float[Float.floatToRawIntBits(data[offset + 1])];
+            int len = Float.floatToRawIntBits(data[offset + 1]);
+            if (len < 0 || len > Limits.MAX_DASH_INTERVALS) {
+                throw new RuntimeException("Invalid dash intervals");
+            }
+            float[] intervals = new float[len];
             System.arraycopy(data, offset + 2, intervals, 0, intervals.length);
             Dash ret = new Dash(phase, intervals);
             ret.mDataLength = intervals.length + 2;

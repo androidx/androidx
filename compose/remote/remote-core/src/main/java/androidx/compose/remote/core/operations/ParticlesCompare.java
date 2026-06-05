@@ -313,7 +313,10 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
         }
 
         int result2Len = buffer.readInt();
-
+        if (result2Len > MAX_FLOAT_ARRAY) {  // Same check as result1Len
+            throw new RuntimeException(
+                    result2Len + " map entries more than max = " + MAX_FLOAT_ARRAY);
+        }
         float[][] equations2 = (result2Len == 0) ? null : new float[result2Len][];
         for (int i = 0; i < result2Len; i++) {
             equations2[i] = readFloats(buffer);

@@ -24,6 +24,7 @@ import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -59,13 +60,20 @@ class ComposeImageSizeTest {
         val size = buffer.buffer.size
         val b = buffer.buffer.buffer.copyOf(size)
 
-        val remoteComposeDocument =
-            CoreDocument().apply {
-                ByteArrayInputStream(b).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
+        val remoteComposeDocument: CoreDocument?
 
+        try {
+            remoteComposeDocument =
+                CoreDocument().apply {
+                    ByteArrayInputStream(b).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
+                }
+        } catch (e: Exception) {
+            Truth.assertThat(e).hasMessageThat().contains("invalid size")
+            println("successfully caught exception")
+            return
+        }
         assertThrows(RuntimeException::class.java) {
                 composeTestRule.setContent {
                     RemoteDocumentComposePlayer(
