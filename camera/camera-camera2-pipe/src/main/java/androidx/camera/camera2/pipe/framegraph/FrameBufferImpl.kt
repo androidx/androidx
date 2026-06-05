@@ -173,6 +173,37 @@ internal class FrameBufferImpl(
             return removedFrames
         }
 
+    override fun releaseFirst(predicate: ((FrameReference) -> Boolean)?): Boolean =
+        release(predicate ?: { true }, reversed = false)
+
+    override fun releaseLast(predicate: ((FrameReference) -> Boolean)?): Boolean =
+        release(predicate ?: { true }, reversed = true)
+
+    override fun releaseAll(predicate: ((FrameReference) -> Boolean)?): Boolean {
+        val removedFrames = mutableListOf<BufferEntry>()
+        synchronized(lock) {
+            if (closed || frameQueue.isEmpty()) return false
+
+            val iterator = frameQueue.iterator()
+            while (iterator.hasNext()) {
+                val entry = iterator.next()
+                if (predicate == null || predicate(entry.frameReference)) {
+                    iterator.remove()
+                    removedFrames.add(entry)
+                }
+            }
+            _size.value = frameQueue.size
+        }
+
+        for (entry in removedFrames) {
+            if (entry is BufferEntry.WithFrame) {
+                entry.frame.close()
+            }
+        }
+
+        return removedFrames.isNotEmpty()
+    }
+
     override fun peekFirstReference(): FrameReference? =
         synchronized(lock) {
             if (closed) return null
@@ -244,6 +275,34 @@ internal class FrameBufferImpl(
             }
         }
         return null
+    }
+
+    private fun release(
+        predicate: (FrameReference) -> Boolean,
+        reversed: Boolean = false,
+    ): Boolean {
+        var entryToClose: BufferEntry? = null
+        synchronized(lock) {
+            if (closed) return false
+
+            val indexToRemove =
+                if (reversed) {
+                    frameQueue.indexOfLast { predicate(it.frameReference) }
+                } else {
+                    frameQueue.indexOfFirst { predicate(it.frameReference) }
+                }
+
+            if (indexToRemove != -1) {
+                val bufferEntry = frameQueue.removeAt(indexToRemove)
+                _size.value = frameQueue.size
+                entryToClose = bufferEntry
+            }
+        }
+        // Close entry outside of synchronized block to avoid deadlocks
+        if (entryToClose is BufferEntry.WithFrame) {
+            entryToClose.frame.close()
+        }
+        return entryToClose != null
     }
 
     private fun FrameReference.tryAcquireForInternalUse(): Frame? =
