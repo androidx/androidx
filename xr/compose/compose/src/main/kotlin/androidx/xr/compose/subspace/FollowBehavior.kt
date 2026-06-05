@@ -178,6 +178,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
                         )
                     ) {
                         lastIntendedEndPoseMeter = currentTargetPoseMeter
+
                         launch {
                             animationProgress.snapTo(targetValue = ANIMATION_START_VALUE)
                             animate(endPoseMeter = lastIntendedEndPoseMeter)
@@ -276,6 +277,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SoftFollowBehavior) return false
+
         return durationMs == other.durationMs
     }
 
@@ -355,9 +357,11 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
                 ) {
                     return@collect
                 }
+
                 if (!isAnimating.compareAndSet(false, true)) {
                     return@collect
                 }
+
                 launch {
                     try {
                         animate(trailingEntity, targetPoseProvider = { currentTargetPoseMeter })
@@ -377,28 +381,22 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
      * enough to the target.
      */
     private suspend fun animate(trailingEntity: CoreGroupEntity, targetPoseProvider: () -> Pose) {
-        var lastFrameTimeNanos: Long = System.nanoTime()
+        // The baseline starts uninitialized.
+        var lastFrameTimeNanos: Long = 0L
 
         while (true) {
+            // Suspend exactly ONCE per frame
             val currentFrameTimeNanos: Long = withFrameNanos { it }
 
-            // Calculate elapsed time (dt) in seconds, clamped between 1ms and 100ms
-            // to prevent large motion jumps due to frame drops or thread suspension.
-            val dtNanos: Long =
-                (currentFrameTimeNanos - lastFrameTimeNanos).coerceIn(1_000_000L, 100_000_000L)
-            val dtSeconds = dtNanos / 1_000_000_000f
+            // On the first frame, sync the baseline to the Compose frame clock.
+            if (lastFrameTimeNanos == 0L) {
+                lastFrameTimeNanos = currentFrameTimeNanos
+            }
+
+            val dtSeconds = calculateDtSeconds(lastFrameTimeNanos, currentFrameTimeNanos)
             lastFrameTimeNanos = currentFrameTimeNanos
 
-            // Calculate the frame-rate independent interpolation factor using exponential decay.
-            // The general formula for exponential decay interpolation is:
-            //   1 - base^dtSeconds
-            //
-            // where "base" is a constant that corresponds to the level of friction in the system.
-            // Here, we use (1 / LERP_DIVISOR) as our decay base, giving:
-            //   decayFactor = 1 - (1 / LERP_DIVISOR)^dtSeconds
-            //
-            // The decay factor will start at zero, quickly approach 1 and level off.
-            val decayFactor = 1.0f - (1.0f / LERP_DIVISOR).pow(dtSeconds)
+            val decayFactor = calculateDecayFactor(dtSeconds)
 
             // Interpolate between the current pose and the target pose using the decay factor.
             val currentPose = trailingEntity.poseInMeters
@@ -421,6 +419,32 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
             trailingEntity.poseInMeters = targetPose
             break
         }
+    }
+
+    /**
+     * Calculates elapsed time (dt) in seconds, clamped between 1ms and 100ms to prevent large
+     * motion jumps due to frame drops or thread suspension.
+     */
+    private fun calculateDtSeconds(lastFrameTimeNanos: Long, currentFrameTimeNanos: Long): Float {
+        val dtNanos: Long =
+            (currentFrameTimeNanos - lastFrameTimeNanos).coerceIn(1_000_000L, 100_000_000L)
+
+        return dtNanos / 1_000_000_000f
+    }
+
+    /**
+     * Calculates the frame-rate independent interpolation factor using exponential decay.
+     *
+     * The general formula for exponential decay interpolation is: 1 - base^dtSeconds
+     *
+     * where "base" is a constant that corresponds to the level of friction in the system. Here, we
+     * use (1 / LERP_DIVISOR) as our decay base, giving: decayFactor = 1 - (1 /
+     * LERP_DIVISOR)^dtSeconds
+     *
+     * The decay factor will start at zero, quickly approach 1 and level off.
+     */
+    private fun calculateDecayFactor(dtSeconds: Float): Float {
+        return 1.0f - (1.0f / LERP_DIVISOR).pow(dtSeconds)
     }
 
     private fun hasSignificantPoseChange(
@@ -499,6 +523,7 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ExponentialDecayFollowBehavior) return false
+
         return true
     }
 
@@ -717,6 +742,7 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ArDeviceTarget) return false
+
         return session == other.session
     }
 
@@ -768,6 +794,7 @@ internal class AnchorTarget(val anchorSpace: AnchorSpace) : FollowTargetFlow {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AnchorTarget) return false
+
         return anchorSpace == other.anchorSpace
     }
 
