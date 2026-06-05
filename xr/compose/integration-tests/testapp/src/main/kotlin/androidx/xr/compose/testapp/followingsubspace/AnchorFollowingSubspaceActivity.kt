@@ -190,10 +190,11 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
     fun SingleAnchorButtonWithPoseListener(text: String, position: Pose, onClick: () -> Unit) {
         var rootAnchor by remember { mutableStateOf<AnchorSpace?>(null) }
         DisposableEffect(Unit) {
-            val anchor = createAnchorSpace(session, position)
-            rootAnchor = anchor
+            val anchorSpace = createAnchorSpace(session, position)
+            val anchor = anchorSpace?.anchor
+            rootAnchor = anchorSpace
 
-            onDispose { anchor?.anchor?.detach() }
+            onDispose { anchor?.detach() }
         }
 
         val currentAnchor = rootAnchor
@@ -248,9 +249,12 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
             rootAnchor = localRoot
             alternateAnchor = localAlternative
 
+            val rootAnchorObj = localRoot?.anchor
+            val alternativeAnchorObj = localAlternative?.anchor
+
             onDispose {
-                localRoot?.anchor?.detach()
-                localAlternative?.anchor?.detach()
+                rootAnchorObj?.detach()
+                alternativeAnchorObj?.detach()
             }
         }
 
