@@ -124,10 +124,10 @@ package @SuppressCompatibility androidx.xr.projected.permissions {
     property public String? rationale;
   }
 
-  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedPermissionsResultContract extends androidx.activity.result.contract.ActivityResultContract<java.util.List<? extends androidx.xr.projected.permissions.ProjectedPermissionsRequestParams>,java.util.Map<java.lang.String,? extends java.lang.Boolean>> {
-    ctor public ProjectedPermissionsResultContract();
-    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public android.content.Intent createIntent(android.content.Context context, java.util.List<androidx.xr.projected.permissions.ProjectedPermissionsRequestParams> input);
-    method public java.util.Map<java.lang.String,java.lang.Boolean> parseResult(int resultCode, android.content.Intent? intent);
+  @Deprecated @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedPermissionsResultContract extends androidx.activity.result.contract.ActivityResultContract<java.util.List<? extends androidx.xr.projected.permissions.ProjectedPermissionsRequestParams>,java.util.Map<java.lang.String,? extends java.lang.Boolean>> {
+    ctor @Deprecated public ProjectedPermissionsResultContract();
+    method @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public android.content.Intent createIntent(android.content.Context context, java.util.List<androidx.xr.projected.permissions.ProjectedPermissionsRequestParams> input);
+    method @Deprecated public java.util.Map<java.lang.String,java.lang.Boolean> parseResult(int resultCode, android.content.Intent? intent);
   }
 
 }
