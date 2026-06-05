@@ -57,6 +57,7 @@ import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SceneManager
+import androidx.xr.compose.subspace.AnchorTarget
 import androidx.xr.compose.subspace.ArDeviceTarget
 import androidx.xr.compose.subspace.FollowBehavior
 import androidx.xr.compose.subspace.FollowTarget
@@ -126,6 +127,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -2547,6 +2550,33 @@ class SubspaceTest {
 
         assertThat(session.scene.activitySpace.isDisposed).isTrue()
     }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenAnchorSpaceDisposed_doesNotCrash() =
+        runTest(testDispatcher) {
+            composeTestRule.session = composeTestRule.configureFakeSession()
+            val session = assertNotNull(composeTestRule.session)
+            session.configure(Config.Builder().build())
+
+            val anchorResult = Anchor.create(session, Pose.Identity)
+            val success = assertIs<AnchorCreateSuccess>(anchorResult)
+            val anchorSpace = AnchorSpace.create(session, anchor = success.anchor)
+            val anchorTarget = AnchorTarget(anchorSpace)
+
+            val job = launch { anchorTarget.poseUpdates.collect {} }
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Close the session/scene, which disposes of all entities including anchorSpace
+            session.scene.close()
+
+            assertThat(anchorSpace.isDisposed).isTrue()
+
+            // Canceling the collection coroutine triggers the awaitClose block in poseUpdates.
+            // This verifies that unregistering the listener on a disposed AnchorSpace does not
+            // crash.
+            job.cancelAndJoin()
+        }
 }
 
 @RunWith(AndroidJUnit4::class)

@@ -754,7 +754,15 @@ internal class AnchorTarget(val anchorSpace: AnchorSpace) : FollowTargetFlow {
         anchorSpace.addOriginChangedListener(updateListener)
 
         // Unregister the listener when the collector cancels or finishes.
-        awaitClose { anchorSpace.removeOriginChangedListener(updateListener) }
+        awaitClose {
+            try {
+                if (!anchorSpace.isDisposed) {
+                    anchorSpace.removeOriginChangedListener(updateListener)
+                }
+            } catch (_: RuntimeException) {
+                // The anchor was disposed before we could remove the listener.
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {
