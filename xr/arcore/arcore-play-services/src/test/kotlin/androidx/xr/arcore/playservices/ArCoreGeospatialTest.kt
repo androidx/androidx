@@ -179,20 +179,33 @@ class ArCoreGeospatialTest {
     }
 
     @Test
-    fun update_whenTracking_setsGeospatialPose() {
+    fun update_whenTracking_setsGeospatialPoseAndAccuracies() {
         setupGeospatialTracking()
 
         assertThat(underTest.geospatialPose).isEqualTo(GEOSPATIAL_POSE)
+        assertThat(underTest.horizontalAccuracy).isEqualTo(HORIZONTAL_ACCURACY)
+        assertThat(underTest.verticalAccuracy).isEqualTo(VERTICAL_ACCURACY)
+        assertThat(underTest.orientationYawAccuracy).isEqualTo(ORIENTATION_YAW_ACCURACY)
     }
 
     @Test
-    fun update_whenNotTracking_doesNotUpdateGeospatialPose() {
-        setupGeospatialTracking() // sets geospatialPose to GEOSPATIAL_POSE
+    fun update_whenNotTracking_doesNotUpdateGeospatialPoseAndAccuracies() {
+        setupGeospatialTracking() // sets geospatialPose and accuracies to initial values
 
         whenever(mockArCoreEarth.trackingState).thenReturn(ARCore1xTrackingState.PAUSED)
+        val newMockPose =
+            mock<ARCore1xGeospatialPose> {
+                on { horizontalAccuracy } doReturn HORIZONTAL_ACCURACY + 1.0
+                on { verticalAccuracy } doReturn VERTICAL_ACCURACY + 1.0
+                on { orientationYawAccuracy } doReturn ORIENTATION_YAW_ACCURACY + 1.0
+            }
+        whenever(mockArCoreEarth.cameraGeospatialPose).thenReturn(newMockPose)
         underTest.update(mockSession)
 
         assertThat(underTest.geospatialPose).isEqualTo(GEOSPATIAL_POSE)
+        assertThat(underTest.horizontalAccuracy).isEqualTo(HORIZONTAL_ACCURACY)
+        assertThat(underTest.verticalAccuracy).isEqualTo(VERTICAL_ACCURACY)
+        assertThat(underTest.orientationYawAccuracy).isEqualTo(ORIENTATION_YAW_ACCURACY)
     }
 
     // --- createPoseFromGeospatialPose Tests ---

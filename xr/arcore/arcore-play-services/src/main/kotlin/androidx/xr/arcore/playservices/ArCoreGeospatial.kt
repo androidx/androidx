@@ -73,6 +73,15 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
     public override var geospatialPose: GeospatialPose = GeospatialPose()
         private set
 
+    public override var horizontalAccuracy: Double = 0.0
+        private set
+
+    public override var verticalAccuracy: Double = 0.0
+        private set
+
+    public override var orientationYawAccuracy: Double = 0.0
+        private set
+
     public override fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
         validateGeospatialTracking()
 
@@ -273,8 +282,11 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
             state == Geospatial.State.RUNNING &&
                 arCoreEarth?.trackingState == ARCore1xTrackingState.TRACKING
         ) {
-            geospatialPose =
-                checkNotNull(arCoreEarth).cameraGeospatialPose.toRuntimeGeospatialPose()
+            val cameraGeospatialPose = checkNotNull(arCoreEarth).cameraGeospatialPose
+            geospatialPose = cameraGeospatialPose.toRuntimeGeospatialPose()
+            horizontalAccuracy = cameraGeospatialPose.horizontalAccuracy
+            verticalAccuracy = cameraGeospatialPose.verticalAccuracy
+            orientationYawAccuracy = cameraGeospatialPose.orientationYawAccuracy
         }
     }
 

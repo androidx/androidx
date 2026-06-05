@@ -69,7 +69,16 @@ internal constructor(
     }
 
     private val _state =
-        MutableStateFlow(State(GeospatialTrackingState.NOT_RUNNING, GeospatialPose(), owner = this))
+        MutableStateFlow(
+            State(
+                GeospatialTrackingState.NOT_RUNNING,
+                GeospatialPose(),
+                horizontalAccuracy = 0.0,
+                verticalAccuracy = 0.0,
+                orientationYawAccuracy = 0.0,
+                owner = this,
+            )
+        )
 
     public val state: StateFlow<State> = _state.asStateFlow()
 
@@ -285,6 +294,9 @@ internal constructor(
             State(
                 runtimeStateToGeospatialTrackingState(runtimeGeospatial.state),
                 runtimeGeospatial.geospatialPose,
+                runtimeGeospatial.horizontalAccuracy,
+                runtimeGeospatial.verticalAccuracy,
+                runtimeGeospatial.orientationYawAccuracy,
                 owner = this,
             )
         )
@@ -398,6 +410,9 @@ internal constructor(
     internal constructor(
         public val geospatialTrackingState: GeospatialTrackingState,
         @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val geospatialPose: GeospatialPose,
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val horizontalAccuracy: Double,
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val verticalAccuracy: Double,
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val orientationYawAccuracy: Double,
         public val owner: Geospatial,
     ) {
         override fun equals(other: Any?): Boolean {
@@ -405,12 +420,18 @@ internal constructor(
             if (other !is State) return false
             return geospatialTrackingState == other.geospatialTrackingState &&
                 geospatialPose == other.geospatialPose &&
+                horizontalAccuracy == other.horizontalAccuracy &&
+                verticalAccuracy == other.verticalAccuracy &&
+                orientationYawAccuracy == other.orientationYawAccuracy &&
                 owner == other.owner
         }
 
         override fun hashCode(): Int {
             var result = geospatialTrackingState.hashCode()
             result = 31 * result + geospatialPose.hashCode()
+            result = 31 * result + horizontalAccuracy.hashCode()
+            result = 31 * result + verticalAccuracy.hashCode()
+            result = 31 * result + orientationYawAccuracy.hashCode()
             result = 31 * result + owner.hashCode()
             return result
         }

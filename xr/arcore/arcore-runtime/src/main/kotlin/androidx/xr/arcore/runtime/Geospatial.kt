@@ -103,7 +103,7 @@ public interface Geospatial {
      * @property geospatialPose the [GeospatialPose] that was created
      * @property horizontalAccuracy the estimated horizontal accuracy in meters
      * @property verticalAccuracy the estimated altitude accuracy in meters
-     * @property orientationYawAccuracy the estimated orientation yaw angle accuracy
+     * @property orientationYawAccuracy the estimated orientation yaw angle accuracy in degrees
      */
     public class GeospatialPoseResult(
         public val geospatialPose: GeospatialPose,
@@ -134,6 +134,15 @@ public interface Geospatial {
 
     /** The current [GeospatialPose] of the device/camera. */
     public val geospatialPose: GeospatialPose
+
+    /** The estimated horizontal accuracy in meters. */
+    public val horizontalAccuracy: Double
+
+    /** The estimated altitude accuracy in meters. */
+    public val verticalAccuracy: Double
+
+    /** The estimated orientation yaw angle accuracy in degrees. */
+    public val orientationYawAccuracy: Double
 
     /**
      * Converts the input [GeospatialPose] to a [Pose] in the same position.
