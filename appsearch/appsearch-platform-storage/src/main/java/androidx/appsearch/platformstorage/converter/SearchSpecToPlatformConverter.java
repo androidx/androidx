@@ -30,11 +30,13 @@ import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.platformstorage.PlatformConversionAdapter;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
+
 
 import java.util.List;
 import java.util.Map;
@@ -57,7 +59,8 @@ public final class SearchSpecToPlatformConverter {
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static android.app.appsearch.@NonNull SearchSpec toPlatformSearchSpec(
             @NonNull Context context,
-            @NonNull SearchSpec jetpackSearchSpec) {
+            @NonNull SearchSpec jetpackSearchSpec,
+            @NonNull PlatformConversionAdapter adapter) {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(jetpackSearchSpec);
 
@@ -171,8 +174,8 @@ public final class SearchSpecToPlatformConverter {
         }
         if (!jetpackSearchSpec.getSearchStringParameters().isEmpty()) {
             // TODO(b/332620561): Remove this once search parameter strings APIs is supported.
-            throw new UnsupportedOperationException(Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS
-                    + " is not available on this AppSearch implementation.");
+            adapter.setSearchStringParameters(
+                    platformBuilder, jetpackSearchSpec.getSearchStringParameters());
         }
 
         if (jetpackSearchSpec.getJoinSpec() != null) {
@@ -181,7 +184,7 @@ public final class SearchSpecToPlatformConverter {
                         + "AppSearch implementation.");
             }
             ApiHelperForSdkExtensionUBase.setJoinSpec(
-                    context, platformBuilder, jetpackSearchSpec.getJoinSpec());
+                    context, platformBuilder, jetpackSearchSpec.getJoinSpec(), adapter);
         }
 
         if (!jetpackSearchSpec.getFilterProperties().isEmpty()) {
@@ -250,12 +253,14 @@ public final class SearchSpecToPlatformConverter {
             builder.setRankingStrategy(rankingExpression);
         }
 
+        @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
         @DoNotInline
         static void setJoinSpec(@NonNull Context context,
                 android.app.appsearch.SearchSpec.@NonNull Builder builder,
-                JoinSpec jetpackJoinSpec) {
+                JoinSpec jetpackJoinSpec,
+                @NonNull PlatformConversionAdapter adapter) {
             builder.setJoinSpec(JoinSpecToPlatformConverter.toPlatformJoinSpec(context,
-                    jetpackJoinSpec));
+                    jetpackJoinSpec, adapter));
         }
 
         @DoNotInline

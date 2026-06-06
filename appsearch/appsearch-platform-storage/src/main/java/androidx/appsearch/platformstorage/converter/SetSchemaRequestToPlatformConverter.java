@@ -33,11 +33,13 @@ import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetBlobVisibilityRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.appsearch.platformstorage.PlatformConversionAdapter;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
+
 
 import java.util.List;
 import java.util.Map;
@@ -60,13 +62,14 @@ public final class SetSchemaRequestToPlatformConverter {
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static android.app.appsearch.@NonNull SetSchemaRequest toPlatformSetSchemaRequest(
             @NonNull Context context,
-            @NonNull SetSchemaRequest jetpackRequest) {
+            @NonNull SetSchemaRequest jetpackRequest,
+            @NonNull PlatformConversionAdapter adapter) {
         Preconditions.checkNotNull(jetpackRequest);
         android.app.appsearch.SetSchemaRequest.Builder platformBuilder =
                 new android.app.appsearch.SetSchemaRequest.Builder();
         for (AppSearchSchema jetpackSchema : jetpackRequest.getSchemas()) {
             platformBuilder.addSchemas(
-                    SchemaToPlatformConverter.toPlatformSchema(context, jetpackSchema));
+                    SchemaToPlatformConverter.toPlatformSchema(context, jetpackSchema, adapter));
         }
         for (String schemaNotDisplayedBySystem : jetpackRequest.getSchemasNotDisplayedBySystem()) {
             platformBuilder.setSchemaTypeDisplayedBySystem(
@@ -120,9 +123,8 @@ public final class SetSchemaRequestToPlatformConverter {
 
         // TODO(b/413089233) support this feature once its ready in appsearch platform
         if (!jetpackRequest.getSchemasWipeoutAccountPropertyPaths().isEmpty()) {
-            throw new UnsupportedOperationException(
-                    "set schema wipeout account property paths are not supported on this AppSearch "
-                            + "implementation.");
+            adapter.setSchemasWipeoutAccountPropertyPaths(
+                    platformBuilder, jetpackRequest.getSchemasWipeoutAccountPropertyPaths());
         }
 
         if (!jetpackRequest.getSchemasVisibleToConfigs().isEmpty()) {
@@ -161,7 +163,7 @@ public final class SetSchemaRequestToPlatformConverter {
                         return inPlatformDocument; // Same object; no conversion occurred.
                     }
                     return GenericDocumentToPlatformConverter.toPlatformGenericDocument(
-                            outJetpackDocument);
+                            outJetpackDocument, adapter);
                 }
 
                 @Override
@@ -178,7 +180,7 @@ public final class SetSchemaRequestToPlatformConverter {
                         return inPlatformDocument; // Same object; no conversion occurred.
                     }
                     return GenericDocumentToPlatformConverter.toPlatformGenericDocument(
-                            outJetpackDocument);
+                            outJetpackDocument, adapter);
                 }
             };
             platformBuilder.setMigrator(entry.getKey(), platformMigrator);
@@ -217,9 +219,11 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link androidx.appsearch.app.SetBlobVisibilityRequest} into a platform
      * {@link android.app.appsearch.SetBlobVisibilityRequest}.
      */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     public static android.app.appsearch.@NonNull SetBlobVisibilityRequest
-            toPlatformSetBlobVisibilityRequest(@NonNull SetBlobVisibilityRequest jetpackRequest) {
+            toPlatformSetBlobVisibilityRequest(@NonNull SetBlobVisibilityRequest jetpackRequest,
+                    @NonNull PlatformConversionAdapter adapter) {
         Preconditions.checkNotNull(jetpackRequest);
         android.app.appsearch.SetBlobVisibilityRequest.Builder platformRequestBuilder =
                 new android.app.appsearch.SetBlobVisibilityRequest.Builder();
@@ -228,21 +232,25 @@ public final class SetSchemaRequestToPlatformConverter {
             platformRequestBuilder.setNamespaceDisplayedBySystem(
                     namespacesNotDisplayedBySystem, /*displayed=*/false);
         }
-        for (Map.Entry<String, Set<SchemaVisibilityConfig>> entry :
-                jetpackRequest.getNamespacesVisibleToConfigs().entrySet()) {
-            String namespace = entry.getKey();
-            for (SchemaVisibilityConfig schemaVisibilityConfig : entry.getValue()) {
-                if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.V_BASE) {
-                    android.app.appsearch.SchemaVisibilityConfig platformSchemaVisibilityConfig =
-                            ApiHelperForSdkExtensionVBase.toPlatformSchemaVisibilityConfig(
-                                    schemaVisibilityConfig);
-                    platformRequestBuilder.addNamespaceVisibleToConfig(namespace,
-                            platformSchemaVisibilityConfig);
-                } else {
-                    throw new UnsupportedOperationException(
-                            "Schema visibility config is not supported on this version of Android"
-                                    + " Platform.");
+        if (!jetpackRequest.getNamespacesVisibleToConfigs().isEmpty()) {
+            if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.V_BASE) {
+                for (Map.Entry<String, Set<SchemaVisibilityConfig>> entry :
+                        jetpackRequest.getNamespacesVisibleToConfigs().entrySet()) {
+                    String namespace = entry.getKey();
+                    for (SchemaVisibilityConfig schemaVisibilityConfig : entry.getValue()) {
+                        android.app.appsearch.SchemaVisibilityConfig
+                                platformSchemaVisibilityConfig =
+                                        ApiHelperForSdkExtensionVBase
+                                                .toPlatformSchemaVisibilityConfig(
+                                                        schemaVisibilityConfig);
+                        platformRequestBuilder.addNamespaceVisibleToConfig(namespace,
+                                platformSchemaVisibilityConfig);
+                    }
                 }
+            } else {
+                throw new UnsupportedOperationException(
+                        "Schema visibility config is not supported on this version of Android"
+                                + " Platform.");
             }
         }
 
