@@ -1,6 +1,17 @@
 // Signature format: 4.0
 package androidx.xr.runtime.testing {
 
+  public final class SessionTestRule extends org.junit.rules.ExternalResource {
+    ctor public SessionTestRule();
+    method protected void before();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.SessionConfigureResult? getConfigureResult();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.SessionCreateResult? getCreateResult();
+    method @InaccessibleFromKotlin public void setConfigureResult(androidx.xr.runtime.SessionConfigureResult?);
+    method @InaccessibleFromKotlin public void setCreateResult(androidx.xr.runtime.SessionCreateResult?);
+    property public androidx.xr.runtime.SessionConfigureResult? configureResult;
+    property public androidx.xr.runtime.SessionCreateResult? createResult;
+  }
+
   public final class XrDeviceTestRule extends org.junit.rules.ExternalResource {
     ctor public XrDeviceTestRule();
     method protected void before();

@@ -36,6 +36,8 @@ import androidx.xr.runtime.internal.LibraryNotLinkedException
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import androidx.xr.runtime.internal.RenderingRuntimeFactory
 import androidx.xr.runtime.internal.SceneRuntimeFactory
+import androidx.xr.runtime.internal.SessionResultProvider
+import androidx.xr.runtime.internal.SessionResultProviderFactory
 import androidx.xr.runtime.internal.UnsupportedDeviceException
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -81,6 +83,7 @@ public constructor(
     public val runtimes: List<JxrRuntime> = emptyList(),
     public val coroutineScope: CoroutineScope = CoroutineScope(context = EmptyCoroutineContext),
     public val lifecycleOwner: LifecycleOwner,
+    private val sessionResultProvider: SessionResultProvider? = null,
 ) {
 
     @Deprecated(
@@ -199,6 +202,21 @@ public constructor(
 
             val coroutineScope = CoroutineScope(coroutineContext)
 
+            val sessionResultProviderFactory: SessionResultProviderFactory? =
+                selectProvider(
+                    loadProviders(
+                        SessionResultProviderFactory::class.java,
+                        SESSION_RESULT_PROVIDERS,
+                    ),
+                    /* features= */ emptySet(),
+                )
+
+            val sessionResultProvider =
+                sessionResultProviderFactory?.createProvider(context, coroutineScope)
+            sessionResultProvider?.createResult?.let {
+                return it
+            }
+
             if (contextSessionMap.containsKey(context)) {
                 return SessionCreateSuccess(contextSessionMap[context]!!)
             }
@@ -281,6 +299,7 @@ public constructor(
                     runtimes,
                     coroutineScope,
                     lifecycleOwner,
+                    sessionResultProvider,
                 )
 
             lifecycleOwner.lifecycleScope.launch {
@@ -336,6 +355,9 @@ public constructor(
                 "androidx.xr.runtime.testing.FakeSessionConnector",
                 "androidx.xr.runtime.StubSessionConnector",
             )
+
+        private val SESSION_RESULT_PROVIDERS =
+            listOf("androidx.xr.runtime.testing.internal.FakeSessionResultProviderFactory")
     }
 
     private val _state = MutableStateFlow<CoreState>(CoreState(TimeSource.Monotonic.markNow()))
@@ -405,6 +427,9 @@ public constructor(
     public fun configure(config: Config): SessionConfigureResult {
         check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
             "Session has been destroyed."
+        }
+        sessionResultProvider?.configureResult?.let {
+            return it
         }
         return runBlocking {
             lock.withLock {
