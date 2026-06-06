@@ -239,6 +239,8 @@ private fun LayoutSpatialDialog(
                 context = context,
                 session = session,
                 parentView = parentView,
+                onDismissRequest = onDismissRequest,
+                properties = properties,
                 compositionContext = compositionContext,
             )
         }
@@ -266,6 +268,8 @@ private class SpatialDialogRenderer(
     private val context: Context,
     private val session: Session,
     private val parentView: View,
+    private val onDismissRequest: () -> Unit,
+    private val properties: SpatialDialogProperties,
     private val compositionContext: CompositionContext,
 ) : RememberObserver {
 
@@ -311,10 +315,19 @@ private class SpatialDialogRenderer(
         view.setContent {
             Box(
                 modifier =
-                    Modifier.constrainTo(Constraints()).onSizeChanged {
-                        panelEntity?.size =
-                            IntVolumeSize(width = it.width, height = it.height, depth = 0)
-                    }
+                    Modifier.onClickOutside(
+                            enabled = true,
+                            onClickOutside = {
+                                if (properties.dismissOnClickOutside) {
+                                    onDismissRequest()
+                                }
+                            },
+                        )
+                        .constrainTo(Constraints())
+                        .onSizeChanged {
+                            panelEntity?.size =
+                                IntVolumeSize(width = it.width, height = it.height, depth = 0)
+                        }
             ) {
                 content()
             }
@@ -322,9 +335,9 @@ private class SpatialDialogRenderer(
     }
 
     override fun onForgotten() {
-        content = {}
         panelEntity?.dispose()
         panelEntity = null
+        view?.setContent {}
         view?.disposeComposition()
     }
 
