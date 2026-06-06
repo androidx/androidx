@@ -47,6 +47,7 @@ import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -536,7 +537,9 @@ class RotateToLookAtUserTest {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     private fun createSessionAndGetPerceptionManager():
         androidx.xr.arcore.testing.FakePerceptionManager {
-        val sessionCreateResult = Session.create(composeTestRule.activity, testDispatcher)
+        val sessionCreateResult = runBlocking {
+            Session.create(composeTestRule.activity, testDispatcher)
+        }
         assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
         val session = (sessionCreateResult as SessionCreateSuccess).session
         session.configure(

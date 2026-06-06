@@ -30,6 +30,7 @@ import com.google.common.truth.Truth.assertThat
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -48,7 +49,7 @@ class GltfModelTest {
         Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
 
     @Before
-    fun setup() {
+    fun setup(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(activity, testDispatcher)
 

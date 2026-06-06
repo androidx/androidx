@@ -77,22 +77,24 @@ class RuntimeSessionActivity : BaseLifecycleTestActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val result: SessionCreateResult = Session.create(context = this)
-        currentSession =
-            if (result is SessionCreateSuccess) {
-                result.session
-            } else {
-                Log.e(
-                    TAG,
-                    "[$activityName] Failed to create Session: ${result.javaClass.simpleName}",
-                )
-                null
-            }
+        lifecycleScope.launch {
+            val result: SessionCreateResult = Session.create(context = this@RuntimeSessionActivity)
+            currentSession =
+                if (result is SessionCreateSuccess) {
+                    result.session
+                } else {
+                    Log.e(
+                        TAG,
+                        "[$activityName] Failed to create Session: ${result.javaClass.simpleName}",
+                    )
+                    null
+                }
 
-        // Load 3D models once the session is created
-        currentSession?.let { session -> lifecycleScope.launch { load3DModels(session) } }
+            // Load 3D models once the session is created
+            currentSession?.let { session -> load3DModels(session) }
 
-        setContent { RuntimeSessionContent() }
+            setContent { RuntimeSessionContent() }
+        }
     }
 
     override fun onDestroy() {

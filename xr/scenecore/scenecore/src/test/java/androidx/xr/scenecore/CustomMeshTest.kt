@@ -47,7 +47,7 @@ class CustomMeshTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Before
-    fun setUp() = runBlocking {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(context = activity, coroutineContext = testDispatcher)
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)

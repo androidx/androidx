@@ -30,6 +30,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -66,7 +67,7 @@ class RenderViewpointTest {
     }
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         testDispatcher = StandardTestDispatcher()
         testScope = TestScope(testDispatcher)
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)

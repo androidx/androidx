@@ -31,6 +31,7 @@ import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -75,7 +76,7 @@ class DepthTest {
         ByteBuffer.allocate(expectedWidth * expectedHeight).put(byteArrayOf(1, 1, 1, 1))
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         testDispatcher = StandardTestDispatcher()
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()

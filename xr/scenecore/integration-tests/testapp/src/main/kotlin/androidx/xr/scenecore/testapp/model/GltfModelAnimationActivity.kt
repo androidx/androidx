@@ -91,7 +91,7 @@ class GltfModelAnimationActivity : AppCompatActivity() {
     private var gltfModel: GltfModel? = null
     private var gltfModelEntity: GltfModelEntity? = null
 
-    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
+    private lateinit var session: Session
 
     private companion object {
         const val STATE_PLAYING = "PLAYING"
@@ -103,8 +103,6 @@ class GltfModelAnimationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_gltf_model_animation)
-
-        session.scene.keyEntity = session.scene.mainPanelEntity
 
         findViewById<Toolbar>(R.id.gltf_model_animation_topAppBar).also {
             setSupportActionBar(it)
@@ -226,6 +224,16 @@ class GltfModelAnimationActivity : AppCompatActivity() {
 
         setAllUiEnabled(false)
         createGltfModelButton.isEnabled = true
+
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@GltfModelAnimationActivity)
+            if (sessionResult is SessionCreateSuccess) {
+                session = sessionResult.session
+                session.scene.keyEntity = session.scene.mainPanelEntity
+            } else {
+                this@GltfModelAnimationActivity.finish()
+            }
+        }
     }
 
     suspend fun createGltfModel() {

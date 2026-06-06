@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -90,7 +91,7 @@ import kotlinx.coroutines.launch
 class AccessibilityActivity : ComponentActivity() {
     private val activity = this
     private val TAG = "AccessibilityTest"
-    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
+    private lateinit var session: Session
     private var spatialEnvironmentPreference: SpatialEnvironmentPreference? = null
 
     enum class PanelType {
@@ -102,9 +103,17 @@ class AccessibilityActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@AccessibilityActivity)
+            if (sessionResult is SessionCreateSuccess) {
+                session = sessionResult.session
+                session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
-        setContent { MainContent() }
+                setContent { MainContent() }
+            } else {
+                finish()
+            }
+        }
     }
 
     @Composable

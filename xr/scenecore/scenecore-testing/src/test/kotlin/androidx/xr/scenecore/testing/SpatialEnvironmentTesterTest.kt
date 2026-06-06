@@ -53,7 +53,7 @@ class SpatialEnvironmentTesterTest {
     private lateinit var tester: SpatialEnvironmentTester
 
     @Before
-    fun setUp() = runBlocking {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

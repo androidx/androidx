@@ -58,121 +58,132 @@ class HitTestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hittest)
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session!!.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
-        session?.scene?.keyEntity = null
-        device = ArDevice.getInstance(session!!)
+        lifecycleScope.launch {
+            session = SessionManager(this@HitTestActivity).createSession()
+            if (session == null) this@HitTestActivity.finish()
+            session!!.configure(
+                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+            )
+            session?.scene?.keyEntity = null
+            device = ArDevice.getInstance(session!!)
 
-        // toolbar
-        findViewById<Toolbar>(R.id.top_app_bar).also {
-            it.setNavigationOnClickListener { this@HitTestActivity.finish() }
-        }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@HitTestActivity) }
-        }
-
-        // Text View for logging hit test result
-        val resultTextView =
-            findViewById<TextView>(R.id.textView_hit_result).also {
-                it.text = getHitTestLog(xyzArrowLoaded = false, dragonLoaded = false)
+            // toolbar
+            findViewById<Toolbar>(R.id.top_app_bar).also {
+                it.setNavigationOnClickListener { this@HitTestActivity.finish() }
             }
 
-        // Create a single panel with text
-        @SuppressLint("InflateParams")
-        val panelContentView = layoutInflater.inflate(R.layout.hittest_panel, null)
-        val panelEntity =
-            PanelEntity.create(
-                session!!,
-                panelContentView,
-                IntSize2d(640, 480),
-                "panel",
-                Pose(Vector3(-.8f, -0.5f, .5f)),
-                parent = session!!.scene.activitySpace,
-            )
-        panelEntity.parent = session!!.scene.activitySpace
-        val movableComponent = MovableComponent.createSystemMovable(session!!)
-        if (!panelEntity.addComponent(movableComponent)) {
-            Log.e("HitTestActivity", "Error adding MovableComponent to panelEntity")
-        }
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@HitTestActivity) }
+            }
 
-        lifecycleScope.launch {
-            transformWidgetModel = GltfModel.create(session!!, Paths.get("models", "xyzArrows.glb"))
-            xyzArrLoaded = true
-            resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded)
-        }
+            // Text View for logging hit test result
+            val resultTextView =
+                findViewById<TextView>(R.id.textView_hit_result).also {
+                    it.text = getHitTestLog(xyzArrowLoaded = false, dragonLoaded = false)
+                }
 
-        val buttonHitTest: Button = panelContentView.findViewById(R.id.buttonHitTest)
-        buttonHitTest.text = "Hit Test"
-        buttonHitTest.setOnClickListener {
-            device.state.value.devicePose.let { headPose ->
-                lifecycleScope.launch {
-                    val headScenePose =
-                        session!!.scene.perceptionSpace.getScenePoseFromPerceptionPose(headPose)
-                    val hitTest = headScenePose.hitTest(Vector3(), Vector3(0f, 0f, -1f))
-                    if (hitTest != null && hitTest.surfaceNormal != null) {
-                        val devicePose = device.state.value.devicePose
-                        val updatedRotation =
-                            Quaternion.fromLookTowards(
-                                hitTest.surfaceNormal!!,
+            // Create a single panel with text
+            @SuppressLint("InflateParams")
+            val panelContentView = layoutInflater.inflate(R.layout.hittest_panel, null)
+            val panelEntity =
+                PanelEntity.create(
+                    session!!,
+                    panelContentView,
+                    IntSize2d(640, 480),
+                    "panel",
+                    Pose(Vector3(-.8f, -0.5f, .5f)),
+                    parent = session!!.scene.activitySpace,
+                )
+            panelEntity.parent = session!!.scene.activitySpace
+            val movableComponent = MovableComponent.createSystemMovable(session!!)
+            if (!panelEntity.addComponent(movableComponent)) {
+                Log.e("HitTestActivity", "Error adding MovableComponent to panelEntity")
+            }
+
+            lifecycleScope.launch {
+                transformWidgetModel =
+                    GltfModel.create(session!!, Paths.get("models", "xyzArrows.glb"))
+                xyzArrLoaded = true
+                resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded)
+            }
+
+            val buttonHitTest: Button = panelContentView.findViewById(R.id.buttonHitTest)
+            buttonHitTest.text = "Hit Test"
+            buttonHitTest.setOnClickListener {
+                device.state.value.devicePose.let { headPose ->
+                    lifecycleScope.launch {
+                        val headScenePose =
+                            session!!.scene.perceptionSpace.getScenePoseFromPerceptionPose(headPose)
+                        val hitTest = headScenePose.hitTest(Vector3(), Vector3(0f, 0f, -1f))
+                        if (hitTest != null && hitTest.surfaceNormal != null) {
+                            val devicePose = device.state.value.devicePose
+                            val updatedRotation =
+                                Quaternion.fromLookTowards(
+                                    hitTest.surfaceNormal!!,
+                                    session!!
+                                        .scene
+                                        .perceptionSpace
+                                        .getScenePoseFromPerceptionPose(devicePose)
+                                        .transformPoseTo(
+                                            Pose(Vector3(0f, 1f, 0f)),
+                                            session!!.scene.activitySpace,
+                                        )
+                                        .translation,
+                                )
+                            val hitTestPose =
                                 session!!
                                     .scene
                                     .perceptionSpace
                                     .getScenePoseFromPerceptionPose(devicePose)
                                     .transformPoseTo(
-                                        Pose(Vector3(0f, 1f, 0f)),
+                                        Pose(hitTest.hitPosition!!, updatedRotation),
                                         session!!.scene.activitySpace,
                                     )
-                                    .translation,
-                            )
-                        val hitTestPose =
-                            session!!
-                                .scene
-                                .perceptionSpace
-                                .getScenePoseFromPerceptionPose(devicePose)
-                                .transformPoseTo(
-                                    Pose(hitTest.hitPosition!!, updatedRotation),
-                                    session!!.scene.activitySpace,
+                            transformWidgetModel?.let {
+                                val gltfEntity =
+                                    GltfModelEntity.create(
+                                        session!!,
+                                        it,
+                                        hitTestPose,
+                                        parent = session!!.scene.activitySpace,
+                                    )
+                                gltfEntity.parent = session!!.scene.activitySpace
+                            }
+                            resultTextView.text =
+                                getHitTestLog(
+                                    xyzArrLoaded,
+                                    dragonLoaded,
+                                    hitTestPose.translation,
+                                    true,
                                 )
-                        transformWidgetModel?.let {
-                            val gltfEntity =
-                                GltfModelEntity.create(
-                                    session!!,
-                                    it,
-                                    hitTestPose,
-                                    parent = session!!.scene.activitySpace,
-                                )
-                            gltfEntity.parent = session!!.scene.activitySpace
+                        } else {
+                            resultTextView.text =
+                                getHitTestLog(xyzArrLoaded, dragonLoaded, null, true)
                         }
-                        resultTextView.text =
-                            getHitTestLog(xyzArrLoaded, dragonLoaded, hitTestPose.translation, true)
-                    } else {
-                        resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded, null, true)
                     }
                 }
             }
-        }
 
-        lifecycleScope.launch {
-            val dragonModel =
-                GltfModel.create(session!!, Paths.get("models", "Dragon_Evolved.gltf"))
-            val gltfEntity =
-                GltfModelEntity.create(
-                    session!!,
-                    dragonModel,
-                    Pose(Vector3(1f, 1f, -2f)),
-                    parent = session!!.scene.activitySpace,
-                )
-            gltfEntity.parent = session!!.scene.activitySpace
-            val interactableComponent = InteractableComponent.create(session!!, mainExecutor) {}
-            if (!gltfEntity.addComponent(interactableComponent)) {
-                Log.e("HitTestActivity", "Error adding InteractableComponent to gltfEntity")
+            lifecycleScope.launch {
+                val dragonModel =
+                    GltfModel.create(session!!, Paths.get("models", "Dragon_Evolved.gltf"))
+                val gltfEntity =
+                    GltfModelEntity.create(
+                        session!!,
+                        dragonModel,
+                        Pose(Vector3(1f, 1f, -2f)),
+                        parent = session!!.scene.activitySpace,
+                    )
+                gltfEntity.parent = session!!.scene.activitySpace
+                val interactableComponent = InteractableComponent.create(session!!, mainExecutor) {}
+                if (!gltfEntity.addComponent(interactableComponent)) {
+                    Log.e("HitTestActivity", "Error adding InteractableComponent to gltfEntity")
+                }
+                dragonLoaded = true
+                resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded)
             }
-            dragonLoaded = true
-            resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded)
         }
     }
 

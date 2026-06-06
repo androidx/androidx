@@ -23,6 +23,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.SpatialWindow
 import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -47,7 +48,7 @@ class TestRuleSpatialWindowTest {
     private lateinit var activity: ComponentActivity
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

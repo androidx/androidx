@@ -25,6 +25,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.testing.FakeSpatialPointerComponent
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test
@@ -41,7 +42,7 @@ class SpatialPointerComponentTest {
     private lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(activity, testDispatcher)
 

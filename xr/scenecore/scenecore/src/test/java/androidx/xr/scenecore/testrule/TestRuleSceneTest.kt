@@ -48,6 +48,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
@@ -68,7 +69,7 @@ class TestRuleSceneTest {
     lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(activity, testDispatcher)
 

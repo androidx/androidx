@@ -282,9 +282,9 @@ package androidx.xr.runtime {
 
   public final class Session {
     method public androidx.xr.runtime.SessionConfigureResult configure(androidx.xr.runtime.Config config);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
-    method public static androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
+    method public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public static suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public static suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
     method @InaccessibleFromKotlin public android.content.Context getContext();
     method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineScope getCoroutineScope();
@@ -299,10 +299,10 @@ package androidx.xr.runtime {
   }
 
   public static final class Session.Companion {
-    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context);
-    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
-    method public androidx.xr.runtime.SessionCreateResult create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner);
-    method @BytecodeOnly public static androidx.xr.runtime.SessionCreateResult! create$default(androidx.xr.runtime.Session.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, androidx.lifecycle.LifecycleOwner!, int, Object!);
+    method public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method @BytecodeOnly public static Object! create$default(androidx.xr.runtime.Session.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, androidx.lifecycle.LifecycleOwner!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
   public final class SessionConfigureCalibrationRequired extends androidx.xr.runtime.SessionConfigureResult {

@@ -35,6 +35,7 @@ import androidx.xr.scenecore.testing.PanelEntityTester
 import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -63,7 +64,7 @@ class TestRuleEntityTest {
     private lateinit var activityPanelEntity: ActivityPanelEntity
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

@@ -95,15 +95,17 @@ class MovableActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.common_test_panel)
 
-        if (!setupSession()) return
-        initializeUI()
-        val stationaryPanelEntity = createStationaryPanel()
-        setupMovablePanel(stationaryPanelEntity)
-        createAnchorableGltfEntity()
+        lifecycleScope.launch {
+            if (!setupSession()) return@launch
+            initializeUI()
+            val stationaryPanelEntity = createStationaryPanel()
+            setupMovablePanel(stationaryPanelEntity)
+            createAnchorableGltfEntity()
+        }
     }
 
-    private fun setupSession(): Boolean {
-        session = SessionManager(this).createSession()
+    private suspend fun setupSession(): Boolean {
+        session = SessionManager(this@MovableActivity).createSession()
         if (session == null) {
             Log.e(TAG, "Failed to create a session. Finishing activity.")
             finish()

@@ -85,119 +85,122 @@ class HeadLockedUiActivity : AppCompatActivity() {
         setContentView(R.layout.activity_head_locked_ui)
 
         // Create session
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session!!.configure(
-            Config.Builder()
-                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
-                .build()
-        )
-        session?.scene?.keyEntity = null
-        device = ArDevice.getInstance(session!!)
-        cameraLeft = runCatching { RenderViewpoint.left(session!!) }.getOrNull()
-        cameraRight = runCatching { RenderViewpoint.right(session!!) }.getOrNull()
-
-        // Toolbar action
-        findViewById<Toolbar>(R.id.top_app_bar).also {
-            setSupportActionBar(it)
-            it.setNavigationOnClickListener { this.finish() }
-        }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener {
-                val owningActivity = this.getActivity()
-                owningActivity?.let { activity ->
-                    ActivityCompat.recreate(activity)
-                    Log.i(TAG, "Activity ${activity.componentName} will be recreated")
-                } ?: Log.e(TAG, "Could not retrieve activity to recreate for button")
-            }
-        }
-
-        // Hide debug panel
-        findViewById<MaterialButton>(R.id.toggle_debug_panel).setOnClickListener {
-            mDebugPanel.panelEntity.let { it.setEnabled(!it.isEnabled()) }
-        }
-
-        // X Slider Setup
-        val xSliderView = findViewById<Slider>(R.id.x_slider)
-        xSliderView.valueFrom = -1f
-        xSliderView.valueTo = 1f
-        xSliderView.value = sliderPositionX
-        xSliderView.addOnChangeListener { _, value, _ ->
-            run {
-                sliderPositionX = value
-                setProjectionVector(sliderPositionX, sliderPositionY, sliderPositionZ)
-            }
-        }
-
-        // Y Slider Setup
-        val ySliderView = findViewById<Slider>(R.id.y_slider)
-        ySliderView.valueFrom = -1f
-        ySliderView.valueTo = 1f
-        ySliderView.value = sliderPositionY
-        ySliderView.addOnChangeListener { _, value, _ ->
-            run {
-                sliderPositionY = value
-                setProjectionVector(sliderPositionX, sliderPositionY, sliderPositionZ)
-            }
-        }
-
-        // Z Slider Setup
-        val zSliderView = findViewById<Slider>(R.id.z_slider)
-        zSliderView.valueFrom = -5f
-        zSliderView.valueTo = 5f
-        zSliderView.value = sliderPositionZ
-        zSliderView.addOnChangeListener { _, value, _ ->
-            run {
-                sliderPositionZ = value
-                setProjectionVector(sliderPositionX, sliderPositionY, sliderPositionZ)
-            }
-        }
-
-        // Head eye radio button setup
-        findViewById<RadioButton>(R.id.head_radio_button).also {
-            it.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) setProjectionSource(buttonView.text.toString())
-            }
-            it.isChecked = true
-        }
-
-        // Left eye radio button setup
-        findViewById<RadioButton>(R.id.left_eye_radio_button).setOnCheckedChangeListener {
-            buttonView,
-            isChecked ->
-            if (isChecked) setProjectionSource(buttonView.text.toString())
-        }
-
-        // Right eye radio button setup
-        findViewById<RadioButton>(R.id.right_eye_radio_button).setOnCheckedChangeListener {
-            buttonView,
-            isChecked ->
-            if (isChecked) setProjectionSource(buttonView.text.toString())
-        }
-
-        // Create the debug panel with info on the tracked entity
-        mDebugPanel =
-            DebugTextPanel(
-                context = this,
-                session = session!!,
-                parent = session!!.scene.mainPanelEntity,
-                name = "DebugPanel",
-                pose = Pose(Vector3(0f, -0.8f, -0.05f)),
-            )
-        mDebugPanel.panelEntity.sizeInPixels = IntSize2d(1500, 1000)
-
-        // Create the head locked star image panel.
-        createHeadLockedPanel()
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                while (true) {
-                    updateHeadLockedPose()
-                    awaitFrame()
+            session = SessionManager(this@HeadLockedUiActivity).createSession()
+            if (session == null) this@HeadLockedUiActivity.finish()
+            session!!.configure(
+                Config.Builder()
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build()
+            )
+            session?.scene?.keyEntity = null
+            device = ArDevice.getInstance(session!!)
+            cameraLeft = runCatching { RenderViewpoint.left(session!!) }.getOrNull()
+            cameraRight = runCatching { RenderViewpoint.right(session!!) }.getOrNull()
+
+            // Toolbar action
+            findViewById<Toolbar>(R.id.top_app_bar).also {
+                setSupportActionBar(it)
+                it.setNavigationOnClickListener { this@HeadLockedUiActivity.finish() }
+            }
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener {
+                    val owningActivity = this@HeadLockedUiActivity.getActivity()
+                    owningActivity?.let { activity ->
+                        ActivityCompat.recreate(activity)
+                        Log.i(TAG, "Activity ${activity.componentName} will be recreated")
+                    } ?: Log.e(TAG, "Could not retrieve activity to recreate for button")
+                }
+            }
+
+            // Hide debug panel
+            findViewById<MaterialButton>(R.id.toggle_debug_panel).setOnClickListener {
+                mDebugPanel.panelEntity.let { it.setEnabled(!it.isEnabled()) }
+            }
+
+            // X Slider Setup
+            val xSliderView = findViewById<Slider>(R.id.x_slider)
+            xSliderView.valueFrom = -1f
+            xSliderView.valueTo = 1f
+            xSliderView.value = sliderPositionX
+            xSliderView.addOnChangeListener { _, value, _ ->
+                run {
+                    sliderPositionX = value
+                    setProjectionVector(sliderPositionX, sliderPositionY, sliderPositionZ)
+                }
+            }
+
+            // Y Slider Setup
+            val ySliderView = findViewById<Slider>(R.id.y_slider)
+            ySliderView.valueFrom = -1f
+            ySliderView.valueTo = 1f
+            ySliderView.value = sliderPositionY
+            ySliderView.addOnChangeListener { _, value, _ ->
+                run {
+                    sliderPositionY = value
+                    setProjectionVector(sliderPositionX, sliderPositionY, sliderPositionZ)
+                }
+            }
+
+            // Z Slider Setup
+            val zSliderView = findViewById<Slider>(R.id.z_slider)
+            zSliderView.valueFrom = -5f
+            zSliderView.valueTo = 5f
+            zSliderView.value = sliderPositionZ
+            zSliderView.addOnChangeListener { _, value, _ ->
+                run {
+                    sliderPositionZ = value
+                    setProjectionVector(sliderPositionX, sliderPositionY, sliderPositionZ)
+                }
+            }
+
+            // Head eye radio button setup
+            findViewById<RadioButton>(R.id.head_radio_button).also {
+                it.setOnCheckedChangeListener { buttonView, isChecked ->
+                    if (isChecked) setProjectionSource(buttonView.text.toString())
+                }
+                it.isChecked = true
+            }
+
+            // Left eye radio button setup
+            findViewById<RadioButton>(R.id.left_eye_radio_button).setOnCheckedChangeListener {
+                buttonView,
+                isChecked ->
+                if (isChecked) setProjectionSource(buttonView.text.toString())
+            }
+
+            // Right eye radio button setup
+            findViewById<RadioButton>(R.id.right_eye_radio_button).setOnCheckedChangeListener {
+                buttonView,
+                isChecked ->
+                if (isChecked) setProjectionSource(buttonView.text.toString())
+            }
+
+            // Create the debug panel with info on the tracked entity
+            mDebugPanel =
+                DebugTextPanel(
+                    context = this@HeadLockedUiActivity,
+                    session = session!!,
+                    parent = session!!.scene.mainPanelEntity,
+                    name = "DebugPanel",
+                    pose = Pose(Vector3(0f, -0.8f, -0.05f)),
+                )
+            mDebugPanel.panelEntity.sizeInPixels = IntSize2d(1500, 1000)
+
+            // Create the head locked star image panel.
+            createHeadLockedPanel()
+
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    while (true) {
+                        updateHeadLockedPose()
+                        awaitFrame()
+                    }
                 }
             }
         }

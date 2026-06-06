@@ -27,6 +27,7 @@ import androidx.xr.scenecore.SoundEffect
 import androidx.xr.scenecore.SoundEffectPool
 import com.google.common.truth.Truth.assertThat
 import java.io.File
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
@@ -50,7 +51,7 @@ class SoundEffectPoolTesterTest {
     private lateinit var context: Context
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result =
             Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)

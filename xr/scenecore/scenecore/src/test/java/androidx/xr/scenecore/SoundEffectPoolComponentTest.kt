@@ -24,6 +24,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.testing.SceneCoreTestRule
 import androidx.xr.scenecore.testing.SoundEffectPoolComponentTester
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertThrows
@@ -47,7 +48,7 @@ class SoundEffectPoolComponentTest {
     private lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
 

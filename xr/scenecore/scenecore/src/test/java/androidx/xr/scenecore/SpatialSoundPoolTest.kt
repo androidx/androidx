@@ -25,6 +25,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
@@ -45,7 +46,7 @@ class SpatialSoundPoolTest {
     private lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activity = Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
         val testDispatcher = StandardTestDispatcher()
         val result =

@@ -68,6 +68,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -104,7 +105,9 @@ class AnchorableModifierTest {
     @Suppress("DEPRECATION")
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun setup() {
-        val sessionCreateResult = Session.create(composeTestRule.activity, testDispatcher)
+        val sessionCreateResult = runBlocking {
+            Session.create(composeTestRule.activity, testDispatcher)
+        }
         assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
         session = (sessionCreateResult as SessionCreateSuccess).session
         session.configure(

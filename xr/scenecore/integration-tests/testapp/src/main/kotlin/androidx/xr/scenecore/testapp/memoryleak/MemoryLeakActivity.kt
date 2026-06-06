@@ -22,6 +22,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
@@ -35,6 +36,7 @@ import androidx.xr.scenecore.testapp.common.managers.SpatialEnvironmentManager
 import androidx.xr.scenecore.testapp.common.managers.SurfaceEntityManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.launch
 
 class MemoryLeakActivity : AppCompatActivity() {
     private var session: Session? = null
@@ -47,25 +49,29 @@ class MemoryLeakActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_memory_leak)
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session!!.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+        lifecycleScope.launch {
+            session = SessionManager(this@MemoryLeakActivity).createSession()
+            if (session == null) this@MemoryLeakActivity.finish()
+            session!!.configure(
+                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+            )
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
-        val weakActivity = WeakReference(this@MemoryLeakActivity)
-        // toolbar
-        findViewById<Toolbar>(R.id.top_app_bar).also {
-            setSupportActionBar(it)
-            it.setNavigationOnClickListener { weakActivity.get()?.finish() }
+            val weakActivity = WeakReference(this@MemoryLeakActivity)
+            // toolbar
+            findViewById<Toolbar>(R.id.top_app_bar).also {
+                setSupportActionBar(it)
+                it.setNavigationOnClickListener { weakActivity.get()?.finish() }
+            }
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(weakActivity.get()!!) }
+            }
+
+            setupMainPanel()
         }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(weakActivity.get()!!) }
-        }
-
-        setupMainPanel()
     }
 
     override fun onDestroy() {

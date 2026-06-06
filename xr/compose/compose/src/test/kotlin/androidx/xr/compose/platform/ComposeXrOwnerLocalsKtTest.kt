@@ -78,7 +78,7 @@ class ComposeXrOwnerLocalsKtTest {
     fun composeXrOwnerLocals_sessionCannotBeCreated_sessionIsNull() {
         composeTestRule.activity.window.decorView.setTag(
             androidx.xr.compose.R.id.compose_xr_session_factory,
-            { null },
+            suspend { null },
         )
 
         composeTestRule.setContent { assertNull(LocalComposeXrOwners.current.session) }
@@ -88,7 +88,7 @@ class ComposeXrOwnerLocalsKtTest {
     fun composeXrOwnerLocals_sessionThrowsException_sessionIsNull() {
         composeTestRule.activity.window.decorView.setTag(
             androidx.xr.compose.R.id.compose_xr_session_factory,
-            { throw IllegalStateException() },
+            suspend { throw IllegalStateException() },
         )
 
         composeTestRule.setContent { assertNull(LocalComposeXrOwners.current.session) }
@@ -109,7 +109,7 @@ class ComposeXrOwnerLocalsKtTest {
         val latch = java.util.concurrent.CountDownLatch(1)
         composeTestRule.activity.window.decorView.setTag(
             androidx.xr.compose.R.id.compose_xr_session_factory,
-            {
+            suspend {
                 latch.await()
                 fakeSession
             },
@@ -238,7 +238,7 @@ class ComposeXrOwnerLocalsKtTest {
         )
         composeTestRule.activity.window.decorView.setTag(
             androidx.xr.compose.R.id.compose_xr_session_factory,
-            {
+            suspend {
                 factoryCallCount++
                 fakeSession
             },

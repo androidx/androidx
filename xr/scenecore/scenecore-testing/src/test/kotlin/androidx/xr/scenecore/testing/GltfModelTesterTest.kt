@@ -23,6 +23,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.GltfModel
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -47,7 +48,7 @@ class GltfModelTesterTest {
     private lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

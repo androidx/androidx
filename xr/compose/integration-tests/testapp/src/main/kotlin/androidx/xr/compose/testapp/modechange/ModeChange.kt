@@ -31,13 +31,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
@@ -55,6 +55,7 @@ import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.scene
+import kotlinx.coroutines.launch
 
 class ModeChange : ComponentActivity() {
 
@@ -63,16 +64,21 @@ class ModeChange : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        setContent {
-            val renderingSession = remember {
-                (Session.create(context = this@ModeChange) as SessionCreateSuccess).session
-            }
-            IntegrationTestsAppTheme {
-                if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-                    FullSpaceMainPanel(renderingSession)
-                } else {
-                    HomeSpaceMainPanel(renderingSession)
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@ModeChange)
+            if (sessionResult is SessionCreateSuccess) {
+                val renderingSession = sessionResult.session
+                setContent {
+                    IntegrationTestsAppTheme {
+                        if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
+                            FullSpaceMainPanel(renderingSession)
+                        } else {
+                            HomeSpaceMainPanel(renderingSession)
+                        }
+                    }
                 }
+            } else {
+                finish()
             }
         }
     }

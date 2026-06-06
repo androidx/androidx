@@ -59,7 +59,7 @@ class EntityRegistryTest {
     private lateinit var entity: Entity
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result =
             Session.create(

@@ -37,6 +37,7 @@ import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.lang.ref.WeakReference
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test
@@ -54,7 +55,7 @@ class MainPanelEntityTest {
     lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(activity, testDispatcher)
 

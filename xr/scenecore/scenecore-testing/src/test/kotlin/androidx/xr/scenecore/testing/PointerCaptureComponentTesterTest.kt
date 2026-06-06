@@ -26,6 +26,7 @@ import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.PointerCaptureComponent
 import androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -48,7 +49,7 @@ class PointerCaptureComponentTesterTest {
     private lateinit var activity: ComponentActivity
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

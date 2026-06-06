@@ -48,32 +48,24 @@ class SessionManager(private val activity: AppCompatActivity) {
             }
         }
 
-    fun createSession(): Session? {
+    suspend fun createSession(): Session? {
         var session: Session? = null
         try {
             when (val sessionCreateResult = Session.create(context = activity)) {
                 is SessionCreateSuccess -> {
                     session = sessionCreateResult.session
-                    activity.runOnUiThread { obtainUserPermissions(activity) }
+                    obtainUserPermissions(activity)
                 }
 
                 is SessionCreateApkRequired -> {
-                    activity.runOnUiThread {
-                        Toast.makeText(
-                                activity,
-                                "Please update to the latest APK.",
-                                Toast.LENGTH_LONG,
-                            )
-                            .show()
-                        activity.finish()
-                    }
+                    Toast.makeText(activity, "Please update to the latest APK.", Toast.LENGTH_LONG)
+                        .show()
+                    activity.finish()
                 }
 
                 is SessionCreateUnsupportedDevice -> {
-                    activity.runOnUiThread {
-                        Toast.makeText(activity, "Unsupported device.", Toast.LENGTH_LONG).show()
-                        activity.finish()
-                    }
+                    Toast.makeText(activity, "Unsupported device.", Toast.LENGTH_LONG).show()
+                    activity.finish()
                 }
 
                 else -> {
@@ -81,7 +73,7 @@ class SessionManager(private val activity: AppCompatActivity) {
                 }
             }
         } catch (e: SecurityException) {
-            activity.runOnUiThread { obtainUserPermissions(activity) }
+            obtainUserPermissions(activity)
         }
 
         return session

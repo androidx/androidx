@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.xr.runtime.Session
@@ -47,6 +48,7 @@ import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
+import kotlinx.coroutines.launch
 
 class SpatialAudioComponentsActivity : AppCompatActivity() {
 
@@ -56,7 +58,7 @@ class SpatialAudioComponentsActivity : AppCompatActivity() {
         MAIN_PANEL,
     }
 
-    private val session by lazy { (Session.create(context = this) as SessionCreateSuccess).session }
+    private lateinit var session: Session
 
     private lateinit var exoPlayerPoint: ExoPlayer
     private lateinit var exoPlayerFirstOrder: ExoPlayer
@@ -66,181 +68,206 @@ class SpatialAudioComponentsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spatial_audio_components)
-        session.scene.keyEntity = session.scene.mainPanelEntity
 
-        // Toolbar action
-        val toolbar: Toolbar = findViewById(R.id.toolbar_spatial_audio_test)
-        setSupportActionBar(toolbar)
-        toolbar.setNavigationOnClickListener { this.finish() }
-        if (intent.extras != null) {
-            val toolbarTitle = intent.extras!!.getString("MAIN_PANEL_TITLE", "")
-            if (toolbarTitle != "") toolbar.setTitle(toolbarTitle)
-        }
+        lifecycleScope.launch {
+            val sessionResult = Session.create(context = this@SpatialAudioComponentsActivity)
+            if (sessionResult !is SessionCreateSuccess) {
+                this@SpatialAudioComponentsActivity.finish()
+                return@launch
+            }
+            session = sessionResult.session
+            session.scene.keyEntity = session.scene.mainPanelEntity
 
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@SpatialAudioComponentsActivity) }
-        }
-        // Sound panel
-        val soundPanelView = layoutInflater.inflate(R.layout.sound_panel, null)
-        val soundEntity =
-            PanelEntity.create(
-                session,
-                soundPanelView,
-                IntSize2d(640, 480),
-                "sound panel",
-                Pose(Vector3(1F, 0F, 0.5F)),
-                parent = session.scene.activitySpace,
-            )
+            // Toolbar action
+            val toolbar: Toolbar = findViewById(R.id.toolbar_spatial_audio_test)
+            setSupportActionBar(toolbar)
+            toolbar.setNavigationOnClickListener { this@SpatialAudioComponentsActivity.finish() }
+            if (intent.extras != null) {
+                val toolbarTitle = intent.extras!!.getString("MAIN_PANEL_TITLE", "")
+                if (toolbarTitle != "") toolbar.setTitle(toolbarTitle)
+            }
 
-        val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
-        soundEntity.addComponent(movableComponent)
-
-        val pointSourceParams = PointSourceParams()
-        val firstOrderAttributes = SoundFieldAttributes(AmbisonicsOrder.FIRST_ORDER)
-        val thirdOrderAttributes = SoundFieldAttributes(AmbisonicsOrder.THIRD_ORDER)
-
-        // Components
-        val positionalAudioComponent = PositionalAudioComponent.create(session, pointSourceParams)
-
-        val firstOrderComponent = SoundFieldAudioComponent.create(session, firstOrderAttributes)
-        soundEntity.addComponent(firstOrderComponent)
-
-        val thirdOrderComponent = SoundFieldAudioComponent.create(session, thirdOrderAttributes)
-        soundEntity.addComponent(thirdOrderComponent)
-
-        // ExoPlayers
-        exoPlayerPoint =
-            ExoPlayer.Builder(this)
-                .setAudioOutputProvider(positionalAudioComponent.audioOutputProvider)
-                .build()
-
-        exoPlayerFirstOrder =
-            ExoPlayer.Builder(this)
-                .setAudioOutputProvider(firstOrderComponent.audioOutputProvider)
-                .build()
-
-        exoPlayerThirdOrder =
-            ExoPlayer.Builder(this)
-                .setAudioOutputProvider(thirdOrderComponent.audioOutputProvider)
-                .build()
-
-        // File Paths
-        val tigerPath = Environment.getExternalStorageDirectory().path + "/Download/tiger_16db.mp3"
-        val tigerFile = File(tigerPath)
-        if (!tigerFile.exists()) {
-            Toast.makeText(
-                    this,
-                    "Audio files not found. Did you download all the assets?",
-                    Toast.LENGTH_LONG,
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener {
+                    ActivityCompat.recreate(this@SpatialAudioComponentsActivity)
+                }
+            }
+            // Sound panel
+            val soundPanelView = layoutInflater.inflate(R.layout.sound_panel, null)
+            val soundEntity =
+                PanelEntity.create(
+                    session,
+                    soundPanelView,
+                    IntSize2d(640, 480),
+                    "sound panel",
+                    Pose(Vector3(1F, 0F, 0.5F)),
+                    parent = session.scene.activitySpace,
                 )
-                .show()
-            return
-        }
 
-        val basketballPath =
-            Environment.getExternalStorageDirectory().path + "/Download/foa_basketball_16bit.wav"
-        val opusPath =
-            Environment.getExternalStorageDirectory().path + "/Download/dunes_test_opus.ogg"
+            val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
+            soundEntity.addComponent(movableComponent)
 
-        // SoundEffectPool
-        val soundEffectPool = SoundEffectPool.create(session, 1)
-        val afd =
-            AssetFileDescriptor(
-                ParcelFileDescriptor.open(tigerFile, ParcelFileDescriptor.MODE_READ_ONLY),
-                0L,
-                tigerFile.length(),
-            )
+            val pointSourceParams = PointSourceParams()
+            val firstOrderAttributes = SoundFieldAttributes(AmbisonicsOrder.FIRST_ORDER)
+            val thirdOrderAttributes = SoundFieldAttributes(AmbisonicsOrder.THIRD_ORDER)
 
-        soundEffectPool.addLoadCompleteListener { effect, bool ->
-            Log.i(TAG, "Loaded $effect and $bool")
-        }
-        val soundEffect = soundEffectPool.load(afd)
-        val corruptSoundEffect = soundEffectPool.load(this, R.raw.corrupt_sound)
+            // Components
+            val positionalAudioComponent =
+                PositionalAudioComponent.create(session, pointSourceParams)
 
-        val soundPoolComponent =
-            SoundEffectPoolComponent.create(session, soundEffectPool, pointSourceParams)
-        soundEntity.addComponent(soundPoolComponent)
+            val firstOrderComponent = SoundFieldAudioComponent.create(session, firstOrderAttributes)
+            soundEntity.addComponent(firstOrderComponent)
 
-        // --- SoundEffectPoolComponent Card ---
-        val soundEffectPoolPlayButton = findViewById<Button>(R.id.button_sound_effect_pool_play)
-        soundEffectPoolPlayButton.setOnClickListener {
-            soundPoolComponent.play(soundEffect, 1.0f, 1, false)
-        }
+            val thirdOrderComponent = SoundFieldAudioComponent.create(session, thirdOrderAttributes)
+            soundEntity.addComponent(thirdOrderComponent)
 
-        val soundEffectPoolPlayCorruptButton =
-            findViewById<Button>(R.id.button_sound_effect_pool_play_corrupt)
-        soundEffectPoolPlayCorruptButton.setOnClickListener {
-            try {
-                soundPoolComponent.play(corruptSoundEffect, 1.0f, 1, false)
-                Toast.makeText(this, "Unexpected: No exception thrown", Toast.LENGTH_SHORT).show()
-            } catch (e: RuntimeException) {
-                Toast.makeText(this, "Confirmed: RuntimeException thrown", Toast.LENGTH_SHORT)
+            // ExoPlayers
+            exoPlayerPoint =
+                ExoPlayer.Builder(this@SpatialAudioComponentsActivity)
+                    .setAudioOutputProvider(positionalAudioComponent.audioOutputProvider)
+                    .build()
+
+            exoPlayerFirstOrder =
+                ExoPlayer.Builder(this@SpatialAudioComponentsActivity)
+                    .setAudioOutputProvider(firstOrderComponent.audioOutputProvider)
+                    .build()
+
+            exoPlayerThirdOrder =
+                ExoPlayer.Builder(this@SpatialAudioComponentsActivity)
+                    .setAudioOutputProvider(thirdOrderComponent.audioOutputProvider)
+                    .build()
+
+            // File Paths
+            val tigerPath =
+                Environment.getExternalStorageDirectory().path + "/Download/tiger_16db.mp3"
+            val tigerFile = File(tigerPath)
+            if (!tigerFile.exists()) {
+                Toast.makeText(
+                        this@SpatialAudioComponentsActivity,
+                        "Audio files not found. Did you download all the assets?",
+                        Toast.LENGTH_LONG,
+                    )
                     .show()
+                return@launch
             }
-        }
 
-        // --- PositionalAudioComponent Card ---
-        val positionalAudioPlayTigerButton =
-            findViewById<Button>(R.id.button_positional_audio_play_tiger)
+            val basketballPath =
+                Environment.getExternalStorageDirectory().path +
+                    "/Download/foa_basketball_16bit.wav"
+            val opusPath =
+                Environment.getExternalStorageDirectory().path + "/Download/dunes_test_opus.ogg"
 
-        var isPlaying = false
-        positionalAudioPlayTigerButton.setOnClickListener {
-            if (!isPlaying) {
-                isPlaying = true
-                exoPlayerPoint.setMediaItem(MediaItem.fromUri(tigerPath))
-                exoPlayerPoint.prepare()
-                exoPlayerPoint.play()
-            } else {
-                isPlaying = false
-                exoPlayerPoint.stop()
+            // SoundEffectPool
+            val soundEffectPool = SoundEffectPool.create(session, 1)
+            val afd =
+                AssetFileDescriptor(
+                    ParcelFileDescriptor.open(tigerFile, ParcelFileDescriptor.MODE_READ_ONLY),
+                    0L,
+                    tigerFile.length(),
+                )
+
+            soundEffectPool.addLoadCompleteListener { effect, bool ->
+                Log.i(TAG, "Loaded $effect and $bool")
             }
-        }
+            val soundEffect = soundEffectPool.load(afd)
+            val corruptSoundEffect =
+                soundEffectPool.load(this@SpatialAudioComponentsActivity, R.raw.corrupt_sound)
 
-        var nextAttachment = AttachmentState.SOUND_PANEL
-        val toggleButton = findViewById<Button>(R.id.button_positional_audio_toggle_attachment)
-        val statusText = findViewById<android.widget.TextView>(R.id.text_positional_audio_status)
-        toggleButton.setOnClickListener {
-            when (nextAttachment) {
-                AttachmentState.SOUND_PANEL -> {
-                    soundEntity.addComponent(positionalAudioComponent)
-                    toggleButton.text = "Attach to main panel"
-                    statusText.text = "Status: Attached to sound panel"
-                    nextAttachment = AttachmentState.MAIN_PANEL
-                }
+            val soundPoolComponent =
+                SoundEffectPoolComponent.create(session, soundEffectPool, pointSourceParams)
+            soundEntity.addComponent(soundPoolComponent)
 
-                AttachmentState.MAIN_PANEL -> {
-                    soundEntity.removeComponent(positionalAudioComponent)
-                    session.scene.mainPanelEntity.addComponent(positionalAudioComponent)
-                    toggleButton.text = "Detach"
-                    statusText.text = "Status: Attached to main panel"
-                    nextAttachment = AttachmentState.NONE
-                }
+            // --- SoundEffectPoolComponent Card ---
+            val soundEffectPoolPlayButton = findViewById<Button>(R.id.button_sound_effect_pool_play)
+            soundEffectPoolPlayButton.setOnClickListener {
+                soundPoolComponent.play(soundEffect, 1.0f, 1, false)
+            }
 
-                AttachmentState.NONE -> {
-                    session.scene.mainPanelEntity.removeComponent(positionalAudioComponent)
-                    toggleButton.text = "Attach to sound panel"
-                    statusText.text = "Status: Detached"
-                    nextAttachment = AttachmentState.SOUND_PANEL
+            val soundEffectPoolPlayCorruptButton =
+                findViewById<Button>(R.id.button_sound_effect_pool_play_corrupt)
+            soundEffectPoolPlayCorruptButton.setOnClickListener {
+                try {
+                    soundPoolComponent.play(corruptSoundEffect, 1.0f, 1, false)
+                    Toast.makeText(
+                            this@SpatialAudioComponentsActivity,
+                            "Unexpected: No exception thrown",
+                            Toast.LENGTH_SHORT,
+                        )
+                        .show()
+                } catch (e: RuntimeException) {
+                    Toast.makeText(
+                            this@SpatialAudioComponentsActivity,
+                            "Confirmed: RuntimeException thrown",
+                            Toast.LENGTH_SHORT,
+                        )
+                        .show()
                 }
             }
-        }
 
-        // --- SoundFieldAudioComponent (First Order) Card ---
-        val soundFieldPlayWavButton = findViewById<Button>(R.id.button_sound_field_play_wav)
-        soundFieldPlayWavButton.setOnClickListener {
-            exoPlayerFirstOrder.setMediaItem(MediaItem.fromUri(basketballPath))
-            exoPlayerFirstOrder.prepare()
-            exoPlayerFirstOrder.play()
-        }
+            // --- PositionalAudioComponent Card ---
+            val positionalAudioPlayTigerButton =
+                findViewById<Button>(R.id.button_positional_audio_play_tiger)
 
-        // --- SoundFieldAudioComponent (Third Order) Card ---
-        val soundFieldPlayOpusButton = findViewById<Button>(R.id.button_sound_field_play_opus)
-        soundFieldPlayOpusButton.setOnClickListener {
-            exoPlayerThirdOrder.setMediaItem(MediaItem.fromUri(opusPath))
-            exoPlayerThirdOrder.prepare()
-            exoPlayerThirdOrder.play()
+            var isPlaying = false
+            positionalAudioPlayTigerButton.setOnClickListener {
+                if (!isPlaying) {
+                    isPlaying = true
+                    exoPlayerPoint.setMediaItem(MediaItem.fromUri(tigerPath))
+                    exoPlayerPoint.prepare()
+                    exoPlayerPoint.play()
+                } else {
+                    isPlaying = false
+                    exoPlayerPoint.stop()
+                }
+            }
+
+            var nextAttachment = AttachmentState.SOUND_PANEL
+            val toggleButton = findViewById<Button>(R.id.button_positional_audio_toggle_attachment)
+            val statusText =
+                findViewById<android.widget.TextView>(R.id.text_positional_audio_status)
+            toggleButton.setOnClickListener {
+                when (nextAttachment) {
+                    AttachmentState.SOUND_PANEL -> {
+                        soundEntity.addComponent(positionalAudioComponent)
+                        toggleButton.text = "Attach to main panel"
+                        statusText.text = "Status: Attached to sound panel"
+                        nextAttachment = AttachmentState.MAIN_PANEL
+                    }
+
+                    AttachmentState.MAIN_PANEL -> {
+                        soundEntity.removeComponent(positionalAudioComponent)
+                        session.scene.mainPanelEntity.addComponent(positionalAudioComponent)
+                        toggleButton.text = "Detach"
+                        statusText.text = "Status: Attached to main panel"
+                        nextAttachment = AttachmentState.NONE
+                    }
+
+                    AttachmentState.NONE -> {
+                        session.scene.mainPanelEntity.removeComponent(positionalAudioComponent)
+                        toggleButton.text = "Attach to sound panel"
+                        statusText.text = "Status: Detached"
+                        nextAttachment = AttachmentState.SOUND_PANEL
+                    }
+                }
+            }
+
+            // --- SoundFieldAudioComponent (First Order) Card ---
+            val soundFieldPlayWavButton = findViewById<Button>(R.id.button_sound_field_play_wav)
+            soundFieldPlayWavButton.setOnClickListener {
+                exoPlayerFirstOrder.setMediaItem(MediaItem.fromUri(basketballPath))
+                exoPlayerFirstOrder.prepare()
+                exoPlayerFirstOrder.play()
+            }
+
+            // --- SoundFieldAudioComponent (Third Order) Card ---
+            val soundFieldPlayOpusButton = findViewById<Button>(R.id.button_sound_field_play_opus)
+            soundFieldPlayOpusButton.setOnClickListener {
+                exoPlayerThirdOrder.setMediaItem(MediaItem.fromUri(opusPath))
+                exoPlayerThirdOrder.prepare()
+                exoPlayerThirdOrder.play()
+            }
         }
     }
 

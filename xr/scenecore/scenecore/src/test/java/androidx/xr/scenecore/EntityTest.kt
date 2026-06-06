@@ -140,7 +140,7 @@ class EntityTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Before
-    fun setUp() = runBlocking {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(activity, testDispatcher)
 

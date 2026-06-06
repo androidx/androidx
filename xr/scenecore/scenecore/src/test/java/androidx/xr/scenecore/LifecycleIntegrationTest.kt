@@ -24,6 +24,7 @@ import androidx.xr.runtime.math.IntSize2d
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +41,7 @@ class LifecycleIntegrationTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @Test
-    fun sessionDestroy_withSceneAndEntities_shouldNotCrash() {
+    fun sessionDestroy_withSceneAndEntities_shouldNotCrash() = runBlocking {
         activityController.create().start().resume()
 
         val result = Session.create(context = activity, coroutineContext = testDispatcher)

@@ -74,45 +74,49 @@ class SpatialUserActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
+        lifecycleScope.launch {
+            session = SessionManager(this@SpatialUserActivity).createSession()
+            if (session == null) this@SpatialUserActivity.finish()
 
-        enableEdgeToEdge()
-        setContentView(R.layout.common_test_panel)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+            enableEdgeToEdge()
+            setContentView(R.layout.common_test_panel)
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                insets
+            }
+
+            session!!.configure(
+                Config.Builder()
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .setDeviceTracking(DeviceTrackingMode.SPATIAL)
+                    .build()
+            )
+            session?.scene?.keyEntity = null
+            device = ArDevice.getInstance(session!!)
+            cameraLeft = runCatching { RenderViewpoint.left(session!!) }.getOrNull()
+            cameraRight = runCatching { RenderViewpoint.right(session!!) }.getOrNull()
+
+            // toolbar
+            findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
+                setSupportActionBar(it)
+                it.setTitle(R.string.cuj_spatial_user_test)
+                it.setNavigationOnClickListener { this@SpatialUserActivity.finish() }
+            }
+
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@SpatialUserActivity) }
+            }
+
+            // Hide the default button in the layout
+            findViewById<Button>(R.id.spawn_activity_panel_button).also {
+                it.visibility = View.GONE
+            }
+
+            createPanel()
         }
-
-        session!!.configure(
-            Config.Builder()
-                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-                .setDeviceTracking(DeviceTrackingMode.SPATIAL)
-                .build()
-        )
-        session?.scene?.keyEntity = null
-        device = ArDevice.getInstance(session!!)
-        cameraLeft = runCatching { RenderViewpoint.left(session!!) }.getOrNull()
-        cameraRight = runCatching { RenderViewpoint.right(session!!) }.getOrNull()
-
-        // toolbar
-        findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
-            setSupportActionBar(it)
-            it.setTitle(R.string.cuj_spatial_user_test)
-            it.setNavigationOnClickListener { this.finish() }
-        }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@SpatialUserActivity) }
-        }
-
-        // Hide the default button in the layout
-        findViewById<Button>(R.id.spawn_activity_panel_button).also { it.visibility = View.GONE }
-
-        createPanel()
     }
 
     private fun createPanel() {

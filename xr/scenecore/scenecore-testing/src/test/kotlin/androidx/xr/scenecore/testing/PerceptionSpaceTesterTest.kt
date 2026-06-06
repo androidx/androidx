@@ -27,6 +27,7 @@ import androidx.xr.scenecore.ScenePose.HitTestFilter
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testing.internal.FakePerceptionSpaceScenePose as InternalFakePerceptionSpaceScenePose
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -53,7 +54,7 @@ class PerceptionSpaceTesterTest {
     private lateinit var underTest: PerceptionSpaceTester
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

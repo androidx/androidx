@@ -27,6 +27,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorSpace
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
@@ -47,7 +48,7 @@ class AnchorSpaceTesterTest {
     private lateinit var anchor: Anchor
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result =
             Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)

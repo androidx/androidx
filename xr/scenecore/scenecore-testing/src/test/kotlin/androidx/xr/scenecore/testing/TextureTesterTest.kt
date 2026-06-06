@@ -44,7 +44,7 @@ class TextureTesterTest {
     private lateinit var session: Session
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result =
             Session.create(activity, testDispatcher, lifecycleOwner = activity as LifecycleOwner)

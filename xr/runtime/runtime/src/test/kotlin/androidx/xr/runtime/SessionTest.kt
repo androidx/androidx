@@ -38,6 +38,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -84,7 +85,7 @@ class SessionTest {
     fun create_returnsSuccessResultWithNonNullSession() {
         activityController.create()
 
-        val result = Session.create(context = activity)
+        val result = runBlocking { Session.create(context = activity) }
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
@@ -129,12 +130,13 @@ class SessionTest {
         activityController.create()
 
         val context = activity.applicationContext
-        val result =
+        val result = runBlocking {
             Session.create(
                 context = context,
                 coroutineContext = testDispatcher,
                 lifecycleOwner = activity,
             )
+        }
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         assertThat((result as SessionCreateSuccess).session).isNotNull()
@@ -148,7 +150,9 @@ class SessionTest {
                 override val lifecycle = LifecycleRegistry(this)
             }
 
-        val result = Session.create(context = activity, lifecycleOwner = customLifecycleOwner)
+        val result = runBlocking {
+            Session.create(context = activity, lifecycleOwner = customLifecycleOwner)
+        }
 
         val session = (result as SessionCreateSuccess).session
         assertThat(session.lifecycleOwner).isEqualTo(customLifecycleOwner)
@@ -158,7 +162,9 @@ class SessionTest {
     fun create_withActivityAndCoroutineContext_returnsSuccessResultWithNonNullSession() {
         activityController.create()
 
-        val result = Session.create(context = activity, coroutineContext = testDispatcher)
+        val result = runBlocking {
+            Session.create(context = activity, coroutineContext = testDispatcher)
+        }
 
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         val session = (result as SessionCreateSuccess).session
@@ -175,7 +181,7 @@ class SessionTest {
 
         activityController.create()
 
-        assertFailsWith<SecurityException> { Session.create(context = activity) }
+        assertFailsWith<SecurityException> { runBlocking { Session.create(context = activity) } }
     }
 
     @Test
@@ -183,7 +189,7 @@ class SessionTest {
         sessionTestRule.createResult = SessionCreateApkRequired(ARCORE_PACKAGE_NAME)
         activityController.create()
 
-        val result = Session.create(context = activity)
+        val result = runBlocking { Session.create(context = activity) }
 
         assertThat(result).isInstanceOf(SessionCreateApkRequired::class.java)
         assertThat((result as SessionCreateApkRequired).requiredApk).isEqualTo(ARCORE_PACKAGE_NAME)
@@ -194,7 +200,7 @@ class SessionTest {
         sessionTestRule.createResult = SessionCreateUnsupportedDevice()
         activityController.create()
 
-        val result = Session.create(context = activity)
+        val result = runBlocking { Session.create(context = activity) }
 
         assertThat(result).isInstanceOf(SessionCreateUnsupportedDevice::class.java)
     }
@@ -205,7 +211,7 @@ class SessionTest {
             ApkCheckAvailabilityInProgressException(ARCORE_PACKAGE_NAME)
         activityController.create()
 
-        val result = Session.create(context = activity)
+        val result = runBlocking { Session.create(context = activity) }
 
         assertThat(result).isInstanceOf(SessionCreateApkRequired::class.java)
         assertThat((result as SessionCreateApkRequired).requiredApk).isEqualTo(ARCORE_PACKAGE_NAME)
@@ -217,7 +223,7 @@ class SessionTest {
             ApkCheckAvailabilityErrorException(ARCORE_PACKAGE_NAME)
         activityController.create()
 
-        val result = Session.create(context = activity)
+        val result = runBlocking { Session.create(context = activity) }
 
         assertThat(result).isInstanceOf(SessionCreateApkRequired::class.java)
         assertThat((result as SessionCreateApkRequired).requiredApk).isEqualTo(ARCORE_PACKAGE_NAME)
@@ -228,7 +234,9 @@ class SessionTest {
         activityController.create().destroy()
 
         val exception =
-            assertFailsWith<IllegalStateException> { Session.create(context = activity) }
+            assertFailsWith<IllegalStateException> {
+                runBlocking { Session.create(context = activity) }
+            }
         assertThat(exception)
             .hasMessageThat()
             .isEqualTo("Cannot create a new session on a destroyed lifecycleOwner.")
@@ -527,7 +535,9 @@ class SessionTest {
 
         val underTest = createSession()
         val secondSession =
-            (Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
+            (runBlocking {
+                    Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
+                }
                     as SessionCreateSuccess)
                 .session
         activityController.create().start().resume()
@@ -551,7 +561,9 @@ class SessionTest {
         val secondActivity = activityController2.get()
         underTest = createSession()
         val secondSession =
-            (Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
+            (runBlocking {
+                    Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
+                }
                     as SessionCreateSuccess)
                 .session
         activityController2.create().start().resume()
@@ -588,7 +600,7 @@ class SessionTest {
                     get() = LifecycleRegistry(this)
             }
         underTest =
-            (Session.create(context = activity, lifecycleOwner = lifecycleOwner)
+            (runBlocking { Session.create(context = activity, lifecycleOwner = lifecycleOwner) }
                     as SessionCreateSuccess)
                 .session
 
@@ -676,7 +688,9 @@ class SessionTest {
     }
 
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {
-        val result = Session.create(context = activity, coroutineContext = coroutineDispatcher)
+        val result = runBlocking {
+            Session.create(context = activity, coroutineContext = coroutineDispatcher)
+        }
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         return (result as SessionCreateSuccess).session
     }

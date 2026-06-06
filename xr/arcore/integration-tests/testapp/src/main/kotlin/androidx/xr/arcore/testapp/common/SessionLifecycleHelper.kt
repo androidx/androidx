@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
@@ -51,6 +52,7 @@ import androidx.xr.runtime.manifest.HAND_TRACKING
 import androidx.xr.runtime.manifest.HEAD_TRACKING
 import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE
 import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE
+import kotlinx.coroutines.launch
 
 /**
  * Observer class to manage the lifecycle of the JXR Runtime Session based on the lifecycle owner
@@ -135,61 +137,63 @@ class SessionLifecycleHelper(
     // the correct usage pattern.
     @Suppress("deprecation")
     internal fun tryCreateSession() {
-        try {
-            when (val result = Session.create(context = context!!, lifecycleOwner = activity)) {
-                is SessionCreateSuccess -> {
-                    session = result.session
-                    try {
-                        when (val configResult = session.configure(config)) {
-                            is SessionConfigureLibraryNotLinked -> {
-                                showErrorMessage(
-                                    "Library \"${configResult.libraryName}\" not linked."
-                                )
+        activity.lifecycleScope.launch {
+            try {
+                when (val result = Session.create(context = context!!, lifecycleOwner = activity)) {
+                    is SessionCreateSuccess -> {
+                        session = result.session
+                        try {
+                            when (val configResult = session.configure(config)) {
+                                is SessionConfigureLibraryNotLinked -> {
+                                    showErrorMessage(
+                                        "Library \"${configResult.libraryName}\" not linked."
+                                    )
+                                }
+                                is SessionConfigureCalibrationRequired -> {
+                                    onSessionCalibrationRequired(configResult.calibrationType)
+                                }
+                                is SessionConfigureSuccess -> {
+                                    onSessionAvailable(session)
+                                }
+                                is SessionConfigureUnknownError -> {
+                                    showErrorMessage(configResult.errorMessage)
+                                }
+                                else -> {
+                                    showErrorMessage("Unexpected ${configResult::class.simpleName}")
+                                }
                             }
-                            is SessionConfigureCalibrationRequired -> {
-                                onSessionCalibrationRequired(configResult.calibrationType)
-                            }
-                            is SessionConfigureSuccess -> {
-                                onSessionAvailable(session)
-                            }
-                            is SessionConfigureUnknownError -> {
-                                showErrorMessage(configResult.errorMessage)
-                            }
-                            else -> {
-                                showErrorMessage("Unexpected ${configResult::class.simpleName}")
-                            }
+                        } catch (e: SecurityException) {
+                            requestPermissionLauncher.launch(
+                                getRequiredPermissions(config).toTypedArray()
+                            )
+                        } catch (e: UnsupportedOperationException) {
+                            showErrorMessage("Session configuration not supported.")
+                            activity.finish()
                         }
-                    } catch (e: SecurityException) {
-                        requestPermissionLauncher.launch(
-                            getRequiredPermissions(config).toTypedArray()
-                        )
-                    } catch (e: UnsupportedOperationException) {
-                        showErrorMessage("Session configuration not supported.")
+                    }
+                    is SessionCreateApkRequired -> {
+                        onSessionCreateActionRequired(result)
+                    }
+                    is SessionCreateUnsupportedDevice -> {
+                        showErrorMessage("Session could not be created, device is Unsupported.")
+                        activity.finish()
+                    }
+                    is SessionCreateTimedOut -> {
+                        showErrorMessage("Timed out")
+                        activity.finish()
+                    }
+                    is SessionCreateUnknownError -> {
+                        showErrorMessage(result.errorMessage)
+                        activity.finish()
+                    }
+                    else -> {
+                        showErrorMessage("Unexpected ${result::class.simpleName}")
                         activity.finish()
                     }
                 }
-                is SessionCreateApkRequired -> {
-                    onSessionCreateActionRequired(result)
-                }
-                is SessionCreateUnsupportedDevice -> {
-                    showErrorMessage("Session could not be created, device is Unsupported.")
-                    activity.finish()
-                }
-                is SessionCreateTimedOut -> {
-                    showErrorMessage("Timed out")
-                    activity.finish()
-                }
-                is SessionCreateUnknownError -> {
-                    showErrorMessage(result.errorMessage)
-                    activity.finish()
-                }
-                else -> {
-                    showErrorMessage("Unexpected ${result::class.simpleName}")
-                    activity.finish()
-                }
+            } catch (e: SecurityException) {
+                requestPermissionLauncher.launch(getRequiredPermissions(config).toTypedArray())
             }
-        } catch (e: SecurityException) {
-            requestPermissionLauncher.launch(getRequiredPermissions(config).toTypedArray())
         }
     }
 

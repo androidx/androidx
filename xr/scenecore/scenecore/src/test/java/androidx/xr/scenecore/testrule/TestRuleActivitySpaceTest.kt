@@ -39,6 +39,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.lang.ref.WeakReference
 import java.util.function.Consumer
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
@@ -60,7 +61,7 @@ class TestRuleActivitySpaceTest {
     private lateinit var activitySpaceTester: ActivitySpaceTester
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         val testDispatcher = StandardTestDispatcher()
         val result = Session.create(activity, testDispatcher)
 

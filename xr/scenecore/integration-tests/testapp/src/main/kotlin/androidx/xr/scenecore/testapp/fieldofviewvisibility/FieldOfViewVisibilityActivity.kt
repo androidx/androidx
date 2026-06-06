@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
@@ -41,6 +42,7 @@ import androidx.xr.scenecore.testapp.common.managers.SurfaceEntityManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.function.Consumer
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 class FieldOfViewVisibilityActivity : AppCompatActivity() {
     private val TAG = "FieldOfViewVisibility"
@@ -77,34 +79,40 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_field_of_view_visibility)
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session!!.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
-        // Disable default scale overrides on key entity from Spatial Mode events
-        session?.scene?.setSpaceChangedListener { event ->
-            session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
-        }
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+        lifecycleScope.launch {
+            session = SessionManager(this@FieldOfViewVisibilityActivity).createSession()
+            if (session == null) this@FieldOfViewVisibilityActivity.finish()
+            session!!.configure(
+                Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+            )
+            // Disable default scale overrides on key entity from Spatial Mode events
+            session?.scene?.setSpaceChangedListener { event ->
+                session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
+            }
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
-        session!!.scene.activitySpace.addBoundsChangedListener { dimensions ->
-            inFsm = dimensions.width == Float.POSITIVE_INFINITY
-            updateTextViews()
-        }
+            session!!.scene.activitySpace.addBoundsChangedListener { dimensions ->
+                inFsm = dimensions.width == Float.POSITIVE_INFINITY
+                updateTextViews()
+            }
 
-        // toolbar
-        findViewById<Toolbar>(R.id.top_app_bar).also {
-            setSupportActionBar(it)
-            it.setNavigationOnClickListener { this@FieldOfViewVisibilityActivity.finish() }
-        }
+            // toolbar
+            findViewById<Toolbar>(R.id.top_app_bar).also {
+                setSupportActionBar(it)
+                it.setNavigationOnClickListener { this@FieldOfViewVisibilityActivity.finish() }
+            }
 
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@FieldOfViewVisibilityActivity) }
-        }
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener {
+                    ActivityCompat.recreate(this@FieldOfViewVisibilityActivity)
+                }
+            }
 
-        createHeadLockedPanel()
-        setupMainPanel()
+            createHeadLockedPanel()
+            setupMainPanel()
+        }
     }
 
     private fun createHeadLockedPanel() {

@@ -106,52 +106,54 @@ class MeshEntityActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session = SessionManager(this).createSession()
-        if (session == null) {
-            finish()
-            return
-        }
+        lifecycleScope.launch {
+            session = SessionManager(this@MeshEntityActivity).createSession()
+            if (session == null) {
+                finish()
+                return@launch
+            }
 
-        session!!.scene.mainPanelEntity.size = FloatSize2d(0.4f, 0.3f)
-        val movableComponent = MovableComponent.createSystemMovable(session!!)
-        movableComponent.size = FloatSize3d(0.4f, 0.3f, 0.1f)
-        session!!.scene.mainPanelEntity.addComponent(movableComponent)
+            session!!.scene.mainPanelEntity.size = FloatSize2d(0.4f, 0.3f)
+            val movableComponent = MovableComponent.createSystemMovable(session!!)
+            movableComponent.size = FloatSize3d(0.4f, 0.3f, 0.1f)
+            session!!.scene.mainPanelEntity.addComponent(movableComponent)
 
-        setContentView(R.layout.activity_mesh_entity)
+            setContentView(R.layout.activity_mesh_entity)
 
-        movableSwitch = findViewById<MaterialSwitch>(R.id.movableSwitch)
-        movableSwitch?.setOnCheckedChangeListener { _, isChecked ->
-            meshEntitiesAndComponents.forEach { (entity, components) ->
-                if (isChecked) {
-                    entity.addComponent(components.movable)
-                } else {
-                    entity.removeComponent(components.movable)
+            movableSwitch = findViewById<MaterialSwitch>(R.id.movableSwitch)
+            movableSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                meshEntitiesAndComponents.forEach { (entity, components) ->
+                    if (isChecked) {
+                        entity.addComponent(components.movable)
+                    } else {
+                        entity.removeComponent(components.movable)
+                    }
                 }
             }
-        }
 
-        interactableSwitch = findViewById<MaterialSwitch>(R.id.interactableSwitch)
-        interactableSwitch?.setOnCheckedChangeListener { _, isChecked ->
-            meshEntitiesAndComponents.forEach { (entity, components) ->
-                if (isChecked) {
-                    entity.addComponent(components.interactable)
-                } else {
-                    entity.removeComponent(components.interactable)
+            interactableSwitch = findViewById<MaterialSwitch>(R.id.interactableSwitch)
+            interactableSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                meshEntitiesAndComponents.forEach { (entity, components) ->
+                    if (isChecked) {
+                        entity.addComponent(components.interactable)
+                    } else {
+                        entity.removeComponent(components.interactable)
+                    }
                 }
             }
-        }
 
-        findViewById<android.widget.Button>(R.id.resetPosesButton)?.setOnClickListener {
-            initialPoses.forEach { (entity, pose) -> entity.setPose(pose) }
-        }
+            findViewById<android.widget.Button>(R.id.resetPosesButton)?.setOnClickListener {
+                initialPoses.forEach { (entity, pose) -> entity.setPose(pose) }
+            }
 
-        createMeshEntities()
+            createMeshEntities()
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { this.finish() }
+            val toolbar = findViewById<Toolbar>(R.id.toolbar)
+            toolbar.setNavigationOnClickListener { this@MeshEntityActivity.finish() }
 
-        findViewById<FloatingActionButton>(R.id.bottomEndFab).setOnClickListener {
-            ActivityCompat.recreate(this)
+            findViewById<FloatingActionButton>(R.id.bottomEndFab).setOnClickListener {
+                ActivityCompat.recreate(this@MeshEntityActivity)
+            }
         }
     }
 

@@ -27,6 +27,7 @@ import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.PerceivedResolutionResult
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
@@ -49,7 +50,7 @@ class MainPanelEntityTesterTest {
     private lateinit var activity: ComponentActivity
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.create().start().get()
         val result =

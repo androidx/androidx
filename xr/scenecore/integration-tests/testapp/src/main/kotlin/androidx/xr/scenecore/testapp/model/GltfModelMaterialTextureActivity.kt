@@ -82,32 +82,36 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
             insets
         }
 
-        session = SessionManager(this).createSession()
-        if (session == null) this.finish()
-        session!!.configure(
-            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
-        )
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
-
-        findViewById<Toolbar>(R.id.gltf_model_topAppBar).also {
-            setSupportActionBar(it)
-            it.setNavigationOnClickListener { this@GltfModelMaterialTextureActivity.finish() }
-            it.setTitle(getString(R.string.cuj_gltf_model_material_texture_test))
-        }
-
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@GltfModelMaterialTextureActivity) }
-        }
-
-        findViewById<Button>(R.id.gltf_model_toggle_hsm_fsm).also { button ->
-            button.text = getString(R.string.switch_to_hsm_button_text)
-            button.setOnClickListener { button.text = toggleMode() }
-        }
-
         lifecycleScope.launch {
-            loadResources()
-            setupButtons()
+            session = SessionManager(this@GltfModelMaterialTextureActivity).createSession()
+            if (session == null) this@GltfModelMaterialTextureActivity.finish()
+            session!!.configure(
+                Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+            )
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+
+            findViewById<Toolbar>(R.id.gltf_model_topAppBar).also {
+                setSupportActionBar(it)
+                it.setNavigationOnClickListener { this@GltfModelMaterialTextureActivity.finish() }
+                it.setTitle(getString(R.string.cuj_gltf_model_material_texture_test))
+            }
+
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener {
+                    ActivityCompat.recreate(this@GltfModelMaterialTextureActivity)
+                }
+            }
+
+            findViewById<Button>(R.id.gltf_model_toggle_hsm_fsm).also { button ->
+                button.text = getString(R.string.switch_to_hsm_button_text)
+                button.setOnClickListener { button.text = toggleMode() }
+            }
+
+            lifecycleScope.launch {
+                loadResources()
+                setupButtons()
+            }
         }
     }
 

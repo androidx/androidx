@@ -102,74 +102,79 @@ class TransformationActivity : AppCompatActivity() {
         }
 
         // Create session
-        session = SessionManager(this).createSession()
-        session!!.configure(
-            Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
-        )
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
-
-        // toolbar
-        findViewById<Toolbar>(R.id.topAppBar).also { toolbar ->
-            setSupportActionBar(toolbar)
-            toolbar.setNavigationOnClickListener { this@TransformationActivity.finish() }
-            toolbar.setTitle(R.string.cuj_transformation_test)
-        }
-
-        // Recreate button
-        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-            it.setOnClickListener { ActivityCompat.recreate(this@TransformationActivity) }
-        }
-
-        // handle switches
-        findViewById<Switch>(R.id.switch_pause_animation).setOnCheckedChangeListener { _, isOn ->
-            pauseAnimation.value = isOn
-        }
-        findViewById<Switch>(R.id.switch_allow_panel_movement).setOnCheckedChangeListener { _, isOn
-            ->
-            switchMainPanelMovement(isOn)
-        }
 
         lifecycleScope.launch {
-            // Entity solar system
-            loadModels()
-            entitySolarSystem()
+            session = SessionManager(this@TransformationActivity).createSession()
+            session!!.configure(
+                Config.Builder().setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL).build()
+            )
+            session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
-            // Anchor
-            createAnchor()
+            // toolbar
+            findViewById<Toolbar>(R.id.topAppBar).also { toolbar ->
+                setSupportActionBar(toolbar)
+                toolbar.setNavigationOnClickListener { this@TransformationActivity.finish() }
+                toolbar.setTitle(R.string.cuj_transformation_test)
+            }
 
-            // Activity space debug panel
-            createActivitySpaceDebugPanel()
+            // Recreate button
+            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+                it.setOnClickListener { ActivityCompat.recreate(this@TransformationActivity) }
+            }
 
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                while (true) {
-                    val anchorState =
-                        anchor?.state ?: AnchorSpace.State.UNANCHORED // Handle null anchor
-                    for (panel in debugTextPanelsToUpdate) {
-                        if (panel.trackedEntity == null) continue // Skip if no tracked entity
-                        if (panel == anchorDebugPanel) {
-                            anchorDebugPanel.view.setLine(
-                                "Anchor State",
-                                anchorState.toFormattedString(),
+            // handle switches
+            findViewById<Switch>(R.id.switch_pause_animation).setOnCheckedChangeListener { _, isOn
+                ->
+                pauseAnimation.value = isOn
+            }
+            findViewById<Switch>(R.id.switch_allow_panel_movement).setOnCheckedChangeListener {
+                _,
+                isOn ->
+                switchMainPanelMovement(isOn)
+            }
+
+            lifecycleScope.launch {
+                // Entity solar system
+                loadModels()
+                entitySolarSystem()
+
+                // Anchor
+                createAnchor()
+
+                // Activity space debug panel
+                createActivitySpaceDebugPanel()
+
+                repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    while (true) {
+                        val anchorState =
+                            anchor?.state ?: AnchorSpace.State.UNANCHORED // Handle null anchor
+                        for (panel in debugTextPanelsToUpdate) {
+                            if (panel.trackedEntity == null) continue // Skip if no tracked entity
+                            if (panel == anchorDebugPanel) {
+                                anchorDebugPanel.view.setLine(
+                                    "Anchor State",
+                                    anchorState.toFormattedString(),
+                                )
+                            }
+                            updateDebugTextPanel(panel.view, panel.trackedEntity!!, anchorState)
+                        }
+                        for (label in labelsToUpdate) {
+                            updateLabelPanelSize(
+                                label.labelPanel,
+                                label.trackedEntity,
+                                label.dimensions,
                             )
                         }
-                        updateDebugTextPanel(panel.view, panel.trackedEntity!!, anchorState)
-                    }
-                    for (label in labelsToUpdate) {
-                        updateLabelPanelSize(
-                            label.labelPanel,
-                            label.trackedEntity,
-                            label.dimensions,
+                        // Update main panel debug data
+                        updateDebugTextPanel(
+                            mainActivityDebugView,
+                            session!!.scene.mainPanelEntity,
+                            anchorState,
                         )
-                    }
-                    // Update main panel debug data
-                    updateDebugTextPanel(
-                        mainActivityDebugView,
-                        session!!.scene.mainPanelEntity,
-                        anchorState,
-                    )
 
-                    delay(100L.milliseconds)
+                        delay(100L.milliseconds)
+                    }
                 }
             }
         }
