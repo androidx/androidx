@@ -20,11 +20,11 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.benchmark.traceprocessor.toSlices
 import androidx.test.ext.junit.runners.AndroidJUnit4

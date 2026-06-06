@@ -42,6 +42,7 @@ import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.macro.MacrobenchmarkScope.KillMode
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.runServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assume.assumeFalse

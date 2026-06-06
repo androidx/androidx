@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+@file:JvmName("TraceProcessorExtensions")
 
-package androidx.benchmark.macro
+package androidx.benchmark
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -25,14 +25,7 @@ import android.util.Log
 import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.InMemoryTracing
-import androidx.benchmark.InstrumentationResults
-import androidx.benchmark.Outputs
-import androidx.benchmark.Profiler
-import androidx.benchmark.Shell
-import androidx.benchmark.ShellScript
-import androidx.benchmark.StartedShellScript
-import androidx.benchmark.inMemoryTrace
+import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi
 import androidx.benchmark.traceprocessor.PerfettoTrace

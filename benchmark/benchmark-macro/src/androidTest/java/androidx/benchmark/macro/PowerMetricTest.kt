@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import androidx.benchmark.macro.Metric.Measurement
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.filters.SdkSuppress
 import kotlin.test.assertEquals

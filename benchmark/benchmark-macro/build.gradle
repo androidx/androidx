@@ -21,8 +21,9 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
+
 import androidx.build.AndroidXConfig
+import androidx.build.SoftwareType
 import com.android.build.api.variant.HasAndroidTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -44,8 +45,6 @@ android {
 
 androidComponents {
     def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
-    def traceProcessorShellPath = new File(prebuiltsRoot, "androidx/traceprocessor/trace_processor_shell")
-            .absolutePath
 
     def testDataPath = new File(prebuiltsRoot, "androidx/traceprocessor/testdata")
             .absolutePath
@@ -55,7 +54,6 @@ androidComponents {
                     "${androidx.LibraryVersions.TRACING_PERFETTO}").absolutePath
 
     onVariants(selector().all()) { variant ->
-        variant.sources.assets.addStaticSourceDirectory(traceProcessorShellPath)
         def androidTestAssets = (variant as HasAndroidTest).androidTest.sources.assets
         androidTestAssets.addStaticSourceDirectory(testDataPath)
         // PerfettoHandshake supports both AAR and APK as libtracing_perfetto.so sources:

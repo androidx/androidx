@@ -20,12 +20,12 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress

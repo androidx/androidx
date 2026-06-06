@@ -21,8 +21,9 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
+
 import androidx.build.AndroidXConfig
+import androidx.build.SoftwareType
 import com.android.build.api.variant.HasAndroidTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -55,9 +56,26 @@ androidComponents {
     def traceboxPath = new File(prebuiltsRoot, "androidx/traceprocessor/tracebox").absolutePath
     def testDataPath = new File(prebuiltsRoot, "androidx/traceprocessor/testdata").absolutePath
 
+    def traceProcessorShellPath = new File(prebuiltsRoot, "androidx/traceprocessor/trace_processor_shell")
+            .absolutePath
+
+    def perfettoBinaryPath = new File(prebuiltsRoot,
+            "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
+                    "${androidx.LibraryVersions.TRACING_PERFETTO}").absolutePath
+
     onVariants(selector().all()) { variant ->
+        variant.sources.assets.addStaticSourceDirectory(traceProcessorShellPath)
         variant.sources.assets.addStaticSourceDirectory(traceboxPath)
-        (variant as HasAndroidTest).androidTest.sources.assets.addStaticSourceDirectory(testDataPath)
+
+        def androidTestAssets = (variant as HasAndroidTest).androidTest.sources.assets
+
+        androidTestAssets.addStaticSourceDirectory(testDataPath)
+        // PerfettoHandshake supports both AAR and APK as libtracing_perfetto.so sources:
+        // - AAR is used when e.g. tooling downloads tracing-perfetto-binary AAR files from Maven
+        // - APK is when an APK that contains tracing binaries is used
+        //
+        // Adding the AAR as a test asset below allows us to test the AAR scenario
+        androidTestAssets.addStaticSourceDirectory(perfettoBinaryPath)
     }
 }
 
@@ -112,6 +130,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
         it.freeCompilerArgs.addAll(
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi",
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
         )
     }

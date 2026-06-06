@@ -20,8 +20,8 @@
 package androidx.benchmark.samples
 
 import androidx.annotation.Sampled
-import androidx.benchmark.macro.runServer
-import androidx.benchmark.macro.startServer
+import androidx.benchmark.runServer
+import androidx.benchmark.startServer
 import androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi
 import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.TraceProcessor

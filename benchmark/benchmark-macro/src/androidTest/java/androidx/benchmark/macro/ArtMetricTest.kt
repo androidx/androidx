@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
