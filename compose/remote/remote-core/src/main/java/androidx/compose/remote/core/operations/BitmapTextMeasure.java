@@ -234,8 +234,13 @@ public class BitmapTextMeasure extends PaintOperation implements VariableSupport
                 prevGlyph = "";
                 continue;
             }
-
-            pos += glyph.mChars.length();
+            int cLen = glyph.mChars.length();
+            if (cLen == 0) {
+                pos++;
+                prevGlyph = "";
+                continue;
+            }
+            pos += cLen;
             xPos += glyph.mMarginLeft + glyph.mMarginRight;
             if (glyph.mBitmapId != -1) {
                 // Space is represented by a glyph of -1.

@@ -256,8 +256,13 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
                 prevGlyph = "";
                 continue;
             }
-
-            pos += glyph.mChars.length();
+            int cLen = glyph.mChars.length();
+            if (cLen == 0) {
+                pos++;
+                prevGlyph = "";
+                continue;
+            }
+            pos += cLen;
             if (glyph.mBitmapId == -1) {
                 // Space is represented by a glyph of -1.
                 xPos += glyph.mMarginLeft + glyph.mMarginRight;

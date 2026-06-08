@@ -58,7 +58,7 @@ public class GeneralEasing extends Easing {
             case CUBIC_CUSTOM:
                 mEasingCurve =
                         new CubicEasing(
-                                mEasingData[1], mEasingData[2], mEasingData[3], mEasingData[5]);
+                                mEasingData[1], mEasingData[2], mEasingData[3], mEasingData[4]);
                 break;
             case EASE_OUT_BOUNCE:
                 mEasingCurve = new BounceCurve(type);
