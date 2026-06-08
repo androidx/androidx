@@ -626,7 +626,10 @@ public final class WindowInsetsControllerCompat {
         Impl30(@NonNull Window window,
                 @NonNull WindowInsetsControllerCompat compatController,
                 @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
-            this(window.getInsetsController(), compatController, softwareKeyboardControllerCompat);
+            this(
+                    window.getDecorView().getWindowInsetsController(),
+                    compatController,
+                    softwareKeyboardControllerCompat);
             mWindow = window;
         }
 
