@@ -338,6 +338,18 @@ private constructor(
      */
     private var hasAccessibilityListener = false
 
+    private var _soundEffect: SoundEffect? = null
+    @OptIn(ExperimentalComposeUiApi::class)
+    private val soundEffect: SoundEffect
+        get() =
+            _soundEffect
+                ?: if (AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) {
+                        AndroidSoundEffect(view)
+                    } else {
+                        NoSoundEffect
+                    }
+                    .also { _soundEffect = it }
+
     /**
      * A single callback that handles observing configuration changes, memory calls, window focus
      * changes, and [view] attach state changes.
@@ -567,23 +579,13 @@ private constructor(
         val scrollCaptureInProgress =
             LocalScrollCaptureInProgress.current or owner.scrollCaptureInProgress
         val hostDefaultProvider = remember(owner.view) { ViewTreeHostDefaultProvider(owner.view) }
-        val soundEffect =
-            remember(owner.view) {
-                if (AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) {
-                    AndroidSoundEffect(owner.view)
-                } else {
-                    object : SoundEffect {
-                        override fun playClickSound() {}
-                    }
-                }
-            }
         @Suppress("UNCHECKED_CAST")
         CompositionLocalProvider(
             LocalLifecycleOwner provides lifecycleOwner,
             LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
             LocalImageVectorCache provides imageVectorCache,
             LocalResourceIdCache provides resourceIdCache,
-            LocalSoundEffect provides soundEffect,
+            LocalSoundEffect providesComputed { soundEffect },
             LocalContext provides owner.context,
             LocalInspectionTables provides inspectionTable,
             LocalConfiguration provides owner.configuration,
@@ -637,3 +639,7 @@ private const val MaskForNonWindowMetricsChanges =
         ActivityInfo.CONFIG_GRAMMATICAL_GENDER or
         ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT or
         ActivityInfo.CONFIG_ASSETS_PATHS
+
+private object NoSoundEffect : SoundEffect {
+    override fun playClickSound() {}
+}
