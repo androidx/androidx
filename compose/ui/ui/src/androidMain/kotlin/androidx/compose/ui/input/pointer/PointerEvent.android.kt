@@ -27,6 +27,8 @@ import android.view.MotionEvent.CLASSIFICATION_PINCH
 import android.view.MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
 import androidx.annotation.IntDef
 import androidx.collection.LongSparseArray
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -101,23 +103,26 @@ internal actual constructor(
     actual var type: PointerEventType = calculatePointerEventType()
         internal set
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun calculatePointerEventType(): PointerEventType {
         val motionEvent = motionEvent
         if (motionEvent != null) {
             /**
-             * Special case: for a two finger swipe from a trackpad, we interpret the motion event
-             * as a scroll event type, rather than the fake finger press + move + release
+             * Special cases: for classifications, we interpret the motion event differently instead
+             * of the fake finger press + move + release
              */
             val isTwoFingerSwipe =
-                Build.VERSION.SDK_INT >= 29 &&
+                Build.VERSION.SDK_INT >= 34 &&
                     motionEvent.classification == CLASSIFICATION_TWO_FINGER_SWIPE
             val isPinch =
-                Build.VERSION.SDK_INT >= 29 && motionEvent.classification == CLASSIFICATION_PINCH
+                Build.VERSION.SDK_INT >= 34 && motionEvent.classification == CLASSIFICATION_PINCH
+            val isPinchReinterpretation =
+                isPinch && ComposeUiFlags.isTrackpadPinchReinterpretationEnabled
             return when (motionEvent.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanStart
-                    } else if (isPinch) {
+                    } else if (isPinch && !isPinchReinterpretation) {
                         PointerEventType.ScaleStart
                     } else {
                         PointerEventType.Press
@@ -126,6 +131,8 @@ internal actual constructor(
                 MotionEvent.ACTION_POINTER_DOWN -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanStart
+                    } else if (isPinchReinterpretation) {
+                        PointerEventType.ScaleStart
                     } else if (isPinch) {
                         PointerEventType.ScaleChange
                     } else {
@@ -135,7 +142,7 @@ internal actual constructor(
                 MotionEvent.ACTION_UP -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanEnd
-                    } else if (isPinch) {
+                    } else if (isPinch && !isPinchReinterpretation) {
                         PointerEventType.ScaleEnd
                     } else {
                         PointerEventType.Release
@@ -144,6 +151,8 @@ internal actual constructor(
                 MotionEvent.ACTION_POINTER_UP -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanEnd
+                    } else if (isPinchReinterpretation) {
+                        PointerEventType.ScaleEnd
                     } else if (isPinch) {
                         PointerEventType.ScaleChange
                     } else {
