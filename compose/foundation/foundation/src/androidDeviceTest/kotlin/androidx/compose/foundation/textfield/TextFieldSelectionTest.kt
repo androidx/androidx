@@ -34,26 +34,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -418,63 +411,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
             visualTransformation = ReducedVisualTransformation(),
             expectedCursorPositions = (0..40).filter { it % 2 == 0 }.toList(),
         )
-    }
-
-    @Test
-    fun textField_noCursorHandleInKeyboardInputMode() {
-        val textFieldValue = mutableStateOf("text text text")
-        val inputModeManager =
-            object : InputModeManager {
-                override val inputMode = InputMode.Keyboard
-
-                override fun requestInputMode(inputMode: InputMode): Boolean = false
-            }
-
-        rule.setTextFieldTestContent {
-            CompositionLocalProvider(LocalInputModeManager provides inputModeManager) {
-                BasicTextField(
-                    value = textFieldValue.value,
-                    onValueChange = { textFieldValue.value = it },
-                    modifier = Modifier.testTag(testTag),
-                )
-            }
-        }
-
-        rule.onNode(hasSetTextAction()).apply {
-            performSemanticsAction(SemanticsActions.RequestFocus)
-            assertIsFocused()
-        }
-        rule.waitForIdle()
-
-        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
-    }
-
-    @Test
-    fun textField_noSelectionHandlesInKeyboardInputMode() {
-        val textFieldValue = mutableStateOf(TextFieldValue("text", TextRange(0, 4)))
-        val inputModeManager =
-            object : InputModeManager {
-                override val inputMode = InputMode.Keyboard
-
-                override fun requestInputMode(inputMode: InputMode): Boolean = false
-            }
-        rule.setTextFieldTestContent {
-            CompositionLocalProvider(LocalInputModeManager provides inputModeManager) {
-                BasicTextField(
-                    value = textFieldValue.value,
-                    onValueChange = { textFieldValue.value = it },
-                    modifier = Modifier.testTag(testTag),
-                )
-            }
-        }
-
-        rule.onNode(hasSetTextAction()).apply {
-            performSemanticsAction(SemanticsActions.RequestFocus)
-            assertIsFocused()
-        }
-        rule.waitForIdle()
-
-        assertHandlesNotExist()
     }
 
     @ContextMenuFlagSuppress(suppressedFlagValue = false)

@@ -18,9 +18,6 @@ package androidx.compose.foundation.text
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -38,32 +35,8 @@ interface FocusedWindowTest {
             object : WindowInfo {
                 override val isWindowFocused = true
             }
-
         this.setContent {
-            CompositionLocalProvider(
-                LocalWindowInfo provides focusedWindowInfo,
-                LocalInputModeManager provides TouchInputModeManager,
-                content = content,
-            )
+            CompositionLocalProvider(LocalWindowInfo provides focusedWindowInfo, content)
         }
     }
-}
-
-/**
- * An [InputModeManager] that is always in [InputMode.Touch] mode.
- *
- * This allows tests to avoid depending on the system's touch mode
- * ([android.view.View.isInTouchMode]).
- */
-internal object TouchInputModeManager : InputModeManager {
-    override val inputMode: InputMode
-        get() = InputMode.Touch
-
-    override fun requestInputMode(inputMode: InputMode) = false
-}
-
-/** Provides [TouchInputModeManager] as the [LocalInputModeManager]. */
-@Composable
-internal fun ForceTouchInputMode(content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalInputModeManager provides TouchInputModeManager, content)
 }
