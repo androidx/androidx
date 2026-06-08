@@ -285,6 +285,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     static final boolean DISPATCH_TEMP_DETACH = false;
 
+    /**
+     * Whether the focus looping fix for b/406190006 is supported on this API level.
+     */
+    static final boolean FOCUS_LOOPING_FIX_SUPPORTED = Build.VERSION.SDK_INT >= 26;
+
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
@@ -475,6 +480,37 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     boolean mEnableFastScroller;
     @VisibleForTesting
     boolean mFirstLayoutComplete;
+
+    /**
+     * A marker flag for communicating between {@link #addFocusables(ArrayList, int, int)} and
+     * {@link #requestFocus(int, Rect)}. When {@link #addFocusables(ArrayList, int, int)} decides
+     * that focus will be entering this RecyclerView, it will return this and flip this flag to
+     * true. On the next {@link #requestFocus(int, Rect)} call, this will be treated as a focus
+     * enter into the RecyclerView.
+     * <p>
+     * This flag will be cleared with {@link #mClearIsExpectingEnterFocusRequest}.
+     */
+    private boolean mIsExpectingEnterFocusRequest;
+
+    /**
+     * A postable {@link Runnable} to clear the {@link #mIsExpectingEnterFocusRequest} flag back to
+     * false.
+     */
+    private final Runnable
+            mClearIsExpectingEnterFocusRequest = () -> mIsExpectingEnterFocusRequest = false;
+
+    /**
+     * A re-entrant flag for {@link #focusSearch(View, int)} that tracks when we are inside the
+     * {@link super#focusSearch(View, int)} call, which means that we currently have focus and
+     * the focus is leaving.
+     */
+    private boolean mIsFocusLeaving;
+
+    /**
+     * A re-entrant flag for the situation when entering focus has failed, and we want to skip over
+     * the special RecyclerView behavior. This is set and reset in {@link #requestFocus(int, Rect)}.
+     */
+    private boolean mHasFocusEnterFailed;
 
     /**
      * The current depth of nested calls to {@link #startInterceptRequestLayout()} (number of
@@ -3452,8 +3488,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             requestChildOnScreen(result, null);
             return focused;
         }
-        return isPreferredNextFocus(focused, result, direction)
-                ? result : super.focusSearch(focused, direction);
+        if (isPreferredNextFocus(focused, result, direction)) {
+            return result;
+        }
+
+        // We've failed to move within ourselves, and we're bubbling up the view tree.
+        // At this point, we're treating the focus search as focus leaving, so flip the flag
+        // before the super call when we get called back by our parents.
+        mIsFocusLeaving = true;
+        try {
+            return super.focusSearch(focused, direction);
+        } finally {
+            mIsFocusLeaving = false;
+        }
     }
 
     /**
@@ -3576,12 +3623,92 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
         if (mLayout == null || !mLayout.onAddFocusables(this, views, direction, focusableMode)) {
-            super.addFocusables(views, direction, focusableMode);
+            // Decide if we are going to treat this request for adding focusables as a focus enter
+            boolean treatAsFocusEnter =
+                    FOCUS_LOOPING_FIX_SUPPORTED
+                            && !mHasFocusEnterFailed
+                            && (!hasFocus() || mIsFocusLeaving)
+                            && (direction == View.FOCUS_FORWARD
+                                    || direction == View.FOCUS_BACKWARD);
+
+            if (treatAsFocusEnter) {
+                // The RecyclerView does not have focus or contain focus right now, or the focus
+                // has left and this call is the result of the super.focusSearch chain trying
+                // to find focus again. This means that this addFocusables request is coming from
+                // outside the RecyclerView, which means that we want to treat this request as a
+                // focus enter rather than simply what focusable children are currently available,
+                // so we add this RecyclerView to be found before the children regardless of the
+                // super.addFocusables descendant behavior.
+                if (direction == View.FOCUS_FORWARD) {
+                    views.add(this);
+                }
+                super.addFocusables(views, direction, focusableMode);
+                if (direction == View.FOCUS_BACKWARD) {
+                    views.add(this);
+                }
+                // Flip the flag that we have returned ourselves for an addFocusables request,
+                // which means we should treat a requestFocus on ourselves as an enter. This
+                // will be picked back up in requestFocus below.
+                // In the case where this request doesn't result in a focus request, post a
+                // cleanup callback to clear this flag to avoid an unrelated focus request being
+                // treated as a focus enter. This is sort of a hack, but there's not another
+                // way to pass information from this callback to the requestFocus callback :/
+                removeCallbacks(mClearIsExpectingEnterFocusRequest);
+                mIsExpectingEnterFocusRequest = true;
+                post(mClearIsExpectingEnterFocusRequest);
+            } else {
+                super.addFocusables(views, direction, focusableMode);
+            }
         }
     }
 
     @Override
+    public boolean requestFocus(int direction, @Nullable Rect previouslyFocusedRect) {
+        // The request on us came from the addFocusables call, so treat this as a focus enter
+        if (mIsExpectingEnterFocusRequest) {
+            removeCallbacks(mClearIsExpectingEnterFocusRequest);
+            mIsExpectingEnterFocusRequest = false;
+            final boolean canRunFocusEnter = mAdapter != null && mLayout != null
+                    && !isComputingLayout() && !mLayoutSuppressed;
+            View result = null;
+            if (canRunFocusEnter) {
+                consumePendingUpdateOperations();
+                result = mLayout.onFocusEnter(direction, mRecycler, mState);
+            }
+            if (result != null && result.requestFocus(direction, previouslyFocusedRect)) {
+                return true;
+            }
+            // We've tried to redirect focus, but we failed. First let's try the super call, in
+            // case we are focusable ourselves.
+            if (super.requestFocus(direction, previouslyFocusedRect)) {
+                return true;
+            }
+
+            // No luck. At this point, our enter focus failed, and we need to try to ensure that
+            // the focus gets moved somehow.
+            mHasFocusEnterFailed = true;
+            try {
+                View superFocusSearch = super.focusSearch(getRootView().findFocus(), direction);
+                if (superFocusSearch != null) {
+                    superFocusSearch.requestFocus(direction, previouslyFocusedRect);
+                }
+            } finally {
+                mHasFocusEnterFailed = false;
+            }
+
+            // Either the super focusSearch succeeded, or focus search completely failed.
+            // At this point the best we can do is return true anyway since we did claim to be a
+            // focusable view, but focus may not have actually moved.
+            return true;
+        }
+
+        return super.requestFocus(direction, previouslyFocusedRect);
+    }
+
+    @Override
     protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+        removeCallbacks(mClearIsExpectingEnterFocusRequest);
+        mIsExpectingEnterFocusRequest = false;
         if (isComputingLayout()) {
             // if we are in the middle of a layout calculation, don't let any child take focus.
             // RV will handle it after layout calculation is finished.
@@ -3650,6 +3777,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             mGapWorker.remove(this);
             mGapWorker = null;
         }
+
+        removeCallbacks(mClearIsExpectingEnterFocusRequest);
+        mIsExpectingEnterFocusRequest = false;
     }
 
     /**
@@ -10832,6 +10962,29 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         public @Nullable View onFocusSearchFailed(@NonNull View focused, int direction,
                 @NonNull Recycler recycler, @NonNull State state) {
+            return null;
+        }
+
+        /**
+         * Called when focus is entering the RecyclerView, either because focus was previously
+         * outside the RecyclerView, or focus has looped around after leaving the RecyclerView.
+         *
+         * <p>This is the LayoutManager's opportunity to scroll and populate views to ensure
+         * focus is sent to the first focusable view in the appropriate direction. For example,
+         * if the focus direction is {@link View#FOCUS_FORWARD}, then the first focusable
+         * view in the list should be attached and returned. The default implementation
+         * returns null.</p>
+         *
+         * @param direction One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
+         *                  {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT},
+         *                  {@link View#FOCUS_BACKWARD}, {@link View#FOCUS_FORWARD}
+         *                  or 0 for not applicable
+         * @param recycler  The recycler to use for obtaining views for currently offscreen items
+         * @param state     Transient state of RecyclerView
+         * @return The chosen view to be focused if a focusable view is found, else null.
+         */
+        public @Nullable View onFocusEnter(int direction, @NonNull Recycler recycler,
+                @NonNull State state) {
             return null;
         }
 

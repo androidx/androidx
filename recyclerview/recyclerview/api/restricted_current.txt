@@ -741,6 +741,7 @@ package androidx.recyclerview.widget {
     method @CallSuper public void onAttachedToWindow(androidx.recyclerview.widget.RecyclerView!);
     method @Deprecated public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView!);
     method @CallSuper public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView!, androidx.recyclerview.widget.RecyclerView.Recycler!);
+    method public android.view.View? onFocusEnter(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public android.view.View? onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public void onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent);
     method public void onInitializeAccessibilityEvent(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.accessibility.AccessibilityEvent);

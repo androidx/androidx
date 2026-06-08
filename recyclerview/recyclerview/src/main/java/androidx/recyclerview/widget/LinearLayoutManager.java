@@ -436,7 +436,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * RTL layout support is applied automatically. So if layout is RTL and
      * {@link #getReverseLayout()} is {@code true}, elements will be laid out starting from left.
      */
-    private void resolveShouldLayoutReverse() {
+    void resolveShouldLayoutReverse() {
         // A == B is the same result, but we rather keep it readable
         if (mOrientation == VERTICAL || !isLayoutRTL()) {
             mShouldReverseLayout = mReverseLayout;
@@ -607,6 +607,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        onLayoutChildrenInt(recycler, state);
+    }
+
+    private void onLayoutChildrenInt(RecyclerView.Recycler recycler, RecyclerView.State state) {
         // layout algorithm:
         // 1) by checking children and other variables, find an anchor coordinate and an anchor
         //  item position.
@@ -1867,6 +1871,52 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         return getChildAt(mShouldReverseLayout ? 0 : getChildCount() - 1);
     }
 
+    @Nullable View findFirstFocusableChildClosestToStart() {
+        int fromIndex;
+        int toIndex;
+        int step;
+        if (mShouldReverseLayout) {
+            fromIndex = getChildCount() - 1;
+            toIndex = -1;
+            step = -1;
+        } else {
+            fromIndex = 0;
+            toIndex = getChildCount();
+            step = 1;
+        }
+
+        for (int i = fromIndex; i != toIndex; i += step) {
+            View child = getChildAt(i);
+            if (child != null && child.hasFocusable()) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    @Nullable View findFirstFocusableChildClosestToEnd() {
+        int fromIndex;
+        int toIndex;
+        int step;
+        if (mShouldReverseLayout) {
+            fromIndex = 0;
+            toIndex = getChildCount();
+            step = 1;
+        } else {
+            fromIndex = getChildCount() - 1;
+            toIndex = -1;
+            step = -1;
+        }
+
+        for (int i = fromIndex; i != toIndex; i += step) {
+            View child = getChildAt(i);
+            if (child != null && child.hasFocusable()) {
+                return child;
+            }
+        }
+        return null;
+    }
+
     /**
      * Convenience method to find the visible child closes to start. Caller should check if it has
      * enough children.
@@ -2158,6 +2208,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public View onFocusSearchFailed(View focused, int direction,
             RecyclerView.Recycler recycler, RecyclerView.State state) {
+        return onFocusSearchFailedInternal(direction, recycler, state);
+    }
+
+    @Nullable
+    private View onFocusSearchFailedInternal(int direction,
+            RecyclerView.@NonNull Recycler recycler, RecyclerView.@NonNull State state) {
         resolveShouldLayoutReverse();
         if (getChildCount() == 0) {
             return null;
@@ -2199,6 +2255,59 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             return nextFocus;
         }
         return nextCandidate;
+    }
+
+    @Override
+    @Nullable
+    public View onFocusEnter(int direction,
+            RecyclerView.@NonNull Recycler recycler, RecyclerView.@NonNull State state) {
+        resolveShouldLayoutReverse();
+        if (getChildCount() == 0) {
+            return null;
+        }
+
+        final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
+
+        if (layoutDir == LayoutState.INVALID_LAYOUT) {
+            return null;
+        }
+        ensureLayoutState();
+
+        int enterScrollPosition;
+
+        // STEP 1: Determine whether we should scroll to the beginning or end of the list
+        if ((layoutDir == LayoutState.LAYOUT_START) ^ mShouldReverseLayout) {
+            enterScrollPosition = state.getItemCount() - 1;
+        } else {
+            enterScrollPosition = 0;
+        }
+
+        // STEP 2: Scroll to the correct side of the list
+        View desiredView = findViewByPosition(enterScrollPosition);
+        if (desiredView != null) {
+            // Step 2a: if we already have the view for the side, scroll to it
+            smoothScrollToPosition(mRecyclerView, state, enterScrollPosition);
+        } else {
+            // Step 2b: otherwise, jump to it
+            mPendingScrollPosition = enterScrollPosition;
+            // And trigger a full onLayoutChildren after updating the pending scroll position
+            onLayoutChildrenInt(recycler, state);
+        }
+
+        // STEP 3: Try to find the focusable child closest to the correct side
+        View nextFocus;
+        if (layoutDir == LayoutState.LAYOUT_START) {
+            nextFocus = findFirstFocusableChildClosestToEnd();
+        } else {
+            nextFocus = findFirstFocusableChildClosestToStart();
+        }
+        if (nextFocus != null && nextFocus.hasFocusable()) {
+            return nextFocus;
+        }
+
+        // We failed to find a focusable View within the currently rendered elements. Now that
+        // we have all the elements starting from the correct side, fallback to onFocusSearchFailed
+        return onFocusSearchFailedInternal(direction, recycler, state);
     }
 
     /**

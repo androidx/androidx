@@ -53,6 +53,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -897,7 +898,15 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         requestFocus(viewAbove, true);
         assertTrue(viewAbove.hasFocus());
         View newFocused = focusSearch(viewAbove, View.FOCUS_FORWARD);
-        assertThat(newFocused, sameInstance(rv.getChildAt(0)));
+        // When the focus looping fix is enabled on API 26+, the view returned from the focus
+        // search will be the RecyclerView itself, rather than the item.
+        // The resulting view that gets focus will be the item in all cases.
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertThat(newFocused, sameInstance(rv));
+        } else {
+            assertThat(newFocused, sameInstance(rv.getChildAt(0)));
+        }
+        assertThat(rv.findFocus(), sameInstance(rv.getChildAt(0)));
         newFocused = focusSearch(rv.getChildAt(0), View.FOCUS_FORWARD);
         assertThat(newFocused, sameInstance(rv.getChildAt(1)));
     }
