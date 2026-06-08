@@ -254,6 +254,9 @@ public class BitmapFontData extends Operation implements Serializable {
             glyphs[i].mMarginBottom = (short) buffer.readShort();
             glyphs[i].mBitmapWidth = (short) buffer.readShort();
             glyphs[i].mBitmapHeight = (short) buffer.readShort();
+            if (glyphs[i].mChars == null || glyphs[i].mChars.isEmpty()) {
+                throw new IllegalArgumentException("Glyph mChars must not be null or empty");
+            }
         }
 
         Map<String, Short> kerningTable = new HashMap<>();
@@ -325,6 +328,7 @@ public class BitmapFontData extends Operation implements Serializable {
         // Since mFontGlyphs is sorted on decreasing size, it will match the longest items first.
         // It is expected that the mFontGlyphs array will be fairly small.
         for (Glyph glyph : mFontGlyphs) {
+            if (glyph.mChars == null || glyph.mChars.isEmpty()) continue;
             if (string.startsWith(glyph.mChars, offset)) {
                 return glyph;
             }

@@ -235,8 +235,13 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                 prevGlyph = "";
                 continue;
             }
-
-            pos += glyph.mChars.length();
+            int cLen = glyph.mChars.length();
+            if (cLen == 0) {
+                pos++;
+                prevGlyph = "";
+                continue;
+            }
+            pos += cLen;
             if (glyph.mBitmapId == -1) {
                 // Space is represented by a glyph of -1.
                 width += glyph.mMarginLeft + glyph.mMarginRight;
@@ -290,8 +295,13 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                 prevGlyph = "";
                 continue;
             }
-
-            pos += glyph.mChars.length();
+            int cLen = glyph.mChars.length();
+            if (cLen == 0) {
+                pos++;
+                prevGlyph = "";
+                continue;
+            }
+            pos += cLen;
             if (glyph.mBitmapId == -1) {
                 // Space is represented by a glyph of -1.
                 progress += glyph.mMarginLeft + glyph.mMarginRight;

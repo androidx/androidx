@@ -123,6 +123,7 @@ public class LoopOperation extends PaintOperation
         RemoteContext remoteContext = context.getContext();
         if (mIndexVariableId == 0) {
             for (float i = mFromOut; i < mUntilOut; i += mStepOut) {
+                remoteContext.incrementOpCount();
                 for (Operation op : mList) {
                     remoteContext.incrementOpCount();
                     op.apply(context.getContext());
@@ -131,6 +132,7 @@ public class LoopOperation extends PaintOperation
         } else {
             for (float i = mFromOut; i < mUntilOut; i += mStepOut) {
                 context.getContext().loadFloat(mIndexVariableId, i);
+                remoteContext.incrementOpCount();
                 for (Operation op : mList) {
                     if (op instanceof VariableSupport && op.isDirty()) {
                         ((VariableSupport) op).updateVariables(context.getContext());
@@ -173,6 +175,15 @@ public class LoopOperation extends PaintOperation
         float from = buffer.readNanId();
         float step = buffer.readNanId();
         float until = buffer.readNanId();
+        // Validate step is not zero (infinite loop) and is in the right direction
+        if (!Float.isNaN(step) && !Float.isNaN(from) && !Float.isNaN(until)) {
+            if (step == 0) {
+                throw new RuntimeException("Loop step cannot be zero");
+            }
+            if (step < 0 && from < until) {
+                throw new RuntimeException("Loop step is negative but from < until");
+            }
+        }
         operations.add(new LoopOperation(indexId, from, step, until));
     }
 
