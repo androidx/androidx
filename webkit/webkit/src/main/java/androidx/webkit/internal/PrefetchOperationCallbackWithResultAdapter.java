@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,46 @@
 
 package androidx.webkit.internal;
 
+import android.os.CancellationSignal;
+
 import androidx.webkit.PrefetchException;
 import androidx.webkit.PrefetchNetworkException;
+import androidx.webkit.PrefetchResult;
 import androidx.webkit.Profile;
+import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebViewOutcomeReceiver;
 
 import org.chromium.support_lib_boundary.PrefetchOperationCallbackBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.chromium.support_lib_boundary.util.Features;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
+import java.util.concurrent.Executor;
 
+/**
+ * This Adapter is different from {@link PrefetchOperationCallbackAdapter} because we have added
+ * {@link PrefetchResult} to the callback types, and we can not overload the {@code
+ * buildInvocationHandler} with two different types.
+ *
+ * <p>
+ * This new adapter is used for the newer versions and the older is kept for deprecated
+ * {@link Profile#prefetchUrlAsync(String, CancellationSignal, Executor, WebViewOutcomeReceiver)},
+ * {@link Profile#prefetchUrlAsync(String, CancellationSignal, Executor, SpeculativeLoadingParameters, WebViewOutcomeReceiver)} APIs
+ */
 @Profile.ExperimentalUrlPrefetch
-public class PrefetchOperationCallbackAdapter implements
+public class PrefetchOperationCallbackWithResultAdapter implements
         PrefetchOperationCallbackBoundaryInterface {
-    private final @NonNull WebViewOutcomeReceiver<@Nullable Void, @NonNull PrefetchException>
+    private final @NonNull WebViewOutcomeReceiver<@NonNull PrefetchResult,
+            @NonNull PrefetchException>
             mCallback;
 
     /**
      * @param callback OutcomeReceiver to be triggered for
      *                 {@link #buildInvocationHandler(WebViewOutcomeReceiver)}
      */
-    private PrefetchOperationCallbackAdapter(@NonNull WebViewOutcomeReceiver<
-            @Nullable Void, @NonNull PrefetchException> callback) {
+    private PrefetchOperationCallbackWithResultAdapter(@NonNull WebViewOutcomeReceiver<
+            @NonNull PrefetchResult, @NonNull PrefetchException> callback) {
         mCallback = callback;
     }
 
@@ -53,37 +68,29 @@ public class PrefetchOperationCallbackAdapter implements
     @Profile.ExperimentalUrlPrefetch
     public static @NonNull /* PrefetchOperationCallbackBoundaryInterface
     */ InvocationHandler buildInvocationHandler(
-            @NonNull WebViewOutcomeReceiver<@Nullable Void, @NonNull PrefetchException> callback
-    ) {
+            @NonNull WebViewOutcomeReceiver<
+                    @NonNull PrefetchResult, @NonNull PrefetchException> callback) {
         return BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                new PrefetchOperationCallbackAdapter(callback));
+                new PrefetchOperationCallbackWithResultAdapter(callback));
     }
 
     /**
-     * Please use {@link #onResult(int)} instead.
+     * Maintained for compatibility with older WebViews
      */
     @SuppressWarnings("deprecation")
     @Override
     public void onSuccess() {
-        mCallback.onResult(null);
+        mCallback.onResult(new PrefetchResult(/* wasDuplicate: */ false));
     }
 
     @Override
-    public void onResult(
-            @PrefetchResultTypeBoundaryInterface int type) {
+    public void onResult(@PrefetchResultTypeBoundaryInterface int type) {
         switch (type) {
             case PrefetchResultTypeBoundaryInterface.SUCCESS:
-                mCallback.onResult(null);
+                mCallback.onResult(new PrefetchResult(/* wasDuplicate: */ false));
                 break;
             case PrefetchResultTypeBoundaryInterface.DUPLICATE:
-                /*
-                 * On earlier versions of the Chromium and AndroidX library,
-                 * duplicate requests were reported as errors instead of success
-                 * with a PrefetchException and "Duplicate prefetch request" here:
-                 * https://chromium-review.googlesource.com/c/chromium/src/+/7664079
-                 * aosp/3989873
-                 */
-                mCallback.onError(new PrefetchNetworkException("Duplicate prefetch request"));
+                mCallback.onResult(new PrefetchResult(/* wasDuplicate: */ true));
                 break;
             default:
                 throw new IllegalArgumentException("Given type isn't defined.");
@@ -96,9 +103,22 @@ public class PrefetchOperationCallbackAdapter implements
     }
 
     @Override
-    public void onFailure(
-            @PrefetchExceptionTypeBoundaryInterface int type,
+    public void onFailure(@PrefetchExceptionTypeBoundaryInterface int type,
             @NonNull String message, int networkErrorCode) {
+
+        /*
+         * On earlier versions of WebView, duplicate requests were reported as
+         * errors instead of success, with this specific error message:
+         * https://chromium-review.googlesource.com/c/chromium/src/+/7664079
+         */
+        ApiFeature.NoFrameworkInternal feature =
+                WebViewFeatureInternal.PREFETCH_WITH_CALLBACK_RESULT;
+        if (!feature.isSupportedByWebView()
+                && "Duplicate prefetch request".equals(message)) {
+            mCallback.onResult(new PrefetchResult(/* wasDuplicate: */ true));
+            return;
+        }
+
         switch (type) {
             case PrefetchExceptionTypeBoundaryInterface.NETWORK:
                 mCallback.onError(new PrefetchNetworkException(message, networkErrorCode));
