@@ -211,4 +211,16 @@ class SubspaceSemanticsConfigurationTest {
         assertThat(entries.map { it.key.name }).containsExactly("Key1", "Key2")
         assertThat(entries.map { it.value }).containsExactly("Value1", 42)
     }
+
+    @Test
+    fun publicConstructor_createsEmptyConfiguration() {
+        val configuration = SubspaceSemanticsConfiguration()
+
+        assertFalse(configuration.contains(key = SemanticsProperties.TestTag))
+
+        configuration[SemanticsProperties.TestTag] = "myTag"
+
+        assertTrue(configuration.contains(key = SemanticsProperties.TestTag))
+        assertThat(configuration[SemanticsProperties.TestTag]).isEqualTo("myTag")
+    }
 }
