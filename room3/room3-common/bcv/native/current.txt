@@ -379,6 +379,10 @@ open annotation class androidx.room3/ProvidedAutoMigrationSpec : kotlin/Annotati
     constructor <init>() // androidx.room3/ProvidedAutoMigrationSpec.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.room3/ProvidedDaoReturnTypeConverter : kotlin/Annotation { // androidx.room3/ProvidedDaoReturnTypeConverter|null[0]
+    constructor <init>() // androidx.room3/ProvidedDaoReturnTypeConverter.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.room3/ProvidedTypeConverter : kotlin/Annotation { // androidx.room3/ProvidedTypeConverter|null[0]
     constructor <init>() // androidx.room3/ProvidedTypeConverter.<init>|<init>(){}[0]
 }

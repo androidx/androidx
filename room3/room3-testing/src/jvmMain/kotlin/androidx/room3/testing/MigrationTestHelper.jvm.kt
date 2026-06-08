@@ -179,6 +179,7 @@ public actual class MigrationTestHelper(
             allowDestructiveMigrationOnDowngrade = false,
             migrationNotRequiredFrom = null,
             typeConverters = emptyList(),
+            daoReturnTypeConverters = emptyList(),
             autoMigrationSpecs = emptyList(),
             allowDestructiveMigrationForAllTables = false,
             sqliteDriver = driver,

@@ -71,5 +71,7 @@ internal class MyDao_Impl(
 
   public companion object {
     public fun getRequiredConverters(): List<KClass<*>> = listOf(FooConverter::class)
+
+    public fun getRequiredDaoReturnTypeConverters(): List<KClass<*>> = emptyList()
   }
 }

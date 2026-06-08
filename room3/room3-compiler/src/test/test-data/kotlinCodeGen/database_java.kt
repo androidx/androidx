@@ -65,12 +65,12 @@ internal class MyDatabase_Impl : MyDatabase() {
         val _existingMyEntity: TableInfo = read(connection, "MyEntity")
         if (!_infoMyEntity.equals(_existingMyEntity)) {
           return RoomOpenDelegate.ValidationResult(false, """
-              |MyEntity(MyEntity).
-              | Expected:
-              |""".trimMargin() + _infoMyEntity + """
-              |
-              | Found:
-              |""".trimMargin() + _existingMyEntity)
+                  |MyEntity(MyEntity).
+                  | Expected:
+                  |""".trimMargin() + _infoMyEntity + """
+                  |
+                  | Found:
+                  |""".trimMargin() + _existingMyEntity)
         }
         return RoomOpenDelegate.ValidationResult(true, null)
       }
@@ -92,6 +92,12 @@ internal class MyDatabase_Impl : MyDatabase() {
     val _typeConvertersMap: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()
     _typeConvertersMap.put(MyDao::class, MyDao_Impl.getRequiredConverters())
     return _typeConvertersMap
+  }
+
+  protected override fun getRequiredDaoReturnTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
+    val _daoReturnTypeConvertersMap: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()
+    _daoReturnTypeConvertersMap.put(MyDao::class, MyDao_Impl.getRequiredDaoReturnTypeConverters())
+    return _daoReturnTypeConvertersMap
   }
 
   public override fun getRequiredAutoMigrationSpecClasses(): Set<KClass<out AutoMigrationSpec>> {

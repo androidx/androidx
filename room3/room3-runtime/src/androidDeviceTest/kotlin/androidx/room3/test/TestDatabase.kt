@@ -45,6 +45,7 @@ fun createDefaultConfiguration(instrumentation: Instrumentation) =
         migrationNotRequiredFrom = null,
         prepackagedDatabaseCallback = null,
         typeConverters = emptyList(),
+        daoReturnTypeConverters = emptyList(),
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = true,
         sqliteDriver = AndroidSQLiteDriver(),

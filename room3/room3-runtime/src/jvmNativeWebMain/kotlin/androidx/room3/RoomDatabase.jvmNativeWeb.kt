@@ -58,6 +58,7 @@ public actual abstract class RoomDatabase actual constructor() {
     private lateinit var coroutineScope: CoroutineScope
 
     private val typeConverters: MutableMap<KClass<*>, Any> = mutableMapOf()
+    private val daoReturnTypeConverters: MutableMap<KClass<*>, Any> = mutableMapOf()
 
     /**
      * The invalidation tracker for this database.
@@ -96,6 +97,7 @@ public actual abstract class RoomDatabase actual constructor() {
             CoroutineScope(configuration.queryCoroutineContext + SupervisorJob(parentJob))
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
+        validateDaoReturnTypeConverters(configuration)
     }
 
     /**
@@ -197,6 +199,21 @@ public actual abstract class RoomDatabase actual constructor() {
     }
 
     /**
+     * Gets the instance of the given DAO return type converter class.
+     *
+     * This method should only be called by the generated DAO implementations.
+     *
+     * @param klass The DAO Return Type Converter class.
+     * @param T The type of the expected DAO Return Type Converter subclass.
+     * @return An instance of T.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    @Suppress("UNCHECKED_CAST")
+    public actual fun <T : Any> getDaoReturnTypeConverter(klass: KClass<T>): T {
+        return daoReturnTypeConverters[klass] as T
+    }
+
+    /**
      * Adds a provided type converter to be used in the database DAOs.
      *
      * @param kclass the class of the type converter
@@ -204,6 +221,16 @@ public actual abstract class RoomDatabase actual constructor() {
      */
     internal actual fun addTypeConverter(kclass: KClass<*>, converter: Any) {
         typeConverters[kclass] = converter
+    }
+
+    /**
+     * Adds a provided DAO return type converter to be used in the database DAOs.
+     *
+     * @param kclass the class of the DAO return type converter
+     * @param converter an instance of the DAO return type converter
+     */
+    internal actual fun addDaoReturnTypeConverter(kclass: KClass<*>, converter: Any) {
+        daoReturnTypeConverters[kclass] = converter
     }
 
     /**
@@ -224,6 +251,18 @@ public actual abstract class RoomDatabase actual constructor() {
     /** Property delegate of [getRequiredTypeConverterClasses] for common ext functionality. */
     internal actual val requiredTypeConverterClassesMap: Map<KClass<*>, List<KClass<*>>>
         get() = getRequiredTypeConverterClasses()
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    protected actual open fun getRequiredDaoReturnTypeConverterClasses():
+        Map<KClass<*>, List<KClass<*>>> {
+        return emptyMap()
+    }
+
+    /**
+     * Property delegate of [getRequiredDaoReturnTypeConverterClasses] for common ext functionality.
+     */
+    internal actual val requiredDaoReturnTypeConverterClassesMap: Map<KClass<*>, List<KClass<*>>>
+        get() = getRequiredDaoReturnTypeConverterClasses()
 
     /**
      * Initialize invalidation tracker. Note that this function is called when the [RoomDatabase] is
@@ -313,6 +352,7 @@ public actual abstract class RoomDatabase actual constructor() {
         private var driver: SQLiteDriver? = null
         private val callbacks = mutableListOf<Callback>()
         private val typeConverters: MutableList<Any> = mutableListOf()
+        private val daoReturnTypeConverters: MutableList<Any> = mutableListOf()
         private var journalMode: JournalMode = JournalMode.WRITE_AHEAD_LOGGING
         private var queryCoroutineContext: CoroutineContext? = null
         private var connectionPoolConfiguration: ConnectionPoolConfiguration? = null
@@ -482,6 +522,18 @@ public actual abstract class RoomDatabase actual constructor() {
         }
 
         /**
+         * Adds a DAO return type converter instance to the builder.
+         *
+         * @param daoReturnTypeConverter The converter instance that is annotated with
+         *   [ProvidedDaoReturnTypeConverter].
+         * @return This builder instance.
+         */
+        public actual fun addDaoReturnTypeConverter(daoReturnTypeConverter: Any): Builder<T> =
+            apply {
+                this.daoReturnTypeConverters.add(daoReturnTypeConverter)
+            }
+
+        /**
          * Sets the journal mode for this database.
          *
          * The value is ignored if the builder is for an 'in-memory database'. The journal mode
@@ -622,6 +674,7 @@ public actual abstract class RoomDatabase actual constructor() {
                     allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
                     migrationNotRequiredFrom = migrationsNotRequiredFrom,
                     typeConverters = typeConverters,
+                    daoReturnTypeConverters = daoReturnTypeConverters,
                     autoMigrationSpecs = autoMigrationSpecs,
                     allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
                     sqliteDriver = driver,

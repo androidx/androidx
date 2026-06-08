@@ -4,6 +4,7 @@ import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
+import kotlin.Lazy
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
@@ -18,14 +19,16 @@ internal class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __fooReturnTypeConverter: FooReturnTypeConverter = FooReturnTypeConverter()
+  private val __fooReturnTypeConverter: Lazy<FooReturnTypeConverter> = lazy {
+    checkNotNull(__db.getDaoReturnTypeConverter(FooReturnTypeConverter::class))
+  }
   init {
     this.__db = __db
   }
 
   public override suspend fun getFooSingleColumn(): Foo<MyEntity> {
     val _sql: String = "SELECT * FROM MyEntity"
-    return __fooReturnTypeConverter.convert() {
+    return __fooReturnTypeConverter().convert() {
       performSuspending<MyEntity>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -48,7 +51,7 @@ internal class MyDao_Impl(
 
   public override suspend fun getFooList(): Foo<List<MyEntity>> {
     val _sql: String = "SELECT * FROM MyEntity"
-    return __fooReturnTypeConverter.convert() {
+    return __fooReturnTypeConverter().convert() {
       performSuspending<List<MyEntity>>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -71,7 +74,7 @@ internal class MyDao_Impl(
 
   public override fun getBlockingFooList(): Foo<List<MyEntity>> {
     val _sql: String = "SELECT * FROM MyEntity"
-    return __fooReturnTypeConverter.convertBlocking() {
+    return __fooReturnTypeConverter().convertBlocking() {
       performSuspending<List<MyEntity>>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -92,9 +95,11 @@ internal class MyDao_Impl(
     }
   }
 
+  private fun __fooReturnTypeConverter(): FooReturnTypeConverter = __fooReturnTypeConverter.value
+
   public companion object {
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
 
-    public fun getRequiredDaoReturnTypeConverters(): List<KClass<*>> = emptyList()
+    public fun getRequiredDaoReturnTypeConverters(): List<KClass<*>> = listOf(FooReturnTypeConverter::class)
   }
 }

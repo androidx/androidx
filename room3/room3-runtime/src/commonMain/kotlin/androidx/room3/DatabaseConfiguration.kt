@@ -39,6 +39,8 @@ public expect class DatabaseConfiguration {
     internal val migrationNotRequiredFrom: Set<Int>?
     /* List of provided type converters. */
     public val typeConverters: List<Any>
+    /* List of provided DAO return type converters. */
+    public val daoReturnTypeConverters: List<Any>
     /* List of provided auto migration specs. */
     public val autoMigrationSpecs: List<AutoMigrationSpec>
     /* Whether Room will delete all tables or only known tables during destructive migrations. */

@@ -145,6 +145,63 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun customDaoReturnType_provided() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+                import kotlinx.coroutines.runBlocking
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getFooSingleColumn(): Foo<MyEntity>
+
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getFooList(): Foo<List<MyEntity>>
+
+                  @Query("SELECT * FROM MyEntity")
+                  fun getBlockingFooList(): Foo<List<MyEntity>>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                open class Bar<T>(val data: T)
+                class Foo<T>(data: T): Bar<T>(data)
+
+                @ProvidedDaoReturnTypeConverter
+                class FooReturnTypeConverter(val default: String) {
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
+                    suspend fun <T> convert(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                        return Foo(executeAndConvert.invoke())
+                    }
+
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
+                    fun <T> convertBlocking(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                        return runBlocking {
+                            Foo(executeAndConvert.invoke())
+                        }
+                    }
+
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
     fun customDaoReturnType_optionalParams() {
         val src =
             Source.kotlin(
