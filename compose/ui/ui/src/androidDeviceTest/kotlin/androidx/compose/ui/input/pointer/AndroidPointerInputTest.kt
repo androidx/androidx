@@ -1646,6 +1646,7 @@ class AndroidPointerInputTest {
      * in U. (Thus, why this test request at least that version.)
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun motionEventDispatch_withValidClassification_shouldMatchInPointerEvent() {
         // --> Arrange
@@ -1817,6 +1818,34 @@ class AndroidPointerInputTest {
 
             val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
             androidComposeView.dispatchTouchEvent(downEvent)
+
+            // When re-interpreting pinches, the first MotionEvent (ACTION_DOWN with 1 pointer) will
+            // not result in a PointerEvent being sent through Compose. Therefore, we send a
+            // second MotionEvent (ACTION_POINTER_DOWN with 2 pointers) to trigger the PointerEvent.
+            if (ComposeUiFlags.isTrackpadPinchReinterpretationEnabled) {
+                val pointerProperties2 =
+                    arrayOf(
+                        pointerProperties[0],
+                        PointerProperties(1).also { it.toolType = MotionEvent.TOOL_TYPE_FINGER },
+                    )
+                val pointerCoords2 =
+                    arrayOf(
+                        pointerCoords!![0],
+                        PointerCoords(pointerCoords!![0].x + 10f, pointerCoords!![0].y + 10f),
+                    )
+                val pointerDownEvent =
+                    MotionEvent(
+                        eventTime = eventTime,
+                        action = ACTION_POINTER_DOWN,
+                        numPointers = 2,
+                        actionIndex = 1,
+                        pointerProperties = pointerProperties2,
+                        pointerCoords = pointerCoords2,
+                        buttonState = buttonState,
+                        classification = motionEventClassification,
+                    )
+                androidComposeView.dispatchTouchEvent(pointerDownEvent)
+            }
         }
 
         // --> Assert
