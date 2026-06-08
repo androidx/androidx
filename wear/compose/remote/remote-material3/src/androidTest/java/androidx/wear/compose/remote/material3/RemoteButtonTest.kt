@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.capture.createCreationDisplayInf
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
@@ -241,8 +240,7 @@ class RemoteButtonTest {
                     createImage(200, 200).asImageBitmap()
                 }
             ComponentContainer {
-                val containerPainter =
-                    RemoteButtonDefaults.containerPainter(painterRemoteImageBitmap(backgroundImage))
+                val containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage)
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.buttonSizeModifier(),
@@ -268,8 +266,7 @@ class RemoteButtonTest {
                 }
             ComponentContainer {
                 val enabled = false.rb
-                val containerPainter =
-                    RemoteButtonDefaults.containerPainter(painterRemoteImageBitmap(backgroundImage))
+                val containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage)
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.buttonSizeModifier(),
