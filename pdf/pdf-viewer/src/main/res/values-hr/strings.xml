@@ -30,6 +30,8 @@
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"stranica <xliff:g id="PAGE">%1$d</xliff:g> od <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"zumiranje <xliff:g id="FIRST">%1$d</xliff:g> posto"</string>
+    <!-- no translation found for desc_pdf_view (4353979540148077296) -->
+    <skip />
     <string name="desc_goto" msgid="1333698934111921601">"Idi na"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Idite na stranicu <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_copy" msgid="385275789223074637">"Kopira odabrani sadržaj u međuspremnik"</string>
