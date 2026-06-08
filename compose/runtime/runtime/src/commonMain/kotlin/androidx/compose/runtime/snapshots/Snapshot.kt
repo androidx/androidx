@@ -2318,9 +2318,7 @@ internal fun <T : StateRecord> T.writableRecord(state: StateObject, snapshot: Sn
         }
             as T
 
-    if (readData.snapshotId != Snapshot.PreexistingSnapshotId.toSnapshotId()) {
-        snapshot.recordModified(state)
-    }
+    snapshot.recordModified(state)
 
     return newData
 }
@@ -2341,9 +2339,7 @@ internal fun <T : StateRecord> T.overwritableRecord(
     val newData = sync { newOverwritableRecordLocked(state) }
     newData.snapshotId = id
 
-    if (candidate.snapshotId != Snapshot.PreexistingSnapshotId.toSnapshotId()) {
-        snapshot.recordModified(state)
-    }
+    snapshot.recordModified(state)
 
     return newData
 }
