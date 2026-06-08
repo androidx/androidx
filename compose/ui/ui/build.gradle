@@ -37,6 +37,7 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.atomicFu)
 }
 
 androidXMultiplatform {

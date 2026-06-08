@@ -40,6 +40,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
+import kotlin.concurrent.Volatile
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.atomicfu.atomic
@@ -69,12 +70,15 @@ abstract class AbstractTestBasicsTest(
     @Test
     fun recompositionCompletesBeforeSetContentReturns() = repeat(100) {
         runUiTest {
-            var globalValue by atomic(0)
+            val globalValue = object {
+                var value by atomic(0)
+            }
+
             setContent {
                 var localValue by remember { mutableStateOf(0) }
 
                 remember(localValue) {
-                    globalValue = localValue
+                    globalValue.value = localValue
                 }
 
                 Layout(
@@ -87,7 +91,7 @@ abstract class AbstractTestBasicsTest(
                 )
             }
 
-            assertEquals(100, globalValue)
+            assertEquals(100, globalValue.value)
         }
     }
 
