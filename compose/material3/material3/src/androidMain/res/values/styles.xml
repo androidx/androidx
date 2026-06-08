@@ -28,4 +28,175 @@
     </style>
     <!-- "shortEdges" Value for windowLayoutInDisplayCutoutMode. Needed for APIs 27-29. -->
     <integer name="m3c_window_layout_in_display_cutout_mode">1</integer>
+    <!-- Fallback style mapping for pre-API 31 platforms. -->
+    <style name="mc3_palette" parent="">
+        <!-- Primary Tonal Palette -->
+        <item name="mc3_primary_100">@android:color/black</item>
+        <item name="mc3_primary_99">@android:color/black</item>
+        <item name="mc3_primary_95">@android:color/black</item>
+        <item name="mc3_primary_90">@android:color/black</item>
+        <item name="mc3_primary_80">@android:color/black</item>
+        <item name="mc3_primary_70">@android:color/black</item>
+        <item name="mc3_primary_60">@android:color/black</item>
+        <item name="mc3_primary_50">@android:color/black</item>
+        <item name="mc3_primary_40">@android:color/black</item>
+        <item name="mc3_primary_30">@android:color/black</item>
+        <item name="mc3_primary_20">@android:color/black</item>
+        <item name="mc3_primary_10">@android:color/black</item>
+        <item name="mc3_primary_0">@android:color/black</item>
+
+        <!-- Secondary Tonal Palette -->
+        <item name="mc3_secondary_100">@android:color/black</item>
+        <item name="mc3_secondary_99">@android:color/black</item>
+        <item name="mc3_secondary_95">@android:color/black</item>
+        <item name="mc3_secondary_90">@android:color/black</item>
+        <item name="mc3_secondary_80">@android:color/black</item>
+        <item name="mc3_secondary_70">@android:color/black</item>
+        <item name="mc3_secondary_60">@android:color/black</item>
+        <item name="mc3_secondary_50">@android:color/black</item>
+        <item name="mc3_secondary_40">@android:color/black</item>
+        <item name="mc3_secondary_30">@android:color/black</item>
+        <item name="mc3_secondary_20">@android:color/black</item>
+        <item name="mc3_secondary_10">@android:color/black</item>
+        <item name="mc3_secondary_0">@android:color/black</item>
+
+        <!-- Tertiary Tonal Palette -->
+        <item name="mc3_tertiary_100">@android:color/black</item>
+        <item name="mc3_tertiary_99">@android:color/black</item>
+        <item name="mc3_tertiary_95">@android:color/black</item>
+        <item name="mc3_tertiary_90">@android:color/black</item>
+        <item name="mc3_tertiary_80">@android:color/black</item>
+        <item name="mc3_tertiary_70">@android:color/black</item>
+        <item name="mc3_tertiary_60">@android:color/black</item>
+        <item name="mc3_tertiary_50">@android:color/black</item>
+        <item name="mc3_tertiary_40">@android:color/black</item>
+        <item name="mc3_tertiary_30">@android:color/black</item>
+        <item name="mc3_tertiary_20">@android:color/black</item>
+        <item name="mc3_tertiary_10">@android:color/black</item>
+        <item name="mc3_tertiary_0">@android:color/black</item>
+
+        <!-- Neutral Tonal Palette -->
+        <item name="mc3_neutral_100">@android:color/black</item>
+        <item name="mc3_neutral_99">@android:color/black</item>
+        <item name="mc3_neutral_95">@android:color/black</item>
+        <item name="mc3_neutral_90">@android:color/black</item>
+        <item name="mc3_neutral_80">@android:color/black</item>
+        <item name="mc3_neutral_70">@android:color/black</item>
+        <item name="mc3_neutral_60">@android:color/black</item>
+        <item name="mc3_neutral_50">@android:color/black</item>
+        <item name="mc3_neutral_40">@android:color/black</item>
+        <item name="mc3_neutral_30">@android:color/black</item>
+        <item name="mc3_neutral_20">@android:color/black</item>
+        <item name="mc3_neutral_10">@android:color/black</item>
+        <item name="mc3_neutral_0">@android:color/black</item>
+
+        <!-- Neutral Variant Tonal Palette -->
+        <item name="mc3_neutral_variant_100">@android:color/black</item>
+        <item name="mc3_neutral_variant_99">@android:color/black</item>
+        <item name="mc3_neutral_variant_95">@android:color/black</item>
+        <item name="mc3_neutral_variant_90">@android:color/black</item>
+        <item name="mc3_neutral_variant_80">@android:color/black</item>
+        <item name="mc3_neutral_variant_70">@android:color/black</item>
+        <item name="mc3_neutral_variant_60">@android:color/black</item>
+        <item name="mc3_neutral_variant_50">@android:color/black</item>
+        <item name="mc3_neutral_variant_40">@android:color/black</item>
+        <item name="mc3_neutral_variant_30">@android:color/black</item>
+        <item name="mc3_neutral_variant_20">@android:color/black</item>
+        <item name="mc3_neutral_variant_10">@android:color/black</item>
+        <item name="mc3_neutral_variant_0">@android:color/black</item>
+    </style>
+
+    <!-- Fallback style mapping for pre-API 34 platforms (Light). -->
+    <style name="mc3_light_scheme" parent="">
+        <item name="mc3_primary">@android:color/black</item>
+        <item name="mc3_on_primary">@android:color/black</item>
+        <item name="mc3_primary_container">@android:color/black</item>
+        <item name="mc3_on_primary_container">@android:color/black</item>
+        <item name="mc3_inverse_primary">@android:color/black</item>
+        <item name="mc3_secondary">@android:color/black</item>
+        <item name="mc3_on_secondary">@android:color/black</item>
+        <item name="mc3_secondary_container">@android:color/black</item>
+        <item name="mc3_on_secondary_container">@android:color/black</item>
+        <item name="mc3_tertiary">@android:color/black</item>
+        <item name="mc3_on_tertiary">@android:color/black</item>
+        <item name="mc3_tertiary_container">@android:color/black</item>
+        <item name="mc3_on_tertiary_container">@android:color/black</item>
+        <item name="mc3_background">@android:color/black</item>
+        <item name="mc3_on_background">@android:color/black</item>
+        <item name="mc3_surface">@android:color/black</item>
+        <item name="mc3_on_surface">@android:color/black</item>
+        <item name="mc3_surface_variant">@android:color/black</item>
+        <item name="mc3_on_surface_variant">@android:color/black</item>
+        <item name="mc3_inverse_surface">@android:color/black</item>
+        <item name="mc3_inverse_on_surface">@android:color/black</item>
+        <item name="mc3_outline">@android:color/black</item>
+        <item name="mc3_outline_variant">@android:color/black</item>
+        <item name="mc3_surface_bright">@android:color/black</item>
+        <item name="mc3_surface_dim">@android:color/black</item>
+        <item name="mc3_surface_container">@android:color/black</item>
+        <item name="mc3_surface_container_high">@android:color/black</item>
+        <item name="mc3_surface_container_highest">@android:color/black</item>
+        <item name="mc3_surface_container_low">@android:color/black</item>
+        <item name="mc3_surface_container_lowest">@android:color/black</item>
+        <item name="mc3_surface_tint">@android:color/black</item>
+        <item name="mc3_primary_fixed">@android:color/black</item>
+        <item name="mc3_primary_fixed_dim">@android:color/black</item>
+        <item name="mc3_on_primary_fixed">@android:color/black</item>
+        <item name="mc3_on_primary_fixed_variant">@android:color/black</item>
+        <item name="mc3_secondary_fixed">@android:color/black</item>
+        <item name="mc3_secondary_fixed_dim">@android:color/black</item>
+        <item name="mc3_on_secondary_fixed">@android:color/black</item>
+        <item name="mc3_on_secondary_fixed_variant">@android:color/black</item>
+        <item name="mc3_tertiary_fixed">@android:color/black</item>
+        <item name="mc3_tertiary_fixed_dim">@android:color/black</item>
+        <item name="mc3_on_tertiary_fixed">@android:color/black</item>
+        <item name="mc3_on_tertiary_fixed_variant">@android:color/black</item>
+    </style>
+
+    <!-- Fallback style mapping for pre-API 34 platforms (Dark). -->
+    <style name="mc3_dark_scheme" parent="">
+        <item name="mc3_primary">@android:color/black</item>
+        <item name="mc3_on_primary">@android:color/black</item>
+        <item name="mc3_primary_container">@android:color/black</item>
+        <item name="mc3_on_primary_container">@android:color/black</item>
+        <item name="mc3_inverse_primary">@android:color/black</item>
+        <item name="mc3_secondary">@android:color/black</item>
+        <item name="mc3_on_secondary">@android:color/black</item>
+        <item name="mc3_secondary_container">@android:color/black</item>
+        <item name="mc3_on_secondary_container">@android:color/black</item>
+        <item name="mc3_tertiary">@android:color/black</item>
+        <item name="mc3_on_tertiary">@android:color/black</item>
+        <item name="mc3_tertiary_container">@android:color/black</item>
+        <item name="mc3_on_tertiary_container">@android:color/black</item>
+        <item name="mc3_background">@android:color/black</item>
+        <item name="mc3_on_background">@android:color/black</item>
+        <item name="mc3_surface">@android:color/black</item>
+        <item name="mc3_on_surface">@android:color/black</item>
+        <item name="mc3_surface_variant">@android:color/black</item>
+        <item name="mc3_on_surface_variant">@android:color/black</item>
+        <item name="mc3_inverse_surface">@android:color/black</item>
+        <item name="mc3_inverse_on_surface">@android:color/black</item>
+        <item name="mc3_outline">@android:color/black</item>
+        <item name="mc3_outline_variant">@android:color/black</item>
+        <item name="mc3_surface_bright">@android:color/black</item>
+        <item name="mc3_surface_dim">@android:color/black</item>
+        <item name="mc3_surface_container">@android:color/black</item>
+        <item name="mc3_surface_container_high">@android:color/black</item>
+        <item name="mc3_surface_container_highest">@android:color/black</item>
+        <item name="mc3_surface_container_low">@android:color/black</item>
+        <item name="mc3_surface_container_lowest">@android:color/black</item>
+        <item name="mc3_surface_tint">@android:color/black</item>
+        <item name="mc3_primary_fixed">@android:color/black</item>
+        <item name="mc3_primary_fixed_dim">@android:color/black</item>
+        <item name="mc3_on_primary_fixed">@android:color/black</item>
+        <item name="mc3_on_primary_fixed_variant">@android:color/black</item>
+        <item name="mc3_secondary_fixed">@android:color/black</item>
+        <item name="mc3_secondary_fixed_dim">@android:color/black</item>
+        <item name="mc3_on_secondary_fixed">@android:color/black</item>
+        <item name="mc3_on_secondary_fixed_variant">@android:color/black</item>
+        <item name="mc3_tertiary_fixed">@android:color/black</item>
+        <item name="mc3_tertiary_fixed_dim">@android:color/black</item>
+        <item name="mc3_on_tertiary_fixed">@android:color/black</item>
+        <item name="mc3_on_tertiary_fixed_variant">@android:color/black</item>
+    </style>
 </resources>

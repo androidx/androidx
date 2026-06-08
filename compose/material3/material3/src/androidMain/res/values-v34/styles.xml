@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <!-- Light dynamic color scheme style for API 34+ -->
+    <style name="mc3_light_scheme" parent="">
+        <item name="mc3_primary">@android:color/system_primary_light</item>
+        <item name="mc3_on_primary">@android:color/system_on_primary_light</item>
+        <item name="mc3_primary_container">@android:color/system_primary_container_light</item>
+        <item name="mc3_on_primary_container">@android:color/system_on_primary_container_light</item>
+        <item name="mc3_inverse_primary">@android:color/system_primary_dark</item>
+        <item name="mc3_secondary">@android:color/system_secondary_light</item>
+        <item name="mc3_on_secondary">@android:color/system_on_secondary_light</item>
+        <item name="mc3_secondary_container">@android:color/system_secondary_container_light</item>
+        <item name="mc3_on_secondary_container">@android:color/system_on_secondary_container_light</item>
+        <item name="mc3_tertiary">@android:color/system_tertiary_light</item>
+        <item name="mc3_on_tertiary">@android:color/system_on_tertiary_light</item>
+        <item name="mc3_tertiary_container">@android:color/system_tertiary_container_light</item>
+        <item name="mc3_on_tertiary_container">@android:color/system_on_tertiary_container_light</item>
+        <item name="mc3_background">@android:color/system_background_light</item>
+        <item name="mc3_on_background">@android:color/system_on_background_light</item>
+        <item name="mc3_surface">@android:color/system_surface_light</item>
+        <item name="mc3_on_surface">@android:color/system_on_surface_light</item>
+        <item name="mc3_surface_variant">@android:color/system_surface_variant_light</item>
+        <item name="mc3_on_surface_variant">@android:color/system_on_surface_variant_light</item>
+        <item name="mc3_inverse_surface">@android:color/system_surface_dark</item>
+        <item name="mc3_inverse_on_surface">@android:color/system_on_surface_dark</item>
+        <item name="mc3_outline">@android:color/system_outline_light</item>
+        <item name="mc3_outline_variant">@android:color/system_outline_variant_light</item>
+        <item name="mc3_surface_bright">@android:color/system_surface_bright_light</item>
+        <item name="mc3_surface_dim">@android:color/system_surface_dim_light</item>
+        <item name="mc3_surface_container">@android:color/system_surface_container_light</item>
+        <item name="mc3_surface_container_high">@android:color/system_surface_container_high_light</item>
+        <item name="mc3_surface_container_highest">@android:color/system_surface_container_highest_light</item>
+        <item name="mc3_surface_container_low">@android:color/system_surface_container_low_light</item>
+        <item name="mc3_surface_container_lowest">@android:color/system_surface_container_lowest_light</item>
+        <item name="mc3_surface_tint">@android:color/system_primary_light</item>
+        <item name="mc3_primary_fixed">@android:color/system_primary_fixed</item>
+        <item name="mc3_primary_fixed_dim">@android:color/system_primary_fixed_dim</item>
+        <item name="mc3_on_primary_fixed">@android:color/system_on_primary_fixed</item>
+        <item name="mc3_on_primary_fixed_variant">@android:color/system_on_primary_fixed_variant</item>
+        <item name="mc3_secondary_fixed">@android:color/system_secondary_fixed</item>
+        <item name="mc3_secondary_fixed_dim">@android:color/system_secondary_fixed_dim</item>
+        <item name="mc3_on_secondary_fixed">@android:color/system_on_secondary_fixed</item>
+        <item name="mc3_on_secondary_fixed_variant">@android:color/system_on_secondary_fixed_variant</item>
+        <item name="mc3_tertiary_fixed">@android:color/system_tertiary_fixed</item>
+        <item name="mc3_tertiary_fixed_dim">@android:color/system_tertiary_fixed_dim</item>
+        <item name="mc3_on_tertiary_fixed">@android:color/system_on_tertiary_fixed</item>
+        <item name="mc3_on_tertiary_fixed_variant">@android:color/system_on_tertiary_fixed_variant</item>
+    </style>
+
+    <!-- Dark dynamic color scheme style for API 34+ -->
+    <style name="mc3_dark_scheme" parent="">
+        <item name="mc3_primary">@android:color/system_primary_dark</item>
+        <item name="mc3_on_primary">@android:color/system_on_primary_dark</item>
+        <item name="mc3_primary_container">@android:color/system_primary_container_dark</item>
+        <item name="mc3_on_primary_container">@android:color/system_on_primary_container_dark</item>
+        <item name="mc3_inverse_primary">@android:color/system_primary_light</item>
+        <item name="mc3_secondary">@android:color/system_secondary_dark</item>
+        <item name="mc3_on_secondary">@android:color/system_on_secondary_dark</item>
+        <item name="mc3_secondary_container">@android:color/system_secondary_container_dark</item>
+        <item name="mc3_on_secondary_container">@android:color/system_on_secondary_container_dark</item>
+        <item name="mc3_tertiary">@android:color/system_tertiary_dark</item>
+        <item name="mc3_on_tertiary">@android:color/system_on_tertiary_dark</item>
+        <item name="mc3_tertiary_container">@android:color/system_tertiary_container_dark</item>
+        <item name="mc3_on_tertiary_container">@android:color/system_on_tertiary_container_dark</item>
+        <item name="mc3_background">@android:color/system_background_dark</item>
+        <item name="mc3_on_background">@android:color/system_on_background_dark</item>
+        <item name="mc3_surface">@android:color/system_surface_dark</item>
+        <item name="mc3_on_surface">@android:color/system_on_surface_dark</item>
+        <item name="mc3_surface_variant">@android:color/system_surface_variant_dark</item>
+        <item name="mc3_on_surface_variant">@android:color/system_on_surface_variant_dark</item>
+        <item name="mc3_inverse_surface">@android:color/system_surface_light</item>
+        <item name="mc3_inverse_on_surface">@android:color/system_on_surface_light</item>
+        <item name="mc3_outline">@android:color/system_outline_dark</item>
+        <item name="mc3_outline_variant">@android:color/system_outline_variant_dark</item>
+        <item name="mc3_surface_bright">@android:color/system_surface_bright_dark</item>
+        <item name="mc3_surface_dim">@android:color/system_surface_dim_dark</item>
+        <item name="mc3_surface_container">@android:color/system_surface_container_dark</item>
+        <item name="mc3_surface_container_high">@android:color/system_surface_container_high_dark</item>
+        <item name="mc3_surface_container_highest">@android:color/system_surface_container_highest_dark</item>
+        <item name="mc3_surface_container_low">@android:color/system_surface_container_low_dark</item>
+        <item name="mc3_surface_container_lowest">@android:color/system_surface_container_lowest_dark</item>
+        <item name="mc3_surface_tint">@android:color/system_primary_dark</item>
+        <item name="mc3_primary_fixed">@android:color/system_primary_fixed</item>
+        <item name="mc3_primary_fixed_dim">@android:color/system_primary_fixed_dim</item>
+        <item name="mc3_on_primary_fixed">@android:color/system_on_primary_fixed</item>
+        <item name="mc3_on_primary_fixed_variant">@android:color/system_on_primary_fixed_variant</item>
+        <item name="mc3_secondary_fixed">@android:color/system_secondary_fixed</item>
+        <item name="mc3_secondary_fixed_dim">@android:color/system_secondary_fixed_dim</item>
+        <item name="mc3_on_secondary_fixed">@android:color/system_on_secondary_fixed</item>
+        <item name="mc3_on_secondary_fixed_variant">@android:color/system_on_secondary_fixed_variant</item>
+        <item name="mc3_tertiary_fixed">@android:color/system_tertiary_fixed</item>
+        <item name="mc3_tertiary_fixed_dim">@android:color/system_tertiary_fixed_dim</item>
+        <item name="mc3_on_tertiary_fixed">@android:color/system_on_tertiary_fixed</item>
+        <item name="mc3_on_tertiary_fixed_variant">@android:color/system_on_tertiary_fixed_variant</item>
+    </style>
+</resources>
