@@ -3189,12 +3189,12 @@ class SharedTransitionTest {
         assertTrue(scope?.isTransitionActive == true)
         val lastPosition = positionInTransition
         rule.runOnIdle { alignment = Alignment.BottomCenter }
-        repeat(3) {
+        repeat(5) {
             rule.mainClock.advanceTimeByFrame()
             rule.waitForIdle()
         }
         // Assert that the alignment change is causing the animation to turn around and animate
-        // towards the bottom center of the screen
+        // towards the bottom center of the screen (wait 5 frames to account for spring overshoot)
         assert(positionInTransition!!.y > lastPosition!!.y)
         assert(positionInTransition!!.x > lastPosition!!.x)
         rule.mainClock.autoAdvance = true
@@ -5779,6 +5779,80 @@ class SharedTransitionTest {
 
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
+    }
+
+    @Test
+    fun testRenderInOverlayFalse_withContainerScale_calculatesCorrectPosition() {
+        var transitionScope: SharedTransitionScope? = null
+        var visible by mutableStateOf(true)
+        var exit: Transition<*>? = null
+        var positionInRoot: Offset? = null
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SharedTransitionLayout(Modifier.testTag("scope").requiredSize(100.dp)) {
+                    transitionScope = this
+
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = EnterTransition.None,
+                        exit = scaleOut(tween(100, easing = LinearEasing), targetScale = 0.1f),
+                    ) {
+                        exit = transition
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "child"),
+                                    this@AnimatedVisibility,
+                                    renderInOverlayDuringTransition = false,
+                                    boundsTransform = { _, _ -> tween(100, easing = LinearEasing) },
+                                )
+                                .onGloballyPositioned { positionInRoot = it.positionInRoot() }
+                                .requiredSize(50.dp)
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = !visible,
+                        enter = fadeIn(tween(100, easing = LinearEasing)),
+                        exit = ExitTransition.None,
+                        modifier = Modifier.offset(x = 25.dp, y = 25.dp),
+                    ) {
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "child"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform = { _, _ -> tween(100, easing = LinearEasing) },
+                                )
+                                .requiredSize(50.dp)
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+
+        rule.mainClock.autoAdvance = false
+        visible = false
+
+        while (!transitionScope.isTransitionActive) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        // Now shared bounds transition started
+        while (transitionScope.isTransitionActive) {
+            if (positionInRoot != null && exit != null) {
+                // The shared element shouldn't jump around. Because it starts at (0,0) and
+                // interpolates towards (25, 25), its top-left must perfectly follow that straight
+                // line relative to the root layout despite the parent's scaleOut squishing it.
+                val fraction = ((exit.playTimeNanos / 1000_000L) / 100f).coerceIn(0f, 1f)
+                val expectedOffset = 25f * fraction
+                assertEquals(expectedOffset, positionInRoot.x, 2f)
+                assertEquals(expectedOffset, positionInRoot.y, 2f)
+            }
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
     }
 }
 
