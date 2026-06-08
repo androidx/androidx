@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
@@ -328,5 +329,18 @@ class RemoteStateCreationTest {
             // This form provides a RemoteContext
             rememberRemoteFloatExpression { 1f.rf }.writeToDocument(state)
         }
+    }
+
+    @Test
+    fun creation_rememberRemote_withInt_doesNotCrash() = runTest {
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val useLargeScroll = rememberMutableRemoteBoolean(true)
+                RemoteText(useLargeScroll.select("True".rs, "False".rs), color = Color.Black.rc)
+            }
+        val playbackContext = AndroidRemoteContext()
+        playbackContext.androidContext = context
+        coreDoc.initializeContext(playbackContext, null)
+        coreDoc.applyDataOperations(playbackContext)
     }
 }
