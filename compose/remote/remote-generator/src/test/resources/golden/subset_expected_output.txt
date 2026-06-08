@@ -1213,6 +1213,9 @@ internal fun RemoteDocument.save(
             node.write(nodesBuffer, effectiveLevel)
         }
         val uncompressedBytes = nodesBuffer.cloneBytes()
+        // Reserved opcode 0x77 marks the start of the compressed stream
+        // (see Header.COMPRESSED_STREAM_MARKER).
+        buffer.writeByte(0x77)
         val deflater = Deflater()
         try {
             deflater.setInput(uncompressedBytes)

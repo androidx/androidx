@@ -135,24 +135,28 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                         Custom.CustomProperty.COLOR_RETURN,
                         it.mIntValue,
                     )
+
                 RcCustomProperty.COLOR_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.COLOR_PROP,
                         it.mIntValue,
                     )
+
                 RcCustomProperty.COLOR_ID_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.COLOR_ID_PROP,
                         it.mIntValue,
                     )
+
                 RcCustomProperty.INT_ID_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.INT_ID_PROP,
                         it.mIntValue,
                     )
+
                 else -> {
                     throw RuntimeException("UNKNOWN TYPE")
                 }
@@ -375,6 +379,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         strikethrough: Boolean,
         style: RcTextStyle?,
     ) {
+
         textComponentInternal(
             text = text,
             modifier = modifier,
@@ -1393,6 +1398,46 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         )
     }
 
+    override fun particlesLoopVec(
+        id: RcFloat,
+        restart: RcFloat?,
+        entries: List<RcParticleValue>,
+        block: RcCanvasScope.() -> Unit,
+    ) {
+        val restartArray = restart?.toArray()
+        val dims = IntArray(entries.size)
+        val exprArrays = particleValueArrays(entries, dims)
+        writer.particlesLoop(
+            id.withWriter(writer).toFloat(),
+            restartArray,
+            exprArrays,
+            dims,
+            object : Runnable {
+                override fun run() {
+                    RcCanvasScopeImpl(writer).block()
+                }
+            },
+        )
+    }
+
+    /** The RPN of each particle value, with its dimensionality written to [dims]. */
+    private fun particleValueArrays(
+        values: List<RcParticleValue>,
+        dims: IntArray,
+    ): Array<FloatArray> =
+        Array(values.size) { i ->
+            when (val v = values[i]) {
+                is RcVec -> {
+                    dims[i] = v.dim
+                    v.toArray()
+                }
+                is RcFloat -> {
+                    dims[i] = 1
+                    v.toArray()
+                }
+            }
+        }
+
     override fun particlesComparison(
         id: RcFloat,
         min: RcFloat,
@@ -1422,6 +1467,43 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             condArray,
             then1Arrays,
             then2Arrays,
+            object : Runnable {
+                override fun run() {
+                    RcCanvasScopeImpl(writer).block()
+                }
+            },
+        )
+    }
+
+    override fun particlesComparisonVec(
+        id: RcFloat,
+        min: RcFloat,
+        max: RcFloat,
+        condition: (RcParticleComparisonScope.() -> RcFloat)?,
+        thenFirstParticle: (RcParticleComparisonScope.() -> List<RcParticleValue>)?,
+        thenSecondParticle: (RcParticleComparisonScope.() -> List<RcParticleValue>)?,
+        flags: RcParticleComparisonFlags,
+        block: RcCanvasScope.() -> Unit,
+    ) {
+        val minVal = min.withWriter(writer).toFloat()
+        val maxVal = max.withWriter(writer).toFloat()
+        val condArray = condition?.invoke(RcParticleComparisonScopeImpl)?.toArray()
+        val then1Values = thenFirstParticle?.invoke(RcParticleComparisonScopeImpl) ?: emptyList()
+        val then2Values = thenSecondParticle?.invoke(RcParticleComparisonScopeImpl) ?: emptyList()
+        val dims1 = IntArray(then1Values.size)
+        val dims2 = IntArray(then2Values.size)
+        val then1Arrays = particleValueArrays(then1Values, dims1)
+        val then2Arrays = particleValueArrays(then2Values, dims2)
+        writer.particlesComparison(
+            id.withWriter(writer).toFloat(),
+            flags.value.toShort(),
+            minVal,
+            maxVal,
+            condArray,
+            then1Arrays,
+            then2Arrays,
+            dims1,
+            dims2,
             object : Runnable {
                 override fun run() {
                     RcCanvasScopeImpl(writer).block()
@@ -1532,6 +1614,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun remotePath(x: Float, y: Float): RcDynamicPath =
         RcDynamicPath(writer.pathCreate(x, y))
+
+    override fun particleIndex(): RcFloat = writer.index()
 
     override fun RcDynamicPath.lineTo(x: Float, y: Float) {
         writer.pathAppendLineTo(id, x, y)
@@ -1793,6 +1877,10 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun index(): RcFloat {
         return RcFloat(this.writer, Rc.FloatExpression.VAR1)
+    }
+
+    override fun scene3D(block: RcScene3DScope.() -> Unit) {
+        RcScene3DScopeImpl(writer).block()
     }
 }
 
@@ -2523,14 +2611,385 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
     }
 }
 
+internal class RcScene3DScopeImpl(private val writer: RemoteComposeWriter) : RcScene3DScope {
+
+    private val writer3D = writer.rc3DWriter
+
+    // Lights accumulate and are flushed as one SetLights3D op on the next drawMesh (so the
+    // public
+    // directionalLight/pointLight/clearLights API stays per-light while the wire uses a single
+    // op).
+    private val lightTypes = mutableListOf<Int>()
+    private val lightColors = mutableListOf<Int>()
+    private val lightParams = mutableListOf<Float>()
+    private var lightsDirty = false
+
+    private fun flushLights() {
+        if (!lightsDirty) return
+        writer3D.setLights3D(
+            lightTypes.toIntArray(),
+            lightColors.toIntArray(),
+            lightParams.toFloatArray(),
+        )
+        lightsDirty = false
+    }
+
+    override fun defineMesh(
+        id: Int,
+        indices: IntArray,
+        verts: FloatArray,
+        normals: FloatArray?,
+        uv: FloatArray?,
+    ): RcMesh {
+        writer3D.defineMesh3D(id, indices, verts, normals, uv)
+        return RcMesh(id)
+    }
+
+    override fun perspectiveCamera(
+        fovYRad: Float,
+        aspect: Float,
+        near: Float,
+        far: Float,
+        eye: FloatArray,
+        center: FloatArray,
+        up: FloatArray,
+    ) {
+        require(eye.size == 3) { "eye must be 3 floats" }
+        require(center.size == 3) { "center must be 3 floats" }
+        require(up.size == 3) { "up must be 3 floats" }
+        writer3D.setCamera3D(
+            androidx.compose.remote.core.Paint3DContext.PROJECTION_PERSPECTIVE,
+            floatArrayOf(fovYRad, aspect, near, far),
+            floatArrayOf(
+                eye[0],
+                eye[1],
+                eye[2],
+                center[0],
+                center[1],
+                center[2],
+                up[0],
+                up[1],
+                up[2],
+            ),
+        )
+    }
+
+    override fun orthoCamera(
+        left: Float,
+        right: Float,
+        bottom: Float,
+        top: Float,
+        near: Float,
+        far: Float,
+        eye: FloatArray,
+        center: FloatArray,
+        up: FloatArray,
+    ) {
+        require(eye.size == 3) { "eye must be 3 floats" }
+        require(center.size == 3) { "center must be 3 floats" }
+        require(up.size == 3) { "up must be 3 floats" }
+        writer3D.setCamera3D(
+            androidx.compose.remote.core.Paint3DContext.PROJECTION_ORTHO,
+            floatArrayOf(left, right, bottom, top, near, far),
+            floatArrayOf(
+                eye[0],
+                eye[1],
+                eye[2],
+                center[0],
+                center[1],
+                center[2],
+                up[0],
+                up[1],
+                up[2],
+            ),
+        )
+    }
+
+    override fun perspectiveCamera(
+        fovYRad: RcFloat,
+        aspect: Float,
+        near: Float,
+        far: Float,
+        eye: Array<RcFloat>,
+        center: Array<RcFloat>,
+        up: FloatArray,
+    ) {
+        require(eye.size == 3) { "eye must be 3 RcFloats" }
+        require(center.size == 3) { "center must be 3 RcFloats" }
+        require(up.size == 3) { "up must be 3 floats" }
+        writer3D.setCamera3D(
+            androidx.compose.remote.core.Paint3DContext.PROJECTION_PERSPECTIVE,
+            floatArrayOf(fovYRad.withWriter(writer).toFloat(), aspect, near, far),
+            floatArrayOf(
+                eye[0].withWriter(writer).toFloat(),
+                eye[1].withWriter(writer).toFloat(),
+                eye[2].withWriter(writer).toFloat(),
+                center[0].withWriter(writer).toFloat(),
+                center[1].withWriter(writer).toFloat(),
+                center[2].withWriter(writer).toFloat(),
+                up[0],
+                up[1],
+                up[2],
+            ),
+        )
+    }
+
+    override fun identity() {
+        writer3D.matrix3DOp(RcMatrix3D.IDENTITY, FloatArray(0))
+    }
+
+    override fun translate(x: Float, y: Float, z: Float) {
+        writer3D.matrix3DOp(RcMatrix3D.TRANSLATE, floatArrayOf(x, y, z))
+    }
+
+    override fun translate(x: RcFloat, y: RcFloat, z: RcFloat) {
+        writer3D.matrix3DOp(
+            RcMatrix3D.TRANSLATE,
+            floatArrayOf(
+                x.withWriter(writer).toFloat(),
+                y.withWriter(writer).toFloat(),
+                z.withWriter(writer).toFloat(),
+            ),
+        )
+    }
+
+    override fun scale(x: Float, y: Float, z: Float) {
+        writer3D.matrix3DOp(RcMatrix3D.SCALE, floatArrayOf(x, y, z))
+    }
+
+    override fun scale(s: RcFloat) {
+        val v = s.withWriter(writer).toFloat()
+        writer3D.matrix3DOp(RcMatrix3D.SCALE, floatArrayOf(v, v, v))
+    }
+
+    override fun scale(x: RcFloat, y: RcFloat, z: RcFloat) {
+        writer3D.matrix3DOp(
+            RcMatrix3D.SCALE,
+            floatArrayOf(
+                x.withWriter(writer).toFloat(),
+                y.withWriter(writer).toFloat(),
+                z.withWriter(writer).toFloat(),
+            ),
+        )
+    }
+
+    override fun rotate(angleRad: Float, ax: Float, ay: Float, az: Float) {
+        writer3D.matrix3DOp(RcMatrix3D.ROTATE_AXIS, floatArrayOf(angleRad, ax, ay, az))
+    }
+
+    override fun rotate(angleRad: RcFloat, ax: Float, ay: Float, az: Float) {
+        writer3D.matrix3DOp(
+            RcMatrix3D.ROTATE_AXIS,
+            floatArrayOf(angleRad.withWriter(writer).toFloat(), ax, ay, az),
+        )
+    }
+
+    override fun rotate(angleRad: RcFloat, ax: RcFloat, ay: RcFloat, az: RcFloat) {
+        writer3D.matrix3DOp(
+            RcMatrix3D.ROTATE_AXIS,
+            floatArrayOf(
+                angleRad.withWriter(writer).toFloat(),
+                ax.withWriter(writer).toFloat(),
+                ay.withWriter(writer).toFloat(),
+                az.withWriter(writer).toFloat(),
+            ),
+        )
+    }
+
+    override fun loop(
+        start: Float,
+        step: Float,
+        end: Float,
+        block: RcScene3DScope.(RcFloat) -> Unit,
+    ) {
+        val indexId = writer.textCreateId("index3d")
+        writer.loop(indexId, start, step, end) {
+            val v =
+                androidx.compose.remote.creation.RFloat(
+                    writer,
+                    floatArrayOf(Utils.asNan(indexId)),
+                )
+            this@RcScene3DScopeImpl.block(RcFloat(writer, v.array))
+        }
+    }
+
+    override fun multiply(matrix4: FloatArray) {
+        require(matrix4.size == 16) { "matrix4 must be 16 floats" }
+        writer3D.matrix3DOp(RcMatrix3D.MULTIPLY, matrix4)
+    }
+
+    override fun pushMatrix() {
+        writer3D.matrix3DPush()
+    }
+
+    override fun popMatrix() {
+        writer3D.matrix3DPop()
+    }
+
+    override fun drawMesh(mesh: RcMesh, mode: RcMeshMode) {
+        flushLights() // emit any pending light changes as a single SetLights3D before this draw
+        writer3D.drawMesh3D(mesh.id, mode.value)
+    }
+
+    override fun clearDepth() {
+        writer3D.clearDepth3D()
+    }
+
+    override fun color(argb: Int) {
+        writer.rcPaint.setColor(argb)
+        writer.rcPaint.commit()
+    }
+
+    override fun color(color: RcColor) {
+        writer.rcPaint.setColorId(color.id) // -> setColorId: resolved per frame on the player
+        writer.rcPaint.commit()
+    }
+
+    override fun color(color: RcColorValue) {
+        writer.rcPaint.setColor(color.color)
+        writer.rcPaint.commit()
+    }
+
+    override fun directionalLight(direction: FloatArray, color: Int, intensity: Float) {
+        require(direction.size == 3) { "direction must be 3 floats" }
+        lightTypes.add(RcLight3D.DIRECTIONAL)
+        lightColors.add(color)
+        lightParams.add(direction[0])
+        lightParams.add(direction[1])
+        lightParams.add(direction[2])
+        lightParams.add(intensity)
+        lightsDirty = true
+    }
+
+    override fun pointLight(position: FloatArray, color: Int, intensity: Float) {
+        require(position.size == 3) { "position must be 3 floats" }
+        lightTypes.add(RcLight3D.POINT)
+        lightColors.add(color)
+        lightParams.add(position[0])
+        lightParams.add(position[1])
+        lightParams.add(position[2])
+        lightParams.add(intensity)
+        lightsDirty = true
+    }
+
+    override fun directionalLight(direction: Array<RcFloat>, color: Int, intensity: RcFloat) {
+        require(direction.size == 3) { "direction must be 3 RcFloats" }
+        lightTypes.add(RcLight3D.DIRECTIONAL)
+        lightColors.add(color)
+        lightParams.add(direction[0].withWriter(writer).toFloat())
+        lightParams.add(direction[1].withWriter(writer).toFloat())
+        lightParams.add(direction[2].withWriter(writer).toFloat())
+        lightParams.add(intensity.withWriter(writer).toFloat())
+        lightsDirty = true
+    }
+
+    override fun pointLight(position: Array<RcFloat>, color: Int, intensity: RcFloat) {
+        require(position.size == 3) { "position must be 3 RcFloats" }
+        lightTypes.add(RcLight3D.POINT)
+        lightColors.add(color)
+        lightParams.add(position[0].withWriter(writer).toFloat())
+        lightParams.add(position[1].withWriter(writer).toFloat())
+        lightParams.add(position[2].withWriter(writer).toFloat())
+        lightParams.add(intensity.withWriter(writer).toFloat())
+        lightsDirty = true
+    }
+
+    override fun ambientLight(color: Int, intensity: Float) {
+        addAmbientLight(color, intensity)
+    }
+
+    override fun ambientLight(color: Int, intensity: RcFloat) {
+        addAmbientLight(color, intensity.withWriter(writer).toFloat())
+    }
+
+    private fun addAmbientLight(color: Int, intensity: Float) {
+        lightTypes.add(RcLight3D.AMBIENT)
+        lightColors.add(color)
+        // An ambient light has no direction or position: its first three params are unused.
+        lightParams.add(0f)
+        lightParams.add(0f)
+        lightParams.add(0f)
+        lightParams.add(intensity)
+        lightsDirty = true
+    }
+
+    override fun clearLights() {
+        lightTypes.clear()
+        lightColors.clear()
+        lightParams.clear()
+        lightsDirty = true
+    }
+
+    override fun texture(image: RcImage?) {
+        writer3D.setTexture3D(image?.id ?: 0)
+    }
+
+    override fun material(specStrength: Float, shininess: Float) {
+        writer3D.setMaterial3D(specStrength, shininess)
+    }
+
+    override fun material(specStrength: RcFloat, shininess: RcFloat) {
+        writer3D.setMaterial3D(
+            specStrength.withWriter(writer).toFloat(),
+            shininess.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun depthBias(constant: Float, slope: Float) {
+        writer3D.setDepthBias3D(constant, slope)
+    }
+
+    override fun depthBias(constant: RcFloat, slope: RcFloat) {
+        writer3D.setDepthBias3D(
+            constant.withWriter(writer).toFloat(),
+            slope.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun meshExpression(
+        id: Int,
+        type: Int,
+        flags: Int,
+        params: FloatArray,
+        pos: Array<FloatArray>,
+        normal: Array<FloatArray>,
+        uv: Array<FloatArray>,
+    ): RcMesh {
+        writer3D.meshExpression(id, type, flags, params, pos, normal, uv)
+        return RcMesh(id)
+    }
+
+    override fun meshPrimitive(
+        id: Int,
+        type: Int,
+        segments: Float,
+        flags: Int,
+        params: FloatArray,
+    ): RcMesh {
+        writer3D.meshPrimitive(id, type, segments, flags, params)
+        return RcMesh(id)
+    }
+
+    override fun meshPrimitive(
+        id: Int,
+        type: Int,
+        segments: Float,
+        flags: Int,
+        channels: Array<FloatArray>,
+    ): RcMesh {
+        writer3D.meshPrimitive(id, type, segments, flags, channels)
+        return RcMesh(id)
+    }
+}
+
 internal class RcSemanticsScopeImpl(val writer: RemoteComposeWriter) : RcSemanticsScope {
-    var contentDescriptionId: Int = 0
-    var roleOrdinal: Byte = -1
-    var textId: Int = 0
-    var stateDescriptionId: Int = 0
-    var modeOrdinal: Int = 0
-    var enabledVal: Boolean = true
-    var clickableVal: Boolean = false
+    private var contentDescriptionId: Int = 0
+    private var roleOrdinal: Byte = -1
+    private var textId: Int = 0
+    private var stateDescriptionId: Int = 0
+    private var modeOrdinal: Int = 0
+    private var enabledVal: Boolean = true
+    private var clickableVal: Boolean = false
 
     override fun contentDescription(text: String) {
         contentDescriptionId = writer.textCreateId(text)

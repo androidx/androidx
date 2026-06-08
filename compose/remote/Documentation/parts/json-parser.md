@@ -329,6 +329,219 @@ Renders drawing transformations using a matrix:
 
 Supported matrix operator keywords: `IDENTITY`, `TRANSLATE_X`, `TRANSLATE_Y`, `TRANSLATE_Z`, `TRANSLATE2`, `TRANSLATE3`, `SCALE_X`, `SCALE_Y`, `SCALE_Z`, `SCALE2`, `SCALE3`, `ROT_X`, `ROT_Y`, `ROT_Z`, `ROT_PZ`, `ROT_AXIS`, `MUL`, `PROJECTION`. These keywords can be referenced in resources as `"matrix:IDENTITY"`.
 
+#### 3D Commands (`Command3DParser.java`)
+
+A canvas draws 3D with eleven commands. They sit in its `"commands"` array, mixed with the 2D commands, and run in order. Camera, lights, matrix and material last until a command changes them. Each command maps to a 3D operation specified in [PROTOCOL_3D.md](../../remote-core/doc/PROTOCOL_3D.md), which also defines what a player does with it.
+
+```json
+{
+  "header": { "apiLevel": 7, "profiles": 513 },
+  "root": [
+    { "canvas": { "modifiers": ["fillMaxSize"], "commands": [
+      { "clearDepth3D": {} },
+      { "camera3D": { "projection": "perspective", "fovY": 0.85, "aspect": 1.0,
+                      "near": 0.1, "far": 100.0,
+                      "eye": [0, 0.35, 4.4], "center": [0, 0, 0], "up": [0, 1, 0] } },
+      { "lights3D": { "lights": [
+          { "type": "directional", "color": "#FFFFF4E4", "dir": [-0.4, -0.6, -0.7], "intensity": 1.0 } ] } },
+      { "meshPrimitive3D": { "id": 1, "primitive": "sphere", "segments": 24,
+                             "radius": 0.42, "center": [0, 0, 0] } },
+      { "paint": { "ops": [ { "color": "#FFD98A4A" } ] } },
+      { "matrix3D": { "op": "rotate", "angle": 0.52, "axis": [0, 1, 0] } },
+      { "drawMesh3D": { "mesh": 1, "mode": "software-smooth" } }
+    ] } }
+  ]
+}
+```
+
+- The 3D operations exist only in the experimental profiles, so a 3D document sets `"profiles": 513` (ANDROIDX | EXPERIMENTAL) and keeps the default `"apiLevel": 7` or higher.
+- Command names are case-insensitive: the parser lower-cases them before dispatch.
+- Every float key takes a number, a variable reference (`"@name"`) or an infix expression, so geometry, camera, lights and material can animate. The exception is `defineMesh3D`, whose arrays take numbers only.
+- A wrong name is an error, not a default: a mistyped primitive, mode or projection would otherwise draw something plausible and wrong. Errors name the key and list the valid values.
+
+| Command | Operation | Keys (defaults) |
+| :--- | :--- | :--- |
+| `"clearDepth3D"` | `PAINT_3D_STATE` 0 | `{}`. Starts a scene: needed before the first 3D draw of each frame. |
+| `"material3D"` | `PAINT_3D_STATE` 1 | `specular` (`0`), `shininess` (`32`) |
+| `"depthBias3D"` | `PAINT_3D_STATE` 2 | `constant` (`0`), `slope` (`0`) |
+| `"camera3D"` | `SET_CAMERA_3D` | `projection` (`"perspective"`), `fovY` (`0.9`), `aspect` (`1`), `near` (`0.1`), `far` (`100`), `left`, `right`, `bottom`, `top`, `eye` (`[0, 0, 4]`), `center` (`[0, 0, 0]`), `up` (`[0, 1, 0]`) |
+| `"lights3D"` | `SET_LIGHTS_3D` | `lights`: an array of lights. Replaces the whole light set. |
+| `"matrix3D"` | `MATRIX_3D_OP` | `op` (`"identity"`) and its arguments |
+| `"defineMesh3D"` | `DEFINE_MESH_3D` | `id`, `verts`, `indices`, `normals`, `uv` |
+| `"meshPrimitive3D"` | `MESH_PRIMITIVE_3D` | `id`, `primitive`, `segments` (`0`), `flags` (`0`), `uv` (`"none"`), `axis` (`"native"`), `curvatureDensity` (`false`), the primitive's keys |
+| `"meshExpression3D"` | `MESH_EXPRESSION_3D` | `id`, `surface` (`"general"`), the surface's keys, `normal`, `uv`, `flipWinding` (`false`), `flipNormals` (`false`), `flags` (`0`) |
+| `"texture3D"` | `SET_TEXTURE_3D` | `bitmap` (absent clears the texture) |
+| `"drawMesh3D"` | `DRAW_MESH_3D` | `mesh`, `mode` (`"software-flat"`), `wireframe`, `edges`, `transparent`, `doubleSided`, `gpu`, `pbr` (all `false`), `frontFace` (`"ccw"`) |
+
+**`"camera3D"`**
+- `projection`: `"perspective"`, `"ortho"` or `"orthographic"`. Perspective takes `fovY` (vertical, in radians), `aspect` (width / height), `near` and `far`. Orthographic requires `left`, `right`, `bottom` and `top`, and takes the same `near` and `far`.
+- `eye`, `center` and `up` are 3 values each (a look-at view).
+- The camera resets the 3D model matrix to identity.
+
+**`"lights3D"`**
+- Each light has a `type`, a `color` (`"#FFFFFFFF"`; a color string or reference) and an `intensity` (`1`).
+- `"directional"` (the default; also `"dir"`) requires `dir`, the 3-component direction the light travels, in world space.
+- `"point"` requires `pos`, its 3-component position. Point lights have no attenuation.
+- `"ambient"` takes only `color` and `intensity`, and lights every surface evenly. A `dir` or `pos` on it is an error.
+- A missing or wrong-sized vector is an error rather than a default: a light pointing nowhere is invisible, and would be debugged as a material or normals problem.
+- An absent or empty `lights` array means no lights: surfaces get the default ambient light only. A document that never uses `lights3D` gets a headlight from the camera.
+
+**`"matrix3D"`**
+```json
+{ "matrix3D": { "op": "identity" } }
+{ "matrix3D": { "op": "translate", "x": 0.0, "y": 1.2, "z": 0.0 } }
+{ "matrix3D": { "op": "scale", "x": 2.0, "y": 2.0, "z": 2.0 } }
+{ "matrix3D": { "op": "rotate", "angle": 0.52, "axis": [0, 1, 0] } }
+{ "matrix3D": { "op": "multiply", "m": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] } }
+{ "matrix3D": { "op": "push" } }
+{ "matrix3D": { "op": "pop" } }
+```
+- Each op post-multiplies the model matrix. `translate` and `scale` default each of `x`, `y`, `z` to `0`. `rotate` requires `angle`, and `axis` defaults to `[0, 1, 0]`. `multiply` takes 16 column-major values in `m`.
+- **`rotate` takes radians.** The 2D `rotate` command takes degrees.
+- **The op name goes in an `"op"` key.** `{"matrix3D": {"translate": [x, y, z]}}` is an error that lists the keys found: it used to be read as `identity`, which stacked every instance at the origin.
+- `push` and `pop` save and restore the model matrix (only), up to 32 deep, so a hierarchy no longer has to restate its whole chain from identity.
+
+**`"defineMesh3D"`**
+```json
+{ "defineMesh3D": { "id": 7, "verts": [0, 0, 0, 1, 0, 0, 0, 1, 0], "indices": [0, 1, 2],
+                    "normals": [0, 0, 1, 0, 0, 1, 0, 0, 1], "uv": [0, 0, 1, 0, 0, 1] } }
+```
+- `verts` and `normals` hold x, y, z per vertex; `uv` holds u, v per vertex; `indices` holds 3 per triangle, counter-clockwise for the front face. `normals` and `uv` are optional; empty arrays count as absent.
+- The lengths are checked: indices and verts must be multiples of 3, `normals` as long as `verts`, and `uv` 2 per vertex.
+
+**`"meshPrimitive3D"`**
+```json
+{ "meshPrimitive3D": { "id": 1, "primitive": "torus", "segments": 32,
+                       "majorRadius": 0.6, "minorRadius": 0.18, "center": [0, 0, 0] } }
+```
+- `primitive` is one of the names below. Case, `_` and `-` are ignored, so `"rounded_cube"` works.
+- Primitives take named keys. `center`, `from` and `to` are 3 values that default to the origin; every other key is required, and a missing one is an error that lists the keys the primitive needs.
+- `params` (a positional list of channel 0) replaces the named keys, and `channels` appends extra channels, as the wire format lays them out.
+- `segments` (`0` = the primitive's default) is a slice or side count for most primitives, but the subdivision level for `icosphere`, and unused by some. See [PROTOCOL_3D.md](../../remote-core/doc/PROTOCOL_3D.md) for each primitive's meaning, default and minimum.
+- `uv`: `"none"`, `"uv"`, `"uv2"` or `"uv3"` generates texture coordinates. `flags` is OR-ed into the wire flags as a raw number.
+- `axis`: `"native"` (the default), `"x"`, `"y"` or `"z"` in any case, or `0` to `3`. It turns the primitive's built-in axis onto the given one.
+- `curvatureDensity: true` places tube rings by curvature instead of arc length. Only `tube`, `capTube` and `profileTube` take it.
+
+| Primitive | Keys |
+| :--- | :--- |
+| `sphere`, `icosphere` | `radius`, `center` |
+| `cylinder` | `radius`, `from`, `to` |
+| `cone` | `radius`, `height`, `center` (the base center) |
+| `cube` | `dimX`, `dimY`, `dimZ`, `center` |
+| `roundedCube` | `dimX`, `dimY`, `dimZ`, `center`, `cornerRadius` |
+| `sphericalSector`, `sphericalDome` | `radius`, `angle`, `center` |
+| `torus` | `majorRadius`, `minorRadius`, `center` |
+| `plane` | `width`, `height`, `center` |
+| `extrudeCircle` | `radius`, `depth`, `center` |
+| `extrudeSector`, `extrudeSegment` | `radius`, `startAngle`, `sweepAngle`, `depth`, `center` |
+| `extrudeArc` | `innerRadius`, `outerRadius`, `startAngle`, `sweepAngle`, `depth`, `center` |
+| `extrudeRoundedRect` | `width`, `height`, `cornerRadius`, `depth`, `center` |
+| `extrudeSquircle` | `radius`, `exponent`, `depth`, `center` |
+| `helix` | `coilRadius`, `tubeRadius`, `pitch`, `turns`, `center` |
+| `lathe` | `center`, `profile`: `[[radius, y], ...]` |
+| `tube`, `capTube` | `radius`, `points`: `[[x, y, z], ...]` (at least 2); optional `ringsPerSpan`, `legacy`, `spline` |
+| `profileTube` | `points`, `radii`: `[r0, r1, ...]`; optional `ringsPerSpan`, `capped` (`true`) |
+| `sweep` | `section`: `[[x, y], ...]`, `path`: `[[x, y, z], ...]`, `center`; `closed`, `capStart`, `capEnd` (all `true`); optional `scales`, and `twists` (radians; requires `scales`) |
+| `extrudePath` | `contours`: `[[[x, y], ...], ...]`, `depth` (`1`), `bevel` (`0`), `center` |
+| `infinitePlane` | `center` (`[0, 0, 0]`), `spacing` (`0`: no grid), `lineWidth` (`1`, in pixels), `lineColor` (`"#FF808080"`): `"#RRGGBB"`, `"#AARRGGBB"`, an ARGB integer, or `[a, r, g, b]` with each entry a number in 0..1 or an expression. Named and theme colors don't work here. |
+
+All angles are in radians.
+
+**`"meshExpression3D"`**
+```json
+{ "meshExpression3D": { "id": 3, "surface": "heightField",
+                        "xRange": [-1, 1], "uCount": 32, "zRange": [-1, 1], "vCount": 32,
+                        "height": "0.2 * sin(u * 6) * cos(v * 6)" } }
+```
+
+| `surface` | Keys | `u` and `v` are |
+| :--- | :--- | :--- |
+| `"general"` | `uRange`, `uCount`, `vRange`, `vCount`, and the expressions `x`, `y`, `z` | the grid parameters, over the ranges |
+| `"heightField"` | `xRange`, `uCount`, `zRange`, `vCount`, `height`; optional `yRange` (clamps the height; default ±1e6) | x and z |
+| `"sphere"` | `radius`, `uCount`, `vCount`; optional `displacement` (`0`) | longitude (0 to 2π) and latitude (0 to π, from +Y) |
+| `"cylinder"` | `radius`, `height`, `uCount`, `vCount`; optional `displacement` (`0`) | the angle (0 to 2π) and the height along the axis |
+
+- Ranges are `[min, max]`. The `surface` name ignores case and `_`.
+- Optional `normal` (3 expressions, used as written, not normalized) and `uv` (2 expressions) replace the generated normals and texture coordinates.
+- The generated normals point to the front side: +Y for `heightField`, the outside for `cylinder`, but the **inside** for `sphere`, and for `general` the side ∂P/∂v × ∂P/∂u points to (−Z for `(u, v, 0)`, +Y for `(u, 0, v)`). `flipWinding: true` reverses the triangles and the generated normals, which swaps the sides: a `sphere` seen from outside needs it. `flipNormals: true` reverses every normal, `normal` expressions included, and keeps the winding. `flags` sets raw flag bits.
+- `u` and `v` refer to the grid only inside these expressions, so they don't shadow a document's own variables elsewhere.
+- The player evaluates every vertex on every frame: keep grids small.
+
+**`"texture3D"`**
+- `bitmap` is a `resources.bitmaps` name (`"@earth"`, `"$earth"` or `"earth"`) or a numeric bitmap id. An absent, `null` or `0` bitmap clears the texture.
+- A draw shows the texture only if its mesh has texture coordinates: give primitives a `uv` mode.
+- v = 0 samples the bitmap's **bottom** row. Mapping v = 0 to a sphere's north pole renders an equirectangular map upside down.
+
+**`"drawMesh3D"`**
+```json
+{ "drawMesh3D": { "mesh": 1, "mode": "software-smooth" } }
+{ "drawMesh3D": { "mesh": 1, "mode": "software-flat", "wireframe": true, "edges": [0, 1] } }
+```
+- `mode` is a name or a number. The names combine an engine and a shading: `software-`, `canvas-`, `drawmesh-`, `gl-`, `drawmesh-zbuf-` and `canvas-zbuf-`, each followed by `flat` or `smooth`. `"flat"` and `"smooth"` mean software. An engine a player doesn't implement falls back to software, so any mode is safe to ask for; keep one engine per scene.
+- `wireframe: true` draws hidden-line edges in the paint color, and forces the software engine. `edges` (with `wireframe`) lists the triangle edges to draw: `0` (v0→v1), `1` (v1→v2) and `2` (v2→v0).
+- Optional boolean flags: `transparent` (blend over the scene without writing depth; draw opaque meshes first, then transparent ones back to front), `doubleSided` (no back-face culling: shows wrongly wound meshes), `gpu` and `pbr` (hints; no effect on Android yet).
+- `frontFace`: `"ccw"` (the default) or `"cw"`, in any case. `"cw"` makes clockwise triangles front-facing, like `glFrontFace(GL_CW)`: one flag fixes a mesh wound clockwise or drawn through a mirroring matrix.
+
+##### Errors
+
+| Problem | Message |
+| :--- | :--- |
+| Unknown projection | `camera3D projection '<name>'` |
+| Eye, center or up not 3 values | `camera3D needs eye/center/up of 3 components each` |
+| Unknown light type | `lights3D type '<name>' (expected one of [...])` |
+| Directional or point light without its vector | `lights3D <type> needs a 3-component dir` (or `pos`) |
+| Ambient light with a vector | `lights3D ambient takes only color and intensity, not dir` (or `pos`) |
+| `matrix3D` without `op` | `matrix3D needs an "op" (identity/translate/scale/rotate/multiply/push/pop); got keys [...]` |
+| Unknown matrix op | `matrix3D op '<name>' (expected one of [...])` |
+| `rotate` axis not 3 values | `matrix3D rotate axis needs 3 components` |
+| `multiply` without 16 values | `matrix3D multiply needs 16 floats, got <n>` |
+| Bad mesh lengths | `defineMesh3D indices length <n> is not a multiple of 3`, `defineMesh3D verts length <n> is not a multiple of 3`, `defineMesh3D normals <a> != verts <b>`, `defineMesh3D uv <a> != 2 per vertex (<b>)` |
+| Unknown primitive | `meshPrimitive3D primitive '<name>' (expected one of [...])` |
+| Missing primitive key | `meshPrimitive3D <primitive>: missing '<key>' (needs [...])` |
+| Unknown UV mode | `meshPrimitive3D uv '<name>'` |
+| Unknown axis | `meshPrimitive3D axis '<name>' (expected one of [native, x, y, z] or 0-3)` |
+| `curvatureDensity` on another primitive | `meshPrimitive3D <primitive>: 'curvatureDensity' applies only to tube, capTube and profileTube` |
+| Plane center not 3 values | `meshPrimitive3D infinitePlane: center needs 3 components` |
+| Bad line color | `meshPrimitive3D infinitePlane: lineColor <value> (expected "#RRGGBB", "#AARRGGBB", an ARGB integer or [a, r, g, b] floats in 0..1)`; a number outside 0..1 in the list: `meshPrimitive3D infinitePlane: lineColor components are 0..1, got <x>` |
+| Unknown surface | `meshExpression3D surface '<name>' (expected one of [...])` |
+| Missing surface key | `meshExpression3D <surface>: missing '<key>'` |
+| Range not 2 values | `meshExpression3D <surface>: '<key>' must be [min, max]` |
+| Wrong expression counts | `meshExpression3D: 'normal' needs three expressions (nx, ny, nz); omit it for finite-difference normals`, `meshExpression3D: 'uv' needs two expressions (u, v)` |
+| Unknown bitmap | `bitmap '<name>' not found (declared: ...)` |
+| Unknown mode | `drawMesh3D mode '<name>' (expected one of [...])` |
+| Bad edge | `drawMesh3D edge <n> (expected 0, 1 or 2)` |
+| Unknown front face | `drawMesh3D frontFace '<name>' (expected "ccw" or "cw")` |
+
+##### Things to know
+
+- **Angles are radians** in every 3D command: `fovY`, `rotate`, primitive angles, sweep twists.
+- **Clear depth once per frame**, before the first 3D draw.
+- **A wireframe mesh hides what's behind it.** Its faces write depth over their whole area, so draw a wireframe cage last, after what it contains. A wireframe never shows a texture.
+- **`depthBias3D` is in window-depth units**, so its size in the world grows with distance squared and with `far / near`. A value tuned for one camera can hide whole objects from another.
+- **Expressions are capped at 32 tokens.** A float key given as an expression becomes a float expression, which players refuse beyond 32 RPN tokens; compute constants in the generator instead. `meshExpression3D` expressions are separate programs, so this cap doesn't apply to them, but each holds at most 128 floats.
+- **Rotate a scene by touch with a `touchExpression`**, not a bare `touchX()`: `touchX()` tracks the finger's absolute position and snaps back on release.
+
+#### Touch-driven values (`"touchExpression"`)
+
+`{"touchExpression": {...}}` defines a float that accumulates touch movement, typically to rotate a 3D scene. It's a canvas command:
+
+```json
+{ "touchExpression": { "name": "spin", "expression": "touchX() * 0.012",
+                       "min": 0, "max": 6.2832, "stopMode": "gently" } }
+```
+
+| Key | Default | Meaning |
+| :--- | :--- | :--- |
+| `name` | | The variable name, for `"@spin"` references. |
+| `expression` | `"touchX()"` | Maps the raw touch to the value: an infix string, a number, or an RPN array. |
+| `defaultValue` | `0` | The initial value. |
+| `min` | NaN | The minimum. When absent, the value wraps around `max` instead of clamping. |
+| `max` | `1` | The maximum. |
+| `stopMode` (or `touchMode`) | `0` | A number, a numeric string such as `"2"`, or a name: `gently`, `instantly`, `ends`, `notchesEven`, `notchesPercents`, `notchesAbsolute`, `absolutePos`, `notchesSingleEven` (case and `_` ignored). Any other string is an error. |
+| `velocityId` | NaN | A variable that receives the velocity. |
+| `touchEffects` | `0` | Haptic effects. |
+| `touchSpec`, `easingSpec` | | Arrays of numbers passed to the operation as is. |
+
 ---
 
 ### 5. Decoupled Resource Subsystem (`ResourceParser.java`)
@@ -369,11 +582,12 @@ The Tag-Key shorthand format combines the benefits of strict, deterministic arra
 - `"floatArrays"`: Numeric arrays of floats (useful for spline charts, color lookup grids, etc.).
 - `"variables"`: Float numbers, text-from-float sub-objects, dimension lookups (`width`/`height`/`fontSize`), or complex mathematical expressions. **By default, variables are compiled as unnamed float constants (`"export": false`) to save buffer space. If you need a public, dynamic variable that can be inspected or updated at runtime by the host application, specify `"export": true` explicitly.**
 - `"matrices"`: Evaluates arrays of floats and matrix operator tags (`"matrix:TRANSLATE2"`) to compile a transformation matrix.
+- `"bitmaps"`: PNG images embedded in the document, for `texture3D`. Either a map `{ "earth": source }` or an array of `{ "earth": source }`, `{ "name": "earth", "value": source }` or `{ "name": "earth", "file": ... }` entries. A source is a file path string (relative paths resolve against the parser's base directory) or an object with `file`, `base64` or `data`; `data` is an alias of `base64` and may be a base64 `data:` URI. Only PNG is accepted (a JPEG is an error), with each dimension at most 65535. The image is written inline as `TYPE_PNG_8888`.
 
 #### Global Resource Scoping & Hoisting
 
 - **`global` Block (Recommended)**: The preferred, structured declarative way to hoist operations is by using the `"global"` layout component wrapper or the `"global"` canvas drawing command wrapper. The parser automatically and safely manages the nesting levels of these blocks, making them extremely robust and preventing double-start buffer exceptions.
-- **`order`**: An optional array of strings inside resources to custom-sequence parsing blocks (e.g., `["v_dims", "colors", "variables"]`). If omitted, the default order is: `v_dims` $\rightarrow$ `colors` $\rightarrow$ `paths` $\rightarrow$ `floatArrays` $\rightarrow$ `variables` $\rightarrow$ `matrices`.
+- **`order`**: An optional array of strings inside resources to custom-sequence parsing blocks (e.g., `["v_dims", "colors", "variables"]`). If omitted, the default order is: `v_dims` $\rightarrow$ `colors` $\rightarrow$ `paths` $\rightarrow$ `floatArrays` $\rightarrow$ `variables` $\rightarrow$ `integers` $\rightarrow$ `matrices` $\rightarrow$ `bitmaps`.
 
 ---
 
@@ -582,7 +796,8 @@ At any component call site, include the style reference using the `include` modi
 - **Modular Target Package**: `androidx.compose.remote.creation.json`
 - **Core Files**:
   - `RemoteComposeJsonParser.java`: Two-pass descent traversal parser kernel.
-  - `ResourceParser.java`: Decoder engine for colors, vectors, matrices, variables, and arrays.
+  - `ResourceParser.java`: Decoder engine for colors, vectors, matrices, variables, arrays and bitmaps.
+  - `Command3DParser.java`: The 3D canvas commands.
   - `ExpressionParser.java`: Infix RPN tokenizer and Shunting-yard compiler.
   - `JsonComponentParser.java` / `JsonModifierParser.java`: Extensible plugin registries interfaces.
 - **Dependencies**: `org.json`

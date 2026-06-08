@@ -282,6 +282,9 @@ public class AnimatedFloatExpression {
     float @NonNull [] mLocalStack = new float[128];
     float @NonNull [] mVar = new float[0];
     @Nullable CollectionsAccess mCollectionsAccess;
+
+    /** Denominator floor used by the soft-domain divide/modulo */
+    private static final float SOFT_DOMAIN_EPS = 1e-6f;
     @Nullable CubicEasing mEasing = null;
     IntMap<MonotonicSpline> mSplineMap = new IntMap<>();
     private static Random sRandom;
@@ -424,6 +427,70 @@ public class AnimatedFloatExpression {
     //        mStack[sp] = ca.getFloatValue(id, (int) (mStack[sp]));
     //        return sp;
     //    }
+
+    /**
+     * Clamp a divide/modulo denominator away from zero when is set, so a
+     * near-zero denominator yields a large-but-finite result instead of {@code Inf}/{@code NaN}.
+     * On the exact fast path ({@code mSoftDomain == false}) this is a no-op.
+     */
+    private float softDenom(float denom) {
+        if (denom < SOFT_DOMAIN_EPS && denom > -SOFT_DOMAIN_EPS) {
+            return (denom < 0f) ? -SOFT_DOMAIN_EPS : SOFT_DOMAIN_EPS;
+        }
+        return denom;
+    }
+
+    /**
+     * Corrective retry of {@link #eval(CollectionsAccess, float[], int)} with divide/modulo by
+     * (near-)zero softened to a finite value (see {@link #softDenom}). Intended to be run only
+     * after the exact eval returned a non-finite result. Does NOT heal other domain errors
+     * ({@code sqrt} of a negative, {@code log} of zero, etc.) — those still produce {@code NaN}.
+     */
+    public float softDomEval(@NonNull CollectionsAccess ca, float @NonNull [] exp, int len) {
+        System.arraycopy(exp, 0, mLocalStack, 0, len);
+        mStack = mLocalStack;
+        mCollectionsAccess = ca;
+        int sp = -1;
+
+        for (int i = 0; i < len; i++) {
+            float v = mStack[i];
+            if (Float.isNaN(v)) {
+                int id = fromNaN(v);
+                if ((id & NanMap.ID_REGION_MASK) != NanMap.ID_REGION_ARRAY) {
+                    if ((id == OP_DIV) || (id == OP_MOD)) {
+                        mStack[sp] = softDenom(mStack[sp]);
+                    }
+                    sp = opEval(sp, id);
+                } else {
+                    mStack[++sp] = v;
+                }
+            } else {
+                mStack[++sp] = v;
+            }
+        }
+        return mStack[sp];
+    }
+
+    /** Soft-domain corrective retry of {@link #eval(float[], int, float...)}. See above. */
+    public float softDomEval(float @NonNull [] exp, int len, float @NonNull ... var) {
+        System.arraycopy(exp, 0, mLocalStack, 0, len);
+        mStack = mLocalStack;
+        mVar = var;
+        int sp = -1;
+        for (int i = 0; i < len; i++) {
+            float v = mStack[i];
+            if (Float.isNaN(v)) {
+                int id =  fromNaN(v);
+                if ((id == OP_DIV) || (id == OP_MOD)) {
+                    mStack[sp] = softDenom(mStack[sp]);
+                }
+                sp = opEval(sp, id);
+            } else {
+                mStack[++sp] = v;
+            }
+        }
+        return mStack[sp];
+    }
 
     /** Evaluate a float expression */
     public float eval(float @NonNull [] exp, int len, float @NonNull ... var) {

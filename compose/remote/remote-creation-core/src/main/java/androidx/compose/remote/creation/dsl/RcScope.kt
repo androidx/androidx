@@ -1381,6 +1381,25 @@ public sealed interface RcScope {
     )
 
     /**
+     * Adds a particle loop whose update equations may be scalar ([RcFloat]) or vector ([RcVec]).
+     *
+     * A vector entry of dimensionality d writes its components to d consecutive particle variable
+     * slots, so [entries] must follow the particle variable layout and their dimensionalities must
+     * add up to the particle variable count.
+     *
+     * @param id the particle system, from [createParticles]
+     * @param restart an expression that recycles a particle when it is negative, or null
+     * @param entries one update per particle variable slot, scalar or vector, in slot order
+     * @param block the drawing done once per particle
+     */
+    public fun particlesLoopVec(
+        id: RcFloat,
+        restart: RcFloat?,
+        entries: List<RcParticleValue>,
+        block: RcCanvasScope.() -> Unit,
+    )
+
+    /**
      * Compares pairs of particles in `[min, max)` and applies [then1] / [then2] updates when
      * [condition] evaluates greater than zero.
      */
@@ -1391,6 +1410,33 @@ public sealed interface RcScope {
         condition: (RcParticleComparisonScope.() -> RcFloat)?,
         then1: (RcParticleComparisonScope.() -> List<RcFloat>)?,
         then2: (RcParticleComparisonScope.() -> List<RcFloat>)?,
+        flags: RcParticleComparisonFlags = RcParticleComparisonFlags.None,
+        block: RcCanvasScope.() -> Unit,
+    )
+
+    /**
+     * Adds a two-body particle comparison whose updates may be scalar ([RcFloat]) or vector
+     * ([RcVec]). The vector form of [particlesComparison]: a vector entry of dimensionality d
+     * writes d consecutive particle variable slots; [condition] is always scalar.
+     *
+     * @param id the particle system, from [createParticles]
+     * @param min the lower bound of the comparison range
+     * @param max the upper bound of the comparison range
+     * @param condition the pairwise test, positive when the pair matches, or null
+     * @param thenFirstParticle the updates of the first particle of a matching pair, in slot order,
+     *   or null
+     * @param thenSecondParticle the updates of the second particle of a matching pair, in slot
+     *   order, or null
+     * @param flags comparison behavior flags
+     * @param block the drawing done per matching pair
+     */
+    public fun particlesComparisonVec(
+        id: RcFloat,
+        min: RcFloat,
+        max: RcFloat,
+        condition: (RcParticleComparisonScope.() -> RcFloat)?,
+        thenFirstParticle: (RcParticleComparisonScope.() -> List<RcParticleValue>)?,
+        thenSecondParticle: (RcParticleComparisonScope.() -> List<RcParticleValue>)?,
         flags: RcParticleComparisonFlags = RcParticleComparisonFlags.None,
         block: RcCanvasScope.() -> Unit,
     )
@@ -1417,6 +1463,16 @@ public sealed interface RcScope {
 
     public fun runAction(block: RcRunActionScope.() -> Unit)
 
+    /**
+     * Open a 3D scene block. Operations issued in [block] are the 3D operations of
+     * [RcScene3DScope], and they composite onto the canvas after the block returns.
+     *
+     * Declared on [RcScope] (not only [RcCanvasScope]) — like the 2D draw ops — so 3D can also be
+     * emitted inside non-canvas containers such as a [particlesLoop]/[impulse] body, enabling **3D
+     * particle systems** (a `drawMesh` per particle).
+     */
+    @ExperimentalRemoteCreationApi public fun scene3D(block: RcScene3DScope.() -> Unit)
+
     /** Skip [block] when the player matches [kind] against [value]. */
     public fun <S : RcScope> S.skip(kind: RcSkipKind, value: Int, block: S.() -> Unit)
 
@@ -1441,6 +1497,12 @@ public sealed interface RcScope {
 
     /** Creates a new path starting at the specified position. */
     public fun remotePath(x: Float, y: Float): RcDynamicPath
+
+    /**
+     * The particle index (`0..count-1`) inside a [createParticles] initializer expression — the
+     * per-particle `VAR1` marker the engine substitutes per instance (e.g. to spread particles).
+     */
+    public fun particleIndex(): RcFloat
 
     public fun RcDynamicPath.lineTo(x: Float, y: Float)
 

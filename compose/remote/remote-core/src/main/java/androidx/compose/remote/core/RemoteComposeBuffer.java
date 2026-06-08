@@ -113,6 +113,7 @@ import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList;
 import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.VectorExpression;
 import androidx.compose.remote.core.operations.WakeIn;
 import androidx.compose.remote.core.operations.layout.CanvasContent;
 import androidx.compose.remote.core.operations.layout.CanvasOperations;
@@ -2681,6 +2682,20 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Add a particle loop where each expression may be scalar or vector.
+     *
+     * @param dims dimensionality per expression (1 = scalar); a vector expression of dim d produces
+     *     d values written to d consecutive particle variable slots
+     */
+    public void addParticlesLoop(
+            int id,
+            float @Nullable [] restart,
+            float @NonNull [][] expressions,
+            int @Nullable [] dims) {
+        ParticlesLoop.apply(mBuffer, id, restart, expressions, dims);
+    }
+
+    /**
      * Add a comparison of 1 or 2 particles
      *
      * @param id the particle engine id
@@ -2700,6 +2715,34 @@ public class RemoteComposeBuffer {
             float @Nullable [][] apply1,
             float @Nullable [][] apply2) {
         ParticlesCompare.apply(mBuffer, id, flags, min, max, condition, apply1, apply2);
+    }
+
+    /**
+     * Add a vector expression: evaluates {@code values} (a vector RPN) and scatters its
+     * {@code dimension} components to consecutive variable ids {@code id..id+dimension-1}.
+     */
+    public void addVectorExpression(int id, int dimension, int flags, float @NonNull [] values) {
+        VectorExpression.apply(mBuffer, id, dimension, flags, values);
+    }
+
+    /**
+     * Add a particle comparison where each result equation may be scalar or vector.
+     *
+     * @param dims1 dimensionality per apply1 equation (1 = scalar)
+     * @param dims2 dimensionality per apply2 equation (1 = scalar)
+     */
+    public void addParticlesComparison(
+            int id,
+            short flags,
+            float min,
+            float max,
+            float @Nullable [] condition,
+            float @Nullable [][] apply1,
+            float @Nullable [][] apply2,
+            int @Nullable [] dims1,
+            int @Nullable [] dims2) {
+        ParticlesCompare.apply(
+                mBuffer, id, flags, min, max, condition, apply1, apply2, dims1, dims2);
     }
 
     /** Closes the particle engine container */
@@ -3640,5 +3683,110 @@ public class RemoteComposeBuffer {
     public void addThemedColor(
             int id, int groupId, short lightId, short darkId, int lightFallback, int darkFallback) {
         ColorTheme.apply(mBuffer, id, groupId, lightId, darkId, lightFallback, darkFallback);
+    }
+
+    // ---- 3D ---------------------------------------------------------------
+
+    /** Define a cached 3D mesh. */
+    public void addDefineMesh3D(
+            int id,
+            int @NonNull [] indices,
+            float @NonNull [] verts,
+            float @Nullable [] normals) {
+        addDefineMesh3D(id, indices, verts, normals, null);
+    }
+
+    /** Define a cached 3D mesh with optional per-vertex UV. */
+    public void addDefineMesh3D(
+            int id,
+            int @NonNull [] indices,
+            float @NonNull [] verts,
+            float @Nullable [] normals,
+            float @Nullable [] uv) {
+        androidx.compose.remote.core.operations.d3.DefineMesh3D.apply(
+                mBuffer, id, indices, verts, normals, uv);
+    }
+
+    /** Set the 3D camera (projection + view). */
+    public void addSetCamera3D(
+            int projection, float @NonNull [] projParams, float @NonNull [] viewParams) {
+        androidx.compose.remote.core.operations.d3.SetCamera3D.apply(
+                mBuffer, projection, projParams, viewParams);
+    }
+
+    /** Post-multiply current 3D modelview. */
+    public void addMatrix3DOp(int sub, float @NonNull [] args) {
+        androidx.compose.remote.core.operations.d3.Matrix3DOp.apply(mBuffer, sub, args);
+    }
+
+    /** Draw a cached 3D mesh. See {@link androidx.compose.remote.core.operations.d3.DrawMesh3D}. */
+    public void addDrawMesh3D(int meshId, int mode) {
+        androidx.compose.remote.core.operations.d3.DrawMesh3D.apply(mBuffer, meshId, mode);
+    }
+
+    /** Clear the 3D depth buffer. */
+    public void addClearDepth3D() {
+        androidx.compose.remote.core.operations.d3.Paint3DState.apply(
+                mBuffer,
+                androidx.compose.remote.core.operations.d3.Paint3DState.CLEAR_DEPTH,
+                new float[0]);
+    }
+
+    /** Define the whole 3D light set. */
+    public void addSetLights3D(
+            int @NonNull [] types, int @NonNull [] colors, float @NonNull [] params) {
+        androidx.compose.remote.core.operations.d3.SetLights3D.apply(
+                mBuffer, types, colors, params);
+    }
+
+    /** Set the active 3D texture. */
+    public void addSetTexture3D(int bitmapId) {
+        androidx.compose.remote.core.operations.d3.SetTexture3D.apply(mBuffer, bitmapId);
+    }
+
+    /** Set the 3D specular material. */
+    public void addSetMaterial3D(float specStrength, float shininess) {
+        androidx.compose.remote.core.operations.d3.Paint3DState.apply(
+                mBuffer,
+                androidx.compose.remote.core.operations.d3.Paint3DState.MATERIAL,
+                new float[] {specStrength, shininess});
+    }
+
+    /** Define a 3D mesh from a parametric primitive. */
+    public void addMeshPrimitive(
+            int id, int type, float segments, int flags, float @NonNull [] params) {
+        androidx.compose.remote.core.operations.d3.MeshPrimitive.apply(
+                mBuffer, id, type, segments, flags, params);
+    }
+
+    /**
+     * Multi-channel variant: {@code data[0]} = scalar params, channels {@code 1+} carry geometry
+     * streams (profile / path points) for the multi-channel primitive types.
+     */
+    public void addMeshPrimitive(
+            int id, int type, float segments, int flags, float @NonNull [][] data) {
+        androidx.compose.remote.core.operations.d3.MeshPrimitive.apply(
+                mBuffer, id, type, segments, flags, data);
+    }
+
+    /** Set the 3D depth bias. See {@link Paint3DContext#setDepthBias3D(float, float)}. */
+    public void addSetDepthBias3D(float constant, float slope) {
+        androidx.compose.remote.core.operations.d3.Paint3DState.apply(
+                mBuffer,
+                androidx.compose.remote.core.operations.d3.Paint3DState.DEPTH_BIAS,
+                new float[] {constant, slope});
+    }
+
+    /** Procedural 3D mesh. */
+    public void addMeshExpression(
+            int id,
+            int type,
+            int flags,
+            float @NonNull [] params,
+            float @NonNull [] @NonNull [] pos,
+            float @NonNull [] @NonNull [] normal,
+            float @NonNull [] @NonNull [] uv) {
+        androidx.compose.remote.core.operations.d3.MeshExpression3D.apply(
+                mBuffer, id, type, flags, params, pos, normal, uv);
     }
 }

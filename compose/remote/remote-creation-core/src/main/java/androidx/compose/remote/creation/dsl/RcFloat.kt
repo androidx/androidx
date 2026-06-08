@@ -35,7 +35,7 @@ import androidx.compose.remote.creation.remoteContentHashCode
  * NaN-encoded ID for player-side evaluation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RcFloat {
+public class RcFloat : RcParticleValue {
     internal var array: FloatArray = floatArrayOf()
     internal var id: Float = 0f // if 0 it has not been sent
     internal var animation: FloatArray? = null
@@ -612,6 +612,15 @@ public sealed interface RcParticleComparisonScope {
 
     /** Selects property [property] of the second particle in a compared pair. */
     public fun second(property: RcFloat): RcFloat
+
+    /**
+     * Selects vector property [property] of the first particle in a compared pair: [first] applied
+     * to each component. [property] must be built from components (see [vec]).
+     */
+    public fun first(property: RcVec): RcVec
+
+    /** Selects vector property [property] of the second particle in a compared pair. */
+    public fun second(property: RcVec): RcVec
 }
 
 internal object RcParticleComparisonScopeImpl : RcParticleComparisonScope {
@@ -620,6 +629,10 @@ internal object RcParticleComparisonScopeImpl : RcParticleComparisonScope {
 
     override fun second(property: RcFloat): RcFloat =
         RcFloat(property.writer, floatArrayOf(*property.toArray(), AnimatedFloatExpression.CMD2))
+
+    override fun first(property: RcVec): RcVec = property.mapComponents(::first)
+
+    override fun second(property: RcVec): RcVec = property.mapComponents(::second)
 }
 
 /** Calculates a deterministic pseudo-random `0..1` number based on seed [a]. */
@@ -706,6 +719,70 @@ public fun mad(a: RcFloat, b: RcFloat, c: RcFloat): RcFloat {
 }
 
 internal fun toArray(a: RcFloat): FloatArray = a.toArray()
+
+/**
+ * Evaluate [a], store it in scratch register 0, and pop it (net-zero stack effect). See
+ * [concatenate].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun storeR0(a: RcFloat): RcFloat =
+    RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.STORE_RO))
+
+/**
+ * Evaluate [a], store it in scratch register 1, and pop it (net-zero stack effect). See
+ * [concatenate].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun storeR1(a: RcFloat): RcFloat =
+    RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.STORE_R1))
+
+/**
+ * Evaluate [a], store it in scratch register 2, and pop it (net-zero stack effect). See
+ * [concatenate].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun storeR2(a: RcFloat): RcFloat =
+    RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.STORE_R2))
+
+/**
+ * Evaluate [a], store it in scratch register 3, and pop it (net-zero stack effect). See
+ * [concatenate].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun storeR3(a: RcFloat): RcFloat =
+    RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.STORE_R3))
+
+/** Push the value previously held in scratch register 0 (see [storeR0]). */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun loadR0(): RcFloat = RcFloat(null, floatArrayOf(AnimatedFloatExpression.LOAD_R0))
+
+/** Push the value previously held in scratch register 1 (see [storeR1]). */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun loadR1(): RcFloat = RcFloat(null, floatArrayOf(AnimatedFloatExpression.LOAD_R1))
+
+/** Push the value previously held in scratch register 2 (see [storeR2]). */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun loadR2(): RcFloat = RcFloat(null, floatArrayOf(AnimatedFloatExpression.LOAD_R2))
+
+/** Push the value previously held in scratch register 3 (see [storeR3]). */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun loadR3(): RcFloat = RcFloat(null, floatArrayOf(AnimatedFloatExpression.LOAD_R3))
+
+/**
+ * Concatenate the RPN of several expressions, evaluating them in order; the result is the value of
+ * the LAST part. The earlier parts must be net-zero on the stack (e.g. [storeR1]) — use this to run
+ * a few register stores before computing the value that uses them via [loadR1] etc.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun concatenate(vararg parts: RcFloat): RcFloat {
+    var w: RemoteComposeWriter? = null
+    val out = ArrayList<Float>()
+    for (p in parts) {
+        if (w == null) w = p.writer
+        for (f in p.toArray()) out.add(f)
+    }
+    return RcFloat(w, out.toFloatArray())
+}
 
 /** Clamps [value] between [min] and [max]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

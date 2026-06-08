@@ -28,6 +28,7 @@ Compression is:
 |   properties ...                                     |
 |   COMPRESS = 1    (00 1F | 00 04 | 00 00 00 01)      |
 +------------------------------------------------------+
+| 77   marker byte (reserved opcode 119)               |
 | zlib stream (RFC 1950) holding the operations        |
 |   78 9C ... DEFLATE data ... Adler-32                |
 +------------------------------------------------------+
@@ -39,7 +40,7 @@ Compression is:
 | Value | Constant | Meaning |
 | :--- | :--- | :--- |
 | absent or `0` | `Header.COMPRESSION_NONE` | The operations are stored as is. |
-| `1` | `Header.COMPRESSION_DEFLATE` | Everything after the header is one zlib stream. |
+| `1` | `Header.COMPRESSION_DEFLATE` | After the header: the `0x77` marker byte, then one zlib stream. |
 | anything else | - | Reserved. Players reject the document. |
 
 Rules:
@@ -48,8 +49,10 @@ Rules:
    API level 8+ documents.
 2. Writers append `COMPRESS` after the other properties. Readers accept it
    anywhere in the header.
-3. The zlib stream starts right after the header and ends exactly at the end
-   of the document. Players reject a document whose stream is truncated or
+3. The marker byte `0x77` (`Header.COMPRESSED_STREAM_MARKER`) follows the
+   header, and the zlib stream follows the marker and ends exactly at the end
+   of the document. Readers also accept a zlib stream right after the header,
+   as written before the marker existed. Players reject a document whose stream is truncated or
    corrupted, or is followed by extra bytes.
 4. The stream inflates to the operations. Players parse them exactly as they
    would in an uncompressed document with the same header.
@@ -170,10 +173,9 @@ compressed documents. Tools that dump operations decompress first:
 Players that predate compression can't read compressed documents, but they
 fail cleanly:
 - They parse the header, because they keep unknown properties.
-- They then read the first byte of the zlib stream as an opcode. With the
-  default 32 KB window, zlib streams always start with `0x78`, and opcode 120
-  is reserved (see `Operations`).
-- So they fail with `Unknown operation encountered 120` instead of
+- They then read the marker byte `0x77` as an opcode. Opcode 119 is reserved
+  for this (see `Operations`), so no player knows it.
+- So they fail with `Unknown operation encountered 119` instead of
   misreading the document.
 
 Compressing doesn't change the document version, so a host must know that its
@@ -185,9 +187,8 @@ Any zlib implementation can write compressed documents, for example Python's
 `zlib.compress`, Go's `compress/zlib` or `java.util.zip.Deflater`:
 1. Write the properties header as usual, with an extra `COMPRESS` property
    (`00 1F 00 04 00 00 00 01`) included in the property count.
-2. Append the operations as a single zlib stream, and nothing after it.
-3. Use the default 32 KB window. Smaller windows start the stream with a byte
-   from `0x08` to `0x68`, which older players may parse as a real opcode.
+2. Append the marker byte `0x77`.
+3. Append the operations as a single zlib stream, and nothing after it.
 
 ## When to compress
 
@@ -225,7 +226,7 @@ Together, the documents go from 994 KB to 577 KB (58%).
 | Format, compression and decompression | `Header` (`COMPRESS`, `compressDocument`, `decompressDocument`) |
 | Loading | `RemoteComposeBuffer.inflateFromBuffer` |
 | Limit | `Limits.MAX_DECOMPRESSED_SIZE` |
-| Reserved opcode | `Operations` (opcode 120) |
+| Reserved opcode and marker byte | `Operations` (opcode 119), `Header.COMPRESSED_STREAM_MARKER` |
 | Creation | `RemoteComposeWriter` (`COMPRESS` tag, `encodeToByteArray`, `getCompression`) |
 | JSON | `RemoteComposeJsonParser` (`"compress"` header key) |
 | Tests | `DocumentCompressionTest`, `RemoteComposeWriterTest`, `RemoteComposeContextTest`, `DslComparisonTest`, `RemoteComposeJsonParserTest`, `RemoteDocumentCompressionTest`, `RemoteComposePlayerTest`, `RcPlayerStateTest` |

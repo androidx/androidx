@@ -118,7 +118,17 @@ import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.TouchExpressionOperation2;
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList;
+import androidx.compose.remote.core.operations.VectorExpression;
 import androidx.compose.remote.core.operations.WakeIn;
+import androidx.compose.remote.core.operations.d3.DefineMesh3D;
+import androidx.compose.remote.core.operations.d3.DrawMesh3D;
+import androidx.compose.remote.core.operations.d3.Matrix3DOp;
+import androidx.compose.remote.core.operations.d3.MeshExpression3D;
+import androidx.compose.remote.core.operations.d3.MeshPrimitive;
+import androidx.compose.remote.core.operations.d3.Paint3DState;
+import androidx.compose.remote.core.operations.d3.SetCamera3D;
+import androidx.compose.remote.core.operations.d3.SetLights3D;
+import androidx.compose.remote.core.operations.d3.SetTexture3D;
 import androidx.compose.remote.core.operations.layout.CanvasContent;
 import androidx.compose.remote.core.operations.layout.CanvasOperations;
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
@@ -215,15 +225,16 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Operations {
 
-    private Operations() {}
+    private Operations() {
+    }
 
     // -------------------------------------- //
     // Protocol
     // -------------------------------------- //
     public static final int HEADER = 0;
-    // Opcode 120 (0x78) is reserved: it is the first byte of a compressed document's operations
-    // (see Header#COMPRESS), so players that can't decompress stop on an unknown operation instead
-    // of misreading the document.
+    // Opcode 119 (0x77) is reserved: it is the marker byte that starts a compressed document's
+    // operations (see Header#COMPRESSED_STREAM_MARKER), so players that can't decompress stop on
+    // an unknown operation instead of misreading the document.
     public static final int LOAD_BITMAP = 4;
     public static final int THEME = 63;
     public static final int CLICK_AREA = 64;
@@ -353,7 +364,6 @@ public class Operations {
     public static final int MACRO_ARGUMENT = 248;
     public static final int MACRO_BLOCK = 249;
     public static final int MACRO_FOR_EACH = 244;
-    // -------------------------------------- //
 
     // -------------------------------------- //
     // Layout commands
@@ -517,6 +527,17 @@ public class Operations {
         LAYOUT_RC_DOC,
         MAP_RC_DOC_VARIABLES,
         BINARY_DATA,
+        // 3D
+        DEFINE_MESH_3D,
+        SET_CAMERA_3D,
+        MATRIX_3D_OP,
+        DRAW_MESH_3D,
+        PAINT_3D_STATE,
+        SET_LIGHTS_3D,
+        MESH_EXPRESSION_3D,
+        SET_TEXTURE_3D,
+        MESH_PRIMITIVE_3D,
+        VECTOR_EXPRESSION,
     };
 
     /** Deprecated operations of the AndroidX profile. */
@@ -567,6 +588,17 @@ public class Operations {
         LAYOUT_RC_DOC,
         MAP_RC_DOC_VARIABLES,
         BINARY_DATA,
+        // 3D
+        DEFINE_MESH_3D,
+        SET_CAMERA_3D,
+        MATRIX_3D_OP,
+        DRAW_MESH_3D,
+        PAINT_3D_STATE,
+        SET_LIGHTS_3D,
+        MESH_EXPRESSION_3D,
+        SET_TEXTURE_3D,
+        MESH_PRIMITIVE_3D,
+        VECTOR_EXPRESSION,
     };
 
     /** Deprecated operations of the Widgets profile. */
@@ -661,6 +693,17 @@ public class Operations {
                 sAllOperationsV7.put(LAYOUT_RC_DOC, RcDocLayout::read);
                 sAllOperationsV7.put(MAP_RC_DOC_VARIABLES, MapRcDocVariables::read);
                 sAllOperationsV7.put(BINARY_DATA, BinaryData::read);
+                // 3D
+                sAllOperationsV7.put(DEFINE_MESH_3D, DefineMesh3D::read);
+                sAllOperationsV7.put(SET_CAMERA_3D, SetCamera3D::read);
+                sAllOperationsV7.put(MATRIX_3D_OP, Matrix3DOp::read);
+                sAllOperationsV7.put(DRAW_MESH_3D, DrawMesh3D::read);
+                sAllOperationsV7.put(PAINT_3D_STATE, Paint3DState::read);
+                sAllOperationsV7.put(SET_LIGHTS_3D, SetLights3D::read);
+                sAllOperationsV7.put(MESH_EXPRESSION_3D, MeshExpression3D::read);
+                sAllOperationsV7.put(SET_TEXTURE_3D, SetTexture3D::read);
+                sAllOperationsV7.put(MESH_PRIMITIVE_3D, MeshPrimitive::read);
+                sAllOperationsV7.put(VECTOR_EXPRESSION, VectorExpression::read);
 
                 sAllOperationsV7.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
             }
