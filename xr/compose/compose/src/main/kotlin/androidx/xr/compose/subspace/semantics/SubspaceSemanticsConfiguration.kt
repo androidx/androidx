@@ -23,6 +23,10 @@ import androidx.compose.ui.semantics.getOrNull
 public class SubspaceSemanticsConfiguration
 internal constructor(private val config: SemanticsConfiguration) :
     SubspaceSemanticsPropertyReceiver, Iterable<Map.Entry<SemanticsPropertyKey<*>, Any?>> {
+
+    /** Creates a new, empty [SubspaceSemanticsConfiguration]. */
+    public constructor() : this(SemanticsConfiguration())
+
     /** Returns true if the configuration contains the given [key]. */
     public operator fun <T> contains(key: SemanticsPropertyKey<T>): Boolean = key in config
 
