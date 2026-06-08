@@ -436,8 +436,10 @@ public class MutableRemoteBoolean internal constructor(remoteInt: MutableRemoteI
          * @param initialValue The initial value for this mutable boolean.
          * @return A [MutableRemoteBoolean] instance.
          */
-        public operator fun invoke(initialValue: Boolean): MutableRemoteBoolean =
-            MutableRemoteBoolean(MutableRemoteInt(if (initialValue) 1 else 0))
+        public operator fun invoke(initialValue: Boolean): MutableRemoteBoolean {
+            val initInt: Int = if (initialValue) 1 else 0
+            return MutableRemoteBoolean(MutableRemoteInt(initInt))
+        }
     }
 }
 
@@ -456,7 +458,8 @@ public val Boolean.rb: RemoteBoolean
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean {
-    return remember { MutableRemoteBoolean(MutableRemoteInt(if (initialValue) 1 else 0)) }
+    val initInt: Int = if (initialValue) 1 else 0
+    return remember { MutableRemoteBoolean(MutableRemoteInt(initInt)) }
 }
 
 /**
