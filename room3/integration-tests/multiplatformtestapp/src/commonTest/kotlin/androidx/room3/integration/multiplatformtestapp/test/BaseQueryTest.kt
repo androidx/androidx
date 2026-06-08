@@ -135,6 +135,9 @@ abstract class BaseQueryTest {
         assertThat(channel.receive())
             .containsExactly(SampleEntity(1), SampleEntity(2), SampleEntity(3))
 
+        dao.deleteList(listOf(1, 2, 3))
+        assertThat(channel.receive()).isEmpty()
+
         channel.cancel()
     }
 
