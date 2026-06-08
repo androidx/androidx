@@ -1031,7 +1031,7 @@ w: file://\$SUPPORT/navigation/navigation-runtime/src/wasmJsTest/kotlin/androidx
 \[KOTLIN\] \[IC\] Incremental compilation was attempted but failed:
 java\.lang\.IllegalStateException: The following LookupSymbols are not yet converted to ProgramSymbols:.*
 (?:.*[\n\r])*.*Falling back to non\-incremental compilation \(reason = IC_FAILED_TO_COMPUTE_FILES_TO_RECOMPILE\)
-(?:.*[\n\r])*.*e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols:.*SchemaAppFunctionInventory_Impl\)
+(?:.*[\n\r])*.*e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols:.*(SchemaAppFunctionInventory_Impl|AggregatedAppFunctionInvoker_Impl)\)
 # > Task :car:app:app-automotive:compileReleaseJavaWithJavac b/316376113
 \$OUT_DIR/androidx/car/app/app\-automotive/build/generated/source/stable_aidl/release/androidx/car/app/activity/renderer/IInsetsListener\.java:[0-9]+: warning: \[dep\-ann\] deprecated item is not annotated with @Deprecated
 @Override public void onInsetsChanged\(android\.graphics\.Insets insets\) throws android\.os\.RemoteException
