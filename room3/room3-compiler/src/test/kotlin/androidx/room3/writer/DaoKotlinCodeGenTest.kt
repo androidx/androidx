@@ -675,6 +675,38 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun dataClassRowAdapter_defaultValues() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                interface MyDao {
+                  @Query("SELECT pk FROM MyEntity")
+                  fun getEntityPartial(): MyEntity
+                  
+                  @Insert
+                  fun addEntity(item: MyEntity)
+                }
+
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    val pk: Int,
+                    val withDefault: String = "defaultValue"
+                )
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+        )
+    }
+
+    @Test
     fun dataClassRowAdapter_primitives() {
         val src =
             Source.kotlin(

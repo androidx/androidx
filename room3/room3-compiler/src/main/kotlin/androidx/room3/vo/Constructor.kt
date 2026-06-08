@@ -34,6 +34,7 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
                 is Param.PropertyParam -> it.property === property
                 is Param.EmbeddedParam -> it.embedded.property === property
                 is Param.RelationParam -> it.relation.property === property
+                else -> false
             }
         }
     }
@@ -60,20 +61,30 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
         }
     }
 
-    sealed class Param {
+    sealed class Param(val name: String, val hasDefaultValue: Boolean) {
 
         abstract fun log(): String
 
-        class PropertyParam(val property: Property) : Param() {
+        class PropertyParam(name: String, hasDefaultValue: Boolean, val property: Property) :
+            Param(name, hasDefaultValue) {
             override fun log(): String = property.getPath()
         }
 
-        class EmbeddedParam(val embedded: EmbeddedProperty) : Param() {
+        class EmbeddedParam(
+            name: String,
+            hasDefaultValue: Boolean,
+            val embedded: EmbeddedProperty,
+        ) : Param(name, hasDefaultValue) {
             override fun log(): String = embedded.property.getPath()
         }
 
-        class RelationParam(val relation: Relation) : Param() {
+        class RelationParam(name: String, hasDefaultValue: Boolean, val relation: Relation) :
+            Param(name, hasDefaultValue) {
             override fun log(): String = relation.property.getPath()
+        }
+
+        class UnmatchedDefaultValueParam(name: String) : Param(name, true) {
+            override fun log(): String = "unmatched"
         }
     }
 }

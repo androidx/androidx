@@ -1039,7 +1039,7 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                     )
                 )
                 hasErrorContaining(
-                    ProcessorErrors.dataClassMissingNonNull(
+                    ProcessorErrors.dataClassMissingRequiredColumns(
                         dataClassTypeName = "foo.bar.MyClass.DataClass",
                         missingDataClassProperties = listOf("name"),
                         allQueryColumns = listOf("lastName"),
