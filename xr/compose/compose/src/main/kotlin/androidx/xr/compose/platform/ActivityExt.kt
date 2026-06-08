@@ -27,7 +27,6 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.scene
 import java.util.function.Consumer
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -98,7 +97,6 @@ public sealed interface SpaceRequestResult {
  * @return [SpaceRequestResult.Success] if the application successfully enters home space,
  *   [SpaceRequestResult.Unsupported] if the device does not support XR spaces, or
  *   [SpaceRequestResult.Error] if a system error occurs.
- * @throws CancellationException if the request is cancelled before completion.
  */
 public suspend fun ComponentActivity.requestHomeSpace(): SpaceRequestResult =
     requestSpaceMode(Space.Home)
@@ -126,7 +124,6 @@ public suspend fun ComponentActivity.requestHomeSpace(): SpaceRequestResult =
  * @return [SpaceRequestResult.Success] if the application successfully enters full space,
  *   [SpaceRequestResult.Unsupported] if the device does not support XR spaces, or
  *   [SpaceRequestResult.Error] if a system error occurs.
- * @throws CancellationException if the request is cancelled before completion.
  */
 public suspend fun ComponentActivity.requestFullSpace(): SpaceRequestResult =
     requestSpaceMode(Space.Full)
