@@ -34,6 +34,7 @@ private constructor(
                 enableSharedElementTransitions = false,
             )
 
+        @Suppress("UNUSED")
         fun enableSharedTransitionScope() =
             PokedexSharedElementBenchmarkConfiguration(
                 enableSharedTransitionScope = true,
@@ -46,12 +47,7 @@ private constructor(
                 enableSharedElementTransitions = true,
             )
 
-        val AllConfigurations =
-            listOf(
-                disableSharedTransitionAndElement(),
-                enableSharedTransitionScope(),
-                enableSharedElement(),
-            )
+        val AllConfigurations = listOf(disableSharedTransitionAndElement(), enableSharedElement())
     }
 }
 
