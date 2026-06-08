@@ -870,6 +870,7 @@ class FragmentStateManager {
                 mFragment, false);
         mFragment.mState = Fragment.INITIALIZING;
         mFragment.mHost = null;
+        mFragment.mContextAwareHelper.clearAvailableContext();
         mFragment.mParentFragment = null;
         mFragment.mFragmentManager = null;
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
