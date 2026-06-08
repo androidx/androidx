@@ -36,10 +36,12 @@ import com.android.utils.appendCapitalized
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.abi.tools.KlibTarget
@@ -61,6 +63,8 @@ internal const val CURRENT_API_FILE_NAME = "current.txt"
 private const val IGNORE_FILE_NAME = "current.ignore"
 private const val ABI_GROUP_NAME = "abi"
 private const val CROSS_COMPILATION_FLAG = "kotlin.native.enableKlibsCrossCompilation"
+private val HAS_CINTEROP_ATTRIBUTE =
+    Attribute.of("androidx.kmp.hasCInterop", Boolean::class.javaObjectType)
 
 class BinaryCompatibilityValidation(
     val project: Project,
@@ -85,6 +89,18 @@ class BinaryCompatibilityValidation(
                     it.dependsOn(updateAll)
                 }
             }
+
+            val hasCInterop = kotlinMultiplatformExtension.hasCInterop()
+            kotlinMultiplatformExtension.nativeTargets().forEach { target ->
+                listOf(target.apiElementsConfigurationName, target.runtimeElementsConfigurationName)
+                    .forEach { configName ->
+                        project.configurations
+                            .matching { it.name == configName }
+                            .configureEach { config ->
+                                config.attributes.attribute(HAS_CINTEROP_ATTRIBUTE, hasCInterop)
+                            }
+                    }
+            }
         }
 
     private fun configureKlibTasks(
@@ -104,13 +120,21 @@ class BinaryCompatibilityValidation(
         val klibDumpDir = project.layout.buildDirectory.dir(KLIB_DUMPS_DIRECTORY)
         val klibDumpFile = klibDumpDir.map { it.file(CURRENT_API_FILE_NAME) }
 
+        val hasCInterop = kotlinMultiplatformExtension.hasCInterop()
+        val hasCInteropProperty =
+            project.objects
+                .property(Boolean::class.javaObjectType)
+                .value(
+                    project.hasCInteropDependency().map { hasCInteropDependency ->
+                        hasCInterop || hasCInteropDependency
+                    }
+                )
         val generateAbi =
             project.generateAbiTask(
                 klibDumpFile,
                 abiToolsClasspath,
                 kotlinMultiplatformExtension.hasUnsupportedTargets(),
-                kotlinMultiplatformExtension.hasCInterop(),
-                project.providers.gradleProperty(CROSS_COMPILATION_FLAG).get() == "true",
+                hasCInteropProperty,
             )
         val generatedAndMergedApiFile: Provider<RegularFileProperty> =
             generateAbi.map { it.abiFile }
@@ -238,8 +262,7 @@ class BinaryCompatibilityValidation(
         mergeFile: Provider<RegularFile>,
         runtimeClasspath: FileCollection,
         hasUnsupportedTargets: Boolean,
-        hasCInterop: Boolean,
-        crossCompilationEnabled: Boolean,
+        hasCInteropProperty: Property<Boolean>,
     ) =
         project.tasks.register(GENERATE_NAME, GenerateAbiTask::class.java) {
             // This only affects the external process launched by this task,
@@ -261,11 +284,12 @@ class BinaryCompatibilityValidation(
                 }
             )
             it.group = ABI_GROUP_NAME
+            val projectPath = project.path
             it.doFirst {
                 runHostCompatibilityChecks(
+                    projectPath,
                     hasUnsupportedTargets,
-                    hasCInterop,
-                    crossCompilationEnabled,
+                    hasCInteropProperty.get(),
                 )
             }
         }
@@ -289,15 +313,38 @@ private fun KotlinMultiplatformExtension.hasCInterop(): Boolean {
     return mainCompilations.any { it.cinterops.isNotEmpty() }
 }
 
+private fun Project.hasCInteropDependency(): Provider<Boolean> {
+    val nativeTargets =
+        multiplatformExtension?.nativeTargets()
+            ?: return objects.property(Boolean::class.javaObjectType).value(false)
+    val cinteropFiles = objects.fileCollection()
+    nativeTargets.forEach { target ->
+        val compilation = target.compilations.findByName(MAIN_COMPILATION_NAME) ?: return@forEach
+        configurations
+            .matching { it.name == compilation.compileDependencyConfigurationName }
+            .configureEach { configuration ->
+                cinteropFiles.from(
+                    configuration.incoming
+                        .artifactView { view ->
+                            view.lenient(true)
+                            view.attributes { it.attribute(HAS_CINTEROP_ATTRIBUTE, true) }
+                        }
+                        .files
+                )
+            }
+    }
+    return cinteropFiles.elements.map { it.isNotEmpty() }
+}
+
 private fun KotlinMultiplatformExtension.hasUnsupportedTargets(): Boolean {
     val hostManager = HostManager()
     return nativeTargets().any { !hostManager.isEnabled(it.konanTarget) }
 }
 
 private fun runHostCompatibilityChecks(
+    projectPath: String,
     hasUnsupportedTargets: Boolean,
     hasCInterop: Boolean,
-    crossCompilationEnabled: Boolean,
 ) {
     if (!hasUnsupportedTargets) {
         // running on mac, or project has no mac targets. No further checks necessary
@@ -308,22 +355,12 @@ private fun runHostCompatibilityChecks(
         // so cross compilation is not an option
         throw GradleException(
             """
-            Project uses cinterop and cannot be compiled on the current host (${HostManager.host}).
+            Project $projectPath uses cinterop (or depends on a project that uses cinterop) and cannot be compiled on the current host (${HostManager.host}).
 
             ABI checks and updates need to compile all targets to run. Please run these tasks on a Mac machine which can build all targets.
         """
         )
     }
-    // Unsupported targets exist, but they can be built by enabling cross compilation just for the
-    // ABI tasks
-    if (!crossCompilationEnabled)
-        throw GradleException(
-            """
-        Project requires cross compilation to be compiled on the current host (${HostManager.host}).
-
-        Please re-run the tasks with cross compilation enabled using the flag '-Pkotlin.native.enableKlibsCrossCompilation=true'
-    """
-        )
 }
 
 // Not ideal to have a list instead of a pattern to match but this is all the API supports right now
