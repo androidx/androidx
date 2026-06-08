@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -153,8 +152,7 @@ fun RemoteButtonWithBackground() {
         rememberNamedRemoteImageBitmap(name = "backgroundImage") {
             createImage(200, 200).asImageBitmap()
         }
-    val containerPainter =
-        RemoteButtonDefaults.containerPainter(painterRemoteImageBitmap(backgroundImage))
+    val containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage)
     RemoteButton(
         onClick = testAction,
         modifier = RemoteModifier.buttonSizeModifier(),
