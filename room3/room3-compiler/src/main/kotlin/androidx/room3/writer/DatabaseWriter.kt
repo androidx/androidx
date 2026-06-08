@@ -61,15 +61,37 @@ class DatabaseWriter(val database: Database, writerContext: WriterContext) :
             addFunction(createCreateInvalidationTracker())
             addFunction(createClearAllTables())
             addFunction(createCreateTypeConvertersMap())
+            addFunction(createCreateDaoReturnTypeConvertersMap())
             addFunction(createCreateAutoMigrationSpecsSet())
             addFunction(createGetAutoMigrations())
             addDaoImpls(this)
         }
     }
 
-    private fun createCreateTypeConvertersMap(): XFunSpec {
+    private fun createCreateTypeConvertersMap(): XFunSpec =
+        createRequiredConvertersMap(
+            javaMethodName = "getRequiredTypeConverters",
+            kotlinMethodName = "getRequiredTypeConverterClasses",
+            tmpVarName = "_typeConvertersMap",
+            daoFunctionGetName = DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_FUNCTION,
+        )
+
+    private fun createCreateDaoReturnTypeConvertersMap(): XFunSpec =
+        createRequiredConvertersMap(
+            javaMethodName = "getRequiredDaoReturnTypeConverters",
+            kotlinMethodName = "getRequiredDaoReturnTypeConverterClasses",
+            tmpVarName = "_daoReturnTypeConvertersMap",
+            daoFunctionGetName = DaoWriter.GET_LIST_OF_DAO_RETURN_TYPE_CONVERTERS_FUNCTION,
+        )
+
+    private fun createRequiredConvertersMap(
+        javaMethodName: String,
+        kotlinMethodName: String,
+        tmpVarName: String,
+        daoFunctionGetName: String,
+    ): XFunSpec {
         val scope = CodeGenScope(this)
-        val typeConvertersVar = scope.getTmpVar("_typeConvertersMap")
+        val typeConvertersVar = scope.getTmpVar(tmpVarName)
         val classOfAnyTypeName = CommonTypeNames.KOTLIN_CLASS.parametrizedBy(XTypeName.ANY_WILDCARD)
         val typeConvertersTypeName =
             CommonTypeNames.MUTABLE_MAP.parametrizedBy(
@@ -91,18 +113,14 @@ class DatabaseWriter(val database: Database, writerContext: WriterContext) :
                             typeConvertersVar,
                             XCodeBlock.ofKotlinClassLiteral(it.dao.typeName),
                             it.dao.implTypeName,
-                            DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_FUNCTION,
+                            daoFunctionGetName,
                         )
                     }
                 }
                 .addStatement("return %L", typeConvertersVar)
                 .build()
         return XFunSpec.builder(
-                name =
-                    XName.of(
-                        java = "getRequiredTypeConverters",
-                        kotlin = "getRequiredTypeConverterClasses",
-                    ),
+                name = XName.of(java = javaMethodName, kotlin = kotlinMethodName),
                 visibility = VisibilityModifier.PROTECTED,
                 isOverride = true,
             )

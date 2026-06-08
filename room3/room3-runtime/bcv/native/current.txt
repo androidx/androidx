@@ -115,6 +115,7 @@ abstract class androidx.room3/RoomDatabase { // androidx.room3/RoomDatabase|null
         final fun <get-invalidationTracker>(): androidx.room3/InvalidationTracker // androidx.room3/RoomDatabase.invalidationTracker.<get-invalidationTracker>|<get-invalidationTracker>(){}[0]
 
     abstract suspend fun clearAllTables() // androidx.room3/RoomDatabase.clearAllTables|clearAllTables(){}[0]
+    final fun <#A1: kotlin/Any> getDaoReturnTypeConverter(kotlin.reflect/KClass<#A1>): #A1 // androidx.room3/RoomDatabase.getDaoReturnTypeConverter|getDaoReturnTypeConverter(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> getTypeConverter(kotlin.reflect/KClass<#A1>): #A1 // androidx.room3/RoomDatabase.getTypeConverter|getTypeConverter(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
     final fun close() // androidx.room3/RoomDatabase.close|close(){}[0]
     final fun getCoroutineScope(): kotlinx.coroutines/CoroutineScope // androidx.room3/RoomDatabase.getCoroutineScope|getCoroutineScope(){}[0]
@@ -124,6 +125,7 @@ abstract class androidx.room3/RoomDatabase { // androidx.room3/RoomDatabase|null
     open fun createInvalidationTracker(): androidx.room3/InvalidationTracker // androidx.room3/RoomDatabase.createInvalidationTracker|createInvalidationTracker(){}[0]
     open fun createOpenDelegate(): androidx.room3/RoomOpenDelegateMarker // androidx.room3/RoomDatabase.createOpenDelegate|createOpenDelegate(){}[0]
     open fun getRequiredAutoMigrationSpecClasses(): kotlin.collections/Set<kotlin.reflect/KClass<out androidx.room3.migration/AutoMigrationSpec>> // androidx.room3/RoomDatabase.getRequiredAutoMigrationSpecClasses|getRequiredAutoMigrationSpecClasses(){}[0]
+    open fun getRequiredDaoReturnTypeConverterClasses(): kotlin.collections/Map<kotlin.reflect/KClass<*>, kotlin.collections/List<kotlin.reflect/KClass<*>>> // androidx.room3/RoomDatabase.getRequiredDaoReturnTypeConverterClasses|getRequiredDaoReturnTypeConverterClasses(){}[0]
     open fun getRequiredTypeConverterClasses(): kotlin.collections/Map<kotlin.reflect/KClass<*>, kotlin.collections/List<kotlin.reflect/KClass<*>>> // androidx.room3/RoomDatabase.getRequiredTypeConverterClasses|getRequiredTypeConverterClasses(){}[0]
 
     final enum class JournalMode : kotlin/Enum<androidx.room3/RoomDatabase.JournalMode> { // androidx.room3/RoomDatabase.JournalMode|null[0]
@@ -150,6 +152,7 @@ abstract class androidx.room3/RoomDatabase { // androidx.room3/RoomDatabase|null
 
         final fun addAutoMigrationSpec(androidx.room3.migration/AutoMigrationSpec): androidx.room3/RoomDatabase.Builder<#A1> // androidx.room3/RoomDatabase.Builder.addAutoMigrationSpec|addAutoMigrationSpec(androidx.room3.migration.AutoMigrationSpec){}[0]
         final fun addCallback(androidx.room3/RoomDatabase.Callback): androidx.room3/RoomDatabase.Builder<#A1> // androidx.room3/RoomDatabase.Builder.addCallback|addCallback(androidx.room3.RoomDatabase.Callback){}[0]
+        final fun addDaoReturnTypeConverter(kotlin/Any): androidx.room3/RoomDatabase.Builder<#A1> // androidx.room3/RoomDatabase.Builder.addDaoReturnTypeConverter|addDaoReturnTypeConverter(kotlin.Any){}[0]
         final fun addMigrations(kotlin/Array<out androidx.room3.migration/Migration>...): androidx.room3/RoomDatabase.Builder<#A1> // androidx.room3/RoomDatabase.Builder.addMigrations|addMigrations(kotlin.Array<out|androidx.room3.migration.Migration>...){}[0]
         final fun addTypeConverter(kotlin/Any): androidx.room3/RoomDatabase.Builder<#A1> // androidx.room3/RoomDatabase.Builder.addTypeConverter|addTypeConverter(kotlin.Any){}[0]
         final fun build(): #A1 // androidx.room3/RoomDatabase.Builder.build|build(){}[0]
@@ -383,7 +386,7 @@ final class androidx.room3.util/ViewInfo { // androidx.room3.util/ViewInfo|null[
 }
 
 final class androidx.room3/DatabaseConfiguration { // androidx.room3/DatabaseConfiguration|null[0]
-    constructor <init>(kotlin/String?, androidx.room3/RoomDatabase.MigrationContainer, kotlin.collections/List<androidx.room3/RoomDatabase.Callback>, androidx.room3/RoomDatabase.JournalMode, kotlin/Boolean, kotlin/Boolean, kotlin.collections/Set<kotlin/Int>?, kotlin.collections/List<kotlin/Any>, kotlin.collections/List<androidx.room3.migration/AutoMigrationSpec>, kotlin/Boolean, androidx.sqlite/SQLiteDriver, kotlin.coroutines/CoroutineContext, androidx.room3/ConnectionPoolConfiguration) // androidx.room3/DatabaseConfiguration.<init>|<init>(kotlin.String?;androidx.room3.RoomDatabase.MigrationContainer;kotlin.collections.List<androidx.room3.RoomDatabase.Callback>;androidx.room3.RoomDatabase.JournalMode;kotlin.Boolean;kotlin.Boolean;kotlin.collections.Set<kotlin.Int>?;kotlin.collections.List<kotlin.Any>;kotlin.collections.List<androidx.room3.migration.AutoMigrationSpec>;kotlin.Boolean;androidx.sqlite.SQLiteDriver;kotlin.coroutines.CoroutineContext;androidx.room3.ConnectionPoolConfiguration){}[0]
+    constructor <init>(kotlin/String?, androidx.room3/RoomDatabase.MigrationContainer, kotlin.collections/List<androidx.room3/RoomDatabase.Callback>, androidx.room3/RoomDatabase.JournalMode, kotlin/Boolean, kotlin/Boolean, kotlin.collections/Set<kotlin/Int>?, kotlin.collections/List<kotlin/Any>, kotlin.collections/List<kotlin/Any>, kotlin.collections/List<androidx.room3.migration/AutoMigrationSpec>, kotlin/Boolean, androidx.sqlite/SQLiteDriver, kotlin.coroutines/CoroutineContext, androidx.room3/ConnectionPoolConfiguration) // androidx.room3/DatabaseConfiguration.<init>|<init>(kotlin.String?;androidx.room3.RoomDatabase.MigrationContainer;kotlin.collections.List<androidx.room3.RoomDatabase.Callback>;androidx.room3.RoomDatabase.JournalMode;kotlin.Boolean;kotlin.Boolean;kotlin.collections.Set<kotlin.Int>?;kotlin.collections.List<kotlin.Any>;kotlin.collections.List<kotlin.Any>;kotlin.collections.List<androidx.room3.migration.AutoMigrationSpec>;kotlin.Boolean;androidx.sqlite.SQLiteDriver;kotlin.coroutines.CoroutineContext;androidx.room3.ConnectionPoolConfiguration){}[0]
 
     final val allowDestructiveMigrationForAllTables // androidx.room3/DatabaseConfiguration.allowDestructiveMigrationForAllTables|{}allowDestructiveMigrationForAllTables[0]
         final fun <get-allowDestructiveMigrationForAllTables>(): kotlin/Boolean // androidx.room3/DatabaseConfiguration.allowDestructiveMigrationForAllTables.<get-allowDestructiveMigrationForAllTables>|<get-allowDestructiveMigrationForAllTables>(){}[0]
@@ -395,6 +398,8 @@ final class androidx.room3/DatabaseConfiguration { // androidx.room3/DatabaseCon
         final fun <get-callbacks>(): kotlin.collections/List<androidx.room3/RoomDatabase.Callback> // androidx.room3/DatabaseConfiguration.callbacks.<get-callbacks>|<get-callbacks>(){}[0]
     final val connectionPoolConfiguration // androidx.room3/DatabaseConfiguration.connectionPoolConfiguration|{}connectionPoolConfiguration[0]
         final fun <get-connectionPoolConfiguration>(): androidx.room3/ConnectionPoolConfiguration // androidx.room3/DatabaseConfiguration.connectionPoolConfiguration.<get-connectionPoolConfiguration>|<get-connectionPoolConfiguration>(){}[0]
+    final val daoReturnTypeConverters // androidx.room3/DatabaseConfiguration.daoReturnTypeConverters|{}daoReturnTypeConverters[0]
+        final fun <get-daoReturnTypeConverters>(): kotlin.collections/List<kotlin/Any> // androidx.room3/DatabaseConfiguration.daoReturnTypeConverters.<get-daoReturnTypeConverters>|<get-daoReturnTypeConverters>(){}[0]
     final val isMigrationRequired // androidx.room3/DatabaseConfiguration.isMigrationRequired|{}isMigrationRequired[0]
         final fun <get-isMigrationRequired>(): kotlin/Boolean // androidx.room3/DatabaseConfiguration.isMigrationRequired.<get-isMigrationRequired>|<get-isMigrationRequired>(){}[0]
     final val journalMode // androidx.room3/DatabaseConfiguration.journalMode|{}journalMode[0]

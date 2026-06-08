@@ -21,6 +21,7 @@ import androidx.room3.DaoReturnTypeConverter
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
 import androidx.room3.OperationType
+import androidx.room3.ProvidedDaoReturnTypeConverter
 import androidx.room3.compiler.codegen.asClassName
 import androidx.room3.compiler.processing.XElement
 import androidx.room3.compiler.processing.XExecutableElement
@@ -173,7 +174,8 @@ class DaoReturnTypeConverterProcessor(
                     enclosingClass = containerTypeElement,
                     isEnclosingClassKotlinObject = isContainerKotlinObject,
                     function = function,
-                    isProvidedConverter = false,
+                    isProvidedConverter =
+                        containerTypeElement.hasAnnotation(ProvidedDaoReturnTypeConverter::class),
                     requiredParameters = requiredParameters,
                     operationTypes = operationTypes,
                     executeAndReturnLambda = executeAndReturnLambda,

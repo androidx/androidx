@@ -45,6 +45,7 @@ import androidx.room3.ext.RoomTypeNames.UPSERT_ADAPTER
 import androidx.room3.ext.capitalize
 import androidx.room3.processor.OnConflictProcessor
 import androidx.room3.solver.CodeGenScope
+import androidx.room3.solver.types.getRequiredDaoReturnTypeConverters
 import androidx.room3.solver.types.getRequiredTypeConverters
 import androidx.room3.vo.Dao
 import androidx.room3.vo.DeleteOrUpdateShortcutFunction
@@ -76,6 +77,8 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
 
     companion object {
         const val GET_LIST_OF_TYPE_CONVERTERS_FUNCTION = "getRequiredConverters"
+        const val GET_LIST_OF_DAO_RETURN_TYPE_CONVERTERS_FUNCTION =
+            "getRequiredDaoReturnTypeConverters"
 
         const val DB_PROPERTY_NAME = "__db"
 
@@ -157,25 +160,38 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
     private fun addConverterListFunction(typeSpecBuilder: XTypeSpec.Builder) {
         // For Kotlin a function in the companion object is created
         companionTypeBuilder.value.applyTo(CodeLanguage.KOTLIN) {
-            addFunction(createConverterListFunction())
+            addFunction(createTypeConverterListFunction())
+            addFunction(createDaoReturnTypeConverterListFunction())
         }
     }
 
-    private fun createConverterListFunction(): XFunSpec {
+    private fun createTypeConverterListFunction(): XFunSpec =
+        createConverterListFunction(
+            GET_LIST_OF_TYPE_CONVERTERS_FUNCTION,
+            getRequiredTypeConverters(),
+        )
+
+    private fun createDaoReturnTypeConverterListFunction(): XFunSpec =
+        createConverterListFunction(
+            GET_LIST_OF_DAO_RETURN_TYPE_CONVERTERS_FUNCTION,
+            getRequiredDaoReturnTypeConverters(),
+        )
+
+    private fun createConverterListFunction(
+        functionName: String,
+        converters: Set<XClassName>,
+    ): XFunSpec {
         val body = buildCodeBlock { language ->
-            val requiredTypeConverters = getRequiredTypeConverters()
-            if (requiredTypeConverters.isEmpty()) {
+            if (converters.isEmpty()) {
                 addStatement("return emptyList()")
             } else {
-                val placeholders = requiredTypeConverters.joinToString(",") { "%L" }
+                val placeholders = converters.joinToString(",") { "%L" }
                 val requiredTypeConvertersLiterals =
-                    requiredTypeConverters
-                        .map { XCodeBlock.ofKotlinClassLiteral(it) }
-                        .toTypedArray()
+                    converters.map { XCodeBlock.ofKotlinClassLiteral(it) }.toTypedArray()
                 addStatement("return listOf($placeholders)", *requiredTypeConvertersLiterals)
             }
         }
-        return XFunSpec.builder(GET_LIST_OF_TYPE_CONVERTERS_FUNCTION, VisibilityModifier.PUBLIC)
+        return XFunSpec.builder(functionName, VisibilityModifier.PUBLIC)
             .applyToJavaPoet { addModifiers(javax.lang.model.element.Modifier.STATIC) }
             .applyTo { language ->
                 returns(

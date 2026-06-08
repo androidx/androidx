@@ -71,6 +71,9 @@ constructor(
     /* List of provided type converters. */
     @param:Suppress("ListenerLast") public actual val typeConverters: List<Any>,
 
+    /* List of provided DAO return type converters. */
+    @param:Suppress("ListenerLast") public actual val daoReturnTypeConverters: List<Any>,
+
     /* List of provided auto migration specs. */
     @param:Suppress("ListenerLast") public actual val autoMigrationSpecs: List<AutoMigrationSpec>,
 
@@ -118,6 +121,7 @@ constructor(
         prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback? =
             this.prepackagedDatabaseCallback,
         typeConverters: List<Any> = this.typeConverters,
+        daoReturnTypeConverters: List<Any> = this.daoReturnTypeConverters,
         autoMigrationSpecs: List<AutoMigrationSpec> = this.autoMigrationSpecs,
         allowDestructiveMigrationForAllTables: Boolean = this.allowDestructiveMigrationForAllTables,
         sqliteDriver: SQLiteDriver = this.sqliteDriver,
@@ -137,6 +141,7 @@ constructor(
                 migrationNotRequiredFrom,
                 prepackagedDatabaseCallback,
                 typeConverters,
+                daoReturnTypeConverters,
                 autoMigrationSpecs,
                 allowDestructiveMigrationForAllTables,
                 sqliteDriver,
