@@ -438,7 +438,7 @@ internal class CallSessionLegacy(
         try {
             if (
                 mVideoCallSpeakerManager.shouldSwitchToSpeaker(
-                    isVideoCall = attributes.isVideoCall(),
+                    isVideoCall = (mCallType == CallAttributesCompat.CALL_TYPE_VIDEO_CALL),
                     currentEndpoint = currentEndpoint,
                     availableEndpoints = availableEndpoints,
                 )
@@ -466,7 +466,7 @@ internal class CallSessionLegacy(
     ) {
         try {
             if (
-                attributes.isVideoCall() &&
+                (mCallType == CallAttributesCompat.CALL_TYPE_VIDEO_CALL) &&
                     /* Only switch if the users headset disconnects & earpiece is defaulted */
                     isEarpieceEndpoint(newEndpoint) &&
                     isWiredHeadsetOrBtEndpoint(previousEndpoint) &&
