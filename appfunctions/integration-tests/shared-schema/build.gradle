@@ -30,6 +30,5 @@ android {
 
 dependencies {
     implementation(project(":appfunctions:appfunctions"))
-    implementation(project(":appfunctions:appfunctions-service"))
     ksp(project(":appfunctions:appfunctions-compiler"))
 }

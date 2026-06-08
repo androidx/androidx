@@ -16,12 +16,12 @@
 
 package androidx.appfunctions.integration.testapp.library
 
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionInstruction
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionStringValueConstraint
-import androidx.appfunctions.service.AppFunction
 
 @Suppress("UNUSED_PARAMETER")
 class TestFunctions2 {

@@ -16,49 +16,12 @@
 
 package androidx.appfunctions
 
-import androidx.annotation.RestrictTo
-
 /**
- * Marks a function within a class as callable by other applications.
+ * Marks a function under [AppFunctionServiceEntryPoint] as callable by other applications.
  *
  * The `@AppFunction` annotation signals that the annotated function can be invoked by external
  * applications with proper permission (e.g., an agent). For instance, a note-taking app could
  * expose a function allowing an agent to create notes based on user commands.
- *
- * The enclosing class of the function would be instantiated whenever an AppFunction within the
- * class is called. If the enclosing class requires constructor parameters or custom instantiation,
- * add a custom factory in [AppFunctionConfiguration.Builder.addEnclosingClassFactory]. This allows
- * you to inject dependencies or handle more complex object creation scenarios.
- *
- * ### AppFunction Compiler
- *
- * When a function is annotated with `@AppFunction`, the compiler will automatically:
- * * Generate an XML file within the APK. This file describes the signatures of all
- *   `@AppFunction`-annotated functions within the application.
- * * Provide the necessary infrastructure to expose these functions via
- *   [android.app.appfunctions.AppFunctionService].
- *
- * Applications with the appropriate permissions can then use
- * [android.app.appfunctions.AppFunctionManager] to invoke these exposed functions.
- *
- * The compiler also generates an ID class associated with the class containing `@AppFunction`
- * annotations. This ID class provides constants for retrieving the unique identifier of each
- * annotated function. Consider this example:
- * ```kotlin
- * package com.example.mynotes
- *
- * class NoteFunctions: CreateNote, UpdateNote {
- *   @AppFunction
- *   override suspend fun createNote(...): Note { ... }
- *
- *   @AppFunction
- *   override suspend fun updateNote(...): Note? { ... }
- * }
- * ```
- *
- * The compiler will generate a `NoteFunctionsIds` class within the same `com.example.mynotes`
- * package. This generated class will contain constants like `CREATE_NOTE_ID` and `UPDATE_NOTE_ID`,
- * which correspond to the `createNote` and `updateNote` functions, respectively.
  *
  * ### Thread Management
  *
@@ -131,14 +94,13 @@ import androidx.annotation.RestrictTo
  * }
  * ```
  *
- * @see AppFunctionConfiguration.Builder.addEnclosingClassFactory
+ * @see AppFunctionServiceEntryPoint
  * @see androidx.appfunctions.AppFunctionException
  * @see androidx.appfunctions.AppFunctionSerializable
  */
 // Use BINARY here so that the annotation is kept around at the aggregation stage.
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class AppFunction(
     /**
      * Indicates whether this function is enabled. The default value is `true`.

@@ -33,13 +33,13 @@ import androidx.appfunction.integration.test.sharedschema.Owner
 import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.ResourceFunctionResponse
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
-import androidx.appfunctions.service.AppFunction
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 
