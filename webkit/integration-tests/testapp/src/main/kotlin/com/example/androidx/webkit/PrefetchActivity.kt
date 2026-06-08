@@ -27,6 +27,7 @@ import android.widget.TextView
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.PrefetchException
+import androidx.webkit.PrefetchResult
 import androidx.webkit.Profile
 import androidx.webkit.ProfileStore
 import androidx.webkit.WebViewCompat
@@ -136,9 +137,13 @@ class PrefetchActivity : AppCompatActivity() {
             /* url = */ url,
             /* cancellationSignal = */ null,
             /* callbackExecutor = */ null,
-            /* outcomeReceiver = */ object : WebViewOutcomeReceiver<Void?, PrefetchException> {
-                override fun onResult(result: Void?) {
-                    statusText.text = "Status: Success!"
+            /* outcomeReceiver = */ object :
+                WebViewOutcomeReceiver<PrefetchResult, PrefetchException> {
+                override fun onResult(result: PrefetchResult) {
+                    when {
+                        result.wasDuplicate() -> "Duplicate"
+                        else -> "Success"
+                    }.let { statusText.text = "Status: $it!" }
                 }
 
                 override fun onError(error: PrefetchException) {

@@ -808,6 +808,18 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.PREFETCH_CACHE_V1,
                     Features.PREFETCH_CACHE);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link PrefetchCache#prefetchUrlAsync(String, CancellationSignal, Executor, WebViewOutcomeReceiver)},
+     * {@link PrefetchCache#prefetchUrlAsync(String, CancellationSignal, Executor, PrefetchParameters, WebViewOutcomeReceiver)},
+     * {@link PrefetchOperationCallbackWithResultAdapter#buildInvocationHandler(WebViewOutcomeReceiver)}
+     *
+     * This feature is not referred to by the app and is only used by the library to choose
+     * different code paths based on underlying support from WebView.
+     */
+    public static final ApiFeature.NoFrameworkInternal PREFETCH_WITH_CALLBACK_RESULT =
+            new ApiFeature.NoFrameworkInternal(Features.PREFETCH_WITH_CALLBACK_RESULT_V1);
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
