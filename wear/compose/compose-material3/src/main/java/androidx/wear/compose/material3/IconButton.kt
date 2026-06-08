@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
@@ -111,20 +112,25 @@ public fun IconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    IconButtonImpl(
-        onClick = onClick,
-        modifier =
-            modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        backgroundColor = { colors.containerColor(enabled = it).value },
-        interactionSource = interactionSource,
-        shapes = shapes,
-        border = { border },
-        ripple = ripple(),
-        content = provideScopeContent(colors.contentColor(enabled = enabled), content),
-    )
+    val contentColor = colors.contentColor(enabled = enabled)
+    CompositionLocalProvider(LocalContentColor provides contentColor.value) {
+        IconButtonImpl(
+            onClick = onClick,
+            modifier =
+                modifier
+                    .minimumInteractiveComponentSize()
+                    .size(IconButtonDefaults.DefaultButtonSize),
+            onLongClick = onLongClick,
+            onLongClickLabel = onLongClickLabel,
+            enabled = enabled,
+            backgroundColor = { colors.containerColor(enabled = it).value },
+            interactionSource = interactionSource,
+            shapes = shapes,
+            border = { border },
+            ripple = ripple(),
+            content = content,
+        )
+    }
 }
 
 /**
@@ -185,20 +191,25 @@ public fun FilledIconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    IconButtonImpl(
-        onClick = onClick,
-        modifier =
-            modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        backgroundColor = { colors.containerColor(enabled = it).value },
-        interactionSource = interactionSource,
-        shapes = shapes,
-        border = { border },
-        ripple = ripple(),
-        content = provideScopeContent(colors.contentColor(enabled = enabled), content),
-    )
+    val contentColor = colors.contentColor(enabled = enabled)
+    CompositionLocalProvider(LocalContentColor provides contentColor.value) {
+        IconButtonImpl(
+            onClick = onClick,
+            modifier =
+                modifier
+                    .minimumInteractiveComponentSize()
+                    .size(IconButtonDefaults.DefaultButtonSize),
+            onLongClick = onLongClick,
+            onLongClickLabel = onLongClickLabel,
+            enabled = enabled,
+            backgroundColor = { colors.containerColor(enabled = it).value },
+            interactionSource = interactionSource,
+            shapes = shapes,
+            border = { border },
+            ripple = ripple(),
+            content = content,
+        )
+    }
 }
 
 /**
@@ -259,20 +270,25 @@ public fun FilledTonalIconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    IconButtonImpl(
-        onClick = onClick,
-        modifier =
-            modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        backgroundColor = { colors.containerColor(enabled = it).value },
-        interactionSource = interactionSource,
-        shapes = shapes,
-        border = { border },
-        ripple = ripple(),
-        content = provideScopeContent(colors.contentColor(enabled = enabled), content),
-    )
+    val contentColor = colors.contentColor(enabled = enabled)
+    CompositionLocalProvider(LocalContentColor provides contentColor.value) {
+        IconButtonImpl(
+            onClick = onClick,
+            modifier =
+                modifier
+                    .minimumInteractiveComponentSize()
+                    .size(IconButtonDefaults.DefaultButtonSize),
+            onLongClick = onLongClick,
+            onLongClickLabel = onLongClickLabel,
+            enabled = enabled,
+            backgroundColor = { colors.containerColor(enabled = it).value },
+            interactionSource = interactionSource,
+            shapes = shapes,
+            border = { border },
+            ripple = ripple(),
+            content = content,
+        )
+    }
 }
 
 /**
@@ -337,20 +353,25 @@ public fun OutlinedIconButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    IconButtonImpl(
-        onClick = onClick,
-        modifier =
-            modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        backgroundColor = { colors.containerColor(enabled = it).value },
-        interactionSource = interactionSource,
-        shapes = shapes,
-        border = { border },
-        ripple = ripple(),
-        content = provideScopeContent(colors.contentColor(enabled = enabled), content),
-    )
+    val contentColor = colors.contentColor(enabled = enabled)
+    CompositionLocalProvider(LocalContentColor provides contentColor.value) {
+        IconButtonImpl(
+            onClick = onClick,
+            modifier =
+                modifier
+                    .minimumInteractiveComponentSize()
+                    .size(IconButtonDefaults.DefaultButtonSize),
+            onLongClick = onLongClick,
+            onLongClickLabel = onLongClickLabel,
+            enabled = enabled,
+            backgroundColor = { colors.containerColor(enabled = it).value },
+            interactionSource = interactionSource,
+            shapes = shapes,
+            border = { border },
+            ripple = ripple(),
+            content = content,
+        )
+    }
 }
 
 @Composable

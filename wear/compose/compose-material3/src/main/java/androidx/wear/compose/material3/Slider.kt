@@ -158,9 +158,11 @@ public fun Slider(
         val containerColor = colors.containerColor(enabled)
         val selectedBarSeparatorColor = colors.barSeparatorColor(enabled, true)
         val unselectedBarSeparatorColor = colors.barSeparatorColor(enabled, false)
+        val buttonIconColor = colors.buttonIconColor(enabled).value
 
         CompositionLocalProvider(
-            LocalIndication provides ripple(bounded = false, radius = this.maxWidth)
+            LocalIndication provides ripple(bounded = false, radius = this.maxWidth),
+            LocalContentColor provides buttonIconColor,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

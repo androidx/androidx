@@ -712,7 +712,10 @@ class IconToggleButtonTest {
             color = { shapeColor(checked = false) },
             releaseAfterTap = false,
         ) { modifier ->
-            CompositionLocalProvider(LocalContentColor provides shapeColor(checked = false)) {
+            CompositionLocalProvider(
+                LocalContentColor provides shapeColor(checked = false),
+                LocalRippleConfiguration provides null,
+            ) {
                 IconToggleButton(
                     checked = false,
                     onCheckedChange = {},
@@ -745,7 +748,10 @@ class IconToggleButtonTest {
             color = { shapeColor(checked = true) },
             releaseAfterTap = false,
         ) { modifier ->
-            CompositionLocalProvider(LocalContentColor provides shapeColor(checked = true)) {
+            CompositionLocalProvider(
+                LocalContentColor provides shapeColor(checked = true),
+                LocalRippleConfiguration provides null,
+            ) {
                 IconToggleButton(
                     checked = true,
                     onCheckedChange = {},

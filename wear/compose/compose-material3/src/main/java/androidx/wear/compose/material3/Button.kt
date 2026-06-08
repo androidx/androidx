@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -2317,32 +2318,38 @@ private fun ButtonImpl(
         } else {
             ColorPainter(colors.containerColor(enabled = enabled))
         }
+    val contentColor = colors.contentColor(enabled = enabled)
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        // Fill the container height but not its width as buttons have fixed size height but we
-        // want them to be able to fit their content
-        modifier =
-            modifier
-                .width(intrinsicSize = IntrinsicSize.Max)
-                .surface(
-                    transformation = transformation,
-                    painter = painter,
-                    shape = shape,
-                    border = border,
-                )
-                .combinedClickable(
-                    enabled = enabled,
-                    onClick = onClick,
-                    onLongClick = onLongClick, // NB CombinedClickable calls LongPress haptic
-                    onLongClickLabel = onLongClickLabel,
-                    role = Role.Button,
-                    indication = ripple(),
-                    interactionSource = interactionSource,
-                )
-                .padding(contentPadding),
-        content = provideScopeContent(colors.contentColor(enabled = enabled), labelFont, content),
-    )
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides labelFont,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            // Fill the container height but not its width as buttons have fixed size height but we
+            // want them to be able to fit their content
+            modifier =
+                modifier
+                    .width(intrinsicSize = IntrinsicSize.Max)
+                    .surface(
+                        transformation = transformation,
+                        painter = painter,
+                        shape = shape,
+                        border = border,
+                    )
+                    .combinedClickable(
+                        enabled = enabled,
+                        onClick = onClick,
+                        onLongClick = onLongClick, // NB CombinedClickable calls LongPress haptic
+                        onLongClickLabel = onLongClickLabel,
+                        role = Role.Button,
+                        indication = ripple(),
+                        interactionSource = interactionSource,
+                    )
+                    .padding(contentPadding),
+            content = content,
+        )
+    }
 }
 
 /**

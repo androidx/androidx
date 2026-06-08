@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
@@ -123,24 +124,26 @@ public fun TextButton(
             interactionSource = interactionSource,
         )
 
-    RoundButton(
-        onClick = onClick,
-        modifier.minimumInteractiveComponentSize().size(TextButtonDefaults.DefaultButtonSize),
-        onLongClick = onLongClick,
-        onLongClickLabel = onLongClickLabel,
-        enabled = enabled,
-        backgroundColor = { colors.containerColor(enabled = it) },
-        interactionSource = finalInteractionSource,
-        shape = finalShape,
-        border = { border },
-        ripple = ripple(),
-        content =
-            provideScopeContent(
-                colors.contentColor(enabled = enabled),
-                TextButtonTokens.ContentFont.value,
-                content,
-            ),
-    )
+    val contentColor = colors.contentColor(enabled = enabled)
+    val textStyle = TextButtonTokens.ContentFont.value
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides textStyle,
+    ) {
+        RoundButton(
+            onClick = onClick,
+            modifier.minimumInteractiveComponentSize().size(TextButtonDefaults.DefaultButtonSize),
+            onLongClick = onLongClick,
+            onLongClickLabel = onLongClickLabel,
+            enabled = enabled,
+            backgroundColor = { colors.containerColor(enabled = it) },
+            interactionSource = finalInteractionSource,
+            shape = finalShape,
+            border = { border },
+            ripple = ripple(),
+            content = content,
+        )
+    }
 }
 
 /** Contains the default values used by [TextButton]. */

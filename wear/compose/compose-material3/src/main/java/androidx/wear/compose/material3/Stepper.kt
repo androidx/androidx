@@ -431,23 +431,27 @@ private fun ColumnScope.StepperButton(
         modifier =
             Modifier.align(Alignment.CenterHorizontally).weight(ButtonWeight).padding(paddingValues)
     ) {
-        Box(
-            modifier =
-                Modifier.align(contentAlignment)
-                    .semantics { role = Role.Button }
-                    .clip(finalShape)
-                    .repeatableClickable(
-                        enabled = enabled,
-                        onClick = onClick,
-                        interactionSource = finalInteractionSource,
-                        indication = null,
-                    )
-                    .size(width = ButtonWidth, height = ButtonHeight)
-                    .background(color = colors.buttonContainerColor(enabled), shape = finalShape)
-                    .indication(interactionSource, ripple()),
-            contentAlignment = Alignment.Center,
-        ) {
-            CompositionLocalProvider(values = iconProviderValues, content = content)
+        CompositionLocalProvider(values = iconProviderValues) {
+            Box(
+                modifier =
+                    Modifier.align(contentAlignment)
+                        .semantics { role = Role.Button }
+                        .clip(finalShape)
+                        .repeatableClickable(
+                            enabled = enabled,
+                            onClick = onClick,
+                            interactionSource = finalInteractionSource,
+                            indication = null,
+                        )
+                        .size(width = ButtonWidth, height = ButtonHeight)
+                        .background(
+                            color = colors.buttonContainerColor(enabled),
+                            shape = finalShape,
+                        )
+                        .indication(interactionSource, ripple()),
+                contentAlignment = Alignment.Center,
+                content = { content() },
+            )
         }
     }
 }

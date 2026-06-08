@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
@@ -149,96 +150,104 @@ public fun SwitchButton(
         } else {
             getString(Strings.OffStateDescription)
         }
+    val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
 
-    androidx.wear.compose.materialcore.ToggleButton(
-        checked = checked,
-        onCheckedChange = {
-            hapticFeedback.performHapticFeedback(
-                if (it) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff
-            )
-            onCheckedChange(it)
-        },
-        label =
-            provideScopeContent(
-                contentColor = colors.contentColor(enabled = enabled, checked),
-                textStyle = SwitchButtonTokens.LabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                        textAlign = TextAlign.Start,
-                    ),
-                content = label,
-            ),
-        toggleControl = {
-            Switch(
-                checked = checked,
-                enabled = enabled,
-                thumbColor = { enabled, checked ->
-                    colors.thumbColor(enabled = enabled, checked = checked)
-                },
-                thumbIconColor = { enabled, checked ->
-                    colors.thumbIconColor(enabled = enabled, checked = checked)
-                },
-                trackColor = { enabled, checked ->
-                    colors.trackColor(enabled = enabled, checked = checked)
-                },
-                trackBorderColor = { enabled, checked ->
-                    colors.trackBorderColor(enabled = enabled, checked = checked)
-                },
-            )
-        },
-        selectionControl = null,
-        modifier =
-            modifier.defaultMinSize(minHeight = MIN_HEIGHT).height(IntrinsicSize.Min).semantics {
-                stateDescription = currentStateDescription
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        androidx.wear.compose.materialcore.ToggleButton(
+            checked = checked,
+            onCheckedChange = {
+                hapticFeedback.performHapticFeedback(
+                    if (it) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff
+                )
+                onCheckedChange(it)
             },
-        icon =
-            provideNullableScopeContent(
-                contentColor = colors.iconColor(enabled = enabled, checked),
-                content = icon,
-            ),
-        secondaryLabel =
-            provideNullableScopeContent(
-                contentColor = colors.secondaryContentColor(enabled = enabled, checked),
-                textStyle = SwitchButtonTokens.SecondaryLabelFont.value,
-                textConfiguration =
-                    TextConfiguration(
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                        textAlign = TextAlign.Start,
-                    ),
-                content = secondaryLabel,
-            ),
-        background = { isEnabled, isChecked ->
-            val backgroundColorState =
-                colors.containerColor(enabled = isEnabled, checked = isChecked)
+            label =
+                provideScopeContent(
+                    contentColor = colors.contentColor(enabled = enabled, checked),
+                    textStyle = SwitchButtonTokens.LabelFont.value,
+                    textConfiguration =
+                        TextConfiguration(
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 3,
+                            textAlign = TextAlign.Start,
+                        ),
+                    content = label,
+                ),
+            toggleControl = {
+                Switch(
+                    checked = checked,
+                    enabled = enabled,
+                    thumbColor = { enabled, checked ->
+                        colors.thumbColor(enabled = enabled, checked = checked)
+                    },
+                    thumbIconColor = { enabled, checked ->
+                        colors.thumbIconColor(enabled = enabled, checked = checked)
+                    },
+                    trackColor = { enabled, checked ->
+                        colors.trackColor(enabled = enabled, checked = checked)
+                    },
+                    trackBorderColor = { enabled, checked ->
+                        colors.trackBorderColor(enabled = enabled, checked = checked)
+                    },
+                )
+            },
+            selectionControl = null,
+            modifier =
+                modifier
+                    .defaultMinSize(minHeight = MIN_HEIGHT)
+                    .height(IntrinsicSize.Min)
+                    .semantics { stateDescription = currentStateDescription },
+            icon =
+                provideNullableScopeContent(
+                    contentColor = colors.iconColor(enabled = enabled, checked),
+                    content = icon,
+                ),
+            secondaryLabel =
+                provideNullableScopeContent(
+                    contentColor = colors.secondaryContentColor(enabled = enabled, checked),
+                    textStyle = SwitchButtonTokens.SecondaryLabelFont.value,
+                    textConfiguration =
+                        TextConfiguration(
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2,
+                            textAlign = TextAlign.Start,
+                        ),
+                    content = secondaryLabel,
+                ),
+            background = { isEnabled, isChecked ->
+                val backgroundColorState =
+                    colors.containerColor(enabled = isEnabled, checked = isChecked)
 
-            val colorPainter =
-                remember(backgroundColorState) {
-                    object : Painter() {
-                        override val intrinsicSize: Size
-                            get() = Size.Unspecified
+                val colorPainter =
+                    remember(backgroundColorState) {
+                        object : Painter() {
+                            override val intrinsicSize: Size
+                                get() = Size.Unspecified
 
-                        override fun DrawScope.onDraw() {
-                            drawRect(color = backgroundColorState.value)
+                            override fun DrawScope.onDraw() {
+                                drawRect(color = backgroundColorState.value)
+                            }
                         }
                     }
-                }
 
-            Modifier.surface(transformation = transformation, shape = shape, painter = colorPainter)
-        },
-        enabled = enabled,
-        interactionSource = interactionSource,
-        contentPadding = contentPadding,
-        shape = shape,
-        toggleControlWidth = SWITCH_WIDTH,
-        toggleControlHeight = SWITCH_OUTER_HEIGHT,
-        labelSpacerSize = SwitchButtonDefaults.LabelSpacerSize,
-        toggleControlSpacing = TOGGLE_CONTROL_SPACING,
-        iconSpacing = ICON_SPACING,
-        ripple = ripple(),
-    )
+                Modifier.surface(
+                    transformation = transformation,
+                    shape = shape,
+                    painter = colorPainter,
+                )
+            },
+            enabled = enabled,
+            interactionSource = interactionSource,
+            contentPadding = contentPadding,
+            shape = shape,
+            toggleControlWidth = SWITCH_WIDTH,
+            toggleControlHeight = SWITCH_OUTER_HEIGHT,
+            labelSpacerSize = SwitchButtonDefaults.LabelSpacerSize,
+            toggleControlSpacing = TOGGLE_CONTROL_SPACING,
+            iconSpacing = ICON_SPACING,
+            ripple = ripple(),
+        )
+    }
 }
 
 /**
@@ -327,121 +336,126 @@ public fun SplitSwitchButton(
         } else {
             getString(Strings.OffStateDescription)
         }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier =
-            modifier
-                .defaultMinSize(minHeight = MIN_HEIGHT)
-                .height(IntrinsicSize.Min)
-                .width(IntrinsicSize.Max)
-                .graphicsLayer {
-                    clip = true
-                    this.shape = shape
-                    val transformation = transformation ?: return@graphicsLayer
-                    with(transformation) { applyContainerTransformation() }
-                },
-    ) {
+    val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
+
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
-            modifier =
-                Modifier.clickable(
-                        enabled = enabled,
-                        onClick = onContainerClick,
-                        indication = ripple(),
-                        interactionSource = containerInteractionSource,
-                        onClickLabel = containerClickLabel,
-                    )
-                    .semantics { role = Role.Button }
-                    .fillMaxHeight()
-                    .clip(SPLIT_SECTIONS_SHAPE)
-                    .drawBehind { drawRect(containerColorState.value) }
-                    .padding(contentPadding)
-                    .weight(1.0f),
             verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Labels(
-                label =
-                    provideScopeContent(
-                        contentColor = colors.contentColor(enabled = enabled, checked = checked),
-                        textStyle = SplitSwitchButtonTokens.LabelFont.value,
-                        textConfiguration =
-                            TextConfiguration(
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 3,
-                                textAlign = TextAlign.Start,
-                            ),
-                        content = label,
-                    ),
-                secondaryLabel =
-                    provideNullableScopeContent(
-                        contentColor =
-                            colors.secondaryContentColor(enabled = enabled, checked = checked),
-                        textStyle = SplitSwitchButtonTokens.SecondaryLabelFont.value,
-                        textConfiguration =
-                            TextConfiguration(
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 2,
-                                textAlign = TextAlign.Start,
-                            ),
-                        content = secondaryLabel,
-                    ),
-                spacerSize = SwitchButtonDefaults.LabelSpacerSize,
-            )
-        }
-
-        Spacer(modifier = Modifier.size(2.dp))
-
-        val splitBackgroundOverlayState = colors.splitContainerColor(enabled, checked)
-        val hapticFeedback = LocalHapticFeedback.current
-        Box(
-            contentAlignment = Alignment.Center,
             modifier =
-                Modifier.toggleable(
-                        enabled = enabled,
-                        value = checked,
-                        onValueChange = {
-                            hapticFeedback.performHapticFeedback(
-                                if (it) HapticFeedbackType.ToggleOn
-                                else HapticFeedbackType.ToggleOff
-                            )
-                            onCheckedChange(it)
-                        },
-                        indication = ripple(),
-                        interactionSource = toggleInteractionSource,
-                    )
-                    .fillMaxHeight()
-                    .clip(SPLIT_SECTIONS_SHAPE)
-                    .drawBehind {
-                        val color = if (enabled) containerColorState.value else Color.Black
-                        drawRect(color)
-                        drawRect(splitBackgroundOverlayState.value)
-                    }
-                    .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(contentPadding)
-                    .semantics { stateDescription = currentStateDescription },
-        ) {
-            Switch(
-                checked = checked,
-                enabled = enabled,
-                modifier =
-                    if (toggleContentDescription == null) {
-                        Modifier
-                    } else {
-                        Modifier.semantics { contentDescription = toggleContentDescription }
+                modifier
+                    .defaultMinSize(minHeight = MIN_HEIGHT)
+                    .height(IntrinsicSize.Min)
+                    .width(IntrinsicSize.Max)
+                    .graphicsLayer {
+                        clip = true
+                        this.shape = shape
+                        val transformation = transformation ?: return@graphicsLayer
+                        with(transformation) { applyContainerTransformation() }
                     },
-                thumbColor = { enabled, checked ->
-                    colors.thumbColor(enabled = enabled, checked = checked)
-                },
-                thumbIconColor = { enabled, checked ->
-                    colors.thumbIconColor(enabled = enabled, checked = checked)
-                },
-                trackColor = { enabled, checked ->
-                    colors.trackColor(enabled = enabled, checked = checked)
-                },
-                trackBorderColor = { enabled, checked ->
-                    colors.trackBorderColor(enabled = enabled, checked = checked)
-                },
-            )
+        ) {
+            Row(
+                modifier =
+                    Modifier.clickable(
+                            enabled = enabled,
+                            onClick = onContainerClick,
+                            indication = ripple(),
+                            interactionSource = containerInteractionSource,
+                            onClickLabel = containerClickLabel,
+                        )
+                        .semantics { role = Role.Button }
+                        .fillMaxHeight()
+                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .drawBehind { drawRect(containerColorState.value) }
+                        .padding(contentPadding)
+                        .weight(1.0f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Labels(
+                    label =
+                        provideScopeContent(
+                            contentColor =
+                                colors.contentColor(enabled = enabled, checked = checked),
+                            textStyle = SplitSwitchButtonTokens.LabelFont.value,
+                            textConfiguration =
+                                TextConfiguration(
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 3,
+                                    textAlign = TextAlign.Start,
+                                ),
+                            content = label,
+                        ),
+                    secondaryLabel =
+                        provideNullableScopeContent(
+                            contentColor =
+                                colors.secondaryContentColor(enabled = enabled, checked = checked),
+                            textStyle = SplitSwitchButtonTokens.SecondaryLabelFont.value,
+                            textConfiguration =
+                                TextConfiguration(
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 2,
+                                    textAlign = TextAlign.Start,
+                                ),
+                            content = secondaryLabel,
+                        ),
+                    spacerSize = SwitchButtonDefaults.LabelSpacerSize,
+                )
+            }
+
+            Spacer(modifier = Modifier.size(2.dp))
+
+            val splitBackgroundOverlayState = colors.splitContainerColor(enabled, checked)
+            val hapticFeedback = LocalHapticFeedback.current
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
+                    Modifier.toggleable(
+                            enabled = enabled,
+                            value = checked,
+                            onValueChange = {
+                                hapticFeedback.performHapticFeedback(
+                                    if (it) HapticFeedbackType.ToggleOn
+                                    else HapticFeedbackType.ToggleOff
+                                )
+                                onCheckedChange(it)
+                            },
+                            indication = ripple(),
+                            interactionSource = toggleInteractionSource,
+                        )
+                        .fillMaxHeight()
+                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .drawBehind {
+                            val color = if (enabled) containerColorState.value else Color.Black
+                            drawRect(color)
+                            drawRect(splitBackgroundOverlayState.value)
+                        }
+                        .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
+                        .wrapContentHeight(align = Alignment.CenterVertically)
+                        .padding(contentPadding)
+                        .semantics { stateDescription = currentStateDescription },
+            ) {
+                Switch(
+                    checked = checked,
+                    enabled = enabled,
+                    modifier =
+                        if (toggleContentDescription == null) {
+                            Modifier
+                        } else {
+                            Modifier.semantics { contentDescription = toggleContentDescription }
+                        },
+                    thumbColor = { enabled, checked ->
+                        colors.thumbColor(enabled = enabled, checked = checked)
+                    },
+                    thumbIconColor = { enabled, checked ->
+                        colors.thumbIconColor(enabled = enabled, checked = checked)
+                    },
+                    trackColor = { enabled, checked ->
+                        colors.trackColor(enabled = enabled, checked = checked)
+                    },
+                    trackBorderColor = { enabled, checked ->
+                        colors.trackBorderColor(enabled = enabled, checked = checked)
+                    },
+                )
+            }
         }
     }
 }
