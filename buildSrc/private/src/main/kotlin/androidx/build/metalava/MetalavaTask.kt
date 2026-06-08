@@ -81,11 +81,13 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
      * validating its compatibility, but Gradle does offer the ability to check whether two sets of
      * classes have the same API.
      *
-     * So, we ask Gradle to rerun this task only if the public API changes, which we implement by
-     * declaring the compiled classes as inputs rather than the sources
+     * Ideally, we would ask Gradle to rerun this task only if the public API changes, by declaring
+     * the compiled classes as inputs rather than the sources. However, annotations with source
+     * retention do not appear in compiled classes but do change API file output, so sources are
+     * also currently declared as inputs.
      */
     /** Source files against which API signatures will be validated. */
-    @get:Internal // UP-TO-DATE checking is done based on the compiled classes
+    @get:[InputFiles PathSensitive(PathSensitivity.NONE)]
     var sourcePaths: FileCollection = project.files()
 
     /** Class files compiled from sourcePaths */
