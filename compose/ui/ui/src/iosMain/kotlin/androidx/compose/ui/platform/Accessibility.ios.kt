@@ -234,8 +234,7 @@ private sealed interface AccessibilityNode {
             get() = semanticsNode.contentDescription
 
         override val shouldMergeDescription: Boolean
-            get() = semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants &&
-                semanticsNode.canBeAccessibilityElement()
+            get() = semanticsNode.canBeAccessibilityElement()
 
         override val accessibilityIdentifier: String?
             get() = cachedConfig.getOrNull(SemanticsProperties.TestTag)

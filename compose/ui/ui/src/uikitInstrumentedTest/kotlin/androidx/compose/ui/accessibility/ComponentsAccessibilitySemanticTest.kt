@@ -1318,6 +1318,79 @@ class ComponentsAccessibilitySemanticTest {
     }
 
     @Test
+    fun testSemanticsMergingInsideFocusableNodes() = runUIKitInstrumentedTest {
+        setContent {
+            Column(modifier = Modifier.clickable {}) {
+                Text("Line 1")
+                Column(modifier = Modifier.focusable()) {
+                    Text("Line 2")
+                    Text("Line 3")
+                }
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = true
+                label = "Line 1"
+                traits(UIAccessibilityTraitButton)
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 1"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+            }
+            node {
+                isAccessibilityElement = true
+                label = "Line 2, Line 3"
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 2"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+                node {
+                    isAccessibilityElement = false
+                    label = "Line 3"
+                    traits(UIAccessibilityTraitStaticText)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testSemanticsWithoutMergingInsideFocusableNodes() = runUIKitInstrumentedTest {
+        setContent {
+            Column(
+                modifier = Modifier
+                    .testTag("ContentBox")
+                    .focusable()
+            ) {
+                Box {
+                    Text("Text 1")
+                }
+                Text("Text 2")
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = false
+                identifier = "ContentBox"
+            }
+            node {
+                isAccessibilityElement = true
+                label = "Text 1"
+                traits(UIAccessibilityTraitStaticText)
+            }
+            node {
+                isAccessibilityElement = true
+                label = "Text 2"
+                traits(UIAccessibilityTraitStaticText)
+            }
+        }
+    }
+
+    @Test
     fun testSemanticsMergingWithProgressIndicators() = runUIKitInstrumentedTest {
         setContent {
             Column(modifier = Modifier.semantics(mergeDescendants = true) {}) {

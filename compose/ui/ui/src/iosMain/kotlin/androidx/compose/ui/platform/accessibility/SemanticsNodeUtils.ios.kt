@@ -290,16 +290,20 @@ private fun LinkAnnotation.getTag(): String? =
     }
 
 internal fun SemanticsNode.canBeAccessibilityElement(): Boolean {
-    return !isHiddenFromAccessibility &&
-        (unmergedConfig.isMergingSemanticsOfDescendants || isUnmergedSpeakingNode)
-}
-
-internal val SemanticsNode.isUnmergedSpeakingNode: Boolean get() {
-    if (isFake) return false
-    if (!unmergedConfig.isSpeakingNode) return false
-    if (unmergedConfig.isActionableNode) return true
+    if (isHiddenFromAccessibility || isFake) return false
+    if (unmergedConfig.isMergingSemanticsOfDescendants) return true
 
     val hasReplacedChildren = replacedChildren.isNotEmpty()
+
+    if (unmergedConfig.isActionableNode) {
+        return if (unmergedConfig.isSpeakingNode) {
+            true
+        } else {
+            hasReplacedChildren && isInsideMergingContext
+        }
+    }
+
+    if (!unmergedConfig.isSpeakingNode) return false
 
     var currentNode = layoutNode.parent
     while (currentNode != null) {
@@ -312,13 +316,16 @@ internal val SemanticsNode.isUnmergedSpeakingNode: Boolean get() {
         if (currentNode.semanticsConfiguration?.getOrNull(SemanticsProperties.IsTraversalGroup) == true) {
             return true
         }
+        if (currentNode.semanticsConfiguration?.isActionableNode == true) {
+            return !SemanticsNode(currentNode, mergingEnabled = false).canBeAccessibilityElement()
+        }
         currentNode = currentNode.parent
     }
 
     return replacedChildren.isEmpty()
 }
 
-internal val SemanticsConfiguration.isActionableNode: Boolean
+private val SemanticsConfiguration.isActionableNode: Boolean
     get() = (contains(SemanticsActions.RequestFocus) ||
         contains(SemanticsActions.OnClick) ||
         contains(SemanticsActions.OnLongClick) ||
@@ -335,7 +342,7 @@ internal val SemanticsConfiguration.isActionableNode: Boolean
         contains(SemanticsActions.Dismiss) ||
         contains(SemanticsActions.CustomActions))
 
-internal val SemanticsConfiguration.isSpeakingNode: Boolean get() {
+private val SemanticsConfiguration.isSpeakingNode: Boolean get() {
     return contains(SemanticsProperties.ContentDescription) ||
         contains(SemanticsProperties.EditableText) ||
         contains(SemanticsProperties.Text) ||
@@ -343,6 +350,20 @@ internal val SemanticsConfiguration.isSpeakingNode: Boolean get() {
         contains(SemanticsProperties.ToggleableState) ||
         contains(SemanticsProperties.Selected) ||
         contains(SemanticsProperties.ProgressBarRangeInfo)
+}
+
+private val SemanticsNode.isInsideMergingContext: Boolean get() {
+    var currentNode = parent
+    while (currentNode != null) {
+        if (currentNode.unmergedConfig.isMergingSemanticsOfDescendants) {
+            return true
+        }
+        if (currentNode.unmergedConfig.getOrNull(SemanticsProperties.IsTraversalGroup) == true) {
+            return false
+        }
+        currentNode = currentNode.parent
+    }
+    return false
 }
 
 @Suppress("DEPRECATION")
