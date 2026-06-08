@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
@@ -105,22 +106,25 @@ public fun IconToggleButton(
             interactionSource = interactionSource,
         )
 
-    androidx.wear.compose.materialcore.ToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier.minimumInteractiveComponentSize(),
-        enabled = enabled,
-        backgroundColor = { isEnabled, isChecked ->
-            colors.containerColor(enabled = isEnabled, checked = isChecked)
-        },
-        border = { _, _ -> border },
-        toggleButtonSize = IconToggleButtonDefaults.Size,
-        interactionSource = finalInteractionSource,
-        shape = finalShape,
-        ripple = ripple(),
-        content =
-            provideScopeContent(colors.contentColor(enabled = enabled, checked = checked), content),
-    )
+    val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
+
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        androidx.wear.compose.materialcore.ToggleButton(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = modifier.minimumInteractiveComponentSize(),
+            enabled = enabled,
+            backgroundColor = { isEnabled, isChecked ->
+                colors.containerColor(enabled = isEnabled, checked = isChecked)
+            },
+            border = { _, _ -> border },
+            toggleButtonSize = IconToggleButtonDefaults.Size,
+            interactionSource = finalInteractionSource,
+            shape = finalShape,
+            ripple = ripple(),
+            content = content,
+        )
+    }
 }
 
 /** Contains the default values used by [IconToggleButton]. */

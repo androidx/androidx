@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
@@ -150,79 +151,83 @@ public fun RadioButton(
             }
         }
 
+    val contentColor = colors.contentColor(enabled = enabled, selected = selected).value
+
     // Stadium/Pill shaped toggle button
-    Row(
-        modifier =
-            modifier
-                .defaultMinSize(minHeight = MIN_HEIGHT)
-                .width(IntrinsicSize.Max)
-                .surface(painter = colorPainter, shape = shape, transformation = transformation)
-                .selectable(
-                    enabled = enabled,
-                    selected = selected,
-                    onClick = {
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
-                        onSelect()
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        Row(
+            modifier =
+                modifier
+                    .defaultMinSize(minHeight = MIN_HEIGHT)
+                    .width(IntrinsicSize.Max)
+                    .surface(painter = colorPainter, shape = shape, transformation = transformation)
+                    .selectable(
+                        enabled = enabled,
+                        selected = selected,
+                        onClick = {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            onSelect()
+                        },
+                        indication = ripple(),
+                        interactionSource = interactionSource,
+                    )
+                    .padding(contentPadding)
+                    .semantics {
+                        // For a selectable button, the role is always RadioButton.
+                        // See also b/330869742 for issue with setting the SelectableButton role
+                        // within the selection control.
+                        role = Role.RadioButton
                     },
-                    indication = ripple(),
-                    interactionSource = interactionSource,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (icon != null) {
+                Box(
+                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                    content =
+                        provideScopeContent(
+                            color = colors.iconColor(enabled = enabled, selected = selected),
+                            content = icon,
+                        ),
                 )
-                .padding(contentPadding)
-                .semantics {
-                    // For a selectable button, the role is always RadioButton.
-                    // See also b/330869742 for issue with setting the SelectableButton role
-                    // within the selection control.
-                    role = Role.RadioButton
-                },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (icon != null) {
-            Box(
-                modifier = Modifier.wrapContentSize(align = Alignment.Center),
-                content =
+                Spacer(modifier = Modifier.size(ICON_SPACING))
+            }
+            Labels(
+                label =
                     provideScopeContent(
-                        color = colors.iconColor(enabled = enabled, selected = selected),
-                        content = icon,
+                        contentColor = colors.contentColor(enabled = enabled, selected = selected),
+                        textStyle = RadioButtonTokens.LabelFont.value,
+                        textConfiguration =
+                            TextConfiguration(
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 3,
+                                textAlign = TextAlign.Start,
+                            ),
+                        content = label,
+                    ),
+                secondaryLabel =
+                    provideNullableScopeContent(
+                        contentColor =
+                            colors.secondaryContentColor(enabled = enabled, selected = selected),
+                        textStyle = RadioButtonTokens.SecondaryLabelFont.value,
+                        textConfiguration =
+                            TextConfiguration(
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 2,
+                                textAlign = TextAlign.Start,
+                            ),
+                        content = secondaryLabel,
                     ),
             )
-            Spacer(modifier = Modifier.size(ICON_SPACING))
-        }
-        Labels(
-            label =
-                provideScopeContent(
-                    contentColor = colors.contentColor(enabled = enabled, selected = selected),
-                    textStyle = RadioButtonTokens.LabelFont.value,
-                    textConfiguration =
-                        TextConfiguration(
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 3,
-                            textAlign = TextAlign.Start,
-                        ),
-                    content = label,
-                ),
-            secondaryLabel =
-                provideNullableScopeContent(
-                    contentColor =
-                        colors.secondaryContentColor(enabled = enabled, selected = selected),
-                    textStyle = RadioButtonTokens.SecondaryLabelFont.value,
-                    textConfiguration =
-                        TextConfiguration(
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 2,
-                            textAlign = TextAlign.Start,
-                        ),
-                    content = secondaryLabel,
-                ),
-        )
-        Spacer(modifier = Modifier.size(SELECTION_CONTROL_SPACING))
-        Box(
-            modifier =
-                Modifier.align(Alignment.CenterVertically)
-                    .size(width = SELECTION_CONTROL_WIDTH, height = SELECTION_CONTROL_HEIGHT)
-                    .wrapContentWidth(align = Alignment.End)
-        ) {
-            RadioControl(selected = selected, enabled = enabled) { enabled, selected ->
-                colors.controlColor(enabled = enabled, selected = selected)
+            Spacer(modifier = Modifier.size(SELECTION_CONTROL_SPACING))
+            Box(
+                modifier =
+                    Modifier.align(Alignment.CenterVertically)
+                        .size(width = SELECTION_CONTROL_WIDTH, height = SELECTION_CONTROL_HEIGHT)
+                        .wrapContentWidth(align = Alignment.End)
+            ) {
+                RadioControl(selected = selected, enabled = enabled) { enabled, selected ->
+                    colors.controlColor(enabled = enabled, selected = selected)
+                }
             }
         }
     }
@@ -306,115 +311,124 @@ public fun SplitRadioButton(
     label: @Composable RowScope.() -> Unit,
 ) {
     val containerColorState = colors.containerColor(enabled, selected)
+    val contentColor = colors.contentColor(enabled = enabled, selected = selected).value
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier =
-            modifier
-                .defaultMinSize(minHeight = MIN_HEIGHT)
-                .height(IntrinsicSize.Min)
-                .width(IntrinsicSize.Max)
-                .graphicsLayer {
-                    this.shape = shape
-                    clip = true
-                    val transformation = transformation ?: return@graphicsLayer
-                    with(transformation) { applyContainerTransformation() }
-                },
-    ) {
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
-            modifier =
-                Modifier.clickable(
-                        enabled = enabled,
-                        onClick = onContainerClick,
-                        indication = ripple(),
-                        interactionSource = containerInteractionSource,
-                        onClickLabel = containerClickLabel,
-                    )
-                    .semantics { role = Role.Button }
-                    .fillMaxHeight()
-                    .clip(SPLIT_SECTIONS_SHAPE)
-                    .drawBehind { drawRect(containerColorState.value) }
-                    .padding(contentPadding)
-                    .weight(1.0f),
             verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Labels(
-                label =
-                    provideScopeContent(
-                        contentColor = colors.contentColor(enabled = enabled, selected = selected),
-                        textStyle = SplitRadioButtonTokens.LabelFont.value,
-                        textConfiguration =
-                            TextConfiguration(
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 3,
-                                textAlign = TextAlign.Start,
-                            ),
-                        content = label,
-                    ),
-                secondaryLabel =
-                    provideNullableScopeContent(
-                        contentColor =
-                            colors.secondaryContentColor(enabled = enabled, selected = selected),
-                        textStyle = SplitRadioButtonTokens.SecondaryLabelFont.value,
-                        textConfiguration =
-                            TextConfiguration(
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 2,
-                                textAlign = TextAlign.Start,
-                            ),
-                        content = secondaryLabel,
-                    ),
-            )
-        }
-
-        Spacer(modifier = Modifier.size(2.dp))
-
-        val splitBackgroundOverlayState = colors.splitContainerColor(enabled, selected)
-        val hapticFeedback = LocalHapticFeedback.current
-
-        Box(
-            contentAlignment = Alignment.Center,
             modifier =
-                Modifier.selectable(
-                        enabled = enabled,
-                        selected = selected,
-                        onClick = {
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
-                            onSelectionClick()
-                        },
-                        indication = ripple(),
-                        interactionSource = selectionInteractionSource,
-                    )
-                    .fillMaxHeight()
-                    .clip(SPLIT_SECTIONS_SHAPE)
-                    .drawBehind {
-                        drawRect(
-                            splitBackgroundOverlayState.value.compositeOver(
-                                if (enabled) containerColorState.value else Color.Black
-                            )
-                        )
-                    }
-                    .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(contentPadding)
-                    .semantics {
-                        // For a selectable button, the role is always RadioButton.
-                        // See also b/330869742 for issue with setting the SelectableButton role
-                        // within the selection control.
-                        role = Role.RadioButton
+                modifier
+                    .defaultMinSize(minHeight = MIN_HEIGHT)
+                    .height(IntrinsicSize.Min)
+                    .width(IntrinsicSize.Max)
+                    .graphicsLayer {
+                        this.shape = shape
+                        clip = true
+                        val transformation = transformation ?: return@graphicsLayer
+                        with(transformation) { applyContainerTransformation() }
                     },
         ) {
-            RadioControl(
-                selected = selected,
-                enabled = enabled,
+            Row(
                 modifier =
-                    if (selectionContentDescription == null) {
-                        Modifier
-                    } else {
-                        Modifier.semantics { contentDescription = selectionContentDescription }
-                    },
-            ) { enabled, selected ->
-                colors.controlColor(enabled = enabled, selected = selected)
+                    Modifier.clickable(
+                            enabled = enabled,
+                            onClick = onContainerClick,
+                            indication = ripple(),
+                            interactionSource = containerInteractionSource,
+                            onClickLabel = containerClickLabel,
+                        )
+                        .semantics { role = Role.Button }
+                        .fillMaxHeight()
+                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .drawBehind { drawRect(containerColorState.value) }
+                        .padding(contentPadding)
+                        .weight(1.0f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Labels(
+                    label =
+                        provideScopeContent(
+                            contentColor =
+                                colors.contentColor(enabled = enabled, selected = selected),
+                            textStyle = SplitRadioButtonTokens.LabelFont.value,
+                            textConfiguration =
+                                TextConfiguration(
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 3,
+                                    textAlign = TextAlign.Start,
+                                ),
+                            content = label,
+                        ),
+                    secondaryLabel =
+                        provideNullableScopeContent(
+                            contentColor =
+                                colors.secondaryContentColor(
+                                    enabled = enabled,
+                                    selected = selected,
+                                ),
+                            textStyle = SplitRadioButtonTokens.SecondaryLabelFont.value,
+                            textConfiguration =
+                                TextConfiguration(
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 2,
+                                    textAlign = TextAlign.Start,
+                                ),
+                            content = secondaryLabel,
+                        ),
+                )
+            }
+
+            Spacer(modifier = Modifier.size(2.dp))
+
+            val splitBackgroundOverlayState = colors.splitContainerColor(enabled, selected)
+            val hapticFeedback = LocalHapticFeedback.current
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
+                    Modifier.selectable(
+                            enabled = enabled,
+                            selected = selected,
+                            onClick = {
+                                hapticFeedback.performHapticFeedback(
+                                    HapticFeedbackType.ContextClick
+                                )
+                                onSelectionClick()
+                            },
+                            indication = ripple(),
+                            interactionSource = selectionInteractionSource,
+                        )
+                        .fillMaxHeight()
+                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .drawBehind {
+                            drawRect(
+                                splitBackgroundOverlayState.value.compositeOver(
+                                    if (enabled) containerColorState.value else Color.Black
+                                )
+                            )
+                        }
+                        .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
+                        .wrapContentHeight(align = Alignment.CenterVertically)
+                        .padding(contentPadding)
+                        .semantics {
+                            // For a selectable button, the role is always RadioButton.
+                            // See also b/330869742 for issue with setting the SelectableButton role
+                            // within the selection control.
+                            role = Role.RadioButton
+                        },
+            ) {
+                RadioControl(
+                    selected = selected,
+                    enabled = enabled,
+                    modifier =
+                        if (selectionContentDescription == null) {
+                            Modifier
+                        } else {
+                            Modifier.semantics { contentDescription = selectionContentDescription }
+                        },
+                ) { enabled, selected ->
+                    colors.controlColor(enabled = enabled, selected = selected)
+                }
             }
         }
     }

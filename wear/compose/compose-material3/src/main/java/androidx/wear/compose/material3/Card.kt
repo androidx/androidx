@@ -1024,35 +1024,40 @@ internal fun CardImpl(
     transformation: SurfaceTransformation?,
     content: @Composable ColumnScope.() -> Unit,
 ) =
-    Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .surface(
-                    transformation = transformation,
-                    painter = containerPainter ?: ColorPainter(colors.containerColor),
-                    shape = shape,
-                    border = border,
-                )
-                .then(
-                    if (onClick != null)
-                        Modifier.combinedClickable(
-                            enabled = enabled,
-                            onClick = onClick,
-                            onLongClick =
-                                onLongClick, // NB combinedClickable calls LongPress haptic
-                            onLongClickLabel = onLongClickLabel,
-                            role = null,
-                            indication = ripple(),
-                            interactionSource = interactionSource,
-                        )
-                    else
-                        Modifier.focusable(enabled = true, interactionSource = interactionSource)
-                            .semantics(mergeDescendants = true) {}
-                )
-                .padding(contentPadding),
-        content = content,
-    )
+    CompositionLocalProvider(LocalContentColor provides colors.contentColor) {
+        Column(
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .surface(
+                        transformation = transformation,
+                        painter = containerPainter ?: ColorPainter(colors.containerColor),
+                        shape = shape,
+                        border = border,
+                    )
+                    .then(
+                        if (onClick != null)
+                            Modifier.combinedClickable(
+                                enabled = enabled,
+                                onClick = onClick,
+                                onLongClick =
+                                    onLongClick, // NB combinedClickable calls LongPress haptic
+                                onLongClickLabel = onLongClickLabel,
+                                role = null,
+                                indication = ripple(),
+                                interactionSource = interactionSource,
+                            )
+                        else
+                            Modifier.focusable(
+                                    enabled = true,
+                                    interactionSource = interactionSource,
+                                )
+                                .semantics(mergeDescendants = true) {}
+                    )
+                    .padding(contentPadding),
+            content = content,
+        )
+    }
 
 @Composable
 internal fun CardImpl(

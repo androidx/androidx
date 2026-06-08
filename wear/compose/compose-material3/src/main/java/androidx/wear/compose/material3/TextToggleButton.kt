@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
@@ -109,26 +110,29 @@ public fun TextToggleButton(
             interactionSource = interactionSource,
         )
 
-    ToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier.minimumInteractiveComponentSize(),
-        enabled = enabled,
-        backgroundColor = { isEnabled, isChecked ->
-            colors.containerColor(enabled = isEnabled, checked = isChecked)
-        },
-        border = { _, _ -> border },
-        toggleButtonSize = TextToggleButtonDefaults.Size,
-        interactionSource = finalInteractionSource,
-        shape = finalShape,
-        ripple = ripple(),
-        content =
-            provideScopeContent(
-                colors.contentColor(enabled = enabled, checked = checked),
-                TextToggleButtonTokens.ContentDefaultFont.value,
-                content,
-            ),
-    )
+    val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
+    val textStyle = TextToggleButtonTokens.ContentDefaultFont.value
+
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides textStyle,
+    ) {
+        ToggleButton(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = modifier.minimumInteractiveComponentSize(),
+            enabled = enabled,
+            backgroundColor = { isEnabled, isChecked ->
+                colors.containerColor(enabled = isEnabled, checked = isChecked)
+            },
+            border = { _, _ -> border },
+            toggleButtonSize = TextToggleButtonDefaults.Size,
+            interactionSource = finalInteractionSource,
+            shape = finalShape,
+            ripple = ripple(),
+            content = content,
+        )
+    }
 }
 
 /** Contains the default values used by [TextToggleButton]. */
