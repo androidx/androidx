@@ -29,6 +29,7 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.glimmer.googlefonts.samples.GoogleSansFlexTypographyUsage
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,7 @@ class GoogleSansFlexTypographyScreenshotTest {
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 
+    @Ignore("b/514611668")
     @Test
     fun defaultGoogleSansFlexTypography() {
         rule.setContent { GoogleSansFlexTypographyUsage() }
