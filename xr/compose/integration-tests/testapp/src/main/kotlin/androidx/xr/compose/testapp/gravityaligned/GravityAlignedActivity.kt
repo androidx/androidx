@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -55,7 +56,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.gravityAligned
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.rotate
-import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.layout.width as spatialWidth
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.runtime.math.Quaternion
@@ -70,16 +71,14 @@ class GravityAlignedActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             IntegrationTestsAppTheme {
-                Subspace(
-                    modifier = SubspaceModifier.width(1600.dp).height(2200.dp).testTag("Subspace")
-                ) {
+                Subspace(modifier = SubspaceModifier.testTag("Subspace")) {
                     // Main layout: a Row containing two Columns
                     SpatialRow(
                         modifier = SubspaceModifier.testTag("TestBedRoot"),
                         horizontalArrangement = SpatialArrangement.spacedBy(24.dp),
                     ) {
                         // Left Column (Cases 1 & 2)
-                        SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(50.dp)) {
+                        SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(24.dp)) {
                             // Case 1: No nested rotation, no chained rotate modifiers
                             TestCaseRow(
                                 title = "Case 1:\nLevel Row + Panel in Single Rotate Box",
@@ -98,7 +97,7 @@ class GravityAlignedActivity : ComponentActivity() {
                         }
 
                         // Right Column (Cases 3, 4, & 5)
-                        SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(50.dp)) {
+                        SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(24.dp)) {
                             // Case 3: Nested rotation, no chained rotate modifiers
                             TestCaseRow(
                                 title = "Case 3:\nTilted Row + Panel Single Rotate Box",
@@ -144,19 +143,19 @@ private fun TestCaseRow(
     content: @Composable @SubspaceComposable () -> Unit,
 ) {
     SpatialRow(
-        modifier = SubspaceModifier.width(800.dp).height(300.dp),
-        horizontalArrangement = SpatialArrangement.spacedBy(24.dp),
+        modifier = SubspaceModifier.spatialWidth(420.dp).height(180.dp),
+        horizontalArrangement = SpatialArrangement.spacedBy(16.dp),
     ) {
         // Title Panel, always level.
-        SpatialPanel(modifier = SubspaceModifier.width(300.dp)) {
+        SpatialPanel(modifier = SubspaceModifier.spatialWidth(130.dp)) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Color(0xFF222233)).padding(16.dp),
+                modifier = Modifier.fillMaxSize().background(Color(0xFF222233)).padding(8.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = title,
                     color = Color.White,
-                    fontSize = 22.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start,
                 )
@@ -165,8 +164,8 @@ private fun TestCaseRow(
 
         // Test target, this is the row that gets rotated.
         SpatialRow(
-            modifier = SubspaceModifier.width(426.dp).height(400.dp).rotate(rowRotation),
-            horizontalArrangement = SpatialArrangement.spacedBy(24.dp),
+            modifier = SubspaceModifier.spatialWidth(274.dp).height(180.dp).rotate(rowRotation),
+            horizontalArrangement = SpatialArrangement.spacedBy(16.dp),
         ) {
             content()
         }
@@ -193,27 +192,27 @@ private fun GravityTestControls(
         modifier =
             Modifier.fillMaxSize()
                 .background(Color(0xFF333333)) // Dark background
-                .padding(16.dp),
+                .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(1.dp),
     ) {
         // Title and Toggle Row
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             if (title != null) {
-                Text(title, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                Text(title, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             }
             Row( // Inner row to keep toggle and text together
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
                     "gravityAligned()",
                     color = if (isGravityAligned) Color.Cyan else Color.White,
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                 )
                 Switch(checked = isGravityAligned, onCheckedChange = onGravityAlignedChange)
             }
@@ -221,29 +220,44 @@ private fun GravityTestControls(
 
         // Sliders for parent rotation
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text("Parent Pitch: ${pitch.toInt()}°", color = Color.White, fontSize = 16.sp)
+            Text(
+                "Parent Pitch: ${pitch.toInt()}°",
+                modifier = Modifier.width(110.dp),
+                color = Color.White,
+                fontSize = 14.sp,
+            )
             Slider(value = pitch, onValueChange = onPitchChange, valueRange = -90f..90f)
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text("Parent Roll: ${roll.toInt()}°", color = Color.White, fontSize = 16.sp)
+            Text(
+                "Parent Roll: ${roll.toInt()}°",
+                modifier = Modifier.width(110.dp),
+                color = Color.White,
+                fontSize = 14.sp,
+            )
             Slider(value = roll, onValueChange = onRollChange, valueRange = -90f..90f)
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text("Parent Yaw: ${yaw.toInt()}°", color = Color.White, fontSize = 16.sp)
+            Text(
+                "Parent Yaw: ${yaw.toInt()}°",
+                modifier = Modifier.width(110.dp),
+                color = Color.White,
+                fontSize = 14.sp,
+            )
             Slider(value = yaw, onValueChange = onYawChange, valueRange = -180f..180f)
         }
     }
@@ -267,8 +281,8 @@ private fun GravityAlignedTestPanel(modifier: SubspaceModifier = SubspaceModifie
     }
     SpatialBox(
         modifier =
-            SubspaceModifier.width(450.dp)
-                .height(400.dp)
+            SubspaceModifier.spatialWidth(274.dp)
+                .height(180.dp)
                 .rotate(parentRotation)
                 .testTag("SingleRotateBox")
     ) {
@@ -309,8 +323,8 @@ private fun GravityAlignedDoubleRotateTestPanel(modifier: SubspaceModifier = Sub
 
     SpatialBox(
         modifier =
-            SubspaceModifier.width(426.dp)
-                .height(400.dp)
+            SubspaceModifier.spatialWidth(274.dp)
+                .height(180.dp)
                 .rotate(innerRotation)
                 .rotate(outerRotation)
                 .testTag("DoubleRotateBox")
@@ -357,8 +371,8 @@ private fun CaseChainedGravityTestPanel(modifier: SubspaceModifier = SubspaceMod
         }
     SpatialBox(
         modifier =
-            SubspaceModifier.width(426.dp)
-                .height(400.dp)
+            SubspaceModifier.spatialWidth(274.dp)
+                .height(180.dp)
                 .rotate(parentBoxRotation) // Add the extra layer of parent rotation
                 .testTag("ChainedTestBox")
     ) {
