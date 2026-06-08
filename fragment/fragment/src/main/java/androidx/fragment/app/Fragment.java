@@ -50,6 +50,9 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
 
+import androidx.activity.contextaware.ContextAware;
+import androidx.activity.contextaware.ContextAwareHelper;
+import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
@@ -125,7 +128,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
         ViewModelStoreOwner, HasDefaultViewModelProviderFactory, SavedStateRegistryOwner,
-        ActivityResultCaller {
+        ActivityResultCaller, ContextAware {
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
@@ -300,6 +303,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     LifecycleRegistry mLifecycleRegistry;
 
+    final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper();
+
     // This is initialized in performCreateView and unavailable outside of the
     // onCreateView/onDestroyView lifecycle
     @Nullable FragmentViewLifecycleOwner mViewLifecycleOwner;
@@ -331,6 +336,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
                     : null;
             mSavedStateRegistryController.performRestore(savedStateRegistryState);
+        }
+    };
+
+    private final OnPreAttachedListener mContextAwareAttachListener = new OnPreAttachedListener() {
+        @Override
+        void onPreAttached() {
+            mContextAwareHelper.dispatchOnContextAvailable(mHost.getContext());
         }
     };
 
@@ -623,6 +635,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mDefaultFactory = null;
         if (!mOnPreAttachedListeners.contains(mSavedStateAttachListener)) {
             registerOnPreAttachListener(mSavedStateAttachListener);
+        }
+        if (!mOnPreAttachedListeners.contains(mContextAwareAttachListener)) {
+            registerOnPreAttachListener(mContextAwareAttachListener);
         }
     }
 
@@ -3606,6 +3621,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @NonNull String generateActivityResultKey() {
         return "fragment_" + mWho + "_rq#" + mNextLocalRequestCode.getAndIncrement();
+    }
+
+    @Nullable
+    @Override
+    public Context peekAvailableContext() {
+        return mContextAwareHelper.peekAvailableContext();
+    }
+
+    @Override
+    public void addOnContextAvailableListener(@NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.addOnContextAvailableListener(listener);
+    }
+
+    @Override
+    public void removeOnContextAvailableListener(@NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.removeOnContextAvailableListener(listener);
     }
 
     /**
