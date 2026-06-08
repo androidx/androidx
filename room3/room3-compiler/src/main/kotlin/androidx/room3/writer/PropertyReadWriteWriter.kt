@@ -160,24 +160,50 @@ class PropertyReadWriteWriter(propertyWithIndex: PropertyWithIndex) {
                 }
                 return
             }
-            val variableNames =
+            val paramValues =
                 constructor.params.map { param ->
-                    when (param) {
-                        is Constructor.Param.PropertyParam ->
-                            localVariableNames.entries
-                                .firstOrNull { it.value.property === param.property }
-                                ?.key
-                        is Constructor.Param.EmbeddedParam ->
-                            localEmbeddeds
-                                .firstOrNull { it.propertyParent == param.embedded }
-                                ?.varName
-                        is Constructor.Param.RelationParam ->
-                            localRelations.entries
-                                .firstOrNull { it.value === param.relation.property }
-                                ?.key
-                    }
+                    val valueVarName =
+                        when (param) {
+                            is Constructor.Param.PropertyParam ->
+                                localVariableNames.entries
+                                    .firstOrNull { it.value.property === param.property }
+                                    ?.key
+                            is Constructor.Param.EmbeddedParam ->
+                                localEmbeddeds
+                                    .firstOrNull { it.propertyParent == param.embedded }
+                                    ?.varName
+                            is Constructor.Param.RelationParam ->
+                                localRelations.entries
+                                    .firstOrNull { it.value === param.relation.property }
+                                    ?.key
+                            is Constructor.Param.UnmatchedDefaultValueParam -> null
+                        }
+                    param to valueVarName
                 }
-            val args = variableNames.joinToString(",") { it ?: "null" }
+
+            val emitNamedArguments =
+                paramValues.any { (param, valueVarName) ->
+                    valueVarName == null && param.hasDefaultValue
+                }
+            val args =
+                if (emitNamedArguments) {
+                    check(scope.language == CodeLanguage.KOTLIN) {
+                        "Cannot emit named constructor arguments when generating Java code."
+                    }
+                    paramValues
+                        .mapNotNull { (param, valueVarName) ->
+                            if (valueVarName != null) {
+                                "${param.name} = $valueVarName"
+                            } else if (param.hasDefaultValue) {
+                                null
+                            } else {
+                                "${param.name} = null"
+                            }
+                        }
+                        .joinToString(",")
+                } else {
+                    paramValues.joinToString(",") { it.second ?: "null" }
+                }
             constructor.writeConstructor(outVar, args, scope.builder)
         }
 

@@ -387,7 +387,7 @@ object ProcessorErrors {
         """
             .trim()
 
-    fun dataClassMissingNonNull(
+    fun dataClassMissingRequiredColumns(
         dataClassTypeName: String,
         missingDataClassProperties: List<String>,
         allQueryColumns: List<String>,
@@ -395,7 +395,7 @@ object ProcessorErrors {
         """
         The columns returned by the query does not have the properties
         [${missingDataClassProperties.joinToString()}] in $dataClassTypeName even
-        though they are annotated as non-null or primitive.
+        though they are non-null, primitive or have no default value.
         Columns returned by the query: [${allQueryColumns.joinToString()}]
         """
             .trim()

@@ -302,6 +302,7 @@ private constructor(
                         constructor.parameters.mapIndexed param@{ index, param ->
                             val paramName = parameterNames[index]
                             val paramType = param.type
+                            val hasDefaultValue = param.hasDefaultValue
 
                             val matches =
                                 fun(property: Property?): Boolean {
@@ -317,15 +318,27 @@ private constructor(
 
                             val exactPropertyMatch = propertyMap[paramName]
                             if (matches(exactPropertyMatch)) {
-                                return@param Constructor.Param.PropertyParam(exactPropertyMatch!!)
+                                return@param Constructor.Param.PropertyParam(
+                                    paramName,
+                                    hasDefaultValue,
+                                    exactPropertyMatch!!,
+                                )
                             }
                             val exactEmbeddedMatch = embeddedMap[paramName]
                             if (matches(exactEmbeddedMatch?.property)) {
-                                return@param Constructor.Param.EmbeddedParam(exactEmbeddedMatch!!)
+                                return@param Constructor.Param.EmbeddedParam(
+                                    paramName,
+                                    hasDefaultValue,
+                                    exactEmbeddedMatch!!,
+                                )
                             }
                             val exactRelationMatch = relationMap[paramName]
                             if (matches(exactRelationMatch?.property)) {
-                                return@param Constructor.Param.RelationParam(exactRelationMatch!!)
+                                return@param Constructor.Param.RelationParam(
+                                    paramName,
+                                    hasDefaultValue,
+                                    exactRelationMatch!!,
+                                )
                             }
 
                             val matchingProperties = myProperties.filter { matches(it) }
@@ -336,17 +349,34 @@ private constructor(
                                     embeddedMatches.size +
                                     relationMatches.size
                             ) {
-                                0 -> null
+                                0 ->
+                                    if (hasDefaultValue) {
+                                        Constructor.Param.UnmatchedDefaultValueParam(paramName)
+                                    } else {
+                                        null
+                                    }
                                 1 ->
                                     when {
                                         matchingProperties.isNotEmpty() ->
                                             Constructor.Param.PropertyParam(
-                                                matchingProperties.first()
+                                                paramName,
+                                                hasDefaultValue,
+                                                matchingProperties.first(),
                                             )
-                                        embeddedMatches.isNotEmpty() ->
-                                            Constructor.Param.EmbeddedParam(embeddedMatches.first())
-                                        else ->
-                                            Constructor.Param.RelationParam(relationMatches.first())
+                                        embeddedMatches.isNotEmpty() -> {
+                                            Constructor.Param.EmbeddedParam(
+                                                paramName,
+                                                hasDefaultValue,
+                                                embeddedMatches.first(),
+                                            )
+                                        }
+                                        else -> {
+                                            Constructor.Param.RelationParam(
+                                                paramName,
+                                                hasDefaultValue,
+                                                relationMatches.first(),
+                                            )
+                                        }
                                     }
                                 else -> {
                                     context.logger.e(

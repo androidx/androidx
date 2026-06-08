@@ -23,6 +23,7 @@ import androidx.room3.processor.ProcessorErrors
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.verifier.QueryResultInfo
 import androidx.room3.vo.ColumnIndexVar
+import androidx.room3.vo.Constructor
 import androidx.room3.vo.DataClass
 import androidx.room3.vo.Property
 import androidx.room3.vo.PropertyWithIndex
@@ -65,10 +66,19 @@ class DataClassRowAdapter(
                         property
                     }
                 }
+            val notRequired =
+                remainingProperties.filter { property ->
+                    dataClass.constructor
+                        ?.params
+                        ?.filterIsInstance<Constructor.Param.PropertyParam>()
+                        ?.firstOrNull { it.property == property }
+                        ?.hasDefaultValue == true
+                }
+            remainingProperties.removeAll(notRequired)
             val nonNulls = remainingProperties.filter { it.nonNull }
             if (nonNulls.isNotEmpty()) {
                 context.logger.e(
-                    ProcessorErrors.dataClassMissingNonNull(
+                    ProcessorErrors.dataClassMissingRequiredColumns(
                         dataClassTypeName = dataClass.typeName.toString(context.codeLanguage),
                         missingDataClassProperties = nonNulls.map { it.name },
                         allQueryColumns = info.columns.map { it.name },

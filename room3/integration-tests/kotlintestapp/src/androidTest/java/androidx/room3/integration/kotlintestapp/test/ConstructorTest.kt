@@ -20,6 +20,7 @@ import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Embedded
 import androidx.room3.Entity
+import androidx.room3.Ignore
 import androidx.room3.Insert
 import androidx.room3.PrimaryKey
 import androidx.room3.Query
@@ -38,7 +39,13 @@ import org.junit.runner.RunWith
 class ConstructorTest {
     @Database(
         version = 1,
-        entities = [FullConstructor::class, PartialConstructor::class],
+        entities =
+            [
+                FullConstructor::class,
+                PartialConstructor::class,
+                DefaultValueConstructor::class,
+                IgnoredDefaultValueConstructor::class,
+            ],
         exportSchema = false,
     )
     abstract class MyDb : RoomDatabase() {
@@ -54,6 +61,16 @@ class ConstructorTest {
         @Insert fun insertPartial(vararg partial: PartialConstructor)
 
         @Query("SELECT * FROM pc WHERE a = :a") fun loadPartial(a: Int): PartialConstructor
+
+        @Insert fun insertDefaultValue(vararg dvc: DefaultValueConstructor)
+
+        @Query("SELECT a FROM dvc WHERE a = :a")
+        fun loadDefaultValue(a: Int): DefaultValueConstructor
+
+        @Insert fun insertIgnoredDefaultValue(vararg idvc: IgnoredDefaultValueConstructor)
+
+        @Query("SELECT a FROM idvc WHERE a = :a")
+        fun loadIgnoredDefaultValue(a: Int): IgnoredDefaultValueConstructor
     }
 
     @Entity(tableName = "fc")
@@ -68,6 +85,12 @@ class ConstructorTest {
         var b: Int = 0
         @Embedded var embedded: MyEmbedded? = null
     }
+
+    @Entity(tableName = "dvc")
+    data class DefaultValueConstructor(@PrimaryKey val a: Int, val b: Int = 10)
+
+    @Entity(tableName = "idvc")
+    data class IgnoredDefaultValueConstructor(@PrimaryKey val a: Int, @Ignore val b: String? = null)
 
     data class MyEmbedded(val text: String?)
 
@@ -99,5 +122,23 @@ class ConstructorTest {
         dao.insertPartial(item)
         val load = dao.loadPartial(3)
         assertThat(load).isEqualTo(item)
+    }
+
+    @Test
+    fun readWithDefaultValue() {
+        val inserted = DefaultValueConstructor(1, 2)
+        dao.insertDefaultValue(inserted)
+        // Query only 'a', so 'b' should use default value 10
+        val load = dao.loadDefaultValue(1)
+        assertThat(load).isEqualTo(DefaultValueConstructor(1, 10))
+    }
+
+    @Test
+    fun readWithIgnoredDefaultValue() {
+        val inserted = IgnoredDefaultValueConstructor(1, "notNull")
+        dao.insertIgnoredDefaultValue(inserted)
+        // Query only 'a', so 'b' should be null (ignored and default null)
+        val load = dao.loadIgnoredDefaultValue(1)
+        assertThat(load).isEqualTo(IgnoredDefaultValueConstructor(1, null))
     }
 }
