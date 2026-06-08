@@ -397,8 +397,8 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
             topLeft = animatedTopLeft ?: currentBounds.topLeft
         }
 
-        val (x, y) = positionInScope.let { topLeft - it }
-        placeable.place(x.fastRoundToInt(), y.fastRoundToInt())
+        val localOffset = coordinates.localPositionOf(rootCoords, topLeft)
+        placeable.place(localOffset.x.fastRoundToInt(), localOffset.y.fastRoundToInt())
     }
 
     private fun MeasureScope.approachPlace(placeable: Placeable): MeasureResult {
