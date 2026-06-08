@@ -37,7 +37,6 @@ Calculating task graph as no cached configuration is available for tasks.*
 Calculating task graph as configuration cache cannot be reused because the file system entry.*
 Calculating task graph as configuration cache cannot be reused because directory.*
 Calculating task graph as configuration cache cannot be reused because an input to plugin class.*
-Calculating task graph as configuration cache cannot be reused because Gradle property.*
 Calculating task graph as configuration cache cannot be reused because an input to unknown location has changed.*
 Calculating task graph as configuration cache cannot be reused because the set of Gradle properties prefixed by 'androidx.' has changed.*
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
