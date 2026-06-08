@@ -121,6 +121,7 @@ internal class SurfaceMetalRedrawer(
     private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
     private val pictureRecorder = PictureRecorder()
     private val transactionQueue = InteropTransactionQueue()
+    override val outOfFrameExecutor = MetalOutOfFrameExecutor()
 
     private val inflightCommandBuffersGroup = dispatch_group_create()
     // A guard flag to have proper assertion when draw() method is called recursively.
@@ -268,6 +269,7 @@ internal class SurfaceMetalRedrawer(
 
     override fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
+        outOfFrameExecutor.dispose()
 
         retrieveInteropTransaction = {
             object : UIKitInteropTransaction {
@@ -355,6 +357,7 @@ internal class SurfaceMetalRedrawer(
             }
 
             isDrawRecursiveCall = true
+            outOfFrameExecutor.onFrameStart()
 
             try {
                 lastRenderTimestamp = maxOf(targetTimestamp, lastRenderTimestamp)
@@ -408,6 +411,7 @@ internal class SurfaceMetalRedrawer(
                 }
             } finally {
                 isDrawRecursiveCall = false
+                outOfFrameExecutor.onFrameEnd()
             }
         }
 

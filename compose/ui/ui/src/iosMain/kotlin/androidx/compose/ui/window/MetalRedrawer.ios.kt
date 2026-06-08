@@ -18,6 +18,7 @@ package androidx.compose.ui.window
 
 import androidx.collection.IntIntPair
 import androidx.compose.ui.FrameRateCategory
+import androidx.compose.ui.platform.PlatformOutOfFrameExecutor
 import androidx.compose.ui.uikit.utils.CMPMetalDrawablesHandler
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.UIKitInteropAction
@@ -39,6 +40,7 @@ internal sealed interface MetalRedrawer {
     var isActive: Boolean
     fun draw(waitUntilCompletion: Boolean)
     fun setNeedsRedraw()
+    val outOfFrameExecutor: PlatformOutOfFrameExecutor
     var ongoingInteractionEventsCount: Int
     var preferredFramesPerSecond: NSInteger
     var isForcedToPresentWithTransactionEveryFrame: Boolean
@@ -71,6 +73,7 @@ internal class LegacyMetalRedrawer(
     private val context = DirectContext.makeMetal(device.objcPtr(), queue.objcPtr())
     private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
     private val pictureRecorder = PictureRecorder()
+    override val outOfFrameExecutor = MetalOutOfFrameExecutor()
 
     private val inflightCommandBuffersGroup = dispatch_group_create()
     private val drawCanvasSemaphore = dispatch_semaphore_create(1)
@@ -187,6 +190,7 @@ internal class LegacyMetalRedrawer(
 
     override fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
+        outOfFrameExecutor.dispose()
 
         retrieveInteropTransaction = {
             object : UIKitInteropTransaction {
@@ -260,6 +264,7 @@ internal class LegacyMetalRedrawer(
             "Attempt to call MetalRedrawer.draw() recursively which may lead to the PictureRecorder corruption."
         }
         isDrawRecursiveCall = true
+        outOfFrameExecutor.onFrameStart()
 
         try {
             lastRenderTimestamp = maxOf(targetTimestamp, lastRenderTimestamp)
@@ -392,6 +397,7 @@ internal class LegacyMetalRedrawer(
             }
         } finally {
             isDrawRecursiveCall = false
+            outOfFrameExecutor.onFrameEnd()
         }
     }
 

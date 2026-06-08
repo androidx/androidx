@@ -525,6 +525,15 @@ internal class RootNodeOwner(
         override val viewConfiguration get() = platformContext.viewConfiguration
         override val measureIteration: Long get() = measureAndLayoutDelegate.measureIteration
 
+        override val outOfFrameExecutor: OutOfFrameExecutor? =
+            platformContext.outOfFrameExecutor?.let {
+                object : OutOfFrameExecutor {
+                    override fun schedule(block: () -> Unit) {
+                        it.schedule(block)
+                    }
+                }
+            }
+
         override fun requestAutofill(node: LayoutNode) {
             // TODO: 1.8.0-beta01 Adopt requestAutofill API
             //  https://youtrack.jetbrains.com/issue/CMP-7485
@@ -765,10 +774,11 @@ internal class RootNodeOwner(
             }
 
         override val hasPendingMeasureOrLayout: Boolean
-            get() = measureAndLayoutDelegate.hasPendingMeasureOrLayout
+            get() = measureAndLayoutDelegate.hasPendingMeasureOrLayout || platformContext.outOfFrameExecutor?.hasWorkScheduled ?: false
 
         override fun measureAndLayoutForTest() {
             owner.measureAndLayout(sendPointerUpdate = true)
+            platformContext.outOfFrameExecutor?.drainScheduledWorkForTest()
         }
 
         /**
