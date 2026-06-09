@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.impl
 
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
@@ -77,7 +78,7 @@ class StillCaptureRequestControlTest {
     }
     private val fakeCameraProperties = FakeCameraProperties()
     private val fakeSurface = FakeSurface()
-    private val cameraStateAdapter = CameraStateAdapter()
+    private val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
 
     private lateinit var fakeCameraGraphSession: FakeCameraGraphSession
     private lateinit var fakeCameraGraph: FakeCameraGraph

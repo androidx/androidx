@@ -19,6 +19,7 @@ package androidx.camera.camera2.impl
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.util.Range
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
@@ -70,7 +71,7 @@ class UseCaseCameraRequestControlTest {
         UseCaseThreads(cameraScope, dispatcher.asExecutor(), dispatcher)
     }
     private val fakeCameraGraph = FakeCameraGraph()
-    val cameraStateAdapter = CameraStateAdapter()
+    val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
     val fakeUseCaseCameraContext =
         UseCaseCameraContext(
             cameraGraphProvider = { fakeCameraGraph },

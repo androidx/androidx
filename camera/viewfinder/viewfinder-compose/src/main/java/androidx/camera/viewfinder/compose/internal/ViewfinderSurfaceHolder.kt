@@ -17,7 +17,9 @@
 package androidx.camera.viewfinder.compose.internal
 
 import android.view.Surface
+import androidx.camera.viewfinder.core.FrameRenderedListener
 import androidx.camera.viewfinder.core.impl.RefCounted
+import java.util.concurrent.Executor
 
 /**
  * Manages ownership and lifecycle of a [Surface] used by the Viewfinder.
@@ -47,4 +49,15 @@ internal interface ViewfinderSurfaceHolder {
      * called to ensure proper cleanup when the view destroys the surface.
      */
     fun detach()
+
+    /**
+     * Registers a listener to be invoked when the underlying surface content has been updated.
+     *
+     * This is only supported when the viewfinder is in
+     * [androidx.camera.viewfinder.core.ImplementationMode.EMBEDDED] mode.
+     */
+    fun addFrameRenderedListener(executor: Executor, listener: FrameRenderedListener) {}
+
+    /** Unregisters a listener that was previously registered with [addFrameRenderedListener]. */
+    fun removeFrameRenderedListener(listener: FrameRenderedListener) {}
 }

@@ -18,6 +18,7 @@ package androidx.camera.camera2.testing
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
@@ -64,7 +65,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     var buildInvocationCount = 0
     private var sessionConfigAdapter = SessionConfigAdapter(emptyList())
     private var cameraGraph = FakeCameraGraph()
-    private val cameraStateAdapter = CameraStateAdapter()
+    private val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
     private val cameraMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
     private val cameraQuirks =
         CameraQuirks(
@@ -112,7 +113,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 class FakeUseCaseCameraComponent() : UseCaseCameraComponent {
     private val fakeUseCaseCamera = FakeUseCaseCamera()
     private val cameraGraph = FakeCameraGraph()
-    private val cameraStateAdapter = CameraStateAdapter()
+    private val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
     private val useCaseCameraContext =
         UseCaseCameraContext(
             cameraGraphProvider = { cameraGraph },

@@ -42,7 +42,7 @@ import org.robolectric.shadows.ShadowLooper
 @DoNotInstrument
 @Config(sdk = [Config.ALL_SDKS])
 internal class CameraStateAdapterTest {
-    private val cameraStateAdapter = CameraStateAdapter()
+    private val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
     private val cameraGraph1 = FakeCameraGraph()
     private val cameraGraph2 = FakeCameraGraph()
 

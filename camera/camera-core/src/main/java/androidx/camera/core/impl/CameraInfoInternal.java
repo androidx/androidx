@@ -105,6 +105,28 @@ public interface CameraInfoInternal extends CameraInfo {
      */
     void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback);
 
+    /**
+     * Adds a {@link CameraSessionLifecycleCallback} which will be invoked when the camera
+     * capture session lifecycle changes.
+     *
+     * <p>The callback will be invoked on the specified {@link Executor}.
+     *
+     * @param executor The executor on which the callback will be invoked.
+     * @param callback The callback to add.
+     */
+    default void addSessionLifecycleCallback(@NonNull Executor executor,
+            @NonNull CameraSessionLifecycleCallback callback) {
+    }
+
+    /**
+     * Removes the {@link CameraSessionLifecycleCallback} which was added in
+     * {@link #addSessionLifecycleCallback(Executor, CameraSessionLifecycleCallback)}.
+     *
+     * @param callback The callback to remove.
+     */
+    default void removeSessionLifecycleCallback(@NonNull CameraSessionLifecycleCallback callback) {
+    }
+
     /** Returns a list of quirks related to the camera. */
     @NonNull Quirks getCameraQuirks();
 

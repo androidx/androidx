@@ -37,7 +37,9 @@ import java.util.concurrent.Executor
 import javax.inject.Inject
 
 @CameraScope
-public class CameraStateAdapter @Inject constructor() {
+public class CameraStateAdapter
+@Inject
+constructor(private val sessionLifecycleAdapter: CameraSessionLifecycleAdapter) {
     private val lock = Any()
 
     internal val cameraInternalState = LiveDataObservable<CameraInternal.State>()
@@ -115,7 +117,7 @@ public class CameraStateAdapter @Inject constructor() {
             }
         }
 
-    public fun onGraphStateUpdated(cameraGraph: CameraGraph, graphState: GraphState): Unit =
+    public fun onGraphStateUpdated(cameraGraph: CameraGraph, graphState: GraphState) {
         synchronized(lock) {
             // Ignore any events if the camera has been marked as removed.
             if (isRemoved) {
@@ -125,7 +127,11 @@ public class CameraStateAdapter @Inject constructor() {
 
             Camera2Logger.debug { "$cameraGraph state updated to $graphState" }
             handleStateTransition(cameraGraph, graphState)
+            if (cameraGraph == currentGraph) {
+                sessionLifecycleAdapter.dispatchSessionLifecycle(graphState)
+            }
         }
+    }
 
     @GuardedBy("lock")
     private fun handleStateTransition(cameraGraph: CameraGraph, graphState: GraphState) {

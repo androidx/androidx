@@ -22,6 +22,8 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import androidx.camera.testing.impl.AndroidUtil
+import androidx.camera.viewfinder.core.FrameRenderedListener
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
@@ -54,9 +56,12 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.cos
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -71,6 +76,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -284,6 +290,41 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
                 rule.awaitIdleWithPausedRendering()
 
                 assertThat(surfaceSession.surface.isValid).isTrue()
+            }
+        }
+
+    @Test
+    fun frameRenderedListener_isInvokedWhenSurfaceIsDrawn(): Unit =
+        runTest(testDispatcher) {
+            assumeFalse(
+                "FrameRenderedListener may not be invoked on emulator environments due to GL/rendering limitations or cause crashes",
+                AndroidUtil.isEmulator(),
+            )
+            assumeTrue(implementationMode == ImplementationMode.EMBEDDED)
+
+            testWithSession(withRenderAnimation = true) {
+                val surfaceSession = awaitSurfaceSession()
+                val listenerInvokedCount = AtomicInteger(0)
+                val listener = FrameRenderedListener { _ -> listenerInvokedCount.incrementAndGet() }
+                val executor = Executor { it.run() }
+
+                surfaceSession.addFrameRenderedListener(executor, listener)
+
+                // Wait for frames to be rendered and the listener to be called
+                withTimeoutOrNull(2.seconds) {
+                    while (listenerInvokedCount.get() == 0) {
+                        kotlinx.coroutines.delay(10)
+                    }
+                }
+
+                assertThat(listenerInvokedCount.get()).isGreaterThan(0)
+
+                surfaceSession.removeFrameRenderedListener(listener)
+                val countAfterRemoval = listenerInvokedCount.get()
+
+                // Wait a bit to ensure no more invocations happen
+                delay(500) // render loop is running continuously
+                assertThat(listenerInvokedCount.get()).isEqualTo(countAfterRemoval)
             }
         }
 

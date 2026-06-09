@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
@@ -89,7 +90,7 @@ class UseCaseCameraStateTest {
 
     private val fakeCameraGraphSession = FakeCameraGraphSession()
     private val fakeCameraGraph = FakeCameraGraph(fakeCameraGraphSession)
-    val cameraStateAdapter = CameraStateAdapter()
+    val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
     val fakeUseCaseCameraContext =
         UseCaseCameraContext(
             cameraGraphProvider = { fakeCameraGraph },
@@ -246,7 +247,7 @@ class UseCaseCameraStateTest {
         // --- Setup ---
         val fakeSession = ControllableFakeCameraGraphSession()
         val fakeGraph = FakeCameraGraph(fakeSession)
-        val cameraStateAdapter = CameraStateAdapter()
+        val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
         val useCaseCameraContext =
             UseCaseCameraContext(
                 cameraGraphProvider = { fakeGraph },
@@ -292,7 +293,7 @@ class UseCaseCameraStateTest {
         val fakeSession =
             ControllableFakeCameraGraphSession().apply { startRepeatingBlocker = blocker }
         val fakeGraph = FakeCameraGraph(fakeSession)
-        val cameraStateAdapter = CameraStateAdapter()
+        val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
         val useCaseCameraContext =
             UseCaseCameraContext(
                 cameraGraphProvider = { fakeGraph },

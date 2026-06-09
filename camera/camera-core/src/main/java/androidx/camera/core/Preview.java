@@ -65,6 +65,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -105,6 +106,11 @@ import androidx.lifecycle.LifecycleOwner;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -155,6 +161,23 @@ import java.util.concurrent.Executor;
  * </pre>
  */
 public final class Preview extends UseCase {
+
+    /** The preview is not yet producing frames, is being recreated, or has been stopped. */
+    public static final int STREAM_STATE_IDLE = 0;
+
+    /** The camera is actively producing frames for the provided {@link Surface}. */
+    public static final int STREAM_STATE_STREAMING = 1;
+
+    /**
+     * Definitions for the preview stream state.
+     */
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
+    @IntDef({STREAM_STATE_IDLE, STREAM_STATE_STREAMING})
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @interface StreamState {
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
