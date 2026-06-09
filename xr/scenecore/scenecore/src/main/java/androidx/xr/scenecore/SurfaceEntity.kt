@@ -30,6 +30,8 @@ import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
@@ -142,10 +144,54 @@ private constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public class TriangleMesh(
-            public val positions: FloatBuffer,
-            public val texCoords: FloatBuffer,
-            public val indices: IntBuffer? = null,
-        ) {}
+            positions: FloatBuffer,
+            texCoords: FloatBuffer,
+            indices: IntBuffer? = null,
+        ) {
+            public val positions: FloatBuffer =
+                if (positions.isDirect) positions
+                else {
+                    copyToDirect(positions)
+                }
+            public val texCoords: FloatBuffer =
+                if (texCoords.isDirect) texCoords
+                else {
+                    copyToDirect(texCoords)
+                }
+            public val indices: IntBuffer? =
+                if (indices == null || indices.isDirect) indices
+                else {
+                    copyToDirect(indices)
+                }
+
+            private companion object {
+                private fun copyToDirect(buffer: FloatBuffer): FloatBuffer {
+                    val direct =
+                        ByteBuffer.allocateDirect(buffer.capacity() * 4)
+                            .order(ByteOrder.nativeOrder())
+                            .asFloatBuffer()
+                    val duplicate = buffer.duplicate()
+                    duplicate.clear()
+                    direct.put(duplicate)
+                    direct.position(buffer.position())
+                    direct.limit(buffer.limit())
+                    return direct
+                }
+
+                private fun copyToDirect(buffer: IntBuffer): IntBuffer {
+                    val direct =
+                        ByteBuffer.allocateDirect(buffer.capacity() * 4)
+                            .order(ByteOrder.nativeOrder())
+                            .asIntBuffer()
+                    val duplicate = buffer.duplicate()
+                    duplicate.clear()
+                    direct.put(duplicate)
+                    direct.position(buffer.position())
+                    direct.limit(buffer.limit())
+                    return direct
+                }
+            }
+        }
 
         /**
          * Specifies vertex geometry for the projection surface. Vertex positions should be
