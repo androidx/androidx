@@ -27,7 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.test.espresso.InjectEventSecurityException;
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
@@ -35,6 +34,7 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.CoordinatesProvider;
 
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,9 +85,8 @@ public class SwipeToLocation implements ViewAction {
             return coords;
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return "center in parent";
         }
     };
@@ -104,9 +103,8 @@ public class SwipeToLocation implements ViewAction {
             return mCoordinates;
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return String.format(Locale.US, "fixed coordinates (%f, %f)",
                     mCoordinates[X], mCoordinates[Y]);
         }
@@ -407,7 +405,7 @@ public class SwipeToLocation implements ViewAction {
         }
 
         @Override
-        public void runOnUiThreadSync(@NonNull final Runnable runnable) {
+        public void runOnUiThreadSync(final @NonNull Runnable runnable) {
             final CountDownLatch latch = new CountDownLatch(1);
             mHandler.post(new Runnable() {
                 @Override

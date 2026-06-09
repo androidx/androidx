@@ -28,6 +28,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.fragment:fragment:1.1.0")
 
     implementation(libs.testExtJunit)
@@ -44,6 +45,4 @@ android {
 
 androidx {
     type = SoftwareType.INTERNAL_TEST_LIBRARY
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

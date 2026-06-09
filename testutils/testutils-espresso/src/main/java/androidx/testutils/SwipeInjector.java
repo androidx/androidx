@@ -24,8 +24,9 @@ import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.test.espresso.action.CoordinatesProvider;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Injects motion events for custom gestures using Instrumentation. Use this to "draw" the gestures,

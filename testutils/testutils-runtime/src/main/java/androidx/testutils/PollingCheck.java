@@ -16,8 +16,7 @@
 
 package androidx.testutils;
 
-import androidx.annotation.NonNull;
-
+import org.jspecify.annotations.NonNull;
 import org.junit.Assert;
 
 /**

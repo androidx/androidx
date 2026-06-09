@@ -16,7 +16,7 @@
 
 package androidx.testutils;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides null objects for testing.
@@ -32,8 +32,7 @@ public class NullObject {
      * Useful for testing handling of null parameters in Java code called from Kotlin tests.
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    @NonNull
-    public static <T> T get() {
+    public static <T> @NonNull T get() {
         //noinspection ConstantConditions
         return null;
     }
