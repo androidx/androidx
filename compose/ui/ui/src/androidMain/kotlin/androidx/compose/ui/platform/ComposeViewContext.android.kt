@@ -16,16 +16,12 @@
 
 package androidx.compose.ui.platform
 
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
-import android.view.accessibility.AccessibilityManager
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
@@ -204,28 +200,6 @@ private constructor(
             AndroidAccessibilityManager(view.context)
         }
 
-    private var _isAccessibilityEnabled: Boolean = false
-    internal val isAccessibilityEnabled: Boolean
-        get() =
-            // b/504834104 saw accessibility being called when the state wasn't enabled. This
-            // indicates that the onAccessibilityChanged() was not received before the
-            // AccessibilityManager's state changed, so we must double-check here
-            _isAccessibilityEnabled && accessibilityManager.accessibilityManager.isEnabled
-
-    private var _isTouchExplorationEnabled: Boolean = false
-
-    internal val isTouchExplorationEnabled: Boolean
-        get() = _isTouchExplorationEnabled
-
-    private var _enabledServices: List<AccessibilityServiceInfo>? = null
-
-    internal val enabledServices: List<AccessibilityServiceInfo>
-        get() =
-            _enabledServices
-                ?: accessibilityManager.accessibilityManager
-                    .getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)
-                    .also { _enabledServices = it }
-
     /** [UriHandler] provided by [LocalUriHandler] */
     internal val uriHandler: AndroidUriHandler =
         if (matchesContext) {
@@ -323,21 +297,6 @@ private constructor(
         }
     }
 
-    /**
-     * Handler used to add and remove the callable that is in charge of binder calls to the
-     * AccessibilityManager. While it is still on the UI thread (for now), it isn't during the
-     * crucial time of View creation.
-     */
-    private var handler: Handler? = null
-
-    /**
-     * `true` when the AccessibilityManager is listening or `false` when not listening. When a
-     * [ComposeViewContext] has called [stopObserving] quickly after calling [startObserving], we
-     * can avoid posting the callback removing the listener. This is important for benchmarks that
-     * operate extremely quickly.
-     */
-    private var hasAccessibilityListener = false
-
     private var _soundEffect: SoundEffect? = null
     @OptIn(ExperimentalComposeUiApi::class)
     private val soundEffect: SoundEffect
@@ -355,12 +314,7 @@ private constructor(
      * changes, and [view] attach state changes.
      */
     private val callback =
-        object :
-            Runnable,
-            ComponentCallbacks2,
-            ViewTreeObserver.OnWindowFocusChangeListener,
-            AccessibilityManager.AccessibilityStateChangeListener,
-            AccessibilityManager.TouchExplorationStateChangeListener {
+        object : ComponentCallbacks2, ViewTreeObserver.OnWindowFocusChangeListener {
             override fun onConfigurationChanged(configuration: Configuration) {
                 this@ComposeViewContext.onConfigurationChanged(configuration)
             }
@@ -378,34 +332,6 @@ private constructor(
 
             override fun onWindowFocusChanged(hasFocus: Boolean) {
                 windowInfo.isWindowFocused = hasFocus
-            }
-
-            override fun onAccessibilityStateChanged(enabled: Boolean) {
-                _isAccessibilityEnabled = enabled
-                if (enabled) resetEnabledAccessibilityServiceList()
-            }
-
-            override fun onTouchExplorationStateChanged(enabled: Boolean) {
-                if (enabled && isAccessibilityEnabled) resetEnabledAccessibilityServiceList()
-            }
-
-            override fun run() {
-                val am = accessibilityManager.accessibilityManager
-                if (viewCount > 0) {
-                    hasAccessibilityListener = true
-                    _isAccessibilityEnabled = am.isEnabled
-                    _isTouchExplorationEnabled =
-                        _isAccessibilityEnabled && am.isTouchExplorationEnabled
-                    if (_isAccessibilityEnabled) {
-                        resetEnabledAccessibilityServiceList()
-                    }
-                    am.addAccessibilityStateChangeListener(this)
-                    am.addTouchExplorationStateChangeListener(this)
-                } else {
-                    hasAccessibilityListener = false
-                    am.removeAccessibilityStateChangeListener(this)
-                    am.removeTouchExplorationStateChangeListener(this)
-                }
             }
         }
 
@@ -448,8 +374,6 @@ private constructor(
         windowInfo.setOnInitializeContainerSize(calculateWindowSizeLambda)
         windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
         view.viewTreeObserver.addOnWindowFocusChangeListener(callback)
-        handler = view.handler
-        handler?.post(callback)
     }
 
     /** Stop observing configuration changes and window changes. */
@@ -457,12 +381,6 @@ private constructor(
         view.context.unregisterComponentCallbacks(callback)
         windowInfo.setOnInitializeContainerSize(null)
         view.viewTreeObserver.removeOnWindowFocusChangeListener(callback)
-        if (hasAccessibilityListener) {
-            handler?.post(callback)
-        } else {
-            handler?.removeCallbacks(callback)
-        }
-        handler = null
     }
 
     /**
@@ -548,10 +466,6 @@ private constructor(
                 _viewModelStoreOwner = view.findViewTreeViewModelStoreOwner()
             }
         }
-    }
-
-    private fun resetEnabledAccessibilityServiceList() {
-        _enabledServices = null
     }
 
     /** Provide common CompositionLocals. */
