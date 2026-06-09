@@ -24,12 +24,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -91,9 +91,8 @@ public final class ViewPagerTest {
             return view == object;
         }
 
-        @NonNull
         @Override
-        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+        public @NonNull Object instantiateItem(@NonNull ViewGroup container, int position) {
             View view = new View(container.getContext());
             container.addView(view);
             return view;

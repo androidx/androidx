@@ -24,7 +24,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 
-import androidx.test.filters.FlakyTest;
 import androidx.viewpager.test.R;
 
 /**

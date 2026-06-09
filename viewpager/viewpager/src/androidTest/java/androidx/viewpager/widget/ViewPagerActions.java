@@ -22,7 +22,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.UiController;
@@ -33,6 +32,7 @@ import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Tap;
 
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 
 public class ViewPagerActions {
     /**
@@ -43,8 +43,7 @@ public class ViewPagerActions {
             implements ViewPager.OnPageChangeListener, IdlingResource {
         private int mCurrState = ViewPager.SCROLL_STATE_IDLE;
 
-        @Nullable
-        private IdlingResource.ResourceCallback mCallback;
+        private IdlingResource.@Nullable ResourceCallback mCallback;
 
         private boolean mNeedsIdle = false;
 
