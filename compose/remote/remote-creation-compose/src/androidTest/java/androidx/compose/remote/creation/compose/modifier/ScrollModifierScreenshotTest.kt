@@ -17,7 +17,8 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.scrollBy
+import androidx.compose.remote.creation.compose.action.scrollTo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -160,7 +161,7 @@ class ScrollModifierScreenshotTest {
     }
 
     @Test
-    fun horizontalScrollStateChange() {
+    fun horizontalScrollTo() {
         composeTestRule.setContent {
             val scrollState = rememberRemoteScrollState()
             RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
@@ -186,7 +187,49 @@ class ScrollModifierScreenshotTest {
                         RemoteModifier.fillMaxWidth()
                             .weight(1f.rf)
                             .background(Color.LightGray.rc)
-                            .clickable(valueChange(scrollState.positionState, 200f.rf)),
+                            .clickable(scrollState.scrollTo(200f.rf)),
+                    contentAlignment = RemoteAlignment.Center,
+                ) {
+                    RemoteText("Scroll Button", color = Color.Black.rc)
+                }
+            }
+        }
+        uiAutomator {
+            onElement { text == "Scroll Button" }.click()
+            device.waitForIdle()
+        }
+        composeTestRule.composeTestRule.waitForIdle()
+        composeTestRule.verifyScreenshot()
+    }
+
+    @Test
+    fun horizontalScrollBy() {
+        composeTestRule.setContent {
+            val scrollState = rememberRemoteScrollState()
+            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+                RemoteRow(
+                    modifier =
+                        RemoteModifier.horizontalScroll(scrollState).fillMaxWidth().weight(1f.rf)
+                ) {
+                    repeat(4) { index ->
+                        val color = colors[index % colors.size].rc
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.fillMaxHeight()
+                                    .fillParentMaxWidth(0.5f.rf)
+                                    .background(color),
+                            contentAlignment = RemoteAlignment.Center,
+                        ) {
+                            RemoteText("Item #$index", color = Color.White.rc)
+                        }
+                    }
+                }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.fillMaxWidth()
+                            .weight(1f.rf)
+                            .background(Color.LightGray.rc)
+                            .clickable(scrollState.scrollBy(200f.rf)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteText("Scroll Button", color = Color.Black.rc)
