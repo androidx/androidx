@@ -296,18 +296,14 @@ public class LocationButtonTest {
         activityRule.scenario.onActivity { activity ->
             val button = LocationButton(activity)
 
-            button.setLocationButtonListener(
-                object : LocationButtonListener {
-                    override fun onPermissionResult(isGranted: Boolean) {
-                        // no-op for registration verification
-                    }
-
-                    override fun onRequestPermissions() {}
-                }
-            )
+            button.setOnPermissionResultListener {}
+            button.setOnRequestPermissionsListener {}
+            button.setOnErrorListener {}
 
             // Test clear listener
-            button.setLocationButtonListener(null)
+            button.setOnPermissionResultListener(null)
+            button.setOnRequestPermissionsListener(null)
+            button.setOnErrorListener(null)
         }
     }
 
@@ -334,15 +330,7 @@ public class LocationButtonTest {
             button =
                 LocationButton(activity).apply {
                     setLocationButtonProvider(provider)
-                    setLocationButtonListener(
-                        object : LocationButtonListener {
-                            override fun onPermissionResult(isGranted: Boolean) {
-                                permissionGranted = isGranted
-                            }
-
-                            override fun onRequestPermissions() {}
-                        }
-                    )
+                    setOnPermissionResultListener { isGranted -> permissionGranted = isGranted }
                     activity.setContentView(this)
                 }
         }
