@@ -141,12 +141,6 @@ object ComposeUiFlags {
     @JvmField
     var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
 
-    /** Enables using out of frame scheduler instead of Choreographer for text input events. */
-    // TODO(b/513525072): Cleanup once proven stable.
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
-
     /**
      * This flag controls whether the fix for velocity tracker usage in Draggable and related
      * classes is enabled to a) properly track velocity per pointer and b) make sure to also take

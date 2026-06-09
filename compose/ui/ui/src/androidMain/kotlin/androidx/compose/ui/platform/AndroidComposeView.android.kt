@@ -737,7 +737,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                         view,
                         this,
                         @OptIn(ExperimentalComposeUiApi::class)
-                        if (ComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled) {
+                        if (AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled) {
                             Executor { outOfFrameExecutor?.schedule(it::run) }
                         } else {
                             Executor(::postOnAnimation)
