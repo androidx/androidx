@@ -504,6 +504,20 @@ public object StreamUseCaseUtil {
         attachedSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>,
     ): Boolean {
+        val isZslDisabledByUseCase =
+            attachedSurfaces.any {
+                it.implementationOptions?.retrieveOption(
+                    UseCaseConfig.OPTION_ZSL_DISABLED,
+                    false,
+                ) == true
+            } ||
+                newUseCaseConfigs.any {
+                    it.retrieveOption(UseCaseConfig.OPTION_ZSL_DISABLED, false) == true
+                }
+        if (isZslDisabledByUseCase) {
+            return false
+        }
+
         for (attachedSurfaceInfo: AttachedSurfaceInfo in attachedSurfaces) {
             val captureTypes = attachedSurfaceInfo.captureTypes
             val captureType = captureTypes[0]

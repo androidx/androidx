@@ -34,17 +34,24 @@ import androidx.camera.testing.impl.SurfaceTextureProvider.createAutoDrainingSur
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoRecordEvent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -103,6 +110,7 @@ class ZslDeviceTest(
     private lateinit var preview: Preview
     private lateinit var imageCaptureZsl: ImageCapture
     private lateinit var cameraInfo: CameraInfo
+    private var tempVideoFile: File? = null
 
     @Before
     fun setup() {
@@ -125,6 +133,11 @@ class ZslDeviceTest(
 
     @After
     fun tearDown() {
+        tempVideoFile?.let {
+            if (it.exists()) {
+                it.delete()
+            }
+        }
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
@@ -182,6 +195,85 @@ class ZslDeviceTest(
             imageCapture.verifyCaptures(numImages) // Act & Assert. Verify regular captures.
             unbindUseCases(imageCapture)
             Log.d(TAG, "Loop $i regular capture done")
+        }
+    }
+
+    @Test
+    fun zslFallback_whenVideoCaptureBound() = runBlocking {
+        assumeTrue("ZSL is not supported on this device sensor.", cameraInfo.isZslSupported)
+
+        // Reset lifecycle for clean binding of multiple use-cases
+        withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
+
+        // Configure JCA-like VideoCapture
+        val recorder = Recorder.Builder().build()
+        val videoCapture = VideoCapture.Builder(recorder).build()
+
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCaptureZsl, videoCapture))
+
+        // Bind the standard JCA use case group (Preview + ZSL Image + Video)
+        bindUseCases(preview, imageCaptureZsl, videoCapture)
+
+        // Verify bind succeeds
+        assertThat(cameraProvider.isBound(preview)).isTrue()
+        assertThat(cameraProvider.isBound(imageCaptureZsl)).isTrue()
+        assertThat(cameraProvider.isBound(videoCapture)).isTrue()
+
+        val executor = Executors.newSingleThreadExecutor()
+
+        try {
+            // Capture multiple images with ZSL and verify the preview continues to stream/function
+            // concurrently
+            for (i in 0 until 5) {
+                previewMonitor.waitForStream()
+                Log.d(TAG, "JCA ZSL Capture pre round successful: $i")
+                imageCaptureZsl.verifyCaptures(3)
+                Log.d(TAG, "JCA ZSL Capture round successful: $i")
+                previewMonitor.waitForStream()
+
+                try {
+                    tempVideoFile = File.createTempFile("zsl_fallback_test", ".mp4")
+                    val options = FileOutputOptions.Builder(tempVideoFile!!).build()
+                    val startLatch = CountDownLatch(1)
+                    val statusLatch = CountDownLatch(5) // Ensure active recording is ongoing
+                    val finalizeLatch = CountDownLatch(1)
+
+                    val recording =
+                        videoCapture.output.prepareRecording(context, options).start(executor) {
+                            event ->
+                            when (event) {
+                                is VideoRecordEvent.Start -> startLatch.countDown()
+                                is VideoRecordEvent.Status -> statusLatch.countDown()
+                                is VideoRecordEvent.Finalize -> {
+                                    assertThat(event.hasError()).isFalse()
+                                    finalizeLatch.countDown()
+                                }
+                            }
+                        }
+
+                    // Verify successful start and active status events
+                    assertThat(startLatch.await(10, TimeUnit.SECONDS)).isTrue()
+                    assertThat(statusLatch.await(15, TimeUnit.SECONDS)).isTrue()
+
+                    // Stop recording
+                    recording.stop()
+
+                    // Wait for it to finalize correctly
+                    assertThat(finalizeLatch.await(10, TimeUnit.SECONDS)).isTrue()
+
+                    // Assert the file was created and has content
+                    assertThat(tempVideoFile!!.length()).isGreaterThan(0L)
+                } finally {
+                    tempVideoFile?.let {
+                        if (it.exists()) {
+                            it.delete()
+                        }
+                    }
+                }
+                Log.d(TAG, "JCA ZSL Capture + recording round successful: $i")
+            }
+        } finally {
+            executor.shutdown()
         }
     }
 
