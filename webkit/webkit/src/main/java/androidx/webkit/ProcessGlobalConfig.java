@@ -112,7 +112,7 @@ public class ProcessGlobalConfig {
      *
      * <p>
      * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
      * {@link WebViewFeature#STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX}.
      *
      * @param context a Context to access application assets This value cannot be null.
@@ -126,7 +126,7 @@ public class ProcessGlobalConfig {
      */
     @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
             enforcement =
-                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
+                    "androidx.webkit.WebViewFeature#isStartupFeatureSupported(String, Context)")
     public @NonNull ProcessGlobalConfig setDataDirectorySuffix(@NonNull Context context,
             @NonNull String suffix) {
         final StartupApiFeature.P feature =
@@ -172,7 +172,7 @@ public class ProcessGlobalConfig {
      * current process.
      * <p>
      * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
      * {@link WebViewFeature#STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS}.
      *
      * @param context a Context to access application assets. This value cannot be null.
@@ -194,7 +194,7 @@ public class ProcessGlobalConfig {
     @RequiresFeature(name =
             WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS,
             enforcement =
-                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
+                    "androidx.webkit.WebViewFeature#isStartupFeatureSupported(String, Context)")
     public @NonNull ProcessGlobalConfig setDirectoryBasePaths(@NonNull Context context,
             @NonNull File dataDirectoryBasePath, @NonNull File cacheDirectoryBasePath) {
         final StartupApiFeature.NoFramework feature =
@@ -225,7 +225,7 @@ public class ProcessGlobalConfig {
      *
      * <p>
      * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
      * {@link WebViewFeature#STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES}.
      *
      * @param context a Context to access application assets. This value cannot be null.
@@ -237,7 +237,7 @@ public class ProcessGlobalConfig {
      */
     @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES,
             enforcement =
-                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
+                    "androidx.webkit.WebViewFeature#isStartupFeatureSupported(String, Context)")
     public @NonNull ProcessGlobalConfig setPartitionedCookiesEnabled(
             @NonNull Context context, boolean isEnabled) {
         final StartupApiFeature.NoFramework feature =
@@ -343,7 +343,7 @@ public class ProcessGlobalConfig {
      * startup mode.
      * <p>
      * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
      * {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE}.
      *
      * @param context a Context to access application assets. This value cannot be null.
@@ -358,7 +358,7 @@ public class ProcessGlobalConfig {
     @RequiresFeature(
             name = WebViewFeature.STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE,
             enforcement =
-                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
+                    "androidx.webkit.WebViewFeature#isStartupFeatureSupported(String, Context)")
     @Deprecated
     public @NonNull ProcessGlobalConfig setUiThreadStartupMode(
             @NonNull Context context, @UiThreadStartupMode int startupMode) {
@@ -378,7 +378,7 @@ public class ProcessGlobalConfig {
      * {@code UI_THREAD_STARTUP_MODE_*}.
      * <p>
      * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns {@code true} for
+     * {@link WebViewFeature#isStartupFeatureSupported} returns {@code true} for
      * {@link WebViewFeature#STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2}.
      *
      * @param context a Context to access application assets. This value cannot be null.
@@ -392,7 +392,7 @@ public class ProcessGlobalConfig {
     @RequiresFeature(
             name = WebViewFeature.STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2,
             enforcement =
-                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
+                    "androidx.webkit.WebViewFeature#isStartupFeatureSupported(String, Context)")
     public @NonNull ProcessGlobalConfig setUiThreadStartupModeV2(
             @NonNull Context context, @UiThreadStartupMode int startupMode) {
         final StartupApiFeature.NoFramework feature =
