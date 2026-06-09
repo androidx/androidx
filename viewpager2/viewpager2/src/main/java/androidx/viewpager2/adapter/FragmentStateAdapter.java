@@ -32,8 +32,6 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresOptIn;
 import androidx.collection.ArraySet;
@@ -47,6 +45,9 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -164,9 +165,9 @@ public abstract class FragmentStateAdapter extends
      */
     public abstract @NonNull Fragment createFragment(int position);
 
-    @NonNull
     @Override
-    public final FragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public final @NonNull FragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+            int viewType) {
         return FragmentViewHolder.create(parent);
     }
 
@@ -269,7 +270,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public final void onViewAttachedToWindow(@NonNull final FragmentViewHolder holder) {
+    public final void onViewAttachedToWindow(final @NonNull FragmentViewHolder holder) {
         placeFragmentInViewHolder(holder);
         gcFragments();
     }
@@ -278,7 +279,7 @@ public abstract class FragmentStateAdapter extends
      * @param holder that has been bound to a Fragment in the {@link #onBindViewHolder} stage.
      */
     @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
-    void placeFragmentInViewHolder(@NonNull final FragmentViewHolder holder) {
+    void placeFragmentInViewHolder(final @NonNull FragmentViewHolder holder) {
         Fragment fragment = mFragments.get(holder.getItemId());
         if (fragment == null) {
             throw new IllegalStateException("Design assumption violated.");
@@ -351,7 +352,7 @@ public abstract class FragmentStateAdapter extends
             mLifecycle.addObserver(new LifecycleEventObserver() {
                 @Override
                 public void onStateChanged(@NonNull LifecycleOwner source,
-                        @NonNull Lifecycle.Event event) {
+                        Lifecycle.@NonNull Event event) {
                     if (shouldDelayFragmentTransactions()) {
                         return;
                     }
@@ -364,7 +365,7 @@ public abstract class FragmentStateAdapter extends
         }
     }
 
-    private void scheduleViewAttach(final Fragment fragment, @NonNull final FrameLayout container) {
+    private void scheduleViewAttach(final Fragment fragment, final @NonNull FrameLayout container) {
         // After a config change, Fragments that were in FragmentManager will be recreated. Since
         // ViewHolder container ids are dynamically generated, we opted to manually handle
         // attaching Fragment views to containers. For consistency, we use the same mechanism for
@@ -600,7 +601,7 @@ public abstract class FragmentStateAdapter extends
         mLifecycle.addObserver(new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner source,
-                    @NonNull Lifecycle.Event event) {
+                    Lifecycle.@NonNull Event event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
                     handler.removeCallbacks(runnable);
                     source.getLifecycle().removeObserver(this);
@@ -669,7 +670,7 @@ public abstract class FragmentStateAdapter extends
             mLifecycleObserver = new LifecycleEventObserver() {
                 @Override
                 public void onStateChanged(@NonNull LifecycleOwner source,
-                        @NonNull Lifecycle.Event event) {
+                        Lifecycle.@NonNull Event event) {
                     updateFragmentMaxLifecycle(false);
                 }
             };
@@ -751,8 +752,7 @@ public abstract class FragmentStateAdapter extends
                 }
             }
         }
-        @NonNull
-        private ViewPager2 inferViewPager(@NonNull RecyclerView recyclerView) {
+        private @NonNull ViewPager2 inferViewPager(@NonNull RecyclerView recyclerView) {
             ViewParent parent = recyclerView.getParent();
             if (parent instanceof ViewPager2) {
                 return (ViewPager2) parent;
@@ -867,8 +867,7 @@ public abstract class FragmentStateAdapter extends
          * @param fragment Fragment changing state
          * @return Listener called after the operation
          */
-        @NonNull
-        public OnPostEventListener onFragmentPreAdded(@NonNull Fragment fragment) {
+        public @NonNull OnPostEventListener onFragmentPreAdded(@NonNull Fragment fragment) {
             return NO_OP;
         }
 
@@ -879,9 +878,9 @@ public abstract class FragmentStateAdapter extends
          * @param fragment Fragment which state is being saved
          * @return Listener called after the operation
          */
-        @NonNull
         @ExperimentalFragmentStateAdapterApi // Experimental in v1.1.*. To become stable in v1.2.*.
-        public OnPostEventListener onFragmentPreSavedInstanceState(@NonNull Fragment fragment) {
+        public @NonNull OnPostEventListener onFragmentPreSavedInstanceState(
+                @NonNull Fragment fragment) {
             return NO_OP;
         }
 
@@ -891,8 +890,7 @@ public abstract class FragmentStateAdapter extends
          * @param fragment Fragment changing state
          * @return Listener called after the operation
          */
-        @NonNull
-        public OnPostEventListener onFragmentPreRemoved(@NonNull Fragment fragment) {
+        public @NonNull OnPostEventListener onFragmentPreRemoved(@NonNull Fragment fragment) {
             return NO_OP;
         }
 
@@ -904,9 +902,8 @@ public abstract class FragmentStateAdapter extends
          * @param maxLifecycleState Ceiling state for the fragment
          * @return Listener called after the operation
          */
-        @NonNull
-        public OnPostEventListener onFragmentMaxLifecyclePreUpdated(@NonNull Fragment fragment,
-                @NonNull Lifecycle.State maxLifecycleState) {
+        public @NonNull OnPostEventListener onFragmentMaxLifecyclePreUpdated(
+                @NonNull Fragment fragment, Lifecycle.@NonNull State maxLifecycleState) {
             return NO_OP;
         }
 

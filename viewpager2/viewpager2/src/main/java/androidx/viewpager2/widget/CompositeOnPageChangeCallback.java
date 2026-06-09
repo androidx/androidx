@@ -16,9 +16,10 @@
 
 package androidx.viewpager2.widget;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Px;
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -28,8 +29,7 @@ import java.util.List;
  * Dispatches {@link OnPageChangeCallback} events to subscribers.
  */
 final class CompositeOnPageChangeCallback extends OnPageChangeCallback {
-    @NonNull
-    private final List<OnPageChangeCallback> mCallbacks;
+    private final @NonNull List<OnPageChangeCallback> mCallbacks;
 
     CompositeOnPageChangeCallback(int initialCapacity) {
         mCallbacks = new ArrayList<>(initialCapacity);

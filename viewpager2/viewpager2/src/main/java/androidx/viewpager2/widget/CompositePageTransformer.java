@@ -18,8 +18,9 @@ package androidx.viewpager2.widget;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2.PageTransformer;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
