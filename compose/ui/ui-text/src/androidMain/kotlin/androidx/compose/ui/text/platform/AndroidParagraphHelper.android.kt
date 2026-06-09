@@ -59,7 +59,7 @@ internal fun createCharSequence(
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
     useEmojiCompat: Boolean,
     softWrap: Boolean,
-    textContainsNewLine: Boolean, // adding to avoid `text.contains()` call multiple times
+    mayHaveNewLine: Boolean, // passed to avoid recomputing the check
 ): CharSequence {
 
     val currentText =
@@ -125,7 +125,7 @@ internal fun createCharSequence(
         if (
             !AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled ||
                 softWrap ||
-                textContainsNewLine ||
+                mayHaveNewLine ||
                 hasBaselineShift
         ) {
             val lineHeightStyle = contextTextStyle.lineHeightStyle ?: LineHeightStyle.Default

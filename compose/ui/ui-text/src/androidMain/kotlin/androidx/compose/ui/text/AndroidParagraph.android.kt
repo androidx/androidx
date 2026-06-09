@@ -170,7 +170,7 @@ internal class AndroidParagraph(
     private val applyLineHeightOptimization: Boolean
         get() =
             !paragraphIntrinsics.softWrap &&
-                !paragraphIntrinsics.textContainsNewLine &&
+                !paragraphIntrinsics.mayHaveNewLine &&
                 paragraphIntrinsics.style.baselineShift == null &&
                 AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled
 

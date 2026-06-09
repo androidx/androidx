@@ -18,6 +18,7 @@ package androidx.compose.ui.text.platform
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.AndroidParagraphIntrinsics
 import androidx.compose.ui.text.EmojiSupportMatch
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.PlatformTextStyle
@@ -179,5 +180,93 @@ class AndroidParagraphIntrinsicsTest {
                 eq(Int.MAX_VALUE),
                 eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT),
             )
+    }
+
+    @Test
+    fun mayHaveNewLine_shortText_noNewLine_returnsFalse() {
+        val subject =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style = TextStyle.Default,
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
+            )
+                as AndroidParagraphIntrinsics
+
+        assertThat(subject.mayHaveNewLine).isFalse()
+    }
+
+    @Test
+    fun mayHaveNewLine_shortText_withNewLine_returnsTrue() {
+        val subject =
+            ParagraphIntrinsics(
+                text = "Hello\nWorld",
+                style = TextStyle.Default,
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
+            )
+                as AndroidParagraphIntrinsics
+
+        assertThat(subject.mayHaveNewLine).isTrue()
+    }
+
+    @Test
+    fun mayHaveNewLine_boundaryText_noNewLine_returnsFalse() {
+        val boundaryText = "a".repeat(512)
+        val subject =
+            ParagraphIntrinsics(
+                text = boundaryText,
+                style = TextStyle.Default,
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
+            )
+                as AndroidParagraphIntrinsics
+
+        assertThat(subject.mayHaveNewLine).isFalse()
+    }
+
+    @Test
+    fun mayHaveNewLine_longText_noNewLine_returnsTrue() {
+        val longText = "a".repeat(513)
+        val subject =
+            ParagraphIntrinsics(
+                text = longText,
+                style = TextStyle.Default,
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
+            )
+                as AndroidParagraphIntrinsics
+
+        assertThat(subject.mayHaveNewLine).isTrue()
+    }
+
+    @Test
+    fun mayHaveNewLine_longText_withNewLine_returnsTrue() {
+        val longText = "a".repeat(260) + "\n" + "a".repeat(260)
+        val subject =
+            ParagraphIntrinsics(
+                text = longText,
+                style = TextStyle.Default,
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
+            )
+                as AndroidParagraphIntrinsics
+
+        assertThat(subject.mayHaveNewLine).isTrue()
     }
 }

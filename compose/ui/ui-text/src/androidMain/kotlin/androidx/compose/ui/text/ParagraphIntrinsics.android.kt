@@ -43,6 +43,17 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.core.text.TextUtilsCompat
 import java.util.Locale
 
+/**
+ * The maximum length of text in characters for which the single-line line-height optimization is
+ * allowed. If the text length exceeds this threshold, we safely bypass the optimization by assuming
+ * it may contain a newline. This ensures O(1) performance for the check.
+ *
+ * The threshold value (512) is chosen to comfortably cover typical single-line UI elements (labels,
+ * buttons, text fields) while protecting the UI thread from jank on pathological inputs (massive
+ * strings).
+ */
+private const val MaxSingleLineLengthThreshold = 512
+
 internal class AndroidParagraphIntrinsics(
     val text: String,
     val style: TextStyle,
@@ -92,18 +103,27 @@ internal class AndroidParagraphIntrinsics(
     /**
      * Whether [text] contains a hard new line. This is evaluated to apply certain optimizations.
      * Let's compute this only once when needed to avoid unnecessary O(n) call.
+     *
+     * To ensure O(1) complexity, we use a heuristic: if the text length exceeds
+     * [MaxSingleLineLengthThreshold], we assume it contains a newline to safely bypass the
+     * single-line optimization.
      */
-    private var _textContainsNewLine = -1
+    private var _mayHaveNewLine = -1
     @OptIn(ExperimentalTextApi::class)
-    internal val textContainsNewLine: Boolean
+    internal val mayHaveNewLine: Boolean
         get() {
             if (
                 AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled &&
-                    _textContainsNewLine == -1
+                    _mayHaveNewLine == -1
             ) {
-                _textContainsNewLine = if (text.contains('\n')) 1 else 0
+                _mayHaveNewLine =
+                    if (text.length > MaxSingleLineLengthThreshold || text.contains('\n')) {
+                        1
+                    } else {
+                        0
+                    }
             }
-            return _textContainsNewLine == 1
+            return _mayHaveNewLine == 1
         }
 
     init {
@@ -159,7 +179,7 @@ internal class AndroidParagraphIntrinsics(
                 resolveTypeface = resolveTypeface,
                 useEmojiCompat = emojiCompatProcessed,
                 softWrap = softWrap,
-                textContainsNewLine = textContainsNewLine,
+                mayHaveNewLine = mayHaveNewLine,
             )
 
         layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
