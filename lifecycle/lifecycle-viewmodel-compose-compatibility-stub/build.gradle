@@ -58,8 +58,8 @@ androidXMultiplatform {
                 api(project(":lifecycle:lifecycle-common"))
                 api(project(":lifecycle:lifecycle-viewmodel"))
                 api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:runtime:runtime-saveable"))
+                api("org.jetbrains.compose.runtime:runtime:1.11.0")
+                api("org.jetbrains.compose.runtime:runtime-saveable:1.11.0")
             }
         }
     }
