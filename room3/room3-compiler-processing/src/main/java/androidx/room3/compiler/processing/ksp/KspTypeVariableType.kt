@@ -16,6 +16,7 @@
 
 package androidx.room3.compiler.processing.ksp
 
+import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeVariableType
 import com.google.devtools.ksp.symbol.KSType
@@ -34,7 +35,8 @@ internal class KspTypeVariableType(
     env: KspProcessingEnv,
     ksType: KSType,
     scope: KSTypeVarianceResolverScope? = null,
-) : KspType(env, ksType, scope), XTypeVariableType {
+    knownTypeName: Lazy<XTypeName>? = null,
+) : KspType(env, ksType, scope, knownTypeName), XTypeVariableType {
     val ksTypeVariable: KSTypeParameter =
         this.ksType.declaration as? KSTypeParameter
             ?: error("${this.ksType} is not a type variable")
@@ -53,8 +55,12 @@ internal class KspTypeVariableType(
         return this
     }
 
-    override fun copy(env: KspProcessingEnv, ksType: KSType, scope: KSTypeVarianceResolverScope?) =
-        KspTypeVariableType(env, ksType, scope)
+    override fun copy(
+        env: KspProcessingEnv,
+        ksType: KSType,
+        scope: KSTypeVarianceResolverScope?,
+        knownTypeName: Lazy<XTypeName>?,
+    ) = KspTypeVariableType(env, ksType, scope, knownTypeName)
 
     override val equalityItems: Array<out Any?> by lazy { arrayOf(ksTypeVariable) }
 }

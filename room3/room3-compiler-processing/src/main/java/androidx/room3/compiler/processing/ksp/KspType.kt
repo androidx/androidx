@@ -52,6 +52,7 @@ internal abstract class KspType(
     private val originalKSType: KSType,
     /** Type resolver to convert KSType into its JVM representation. */
     val scope: KSTypeVarianceResolverScope?,
+    val knownTypeName: Lazy<XTypeName>? = null,
 ) : KspAnnotated(env), XType, XEquality {
     val ksType by lazy {
         if (originalKSType.declaration is KSTypeAlias) {
@@ -63,9 +64,9 @@ internal abstract class KspType(
 
     override val rawType by lazy { KspRawType(this) }
 
-    final override val typeName: TypeName by lazy { xTypeName.java }
+    final override val typeName: TypeName by lazy { asTypeName().java }
 
-    override fun asTypeName() = xTypeName
+    override fun asTypeName() = knownTypeName?.value ?: xTypeName
 
     /**
      * A Kotlin type might have a slightly different type in JVM vs Kotlin due to wildcards. The
@@ -75,7 +76,7 @@ internal abstract class KspType(
         XTypeName(resolveJTypeName(), resolveKTypeName(), nullability)
     }
 
-    internal val jvmKsType by lazy { env.resolveWildcards(originalKSType, scope) }
+    private val jvmKsType by lazy { env.resolveWildcards(originalKSType, scope) }
 
     protected open fun resolveJTypeName() = jvmKsType.asJTypeName(env.resolver)
 
@@ -198,7 +199,35 @@ internal abstract class KspType(
         if (env.resolver.isJavaRawType(ksType)) {
             emptyList()
         } else {
-            ksType.arguments.map { env.wrap(it) }
+            val typeArguments = ksType.arguments.map { env.wrap(it) }
+            println()
+            if (ksType.isSuspendFunctionType || typeElement?.isValueClass() == true) {
+                // For inline value and suspend function types the Java and Kotlin TypeName isn't
+                // guaranteed to be the same shape. For example, SuspendFunction1<P1, R> translates
+                // to Function2<P1, Continuation<R>, Object> in Java. Similarly, an inline value
+                // class, e.g. Foo<T>, can map to many types with different shapes, e.g. T. In these
+                // cases we just avoid calculating and setting the knownTypeName.
+                return@lazy typeArguments
+            }
+            val typeArgumentNames = asTypeName().typeArguments
+            checkNotNull(typeArgumentNames) {
+                """
+                The TypeName for Java and Kotlin have mismatching type argument sizes:
+                    XTypeName: ${asTypeName()}.
+                """
+                    .trimIndent()
+            }
+            check(typeArgumentNames.size == typeArguments.size) {
+                """
+                The KSType and XTypeName have mismatching type argument sizes:
+                    KSType (${typeArguments.size}): $typeArguments
+                    XTypeName (${typeArgumentNames.size}): $typeArgumentNames
+                """
+                    .trimIndent()
+            }
+            typeArguments.mapIndexed { index, typeArgument ->
+                typeArgument.copyWithKnownTypeName { typeArgumentNames[index] }
+            }
         }
     }
 
@@ -279,12 +308,30 @@ internal abstract class KspType(
         env: KspProcessingEnv,
         ksType: KSType,
         scope: KSTypeVarianceResolverScope?,
+        knownTypeName: Lazy<XTypeName>? = this.knownTypeName,
     ): KspType
 
     fun copyWithScope(scope: KSTypeVarianceResolverScope) = copy(env, originalKSType, scope)
 
+    fun copyWithKnownTypeName(knownTypeName: () -> XTypeName): KspType =
+        copy(
+            env = env,
+            ksType = originalKSType,
+            scope = scope,
+            knownTypeName = lazy { knownTypeName() },
+        )
+
     private fun copyWithNullability(nullability: XNullability): KspType =
-        boxed().copy(env = env, ksType = originalKSType.withNullability(nullability), scope = scope)
+        boxed()
+            .copy(
+                env = env,
+                ksType = originalKSType.withNullability(nullability),
+                scope = scope,
+                knownTypeName =
+                    knownTypeName?.let {
+                        lazy { it.value.copy(nullable = nullability == XNullability.NULLABLE) }
+                    },
+            )
 
     final override fun makeNullable(): KspType {
         if (nullability == XNullability.NULLABLE) {

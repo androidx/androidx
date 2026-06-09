@@ -3482,4 +3482,283 @@ class XTypeTest {
             }
         }
     }
+
+    @Test
+    fun unwrappedType_typeArgumentVariance() {
+        val source =
+            Source.kotlin(
+                "test.Subject.kt",
+                """
+                package test
+                interface Foo
+                interface Subject {
+                    // The parameter tests List<? extends Foo> and return type to tests List<Foo>.
+                    fun method(param: List<Foo>): List<Foo> = TODO()
+                }
+                """
+                    .trimIndent(),
+            )
+
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val env = invocation.processingEnv
+            val subject = env.requireTypeElement("test.Subject")
+            val method = subject.getDeclaredMethodByJvmName("method")
+            val returnType = method.returnType
+            val paramType = method.parameters.single().type
+            val returnTypeArg = returnType.typeArguments.single()
+            val paramTypeArg = paramType.typeArguments.single()
+
+            val foo = XClassName.get("test", "Foo")
+            val listFoo = XTypeName.LIST.parametrizedBy(foo)
+            // For the parameter, test that only the java TypeName extends foo
+            val javaExtendsFoo =
+                XTypeName(java = XTypeName.getProducerExtendsName(foo).java, kotlin = foo.kotlin)
+            val javaListExtendsFoo = XTypeName.LIST.parametrizedBy(javaExtendsFoo)
+
+            // Assert Type
+            assertThat(returnType.asTypeName()).isEqualTo(listFoo)
+            assertThat(paramType.asTypeName()).isEqualTo(javaListExtendsFoo)
+
+            // 2. Assert Type Argument
+            assertThat(returnTypeArg.asTypeName()).isEqualTo(foo)
+            assertThat(paramTypeArg.asTypeName()).isEqualTo(javaExtendsFoo)
+
+            // 3. Assert Type Argument Type (strips bounds)
+            assertThat(returnTypeArg.type.asTypeName()).isEqualTo(foo)
+            assertThat(paramTypeArg.type.asTypeName()).isEqualTo(foo)
+        }
+    }
+
+    @Test
+    fun wrappedType_typeArgumentVariance() {
+        val source =
+            Source.kotlin(
+                "test.Subject.kt",
+                """
+                package test
+                interface Foo
+                interface Subject {
+                    fun method(param: List<Foo>): List<Foo> = TODO()
+                }
+                """
+                    .trimIndent(),
+            )
+
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val env = invocation.processingEnv
+            val subject = env.requireTypeElement("test.Subject")
+            val method = subject.getDeclaredMethodByJvmName("method")
+            val returnType = method.returnType
+            val paramType = method.parameters.single().type
+
+            val foo = XClassName.get("test", "Foo")
+            val listFoo = XTypeName.LIST.parametrizedBy(foo)
+            // For the parameter, test that only the java TypeName extends foo
+            val javaExtendsFoo =
+                XTypeName(java = XTypeName.getProducerExtendsName(foo).java, kotlin = foo.kotlin)
+            val javaListExtendsFoo = XTypeName.LIST.parametrizedBy(javaExtendsFoo)
+
+            // Programmatically create List<List<Foo>>
+            fun wrapInList(valueType: XType): XType {
+                val list = env.requireTypeElement(XTypeName.LIST)
+                return env.getDeclaredType(list, valueType)
+            }
+
+            // Assert the nested explicit type name is preserved!
+            assertThat(wrapInList(returnType).asTypeName())
+                .isEqualTo(XTypeName.LIST.parametrizedBy(listFoo))
+            assertThat(wrapInList(paramType).asTypeName())
+                .isEqualTo(XTypeName.LIST.parametrizedBy(javaListExtendsFoo))
+        }
+    }
+
+    @Test
+    fun wrappedTypeArgument_typeArgumentVariance() {
+        val source =
+            Source.kotlin(
+                "test.Subject.kt",
+                """
+                package test
+                interface Foo
+                interface Subject {
+                    fun method(param: List<Foo>): List<Foo> = TODO()
+                }
+                """
+                    .trimIndent(),
+            )
+
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val env = invocation.processingEnv
+            val subject = env.requireTypeElement("test.Subject")
+            val method = subject.getDeclaredMethodByJvmName("method")
+            val returnType = method.returnType
+            val paramType = method.parameters.single().type
+
+            val foo = XClassName.get("test", "Foo")
+            val listFoo = XTypeName.LIST.parametrizedBy(foo)
+            val extendsFoo =
+                XTypeName(java = XTypeName.getProducerExtendsName(foo).java, kotlin = foo.kotlin)
+            val listExtendsFoo = XTypeName.LIST.parametrizedBy(extendsFoo)
+
+            // Programmatically create List<List<Foo>>
+            fun wrapInList(valueType: XTypeArgument): XTypeName {
+                val list = env.requireTypeElement(XTypeName.LIST)
+                return env.getDeclaredType(list, valueType).asTypeName()
+            }
+
+            // Expected: List<List<Foo>>
+            val listListFoo = XTypeName.LIST.parametrizedBy(listFoo)
+            assertThat(wrapInList(env.createTypeArgument(returnType, XVariance.INVARIANT)))
+                .isEqualTo(listListFoo)
+
+            // Expected: List<List<? extends Foo>>
+            val listListExtendsFoo = XTypeName.LIST.parametrizedBy(listExtendsFoo)
+            assertThat(wrapInList(env.createTypeArgument(paramType, XVariance.INVARIANT)))
+                .isEqualTo(listListExtendsFoo)
+
+            // Expected: List<? extends List<Foo>>
+            val listExtendsListFoo =
+                XTypeName.LIST.parametrizedBy(XTypeName.getProducerExtendsName(listFoo))
+            assertThat(wrapInList(env.createTypeArgument(returnType, XVariance.OUT)))
+                .isEqualTo(listExtendsListFoo)
+
+            // Expected: List<? extends List<? extends Foo>>
+            val listExtendsListExtendsFoo =
+                XTypeName.LIST.parametrizedBy(XTypeName.getProducerExtendsName(listExtendsFoo))
+            assertThat(wrapInList(env.createTypeArgument(paramType, XVariance.OUT)))
+                .isEqualTo(listExtendsListExtendsFoo)
+        }
+    }
+
+    @Test
+    fun wildcard_typeArgumentVariance() {
+        val source =
+            Source.kotlin(
+                "test.Subject.kt",
+                """
+                package test
+                interface Foo
+                interface Subject {
+                    fun method(param: List<Foo>): List<Foo> = TODO()
+                }
+                """
+                    .trimIndent(),
+            )
+
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val env = invocation.processingEnv
+            val subject = env.requireTypeElement("test.Subject")
+            val method = subject.getDeclaredMethodByJvmName("method")
+            val returnType = method.returnType
+            val paramType = method.parameters.single().type
+
+            val foo = XClassName.get("test", "Foo")
+            val listFoo = XTypeName.LIST.parametrizedBy(foo)
+            val extendsFoo =
+                XTypeName(java = XTypeName.getProducerExtendsName(foo).java, kotlin = foo.kotlin)
+            val listExtendsFoo = XTypeName.LIST.parametrizedBy(extendsFoo)
+
+            // Expected: `? extends List<Foo>`
+            val extendsListFoo = XTypeName.getProducerExtendsName(listFoo)
+            assertThat(env.getWildcardType(producerExtends = returnType).asTypeName())
+                .isEqualTo(extendsListFoo)
+            assertThat(env.createTypeArgument(returnType, XVariance.OUT).asTypeName())
+                .isEqualTo(extendsListFoo)
+
+            // Expected: `? extends List<? extends Foo>`
+            val extendsListExtendsFoo = XTypeName.getProducerExtendsName(listExtendsFoo)
+            assertThat(env.getWildcardType(producerExtends = paramType).asTypeName())
+                .isEqualTo(extendsListExtendsFoo)
+            assertThat(env.createTypeArgument(paramType, XVariance.OUT).asTypeName())
+                .isEqualTo(extendsListExtendsFoo)
+
+            // Expected: `? super List<Foo>`
+            val superListFoo = XTypeName.getConsumerSuperName(listFoo)
+            assertThat(env.getWildcardType(consumerSuper = returnType).asTypeName())
+                .isEqualTo(superListFoo)
+            assertThat(env.createTypeArgument(returnType, XVariance.IN).asTypeName())
+                .isEqualTo(superListFoo)
+
+            // Expected: `? super List<? extends Foo>`
+            val superListExtendsFoo = XTypeName.getConsumerSuperName(listExtendsFoo)
+            assertThat(env.getWildcardType(consumerSuper = paramType).asTypeName())
+                .isEqualTo(superListExtendsFoo)
+            assertThat(env.createTypeArgument(paramType, XVariance.IN).asTypeName())
+                .isEqualTo(superListExtendsFoo)
+
+            // Expected: ?
+            assertThat(env.getWildcardType().asTypeName()).isEqualTo(XTypeName.ANY_WILDCARD)
+        }
+    }
+
+    @Test
+    fun valueClassGenericErasure_typeArguments() {
+        val source =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                @JvmInline value class Box<T>(val value: T)
+                interface Subject {
+                    fun method(): Box<String>
+                }
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            if (invocation.isKsp) {
+                assertThat(subject.getDeclaredMethods()).hasSize(1)
+                val boxType = subject.getDeclaredMethods().single().returnType
+
+                // XType.typeArguments should still return the Kotlin argument (String)
+                val anyNullable = XTypeName.ANY_OBJECT.copy(nullable = true)
+                val boxString = XClassName.get("test", "Box").parametrizedBy(XTypeName.STRING)
+                assertThat(boxType.asTypeName())
+                    .isEqualTo(XTypeName(java = anyNullable.java, kotlin = boxString.kotlin))
+                assertThat(boxType.typeArguments.single().asTypeName()).isEqualTo(XTypeName.STRING)
+
+                // XTypeName.typeArguments should be null due to JVM erasure mismatch
+                assertThat(boxType.asTypeName().typeArguments).isNull()
+            } else {
+                assertThat(subject.getDeclaredMethods()).isEmpty()
+            }
+        }
+    }
+
+    @Test
+    fun primitiveArrayType() {
+        runProcessorTest { invocation ->
+            val booleanType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_BOOLEAN)
+            assertThat(booleanType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_BOOLEAN)
+            assertThat(invocation.processingEnv.getArrayType(booleanType).asTypeName())
+                .isEqualTo(XTypeName.getArrayName(XTypeName.PRIMITIVE_BOOLEAN))
+        }
+    }
+
+    @Test
+    fun primitiveTypeArgumentToBoxedArrayType() {
+        runProcessorTest { invocation ->
+            val booleanTypeArgument =
+                invocation.processingEnv.createTypeArgument(
+                    invocation.processingEnv.requireType(XTypeName.PRIMITIVE_BOOLEAN),
+                    XVariance.INVARIANT,
+                )
+            assertThat(booleanTypeArgument.asTypeName()).isEqualTo(XTypeName.BOXED_BOOLEAN)
+            assertThat(invocation.processingEnv.getArrayType(booleanTypeArgument).asTypeName())
+                .isEqualTo(XTypeName.getArrayName(XTypeName.BOXED_BOOLEAN))
+
+            val boxedBooleanTypeArgument =
+                invocation.processingEnv.createTypeArgument(
+                    booleanTypeArgument.type.boxed(),
+                    booleanTypeArgument.variance,
+                )
+            assertThat(boxedBooleanTypeArgument.asTypeName()).isEqualTo(XTypeName.BOXED_BOOLEAN)
+
+            val boxedBooleanArrayType =
+                invocation.processingEnv.getArrayType(boxedBooleanTypeArgument)
+            assertThat(boxedBooleanArrayType.asTypeName())
+                .isEqualTo(XTypeName.getArrayName(XTypeName.BOXED_BOOLEAN))
+        }
+    }
 }

@@ -16,6 +16,7 @@
 
 package androidx.room3.compiler.processing.ksp
 
+import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.tryUnbox
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.javapoet.JTypeName
@@ -27,8 +28,11 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
  * a kotlin.Int might be non-null but still be non primitive if it is derived from a generic type
  * argument or is part of type parameters.
  */
-internal class KspPrimitiveType(env: KspProcessingEnv, ksType: KSType) :
-    KspType(env, ksType, null) {
+internal class KspPrimitiveType(
+    env: KspProcessingEnv,
+    ksType: KSType,
+    knownTypeName: Lazy<XTypeName>? = null,
+) : KspType(env, ksType, null, knownTypeName) {
     override fun resolveJTypeName(): JTypeName {
         return super.resolveJTypeName().tryUnbox()
     }
@@ -37,6 +41,10 @@ internal class KspPrimitiveType(env: KspProcessingEnv, ksType: KSType) :
         return env.wrap(ksType = ksType, allowPrimitives = false)
     }
 
-    override fun copy(env: KspProcessingEnv, ksType: KSType, scope: KSTypeVarianceResolverScope?) =
-        KspPrimitiveType(env, ksType)
+    override fun copy(
+        env: KspProcessingEnv,
+        ksType: KSType,
+        scope: KSTypeVarianceResolverScope?,
+        knownTypeName: Lazy<XTypeName>?,
+    ) = KspPrimitiveType(env, ksType, knownTypeName)
 }

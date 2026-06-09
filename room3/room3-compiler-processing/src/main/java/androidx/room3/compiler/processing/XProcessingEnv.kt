@@ -113,8 +113,7 @@ interface XProcessingEnv {
     fun getWildcardType(consumerSuper: XType? = null, producerExtends: XType? = null): XTypeArgument
 
     /** Return an [XArrayType] that has [type] as the [XArrayType.componentType]. */
-    fun getArrayType(type: XType): XArrayType =
-        getArrayType(createTypeArgument(type, XVariance.INVARIANT))
+    fun getArrayType(type: XType): XArrayType
 
     /** Return an [XArrayType] that has [typeArgument] as the [XArrayType.componentType]. */
     fun getArrayType(typeArgument: XTypeArgument): XArrayType

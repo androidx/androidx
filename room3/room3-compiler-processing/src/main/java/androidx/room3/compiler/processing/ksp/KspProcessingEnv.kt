@@ -57,7 +57,6 @@ import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueArgument
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Nullability
-import com.google.devtools.ksp.symbol.Variance
 
 internal class KspProcessingEnv(
     val delegate: SymbolProcessorEnvironment,
@@ -125,16 +124,16 @@ internal class KspProcessingEnv(
 
     override fun findGeneratedAnnotation() = kspResolver.findGeneratedAnnotation()
 
-    override fun createTypeArgument(type: XType, variance: XVariance): KspTypeArgument {
-        check(type is KspType)
-        return KspTypeArgument.create(this, type, variance)
-    }
+    override fun createTypeArgument(type: XType, variance: XVariance): KspTypeArgument =
+        KspTypeArgument.create(this, type, variance)
 
     override fun getDeclaredType(type: XTypeElement, vararg typeArguments: XTypeArgument) =
         kspResolver.getDeclaredType(type, *typeArguments)
 
     override fun getWildcardType(consumerSuper: XType?, producerExtends: XType?) =
         kspResolver.getWildcardType(consumerSuper, producerExtends)
+
+    override fun getArrayType(type: XType) = kspResolver.getArrayType(type)
 
     override fun getArrayType(typeArgument: XTypeArgument) = kspResolver.getArrayType(typeArgument)
 
@@ -259,6 +258,14 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
         KspVoidType(env = env, ksType = resolver.builtIns.unitType, boxed = false)
     }
 
+    val anyType: KspType by lazy { wrap(resolver.builtIns.anyType, allowPrimitives = false) }
+
+    val starType: KspTypeArgument by lazy {
+        // This returns the type "out Any?", which should be equivalent to "*".
+        // TODO: We should return actual STAR variance here.
+        env.createTypeArgument(anyType.makeNullable(), XVariance.OUT)
+    }
+
     fun findTypeElement(qName: String): KspTypeElement? {
         return typeElementStore[KspTypeMapper.swapWithKotlinType(qName)]
     }
@@ -302,41 +309,38 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
     fun getDeclaredType(type: XTypeElement, vararg typeArguments: XTypeArgument): KspType {
         check(type is KspTypeElement) { "Unexpected type element type: $type" }
         return wrap(
-            ksType =
-                type.declaration.asType(
-                    typeArguments.map {
-                        check(it is KspTypeArgument) { "$it is not an instance of KspTypeArgument" }
-                        it.ksTypeArgument
-                    }
-                ),
-            allowPrimitives = false,
-        )
+                ksType =
+                    type.declaration.asType(
+                        typeArguments.map {
+                            check(it is KspTypeArgument) {
+                                "$it is not an instance of KspTypeArgument"
+                            }
+                            it.ksTypeArgument
+                        }
+                    ),
+                allowPrimitives = false,
+            )
+            .copyWithKnownTypeName {
+                type
+                    .asClassName()
+                    .parametrizedBy(*typeArguments.map { it.asTypeName() }.toTypedArray())
+            }
     }
 
     fun getWildcardType(consumerSuper: XType?, producerExtends: XType?): XTypeArgument {
         check(consumerSuper == null || producerExtends == null) {
             "Cannot supply both super and extends bounds."
         }
-        return wrap(
-            ksTypeArgument =
-                if (consumerSuper != null) {
-                    resolver.getTypeArgument(
-                        typeRef = (consumerSuper as KspType).ksType.createTypeReference(),
-                        variance = Variance.CONTRAVARIANT,
-                    )
-                } else if (producerExtends != null) {
-                    resolver.getTypeArgument(
-                        typeRef = (producerExtends as KspType).ksType.createTypeReference(),
-                        variance = Variance.COVARIANT,
-                    )
-                } else {
-                    // This returns the type "out Any?", which should be equivalent to "*"
-                    resolver.getTypeArgument(
-                        typeRef = resolver.builtIns.anyType.makeNullable().createTypeReference(),
-                        variance = Variance.COVARIANT,
-                    )
-                }
-        )
+        return when {
+            consumerSuper != null -> env.createTypeArgument(consumerSuper, XVariance.IN)
+            producerExtends != null -> env.createTypeArgument(producerExtends, XVariance.OUT)
+            else -> starType
+        }
+    }
+
+    fun getArrayType(type: XType): KspArrayType {
+        check(type is KspType)
+        return arrayTypeFactory.createWithComponentType(type)
     }
 
     fun getArrayType(typeArgument: XTypeArgument): KspArrayType {
