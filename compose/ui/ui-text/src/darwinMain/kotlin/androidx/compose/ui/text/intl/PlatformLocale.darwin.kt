@@ -31,21 +31,22 @@ internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
             get() = LocaleList(NSLocale.preferredLanguages.map { Locale(NSLocale(it as String)) })
     }
 
-internal fun NSLocale.isRtl(): Boolean =
-    NSLocale.characterDirectionForLanguage(languageCode) == NSLocaleLanguageDirectionRightToLeft
-
-
-// TODO: https://youtrack.jetbrains.com/issue/CMP-9697/Add-public-API-to-create-a-Compose-Locale-instance-via-NSLocale
 @Immutable
-actual class Locale internal constructor(internal val platformLocale: NSLocale) {
-    private val languageTag: String = platformLocale.languageIdentifier
+actual class Locale internal constructor(
+    internal val platformLocale: NSLocale,
+) {
+    // Strip NSLocale-specific keyword suffixes so toLanguageTag stays BCP47-compatible.
+    private val languageTag: String =
+        NSLocale.canonicalLanguageIdentifierFromString(
+            platformLocale.localeIdentifier.substringBefore("@")
+        )
 
     actual val language: String
         get() = platformLocale.languageCode
     actual val script: String
         get() = platformLocale.scriptCode.orEmpty()
     actual val region: String
-        get() = platformLocale.countryCode ?: "US"
+        get() = platformLocale.countryCode.orEmpty()
 
     actual fun toLanguageTag(): String = languageTag
 
@@ -67,6 +68,14 @@ actual class Locale internal constructor(internal val platformLocale: NSLocale) 
 
     actual constructor(languageTag: String): this(NSLocale(languageTag))
 }
+
+/**
+ * Creates [Locale] object from platform specific [NSLocale].
+ */
+fun NSLocale.toComposeLocale(): Locale = Locale(this)
+
+private fun NSLocale.isRtl(): Boolean =
+    NSLocale.characterDirectionForLanguage(languageCode) == NSLocaleLanguageDirectionRightToLeft
 
 internal actual fun Locale.isRtl(): Boolean {
     return platformLocale.isRtl()

@@ -1,5 +1,6 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, js, macosArm64, wasmJs]
+// Alias: apple => [iosArm64, iosSimulatorArm64, macosArm64]
 // Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
@@ -2055,6 +2056,9 @@ final inline fun <#A: kotlin/Any> (androidx.compose.ui.text/AnnotatedString.Buil
 final inline fun <#A: kotlin/Any> (androidx.compose.ui.text/AnnotatedString.Builder).androidx.compose.ui.text/withStyle(androidx.compose.ui.text/SpanStyle, kotlin/Function1<androidx.compose.ui.text/AnnotatedString.Builder, #A>): #A // androidx.compose.ui.text/withStyle|withStyle@androidx.compose.ui.text.AnnotatedString.Builder(androidx.compose.ui.text.SpanStyle;kotlin.Function1<androidx.compose.ui.text.AnnotatedString.Builder,0:0>){0§<kotlin.Any>}[0]
 final inline fun <#A: kotlin/Any?> androidx.compose.ui.text.platform/synchronized(androidx.compose.ui.text.platform/SynchronizedObject, kotlin/Function0<#A>): #A // androidx.compose.ui.text.platform/synchronized|synchronized(androidx.compose.ui.text.platform.SynchronizedObject;kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
 final inline fun androidx.compose.ui.text/buildAnnotatedString(kotlin/Function1<androidx.compose.ui.text/AnnotatedString.Builder, kotlin/Unit>): androidx.compose.ui.text/AnnotatedString // androidx.compose.ui.text/buildAnnotatedString|buildAnnotatedString(kotlin.Function1<androidx.compose.ui.text.AnnotatedString.Builder,kotlin.Unit>){}[0]
+
+// Targets: [apple]
+final fun (platform.Foundation/NSLocale).androidx.compose.ui.text.intl/toComposeLocale(): androidx.compose.ui.text.intl/Locale // androidx.compose.ui.text.intl/toComposeLocale|toComposeLocale@platform.Foundation.NSLocale(){}[0]
 
 // Targets: [ios]
 final val androidx.compose.ui.text.input/androidx_compose_ui_text_input_PlatformImeOptionsConfiguration$stableprop // androidx.compose.ui.text.input/androidx_compose_ui_text_input_PlatformImeOptionsConfiguration$stableprop|#static{}androidx_compose_ui_text_input_PlatformImeOptionsConfiguration$stableprop[0]
