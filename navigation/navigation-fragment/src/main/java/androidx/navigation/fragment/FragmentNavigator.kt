@@ -164,7 +164,35 @@ public open class FragmentNavigator(
 
         fragmentManager.addOnBackStackChangedListener(
             object : OnBackStackChangedListener {
-                override fun onBackStackChanged() {}
+                override fun onBackStackChanged() {
+                    state.transitionsInProgress.value.toList().forEach { entry ->
+                        val fragment = fragmentManager.findFragmentByTag(entry.id)
+                        val isCurrent = entry == state.backStack.value.lastOrNull()
+                        val shouldComplete =
+                            if (isCurrent) {
+                                fragment == null ||
+                                    (fragment.view == null &&
+                                        fragment.lifecycle.currentState.isAtLeast(
+                                            Lifecycle.State.RESUMED
+                                        )) ||
+                                    (fragment.view != null &&
+                                        fragment.viewLifecycleOwner.lifecycle.currentState
+                                            .isAtLeast(Lifecycle.State.RESUMED))
+                            } else {
+                                fragment == null || fragment.view == null
+                            }
+                        if (shouldComplete) {
+                            if (isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(
+                                    TAG,
+                                    "Marking transition complete for entry " +
+                                        "$entry due to fragment $fragment being in final state",
+                                )
+                            }
+                            state.markTransitionComplete(entry)
+                        }
+                    }
+                }
 
                 override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
                     // We only care about the pop case here since in the navigate case by the time
@@ -241,11 +269,7 @@ public open class FragmentNavigator(
     private fun attachObservers(entry: NavBackStackEntry, fragment: Fragment) {
         fragment.viewLifecycleOwnerLiveData.observe(fragment) { owner ->
             // attach observer unless it was already popped at this point
-            // we get onBackStackStackChangedCommitted callback for an executed navigate where we
-            // remove incoming fragment from pendingOps before ATTACH so the listener will still
-            // be added
-            val isPending = pendingOps.any { it.first == fragment.tag }
-            if (owner != null && !isPending) {
+            if (owner != null) {
                 val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
                 // We only need to add observers while the viewLifecycle has not reached a final
                 // state
@@ -269,18 +293,14 @@ public open class FragmentNavigator(
                 CreationExtras.Empty,
             )[ClearEntryStateViewModel::class.java]
         viewModel.completeTransition = WeakReference {
-            entry.let {
-                state.transitionsInProgress.value.forEach { entry ->
-                    if (isLoggingEnabled(Log.VERBOSE)) {
-                        Log.v(
-                            TAG,
-                            "Marking transition complete for entry " +
-                                "$entry due to fragment $fragment viewmodel being cleared",
-                        )
-                    }
-                    state.markTransitionComplete(entry)
-                }
+            if (isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(
+                    TAG,
+                    "Marking transition complete for entry " +
+                        "$entry due to fragment $fragment viewmodel being cleared",
+                )
             }
+            state.markTransitionComplete(entry)
         }
     }
 
