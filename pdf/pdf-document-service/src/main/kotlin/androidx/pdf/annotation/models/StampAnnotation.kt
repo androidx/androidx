@@ -19,7 +19,6 @@ package androidx.pdf.annotation.models
 import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 
 /**
  * Represents a stamp annotation in a PDF document.
@@ -33,12 +32,22 @@ import androidx.annotation.RestrictTo
  * @property pdfObjects A list of [PdfObject] instances that define the visual appearance of the
  *   stamp.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class StampAnnotation(
-    pageNum: Int,
-    public val bounds: RectF,
-    public val pdfObjects: List<PdfObject>,
-) : PdfAnnotation(pageNum) {
+internal class StampAnnotation(pageNum: Int, val bounds: RectF, val pdfObjects: List<PdfObject>) :
+    PdfAnnotation(pageNum) {
+
+    internal constructor(
+        parcel: Parcel
+    ) : this(
+        pageNum = parcel.readInt(),
+        bounds = RectF().apply { readFromParcel(parcel) },
+        pdfObjects =
+            mutableListOf<PdfObject>().apply {
+                val size = parcel.readInt()
+                for (i in 0 until size) {
+                    PdfObjectFactory.createFromParcel(parcel)?.let { add(it) }
+                }
+            },
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -57,24 +66,22 @@ public class StampAnnotation(
         return result
     }
 
-    override fun describeContents(): Int = 0
-
-    /** Flattens this object in to a Parcel. */
-    public fun writeStampAnnotationToParcel(dest: Parcel, flags: Int) {
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(TYPE)
         dest.writeInt(pageNum)
         bounds.writeToParcel(dest, flags)
         dest.writeInt(pdfObjects.size)
         for (pdfObject in pdfObjects) {
-            when (pdfObject) {
-                is PathPdfObject -> {
-                    pdfObject.writeToParcel(dest, flags)
-                }
-                else -> {}
-            }
+            pdfObject.writeToParcel(dest, flags)
         }
     }
 
-    internal companion object {
+    override fun describeContents(): Int = 0
+
+    companion object {
+        /** The type identifier for [StampAnnotation]. */
+        internal const val TYPE: Int = 1
+
         /** [Parcelable.Creator] that instantiates [StampAnnotation] objects from a [Parcel]. */
         @JvmField
         val CREATOR: Parcelable.Creator<StampAnnotation> =
@@ -84,24 +91,8 @@ public class StampAnnotation(
                  * Parcel
                  */
                 override fun createFromParcel(source: Parcel): StampAnnotation {
-                    val pageNum = source.readInt()
-                    val bounds = RectF()
-                    bounds.readFromParcel(source)
-                    val size = source.readInt()
-                    val objects = mutableListOf<PdfObject>()
-                    for (i in 0 until size) {
-
-                        // Fetching the type of the object without affecting parcel position
-                        val objectType = source.readInt()
-
-                        when (objectType) {
-                            PdfObject.TYPE_PATH_PDF_OBJECT -> {
-                                objects.add(PathPdfObject.CREATOR.createFromParcel(source))
-                            }
-                        // TODO: Add other pdf object types here
-                        }
-                    }
-                    return StampAnnotation(pageNum, bounds, objects)
+                    val type = source.readInt()
+                    return StampAnnotation(source)
                 }
 
                 /** Creates a new array of the Parcelable class. */

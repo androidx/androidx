@@ -20,10 +20,10 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import androidx.pdf.annotation.highlights.utils.applyTransform
 import androidx.pdf.annotation.highlights.utils.computeBoundingBox
 import androidx.pdf.annotation.highlights.utils.toPathPdfObjects
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

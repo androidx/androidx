@@ -25,9 +25,9 @@ import android.util.SparseArray
 import androidx.annotation.IntDef
 import androidx.annotation.LongDef
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.KeyedPdfObject
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfObject
+import androidx.pdf.annotation.content.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageGotoLinkContent
@@ -341,7 +341,7 @@ public interface PdfDocument : Closeable {
      *
      * @property textContents A list of [PdfPageTextContent] objects representing the text elements
      *   on the page.
-     * @property imageContents A list of ]PdfPageImageContent] objects representing the image
+     * @property imageContents A list of [PdfPageImageContent] objects representing the image
      *   elements on the page.
      */
     public class PdfPageContent(

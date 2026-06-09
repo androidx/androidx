@@ -19,8 +19,8 @@ package androidx.pdf.ocr
 import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocument
-import androidx.pdf.annotation.models.ImagePdfObject
-import androidx.pdf.annotation.models.bitmapSize
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.bitmapSize
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
 import java.util.Collections
 import kotlin.math.abs

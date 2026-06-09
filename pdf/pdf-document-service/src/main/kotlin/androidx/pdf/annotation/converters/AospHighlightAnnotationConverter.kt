@@ -20,16 +20,19 @@ import android.graphics.pdf.component.HighlightAnnotation as AospHighlightAnnota
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.Converter
-import androidx.pdf.annotation.models.HighlightAnnotation
+import androidx.pdf.annotation.models.HighlightAnnotation as ParcelableHighlightAnnotation
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class AospHighlightAnnotationConverter :
-    Converter<AospHighlightAnnotation, HighlightAnnotation> {
-    override fun convert(from: AospHighlightAnnotation, vararg args: Any): HighlightAnnotation {
+    Converter<AospHighlightAnnotation, ParcelableHighlightAnnotation> {
+    override fun convert(
+        from: AospHighlightAnnotation,
+        vararg args: Any,
+    ): ParcelableHighlightAnnotation {
         require(args.isNotEmpty() && args[0] is Int) {
             "First parameter is required to be pagenum."
         }
         val pageNum = args[0] as Int
-        return HighlightAnnotation(pageNum, from.boundsList, from.color)
+        return ParcelableHighlightAnnotation(pageNum, from.boundsList, from.color)
     }
 }

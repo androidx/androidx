@@ -18,8 +18,8 @@ package androidx.pdf.annotation.drawer
 
 import android.graphics.Canvas
 import android.graphics.Matrix
-import androidx.pdf.annotation.models.PdfObject
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.PdfObject
+import androidx.pdf.annotation.content.StampAnnotation
 
 /** Draws [StampAnnotation] instances on a [Canvas]. */
 internal class StampPdfAnnotationDrawer(

@@ -16,7 +16,7 @@
 
 package androidx.pdf.annotation
 
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.test.espresso.idling.CountingIdlingResource
 
 internal class FakeHighlightListeners(private val highlightIdlingResource: CountingIdlingResource) :

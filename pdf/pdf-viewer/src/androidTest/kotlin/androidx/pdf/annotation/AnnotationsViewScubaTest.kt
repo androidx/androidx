@@ -30,10 +30,11 @@ import androidx.pdf.ANNOTATION_VIEW_SQUARE_SCALED
 import androidx.pdf.ANNOTATION_VIEW_SQUARE_TRANSLATED
 import androidx.pdf.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.PdfAnnotation
+import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.assertScreenshot
 import androidx.pdf.view.PdfViewTestActivity
 import androidx.test.core.app.ActivityScenario

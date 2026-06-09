@@ -19,15 +19,27 @@ package androidx.pdf.annotation.models
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
+import androidx.pdf.constants.PathOp
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class PathPdfObject(
-    public val brushColor: Int,
-    public val brushWidth: Float,
-    public val inputs: List<PathInput>,
+internal class PathPdfObject(
+    val brushColor: Int,
+    val brushWidth: Float,
+    val inputs: List<PathInput>,
 ) : PdfObject {
+
+    internal constructor(
+        parcel: Parcel
+    ) : this(
+        brushColor = parcel.readInt(),
+        brushWidth = parcel.readFloat(),
+        inputs =
+            mutableListOf<PathInput>().apply {
+                val inputSize = parcel.readInt()
+                for (i in 0 until inputSize) {
+                    add(PathInput.CREATOR.createFromParcel(parcel))
+                }
+            },
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -48,9 +60,8 @@ public class PathPdfObject(
     }
 
     /** Flattens this object in to a Parcel. */
-    public override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        val inputs: List<PathInput> = inputs
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(TYPE)
         dest.writeInt(brushColor)
         dest.writeFloat(brushWidth)
         dest.writeInt(inputs.size)
@@ -59,20 +70,16 @@ public class PathPdfObject(
         }
     }
 
-    public companion object {
+    companion object {
+        /** Constant representing a path PDF object type. */
+        internal const val TYPE: Int = 1
+
         @JvmField
-        public val CREATOR: Parcelable.Creator<PathPdfObject> =
+        val CREATOR: Parcelable.Creator<PathPdfObject> =
             object : Parcelable.Creator<PathPdfObject> {
                 override fun createFromParcel(parcel: Parcel): PathPdfObject {
-                    val brushColor = parcel.readInt()
-                    val brushWidth = parcel.readFloat()
-                    val inputSize = parcel.readInt()
-                    val inputs = mutableListOf<PathInput>()
-                    for (i in 0 until inputSize) {
-                        val input = PathInput.CREATOR.createFromParcel(parcel)
-                        inputs.add(input)
-                    }
-                    return PathPdfObject(brushColor, brushWidth, inputs)
+                    val type = parcel.readInt()
+                    return PathPdfObject(parcel)
                 }
 
                 override fun newArray(size: Int): Array<PathPdfObject?> {
@@ -88,13 +95,8 @@ public class PathPdfObject(
      * @param y is property the y-coordinate of the point.
      * @param command The type of path operation (e.g., [MOVE_TO] or [LINE_TO]).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressLint("BanParcelableUsage")
-    public class PathInput(
-        public val x: Float,
-        public val y: Float,
-        @PathOp public val command: Int,
-    ) : Parcelable {
+    internal class PathInput(val x: Float, val y: Float, @PathOp val command: Int) : Parcelable {
         override fun equals(other: Any?): Boolean {
             return (other is PathInput) && other.x == x && other.y == y && other.command == command
         }
@@ -106,28 +108,23 @@ public class PathPdfObject(
             return result
         }
 
-        public override fun writeToParcel(parcel: Parcel, flags: Int) {
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
             parcel.writeFloat(x)
             parcel.writeFloat(y)
             parcel.writeInt(command)
         }
 
-        public override fun describeContents(): Int = 0
+        override fun describeContents(): Int = 0
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(MOVE_TO, LINE_TO)
-        public annotation class PathOp
-
-        public companion object {
+        companion object {
             /** Starts a new sub-path from the given coordinate. */
-            public const val MOVE_TO: Int = 0
+            const val MOVE_TO: Int = androidx.pdf.constants.PathOps.MOVE_TO
 
             /** Draws a line from the previous point to the given coordinate. */
-            public const val LINE_TO: Int = 1
+            const val LINE_TO: Int = androidx.pdf.constants.PathOps.LINE_TO
 
             @JvmField
-            public val CREATOR: Parcelable.Creator<PathInput> =
+            val CREATOR: Parcelable.Creator<PathInput> =
                 object : Parcelable.Creator<PathInput> {
                     override fun createFromParcel(parcel: Parcel): PathInput {
                         return PathInput(parcel.readFloat(), parcel.readFloat(), parcel.readInt())

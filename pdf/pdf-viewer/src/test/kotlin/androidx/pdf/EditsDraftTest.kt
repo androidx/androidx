@@ -16,7 +16,7 @@
 
 package androidx.pdf
 
-import androidx.pdf.annotation.models.TestPdfAnnotation
+import androidx.pdf.annotation.content.TestPdfAnnotation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

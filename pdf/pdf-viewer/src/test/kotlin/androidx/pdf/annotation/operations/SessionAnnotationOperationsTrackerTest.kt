@@ -16,7 +16,7 @@
 
 package androidx.pdf.annotation.operations
 
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.operations.KeyedAnnotationOperation.OperationType
 import androidx.pdf.annotation.registry.FakeAnnotationHandleRegistry
 import com.google.common.truth.Truth.assertThat

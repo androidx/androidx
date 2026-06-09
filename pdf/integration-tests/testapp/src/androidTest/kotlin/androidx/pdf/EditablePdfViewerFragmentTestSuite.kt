@@ -28,7 +28,7 @@ import androidx.pdf.FragmentUtils.scenarioLoadDocument
 import androidx.pdf.actions.TwoFingerSwipeDownAction
 import androidx.pdf.actions.TwoFingerSwipeUpAction
 import androidx.pdf.actions.clickOnPdfPoint
-import androidx.pdf.annotation.models.HighlightAnnotation
+import androidx.pdf.annotation.content.HighlightAnnotation
 import androidx.pdf.ink.R as PdfInkR
 import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.util.Preconditions

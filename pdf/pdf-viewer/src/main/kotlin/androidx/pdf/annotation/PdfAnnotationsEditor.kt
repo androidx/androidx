@@ -17,10 +17,11 @@
 package androidx.pdf.annotation
 
 import androidx.annotation.RestrictTo
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.history.AnnotationRecordsHistoryManager
 import androidx.pdf.annotation.manager.PdfAnnotationsManager
 import androidx.pdf.annotation.models.KeyedAnnotationRecord
-import androidx.pdf.annotation.models.PdfAnnotation
 
 /**
  * Represents a transactional editor that sits on top of the
@@ -41,7 +42,7 @@ public class PdfAnnotationsEditor(
     /**
      * Adds a new draft annotation to the document and pushes the action to the Undo stack.
      *
-     * @param annotation The [androidx.pdf.annotation.models.PdfAnnotation] content to add.
+     * @param annotation The [PdfAnnotation] content to add.
      * @return The unique Handle ID assigned to the new annotation.
      */
     public fun addDraftAnnotation(annotation: PdfAnnotation): String {
@@ -100,8 +101,7 @@ public class PdfAnnotationsEditor(
     }
 
     /**
-     * Applies the logic of [androidx.pdf.annotation.models.KeyedAnnotationRecord] to the manager
-     * without recording history.
+     * Applies the logic of [KeyedAnnotationRecord] to the manager without recording history.
      *
      * This method acts as a router, translating History Records into concrete Manager actions.
      */

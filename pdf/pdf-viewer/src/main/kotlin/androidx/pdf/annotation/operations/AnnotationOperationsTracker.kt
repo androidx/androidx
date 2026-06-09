@@ -18,7 +18,7 @@ package androidx.pdf.annotation.operations
 
 import androidx.annotation.RestrictTo
 import androidx.pdf.EditsDraft
-import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.registry.AnnotationHandleRegistry
 
 /** Manages and tracks the lifecycle of annotation modification operations within a session. */

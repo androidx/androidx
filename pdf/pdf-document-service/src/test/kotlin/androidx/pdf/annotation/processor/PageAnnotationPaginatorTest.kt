@@ -18,9 +18,9 @@ package androidx.pdf.annotation.processor
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.PageAnnotationsProvider
 import androidx.pdf.annotation.createKeyedPdfAnnotationList
+import androidx.pdf.annotation.models.KeyedPdfAnnotation
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

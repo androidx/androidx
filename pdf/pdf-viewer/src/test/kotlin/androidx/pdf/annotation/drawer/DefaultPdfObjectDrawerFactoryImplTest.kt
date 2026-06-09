@@ -16,7 +16,7 @@
 
 package androidx.pdf.annotation.drawer
 
-import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

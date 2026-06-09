@@ -18,7 +18,6 @@ package androidx.pdf.annotation.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 
 /**
  * Represents an annotation on a PDF page.
@@ -28,28 +27,13 @@ import androidx.annotation.RestrictTo
  *
  * @param pageNum The page number (0-indexed) where this annotation is located.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public abstract class PdfAnnotation(public open val pageNum: Int) : Parcelable {
+internal abstract class PdfAnnotation(open val pageNum: Int) : Parcelable {
 
     /** Default implementation for [Parcelable.describeContents], returning 0. */
     override fun describeContents(): Int = 0
 
     /** Flattens this object in to a Parcel. */
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        when (this) {
-            is StampAnnotation -> {
-                dest.writeInt(STAMP_ANNOTATION_TYPE)
-                writeStampAnnotationToParcel(dest, flags)
-            }
-            is HighlightAnnotation -> {
-                dest.writeInt(HIGHLIGHT_ANNOTATION_TYPE)
-                writeHighlightAnnotationToParcel(dest, flags)
-            }
-            else -> {
-                dest.writeInt(UNKNOWN_TYPE)
-            }
-        }
-    }
+    abstract override fun writeToParcel(dest: Parcel, flags: Int)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -67,28 +51,13 @@ public abstract class PdfAnnotation(public open val pageNum: Int) : Parcelable {
         return pageNum
     }
 
-    public companion object {
-        /** Unknown annotation type. */
-        internal const val UNKNOWN_TYPE: Int = -1
-
-        /** Stamp annotation type representing [StampAnnotation] */
-        internal const val STAMP_ANNOTATION_TYPE: Int = 1
-
-        /** Highlight annotation type representing [HighlightAnnotation] */
-        internal const val HIGHLIGHT_ANNOTATION_TYPE: Int = 2
-
-        /** Parcelable creator for [PdfAnnotation]. */
+    companion object {
+        /** [Parcelable.Creator] that instantiates [PdfAnnotation] objects from a [Parcel]. */
         @JvmField
-        public val CREATOR: Parcelable.Creator<PdfAnnotation> =
+        val CREATOR: Parcelable.Creator<PdfAnnotation> =
             object : Parcelable.Creator<PdfAnnotation> {
                 override fun createFromParcel(parcel: Parcel): PdfAnnotation? {
-                    val type = parcel.readInt()
-                    return when (type) {
-                        STAMP_ANNOTATION_TYPE -> StampAnnotation.CREATOR.createFromParcel(parcel)
-                        HIGHLIGHT_ANNOTATION_TYPE ->
-                            HighlightAnnotation.CREATOR.createFromParcel(parcel)
-                        else -> null
-                    }
+                    return PdfAnnotationFactory.createFromParcel(parcel)
                 }
 
                 override fun newArray(size: Int): Array<PdfAnnotation?> {

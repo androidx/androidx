@@ -19,8 +19,8 @@ package androidx.pdf.ocr
 import android.graphics.Bitmap
 import android.graphics.RectF
 import androidx.pdf.FakePdfDocument
-import androidx.pdf.annotation.models.ImagePdfObject
-import androidx.pdf.annotation.models.KeyedPdfObject
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.KeyedPdfObject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

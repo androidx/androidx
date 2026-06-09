@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.pdf.annotation.models
+package androidx.pdf.annotation.content
 
-class TestPdfAnnotation(override val pageNum: Int) : PdfAnnotation(pageNum) {
-    override fun equals(other: Any?): Boolean {
-        if (!super.equals(other)) return false
-        if (other == null || other !is TestPdfAnnotation) return false
+import androidx.annotation.RestrictTo
 
-        if (other.pageNum != pageNum) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + pageNum
-        return result
-    }
+/** Represents a single edit operation on a PDF document's annotations. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface DraftEditOperation {
+    /** Returns the page number of the operation. */
+    public val pageNum: Int
 }

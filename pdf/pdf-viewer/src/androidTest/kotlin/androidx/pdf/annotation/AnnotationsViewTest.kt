@@ -29,10 +29,11 @@ import android.widget.FrameLayout
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
 import androidx.pdf.annotation.InProgressHighlightViewTest.FakeTextBoundsProvider
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.annotation.highlights.InProgressHighlightsView
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.pdf.annotation.models.StampAnnotation
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.view.FakePdfDocument
 import androidx.pdf.view.PdfViewTestActivity

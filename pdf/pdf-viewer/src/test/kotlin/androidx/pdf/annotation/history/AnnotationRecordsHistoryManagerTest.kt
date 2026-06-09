@@ -17,7 +17,7 @@
 package androidx.pdf.annotation.history
 
 import androidx.pdf.annotation.AnnotationHandleIdGenerator
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.KeyedAnnotationRecord
 import com.google.common.truth.Truth.assertThat
 import createStampAnnotationWithPath

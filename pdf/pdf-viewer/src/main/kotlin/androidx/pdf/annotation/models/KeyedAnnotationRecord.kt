@@ -17,7 +17,7 @@
 package androidx.pdf.annotation.models
 
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 
 /**
  * An [KeyedAnnotationRecord] that specifically operates on [KeyedPdfAnnotation].

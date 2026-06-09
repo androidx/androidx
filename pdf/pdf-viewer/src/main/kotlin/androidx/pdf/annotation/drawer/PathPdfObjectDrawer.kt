@@ -22,8 +22,8 @@ import android.graphics.Paint
 import android.graphics.Path
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.withMatrix
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
 
 /** Creates a [Path] from this object's input points. */
 @VisibleForTesting

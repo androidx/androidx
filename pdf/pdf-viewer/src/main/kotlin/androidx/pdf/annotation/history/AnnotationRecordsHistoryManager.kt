@@ -17,7 +17,7 @@
 package androidx.pdf.annotation.history
 
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.KeyedAnnotationRecord
 import kotlinx.coroutines.flow.StateFlow
 

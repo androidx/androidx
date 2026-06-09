@@ -17,9 +17,9 @@
 package androidx.pdf.annotation.draftstate
 
 import android.graphics.RectF
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.StampAnnotation
-import androidx.pdf.annotation.models.StampAnnotationTest.Companion.getSampleStampAnnotation
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.StampAnnotation
+import androidx.pdf.annotation.content.StampAnnotationTest.Companion.getSampleStampAnnotation
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

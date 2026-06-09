@@ -18,11 +18,9 @@ package androidx.pdf
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 
 /** Represents the result of a batch of draft edit operations on a PDF document. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed class DraftEditResult : Parcelable {
+internal sealed class DraftEditResult : Parcelable {
 
     override fun describeContents(): Int = 0
 
@@ -32,7 +30,7 @@ public sealed class DraftEditResult : Parcelable {
      * @property ids A list of unique identifiers corresponding to the successfully applied edits.
      *   The order of IDs matches the order of operations in the request.
      */
-    public data class Success(val ids: List<String>) : DraftEditResult() {
+    data class Success(val ids: List<String>) : DraftEditResult() {
 
         internal constructor(
             parcel: Parcel
@@ -53,7 +51,7 @@ public sealed class DraftEditResult : Parcelable {
      *   applied before the failure occurred.
      * @property errorMessage A descriptive message explaining the reason for the failure.
      */
-    public data class Failure(
+    data class Failure(
         val failedBatchIndex: Int,
         val appliedIds: List<String>,
         val errorMessage: String,

@@ -18,18 +18,12 @@ package androidx.pdf.annotation.processor
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.pdf.annotation.models.KeyedPdfObject
+import androidx.pdf.annotation.models.KeyedPdfObject as ParcelableKeyedPdfObject
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.unflatten
 import androidx.pdf.models.PageObjectsProvider
-import androidx.pdf.models.PaginatedObjects
+import androidx.pdf.models.PaginatedObjects as ParcelablePaginatedObjects
 
-/**
- * Responsible for fetching and managing objects for a specific page of a PDF document.
- *
- * @property pageNum The 0-based index of the page for which to fetch objects.
- * @property objectsProvider The [PageObjectsProvider] to fetch the objects.
- * @property types The types of objects to retrieve.
- */
+/** Responsible for fetching and managing objects for a specific page of a PDF document. */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class PageObjectsPaginator(
     internal val pageNum: Int,
@@ -37,14 +31,14 @@ internal class PageObjectsPaginator(
     internal val types: Long,
 ) {
 
-    private val allObjectBatches: List<List<KeyedPdfObject>> by lazy {
+    private val allObjectBatches: List<List<ParcelableKeyedPdfObject>> by lazy {
         objectsProvider.getPageObjects(pageNum, types).unflatten(MAX_BATCH_SIZE_IN_BYTES)
     }
 
-    fun getPageObjects(nextBatchIndex: Int = 0): PaginatedObjects? {
+    fun getPageObjects(nextBatchIndex: Int = 0): ParcelablePaginatedObjects? {
         val batches = allObjectBatches
         return batches.getOrNull(nextBatchIndex)?.let {
-            PaginatedObjects(
+            ParcelablePaginatedObjects(
                 objects = it,
                 currentBatchIndex = nextBatchIndex,
                 totalBatchCount = batches.size,

@@ -28,8 +28,8 @@ import android.view.ViewGroup
 import androidx.pdf.PdfPoint
 import androidx.pdf.TestUtils.assertNotNullObjectByText
 import androidx.pdf.TestUtils.assertNullObjectByText
-import androidx.pdf.annotation.models.ImagePdfObject
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.PdfObject
 import androidx.pdf.util.isImageSelectionAvailableInSdk
 import androidx.pdf.view.FakePdfDocument
 import androidx.pdf.view.PdfView

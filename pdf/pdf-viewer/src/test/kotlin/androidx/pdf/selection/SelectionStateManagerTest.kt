@@ -31,7 +31,7 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
-import androidx.pdf.annotation.models.ImagePdfObject
+import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.content.SelectionBoundary

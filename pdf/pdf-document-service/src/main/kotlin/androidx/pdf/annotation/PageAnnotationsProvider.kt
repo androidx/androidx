@@ -16,14 +16,16 @@
 
 package androidx.pdf.annotation
 
+import androidx.pdf.annotation.models.KeyedPdfAnnotation as ParcelableKeyedPdfAnnotation
+
 /** Provider interface for getting PDF annotations for a specific page. */
 internal interface PageAnnotationsProvider {
     /**
      * Retrieves all annotations for a given page number.
      *
      * @param pageNum The 0-based index of the page.
-     * @return A list of [KeyedPdfAnnotation] objects for the specified page. Returns an empty list
-     *   if there are no annotations or the page number is invalid.
+     * @return A list of [ParcelableKeyedPdfAnnotation] objects for the specified page. Returns an
+     *   empty list if there are no annotations or the page number is invalid.
      */
-    fun getPageAnnotations(pageNum: Int): List<KeyedPdfAnnotation>
+    fun getPageAnnotations(pageNum: Int): List<ParcelableKeyedPdfAnnotation>
 }

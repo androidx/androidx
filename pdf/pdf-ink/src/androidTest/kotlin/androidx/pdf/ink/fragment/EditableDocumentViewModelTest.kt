@@ -24,10 +24,10 @@ import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.SavedStateHandle
 import androidx.pdf.FakeEditablePdfDocument
 import androidx.pdf.SandboxedPdfLoader
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PdfAnnotation
+import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.annotation.models.AnnotationsDisplayState
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.StampAnnotation
 import androidx.pdf.coroutines.collectTill
 import androidx.pdf.ink.EditableDocumentViewModel
 import androidx.pdf.ink.model.ApplyEditsState

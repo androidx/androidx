@@ -23,8 +23,8 @@ import android.graphics.RectF
 import android.os.DeadObjectException
 import android.os.RemoteException
 import android.util.SparseArray
-import androidx.pdf.annotation.models.ImagePdfObject
-import androidx.pdf.annotation.models.KeyedPdfObject
+import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.KeyedPdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.ocr.FakeOcrProvider
 import androidx.pdf.ocr.FakeOcrResult

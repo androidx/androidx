@@ -17,7 +17,7 @@
 package androidx.pdf.annotation.operations
 
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 
 /** Represents a single atomic change operation performed on a PDF annotation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

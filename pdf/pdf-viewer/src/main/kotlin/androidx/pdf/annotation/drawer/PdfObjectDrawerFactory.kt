@@ -17,7 +17,7 @@
 package androidx.pdf.annotation.drawer
 
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.PdfObject
 
 /** Factory interface for creating [PdfObjectDrawer] instances. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

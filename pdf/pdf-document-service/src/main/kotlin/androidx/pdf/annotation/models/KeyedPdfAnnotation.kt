@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.pdf.annotation
+package androidx.pdf.annotation.models
 
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.models.PdfAnnotation
 
 /**
  * Associates a [PdfAnnotation] with a unique key.
@@ -28,10 +26,8 @@ import androidx.pdf.annotation.models.PdfAnnotation
  * @param key The unique string identifier for the annotation.
  * @param annotation The [PdfAnnotation] object.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")
-public class KeyedPdfAnnotation(public val key: String, public val annotation: PdfAnnotation) :
-    Parcelable {
+internal class KeyedPdfAnnotation(val key: String, val annotation: PdfAnnotation) : Parcelable {
     override fun equals(other: Any?): Boolean {
         return (other is KeyedPdfAnnotation) && other.key == key && other.annotation == annotation
     }
@@ -49,10 +45,10 @@ public class KeyedPdfAnnotation(public val key: String, public val annotation: P
         annotation.writeToParcel(p0, p1)
     }
 
-    public companion object {
+    companion object {
 
         @JvmField
-        public val CREATOR: Parcelable.Creator<KeyedPdfAnnotation> =
+        val CREATOR: Parcelable.Creator<KeyedPdfAnnotation> =
             object : Parcelable.Creator<KeyedPdfAnnotation> {
                 override fun createFromParcel(parcel: Parcel): KeyedPdfAnnotation {
                     val key =

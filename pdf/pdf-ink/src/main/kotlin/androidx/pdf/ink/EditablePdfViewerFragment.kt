@@ -46,14 +46,14 @@ import androidx.pdf.PdfWriteHandle
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.AnnotationsView
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
-import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.LocatedAnnotations
 import androidx.pdf.annotation.OnAnnotationEditListener
 import androidx.pdf.annotation.OnAnnotationLocatedListener
 import androidx.pdf.annotation.OnGestureClaimListener
 import androidx.pdf.annotation.TextBoundsProvider
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.models.AnnotationsDisplayState
-import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.models.VisiblePdfAnnotations
 import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.ink.model.ApplyEditsState

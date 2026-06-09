@@ -16,7 +16,7 @@
 
 package androidx.pdf.annotation.repository
 
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
 
 class FakeAnnotationsRepository : AnnotationsRepository {
     private val data = mutableMapOf<Int, MutableList<KeyedPdfAnnotation>>()

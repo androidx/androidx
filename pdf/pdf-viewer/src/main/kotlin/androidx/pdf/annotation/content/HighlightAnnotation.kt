@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.pdf.annotation.models
+package androidx.pdf.annotation.content
 
 import android.graphics.RectF
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.annotation.RestrictTo
 
 /**
@@ -29,53 +27,22 @@ import androidx.annotation.RestrictTo
  *   are highlighted.
  * @property color The color of the highlight.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HighlightAnnotation(
     pageNum: Int,
     public val bounds: List<RectF>,
     public val color: Int,
 ) : PdfAnnotation(pageNum) {
-
-    private constructor(
-        parcel: Parcel
-    ) : this(
-        pageNum = parcel.readInt(),
-        bounds = parcel.createTypedArrayList(RectF.CREATOR)!!,
-        color = parcel.readInt(),
-    )
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is HighlightAnnotation) return false
-
         return pageNum == other.pageNum && bounds == other.bounds && color == other.color
     }
 
     override fun hashCode(): Int {
-        var result = bounds.hashCode()
+        var result = pageNum
+        result = 31 * result + bounds.hashCode()
         result = 31 * result + color
         return result
-    }
-
-    override fun describeContents(): Int = 0
-
-    public fun writeHighlightAnnotationToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(pageNum)
-        dest.writeTypedList(bounds)
-        dest.writeInt(color)
-    }
-
-    internal companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<HighlightAnnotation> =
-            object : Parcelable.Creator<HighlightAnnotation> {
-                override fun createFromParcel(source: Parcel): HighlightAnnotation {
-                    return HighlightAnnotation(source)
-                }
-
-                override fun newArray(size: Int): Array<HighlightAnnotation?> {
-                    return arrayOfNulls(size)
-                }
-            }
     }
 }

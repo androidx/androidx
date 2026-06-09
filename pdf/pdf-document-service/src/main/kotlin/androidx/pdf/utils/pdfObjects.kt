@@ -23,12 +23,12 @@ import android.graphics.pdf.component.PdfPageObject
 import android.graphics.pdf.component.PdfPagePathObject
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.pdf.annotation.models.ImagePdfObject
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.models.ImagePdfObject as ParcelableImagePdfObject
+import androidx.pdf.annotation.models.PathPdfObject as ParcelablePathPdfObject
+import androidx.pdf.annotation.models.PdfObject as ParcelablePdfObject
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-internal fun PdfPageObject.toPdfObject(): PdfObject? {
+internal fun PdfPageObject.toPdfObject(): ParcelablePdfObject? {
     return when (this) {
         is PdfPageImageObject -> this.toImagePdfObject()
         is PdfPagePathObject -> this.toPathPdfObject()
@@ -37,9 +37,9 @@ internal fun PdfPageObject.toPdfObject(): PdfObject? {
 }
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-internal fun PdfPagePathObject.toPathPdfObject(): PathPdfObject {
+internal fun PdfPagePathObject.toPathPdfObject(): ParcelablePathPdfObject {
     val pathInputs = this.toPath().getPathInputsFromPath()
-    return PathPdfObject(
+    return ParcelablePathPdfObject(
         brushColor = this.fillColor,
         brushWidth = this.strokeWidth,
         inputs = pathInputs,
@@ -47,7 +47,7 @@ internal fun PdfPagePathObject.toPathPdfObject(): PathPdfObject {
 }
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-internal fun PdfPageImageObject.toImagePdfObject(): ImagePdfObject {
+internal fun PdfPageImageObject.toImagePdfObject(): ParcelableImagePdfObject {
     val matrixArray = this.matrix
     val androidMatrix = Matrix()
     androidMatrix.setValues(matrixArray)
@@ -60,5 +60,5 @@ internal fun PdfPageImageObject.toImagePdfObject(): ImagePdfObject {
     // and stores the axis-aligned bounding box of the result in dst rect (transformedBounds).
     androidMatrix.mapRect(transformedBounds, unitRect)
 
-    return ImagePdfObject(this.bitmap, transformedBounds)
+    return ParcelableImagePdfObject(this.bitmap, transformedBounds)
 }

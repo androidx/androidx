@@ -35,15 +35,17 @@ import androidx.annotation.WorkerThread
 import androidx.pdf.PdfDocument.BitmapSource
 import androidx.pdf.PdfDocument.DocumentClosedException
 import androidx.pdf.PdfDocument.PdfPageContent
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.KeyedPdfObject
-import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfObject
+import androidx.pdf.annotation.content.PdfObject
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
+import androidx.pdf.models.PdfModelMapper.toContent
+import androidx.pdf.models.PdfModelMapper.toParcelable
 import androidx.pdf.service.PdfDocumentServiceImpl
 import androidx.pdf.service.connect.PdfServiceConnection
 import androidx.pdf.utils.areCorePdfApisAvailableInSdk
@@ -270,9 +272,10 @@ public class SandboxedPdfDocument(
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
-        return withDocument { document ->
+        val parcelablePdfObject = withDocument { document ->
             document.getTopPageObjectAtPosition(pageNum, point, intArrayOf())
         }
+        return parcelablePdfObject?.toContent()
     }
 
     override fun addOnPdfContentInvalidatedListener(
@@ -305,7 +308,9 @@ public class SandboxedPdfDocument(
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {
-        return batchPdfAnnotationsProcessor.process(editsDraft) { appliedBatchEdits ->
+        val parcelableOperations = editsDraft.getOperationsSortedByPage().map { it.toParcelable() }
+
+        return batchPdfAnnotationsProcessor.process(parcelableOperations) { appliedBatchEdits ->
             appliedBatchEdits.forEach { appliedEdit ->
                 onEditsAppliedListenerEntries.forEach { entry ->
                     entry.executor.execute {
@@ -328,12 +333,55 @@ public class SandboxedPdfDocument(
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-    override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> =
-        getKeyedAnnotationsForPage(pageNum)
+    override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
+        val firstBatch = withDocument { it.getPageAnnotations(pageNum) } ?: return emptyList()
+        if (firstBatch.totalBatchCount <= 1) {
+            return firstBatch.annotations.map { it.toContent() }
+        }
+
+        return coroutineScope {
+            val firstAnnotations = firstBatch.annotations.map { it.toContent() }
+            val deferredRemainingBatches =
+                (1 until firstBatch.totalBatchCount).map { batchIndex ->
+                    async {
+                        withDocument { remote ->
+                            remote
+                                .getBatchedPageAnnotations(pageNum, batchIndex)
+                                ?.annotations
+                                ?.map { it.toContent() } ?: emptyList()
+                        }
+                    }
+                }
+
+            val remainingAnnotations = deferredRemainingBatches.awaitAll().flatten()
+            firstAnnotations + remainingAnnotations
+        }
+    }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-    override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> =
-        getKeyedObjectsForPage(pageNum, types)
+    override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> {
+        val firstBatch = withDocument { it.getPageObjects(pageNum, types) } ?: return emptyList()
+        if (firstBatch.totalBatchCount <= 1) {
+            return firstBatch.objects.map { it.toContent() }
+        }
+
+        return coroutineScope {
+            val firstObjects = firstBatch.objects.map { it.toContent() }
+            val deferredRemainingBatches =
+                (1 until firstBatch.totalBatchCount).map { batchIndex ->
+                    async {
+                        withDocument { remote ->
+                            remote.getBatchedPageObjects(pageNum, batchIndex, types)?.objects?.map {
+                                it.toContent()
+                            } ?: emptyList()
+                        }
+                    }
+                }
+
+            val remainingObjects = deferredRemainingBatches.awaitAll().flatten()
+            firstObjects + remainingObjects
+        }
+    }
 
     override fun addOnEditsAppliedListener(
         executor: Executor,
@@ -516,52 +564,6 @@ public class SandboxedPdfDocument(
             taskJob.complete()
 
             return@withContext result
-        }
-    }
-
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-    private suspend fun getKeyedAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
-        val firstBatch = withDocument { it.getPageAnnotations(pageNum) } ?: return emptyList()
-        if (firstBatch.totalBatchCount <= 1) {
-            return firstBatch.annotations
-        }
-
-        return coroutineScope {
-            val firstAnnotations = firstBatch.annotations
-            val deferredRemainingBatches =
-                (1 until firstBatch.totalBatchCount).map { batchIndex ->
-                    async {
-                        withDocument { remote ->
-                            remote.getBatchedPageAnnotations(pageNum, batchIndex).annotations
-                        }
-                    }
-                }
-
-            val remainingAnnotations = deferredRemainingBatches.awaitAll().flatten()
-            firstAnnotations + remainingAnnotations
-        }
-    }
-
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-    private suspend fun getKeyedObjectsForPage(pageNum: Int, types: Long): List<KeyedPdfObject> {
-        val firstBatch = withDocument { it.getPageObjects(pageNum, types) } ?: return emptyList()
-        if (firstBatch.totalBatchCount <= 1) {
-            return firstBatch.objects
-        }
-
-        return coroutineScope {
-            val firstObjects = firstBatch.objects
-            val deferredRemainingBatches =
-                (1 until firstBatch.totalBatchCount).map { batchIndex ->
-                    async {
-                        withDocument { remote ->
-                            remote.getBatchedPageObjects(pageNum, batchIndex, types).objects
-                        }
-                    }
-                }
-
-            val remainingObjects = deferredRemainingBatches.awaitAll().flatten()
-            firstObjects + remainingObjects
         }
     }
 

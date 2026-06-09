@@ -23,7 +23,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.os.Build
 import androidx.core.graphics.toRect
-import androidx.pdf.annotation.models.HighlightAnnotation
+import androidx.pdf.annotation.content.HighlightAnnotation
 
 internal class HighlightAnnotationDrawer : PdfAnnotationDrawer<HighlightAnnotation> {
 

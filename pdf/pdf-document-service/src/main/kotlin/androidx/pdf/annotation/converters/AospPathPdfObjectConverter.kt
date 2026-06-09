@@ -20,15 +20,15 @@ import android.graphics.pdf.component.PdfPagePathObject
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.Converter
-import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject as ParcelablePathPdfObject
 import androidx.pdf.utils.getPathInputsFromPath
 
-/** Converts a [PdfPagePathObject] to a AOSP [PathPdfObject]. */
+/** Converts a [PdfPagePathObject] to a AOSP [ParcelablePathPdfObject]. */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-internal class AospPathPdfObjectConverter : Converter<PdfPagePathObject, PathPdfObject> {
-    override fun convert(from: PdfPagePathObject, vararg args: Any): PathPdfObject {
+internal class AospPathPdfObjectConverter : Converter<PdfPagePathObject, ParcelablePathPdfObject> {
+    override fun convert(from: PdfPagePathObject, vararg args: Any): ParcelablePathPdfObject {
         val pathInputs = from.toPath().getPathInputsFromPath()
-        return PathPdfObject(
+        return ParcelablePathPdfObject(
             brushColor = from.fillColor,
             brushWidth = from.strokeWidth,
             inputs = pathInputs,

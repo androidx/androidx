@@ -16,10 +16,10 @@
 
 import android.graphics.RectF
 import androidx.pdf.annotation.AnnotationHandleIdGenerator
-import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.StampAnnotation
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min

@@ -18,9 +18,9 @@ package androidx.pdf.annotation.manager
 
 import androidx.pdf.EditsDraft
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.decomposeAnnotationId
-import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.KeyedPdfAnnotation
+import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.draftstate.AnnotationEditsDraftState
-import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.operations.AnnotationOperationsTracker
 import androidx.pdf.annotation.operations.KeyedAnnotationOperation
 import androidx.pdf.annotation.registry.AnnotationHandleRegistry

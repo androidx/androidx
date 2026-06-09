@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.pdf.models
+package androidx.pdf.annotation.models
 
 import android.os.Parcel
-import androidx.pdf.annotation.AnnotationHandleIdGenerator.composeAnnotationId
-import androidx.pdf.annotation.models.PaginatedAnnotations
+import androidx.pdf.annotation.AnnotationHandleIdGenerator
+import androidx.pdf.annotation.createDummyKeyedPdfAnnotation
 import com.google.common.truth.Truth.assertThat
-import createDummyKeyedPdfAnnotation
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class PaginatedAnnotationsTest {
     @Test
     fun test_createFromParcel_nonEmptyList_returnsNonEmptyAnnotations() {
         // Arrange
-        val mockIds = listOf("first", "second").map { composeAnnotationId(0, it) }
+        val mockIds =
+            listOf("first", "second").map { AnnotationHandleIdGenerator.composeAnnotationId(0, it) }
         val mockPageAnnotationDataList =
             mockIds.map { createDummyKeyedPdfAnnotation(pageNum = 0, id = it) }
         val original =

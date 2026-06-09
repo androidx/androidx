@@ -21,12 +21,13 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.Converter
 import androidx.pdf.annotation.models.PdfObject
-import androidx.pdf.annotation.models.StampAnnotation
+import androidx.pdf.annotation.models.StampAnnotation as ParcelableStampAnnotation
 
-/** Converts a [StampAnnotation] to a [AospStampAnnotation]. */
+/** Converts a [ParcelableStampAnnotation] to a [AospStampAnnotation]. */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-internal class StampAnnotationConverter : Converter<StampAnnotation, AospStampAnnotation> {
-    override fun convert(from: StampAnnotation, vararg args: Any): AospStampAnnotation {
+internal class StampAnnotationConverter :
+    Converter<ParcelableStampAnnotation, AospStampAnnotation> {
+    override fun convert(from: ParcelableStampAnnotation, vararg args: Any): AospStampAnnotation {
         val aospStampAnnotation = AospStampAnnotation(from.bounds)
         for (pdfObject in from.pdfObjects) {
             val converter = PdfObjectConvertersFactory.create<PdfObject>(pdfObject)

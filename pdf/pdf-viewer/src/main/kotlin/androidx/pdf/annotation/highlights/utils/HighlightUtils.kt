@@ -19,8 +19,8 @@ package androidx.pdf.annotation.highlights.utils
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
-import androidx.pdf.annotation.models.PathPdfObject
-import androidx.pdf.annotation.models.PathPdfObject.PathInput
+import androidx.pdf.annotation.content.PathPdfObject
+import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
 import androidx.pdf.util.TEXT_BOUNDS_REQUEST_NAME
