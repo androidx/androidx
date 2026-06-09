@@ -70,7 +70,7 @@ internal fun SkiaLayerComponent(
         renderDelegate = renderDelegate,
         skiaLayerAnalytics = skiaLayerAnalytics
     )
-    is RenderSettings.SkiaSurface -> WindowSkiaLayerComponent(
+    is RenderSettings.SkiaSurface -> SurfaceSkiaLayerComponent(
         mediator = mediator,
         windowContext = windowContext,
         renderDelegate = renderDelegate,

@@ -31,7 +31,7 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrDefault
 import kotlin.math.min
 
-internal fun RootMeasurePolicy(
+internal fun ComposeSceneLayerMeasurePolicy(
     platformInsets: PlatformInsets,
     usePlatformDefaultWidth: Boolean,
     calculatePosition: MeasureScope.(contentSize: IntSize) -> IntOffset,
@@ -74,6 +74,7 @@ private fun Density.applyPlatformConstraints(
     }
 }
 
+@Suppress("UnusedReceiverParameter")
 internal fun MeasureScope.positionWithInsets(
     insets: PlatformInsets,
     size: IntSize,

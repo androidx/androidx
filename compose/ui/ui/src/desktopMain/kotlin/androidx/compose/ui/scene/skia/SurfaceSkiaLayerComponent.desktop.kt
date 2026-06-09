@@ -41,7 +41,7 @@ import org.jetbrains.skiko.SkikoRenderDelegate
  * If smooth interop with Swing is needed, consider using [SwingSkiaLayerComponent] instead,
  * which is created when using [RenderSettings.SwingGraphics].
  */
-internal class WindowSkiaLayerComponent(
+internal class SurfaceSkiaLayerComponent(
     mediator: ComposeSceneMediator,
     private val windowContext: PlatformWindowContext,
     renderDelegate: SkikoRenderDelegate,

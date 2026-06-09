@@ -32,7 +32,7 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
  *
  * [SwingSkiaLayerComponent] provides smooth integration with Swing, so z-ordering, double-buffering etc. from Swing will be taken into account.
  *
- * However, if smooth interop with Swing is not needed, consider using [WindowSkiaLayerComponent]
+ * However, if smooth interop with Swing is not needed, consider using [SurfaceSkiaLayerComponent]
  */
 @OptIn(ExperimentalSkikoApi::class)
 internal class SwingSkiaLayerComponent(
@@ -41,7 +41,7 @@ internal class SwingSkiaLayerComponent(
     skiaLayerAnalytics: SkiaLayerAnalytics,
 ) : SkiaLayerComponent {
     /**
-     * See also backendLayer for standalone Compose in [WindowSkiaLayerComponent]
+     * See also backendLayer for standalone Compose in [SurfaceSkiaLayerComponent]
      */
     override val hierarchyRoot: SkiaSwingLayer =
         object : SkiaSwingLayer(
