@@ -1739,7 +1739,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             PageLayoutManager(
                     localPdfDocument,
                     backgroundScope,
-                    topPageMarginPx = context.getDimensions(R.dimen.top_page_margin),
                     pagesPerRow = pagesPerRow,
                     horizontalPageSpacingPx = horizontalPageSpacing.toFloat(),
                     verticalPageSpacingPx = verticalPageSpacing.toFloat(),
@@ -2084,7 +2083,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 PageLayoutManager(
                         localPdfDocument,
                         backgroundScope,
-                        topPageMarginPx = context.getDimensions(R.dimen.top_page_margin),
                         pagesPerRow = pagesPerRow,
                         horizontalPageSpacingPx = horizontalPageSpacing.toFloat(),
                         verticalPageSpacingPx = verticalPageSpacing.toFloat(),

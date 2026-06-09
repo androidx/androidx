@@ -85,9 +85,6 @@ class PdfViewAccessibilityManagerTest {
                 "PdfViewAccessibilityManager must not be null."
             }
 
-        // Round to an integer before using in any test case, i.e. matching the logic that makes
-        // use of this value
-        val topPageMargin = pdfView.context.getDimensions(R.dimen.top_page_margin)
         // Wait until layout completes for the required pages
         pdfDocument.waitForLayout(untilPage = 2)
 
@@ -96,7 +93,7 @@ class PdfViewAccessibilityManagerTest {
             listOf(
                 Triple(25f, 25f, 0), // Maps to page 0
                 Triple(25f, 250f, 1), // Maps to page 1
-                Triple(0f, topPageMargin, 0), // Maps to the very start of the first page
+                Triple(0f, 0f, 0), // Maps to the very start of the first page
                 Triple(0f, 100f, 0), // Edge of the first page
                 Triple(110f, 25f, -1), // Outside valid page bounds
                 Triple(-10f, -10f, -1), // Outside viewport
@@ -190,7 +187,6 @@ class PdfViewAccessibilityManagerTest {
                 "PdfViewAccessibilityManager must not be null."
             }
 
-        val topPageMargin = pdfView.context.getDimensions(R.dimen.top_page_margin)
         val pageSpacing = pdfView.context.getDimensions(R.dimen.pdf_vertical_page_spacing)
 
         // Wait until layout completes for the required pages
@@ -201,17 +197,16 @@ class PdfViewAccessibilityManagerTest {
 
         val testCases =
             listOf(
-                0 to RectF(0f, topPageMargin, 100f, 200f + topPageMargin),
-                10 to RectF(25f, 30f + topPageMargin, 75f, 50f + topPageMargin),
-                11 to RectF(25f, 60f + topPageMargin, 75f, 80f + topPageMargin),
-                FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET to
-                    RectF(50f, 500f + topPageMargin, 100f, 600f + topPageMargin),
+                0 to RectF(0f, 0f, 100f, 200f),
+                10 to RectF(25f, 30f, 75f, 50f),
+                11 to RectF(25f, 60f, 75f, 80f),
+                FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET to RectF(50f, 500f, 100f, 600f),
                 FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET + 1 to
                     RectF(
                         50f,
-                        400f + topPageMargin + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
+                        400f + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
                         100f,
-                        550f + topPageMargin + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
+                        550f + (pdfDocument.pages[0]?.y ?: 0) + pageSpacing,
                     ),
             )
 

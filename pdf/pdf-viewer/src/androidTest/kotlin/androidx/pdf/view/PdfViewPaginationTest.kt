@@ -34,8 +34,6 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -47,7 +45,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class PdfViewPaginationTest {
-    var topPageMarginPx: Float = 0f
     var pageMarginPx: Float = 0f
 
     private var pdfView: PdfView? = null // This is initialized in the setup process
@@ -85,8 +82,8 @@ class PdfViewPaginationTest {
 
             // If all pages are loaded, the total height will be sum of the following
             //          100 * 5 + 200 * 5 = 1500
-            //          topMargin + spacing-between-pages
-            assertThat(pdfView?.contentHeight).isEqualTo(1500 + 10 * pageMarginPx + topPageMarginPx)
+            //           + 9 * pageMarginPx for the spacing between the 10 pages.
+            assertThat(pdfView?.contentHeight).isEqualTo(1500 + 9 * pageMarginPx)
             close()
         }
         advanceUntilIdle()
@@ -110,8 +107,8 @@ class PdfViewPaginationTest {
             // As 5th page throws cancellation exception, it is approximated by values of the 6th.
             // If all pages are loaded, the total height will be sum of the following
             //          100 * 4 + 200 * 6 = 1600
-            //          topMargin + spacing-between-pages
-            assertThat(pdfView?.contentHeight).isEqualTo(1600 + 10 * pageMarginPx + topPageMarginPx)
+            //          + 9 * pageMarginPx for the spacing between the 10 pages.
+            assertThat(pdfView?.contentHeight).isEqualTo(1600 + 9 * pageMarginPx)
             close()
         }
         advanceUntilIdle()
@@ -171,7 +168,7 @@ class PdfViewPaginationTest {
 
             // Scroll until the viewport spans [500, 2500] vertically and expect to see pages [1, 4]
             // Add small buffer for page transition to handle float/int margin conversion.
-            Espresso.onView(withId(PDF_VIEW_ID)).scrollByY(500 + ceil(topPageMarginPx).roundToInt())
+            Espresso.onView(withId(PDF_VIEW_ID)).scrollByY(500)
             pdfDocument.waitForLayout(untilPage = 4)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 1, visiblePages = 4)
@@ -276,21 +273,11 @@ class PdfViewPaginationTest {
                 activity.findViewById<PdfView>(PDF_VIEW_ID).addOnViewportChangedListener(listener)
             }
 
-            // Round up the floating-point top margin to an integer for precise pixel scrolling.
-            val scrollOffsetForTopMargin = ceil(topPageMarginPx).roundToInt()
-
             // Scroll smoothly past page 0
-            Espresso.onView(withId(PDF_VIEW_ID))
-                .smoothScrollBy(totalPixels = 1000 + scrollOffsetForTopMargin, numSteps = 10)
+            Espresso.onView(withId(PDF_VIEW_ID)).smoothScrollBy(totalPixels = 1000, numSteps = 10)
             pdfDocument.waitForLayout(untilPage = 1)
 
-            val expectedFirstPageLocation =
-                RectF(
-                    0f,
-                    pageMarginPx + (topPageMarginPx - scrollOffsetForTopMargin),
-                    500f,
-                    1000 + pageMarginPx + (topPageMarginPx - scrollOffsetForTopMargin),
-                )
+            val expectedFirstPageLocation = RectF(0f, pageMarginPx, 500f, 1000 + pageMarginPx)
 
             assertThat(listener.firstVisiblePage).isEqualTo(1)
             assertThat(listener.firstPageLocation).isEqualTo(expectedFirstPageLocation)
@@ -321,14 +308,7 @@ class PdfViewPaginationTest {
 
             assertThat(listener.firstVisiblePage).isEqualTo(0)
             assertThat(listener.firstPageLocation)
-                .isEqualTo(
-                    RectF(
-                        0f,
-                        (topPageMarginPx * zoom),
-                        (500F * zoom),
-                        ((1000F + topPageMarginPx) * zoom),
-                    )
-                )
+                .isEqualTo(RectF(0f, 0f, (500F * zoom), (1000F * zoom)))
             assertThat(listener.zoomLevel).isWithin(0.01F).of(zoom)
             assertThat(listener.updates).isEqualTo(1)
 
@@ -355,8 +335,7 @@ class PdfViewPaginationTest {
             Espresso.onView(withId(PDF_VIEW_ID)).smoothZoomTo(zoom, numSteps = 10)
 
             assertThat(listener.firstVisiblePage).isEqualTo(0)
-            val expectedFirstPageLocation =
-                RectF(0f, topPageMarginPx * zoom, (500F * zoom), (1000F + topPageMarginPx) * zoom)
+            val expectedFirstPageLocation = RectF(0f, 0f, (500F * zoom), 1000F * zoom)
 
             checkEqualityWithTolerance(
                 listener.firstPageLocation,
@@ -388,21 +367,11 @@ class PdfViewPaginationTest {
                 activity.findViewById<PdfView>(PDF_VIEW_ID).addOnViewportChangedListener(listenerB)
             }
 
-            // Round up the floating-point top margin to an integer for precise pixel scrolling.
-            val scrollOffsetForTopMargin = ceil(topPageMarginPx).roundToInt()
-
             // Scroll smoothly past page 0
-            Espresso.onView(withId(PDF_VIEW_ID))
-                .smoothScrollBy(totalPixels = 1000 + scrollOffsetForTopMargin, numSteps = 10)
+            Espresso.onView(withId(PDF_VIEW_ID)).smoothScrollBy(totalPixels = 1000, numSteps = 10)
             pdfDocument.waitForLayout(untilPage = 1)
 
-            val expectedFirstPageLocation =
-                RectF(
-                    0f,
-                    pageMarginPx + (topPageMarginPx - scrollOffsetForTopMargin),
-                    500f,
-                    1000 + pageMarginPx + (topPageMarginPx - scrollOffsetForTopMargin),
-                )
+            val expectedFirstPageLocation = RectF(0f, pageMarginPx, 500f, 1000 + pageMarginPx)
 
             assertThat(listenerA.firstVisiblePage).isEqualTo(1)
             assertThat(listenerB.firstVisiblePage).isEqualTo(1)
@@ -449,18 +418,15 @@ class PdfViewPaginationTest {
                 pdfDocument.waitForLayout(untilPage = 1)
                 val pdfToViewPoints =
                     mutableListOf(
-                        PdfPoint(pageNum = 0, pagePoint = PointF(0F, 0F)) to
-                            PointF(0F, 0F + topPageMarginPx),
-                        PdfPoint(pageNum = 0, pagePoint = PointF(250F, 500F)) to
-                            PointF(250F, 500F + topPageMarginPx),
-                        PdfPoint(pageNum = 0, pagePoint = PointF(499F, 999F)) to
-                            PointF(499F, 999F + topPageMarginPx),
+                        PdfPoint(pageNum = 0, pagePoint = PointF(0F, 0F)) to PointF(0F, 0F),
+                        PdfPoint(pageNum = 0, pagePoint = PointF(250F, 500F)) to PointF(250F, 500F),
+                        PdfPoint(pageNum = 0, pagePoint = PointF(499F, 999F)) to PointF(499F, 999F),
                         PdfPoint(pageNum = 1, pagePoint = PointF(0F, 0F)) to
-                            PointF(0F, 1000F + pageMarginPx + topPageMarginPx),
+                            PointF(0F, 1000F + pageMarginPx),
                         PdfPoint(pageNum = 1, pagePoint = PointF(250F, 500F)) to
-                            PointF(250F, 1500F + pageMarginPx + topPageMarginPx),
+                            PointF(250F, 1500F + pageMarginPx),
                         PdfPoint(pageNum = 1, pagePoint = PointF(499F, 999F)) to
-                            PointF(499F, 1999F + pageMarginPx + topPageMarginPx),
+                            PointF(499F, 1999F + pageMarginPx),
                     )
                 onActivity { activity ->
                     val pdfView = activity.findViewById<PdfView>(PDF_VIEW_ID)
@@ -526,17 +492,17 @@ class PdfViewPaginationTest {
                 val pdfToViewPoints =
                     mutableListOf(
                         PdfPoint(pageNum = 0, pagePoint = PointF(0F, 0F)) to
-                            PointF(0F, (0F + topPageMarginPx) * zoom),
+                            PointF(0F, (0F) * zoom),
                         PdfPoint(pageNum = 0, pagePoint = PointF(250F, 500F)) to
-                            PointF(250F * zoom, (500F + topPageMarginPx) * zoom),
+                            PointF(250F * zoom, (500F) * zoom),
                         PdfPoint(pageNum = 0, pagePoint = PointF(499F, 999F)) to
-                            PointF(499F * zoom, (999F + topPageMarginPx) * zoom),
+                            PointF(499F * zoom, (999F) * zoom),
                         PdfPoint(pageNum = 1, pagePoint = PointF(0F, 0F)) to
-                            PointF(0F, (1000F + pageMarginPx + topPageMarginPx) * zoom),
+                            PointF(0F, (1000F + pageMarginPx) * zoom),
                         PdfPoint(pageNum = 1, pagePoint = PointF(250F, 500F)) to
-                            PointF(250F * zoom, (1500F + pageMarginPx + topPageMarginPx) * zoom),
+                            PointF(250F * zoom, (1500F + pageMarginPx) * zoom),
                         PdfPoint(pageNum = 1, pagePoint = PointF(499F, 999F)) to
-                            PointF(499F * zoom, (1999F + pageMarginPx + topPageMarginPx) * zoom),
+                            PointF(499F * zoom, (1999F + pageMarginPx) * zoom),
                     )
 
                 onActivity { activity ->
@@ -557,7 +523,6 @@ class PdfViewPaginationTest {
         PdfViewTestActivity.onCreateCallback = { activity ->
             with(activity) {
                 pageMarginPx = activity.getDimensions(R.dimen.pdf_vertical_page_spacing)
-                topPageMarginPx = activity.getDimensions(R.dimen.top_page_margin)
                 pdfView = PdfView(activity)
                 container.addView(
                     pdfView?.apply {

@@ -18,7 +18,6 @@
     <dimen name="viewer_fastscroll_edge_offset">24dp</dimen>
     <dimen name="viewer_doc_padding_y">4dp</dimen>
     <dimen name="viewer_doc_padding_x">0dp</dimen>
-    <dimen name="top_page_margin">3dp</dimen>
     <dimen name="pdf_vertical_page_spacing">8dp</dimen>
     <!-- TODO(b/448583041): Fix the appropriate default horizontal spacing from UX. -->
     <dimen name="pdf_horizontal_page_spacing">8dp</dimen>

@@ -154,7 +154,6 @@ class PdfViewerTest {
     @Test
     fun pdfViewerState_coordinateTranslation() {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
-        val topPageMarginPx = context.resources.getDimension(androidx.pdf.R.dimen.top_page_margin)
         val pageSpacingPx =
             context.resources.getDimension(androidx.pdf.R.dimen.pdf_vertical_page_spacing)
 
@@ -173,10 +172,10 @@ class PdfViewerTest {
         rule.waitUntil { pdfViewerState.zoom == 2.0F }
 
         // 2 x top margin to account for zoom
-        val pageZeroTop = topPageMarginPx * 2
+        val pageZeroTop = 0f
         val pageZeroTopLeft = PdfPoint(pageNum = 0, pagePoint = PointF(0F, 0F))
         val pageZeroTopLeftCompose = Offset(0F, pageZeroTop)
-        // Cross check each page coordinate API against each other
+        // Cross-check each page coordinate API against each other
         assertThat(pdfViewerState.visibleOffsetToPdfPoint(pageZeroTopLeftCompose))
             .isEqualTo(pageZeroTopLeft)
         assertThat(pdfViewerState.pdfPointToVisibleOffset(pageZeroTopLeft))

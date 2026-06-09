@@ -34,11 +34,7 @@ class SinglePageLayoutStrategyTest {
     @Before
     fun setUp() {
         singlePageLayoutStrategy =
-            SinglePageLayoutStrategy(
-                pageCount = 10,
-                verticalPageSpacingPx = 10f,
-                topPageMarginPx = 5f,
-            )
+            SinglePageLayoutStrategy(pageCount = 10, verticalPageSpacingPx = 10f)
     }
 
     @Test
@@ -88,11 +84,11 @@ class SinglePageLayoutStrategyTest {
         // Verify the layout for the intermediate pages is approximated.
         // The approximation should use the height of the newly loaded page (page 3).
         val viewport = RectF(0f, 0f, 100f, 600f)
-        val expectedPage0Location = RectF(0f, 5f, 100f, 205f)
+        val expectedPage0Location = RectF(0f, 0f, 100f, 200f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 0, Dimension(100, 200)))
             .isEqualTo(expectedPage0Location)
 
-        val expectedPage3Location = RectF(0f, 735f, 100f, 985f)
+        val expectedPage3Location = RectF(0f, 730f, 100f, 980f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 3, Dimension(100, 250)))
             .isEqualTo(expectedPage3Location)
     }
@@ -107,12 +103,12 @@ class SinglePageLayoutStrategyTest {
 
         // Verify the layout of page 0 is the same.
         val viewport = RectF(0f, 0f, 110f, 600f)
-        val expectedPage0Location = RectF(0f, 5f, 110f, 255f)
+        val expectedPage0Location = RectF(0f, 0f, 110f, 250f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 0, Dimension(110, 250)))
             .isEqualTo(expectedPage0Location)
 
         // Verify the layout of page 3 is corrected.
-        val expectedPage3Location = RectF(0f, 835f, 110f, 1085f)
+        val expectedPage3Location = RectF(0f, 830f, 110f, 1080f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 3, Dimension(110, 250)))
             .isEqualTo(expectedPage3Location)
     }
@@ -120,7 +116,7 @@ class SinglePageLayoutStrategyTest {
     @Test
     fun testGetVisiblePages_includePartial() {
         setupPageDimensions()
-        val viewport = RectF(0f, 200f, 100f, 500f)
+        val viewport = RectF(0f, 100f, 100f, 500f)
         val visiblePages = singlePageLayoutStrategy.getVisiblePages(viewport, includePartial = true)
         assertThat(visiblePages.pages).isEqualTo(Range(0, 2))
     }
@@ -264,15 +260,15 @@ class SinglePageLayoutStrategyTest {
         singlePageLayoutStrategy.setPagePositions(2, largeSize)
         val viewport = RectF(0f, 0f, 800f, 800f)
 
-        val expectedSmLocation = RectF(300f, 5f, 500f, 105f)
+        val expectedSmLocation = RectF(300f, 0f, 500f, 100f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 0, smallSize))
             .isEqualTo(expectedSmLocation)
 
-        val expectedMdLocation = RectF(200f, 115f, 600f, 315f)
+        val expectedMdLocation = RectF(200f, 110f, 600f, 310f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 1, mediumSize))
             .isEqualTo(expectedMdLocation)
 
-        val expectedLgLocation = RectF(0f, 325f, 800f, 725f)
+        val expectedLgLocation = RectF(0f, 320f, 800f, 720f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 2, largeSize))
             .isEqualTo(expectedLgLocation)
     }
@@ -293,11 +289,11 @@ class SinglePageLayoutStrategyTest {
         // A 300x200 section in the bottom-left corner of this model
         val viewport = RectF(0f, 250f, 200f, 800f)
 
-        val expectedMdLocation = RectF(0f, 115f, 400f, 315f)
+        val expectedMdLocation = RectF(0f, 110f, 400f, 310f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 1, mediumSize))
             .isEqualTo(expectedMdLocation)
 
-        val expectedLgLocation = RectF(0f, 325f, 800f, 725f)
+        val expectedLgLocation = RectF(0f, 320f, 800f, 720f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 2, largeSize))
             .isEqualTo(expectedLgLocation)
     }
@@ -318,11 +314,11 @@ class SinglePageLayoutStrategyTest {
         // A 300x200 section in the bottom-right corner of this model
         val viewport = RectF(600f, 250f, 800f, 800f)
 
-        val expectedMdLocation = RectF(400f, 115f, 800f, 315f)
+        val expectedMdLocation = RectF(400f, 110f, 800f, 310f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 1, mediumSize))
             .isEqualTo(expectedMdLocation)
 
-        val expectedLgLocation = RectF(0f, 325f, 800f, 725f)
+        val expectedLgLocation = RectF(0f, 320f, 800f, 720f)
         assertThat(singlePageLayoutStrategy.getPageLocation(viewport, 2, largeSize))
             .isEqualTo(expectedLgLocation)
     }
