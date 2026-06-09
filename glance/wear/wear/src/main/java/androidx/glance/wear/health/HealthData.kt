@@ -32,7 +32,7 @@ import androidx.glance.wear.ExperimentalGlanceWearApi
  * heart rate and daily activity totals.
  */
 @ExperimentalGlanceWearApi
-public object DataTypes {
+public object HealthData {
 
     // These constants are kept in sync with the widget renderer and the keys used by other system
     // components, including those responsible for rendering in low-power or ambient states.
