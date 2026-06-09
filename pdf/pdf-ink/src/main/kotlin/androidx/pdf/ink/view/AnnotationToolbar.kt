@@ -32,6 +32,7 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
 import android.widget.LinearLayout.VERTICAL
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -78,7 +79,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * A toolbar that hosts a set of annotation tools for interacting with a PDF document.
