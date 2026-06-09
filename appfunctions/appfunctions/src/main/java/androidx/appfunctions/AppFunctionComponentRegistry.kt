@@ -87,7 +87,7 @@ internal annotation class AppFunctionComponentCategory {
         const val INVENTORY: String = "INVENTORY"
         /**
          * The components in invoker category are used to generate the implementation of an
-         * [androidx.appfunctions.service.internal.AggregatedAppFunctionInvoker].
+         * [androidx.appfunctions.internal.AggregatedAppFunctionInvoker].
          */
         const val INVOKER: String = "INVOKER"
         /**

@@ -33,7 +33,7 @@ plugins {
 dependencies {
 
     implementation(project(":appfunctions:appfunctions"))
-    implementation(project(":appfunctions:appfunctions-service"))
+    implementation(libs.kotlinCoroutinesAndroid)
     implementation("junit:junit:4.13.2")
     implementation(libs.robolectric)
 

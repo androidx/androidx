@@ -35,7 +35,7 @@ import org.robolectric.shadows.ShadowSystemProperties
  * Prefer real system-level testing where possible. This rule is intended only for local tests that
  * simulate cross-app interactions via AppFunctions.
  *
- * Any functions annotated with [androidx.appfunctions.service.AppFunction] in test code will be
+ * Any functions annotated with [androidx.appfunctions.AppFunction] in test code will be
  * automatically registered in this environment during initialization, provided the
  * `appfunctions-compiler` is applied to the test configuration with the
  * `appfunctions:aggregateAppFunctions` compiler option set to true.

@@ -20,7 +20,6 @@ import androidx.appfunctions.compiler.AppFunctionCompiler
 import androidx.appfunctions.compiler.AppFunctionCompilerOptions
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTIONS_INTERNAL_PACKAGE_NAME
-import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME
 import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTION_INVENTORY_CLASS
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AggregatedAppFunctionInventoryClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AggregatedAppFunctionInvokerClass
@@ -131,34 +130,14 @@ class AppFunctionAggregateProcessor(
         val generatedInvokers =
             AppFunctionSymbolResolver(resolver).getGeneratedAppFunctionInvokers()
         if (generatedInvokers.isEmpty()) return
-        // TODO(b/463909015): Remove the condition logic once service module is removed
-        val hasBaseInvoker =
-            generatedInvokers.any { invokerClass ->
-                invokerClass.superTypes.any { superType ->
-                    superType.resolve().declaration.qualifiedName?.asString() ==
-                        AppFunctionInvokerClass.CLASS_NAME_BASE.canonicalName
-                }
-            }
-        val aggregatedInvokerClass =
-            if (hasBaseInvoker) {
-                AggregatedAppFunctionInvokerClass.CLASS_NAME_BASE
-            } else {
-                AggregatedAppFunctionInvokerClass.CLASS_NAME
-            }
-        val aggregatedInvokerPackage =
-            if (hasBaseInvoker) {
-                APP_FUNCTIONS_INTERNAL_PACKAGE_NAME
-            } else {
-                APP_FUNCTIONS_SERVICE_INTERNAL_PACKAGE_NAME
-            }
+        val aggregatedInvokerClass = AggregatedAppFunctionInvokerClass.CLASS_NAME
+        val aggregatedInvokerPackage = APP_FUNCTIONS_INTERNAL_PACKAGE_NAME
         val aggregatedInvokerClassName = "${'$'}${aggregatedInvokerClass.simpleName}_Impl"
 
         val aggregatedInvokerClassBuilder = TypeSpec.classBuilder(aggregatedInvokerClassName)
         aggregatedInvokerClassBuilder.superclass(aggregatedInvokerClass)
         aggregatedInvokerClassBuilder.addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
-        aggregatedInvokerClassBuilder.addProperty(
-            buildInvokersProperty(generatedInvokers, hasBaseInvoker)
-        )
+        aggregatedInvokerClassBuilder.addProperty(buildInvokersProperty(generatedInvokers))
 
         val fileSpec =
             FileSpec.builder(aggregatedInvokerPackage, aggregatedInvokerClassName)
@@ -176,17 +155,8 @@ class AppFunctionAggregateProcessor(
             .use { fileSpec.writeTo(it) }
     }
 
-    private fun buildInvokersProperty(
-        generatedInvokers: List<KSClassDeclaration>,
-        hasBaseInvoker: Boolean,
-    ): PropertySpec {
-        // TODO(b/463909015): Remove the condition logic once service module is removed
-        val invokerInterface =
-            if (hasBaseInvoker) {
-                AppFunctionInvokerClass.CLASS_NAME_BASE
-            } else {
-                AppFunctionInvokerClass.CLASS_NAME
-            }
+    private fun buildInvokersProperty(generatedInvokers: List<KSClassDeclaration>): PropertySpec {
+        val invokerInterface = AppFunctionInvokerClass.CLASS_NAME
         return PropertySpec.builder(
                 AggregatedAppFunctionInvokerClass.PROPERTY_INVOKERS_NAME,
                 List::class.asClassName().parameterizedBy(invokerInterface),

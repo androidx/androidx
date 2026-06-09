@@ -142,14 +142,7 @@ class AppFunctionInvokerProcessor(private val codeGenerator: CodeGenerator) : Sy
 
         val invokerClassName = getAppFunctionInvokerClassName(originalClassName)
         val invokerClassBuilder = TypeSpec.classBuilder(invokerClassName)
-        // TODO(b/463909015): Remove the condition logic once service module is removed
-        val invokerSuperInterface =
-            if (appFunctionClass.hasBaseAnnotation) {
-                AppFunctionInvokerClass.CLASS_NAME_BASE
-            } else {
-                AppFunctionInvokerClass.CLASS_NAME
-            }
-        invokerClassBuilder.addSuperinterface(invokerSuperInterface)
+        invokerClassBuilder.addSuperinterface(AppFunctionInvokerClass.CLASS_NAME)
         invokerClassBuilder.addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
         invokerClassBuilder.addProperty(buildSupportedFunctionIdsProperty(appFunctionClass))
         invokerClassBuilder.addFunction(buildUnsafeInvokeFunction(appFunctionClass))
@@ -283,13 +276,7 @@ class AppFunctionInvokerProcessor(private val codeGenerator: CodeGenerator) : Sy
                 contextSpec,
                 functionParametersSpec,
             )
-        // TODO(b/463909015): Remove the condition logic once service module is removed
-        val factoryClassName =
-            if (annotatedAppFunctions.hasBaseAnnotation) {
-                ConfigurableAppFunctionFactoryClass.CLASS_NAME_BASE
-            } else {
-                ConfigurableAppFunctionFactoryClass.CLASS_NAME
-            }
+        val factoryClassName = ConfigurableAppFunctionFactoryClass.CLASS_NAME
         val formatStringMap =
             mapOf<String, Any>(
                 "function_id" to

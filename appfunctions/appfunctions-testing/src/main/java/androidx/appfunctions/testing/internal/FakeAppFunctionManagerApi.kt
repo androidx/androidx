@@ -20,15 +20,15 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
+import androidx.appfunctions.AppFunctionServiceDelegate
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.internal.AggregatedAppFunctionInventory
+import androidx.appfunctions.internal.AggregatedAppFunctionInvoker
 import androidx.appfunctions.internal.AppFunctionManagerApi
 import androidx.appfunctions.internal.NullTranslatorSelector
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.service.AppFunctionServiceDelegate
-import androidx.appfunctions.service.internal.AggregatedAppFunctionInvoker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 

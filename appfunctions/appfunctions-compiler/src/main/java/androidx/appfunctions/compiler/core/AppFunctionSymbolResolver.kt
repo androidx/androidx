@@ -55,11 +55,7 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
                     declaration
                         .getDeclaredFunctions()
                         .filter {
-                            it.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME) !=
-                                null ||
-                                it.annotations.findAnnotation(
-                                    AppFunctionAnnotation.CLASS_NAME_BASE
-                                ) != null
+                            it.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME) != null
                         }
                         .toList()
                 val appFunctions =
@@ -101,10 +97,8 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
     fun resolveUnvalidatedAnnotatedAppFunctions(): List<AnnotatedAppFunctions> {
         val serviceSymbols =
             resolver.getSymbolsWithAnnotation(AppFunctionAnnotation.CLASS_NAME.canonicalName)
-        val baseSymbols =
-            resolver.getSymbolsWithAnnotation(AppFunctionAnnotation.CLASS_NAME_BASE.canonicalName)
 
-        return (serviceSymbols + baseSymbols)
+        return serviceSymbols
             .distinct()
             .map { declaration ->
                 if (declaration !is KSFunctionDeclaration) {

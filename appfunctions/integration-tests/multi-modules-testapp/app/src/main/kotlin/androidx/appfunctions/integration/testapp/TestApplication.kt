@@ -16,10 +16,13 @@
 
 package androidx.appfunctions.integration.testapp
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.appfunctions.AppFunctionConfiguration
 
+// TODO(b/517876475): Remove this class once all tests are migrated to use service
+@SuppressLint("RestrictedApiAndroidX")
 class TestApplication : Application(), AppFunctionConfiguration.Provider {
 
     override fun onCreate() {

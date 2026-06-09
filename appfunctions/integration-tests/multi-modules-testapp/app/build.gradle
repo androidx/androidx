@@ -49,6 +49,7 @@ dependencies {
     implementation("androidx.appsearch:appsearch:1.1.0")
     implementation("androidx.appsearch:appsearch-platform-storage:1.1.0")
     implementation('androidx.concurrent:concurrent-futures-ktx:1.1.0')
+    compileOnly(project(":appfunctions:appfunctions-stubs"))
     ksp(project(":appfunctions:appfunctions-compiler"))
     compileOnly(project(":appfunctions:appfunctions-stubs"))
     androidTestImplementation(libs.junit)

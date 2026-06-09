@@ -17,6 +17,7 @@
 package androidx.appfunctions
 
 /** The configuration object used to customize AppFunction setup. */
+// TODO(b/517876475): Remove this class once migration is finished
 public class AppFunctionConfiguration
 internal constructor(
     /**

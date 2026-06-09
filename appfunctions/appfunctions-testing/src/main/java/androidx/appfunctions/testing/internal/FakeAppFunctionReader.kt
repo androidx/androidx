@@ -86,8 +86,9 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
         searchFunctionSpec: AppFunctionSearchSpec
     ): Flow<List<AppFunctionPackageMetadata>> =
         packageToFunctionMetadataMapState.combine(packageToComponentsMetadataMapState) {
-            packageToFunctionMetadataMap,
-            packageToComponentsMetadataMap ->
+            packageToFunctionMetadataMap:
+                Map<String, Map<String, AppFunctionStaticAndRuntimeMetadata>>,
+            packageToComponentsMetadataMap: Map<String, AppFunctionComponentsMetadata> ->
             packageToFunctionMetadataMap
                 .filterKeys { packageName ->
                     searchFunctionSpec.packageNames == null ||
