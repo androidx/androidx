@@ -92,6 +92,19 @@ class RemoteStringArrayTest {
         assertThat(context.getText(resultId)).isEqualTo("B")
     }
 
+    @Test
+    fun toDebugString_create() {
+        val arr = RemoteStringArray(listOf("A".rs, "B".rs))
+        assertThat(arr.toDebugString()).isEqualTo("""arrayOf("A", "B")""")
+    }
+
+    @Test
+    fun toDebugString_get() {
+        val arr = RemoteStringArray(listOf("A".rs, "B".rs))
+        val idx = RemoteInt.createNamedRemoteInt("idx", 1)
+        assertThat(arr[idx].toDebugString()).isEqualTo("""arrayOf("A", "B")[user:idx]""")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

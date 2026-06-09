@@ -64,38 +64,61 @@ internal constructor(
     cacheKey: RemoteStateCacheKey,
     internal val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
 ) : BaseRemoteState<Int>(cacheKey) {
-    internal enum class OperationKey {
+    internal enum class OperationKey(
+        override val precedence: Int = 100,
+        public val symbol: String? = null,
+    ) : DebuggableOperation {
         ToRemoteString,
-        Add,
-        Sub,
-        Mul,
-        Div,
-        Mod,
-        And,
-        Or,
-        Xor,
-        Shl,
-        Shr,
+        Add(3, "+"),
+        Sub(3, "-"),
+        Mul(4, "*"),
+        Div(4, "/"),
+        Mod(4, "%"),
+        And(1),
+        Or(1),
+        Xor(1),
+        Shl(2, "shl"),
+        Shr(2, "shr"),
         Abs,
-        Neg,
-        Not,
+        Neg(5),
+        Not(5),
         CopySign,
         Min,
         Max,
         Id,
         ToFloat,
-        CompareEQ,
-        CompareNE,
-        CompareLT,
-        CompareLE,
-        CompareGT,
-        CompareGE,
+        CompareEQ(1, "=="),
+        CompareNE(1, "!="),
+        CompareLT(1, "<"),
+        CompareLE(1, "<="),
+        CompareGT(1, ">"),
+        CompareGE(1, ">="),
         Reference,
         Clamp,
-        SelectIfLT,
-        SelectIfLE,
-        SelectIfGT,
-        SelectIfGE,
+        SelectIfLT(0),
+        SelectIfLE(0),
+        SelectIfGT(0),
+        SelectIfGE(0);
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+            if (symbol != null && args.size == 2) {
+                return args.formatOp(symbol, precedence)
+            }
+            return when (this) {
+                Neg -> "-${args[0].toOperandString(precedence)}"
+                Not -> "${args[0].toOperandString(precedence)}.inv()"
+                And -> args.formatOp("and", precedence)
+                Or -> args.formatOp("or", precedence)
+                Xor -> args.formatOp("xor", precedence)
+                ToFloat -> "${args[0].toOperandString(precedence)}.toRemoteFloat()"
+                ToRemoteString -> "${args[0].toOperandString(precedence)}.toRemoteString()"
+                SelectIfLT -> args.formatSelect("<")
+                SelectIfLE -> args.formatSelect("<=")
+                SelectIfGT -> args.formatSelect(">")
+                SelectIfGE -> args.formatSelect(">=")
+                else -> formatCamelCaseFunction(args)
+            }
+        }
     }
 
     /**
@@ -103,7 +126,7 @@ internal constructor(
      * [creationState]. It utilizes a cache within the [creationState] to avoid redundant
      * computations, improving performance.
      *
-     * @param creationState The current [RemoteComposeCreationState].
+     * @param stateScope The current [RemoteStateScope].
      * @return The [LongArray] representing this remote integer\'s expression.
      */
     internal fun arrayForCreationState(stateScope: RemoteStateScope): LongArray {

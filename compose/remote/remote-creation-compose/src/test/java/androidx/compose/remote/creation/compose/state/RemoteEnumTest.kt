@@ -99,11 +99,42 @@ class RemoteEnumTest {
     @Test
     fun cacheKeys() {
         val constant = RemoteEnum(Checked.Off)
-        // implemented as RemoteInt
-        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(0))
+        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(Checked.Off))
 
         val named = RemoteEnum.createNamedRemoteEnum<Checked>("test", Checked.Off)
         assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(Domain.User, "test"))
+    }
+
+    @Test
+    fun toDebugString_constant() {
+        val constEnum = RemoteEnum(Checked.Off)
+        assertThat(constEnum.toDebugString()).isEqualTo("Off")
+    }
+
+    @Test
+    fun toDebugString_namedVariable() {
+        val namedEnum = RemoteEnum.createNamedRemoteEnum<Checked>("chk", Checked.Off)
+        assertThat(namedEnum.toDebugString()).isEqualTo("user:chk")
+        assertThat(namedEnum.toRemoteString().toDebugString())
+            .isEqualTo("user:chk.toRemoteString()")
+    }
+
+    @Test
+    fun toDebugString_equality() {
+        val constEnum = RemoteEnum(Checked.Off)
+        val namedEnum = RemoteEnum.createNamedRemoteEnum<Checked>("chk", Checked.Off)
+        val eq = namedEnum.ordinal.isEqualTo(constEnum.ordinal)
+        assertThat(eq.toDebugString()).isEqualTo("user:chk == 0")
+        assertThat(namedEnum.ordinal.isEqualTo(Checked.Off.ordinal.ri).toDebugString())
+            .isEqualTo("user:chk == 0")
+    }
+
+    @Test
+    fun toDebugString_mapping() {
+        val namedEnum = RemoteEnum.createNamedRemoteEnum<Checked>("chk", Checked.Off)
+        val mappedInt = namedEnum.toRemoteInt { if (it == Checked.Off) 10.ri else 20.ri }
+        assertThat(mappedInt.toDebugString())
+            .isEqualTo("user:chk == 1 ? 20 : (user:chk == 0 ? 10 : -1)")
     }
 
     private fun makeAndPaintCoreDocument() =

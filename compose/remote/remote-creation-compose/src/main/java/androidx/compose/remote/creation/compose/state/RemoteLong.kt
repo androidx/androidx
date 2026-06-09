@@ -30,7 +30,8 @@ public open class RemoteLong
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val low: RemoteInt,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val high: RemoteInt,
-    cacheKey: RemoteStateCacheKey = RemoteOperationCacheKey.create(RemoteLongOp.Emulated, low, high),
+    cacheKey: RemoteStateCacheKey =
+        RemoteOperationCacheKey.create(RemoteLongOp.FromLowHigh, low, high),
 ) : BaseRemoteState<Long>(cacheKey) {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -41,6 +42,9 @@ internal constructor(
             val h = high.constantValueOrNull ?: return null
             return (h.toLong() shl 32) or (l.toLong() and 0xFFFFFFFFL)
         }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toDebugString(): String = constantValueOrNull?.toString() ?: super.toDebugString()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
@@ -175,7 +179,7 @@ internal constructor(
          *
          * @param name The unique name for this remote long.
          * @param defaultValue The initial [Long] value for the named remote long.
-         * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
+         * @param domain The domain of the named long (defaults to [Domain.User]).
          * @return A [RemoteLong] representing the named long.
          */
         @JvmStatic
@@ -291,9 +295,25 @@ public fun rememberNamedRemoteLong(
     }
 }
 
-internal enum class RemoteLongOp {
-    Emulated,
-    Add,
-    Sub,
-    Mul,
+internal enum class RemoteLongOp(val symbol: String? = null) : DebuggableOperation {
+    FromLowHigh,
+    Add("+"),
+    Sub("-"),
+    Mul("*");
+
+    override val precedence: Int
+        get() =
+            when (this) {
+                Mul -> 4
+                Add,
+                Sub -> 3
+                else -> 100
+            }
+
+    override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+        if (symbol != null && args.size == 2) {
+            return args.formatOp(symbol, precedence)
+        }
+        return formatCamelCaseFunction(args)
+    }
 }

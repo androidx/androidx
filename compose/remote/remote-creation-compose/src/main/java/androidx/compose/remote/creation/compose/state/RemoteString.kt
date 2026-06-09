@@ -37,19 +37,40 @@ import androidx.compose.runtime.remember
 public abstract class RemoteString internal constructor(cacheKey: RemoteStateCacheKey) :
     BaseRemoteState<String>(cacheKey) {
 
-    internal enum class OperationKey {
-        Concat,
+    internal enum class OperationKey(override val precedence: Int = 100) : DebuggableOperation {
+        Concat(3),
         Substring,
         Uppercase,
         Lowercase,
         Trim,
-        SelectIfLT,
-        SelectIfLE,
-        SelectIfGT,
-        SelectIfGE,
+        SelectIfLT(0),
+        SelectIfLE(0),
+        SelectIfGT(0),
+        SelectIfGE(0),
         Length,
         IsEmpty,
-        IsNotEmpty,
+        IsNotEmpty;
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+            return when (this) {
+                Concat -> args.formatOp("+", precedence)
+                Substring -> {
+                    val obj = args[0].toOperandString(precedence)
+                    val params = args.joinToDebugString(startIndex = 1)
+                    "$obj.substring($params)"
+                }
+                Uppercase -> "${args[0].toOperandString(precedence)}.uppercase()"
+                Lowercase -> "${args[0].toOperandString(precedence)}.lowercase()"
+                Trim -> "${args[0].toOperandString(precedence)}.trim()"
+                Length -> "${args[0].toOperandString(precedence)}.length"
+                IsEmpty -> "${args[0].toOperandString(precedence)}.isEmpty"
+                IsNotEmpty -> "${args[0].toOperandString(precedence)}.isNotEmpty"
+                SelectIfLT -> args.formatSelect("<")
+                SelectIfLE -> args.formatSelect("<=")
+                SelectIfGT -> args.formatSelect(">")
+                SelectIfGE -> args.formatSelect(">=")
+            }
+        }
     }
 
     public val length: RemoteInt

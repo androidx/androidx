@@ -47,19 +47,34 @@ internal constructor(
     internal val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : BaseRemoteState<Color>(cacheKey) {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toDebugString(): String {
+        val col = constantValueOrNull
+        if (col != null) {
+            return col.toArgb().toUInt().toString(16).uppercase()
+        }
+        return super.toDebugString()
+    }
+
     internal val configuredAlpha: RemoteFloat? = alpha
     internal val configuredRed: RemoteFloat? = red
     internal val configuredGreen: RemoteFloat? = green
     internal val configuredBlue: RemoteFloat? = blue
 
-    internal enum class OperationKey {
+    internal enum class OperationKey : DebuggableOperation {
         FromHSV,
         FromAHSV,
         FromArgb,
         Component,
         Multiply,
         Tween,
-        TweenInt,
+        TweenInt;
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            when (this) {
+                Multiply -> args.formatOp("*", 3)
+                else -> formatCamelCaseFunction(args)
+            }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

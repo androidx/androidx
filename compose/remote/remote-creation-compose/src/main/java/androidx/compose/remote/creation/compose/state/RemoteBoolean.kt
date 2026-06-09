@@ -37,11 +37,24 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
     internal override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 
-    internal enum class OperationKey {
+    internal enum class OperationKey : DebuggableOperation {
         SelectString,
         SelectFloat,
         SelectInt,
-        SelectBoolean,
+        SelectBoolean;
+
+        override val precedence: Int
+            get() = 0
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+            val condStr =
+                when (val cond = args[0].toOperandString(1)) {
+                    "1" -> "true"
+                    "0" -> "false"
+                    else -> cond
+                }
+            return "$condStr ? ${args[1].toOperandString(0)} : ${args[2].toOperandString(0)}"
+        }
     }
 
     @get:Suppress("AutoBoxing")
@@ -84,6 +97,16 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
             RemoteInt(0)
         }
     )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toDebugString(): String {
+        val str = super.toDebugString()
+        return when (str) {
+            "1" -> "true"
+            "0" -> "false"
+            else -> str
+        }
+    }
 
     /**
      * Converts this [RemoteBoolean] to its underlying [RemoteInt] representation, which evaluates

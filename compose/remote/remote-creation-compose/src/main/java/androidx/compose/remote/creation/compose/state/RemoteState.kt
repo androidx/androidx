@@ -64,6 +64,9 @@ public interface RemoteState<T> {
     public val asEncoded: RemoteState<*>
         get() = this
 
+    /** Returns the expression as a human-readable string. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toDebugString(): String
+
     /**
      * Represents the domain (namespace) for named remote states.
      *
@@ -129,6 +132,9 @@ internal constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
             initialCacheKey.state = this
         }
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toDebugString(): String = cacheKey.toDebugString()
 
     /** The constant value or null if there isn't one. */
     public abstract override val constantValueOrNull: T?

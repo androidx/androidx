@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -287,4 +288,32 @@ class RemoteLongTest {
                 op.apply(context)
             }
         }
+
+    @Test
+    fun toDebugString_constant() {
+        val rl = RemoteLong(123456789L)
+        assertThat(rl.toDebugString()).isEqualTo("123456789")
+    }
+
+    @Test
+    fun toDebugString_variable() {
+        val rl = RemoteLong.createNamedRemoteLong("testLong", 100L)
+        assertThat(rl.toDebugString()).isEqualTo("user:testLong")
+    }
+
+    @Test
+    fun toDebugString_arithmetic() {
+        val l1 = RemoteLong.createNamedRemoteLong("l1", 1000L)
+        val l2 = RemoteLong.createNamedRemoteLong("l2", 2000L)
+        assertThat((l1 + l2).toDebugString()).isEqualTo("user:l1 + user:l2")
+        assertThat((l1 * l2).toDebugString()).isEqualTo("user:l1 * user:l2")
+    }
+
+    @Test
+    fun toDebugString_contextVariable() {
+        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val longExpr = RemoteLong.fromLowHigh(continuousSecFloat.toRemoteInt(), 0.ri)
+        assertThat(longExpr.toDebugString())
+            .isEqualTo("fromLowHigh(context:continuous_sec.toRemoteInt(), 0)")
+    }
 }

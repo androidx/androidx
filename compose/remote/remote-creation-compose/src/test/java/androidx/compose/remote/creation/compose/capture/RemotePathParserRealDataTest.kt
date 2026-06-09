@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.compose.remote.core.RemotePathBase
+import androidx.compose.remote.core.operations.Utils.idFromNan
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import org.junit.Assert.fail
@@ -118,7 +119,7 @@ class RemotePathParserRealDataTest {
 
         while (i < array.size) {
             if (array[i].isNaN()) {
-                val id = androidx.compose.remote.core.operations.Utils.idFromNan(array[i])
+                val id = idFromNan(array[i])
                 if (id == RemotePathBase.DONE) break
 
                 when (id) {

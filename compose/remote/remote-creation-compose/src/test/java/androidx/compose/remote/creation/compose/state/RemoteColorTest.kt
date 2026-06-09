@@ -564,6 +564,34 @@ class RemoteColorTest {
         assertThat(coreDoc.namedColors[0]).isEqualTo("${RemoteDomains.USER}:$colorName")
     }
 
+    @Test
+    fun toDebugString_variable() {
+        val c = RemoteColor.createNamedRemoteColor("col", Color.Red)
+        assertThat(c.toDebugString()).isEqualTo("user:col")
+    }
+
+    @Test
+    fun toDebugString_fromHSV() {
+        val x = RemoteFloat.createNamedRemoteFloat("h", 0.5f)
+        val y = RemoteFloat.createNamedRemoteFloat("s", 0.2f)
+        val z = RemoteFloat.createNamedRemoteFloat("v", 0.1f)
+        val hsv = RemoteColor.hsv(hue = x, saturation = y, value = z)
+        assertThat(hsv.toDebugString()).isEqualTo("fromHSV(user:h, user:s, user:v)")
+    }
+
+    @Test
+    fun toDebugString_contextVariable() {
+        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val colorExpr = RemoteColor.hsv(continuousSecFloat, 1f.rf, 1f.rf)
+        assertThat(colorExpr.toDebugString()).isEqualTo("fromHSV(context:continuous_sec, 1.0, 1.0)")
+    }
+
+    @Test
+    fun toDebugString_constant() {
+        val color = RemoteColor(Color.Red)
+        assertThat(color.toDebugString()).isEqualTo("FFFF0000")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

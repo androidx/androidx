@@ -168,9 +168,12 @@ public class StandardRemotePaint() : RemotePaint {
         this.fontVariationSettings = other.fontVariationSettings
     }
 
-    override fun toString(): String {
-        return "RemotePaint(isAntiAlias=$isAntiAlias, blendMode=$blendMode, style=$style, strokeWidth=$strokeWidth, strokeCap=$strokeCap, strokeJoin=$strokeJoin, filterQuality=$filterQuality, shader=$shader, pathEffect=$pathEffect, textSize=$textSize, typeface=$typeface, remoteColor=$color, colorFilter=$colorFilter, fontVariationSettings=$fontVariationSettings)"
-    }
+    override fun toString(): String =
+        "RemotePaint(isAntiAlias=$isAntiAlias, blendMode=$blendMode, style=$style, " +
+            "strokeWidth=$strokeWidth, strokeCap=$strokeCap, strokeJoin=$strokeJoin, " +
+            "filterQuality=$filterQuality, shader=$shader, pathEffect=$pathEffect, " +
+            "textSize=$textSize, typeface=$typeface, remoteColor=$color, " +
+            "colorFilter=$colorFilter, fontVariationSettings=$fontVariationSettings)"
 }
 
 /**

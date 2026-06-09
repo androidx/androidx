@@ -736,6 +736,59 @@ class RemoteBooleanTest {
         assertThat(resultId).isGreaterThan(0)
     }
 
+    @Test
+    fun toDebugString_logicalAnd() {
+        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val expr = b and RemoteBoolean(false)
+        assertThat(expr.toDebugString()).isEqualTo("user:b and 0")
+    }
+
+    @Test
+    fun toDebugString_logicalOr() {
+        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val expr = b or RemoteBoolean(false)
+        assertThat(expr.toDebugString()).isEqualTo("user:b or 0")
+    }
+
+    @Test
+    fun toDebugString_logicalXor() {
+        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val expr = b xor RemoteBoolean(false)
+        assertThat(expr.toDebugString()).isEqualTo("user:b xor 0")
+    }
+
+    @Test
+    fun toDebugString_select() {
+        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val selectStr = b.select(RemoteString("yes"), RemoteString("no"))
+        assertThat(selectStr.toDebugString()).isEqualTo("""user:b ? "yes" : "no"""")
+
+        val selectInt = b.select(RemoteInt(10), RemoteInt(20))
+        assertThat(selectInt.toDebugString()).isEqualTo("user:b ? 10 : 20")
+    }
+
+    @Test
+    fun toDebugString_not() {
+        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        // Note not() is implemented as xor 1.
+        assertThat((!b).toDebugString()).isEqualTo("user:b xor 1")
+    }
+
+    @Test
+    fun toDebugString_contextVariable() {
+        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val boolExpr = continuousSecFloat.toRemoteInt().isGreaterThan(0.ri)
+        assertThat(boolExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteInt() > 0")
+    }
+
+    @Test
+    fun toDebugString_constant() {
+        val bTrue = RemoteBoolean(true)
+        val bFalse = RemoteBoolean(false)
+        assertThat(bTrue.toDebugString()).isEqualTo("true")
+        assertThat(bFalse.toDebugString()).isEqualTo("false")
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
