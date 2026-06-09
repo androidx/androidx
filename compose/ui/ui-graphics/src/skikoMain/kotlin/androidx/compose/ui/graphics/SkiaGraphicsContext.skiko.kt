@@ -28,12 +28,15 @@ class SkiaGraphicsContext(
     private val renderNodeContext = RenderNodeContext(
         measureDrawBounds = measureDrawBounds,
     )
+    private var isClosed = false
 
     // Temporary workaround to disable state tracking workaround inside old internal layers
     var activeGraphicsLayersCount = 0
         private set
 
     fun dispose() {
+        require(!isClosed) { "GraphicsContext is already closed" }
+        isClosed = true
         renderNodeContext.close()
     }
 
@@ -45,6 +48,7 @@ class SkiaGraphicsContext(
         ambientShadowAlpha: Float = 0f,
         spotShadowAlpha: Float = 0f
     ) {
+        require(!isClosed) { "GraphicsContext is already closed" }
         renderNodeContext.setLightingInfo(
             centerX,
             centerY,
@@ -56,6 +60,7 @@ class SkiaGraphicsContext(
     }
 
     override fun createGraphicsLayer(): GraphicsLayer {
+        require(!isClosed) { "GraphicsContext is already closed" }
         activeGraphicsLayersCount++
         return GraphicsLayer(
             renderNode = RenderNode(renderNodeContext)

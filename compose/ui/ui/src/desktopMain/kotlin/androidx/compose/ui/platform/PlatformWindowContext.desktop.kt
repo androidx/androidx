@@ -24,10 +24,10 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.toDpOffset
-import androidx.compose.ui.window.toDpSize
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
+import androidx.compose.ui.window.toDpOffset
+import androidx.compose.ui.window.toDpSize
 import java.awt.Component
 import java.awt.Container
 import java.awt.Frame
@@ -67,11 +67,27 @@ internal class PlatformWindowContext {
         _windowInfo.containerDpSize = component.size.toDpSize()
     }
 
-    fun convertLocalToWindowPosition(container: Component, localPosition: Offset) =
-        localPosition + offsetInWindow(container).toDpOffset().toOffset(container.density)
+    private inline fun withOffsetInWindowOrUnspecified(
+        component: Component,
+        block: (offsetInWindow: Offset) -> Offset
+    ): Offset {
+        if (_windowContainer == null || SwingUtilities.getWindowAncestor(component) == null) {
+            return Offset.Unspecified
+        }
+        return block(locationInWindow(component).toDpOffset().toOffset(component.density))
+    }
 
-    fun convertWindowToLocalPosition(container: Component, positionInWindow: Offset) =
-        positionInWindow - offsetInWindow(container).toDpOffset().toOffset(container.density)
+    fun convertLocalToWindowPosition(container: Component, localPosition: Offset): Offset {
+        return withOffsetInWindowOrUnspecified(container) {
+            localPosition + it
+        }
+    }
+
+    fun convertWindowToLocalPosition(container: Component, positionInWindow: Offset): Offset {
+        return withOffsetInWindowOrUnspecified(container) {
+            positionInWindow - it
+        }
+    }
 
     /**
      * If the [component]'s location on screen is undefined, returns [Offset.Unspecified]; otherwise
@@ -105,17 +121,18 @@ internal class PlatformWindowContext {
     }
 
     /**
-     * Calculates the offset of the given [container] within the window.
+     * Calculates the offset of the given [component] within the window.
      * It uses [_windowContainer] as a reference for window coordinate space.
      *
-     * @param container The container component whose offset needs to be calculated.
-     * @return The offset of the container within the window as an [Point] object.
+     * @param component The component whose offset needs to be calculated.
+     * @return The offset of the component within the window as an [Point] object.
      */
-    fun offsetInWindow(container: Component): Point {
-        return if (_windowContainer != null) {
-            SwingUtilities.convertPoint(container, Point(0, 0), _windowContainer)
-        } else {
-            Point(0, 0)
-        }
+    fun locationInWindow(component: Component): Point {
+        if (_windowContainer == null) return Point(0, 0)
+        return  SwingUtilities.convertPoint(
+            /* source = */ component,
+            /* aPoint = */ Point(0, 0),
+            /* destination = */ _windowContainer,
+        )
     }
 }
