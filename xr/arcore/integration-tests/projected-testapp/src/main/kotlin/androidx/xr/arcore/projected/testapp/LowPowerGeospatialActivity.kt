@@ -69,6 +69,7 @@ import androidx.xr.projected.permissions.ProjectedPermissionsRequestParams
 import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.ExperimentalInertialTrackingApi
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.PreviewSpatialApi
 import androidx.xr.runtime.Session
@@ -452,6 +453,7 @@ class LowPowerGeospatialActivity : ComponentActivity() {
         return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
     }
 
+    @OptIn(ExperimentalInertialTrackingApi::class)
     private fun TrackingState?.getTrackingStateMessage(): String {
         return when (this) {
             TrackingState.TRACKING -> "TRACKING"

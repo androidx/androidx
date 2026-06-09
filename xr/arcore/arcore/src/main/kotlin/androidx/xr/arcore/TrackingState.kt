@@ -17,6 +17,7 @@
 package androidx.xr.arcore
 
 import androidx.xr.arcore.runtime.TrackingState as RTTrackingState
+import androidx.xr.runtime.ExperimentalInertialTrackingApi
 
 /** Describes the state of the tracking performed. */
 public class TrackingState private constructor(private val value: Int) {
@@ -31,7 +32,9 @@ public class TrackingState private constructor(private val value: Int) {
         @JvmField public val STOPPED: TrackingState = TrackingState(2)
 
         /** Tracking is valid but the quality is degraded. */
-        @JvmField public val TRACKING_DEGRADED: TrackingState = TrackingState(3)
+        @ExperimentalInertialTrackingApi
+        @JvmField
+        public val TRACKING_DEGRADED: TrackingState = TrackingState(3)
     }
 
     /** Returns a string representation of [TrackingState] useful for debugging. */
@@ -41,12 +44,17 @@ public class TrackingState private constructor(private val value: Int) {
                 TRACKING -> "TRACKING"
                 PAUSED -> "PAUSED"
                 STOPPED -> "STOPPED"
-                TRACKING_DEGRADED -> "TRACKING_DEGRADED"
-                else -> throw SOMEONE_FORGOT_TO_UPDATE_TRACKING_STATE
+                else ->
+                    if (value == 3) {
+                        "TRACKING_DEGRADED"
+                    } else {
+                        throw SOMEONE_FORGOT_TO_UPDATE_TRACKING_STATE
+                    }
             }
         return "TrackingState($repr)"
     }
 
+    @OptIn(ExperimentalInertialTrackingApi::class)
     internal fun toRuntimeTrackingState(): RTTrackingState =
         when (this) {
             TRACKING -> RTTrackingState.TRACKING
@@ -57,6 +65,7 @@ public class TrackingState private constructor(private val value: Int) {
         }
 }
 
+@OptIn(ExperimentalInertialTrackingApi::class)
 internal fun RTTrackingState.toTrackingState(): TrackingState =
     when (this) {
         RTTrackingState.TRACKING -> TrackingState.TRACKING
