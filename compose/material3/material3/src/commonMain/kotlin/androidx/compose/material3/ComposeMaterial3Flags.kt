@@ -108,4 +108,17 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isBottomSheetPartiallyExpandedDeterministicEnabled: Boolean = true
+
+    /**
+     * This flag affects [TimePicker].
+     *
+     * When true (default), TimePicker AM/PM toggle buttons will use shape morph buttons and bold
+     * the text of the selected button.
+     *
+     * When false, the legacy AM/PM toggle items are displayed.
+     */
+    // TODO: b/521427342
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isUpdatedTimepickerToggleEnabled: Boolean = true
 }

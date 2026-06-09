@@ -56,12 +56,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.rememberAccessibilityServiceState
+import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.material3.tokens.TimeInputTokens
@@ -86,6 +88,7 @@ import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizont
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizontalContainerWidth
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorLabelTextFont
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorOutlineColor
+import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorOutlineWidth
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedLabelTextColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorUnselectedLabelTextColor
@@ -182,6 +185,7 @@ import androidx.compose.ui.semantics.selectableGroup
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -407,10 +411,23 @@ object TimePickerDefaults {
                         containerColor = fromToken(ContainerColor),
                         periodSelectorBorderColor = fromToken(PeriodSelectorOutlineColor),
                         periodSelectorSelectedContainerColor =
-                            fromToken(PeriodSelectorSelectedContainerColor),
-                        periodSelectorUnselectedContainerColor = Color.Transparent,
+                            if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) {
+                                fromToken(ColorSchemeKeyTokens.PrimaryContainer)
+                            } else {
+                                fromToken(PeriodSelectorSelectedContainerColor)
+                            },
+                        periodSelectorUnselectedContainerColor =
+                            if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) {
+                                fromToken(ColorSchemeKeyTokens.SurfaceContainerLowest)
+                            } else {
+                                Color.Transparent
+                            },
                         periodSelectorSelectedContentColor =
-                            fromToken(PeriodSelectorSelectedLabelTextColor),
+                            if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) {
+                                fromToken(ColorSchemeKeyTokens.OnPrimaryContainer)
+                            } else {
+                                fromToken(PeriodSelectorSelectedLabelTextColor)
+                            },
                         periodSelectorUnselectedContentColor =
                             fromToken(PeriodSelectorUnselectedLabelTextColor),
                         timeSelectorSelectedContainerColor =
@@ -734,7 +751,6 @@ value class TimePickerLayoutType internal constructor(internal val value: Int) {
 }
 
 private const val MaxHourValue = 23
-
 private const val MaxMinuteValue = 59
 
 /**
@@ -1337,8 +1353,12 @@ private fun TimeInputImpl(
             }
         }
 
+        val startPadding =
+            if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) PeriodTogglePaddingSmall
+            else PeriodTogglePaddingOld
+
         if (!state.is24hour) {
-            Box(Modifier.padding(start = PeriodToggleMargin)) {
+            Box(Modifier.padding(start = startPadding)) {
                 VerticalPeriodToggle(
                     modifier =
                         Modifier.size(PeriodSelectorContainerWidth, PeriodSelectorContainerHeight),
@@ -1351,12 +1371,13 @@ private fun TimeInputImpl(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HorizontalClockDisplay(state: TimePickerState, colors: TimePickerColors) {
     Column(verticalArrangement = Arrangement.Center) {
         ClockDisplayNumbers(state, colors)
         if (!state.is24hour) {
-            Box(modifier = Modifier.padding(top = PeriodToggleMargin)) {
+            Box(modifier = Modifier.padding(top = PeriodTogglePaddingLarge)) {
                 HorizontalPeriodToggle(
                     modifier =
                         Modifier.size(
@@ -1374,10 +1395,14 @@ private fun HorizontalClockDisplay(state: TimePickerState, colors: TimePickerCol
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun VerticalClockDisplay(state: TimePickerState, colors: TimePickerColors) {
+    val startPadding =
+        if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) PeriodTogglePaddingSmall
+        else PeriodTogglePaddingOld
+
     Row(horizontalArrangement = Arrangement.Center) {
         ClockDisplayNumbers(state, colors)
         if (!state.is24hour) {
-            Box(modifier = Modifier.padding(start = PeriodToggleMargin)) {
+            Box(modifier = Modifier.padding(start = startPadding)) {
                 VerticalPeriodToggle(
                     modifier =
                         Modifier.size(
@@ -1461,39 +1486,61 @@ private fun ClockDisplayNumbers(state: TimePickerState, colors: TimePickerColors
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HorizontalPeriodToggle(
     modifier: Modifier,
     state: TimePickerState,
     colors: TimePickerColors,
+    shapes: TimePickerShapes? = null,
 ) {
-    val measurePolicy = remember {
-        MeasurePolicy { measurables, constraints ->
-            val spacer = measurables.fastFirst { it.layoutId == "Spacer" }
-            val spacerPlaceable =
-                spacer.measure(
-                    constraints.copy(
-                        minWidth = 0,
-                        maxWidth = TimePickerTokens.PeriodSelectorOutlineWidth.roundToPx(),
-                    )
-                )
-
-            val items =
-                measurables
-                    .fastFilter { it.layoutId != "Spacer" }
-                    .fastMap { item ->
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+    val measurePolicy =
+        if (useUpdatedToggle) {
+            MeasurePolicy { measurables, constraints ->
+                val gap = PeriodTogglePaddingSmall.roundToPx()
+                val items =
+                    measurables.fastMap { item ->
                         item.measure(
-                            constraints.copy(minWidth = 0, maxWidth = constraints.maxWidth / 2)
+                            constraints.copy(
+                                minWidth = 0,
+                                minHeight = 0,
+                                maxWidth = ((constraints.maxWidth - gap) / 2).coerceAtLeast(0),
+                            )
                         )
                     }
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    items[0].place(0, 0)
+                    items[1].place(items[0].width + gap, 0)
+                }
+            }
+        } else {
+            MeasurePolicy { measurables, constraints ->
+                val spacer = measurables.fastFirst { it.layoutId == "Spacer" }
+                val spacerPlaceable =
+                    spacer.measure(
+                        constraints.copy(
+                            minWidth = 0,
+                            maxWidth = TimePickerTokens.PeriodSelectorOutlineWidth.roundToPx(),
+                        )
+                    )
 
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                items[0].place(0, 0)
-                items[1].place(items[0].width, 0)
-                spacerPlaceable.place(items[0].width - spacerPlaceable.width / 2, 0)
+                val items =
+                    measurables
+                        .fastFilter { it.layoutId != "Spacer" }
+                        .fastMap { item ->
+                            item.measure(
+                                constraints.copy(minWidth = 0, maxWidth = constraints.maxWidth / 2)
+                            )
+                        }
+
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    items[0].place(0, 0)
+                    items[1].place(items[0].width, 0)
+                    spacerPlaceable.place(items[0].width - spacerPlaceable.width / 2, 0)
+                }
             }
         }
-    }
 
     val shape = PeriodSelectorContainerShape.value as CornerBasedShape
 
@@ -1515,33 +1562,56 @@ private fun VerticalPeriodToggle(
     colors: TimePickerColors,
     shapes: TimePickerShapes? = null,
 ) {
-    val measurePolicy = remember {
-        MeasurePolicy { measurables, constraints ->
-            val spacer = measurables.fastFirst { it.layoutId == "Spacer" }
-            val spacerPlaceable =
-                spacer.measure(
-                    constraints.copy(
-                        minHeight = 0,
-                        maxHeight = TimePickerTokens.PeriodSelectorOutlineWidth.roundToPx(),
-                    )
-                )
-
-            val items =
-                measurables
-                    .fastFilter { it.layoutId != "Spacer" }
-                    .fastMap { item ->
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+    val measurePolicy =
+        if (useUpdatedToggle) {
+            MeasurePolicy { measurables, constraints ->
+                val gap = PeriodTogglePaddingSmall.roundToPx()
+                val items =
+                    measurables.fastMap { item ->
                         item.measure(
-                            constraints.copy(minHeight = 0, maxHeight = constraints.maxHeight / 2)
+                            constraints.copy(
+                                minWidth = 0,
+                                minHeight = 0,
+                                maxHeight = ((constraints.maxHeight - gap) / 2).coerceAtLeast(0),
+                            )
                         )
                     }
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    items[0].place(0, 0)
+                    items[1].place(0, items[0].height + gap)
+                }
+            }
+        } else {
+            MeasurePolicy { measurables, constraints ->
+                val spacer = measurables.fastFirst { it.layoutId == "Spacer" }
+                val spacerPlaceable =
+                    spacer.measure(
+                        constraints.copy(
+                            minHeight = 0,
+                            maxHeight = TimePickerTokens.PeriodSelectorOutlineWidth.roundToPx(),
+                        )
+                    )
 
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                items[0].place(0, 0)
-                items[1].place(0, items[0].height)
-                spacerPlaceable.place(0, items[0].height - spacerPlaceable.height / 2)
+                val items =
+                    measurables
+                        .fastFilter { it.layoutId != "Spacer" }
+                        .fastMap { item ->
+                            item.measure(
+                                constraints.copy(
+                                    minHeight = 0,
+                                    maxHeight = constraints.maxHeight / 2,
+                                )
+                            )
+                        }
+
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    items[0].place(0, 0)
+                    items[1].place(0, items[0].height)
+                    spacerPlaceable.place(0, items[0].height - spacerPlaceable.height / 2)
+                }
             }
         }
-    }
 
     val shape = PeriodSelectorContainerShape.value as CornerBasedShape
 
@@ -1555,6 +1625,7 @@ private fun VerticalPeriodToggle(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PeriodToggleImpl(
     modifier: Modifier,
@@ -1564,11 +1635,10 @@ private fun PeriodToggleImpl(
     startShape: Shape,
     endShape: Shape,
 ) {
-    val borderStroke =
-        BorderStroke(TimePickerTokens.PeriodSelectorOutlineWidth, colors.periodSelectorBorderColor)
-    val shape = PeriodSelectorContainerShape.value as CornerBasedShape
     val style = PeriodSelectorLabelTextFont.value
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+
     Layout(
         modifier =
             modifier
@@ -1582,7 +1652,17 @@ private fun PeriodToggleImpl(
                     this.contentDescription = contentDescription
                 }
                 .selectableGroup()
-                .border(border = borderStroke, shape = shape)
+                .then(
+                    if (!useUpdatedToggle) {
+                        val borderStroke =
+                            BorderStroke(
+                                TimePickerTokens.PeriodSelectorOutlineWidth,
+                                colors.periodSelectorBorderColor,
+                            )
+                        val shape = PeriodSelectorContainerShape.value as CornerBasedShape
+                        Modifier.border(border = borderStroke, shape = shape)
+                    } else Modifier
+                )
                 .then(
                     if (state is AnalogTimePickerState)
                         Modifier.focusRequester(state.amPmNodeFocusRequester)
@@ -1590,64 +1670,130 @@ private fun PeriodToggleImpl(
                 ),
         measurePolicy = measurePolicy,
         content = {
-            ToggleItem(
-                checked = !state.isPm,
-                shape = startShape,
-                onClick = {
-                    if (state.isPm && state.isHourInputValid) {
-                        state.hour -= 12
-                    }
-                },
-                colors = colors,
-            ) {
-                Text(style = style, text = getString(string = Strings.TimePickerAM))
-            }
-            Spacer(
-                Modifier.layoutId("Spacer")
-                    .zIndex(SeparatorZIndex)
-                    .fillMaxSize()
-                    .background(color = colors.periodSelectorBorderColor)
-            )
-            ToggleItem(
-                checked = state.isPm,
-                shape = endShape,
-                onClick = {
-                    if (!state.isPm && state.isHourInputValid) {
-                        state.hour += 12
-                    }
-                },
-                colors = colors,
-            ) {
-                Text(style = style, text = getString(string = Strings.TimePickerPM))
+            if (useUpdatedToggle) {
+                ToggleItem(
+                    checked = !state.isPm,
+                    onClick = {
+                        if (state.isPm && state.isHourInputValid) {
+                            state.hour -= 12
+                        }
+                    },
+                    colors = colors,
+                ) {
+                    Text(
+                        // If checked (AM is active), copy the style with Bold weight
+                        style =
+                            if (!state.isPm) style.copy(fontWeight = FontWeight.Bold) else style,
+                        text = getString(string = Strings.TimePickerAM),
+                    )
+                }
+                ToggleItem(
+                    checked = state.isPm,
+                    onClick = {
+                        if (!state.isPm && state.isHourInputValid) {
+                            state.hour += 12
+                        }
+                    },
+                    colors = colors,
+                ) {
+                    Text(
+                        // If checked (PM is active), copy the style with Bold weight
+                        style = if (state.isPm) style.copy(fontWeight = FontWeight.Bold) else style,
+                        text = getString(string = Strings.TimePickerPM),
+                    )
+                }
+            } else {
+                ToggleItem(
+                    checked = !state.isPm,
+                    shape = startShape,
+                    onClick = {
+                        if (state.isPm && state.isHourInputValid) {
+                            state.hour -= 12
+                        }
+                    },
+                    colors = colors,
+                ) {
+                    Text(style = style, text = getString(string = Strings.TimePickerAM))
+                }
+                Spacer(
+                    Modifier.layoutId("Spacer")
+                        .zIndex(SeparatorZIndex)
+                        .fillMaxSize()
+                        .background(color = colors.periodSelectorBorderColor)
+                )
+                ToggleItem(
+                    checked = state.isPm,
+                    shape = endShape,
+                    onClick = {
+                        if (!state.isPm && state.isHourInputValid) {
+                            state.hour += 12
+                        }
+                    },
+                    colors = colors,
+                ) {
+                    Text(style = style, text = getString(string = Strings.TimePickerPM))
+                }
             }
         },
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ToggleItem(
     checked: Boolean,
-    shape: Shape,
     onClick: () -> Unit,
     colors: TimePickerColors,
+    shape: Shape = CircleShape,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val contentColor = colors.periodSelectorContentColor(checked)
-    val containerColor = colors.periodSelectorContainerColor(checked)
+    val useUpdatedToggle = ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled
+    if (useUpdatedToggle) {
+        val toggleButtonColors =
+            ToggleButtonDefaults.toggleButtonColors(
+                containerColor = colors.periodSelectorUnselectedContainerColor,
+                contentColor = colors.periodSelectorUnselectedContentColor,
+                checkedContainerColor = colors.periodSelectorSelectedContainerColor,
+                checkedContentColor = colors.periodSelectorSelectedContentColor,
+            )
+        val toggleButtonShapes =
+            ToggleButtonShapes(
+                shape = CircleShape,
+                pressedShape = RoundedCornerShape(12.dp),
+                checkedShape = RoundedCornerShape(12.dp),
+            )
+        ToggleButton(
+            checked = checked,
+            onCheckedChange = { onClick() },
+            modifier =
+                Modifier.zIndex(if (checked) 0f else 1f).fillMaxSize().semantics {
+                    selected = checked
+                },
+            shapes = toggleButtonShapes,
+            colors = toggleButtonColors,
+            contentPadding = PaddingValues(0.dp),
+            content = content,
+        )
+    } else {
+        val contentColor = colors.periodSelectorContentColor(checked)
+        val containerColor = colors.periodSelectorContainerColor(checked)
 
-    TextButton(
-        modifier =
-            Modifier.zIndex(if (checked) 0f else 1f).fillMaxSize().semantics { selected = checked },
-        contentPadding = PaddingValues(0.dp),
-        shape = shape,
-        onClick = onClick,
-        content = content,
-        colors =
-            ButtonDefaults.textButtonColors(
-                contentColor = contentColor,
-                containerColor = containerColor,
-            ),
-    )
+        TextButton(
+            modifier =
+                Modifier.zIndex(if (checked) 0f else 1f).fillMaxSize().semantics {
+                    selected = checked
+                },
+            contentPadding = PaddingValues(0.dp),
+            shape = shape,
+            onClick = onClick,
+            content = content,
+            colors =
+                ButtonDefaults.textButtonColors(
+                    contentColor = contentColor,
+                    containerColor = containerColor,
+                ),
+        )
+    }
 }
 
 @Composable
@@ -2617,7 +2763,10 @@ private val Minutes = intListOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
 private val Hours = intListOf(12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
 private val ExtraHours: IntList =
     MutableIntList(Hours.size).apply { Hours.forEach { add((it % 12 + 12)) } }
-private val PeriodToggleMargin = 12.dp
+
+private val PeriodTogglePaddingOld = 12.dp
+private val PeriodTogglePaddingSmall = 4.dp
+private val PeriodTogglePaddingLarge = 16.dp
 
 private val TimePickerMaxHeight = 384.dp
 private val TimePickerMidHeight = 330.dp
