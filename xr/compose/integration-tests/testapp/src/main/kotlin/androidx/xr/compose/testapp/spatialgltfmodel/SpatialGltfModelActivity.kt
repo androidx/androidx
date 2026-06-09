@@ -244,7 +244,12 @@ class SpatialGltfModelActivity : ComponentActivity() {
                                         if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     modifier =
                                         Modifier.fillMaxWidth()
-                                            .clickable { state.selectedAnimation = animation }
+                                            .clickable {
+                                                if (state.selectedAnimation != animation) {
+                                                    state.selectedAnimation?.stop()
+                                                }
+                                                state.selectedAnimation = animation
+                                            }
                                             .background(
                                                 if (isSelected) Color.Blue.copy(alpha = 0.2f)
                                                 else Color.Transparent
