@@ -188,6 +188,7 @@ class InertialTrackingActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalInertialTrackingApi::class)
 private fun TrackingState.toFriendlyString(): String =
     when (this) {
         TrackingState.TRACKING -> "TRACKING"

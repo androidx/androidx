@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalInertialTrackingApi::class)
-
 package androidx.xr.arcore.apps.whitebox.mobile.inertial
 
 import android.os.Bundle
@@ -54,6 +52,7 @@ import androidx.xr.runtime.Session
 import java.util.Locale
 
 /** Activity to test 3DoF Inertial Tracking Mode. */
+@OptIn(ExperimentalInertialTrackingApi::class)
 class InertialTrackingActivity : ComponentActivity() {
 
     private lateinit var session: Session
@@ -152,6 +151,7 @@ class InertialTrackingActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalInertialTrackingApi::class)
 private fun TrackingState.toFriendlyString(): String =
     when (this) {
         TrackingState.TRACKING -> "TRACKING"

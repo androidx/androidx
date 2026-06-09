@@ -17,7 +17,9 @@
 package androidx.xr.arcore.testapp.common
 
 import androidx.xr.arcore.TrackingState
+import androidx.xr.runtime.ExperimentalInertialTrackingApi
 
+@OptIn(ExperimentalInertialTrackingApi::class)
 public fun TrackingState.asString(): String =
     when (this) {
         TrackingState.TRACKING -> "TRACKING"
