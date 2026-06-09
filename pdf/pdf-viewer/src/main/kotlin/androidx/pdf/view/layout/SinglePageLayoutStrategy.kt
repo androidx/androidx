@@ -32,13 +32,9 @@ import kotlin.math.max
  *
  * @property pageCount The total number of pages in the document.
  * @property verticalPageSpacingPx The vertical distance in pixels between pages.
- * @param topPageMarginPx The top margin in pixels applied before the first page.
  */
-internal class SinglePageLayoutStrategy(
-    val pageCount: Int,
-    val verticalPageSpacingPx: Float,
-    topPageMarginPx: Float = 0f,
-) : LayoutStrategy {
+internal class SinglePageLayoutStrategy(val pageCount: Int, val verticalPageSpacingPx: Float) :
+    LayoutStrategy {
     override val pagesPerRow: Int = 1
     override val maxWidth
         get() = _maxWidth
@@ -62,7 +58,7 @@ internal class SinglePageLayoutStrategy(
     private val pageBottoms = FloatArray(pageCount) { 0f }
 
     /** The top position (y-coordinate) of each page known to this model */
-    private val pageTops = FloatArray(pageCount) { 0f }.apply { this[0] = topPageMarginPx }
+    private val pageTops = FloatArray(pageCount) { 0f }
 
     /** Private constructor used by the Parcelable [CREATOR] to read the object's state. */
     private constructor(
@@ -200,7 +196,7 @@ internal class SinglePageLayoutStrategy(
         return if (lastKnownPage < 0) {
             0f
         } else if (lastKnownPage == pageCount - 1) {
-            pageBottoms[lastKnownPage] + verticalPageSpacingPx
+            pageBottoms[lastKnownPage]
         } else {
             // Since all the pages are not yet loaded we need to make an estimate for now.
             val totalKnownHeight = pageBottoms[lastKnownPage]

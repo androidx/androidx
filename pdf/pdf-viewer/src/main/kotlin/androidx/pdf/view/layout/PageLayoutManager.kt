@@ -49,7 +49,6 @@ import kotlinx.coroutines.withContext
 internal class PageLayoutManager(
     private val pdfDocument: PdfDocument,
     private val backgroundScope: CoroutineScope,
-    private val topPageMarginPx: Float = 0f,
     pagesPerRow: Int = SINGLE_PAGE,
     horizontalPageSpacingPx: Float = DEFAULT_PAGE_SPACING_PX,
     verticalPageSpacingPx: Float = DEFAULT_PAGE_SPACING_PX,
@@ -60,7 +59,6 @@ internal class PageLayoutManager(
             pagesPerRow,
             horizontalPageSpacingPx,
             verticalPageSpacingPx,
-            topPageMarginPx,
         ),
     internal val pdfFormFillingState: PdfFormFillingState =
         PdfFormFillingState(pdfDocument.pageCount),
@@ -162,7 +160,6 @@ internal class PageLayoutManager(
                 pagesPerRow,
                 horizontalPageSpacingPx,
                 verticalPageSpacingPx,
-                topPageMarginPx,
             )
 
         for (pageNum in 0..paginationModel.reach) {
@@ -442,17 +439,11 @@ internal class PageLayoutManager(
             pagesPerRow: Int,
             horizontalPageSpacingPx: Float,
             verticalPageSpacingPx: Float,
-            topPageMarginPx: Float,
         ): LayoutStrategy {
             return if (pagesPerRow == TWO_PAGE) {
-                TwoPageLayoutStrategy(
-                    pageCount,
-                    verticalPageSpacingPx,
-                    horizontalPageSpacingPx,
-                    topPageMarginPx,
-                )
+                TwoPageLayoutStrategy(pageCount, verticalPageSpacingPx, horizontalPageSpacingPx)
             } else {
-                SinglePageLayoutStrategy(pageCount, verticalPageSpacingPx, topPageMarginPx)
+                SinglePageLayoutStrategy(pageCount, verticalPageSpacingPx)
             }
         }
     }
