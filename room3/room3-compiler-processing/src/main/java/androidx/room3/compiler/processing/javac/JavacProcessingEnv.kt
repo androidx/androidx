@@ -134,6 +134,16 @@ internal class JavacProcessingEnv(
         )
     }
 
+    override fun getArrayType(type: XType): XArrayType {
+        check(type is JavacType) { "given type must be from java, $type is not" }
+        return JavacArrayType(
+            env = this,
+            typeMirror = typeUtils.getArrayType(type.typeMirror),
+            nullability = XNullability.UNKNOWN,
+            knownComponentNullability = type.nullability,
+        )
+    }
+
     override fun getDeclaredType(
         type: XTypeElement,
         vararg typeArguments: XTypeArgument,

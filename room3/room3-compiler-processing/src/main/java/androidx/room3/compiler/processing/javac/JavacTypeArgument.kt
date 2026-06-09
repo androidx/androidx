@@ -26,6 +26,7 @@ import androidx.room3.compiler.processing.javac.kotlin.KmBaseTypeContainer
 import androidx.room3.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes.asWildcard
 import com.squareup.kotlinpoet.javapoet.JClassName
+import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
@@ -88,11 +89,25 @@ internal class JavacTypeArgument(
             typeMirror: TypeMirror,
             kotlinType: KmBaseTypeContainer?,
             elementNullability: XNullability?,
-        ) = JavacTypeArgument(env, typeMirror, kotlinType, elementNullability)
+        ): JavacTypeArgument {
+            return if (typeMirror.kind.isPrimitive && typeMirror is PrimitiveType) {
+                create(
+                    env,
+                    env.typeUtils.boxedClass(typeMirror).asType(),
+                    kotlinType,
+                    elementNullability,
+                )
+            } else {
+                JavacTypeArgument(env, typeMirror, kotlinType, elementNullability)
+            }
+        }
 
         fun create(env: JavacProcessingEnv, type: XType, variance: XVariance): JavacTypeArgument {
-            check(type is JavacType)
-            return JavacTypeArgument(
+            require(type is JavacType)
+            require(type.typeMirror.kind != TypeKind.WILDCARD) {
+                "Cannot create a JavacTypeArgument from a type that is already a wildcard."
+            }
+            return create(
                 env,
                 typeMirror =
                     when (variance) {

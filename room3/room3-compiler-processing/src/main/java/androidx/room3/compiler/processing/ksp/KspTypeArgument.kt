@@ -24,8 +24,12 @@ import androidx.room3.compiler.processing.XVariance
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.Variance
 
-internal class KspTypeArgument(val env: KspProcessingEnv, val ksTypeArgument: KSTypeArgument) :
-    XTypeArgument, XEquality {
+internal class KspTypeArgument
+private constructor(
+    val env: KspProcessingEnv,
+    val ksTypeArgument: KSTypeArgument,
+    val knownTypeName: Lazy<XTypeName>? = null,
+) : XTypeArgument, XEquality {
 
     override val type: KspType by lazy {
         val ksType =
@@ -35,7 +39,13 @@ internal class KspTypeArgument(val env: KspProcessingEnv, val ksTypeArgument: KS
                 Variance.CONTRAVARIANT -> ksTypeArgument.requireType()
                 Variance.STAR -> env.resolver.builtIns.anyType.makeNullable()
             }
-        env.wrap(ksType, allowPrimitives = false)
+        env.wrap(ksType, allowPrimitives = false).let {
+            if (knownTypeName == null) {
+                it
+            } else {
+                it.copyWithKnownTypeName { knownTypeName.value.extendsBoundOrSelf }
+            }
+        }
     }
 
     override val variance: XVariance by lazy {
@@ -47,16 +57,10 @@ internal class KspTypeArgument(val env: KspProcessingEnv, val ksTypeArgument: KS
         }
     }
 
-    override fun asTypeName(): XTypeName {
-        val jvmKsTypeArgument =
-            env.resolver.getTypeArgument(
-                env.resolver.createKSTypeReferenceFromKSType(type.jvmKsType),
-                ksTypeArgument.variance,
-            )
-        return XTypeName(
-            jvmKsTypeArgument.asJTypeName(env.resolver),
-            ksTypeArgument.asKTypeName(env.resolver),
-        )
+    override fun asTypeName() = knownTypeName?.value ?: type.asTypeName().withVariance(variance)
+
+    fun copyWithKnownTypeName(knownTypeName: () -> XTypeName): KspTypeArgument {
+        return KspTypeArgument(env, ksTypeArgument, lazy { knownTypeName() })
     }
 
     override val equalityItems: Array<out Any?> by lazy { arrayOf(variance, type) }
@@ -78,7 +82,10 @@ internal class KspTypeArgument(val env: KspProcessingEnv, val ksTypeArgument: KS
             KspTypeArgument(env, ksTypeArgument)
 
         fun create(env: KspProcessingEnv, type: XType, variance: XVariance): KspTypeArgument {
-            check(type is KspType)
+            require(type is KspType)
+            if (type is KspPrimitiveType) {
+                return create(env, type.boxed(), variance)
+            }
             return KspTypeArgument(
                 env = env,
                 ksTypeArgument =
@@ -92,7 +99,17 @@ internal class KspTypeArgument(val env: KspProcessingEnv, val ksTypeArgument: KS
                                 XVariance.STAR -> Variance.STAR
                             },
                     ),
+                knownTypeName = lazy { type.asTypeName().withVariance(variance) },
             )
+        }
+
+        private fun XTypeName.withVariance(variance: XVariance): XTypeName {
+            return when (variance) {
+                XVariance.INVARIANT -> this
+                XVariance.OUT -> XTypeName.getProducerExtendsName(this)
+                XVariance.IN -> XTypeName.getConsumerSuperName(this)
+                XVariance.STAR -> XTypeName.ANY_WILDCARD
+            }
         }
     }
 }

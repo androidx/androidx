@@ -226,14 +226,8 @@ class XTypeNameTest {
                 assertThat(cls.getMethodByJvmName("f4").parameters.single().type.asTypeName())
                     .isEqualTo(unit)
                 cls.getMethodByJvmName("f5").parameters.single().let { funParam ->
-                    funParam.type.typeArguments[0].asTypeName().let { paramTypeName ->
-                        if (invocation.isKsp) {
-                            assertThat(paramTypeName).isEqualTo(unit)
-                        } else {
-                            // TODO: Somehow KAPT keeps the variance for param type.
-                            assertThat(paramTypeName.java).isEqualTo(inUnit.java)
-                        }
-                    }
+                    assertThat(funParam.type.typeArguments[0].asTypeName())
+                        .isEqualTo(XTypeName(inUnit.java, unit.kotlin))
                     assertThat(funParam.type.typeArguments[1].asTypeName()).isEqualTo(unit)
                 }
                 assertThat(

@@ -97,7 +97,15 @@ internal class KspExecutableParameterElement(
             if (!type.isArray()) {
                     // In KSP2 the varargs have the component type instead of the array type.
                     // We make it always return the array type in XProcessing.
-                    env.getArrayType(env.getWildcardType(producerExtends = type))
+                    if (type is KspPrimitiveType) {
+                        env.getArrayType(type)
+                    } else {
+                        // Non-primitive arrays are covariant in the JVM (e.g., Foo[] is assignable
+                        // to Object[]). We use a covariant projection (Array<out Foo>) to match
+                        // this behavior in Kotlin, ensuring that Array<out Foo> is assignable to an
+                        // Array<out Any?>.
+                        env.getArrayType(env.getWildcardType(producerExtends = type))
+                    }
                 } else {
                     type
                 }

@@ -73,6 +73,56 @@ protected constructor(
             return XTypeName(javaRawType, kotlinRawType, nullability)
         }
 
+    /**
+     * Returns the argument list for this [XTypeName] or an empty list if none exists. If the java
+     * and kotlin representations have a different number of type arguments, returns `null`.
+     *
+     * There's a number of reasons why the type arguments for Java and Kotlin may not match.
+     * - Arrays (Kotlin arrays are parameterized (Array<T>), Java arrays are not (T[]).
+     * - Suspend functions types (e.g. SuspendFunction<P, R> in Kotlin and Function2<P,
+     *   Continuation<R>, Object> in Java).
+     * - Inline value types (e.g. Result<T> in Kotlin and T in Java)
+     * - Manually constructed XTypeName (e.g. a user constructs an XTypeName from scratch).
+     *
+     * In all of these cases we'll return `null`.
+     */
+    val typeArguments: List<XTypeName>? by lazy {
+        if (kotlin == UNAVAILABLE_KTYPE_NAME) {
+            return@lazy java.typeArguments().map {
+                XTypeName(java = it, kotlin = UNAVAILABLE_KTYPE_NAME)
+            }
+        }
+        val javaArgs = java.typeArguments()
+        val kotlinArgs = kotlin.typeArguments()
+        if (javaArgs.size != kotlinArgs.size) {
+            return@lazy null
+        }
+        javaArgs.indices.map { i -> XTypeName(java = javaArgs[i], kotlin = kotlinArgs[i]) }
+    }
+
+    /**
+     * Returns the type without variance or the type itself if it's invariant.
+     *
+     * A type is only considered invariant iff both the java and kotlin types are invariant.
+     */
+    val extendsBoundOrSelf: XTypeName
+        get() = extendsBound ?: this
+
+    /**
+     * Returns the type without variance or `null` if it's invariant.
+     *
+     * A type is only considered invariant iff both the java and kotlin types are invariant.
+     */
+    val extendsBound: XTypeName? by lazy {
+        val javaBounds = java.extendsBound()
+        val kotlinBounds = kotlin.extendsBound()
+        if (javaBounds == null && kotlinBounds == null) {
+            null
+        } else {
+            XTypeName(javaBounds ?: java, kotlinBounds ?: kotlin, nullability)
+        }
+    }
+
     open fun copy(nullable: Boolean): XTypeName {
         // TODO(b/248633751): Handle primitive to boxed when becoming nullable?
         return XTypeName(

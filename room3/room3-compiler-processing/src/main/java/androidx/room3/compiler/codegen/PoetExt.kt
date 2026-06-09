@@ -16,6 +16,14 @@
 
 package androidx.room3.compiler.codegen
 
+import androidx.room3.compiler.codegen.XTypeName.Companion.UNAVAILABLE_KTYPE_NAME
+import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
+import com.squareup.kotlinpoet.javapoet.KParameterizedTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
+import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
+
 typealias JCodeBlock = com.squareup.javapoet.CodeBlock
 
 typealias JCodeBlockBuilder = com.squareup.javapoet.CodeBlock.Builder
@@ -76,3 +84,34 @@ internal val T = "\$T"
 internal val N = "\$N"
 internal val S = "\$S"
 internal val W = "\$W"
+
+/**
+ * Returns the list of type arguments for this [JTypeName] if it is a [JParameterizedTypeName],
+ * otherwise an empty list.
+ */
+internal fun JTypeName.typeArguments() =
+    (this as? JParameterizedTypeName)?.typeArguments ?: emptyList()
+
+/**
+ * Returns the list of type arguments for this [KTypeName] if it is a [KParameterizedTypeName],
+ * otherwise returns an empty list.
+ */
+internal fun KTypeName.typeArguments() =
+    (this as? KParameterizedTypeName)?.typeArguments ?: emptyList()
+
+/** Returns the upper or lower bound of a [JWildcardTypeName], otherwise returns `null`. */
+fun JTypeName.extendsBound(): JTypeName? {
+    return when (this) {
+        is JWildcardTypeName -> lowerBounds.firstOrNull() ?: upperBounds.first()
+        else -> null
+    }
+}
+
+/** Returns the "in" or "out" bound of a [KWildcardTypeName], otherwise returns `null`. */
+fun KTypeName.extendsBound(): KTypeName? {
+    return when (this) {
+        UNAVAILABLE_KTYPE_NAME -> UNAVAILABLE_KTYPE_NAME
+        is KWildcardTypeName -> inTypes.firstOrNull() ?: outTypes.first()
+        else -> null
+    }
+}

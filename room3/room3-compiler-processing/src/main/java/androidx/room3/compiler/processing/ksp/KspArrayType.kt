@@ -16,6 +16,7 @@
 
 package androidx.room3.compiler.processing.ksp
 
+import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XArrayType
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XTypeArgument
@@ -26,7 +27,8 @@ internal sealed class KspArrayType(
     env: KspProcessingEnv,
     ksType: KSType,
     scope: KSTypeVarianceResolverScope? = null,
-) : KspType(env, ksType, scope), XArrayType {
+    knownTypeName: Lazy<XTypeName>? = null,
+) : KspType(env, ksType, scope, knownTypeName), XArrayType {
 
     abstract override val componentType: KspType
 
@@ -40,7 +42,8 @@ internal sealed class KspArrayType(
         env: KspProcessingEnv,
         ksType: KSType,
         scope: KSTypeVarianceResolverScope? = null,
-    ) : KspArrayType(env, ksType, scope) {
+        knownTypeName: Lazy<XTypeName>? = null,
+    ) : KspArrayType(env, ksType, scope, knownTypeName) {
 
         override val componentType: KspType by lazy {
             val arg = ksType.arguments.single()
@@ -53,7 +56,8 @@ internal sealed class KspArrayType(
             env: KspProcessingEnv,
             ksType: KSType,
             scope: KSTypeVarianceResolverScope?,
-        ) = BoxedArray(env, ksType, scope)
+            knownTypeName: Lazy<XTypeName>?,
+        ) = BoxedArray(env, ksType, scope, knownTypeName)
     }
 
     /** Built in primitive array types (e.g. IntArray) */
@@ -62,13 +66,15 @@ internal sealed class KspArrayType(
         ksType: KSType,
         scope: KSTypeVarianceResolverScope? = null,
         override val componentType: KspType,
-    ) : KspArrayType(env, ksType, scope) {
+        knownTypeName: Lazy<XTypeName>? = null,
+    ) : KspArrayType(env, ksType, scope, knownTypeName) {
 
         override fun copy(
             env: KspProcessingEnv,
             ksType: KSType,
             scope: KSTypeVarianceResolverScope?,
-        ) = PrimitiveArray(env, ksType, scope, componentType)
+            knownTypeName: Lazy<XTypeName>?,
+        ) = PrimitiveArray(env, ksType, scope, componentType, knownTypeName)
     }
 
     /** Factory class to create instances of [KspArrayType]. */
@@ -91,15 +97,9 @@ internal sealed class KspArrayType(
             builtInArrays.entries.associateBy { it.value.ksType }
 
         fun createWithComponentType(componentType: KspType): KspArrayType {
-            return createWithComponentType(
-                env.createTypeArgument(componentType, XVariance.INVARIANT)
-            )
-        }
-
-        fun createWithComponentType(componentType: KspTypeArgument): KspArrayType {
-            if (componentType.type.nullability == XNullability.NONNULL) {
+            if (componentType.nullability == XNullability.NONNULL) {
                 val primitiveArrayEntry: Map.Entry<String, KspPrimitiveType>? =
-                    reverseBuiltInArrayLookup[componentType.type.ksType]
+                    reverseBuiltInArrayLookup[componentType.ksType]
                 if (primitiveArrayEntry != null) {
                     return PrimitiveArray(
                         env = env,
@@ -108,7 +108,12 @@ internal sealed class KspArrayType(
                     )
                 }
             }
+            return createWithComponentType(
+                env.createTypeArgument(componentType, XVariance.INVARIANT)
+            )
+        }
 
+        fun createWithComponentType(componentType: KspTypeArgument): KspArrayType {
             return BoxedArray(
                 env = env,
                 ksType =

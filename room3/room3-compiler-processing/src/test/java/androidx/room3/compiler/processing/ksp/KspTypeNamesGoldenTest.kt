@@ -18,9 +18,12 @@ package androidx.room3.compiler.processing.ksp
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
+import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XConstructorElement
 import androidx.room3.compiler.processing.XExecutableElement
 import androidx.room3.compiler.processing.XMethodElement
+import androidx.room3.compiler.processing.XMethodType
+import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.XTestInvocation
@@ -149,28 +152,101 @@ class KspTypeNamesGoldenTest {
         assertWithMessage(errorMessage).fail()
     }
 
+    @Test
+    fun ksp2UnwrapTypeNameTest() {
+        runKspTest(sources = sources, classpath = classpath) { invocation ->
+            visitExecutables(invocation, subjects) { executable, owner ->
+                val executableType = executable.asMemberOf(owner)
+                val executableName =
+                    if (executable is XMethodElement) executable.jvmName else "<init>"
+                val methodBase = "${owner.typeElement?.qualifiedName}.$executableName"
+
+                if (executableType is XMethodType) {
+                    val returnType = executableType.returnType
+                    assertXTypeNameRecursive(
+                        type = returnType,
+                        typeName = returnType.asTypeName(),
+                        context = "$methodBase returnType: ${returnType.asTypeName()}",
+                    )
+                }
+
+                executableType.parameterTypes.forEachIndexed { index, parameterType ->
+                    assertXTypeNameRecursive(
+                        type = parameterType,
+                        typeName = parameterType.asTypeName(),
+                        context = "$methodBase parameter $index: ${parameterType.asTypeName()}",
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Recursively asserts that the [XType] and its type arguments match the expected [XTypeName].
+     * The [context] accumulates the path of parent types to provide informative error messages.
+     */
+    private fun assertXTypeNameRecursive(type: XType, typeName: XTypeName, context: String) {
+        assertWithMessage("Type mismatch.\nContext: $context")
+            .that(type.asTypeName())
+            .isEqualTo(typeName)
+
+        val typeArguments = type.typeArguments
+        val typeNameArguments = typeName.typeArguments ?: return
+
+        assertWithMessage("Type argument count mismatch.\nContext: $context")
+            .that(typeArguments.size)
+            .isEqualTo(typeNameArguments.size)
+
+        for (i in 0..<typeArguments.size) {
+            val typeArgument = typeArguments[i]
+            val typeNameArgument = typeNameArguments[i]
+
+            // Construct the next context level, showing the current parent and the argument index
+            val nextContext = "$context\n  > arg[$i]: $typeNameArgument"
+
+            // Check the XTypeName of the XTypeArgument (including variance/wildcards)
+            assertWithMessage("XTypeArgument mismatch.\nContext: $nextContext")
+                .that(typeArgument.asTypeName())
+                .isEqualTo(typeNameArgument)
+
+            typeNameArgument.extendsBoundOrSelf.let {
+                // Recursively check the invariant type inside the type argument
+                assertXTypeNameRecursive(
+                    type = typeArgument.extendsBoundOrSelf(),
+                    typeName = typeNameArgument.extendsBoundOrSelf,
+                    context = nextContext,
+                )
+            }
+        }
+    }
+
     private data class MethodSignature(
         val name: String,
         val returnType: TypeName,
         val parameterTypes: List<TypeName>,
     ) {
         companion object {
-            operator fun invoke(method: XMethodElement, owner: XTypeElement): MethodSignature {
-                val methodType = method.asMemberOf(owner.type)
+            operator fun invoke(executable: XExecutableElement, owner: XType): MethodSignature {
+                return when (executable) {
+                    is XMethodElement -> create(executable, owner)
+                    is XConstructorElement -> create(executable, owner)
+                    else -> error("Unexpected ${executable.javaClass}: $executable")
+                }
+            }
+
+            private fun create(method: XMethodElement, owner: XType): MethodSignature {
+                val methodType = method.asMemberOf(owner)
                 return MethodSignature(
-                    name = "${prefix(method, owner)}.${method.jvmName}",
+                    name = "${prefix(method, owner.typeElement!!)}.${method.jvmName}",
                     returnType = methodType.returnType.typeName,
                     parameterTypes = methodType.parameterTypes.map { it.typeName },
                 )
             }
 
-            operator fun invoke(
-                constructor: XConstructorElement,
-                owner: XTypeElement,
-            ): MethodSignature {
-                val constructorType = constructor.asMemberOf(owner.type)
+            private fun create(constructor: XConstructorElement, owner: XType): MethodSignature {
+                val constructorType = constructor.asMemberOf(owner)
                 return MethodSignature(
-                    name = "${prefix(constructor, owner)}.<init>",
+                    name = "${prefix(constructor, owner.typeElement!!)}.<init>",
                     returnType = TypeName.VOID,
                     parameterTypes = constructorType.parameterTypes.map { it.typeName },
                 )
@@ -191,6 +267,18 @@ class KspTypeNamesGoldenTest {
         invocation: XTestInvocation,
         subjects: List<String>,
     ): List<MethodSignature> {
+        return buildList {
+            visitExecutables(invocation, subjects) { executable, owner ->
+                add(MethodSignature(executable, owner))
+            }
+        }
+    }
+
+    private fun visitExecutables(
+        invocation: XTestInvocation,
+        subjects: List<String>,
+        visitor: (XExecutableElement, XType) -> Unit,
+    ) {
         // collect all methods in the Object class to exclude them from matching
         val objectMethodNames =
             invocation.processingEnv
@@ -199,28 +287,23 @@ class KspTypeNamesGoldenTest {
                 .map { it.jvmName }
                 .toSet()
 
-        return buildList<MethodSignature>() {
-            subjects.forEach {
-                val klass = invocation.processingEnv.requireTypeElement(it)
-                klass.getConstructors().singleOrNull()?.let { constructor ->
-                    add(MethodSignature(constructor, klass))
+        subjects.forEach {
+            val subject = invocation.processingEnv.requireTypeElement(it)
+            subject.getConstructors().singleOrNull()?.let { visitor(it, subject.type) }
+
+            // KAPT might duplicate overridden methods. ignore them for test purposes
+            // see b/205911014
+            val declaredMethodNames = subject.getDeclaredMethods().map { it.jvmName }.toSet()
+            val methods =
+                subject.getDeclaredMethods() +
+                    subject.getAllMethods().filterNot { it.jvmName in declaredMethodNames }
+
+            methods
+                .filterNot {
+                    // remove these synthetics generated by kapt for property annotations
+                    it.jvmName.contains("\$annotations") || objectMethodNames.contains(it.jvmName)
                 }
-
-                // KAPT might duplicate overridden methods. ignore them for test purposes
-                // see b/205911014
-                val declaredMethodNames = klass.getDeclaredMethods().map { it.jvmName }.toSet()
-                val methods =
-                    klass.getDeclaredMethods() +
-                        klass.getAllMethods().filterNot { it.jvmName in declaredMethodNames }
-
-                methods
-                    .filterNot {
-                        // remove these synthetics generated by kapt for property annotations
-                        it.jvmName.contains("\$annotations") ||
-                            objectMethodNames.contains(it.jvmName)
-                    }
-                    .forEach { method -> add(MethodSignature(method, klass)) }
-            }
+                .forEach { visitor(it, subject.type) }
         }
     }
 
