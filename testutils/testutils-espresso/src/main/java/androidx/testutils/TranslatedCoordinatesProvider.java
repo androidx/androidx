@@ -19,8 +19,9 @@ package androidx.testutils;
 import android.annotation.SuppressLint;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.test.espresso.action.CoordinatesProvider;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Translates a {@link CoordinatesProvider} by the given x and y distances. The distances are given
@@ -47,9 +48,8 @@ public class TranslatedCoordinatesProvider implements CoordinatesProvider {
         mDy = dy;
     }
 
-    @NonNull
     @Override
-    public float[] calculateCoordinates(@NonNull View view) {
+    public float @NonNull [] calculateCoordinates(@NonNull View view) {
         float[] coords = mProvider.calculateCoordinates(view);
         coords[0] += mDx;
         coords[1] += mDy;

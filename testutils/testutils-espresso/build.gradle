@@ -28,6 +28,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
 
     implementation(libs.espressoCore)
@@ -42,6 +43,4 @@ android {
 
 androidx {
     type = SoftwareType.INTERNAL_TEST_LIBRARY
-    // TODO: b/326456246
-    optOutJSpecify = true
 }
