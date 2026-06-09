@@ -145,6 +145,23 @@ public interface FrameBuffer : AutoCloseable {
     public fun releaseAll(predicate: ((FrameReference) -> Boolean)? = null): Boolean
 
     /**
+     * Removes and closes the first entry in [FrameBuffer] that corresponds to the given
+     * [FrameReference].
+     *
+     * If the [FrameBuffer] contains an entry for the given [FrameReference] that has not yet been
+     * removed, that entry will be removed and its underlying [Frame] (if present and unclosed) will
+     * be closed. If no matching entry is found, this method has no effect.
+     *
+     * This operation is idempotent: calling this method multiple times with the same
+     * [FrameReference] will result in at most one frame being closed.
+     *
+     * @param frameReference The [FrameReference] whose corresponding entry should be removed and
+     *   closed.
+     * @return true if a matching entry was found and closed, false otherwise.
+     */
+    public fun release(frameReference: FrameReference): Boolean
+
+    /**
      * The first FrameReference in the buffer, or null if the buffer is empty. No frames or
      * references are removed by this call.
      */

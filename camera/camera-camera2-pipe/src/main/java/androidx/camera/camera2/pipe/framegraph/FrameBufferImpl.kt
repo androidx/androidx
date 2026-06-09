@@ -204,6 +204,10 @@ internal class FrameBufferImpl(
         return removedFrames.isNotEmpty()
     }
 
+    override fun release(frameReference: FrameReference): Boolean = releaseFirst {
+        it === frameReference
+    }
+
     override fun peekFirstReference(): FrameReference? =
         synchronized(lock) {
             if (closed) return null

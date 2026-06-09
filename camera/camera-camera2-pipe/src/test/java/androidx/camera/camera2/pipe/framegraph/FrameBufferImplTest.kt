@@ -599,6 +599,66 @@ class FrameBufferImplTest {
         }
 
     @Test
+    fun release_withFrameReference_removesMatchingFrameAndCloses_updatesSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            frameRef1.close()
+            frameRef2.close()
+            advanceUntilIdle()
+
+            val lastPeeked = frameBuffer.peekLastReference()!!
+            val released = frameBuffer.release(lastPeeked)
+            assertThat(released).isTrue()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+            assertThat(lastPeeked.tryAcquire()).isNull()
+        }
+
+    @Test
+    fun release_withFrameReference_emptyBuffer_returnsFalse() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            assertThat(frameBuffer.release(frameRef1)).isFalse()
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun release_withFrameReference_zeroCapacityBuffer_returnsFalse() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+            val frameRef1 = createTestFrame(1)
+
+            assertThat(frameBuffer.release(frameRef1)).isFalse()
+        }
+
+    @Test
+    fun release_withFrameReference_noMatches_returnsFalse() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+
+            assertThat(frameBuffer.release(frameRef2)).isFalse()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
+    fun release_withFrameReference_whenBufferIsClosed_returnsFalse() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameRef1.close()
+            advanceUntilIdle()
+            frameBuffer.close()
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.release(frameRef1)).isFalse()
+        }
+
+    @Test
     fun releaseLast_withoutPredicate_removesLastReferenceAndCloses() =
         testScope.runTest {
             val frameRef1 = createTestFrame(1)
