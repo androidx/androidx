@@ -185,7 +185,7 @@ public actual class MigrationTestHelper(
             isMigrationRequired = true,
             allowDestructiveMigrationOnDowngrade = false,
             migrationNotRequiredFrom = null,
-            typeConverters = emptyList(),
+            columnTypeConverters = emptyList(),
             daoReturnTypeConverters = emptyList(),
             autoMigrationSpecs = emptyList(),
             allowDestructiveMigrationForAllTables = false,

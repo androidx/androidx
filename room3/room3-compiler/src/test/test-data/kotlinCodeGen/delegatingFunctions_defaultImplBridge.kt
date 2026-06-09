@@ -42,7 +42,7 @@ internal class MyDao_Impl(
   }
 
   public companion object {
-    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
+    public fun getRequiredColumnConverters(): List<KClass<*>> = emptyList()
 
     public fun getRequiredDaoReturnTypeConverters(): List<KClass<*>> = emptyList()
   }

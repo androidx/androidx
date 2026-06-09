@@ -68,8 +68,8 @@ constructor(
     /* Callback when Room uses a pre-packaged database. */
     public val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
 
-    /* List of provided type converters. */
-    @param:Suppress("ListenerLast") public actual val typeConverters: List<Any>,
+    /* List of provided column type converters. */
+    @param:Suppress("ListenerLast") public actual val columnTypeConverters: List<Any>,
 
     /* List of provided DAO return type converters. */
     @param:Suppress("ListenerLast") public actual val daoReturnTypeConverters: List<Any>,
@@ -120,7 +120,7 @@ constructor(
         migrationNotRequiredFrom: Set<Int>? = this.migrationNotRequiredFrom,
         prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback? =
             this.prepackagedDatabaseCallback,
-        typeConverters: List<Any> = this.typeConverters,
+        columnTypeConverters: List<Any> = this.columnTypeConverters,
         daoReturnTypeConverters: List<Any> = this.daoReturnTypeConverters,
         autoMigrationSpecs: List<AutoMigrationSpec> = this.autoMigrationSpecs,
         allowDestructiveMigrationForAllTables: Boolean = this.allowDestructiveMigrationForAllTables,
@@ -140,7 +140,7 @@ constructor(
                 allowDestructiveMigrationOnDowngrade,
                 migrationNotRequiredFrom,
                 prepackagedDatabaseCallback,
-                typeConverters,
+                columnTypeConverters,
                 daoReturnTypeConverters,
                 autoMigrationSpecs,
                 allowDestructiveMigrationForAllTables,

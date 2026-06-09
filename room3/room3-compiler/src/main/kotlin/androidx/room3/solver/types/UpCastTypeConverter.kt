@@ -24,7 +24,7 @@ import androidx.room3.solver.CodeGenScope
  * in the pathfinding to be more expensive than exactly matching calls to prioritize exact matches.
  */
 class UpCastTypeConverter(upCastFrom: XType, upCastTo: XType) :
-    TypeConverter(from = upCastFrom, to = upCastTo, cost = Cost.UP_CAST) {
+    ColumnTypeConverter(from = upCastFrom, to = upCastTo, cost = Cost.UP_CAST) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder.addStatement("%L = %L", outputVarName, inputVarName)
     }

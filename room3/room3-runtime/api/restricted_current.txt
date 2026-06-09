@@ -84,13 +84,12 @@ package androidx.room3 {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.room3.migration.Migration> createAutoMigrations(java.util.Map<kotlin.reflect.KClass<? extends androidx.room3.migration.AutoMigrationSpec>,? extends androidx.room3.migration.AutoMigrationSpec> autoMigrationSpecs);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.room3.InvalidationTracker createInvalidationTracker();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.room3.RoomOpenDelegateMarker createOpenDelegate();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final <T> T getColumnTypeConverter(kotlin.reflect.KClass<T> klass);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final <T> T getDaoReturnTypeConverter(kotlin.reflect.KClass<T> klass);
     method @InaccessibleFromKotlin public androidx.room3.InvalidationTracker getInvalidationTracker();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.Set<kotlin.reflect.KClass<? extends androidx.room3.migration.AutoMigrationSpec>> getRequiredAutoMigrationSpecClasses();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.Map<kotlin.reflect.KClass<? extends java.lang.Object?>,java.util.List<kotlin.reflect.KClass<? extends java.lang.Object?>>> getRequiredColumnTypeConverterClasses();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.Map<kotlin.reflect.KClass<? extends java.lang.Object?>,java.util.List<kotlin.reflect.KClass<? extends java.lang.Object?>>> getRequiredDaoReturnTypeConverterClasses();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.Map<kotlin.reflect.KClass<? extends java.lang.Object?>,java.util.List<kotlin.reflect.KClass<? extends java.lang.Object?>>> getRequiredTypeConverterClasses();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.Map<java.lang.Class<? extends java.lang.Object?>,java.util.List<java.lang.Class<? extends java.lang.Object?>>> getRequiredTypeConverters();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final <T> T getTypeConverter(kotlin.reflect.KClass<T> klass);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected final suspend Object? internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public androidx.room3.InvalidationTracker invalidationTracker;
     field public static final androidx.room3.RoomDatabase.Companion Companion;
@@ -101,9 +100,9 @@ package androidx.room3 {
     ctor @kotlin.PublishedApi internal RoomDatabase.Builder(kotlin.reflect.KClass<T> klass, String? name, kotlin.jvm.functions.Function0<? extends T>? factory, android.content.Context? context);
     method public androidx.room3.RoomDatabase.Builder<T> addAutoMigrationSpec(androidx.room3.migration.AutoMigrationSpec autoMigrationSpec);
     method public androidx.room3.RoomDatabase.Builder<T> addCallback(androidx.room3.RoomDatabase.Callback callback);
+    method public androidx.room3.RoomDatabase.Builder<T> addColumnTypeConverter(Object typeConverter);
     method public androidx.room3.RoomDatabase.Builder<T> addDaoReturnTypeConverter(Object daoReturnTypeConverter);
     method public androidx.room3.RoomDatabase.Builder<T> addMigrations(androidx.room3.migration.Migration... migrations);
-    method public androidx.room3.RoomDatabase.Builder<T> addTypeConverter(Object typeConverter);
     method public androidx.room3.RoomDatabase.Builder<T> allowMainThreadQueries();
     method public T build();
     method public androidx.room3.RoomDatabase.Builder<T> createFromAsset(String databaseFilePath);

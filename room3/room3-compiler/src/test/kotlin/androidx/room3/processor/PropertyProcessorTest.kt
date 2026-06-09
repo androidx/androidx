@@ -85,9 +85,9 @@ class PropertyProcessorTest {
                     val arrayName = it.toString(CodeLanguage.JAVA)
                     val arrayDef = "$arrayName[]"
                     """
-                    |  @TypeConverter
+                    |  @ColumnTypeConverter
                     |  public static String arrayIntoString($arrayDef input) { return null; }
-                    |  @TypeConverter
+                    |  @ColumnTypeConverter
                     |  public static $arrayDef stringIntoArray$arrayName(String input) { return null; }
                     """
                 }
@@ -97,9 +97,9 @@ class PropertyProcessorTest {
                     val arrayName = it.simpleNames.single()
                     val arrayDef = "$arrayName[]"
                     """
-                    |  @TypeConverter
+                    |  @ColumnTypeConverter
                     |  public static String arrayIntoString($arrayDef input) { return null; }
-                    |  @TypeConverter
+                    |  @ColumnTypeConverter
                     |  public static $arrayDef stringIntoArray$arrayName(String input) { return null; }
                     """
                 }
@@ -230,7 +230,7 @@ class PropertyProcessorTest {
     @Test
     fun byteArrayWithEnforcedType() {
         singleEntity(
-            "@TypeConverters(foo.bar.MyConverter.class)" +
+            "@ColumnTypeConverters(foo.bar.MyConverter.class)" +
                 "@ColumnInfo(typeAffinity = ColumnInfo.TEXT) @NonNull byte[] arr;"
         ) { property, invocation ->
             assertThat(
@@ -258,7 +258,7 @@ class PropertyProcessorTest {
     fun primitiveArray() {
         ALL_PRIMITIVES.forEach { primitive ->
             singleEntity(
-                "@TypeConverters(foo.bar.MyConverter.class) @NonNull " +
+                "@ColumnTypeConverters(foo.bar.MyConverter.class) @NonNull " +
                     "${primitive.toString(CodeLanguage.JAVA)}[] arr;"
             ) { property, invocation ->
                 assertThat(
@@ -286,7 +286,7 @@ class PropertyProcessorTest {
     fun boxedArray() {
         ALL_BOXED_PRIMITIVES.forEach { boxedPrimitive ->
             singleEntity(
-                "@TypeConverters(foo.bar.MyConverter.class) " +
+                "@ColumnTypeConverters(foo.bar.MyConverter.class) " +
                     "${boxedPrimitive.toString(CodeLanguage.JAVA)}[] arr;"
             ) { property, invocation ->
                 val expected =

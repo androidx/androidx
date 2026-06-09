@@ -17,6 +17,8 @@
 package androidx.room3.integration.testapp.test
 
 import androidx.kruth.assertThat
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
@@ -25,8 +27,6 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -76,7 +76,7 @@ class TypeConverterPriorityTest {
     }
 
     @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
-    @TypeConverters(Converters::class)
+    @ColumnTypeConverters(Converters::class)
     abstract class TestDatabase : RoomDatabase() {
         abstract fun getDao(): TestDao
     }
@@ -97,13 +97,13 @@ class TypeConverterPriorityTest {
 
     object Converters {
         @JvmStatic
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromData(list: List<String>): String {
             return list.joinToString(",")
         }
 
         @JvmStatic
-        @TypeConverter
+        @ColumnTypeConverter
         fun toData(string: String): List<String> {
             return string.split(",")
         }

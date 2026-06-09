@@ -17,12 +17,12 @@
 package foo.bar;
 import androidx.room3.Entity;
 import androidx.room3.PrimaryKey;
-import androidx.room3.TypeConverters;
+import androidx.room3.ColumnTypeConverters;
 
 import java.util.Date;
 
 @Entity
-@TypeConverters(DateConverter.class)
+@ColumnTypeConverters(DateConverter.class)
 public class Image {
     @PrimaryKey
     public final int mImageId;

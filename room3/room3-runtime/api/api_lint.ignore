@@ -23,8 +23,8 @@ MissingGetterMatchingBuilder: androidx.room3.RoomDatabase.Builder#addCallback(an
     androidx.room3.RoomDatabase does not declare a `getCallbacks()` method matching method androidx.room3.RoomDatabase.Builder.addCallback(androidx.room3.RoomDatabase.Callback)
 MissingGetterMatchingBuilder: androidx.room3.RoomDatabase.Builder#addMigrations(androidx.room3.migration.Migration...):
     androidx.room3.RoomDatabase does not declare a getter method matching method androidx.room3.RoomDatabase.Builder.addMigrations(androidx.room3.migration.Migration...) (expected one of: [getMigrations(), getMigrationses()])
-MissingGetterMatchingBuilder: androidx.room3.RoomDatabase.Builder#addTypeConverter(Object):
-    androidx.room3.RoomDatabase does not declare a `getTypeConverters()` method matching method androidx.room3.RoomDatabase.Builder.addTypeConverter(Object)
+MissingGetterMatchingBuilder: androidx.room3.RoomDatabase.Builder#addColumnTypeConverter(Object):
+    androidx.room3.RoomDatabase does not declare a `getColumnTypeConverters()` method matching method androidx.room3.RoomDatabase.Builder.addColumnTypeConverter(Object)
 MissingGetterMatchingBuilder: androidx.room3.RoomDatabase.Builder#setJournalMode(androidx.room3.RoomDatabase.JournalMode):
     androidx.room3.RoomDatabase does not declare a `getJournalMode()` method matching method androidx.room3.RoomDatabase.Builder.setJournalMode(androidx.room3.RoomDatabase.JournalMode)
 

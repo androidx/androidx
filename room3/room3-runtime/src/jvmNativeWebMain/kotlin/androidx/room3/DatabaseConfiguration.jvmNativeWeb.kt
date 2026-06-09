@@ -37,8 +37,8 @@ public actual class DatabaseConfiguration(
     /* Whether Room will fallback to destructive migrations on downgrades only .*/
     public actual val allowDestructiveMigrationOnDowngrade: Boolean,
     internal actual val migrationNotRequiredFrom: Set<Int>?,
-    /* List of provided type converters. */
-    public actual val typeConverters: List<Any>,
+    /* List of provided column type converters. */
+    public actual val columnTypeConverters: List<Any>,
     /* List of provided DAO return type converters. */
     public actual val daoReturnTypeConverters: List<Any>,
     /* List of provided auto migration specs. */

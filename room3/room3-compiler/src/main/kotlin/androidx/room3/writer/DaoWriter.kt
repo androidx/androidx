@@ -45,8 +45,8 @@ import androidx.room3.ext.RoomTypeNames.UPSERT_ADAPTER
 import androidx.room3.ext.capitalize
 import androidx.room3.processor.OnConflictProcessor
 import androidx.room3.solver.CodeGenScope
+import androidx.room3.solver.types.getRequiredColumnTypeConverters
 import androidx.room3.solver.types.getRequiredDaoReturnTypeConverters
-import androidx.room3.solver.types.getRequiredTypeConverters
 import androidx.room3.vo.Dao
 import androidx.room3.vo.DeleteOrUpdateShortcutFunction
 import androidx.room3.vo.InsertFunction
@@ -76,7 +76,7 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
     private val companionTypeBuilder = lazy { XTypeSpec.companionObjectBuilder() }
 
     companion object {
-        const val GET_LIST_OF_TYPE_CONVERTERS_FUNCTION = "getRequiredConverters"
+        const val GET_LIST_OF_COLUMN_TYPE_CONVERTERS_FUNCTION = "getRequiredColumnConverters"
         const val GET_LIST_OF_DAO_RETURN_TYPE_CONVERTERS_FUNCTION =
             "getRequiredDaoReturnTypeConverters"
 
@@ -167,8 +167,8 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
 
     private fun createTypeConverterListFunction(): XFunSpec =
         createConverterListFunction(
-            GET_LIST_OF_TYPE_CONVERTERS_FUNCTION,
-            getRequiredTypeConverters(),
+            GET_LIST_OF_COLUMN_TYPE_CONVERTERS_FUNCTION,
+            getRequiredColumnTypeConverters(),
         )
 
     private fun createDaoReturnTypeConverterListFunction(): XFunSpec =

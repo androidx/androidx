@@ -23,7 +23,7 @@ import androidx.room3.solver.CodeGenScope
 
 /** int to boolean adapter. */
 object PrimitiveBooleanToIntConverter {
-    fun create(processingEnvironment: XProcessingEnv): List<TypeConverter> {
+    fun create(processingEnvironment: XProcessingEnv): List<ColumnTypeConverter> {
         val tBoolean = processingEnvironment.requireType(XTypeName.PRIMITIVE_BOOLEAN)
         val tInt = processingEnvironment.requireType(XTypeName.PRIMITIVE_INT)
         return listOf(

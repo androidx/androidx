@@ -17,36 +17,31 @@
 package androidx.room3
 
 /**
- * Marks a function as a type converter. A class can have as many `@TypeConverter` functions as it
- * needs.
+ * Marks a function as a column type converter.
  *
- * Converter functions are useful for helping Room support types beyond the built-in ones,
- * primitives [String], [ByteArray] and enums. `@TypeConverter` functions are for converting a
- * column values may it be when reading from a query result or binding parameters into a statement.
+ * Converter functions help Room support types beyond the built-in primitives ([String],
+ * [ByteArray]) and enums. `@ColumnTypeConverter` functions convert column values when reading from
+ * a query result or binding parameters into a statement.
  *
- * Each converter function should receive 1 parameter and have non-void / non-[Unit] return type.
+ * Each converter function must receive one parameter and have a non-[Unit] return type. A class can
+ * have as many `@ColumnTypeConverter` functions as needed.
  *
  * ```
- * // Example converter for Date
  * object Converters {
- *     @TypeConverter
+ *     @ColumnTypeConverter
  *     fun fromTimestamp(value: Long?): Date? {
- *         return value == null ? null : Date(value)
+ *         return value?.let { Date(it) }
  *     }
  *
- *     @TypeConverter
+ *     @ColumnTypeConverter
  *     fun dateToTimestamp(date: Date?): Long? {
- *         if (date == null) {
- *             return null
- *         } else {
- *             return date.getTime()
- *         }
+ *         return date?.getTime()
  *     }
  * }
  * ```
  *
- * @see [TypeConverters]
+ * @see [ColumnTypeConverters]
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
-public annotation class TypeConverter
+public annotation class ColumnTypeConverter

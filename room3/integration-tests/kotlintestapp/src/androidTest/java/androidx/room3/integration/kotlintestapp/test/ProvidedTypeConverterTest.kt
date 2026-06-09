@@ -18,18 +18,18 @@ package androidx.room3.integration.kotlintestapp.test
 import android.content.Context
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
 import androidx.room3.Entity
 import androidx.room3.Insert
 import androidx.room3.PrimaryKey
-import androidx.room3.ProvidedTypeConverter
+import androidx.room3.ProvidedColumnTypeConverter
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.room3.guava.GuavaDaoReturnTypeConverter
 import androidx.room3.integration.kotlintestapp.TestDatabase
 import androidx.room3.integration.kotlintestapp.dao.PetDao
@@ -64,8 +64,8 @@ class ProvidedTypeConverterTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         val db =
             Room.inMemoryDatabaseBuilder<TestDatabaseWithConverterOne>(context)
-                .addTypeConverter(UUIDConverter())
-                .addTypeConverter(TimeStampConverter())
+                .addColumnTypeConverter(UUIDConverter())
+                .addColumnTypeConverter(TimeStampConverter())
                 .setDriver(AndroidSQLiteDriver())
                 .build()
         val pet: Pet = TestUtil.createPet(3)
@@ -82,8 +82,8 @@ class ProvidedTypeConverterTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         val db =
             Room.inMemoryDatabaseBuilder<TestDatabaseWithConverterTwo>(context)
-                .addTypeConverter(UUIDConverter())
-                .addTypeConverter(TimeStampConverter())
+                .addColumnTypeConverter(UUIDConverter())
+                .addColumnTypeConverter(TimeStampConverter())
                 .setDriver(AndroidSQLiteDriver())
                 .build()
         val pet: Pet = TestUtil.createPet(3)
@@ -117,7 +117,7 @@ class ProvidedTypeConverterTest {
         try {
             val db: TestDatabase =
                 Room.inMemoryDatabaseBuilder<TestDatabase>(context)
-                    .addTypeConverter(TimeStampConverter())
+                    .addColumnTypeConverter(TimeStampConverter())
                     .setDriver(AndroidSQLiteDriver())
                     .build()
             val pet: Pet = TestUtil.createPet(3)
@@ -134,12 +134,12 @@ class ProvidedTypeConverterTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         val db1 =
             Room.inMemoryDatabaseBuilder<ProvidedTypeConverterNameLastNameDb>(context)
-                .addTypeConverter(NameLastNameSerializer())
+                .addColumnTypeConverter(NameLastNameSerializer())
                 .setDriver(AndroidSQLiteDriver())
                 .build()
         val db2 =
             Room.inMemoryDatabaseBuilder<ProvidedTypeConverterLastNameNameDb>(context)
-                .addTypeConverter(LastNameNameSerializer())
+                .addColumnTypeConverter(LastNameNameSerializer())
                 .setDriver(AndroidSQLiteDriver())
                 .build()
         val entity1 = ProvidedTypeConverterEntity(1, Username("foo1", "bar1"))
@@ -168,7 +168,7 @@ class ProvidedTypeConverterTest {
         ListenableFuturePagingSourceDaoReturnTypeConverter::class,
         RxPagingSourceDaoReturnTypeConverter::class,
     )
-    @TypeConverters(TimeStampConverter::class, UUIDConverter::class)
+    @ColumnTypeConverters(TimeStampConverter::class, UUIDConverter::class)
     internal abstract class TestDatabaseWithConverterOne : RoomDatabase() {
         abstract fun petDao(): PetDao
 
@@ -178,7 +178,7 @@ class ProvidedTypeConverterTest {
     }
 
     @Database(entities = [Pet::class, Robot::class], version = 1, exportSchema = false)
-    @TypeConverters(TimeStampConverter::class, UUIDConverter::class)
+    @ColumnTypeConverters(TimeStampConverter::class, UUIDConverter::class)
     internal abstract class TestDatabaseWithConverterTwo : RoomDatabase() {
         abstract fun petRobotDao(): PetRobotDao
     }
@@ -195,33 +195,33 @@ class ProvidedTypeConverterTest {
     }
 
     @Database(entities = [ProvidedTypeConverterEntity::class], version = 1, exportSchema = false)
-    @TypeConverters(NameLastNameSerializer::class)
+    @ColumnTypeConverters(NameLastNameSerializer::class)
     internal abstract class ProvidedTypeConverterNameLastNameDb : ProvidedTypeConverterEntityDb()
 
     @Database(entities = [ProvidedTypeConverterEntity::class], version = 1, exportSchema = false)
-    @TypeConverters(LastNameNameSerializer::class)
+    @ColumnTypeConverters(LastNameNameSerializer::class)
     internal abstract class ProvidedTypeConverterLastNameNameDb : ProvidedTypeConverterEntityDb()
 
     internal abstract class ProvidedTypeConverterEntityDb : RoomDatabase() {
         abstract fun dao(): ProvidedTypeConverterEntity.Dao
     }
 
-    @ProvidedTypeConverter
+    @ProvidedColumnTypeConverter
     class TimeStampConverter {
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromTimestamp(value: Long?): Date? {
             return if (value == null) null else Date(value)
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun dateToTimestamp(date: Date?): Long? {
             return date?.time
         }
     }
 
-    @ProvidedTypeConverter
+    @ProvidedColumnTypeConverter
     class UUIDConverter {
-        @TypeConverter
+        @ColumnTypeConverter
         fun asUuid(bytes: ByteArray): UUID {
             val bb = ByteBuffer.wrap(bytes)
             val firstLong = bb.long
@@ -229,7 +229,7 @@ class ProvidedTypeConverterTest {
             return UUID(firstLong, secondLong)
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun asBytes(uuid: UUID): ByteArray {
             val bb = ByteBuffer.wrap(ByteArray(16))
             bb.putLong(uuid.mostSignificantBits)
@@ -279,29 +279,29 @@ class ProvidedTypeConverterTest {
         }
     }
 
-    @ProvidedTypeConverter
+    @ProvidedColumnTypeConverter
     inner class NameLastNameSerializer {
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromString(input: String): Username {
             val sections = input.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             return Username(sections[0], sections[1])
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toString(input: Username): String {
             return input.name + "-" + input.lastName
         }
     }
 
-    @ProvidedTypeConverter
+    @ProvidedColumnTypeConverter
     inner class LastNameNameSerializer {
-        @TypeConverter
+        @ColumnTypeConverter
         fun fromString(input: String): Username {
             val sections = input.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             return Username(sections[1], sections[0])
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toString(input: Username): String {
             return input.lastName + "-" + input.name
         }

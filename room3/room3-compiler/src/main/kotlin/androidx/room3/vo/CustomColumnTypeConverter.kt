@@ -22,8 +22,8 @@ import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 
-/** Generated when we parse a function annotated with TypeConverter. */
-data class CustomTypeConverter(
+/** Generated when we parse a function annotated with ColumnTypeConverter. */
+data class CustomColumnTypeConverter(
     val enclosingClass: XTypeElement,
     val isEnclosingClassKotlinObject: Boolean,
     val function: XMethodElement,

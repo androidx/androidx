@@ -284,7 +284,7 @@ private sealed class AndroidMigrationTestHelper(
             allowDestructiveMigrationOnDowngrade = false,
             migrationNotRequiredFrom = emptySet(),
             prepackagedDatabaseCallback = null,
-            typeConverters = emptyList(),
+            columnTypeConverters = emptyList(),
             daoReturnTypeConverters = emptyList(),
             autoMigrationSpecs = emptyList(),
             allowDestructiveMigrationForAllTables = false,

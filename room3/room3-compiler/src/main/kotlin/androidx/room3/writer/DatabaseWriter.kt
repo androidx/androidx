@@ -70,10 +70,10 @@ class DatabaseWriter(val database: Database, writerContext: WriterContext) :
 
     private fun createCreateTypeConvertersMap(): XFunSpec =
         createRequiredConvertersMap(
-            javaMethodName = "getRequiredTypeConverters",
-            kotlinMethodName = "getRequiredTypeConverterClasses",
-            tmpVarName = "_typeConvertersMap",
-            daoFunctionGetName = DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_FUNCTION,
+            javaMethodName = "getRequiredColumnTypeConverters",
+            kotlinMethodName = "getRequiredColumnTypeConverterClasses",
+            tmpVarName = "_columnTypeConvertersMap",
+            daoFunctionGetName = DaoWriter.GET_LIST_OF_COLUMN_TYPE_CONVERTERS_FUNCTION,
         )
 
     private fun createCreateDaoReturnTypeConvertersMap(): XFunSpec =

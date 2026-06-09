@@ -39,7 +39,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class GeneratedCustomConverterTest {
+class GeneratedCustomColumnConverterTest {
 
     @Test
     fun generatedConverter() {
@@ -50,7 +50,7 @@ class GeneratedCustomConverterTest {
                 import androidx.room3.*
 
                 @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
-                @TypeConverters(Generated_CustomConverters::class)
+                @ColumnTypeConverters(Generated_CustomConverters::class)
                 abstract class MyDatabase : RoomDatabase() {
                   abstract fun getMyDao(): MyDao
                 }
@@ -99,7 +99,7 @@ class GeneratedCustomConverterTest {
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethod(
                         MethodSpec.methodBuilder("fooToString")
-                            .addAnnotation(ClassName.get("androidx.room3", "TypeConverter"))
+                            .addAnnotation(ClassName.get("androidx.room3", "ColumnTypeConverter"))
                             .addModifiers(Modifier.PUBLIC)
                             .returns(ClassName.get("java.lang", "String"))
                             .addParameter(ClassName.get("", "Foo"), "f")
@@ -108,7 +108,7 @@ class GeneratedCustomConverterTest {
                     )
                     .addMethod(
                         MethodSpec.methodBuilder("stringToFoo")
-                            .addAnnotation(ClassName.get("androidx.room3", "TypeConverter"))
+                            .addAnnotation(ClassName.get("androidx.room3", "ColumnTypeConverter"))
                             .addModifiers(Modifier.PUBLIC)
                             .returns(ClassName.get("", "Foo"))
                             .addParameter(ClassName.get("java.lang", "String"), "s")

@@ -18,8 +18,8 @@
 
 package androidx.room3.solver
 
+import androidx.room3.ColumnTypeConverter
 import androidx.room3.RoomProcessor
-import androidx.room3.TypeConverter
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.codegen.VisibilityModifier
 import androidx.room3.compiler.codegen.XAnnotationSpec
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class CustomTypeConverterResolutionTest {
+class CustomColumnTypeConverterResolutionTest {
     private fun XTypeSpec.toSource() =
         Source.java(
             "foo.bar.${name!!.toString(CodeLanguage.JAVA)}",
@@ -71,11 +71,11 @@ class CustomTypeConverterResolutionTest {
                 """
                 package ${CUSTOM_TYPE_CONVERTER.packageName};
                 public class ${CUSTOM_TYPE_CONVERTER.simpleNames.first()} {
-                    @${TypeConverter::class.java.canonicalName}
+                    @${ColumnTypeConverter::class.java.canonicalName}
                     public static ${CUSTOM_TYPE.canonicalName} toCustom(int value) {
                         return null;
                     }
-                    @${TypeConverter::class.java.canonicalName}
+                    @${ColumnTypeConverter::class.java.canonicalName}
                     public static int fromCustom(${CUSTOM_TYPE.canonicalName} input) {
                         return 0;
                     }
@@ -92,11 +92,11 @@ class CustomTypeConverterResolutionTest {
                 import java.util.HashSet;
                 import java.util.Set;
                 public class ${CUSTOM_TYPE_SET_CONVERTER.simpleNames.first()} {
-                    @${TypeConverter::class.java.canonicalName}
+                    @${ColumnTypeConverter::class.java.canonicalName}
                     public static ${CUSTOM_TYPE_SET.toString(CodeLanguage.JAVA)} toCustom(int value) {
                         return null;
                     }
-                    @${TypeConverter::class.java.canonicalName}
+                    @${ColumnTypeConverter::class.java.canonicalName}
                     public static int fromCustom(${CUSTOM_TYPE_SET.toString(CodeLanguage.JAVA)} input) {
                         return 0;
                     }
@@ -429,7 +429,7 @@ class CustomTypeConverterResolutionTest {
             } else {
                 CUSTOM_TYPE_CONVERTER
             }
-        return XAnnotationSpec.builder(RoomAnnotationTypeNames.TYPE_CONVERTERS)
+        return XAnnotationSpec.builder(RoomAnnotationTypeNames.COLUMN_TYPE_CONVERTERS)
             .addMember("value", XCodeBlock.of("%T.class", converter))
             .build()
     }

@@ -41,9 +41,9 @@ package androidx.room3 {
   public static final class RoomDatabase.Builder<T extends androidx.room3.RoomDatabase> {
     method public androidx.room3.RoomDatabase.Builder<T> addAutoMigrationSpec(androidx.room3.migration.AutoMigrationSpec autoMigrationSpec);
     method public androidx.room3.RoomDatabase.Builder<T> addCallback(androidx.room3.RoomDatabase.Callback callback);
+    method public androidx.room3.RoomDatabase.Builder<T> addColumnTypeConverter(Object typeConverter);
     method public androidx.room3.RoomDatabase.Builder<T> addDaoReturnTypeConverter(Object daoReturnTypeConverter);
     method public androidx.room3.RoomDatabase.Builder<T> addMigrations(androidx.room3.migration.Migration... migrations);
-    method public androidx.room3.RoomDatabase.Builder<T> addTypeConverter(Object typeConverter);
     method public androidx.room3.RoomDatabase.Builder<T> allowMainThreadQueries();
     method public T build();
     method public androidx.room3.RoomDatabase.Builder<T> createFromAsset(String databaseFilePath);

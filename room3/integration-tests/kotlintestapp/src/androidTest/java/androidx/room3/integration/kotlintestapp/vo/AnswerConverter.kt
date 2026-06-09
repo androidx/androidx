@@ -16,7 +16,7 @@
 
 package androidx.room3.integration.kotlintestapp.vo
 
-import androidx.room3.TypeConverter
+import androidx.room3.ColumnTypeConverter
 
 class AnswerConverter {
 
@@ -25,7 +25,7 @@ class AnswerConverter {
         NO,
     }
 
-    @TypeConverter fun toAnswer(value: String?) = value?.let { Answer.valueOf(it) }
+    @ColumnTypeConverter fun toAnswer(value: String?) = value?.let { Answer.valueOf(it) }
 
-    @TypeConverter fun fromAnswer(value: Answer?) = value?.name
+    @ColumnTypeConverter fun fromAnswer(value: Answer?) = value?.name
 }

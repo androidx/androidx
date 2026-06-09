@@ -21,7 +21,7 @@ package androidx.room3
  *
  * This annotation is required when the key or value of a `Map` (or nested map) is a single column
  * of one of the built-in types (primitives, enums, `String`, `ByteArray`) or a type with a
- * [TypeConverter] (e.g. `Date`, UUID, etc).
+ * [ColumnTypeConverter] (e.g. `Date`, UUID, etc).
  *
  * The use of this annotation provides clarity on which column should be used in retrieving
  * information required by the DAO function return type.

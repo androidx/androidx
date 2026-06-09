@@ -178,7 +178,7 @@ object ProcessorErrors {
     const val CANNOT_BIND_QUERY_PARAMETER_INTO_STMT =
         "Query function parameters should either be a" +
             " type that can be converted into a database column or a List / Array that contains" +
-            " such type. Consider also adding a @TypeConverter for the parameter type."
+            " such type. Consider also adding a @ColumnTypeConverter for the parameter type."
 
     const val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE =
         "@Query / @Insert function parameters cannot start with underscore ('_')."
@@ -337,7 +337,7 @@ object ProcessorErrors {
 
     const val CANNOT_FIND_COLUMN_TYPE_ADAPTER =
         "Cannot figure out how to save this property into database. " +
-            "Consider also adding a @TypeConverter for the property type."
+            "Consider also adding a @ColumnTypeConverter for the property type."
 
     const val VALUE_CLASS_ONLY_SUPPORTED_IN_KSP =
         "Kotlin value classes are only supported " +
@@ -449,14 +449,16 @@ object ProcessorErrors {
             .trim()
     }
 
-    const val TYPE_CONVERTER_UNBOUND_GENERIC = "Cannot use unbound generics in type converters."
+    const val TYPE_CONVERTER_UNBOUND_GENERIC =
+        "Cannot use unbound generics in column type converters."
 
-    const val TYPE_CONVERTER_BAD_RETURN_TYPE = "Invalid return type for a type converter."
+    const val TYPE_CONVERTER_BAD_RETURN_TYPE = "Invalid return type for a column type converter."
 
     const val DAO_RETURN_TYPE_CONVERTER_BAD_RETURN_TYPE =
         "Invalid return type for a DAO return type converter."
 
-    const val TYPE_CONVERTER_MUST_RECEIVE_1_PARAM = "Type converters must receive 1 parameter."
+    const val TYPE_CONVERTER_MUST_RECEIVE_1_PARAM =
+        "Column type converters must receive 1 parameter."
 
     const val TYPE_CONVERTER_EMPTY_CLASS =
         "Class is referenced as a converter but it does not have any converter functions."
@@ -492,23 +494,24 @@ object ProcessorErrors {
             "contain more than one instance of the same generic type argument, e.g. Foo<T,T>."
 
     const val TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR =
-        "Classes that are used in @TypeConverters must" +
-            " have no-argument public constructors. Use a @ProvidedTypeConverter annotation if you" +
-            " need to take control over creating an instance of the type converter class"
+        "Classes that are used in @ColumnTypeConverters must" +
+            " have no-argument public constructors. Use a @ProvidedColumnTypeConverter annotation if you" +
+            " need to take control over creating an instance of the column type converter class"
 
-    const val TYPE_CONVERTER_MUST_BE_PUBLIC = "@TypeConverter function must be public or internal"
+    const val TYPE_CONVERTER_MUST_BE_PUBLIC =
+        "@ColumnTypeConverter function must be public or internal"
 
     const val DAO_RETURN_TYPE_CONVERTER_MUST_BE_PUBLIC =
         "@DaoReturnTypeConverter function must be public or internal."
 
     const val INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC =
-        "An inner @TypeConverters class must be static."
+        "An inner @ColumnTypeConverters class must be static."
 
     const val INNER_CLASS_DAO_RETURN_TYPE_CONVERTER_MUST_BE_STATIC =
         "An inner @DaoReturnTypeConverters class must be static."
 
     fun duplicateTypeConverters(converters: List<String>) =
-        "Multiple @TypeConverter functions define the same conversion. Conflicts with these:" +
+        "Multiple @ColumnTypeConverter functions define the same conversion. Conflicts with these:" +
             " ${converters.joinToString()}"
 
     fun duplicateDaoReturnTypeConverters(converters: List<String>) =
@@ -516,7 +519,7 @@ object ProcessorErrors {
             " ${converters.joinToString()}"
 
     fun typeConverterMustBeDeclared(typeName: String) =
-        "Invalid type converter type: $typeName. Type converters must be a class."
+        "Invalid column type converter type: $typeName. Column type converters must be a class."
 
     fun dataClassDuplicatePropertyNames(columnName: String, propertyPaths: List<String>) =
         "Multiple properties have the same columnName: $columnName." +

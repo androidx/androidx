@@ -19,6 +19,7 @@ package androidx.room3.integration.kotlintestapp.test
 import android.content.Context
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
@@ -27,7 +28,6 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverters
 import androidx.room3.androidx.room3.integration.kotlintestapp.vo.Experiment
 import androidx.room3.androidx.room3.integration.kotlintestapp.vo.Schrodinger
 import androidx.room3.androidx.room3.integration.kotlintestapp.vo.SchrodingerConverter
@@ -83,7 +83,7 @@ class ValueClassConverterWrapperTest {
     }
 
     @Entity
-    @TypeConverters(DateConverter::class, SchrodingerConverter::class)
+    @ColumnTypeConverters(DateConverter::class, SchrodingerConverter::class)
     class UserInfo(
         @PrimaryKey val pk: Int,
         val userIntPwd: UserWithInt,

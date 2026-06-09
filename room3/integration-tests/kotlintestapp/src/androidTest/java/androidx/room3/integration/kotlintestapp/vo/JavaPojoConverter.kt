@@ -19,14 +19,14 @@
 
 package androidx.room3.integration.kotlintestapp.vo
 
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import androidx.room3.RoomWarnings
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 
 @Entity
-@TypeConverters(CategoryListConverter::class)
+@ColumnTypeConverters(CategoryListConverter::class)
 @SuppressWarnings(RoomWarnings.MISMATCHED_GETTER)
 class EntityWithJavaPojoList {
     @PrimaryKey var id: Long = 0
@@ -35,12 +35,12 @@ class EntityWithJavaPojoList {
 
 class CategoryListConverter {
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromString(pojosString: String): List<JavaPojo> {
         return emptyList()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toString(pojoList: List<JavaPojo>?): String {
         return ""
     }

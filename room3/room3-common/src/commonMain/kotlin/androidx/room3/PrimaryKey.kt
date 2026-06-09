@@ -37,9 +37,9 @@ public annotation class PrimaryKey(
      *
      * When set to `true`, the SQLite type affinity for the property should be `INTEGER`.
      *
-     * If the property type is [Long] or [Int] (or its [TypeConverter] converts it to a `Long` or
-     * `Int`), [Insert] functions treat `0` as not-set while inserting the item. Similarly, if the
-     * property type is nullable (`Long?` or `Int?`), [Insert] functions treat `null` as not-set
+     * If the property type is [Long] or [Int] (or its [ColumnTypeConverter] converts it to a `Long`
+     * or `Int`), [Insert] functions treat `0` as not-set while inserting the item. Similarly, if
+     * the property type is nullable (`Long?` or `Int?`), [Insert] functions treat `null` as not-set
      * while inserting the item.
      *
      * The strategy on how the id will be generated will be based on the [algorithm] property.

@@ -18,17 +18,17 @@ package androidx.room3.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Entity
 import androidx.room3.Insert
 import androidx.room3.PrimaryKey
-import androidx.room3.ProvidedTypeConverter
+import androidx.room3.ProvidedColumnTypeConverter
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.room3.useReaderConnection
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -49,7 +49,7 @@ class NullabilityAwareTypeConversionTest {
         dao =
             Room.inMemoryDatabaseBuilder<NullAwareConverterDatabase>()
                 .setDriver(AndroidSQLiteDriver())
-                .addTypeConverter(nullableConvertors)
+                .addColumnTypeConverter(nullableConvertors)
                 .build()
                 .userDao
     }
@@ -173,7 +173,7 @@ class NullabilityAwareTypeConversionTest {
     }
 
     @Database(version = 1, entities = [User::class], exportSchema = false)
-    @TypeConverters(NonNullTypeConverters::class)
+    @ColumnTypeConverters(NonNullTypeConverters::class)
     abstract class NullAwareConverterDatabase : RoomDatabase() {
         abstract val userDao: UserDao
     }
@@ -192,7 +192,7 @@ class NullabilityAwareTypeConversionTest {
         @Query("SELECT * FROM user WHERE id = :id") abstract fun getById(id: Long): User?
 
         @Query("UPDATE user SET nullableCountry = :nullableCountry WHERE id = :id")
-        @TypeConverters(NullableTypeConverters::class)
+        @ColumnTypeConverters(NullableTypeConverters::class)
         abstract fun setNullableCountryWithNullableTypeConverter(
             id: Long,
             nullableCountry: Country?,
@@ -205,15 +205,15 @@ class NullabilityAwareTypeConversionTest {
         abstract fun getNullableCountry(id: Long): Country?
 
         @Query("SELECT nullableCountry FROM user WHERE id = :id")
-        @TypeConverters(NullableTypeConverters::class)
+        @ColumnTypeConverters(NullableTypeConverters::class)
         abstract fun getNullableCountryWithNullableTypeConverter(id: Long): Country?
 
         @Query("SELECT nonNullCountry FROM user WHERE id = :id")
-        @TypeConverters(NullableTypeConverters::class)
+        @ColumnTypeConverters(NullableTypeConverters::class)
         abstract fun getNonNullCountryWithNullableTypeConverter(id: Long): Country
 
         @Query("SELECT nonNullCountry FROM user WHERE id = :id")
-        @TypeConverters(NullableTypeConverters::class)
+        @ColumnTypeConverters(NullableTypeConverters::class)
         abstract fun getNonNullCountryAsNullableWithNullableTypeConverter(id: Long): Country?
 
         /**
@@ -258,30 +258,30 @@ class NullabilityAwareTypeConversionTest {
     }
 
     object NonNullTypeConverters {
-        @TypeConverter
+        @ColumnTypeConverter
         fun toString(country: Country): String {
             return country.countryCode
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toCountry(string: String): Country {
             return Country.entries.find { it.countryCode == string }
                 ?: throw IllegalArgumentException("Country code '$string' not found")
         }
     }
 
-    @ProvidedTypeConverter
+    @ProvidedColumnTypeConverter
     class NullableTypeConverters {
         val toStringInvocations = mutableListOf<Country?>()
         val fromStringInvocations = mutableListOf<String?>()
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toString(country: Country?): String? {
             toStringInvocations.add(country)
             return country?.countryCode
         }
 
-        @TypeConverter
+        @ColumnTypeConverter
         fun toCountry(string: String?): Country? {
             fromStringInvocations.add(string)
             if (string == null) {

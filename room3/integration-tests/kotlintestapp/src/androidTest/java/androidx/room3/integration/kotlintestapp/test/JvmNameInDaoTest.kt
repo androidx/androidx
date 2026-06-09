@@ -17,6 +17,8 @@
 package androidx.room3.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Delete
@@ -26,8 +28,6 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import org.junit.Test
 
@@ -57,9 +57,11 @@ class JvmNameInDaoTest {
     data class MyConvertedClass(val value: String)
 
     object MyConverterConverter {
-        @TypeConverter @JvmName("jvmToDb") fun toDb(value: MyConvertedClass): String = value.value
+        @ColumnTypeConverter
+        @JvmName("jvmToDb")
+        fun toDb(value: MyConvertedClass): String = value.value
 
-        @TypeConverter
+        @ColumnTypeConverter
         @JvmName("jvmFromDb")
         fun fromDb(value: String): MyConvertedClass = MyConvertedClass(value)
     }
@@ -98,7 +100,7 @@ class JvmNameInDaoTest {
     }
 
     @Database(entities = [JvmNameEntity::class], exportSchema = false, version = 1)
-    @TypeConverters(MyConverterConverter::class)
+    @ColumnTypeConverters(MyConverterConverter::class)
     abstract class JvmNameDb : RoomDatabase() {
         @Suppress("INAPPLICABLE_JVM_NAME") @JvmName("jvmDao") abstract fun getDao(): JvmNameDao
     }

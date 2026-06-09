@@ -16,13 +16,13 @@
 
 package androidx.room3.integration.kotlintestapp.vo
 
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
-import androidx.room3.TypeConverters
 import java.util.Date
 
 @Entity
-@TypeConverters(DateConverter::class, StringToIntListConverters::class)
+@ColumnTypeConverters(DateConverter::class, StringToIntListConverters::class)
 data class Author(
     @PrimaryKey val authorId: String,
     val name: String,

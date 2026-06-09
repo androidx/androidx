@@ -16,7 +16,7 @@
 
 package androidx.room3.vo
 
-import androidx.room3.BuiltInTypeConverters
+import androidx.room3.BuiltInColumnTypeConverters
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.codegen.XCodeBlock.Builder.Companion.applyTo
@@ -389,7 +389,7 @@ data class RelationCollector(
                     forceSuppressedWarnings = setOf(Warning.QUERY_MISMATCH),
                     forceBuiltInConverters =
                         BuiltInConverterFlags.DEFAULT.copy(
-                            byteBuffer = BuiltInTypeConverters.State.ENABLED
+                            byteBuffer = BuiltInColumnTypeConverters.State.ENABLED
                         ),
                 )
             val canUseLongSparseArray =

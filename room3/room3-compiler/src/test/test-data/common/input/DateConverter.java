@@ -15,14 +15,14 @@
  */
 
 package foo.bar;
-import androidx.room3.TypeConverter;
+import androidx.room3.ColumnTypeConverter;
 
 import java.util.Date;
 
 public class DateConverter {
-    @TypeConverter
+    @ColumnTypeConverter
     public static Date toDate(Long input) {return null;}
 
-    @TypeConverter
+    @ColumnTypeConverter
     public static Long fromDate(Date input) {return null;}
 }

@@ -1566,7 +1566,7 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
     fun testMissingMapColumnImmutableListMultimapOneToOneTypeConverterKey() {
         singleQueryMethod<ReadQueryFunction>(
             """
-                @TypeConverters(DateConverter.class)
+                @ColumnTypeConverters(DateConverter.class)
                 @Query("SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image.mArtistInImage")
                 ImmutableMap<java.util.Date, Artist> getAlbumDateWithBandActivity();
             """
@@ -1581,7 +1581,7 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
     fun testMissingMapColumnImmutableListMultimapOneToOneTypeConverterValue() {
         singleQueryMethod<ReadQueryFunction>(
             """
-                @TypeConverters(DateConverter.class)
+                @ColumnTypeConverters(DateConverter.class)
                 @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
                 ImmutableMap<Artist, java.util.Date> getAlbumDateWithBandActivity();
             """
