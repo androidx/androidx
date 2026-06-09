@@ -26,7 +26,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LocalHostDefaultProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.currentComposer
@@ -485,10 +484,6 @@ private constructor(
             inspectionTable.add(currentComposer.compositionData)
             currentComposer.collectParameterInformation()
         }
-        val saveableStateRegistry = remember {
-            DisposableSaveableStateRegistry(owner, savedStateRegistryOwner)
-        }
-        DisposableEffect(Unit) { onDispose { saveableStateRegistry.dispose() } }
 
         val scrollCaptureInProgress =
             LocalScrollCaptureInProgress.current or owner.scrollCaptureInProgress
@@ -503,7 +498,7 @@ private constructor(
             LocalContext provides owner.context,
             LocalInspectionTables provides inspectionTable,
             LocalConfiguration provides owner.configuration,
-            LocalSaveableStateRegistry provides saveableStateRegistry,
+            LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
             LocalView provides owner.view,
             LocalProvidableScrollCaptureInProgress provides scrollCaptureInProgress,
             LocalViewConfiguration provides owner.viewConfiguration,

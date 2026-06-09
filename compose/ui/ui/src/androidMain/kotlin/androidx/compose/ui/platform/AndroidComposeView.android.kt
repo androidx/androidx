@@ -316,6 +316,19 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private var lifecycleRetainedValuesStoreOwnerEntry:
         LifecycleRetainedValuesStoreOwner.RetainedValuesStoreEntry? =
         null
+    private var _savedStateRegistry: DisposableSaveableStateRegistry? = null
+
+    val savedStateRegistry: DisposableSaveableStateRegistry
+        get() =
+            _savedStateRegistry
+                ?: DisposableSaveableStateRegistry(this, composeViewContext.savedStateRegistryOwner)
+                    .also { _savedStateRegistry = it }
+
+    internal fun disposeSavedStateRegistry() {
+        _savedStateRegistry?.dispose()
+        _savedStateRegistry = null
+    }
+
     override var retainedValuesStore: RetainedValuesStore = ForgetfulRetainedValuesStore
         private set
 

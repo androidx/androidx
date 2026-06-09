@@ -137,6 +137,7 @@ private class WrappedComposition(val owner: AndroidComposeView, val original: Co
             owner.view.setTag(R.id.wrapped_composition_tag, null)
             addedToLifecycle?.removeObserver(this)
             addedToLifecycle = null
+            owner.disposeSavedStateRegistry()
         }
         original.dispose()
     }
