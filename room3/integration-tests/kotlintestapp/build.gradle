@@ -70,6 +70,7 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(project(":tracing:tracing"))
     kspWithKspGenKotlin(project(":room3:room3-compiler"))
     kspAndroidTestWithKspGenKotlin(project(":room3:room3-compiler"))
     androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
@@ -97,6 +98,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation("androidx.collection:collection")
     androidTestImplementation(project(":sqlite:sqlite-bundled"))
+    androidTestImplementation(project(":tracing:tracing"))
 }
 
 room3 {

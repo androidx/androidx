@@ -67,10 +67,11 @@ abstract class ValidationWriter {
             name: String,
             typeName: XTypeName,
             isMutable: Boolean,
+            isAssignExprStmt: Boolean,
             assignExpr: XCodeBlock?,
         ): XCodeBlock.Builder {
             statementCount++
-            builder.addLocalVariable(name, typeName, isMutable, assignExpr)
+            builder.addLocalVariable(name, typeName, isMutable, isAssignExprStmt, assignExpr)
             return this
         }
 

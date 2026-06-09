@@ -18,8 +18,10 @@ package androidx.room3.integration.kotlintestapp.vo
 
 import androidx.room3.DaoReturnTypeConverter
 import androidx.room3.OperationType
+import androidx.room3.RoomRawQuery
 import androidx.room3.integration.kotlintestapp.vo.Either.Left
 import androidx.room3.integration.kotlintestapp.vo.Either.Right
+import androidx.tracing.trace
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -75,4 +77,17 @@ fun <L, R> Either<L, R>.isRight(): Boolean {
         returns(false) implies (this@isRight is Left<L>)
     }
     return this is Right<R>
+}
+
+class TracedQuery<T>(val result: T)
+
+object TracingDaoReturnTypeConverter {
+    @DaoReturnTypeConverter([OperationType.READ])
+    suspend fun <T> convert(
+        rawQuery: RoomRawQuery,
+        executeAndConvert: suspend () -> T,
+    ): TracedQuery<T> {
+        val result = trace("TracedQuery: ${rawQuery.sql}") { executeAndConvert() }
+        return TracedQuery(result)
+    }
 }

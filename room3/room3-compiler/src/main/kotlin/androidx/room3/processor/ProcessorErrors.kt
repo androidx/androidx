@@ -306,6 +306,10 @@ object ProcessorErrors {
         "@DaoReturnTypeConverter functions without a type parameter should have a suspend lambda " +
             "returning Unit."
 
+    const val DAO_RETURN_TYPE_CONVERTER_LAMBDA_WITH_RAW_QUERY_MISSING_FUNCTION_PARAM =
+        "If the lambda parameter of a @DaoReturnTypeConverter function has a parameter of type " +
+            "RoomRawQuery then so must the @DaoReturnTypeConverter-annotated function."
+
     const val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE =
         "Observable query return type (i.e. Flow) can only be used with SELECT queries that" +
             " directly or indirectly (via @Relation, for example) access at least one table. For" +

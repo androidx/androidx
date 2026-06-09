@@ -60,13 +60,20 @@ internal class KotlinCodeBlock(override val actual: KCodeBlock) :
             name: String,
             typeName: XTypeName,
             isMutable: Boolean,
+            isAssignExprStmt: Boolean,
             assignExpr: XCodeBlock?,
         ) = apply {
             val varOrVal = if (isMutable) "var" else "val"
-            if (assignExpr != null) {
-                addStatement("$varOrVal %L: %T = %L", name, typeName, assignExpr)
+            val (format, formatArgs) =
+                if (assignExpr != null) {
+                    "$varOrVal %L: %T = %L" to arrayOf(name, typeName, assignExpr)
+                } else {
+                    "$varOrVal %L: %T" to arrayOf(name, typeName)
+                }
+            if (isAssignExprStmt) {
+                addStatement(format, *formatArgs)
             } else {
-                addStatement("$varOrVal %L: %T", name, typeName)
+                add(format, *formatArgs)
             }
         }
 

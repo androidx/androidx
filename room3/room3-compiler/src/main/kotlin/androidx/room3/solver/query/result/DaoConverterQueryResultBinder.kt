@@ -49,24 +49,35 @@ class DaoConverterQueryResultBinder(
     ) {
         val rawQueryVar = scope.getTmpVar("_rawQuery")
         val statementVar = scope.getTmpVar("_stmt")
-        val executeAndReturnLambda = converter.executeAndReturnLambda
-        if (executeAndReturnLambda.hasRawQueryParam) {
-            scope.builder.apply {
-                if (bindStatement != null) {
-                    // TODO(b/487009207): Remove hard coded value
-                    beginControlFlow(
-                        "val %L: %T = %T(%N) { %L ->",
-                        rawQueryVar,
-                        RAW_QUERY,
-                        RAW_QUERY,
-                        sqlQueryVar,
-                        statementVar,
+        if (converter.hasRawQueryParam()) {
+            if (bindStatement != null) {
+                val rawQueryAssignExprBlock =
+                    InvokeWithLambdaParameter(
+                        scope = scope,
+                        functionCall = XCodeBlock.of("%T", RAW_QUERY),
+                        argFormat = listOf("%N"),
+                        args = listOf(sqlQueryVar),
+                        lambdaSpec =
+                            object :
+                                LambdaSpec(
+                                    parameterTypeName = SQLiteDriverTypeNames.STATEMENT,
+                                    parameterName = statementVar,
+                                    returnTypeName = XTypeName.UNIT_VOID,
+                                    javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
+                                ) {
+                                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                                    bindStatement(scope, statementVar)
+                                }
+                            },
                     )
-                    bindStatement(scope, statementVar)
-                    endControlFlow()
-                } else {
-                    addLocalVal(rawQueryVar, RAW_QUERY, "%T(%L)", RAW_QUERY, sqlQueryVar)
-                }
+                scope.builder.addLocalVariable(
+                    name = rawQueryVar,
+                    typeName = RAW_QUERY,
+                    isAssignExprStmt = false,
+                    assignExpr = rawQueryAssignExprBlock,
+                )
+            } else {
+                scope.builder.addLocalVal(rawQueryVar, RAW_QUERY, "%T(%L)", RAW_QUERY, sqlQueryVar)
             }
         }
 

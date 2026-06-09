@@ -54,6 +54,9 @@ abstract class DaoReturnTypeConverter(val to: XType, val operationTypes: List<Op
      */
     abstract fun buildStatement(returnTypeArgName: XTypeName, scope: CodeGenScope): XCodeBlock
 
+    /** Returns `true` if the convert function has a `RoomRawQuery` as a parameter. */
+    fun hasRawQueryParam() = requiredParameters.contains(OptionalParam.RAW_QUERY)
+
     enum class OptionalParam {
         ROOM_DB,
         TABLE_NAMES_ARRAY,

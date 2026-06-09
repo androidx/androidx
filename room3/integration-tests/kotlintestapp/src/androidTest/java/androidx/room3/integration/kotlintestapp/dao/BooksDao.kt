@@ -48,6 +48,8 @@ import androidx.room3.integration.kotlintestapp.vo.Publisher
 import androidx.room3.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room3.integration.kotlintestapp.vo.PublisherWithBooks
 import androidx.room3.integration.kotlintestapp.vo.ResultDaoReturnTypeConverter
+import androidx.room3.integration.kotlintestapp.vo.TracedQuery
+import androidx.room3.integration.kotlintestapp.vo.TracingDaoReturnTypeConverter
 import com.google.common.base.Optional
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableListMultimap
@@ -65,6 +67,7 @@ import kotlinx.coroutines.flow.Flow
     CustomDaoReturnTypeConverter::class,
     ResultDaoReturnTypeConverter::class,
     EitherDaoReturnTypeConverter::class,
+    TracingDaoReturnTypeConverter::class,
 )
 @TypeConverters(DateConverter::class, AnswerConverter::class)
 interface BooksDao {
@@ -539,4 +542,6 @@ interface BooksDao {
 
     @Query("SELECT name, publisherId, 'static' FROM Publisher LIMIT 1")
     fun getPublisherNameAndIdAndStatic(): Triple<String, String, String>
+
+    @Query("SELECT * FROM Book") suspend fun getAllBooksTraced(): TracedQuery<List<Book>>
 }
