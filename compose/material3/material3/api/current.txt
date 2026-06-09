@@ -910,6 +910,7 @@ package androidx.compose.material3 {
     property public boolean isCheckboxStylingFixEnabled;
     property public boolean isPrecisionPointerComponentSizingEnabled;
     property public boolean isSnackbarStylingFixEnabled;
+    property public boolean isUpdatedTimepickerToggleEnabled;
     field public static final androidx.compose.material3.ComposeMaterial3Flags INSTANCE;
     field public static boolean isAnchoredDraggableComponentsInvalidationFixEnabled;
     field public static boolean isAnchoredDraggableComponentsStrictOffsetCheckEnabled;
@@ -917,6 +918,7 @@ package androidx.compose.material3 {
     field public static boolean isCheckboxStylingFixEnabled;
     field public static boolean isPrecisionPointerComponentSizingEnabled;
     field public static boolean isSnackbarStylingFixEnabled;
+    field public static boolean isUpdatedTimepickerToggleEnabled;
   }
 
   public final class ContentColorKt {
