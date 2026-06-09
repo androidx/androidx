@@ -66,7 +66,7 @@ package androidx.glance.wear {
 
 package @SuppressCompatibility androidx.glance.wear.health {
 
-  @SuppressCompatibility @androidx.glance.wear.ExperimentalGlanceWearApi public final class DataTypes {
+  @SuppressCompatibility @androidx.glance.wear.ExperimentalGlanceWearApi public final class HealthData {
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyCalories();
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyDistanceMeters();
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public androidx.compose.remote.creation.compose.state.RemoteFloat getDailyFloors();
@@ -101,7 +101,7 @@ package @SuppressCompatibility androidx.glance.wear.health {
     field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_NO_CONTACT;
     field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_UNKNOWN;
     field public static final androidx.compose.remote.creation.compose.state.RemoteInt HEART_RATE_ACCURACY_UNRELIABLE;
-    field public static final androidx.glance.wear.health.DataTypes INSTANCE;
+    field public static final androidx.glance.wear.health.HealthData INSTANCE;
   }
 
 }
