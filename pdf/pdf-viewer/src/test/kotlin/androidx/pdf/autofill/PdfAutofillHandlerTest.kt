@@ -119,11 +119,25 @@ class PdfAutofillHandlerTest {
             PdfFormFillingState(numPages = 2).apply {
                 addPageFormWidgetInfos(
                     0,
-                    listOf(createTextField(text = text0, index = 0), createCheckbox(index = 1)),
+                    listOf(
+                        createTextField(
+                            text = text0,
+                            index = 0,
+                            accessibilityLabel = emailHintText,
+                        ),
+                        createCheckbox(index = 1),
+                    ),
                 )
-                addPageFormWidgetInfos(1, listOf(createTextField(text = text1, index = 0)))
-                addHintText(0, 0, emailHintText)
-                addHintText(1, 0, unknownHintText)
+                addPageFormWidgetInfos(
+                    1,
+                    listOf(
+                        createTextField(
+                            text = text1,
+                            index = 0,
+                            accessibilityLabel = unknownHintText,
+                        )
+                    ),
+                )
             }
 
         val parentId = mock<AutofillId>()
@@ -244,6 +258,7 @@ class PdfAutofillHandlerTest {
     private fun createTextField(
         text: String,
         index: Int = WIDGET_INDEX,
+        accessibilityLabel: String = "label",
         isReadOnly: Boolean = false,
         rect: Rect = WIDGET_RECT,
     ): FormWidgetInfo {
@@ -251,7 +266,7 @@ class PdfAutofillHandlerTest {
             widgetIndex = index,
             widgetRect = rect,
             textValue = text,
-            accessibilityLabel = "label",
+            accessibilityLabel = accessibilityLabel,
             isReadOnly = isReadOnly,
             isEditableText = true,
             isMultiLineText = false,

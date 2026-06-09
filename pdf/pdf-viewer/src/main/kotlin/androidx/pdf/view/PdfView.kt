@@ -65,7 +65,6 @@ import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.R
 import androidx.pdf.autofill.PdfAutofillHandler
-import androidx.pdf.autofill.getVirtualFormWidgetId
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.event.PdfTrackingEvent
 import androidx.pdf.event.RequestFailureEvent
@@ -1857,35 +1856,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     }
                 }
         }
-        if (PdfFeatureFlags.isAutofillEnabled) {
-            formWidgetMetadataLoader?.let { loader ->
-                val hintTextToJoin = hintTextCollector?.apply { cancel() }
-                hintTextCollector =
-                    mainScope.launch {
-                        hintTextToJoin?.join()
-                        // If a widget gains focus before its hint text is ready, re-trigger the
-                        // interaction event once available to ensure the virtual view hierarchy
-                        // is updated with correct metadata.
-                        loader.hintTextReadyFlow.collect { (pageNum, widgetIndex) ->
-                            val currentEdit = formFillingEditText
-                            if (
-                                currentEdit != null &&
-                                    currentEdit.pageNum == pageNum &&
-                                    currentEdit.formWidget.widgetIndex == widgetIndex
-                            ) {
-                                val virtualId =
-                                    getVirtualFormWidgetId(
-                                        pageNum,
-                                        currentEdit.formWidget.widgetIndex,
-                                    )
-                                formWidgetInteractionHandler
-                                    ?.interactionListener
-                                    ?.onWidgetInteractionStarted(virtualId, currentEdit.formWidget)
-                            }
-                        }
-                    }
-            }
-        }
+
         selectionStateManager?.let { manager ->
             val selectionToJoin = selectionStateCollector?.apply { cancel() }
             selectionStateCollector =
@@ -2334,11 +2305,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             ),
             formWidgetInfos,
         )
-
-        if (isFormFillingEnabled) {
-            backgroundScope.launch { formWidgetMetadataLoader?.maybeLoadHintsForPage(pageNum) }
-        }
-
         // Learning the dimensions of a page can change our understanding of the content that's in
         // the viewport
         onViewportChanged()

@@ -99,7 +99,7 @@ internal class PdfAutofillHandler(
 
                 val index = structure.addChildCount(1)
                 val child = structure.newChild(index).apply { setAutofillId(parentId, virtualId) }
-                populateWidgetStructure(child, widget, state, pageNum)
+                populateWidgetStructure(child, widget, pageNum)
             }
         }
     }
@@ -107,10 +107,9 @@ internal class PdfAutofillHandler(
     private fun populateWidgetStructure(
         structure: ViewStructure,
         widget: FormWidgetInfo,
-        state: PdfFormFillingState,
         pageNum: Int,
     ) {
-        val hintText = state.getHintText(pageNum, widget.widgetIndex)
+        val hintText = widget.accessibilityLabel
 
         structure.apply {
             if (hintText != null) {
