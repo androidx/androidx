@@ -212,6 +212,17 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     }
 
     @Override
+    public void addSessionLifecycleCallback(@NonNull Executor executor,
+            @NonNull CameraSessionLifecycleCallback callback) {
+        mCameraInfoInternal.addSessionLifecycleCallback(executor, callback);
+    }
+
+    @Override
+    public void removeSessionLifecycleCallback(@NonNull CameraSessionLifecycleCallback callback) {
+        mCameraInfoInternal.removeSessionLifecycleCallback(callback);
+    }
+
+    @Override
     public @NonNull Quirks getCameraQuirks() {
         return mCameraInfoInternal.getCameraQuirks();
     }

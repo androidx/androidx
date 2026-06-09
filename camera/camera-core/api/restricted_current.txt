@@ -598,6 +598,8 @@ package androidx.camera.core {
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method public void setTargetRotation(int);
+    field public static final int STREAM_STATE_IDLE = 0; // 0x0
+    field public static final int STREAM_STATE_STREAMING = 1; // 0x1
   }
 
   public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview!> {

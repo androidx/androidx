@@ -31,6 +31,7 @@ import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.adapter.CameraCoordinatorAdapter
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
@@ -759,7 +760,7 @@ class UseCaseManagerTest {
                         checkNotNull(useCaseThreads),
                         ComboRequestListener(),
                     ),
-                cameraStateAdapter = CameraStateAdapter(),
+                cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter()),
                 cameraInternal = { fakeCamera },
                 useCaseThreads = { useCaseThreads },
                 cameraInfoInternal = { fakeCamera.cameraInfoInternal },

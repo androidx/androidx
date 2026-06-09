@@ -27,6 +27,7 @@ import android.media.Image
 import android.os.Build
 import android.os.Looper
 import android.view.Surface
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.adapter.CaptureResultAdapter
@@ -241,7 +242,7 @@ class CapturePipelineTest {
         )
     private val fakeCameraProperties =
         FakeCameraProperties(FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate))
-    private val cameraStateAdapter = CameraStateAdapter()
+    private val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
     private val fakeUseCaseCameraContext =
         UseCaseCameraContext(
             cameraGraphProvider = {

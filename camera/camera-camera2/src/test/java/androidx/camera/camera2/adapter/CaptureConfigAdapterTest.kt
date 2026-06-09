@@ -342,7 +342,7 @@ class CaptureConfigAdapterTest {
     private fun createConfigAdapter(
         templateParamsOverride: TemplateParamsOverride = NoOpTemplateParamsOverride
     ): CaptureConfigAdapter {
-        val cameraStateAdapter = CameraStateAdapter()
+        val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
         return CaptureConfigAdapter(
             useCaseCameraContext =
                 UseCaseCameraContext(

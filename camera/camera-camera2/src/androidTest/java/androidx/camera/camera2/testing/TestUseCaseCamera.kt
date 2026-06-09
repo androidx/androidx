@@ -19,6 +19,7 @@ package androidx.camera.camera2.testing
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.adapter.ZslControlNoOpImpl
@@ -101,7 +102,7 @@ class TestUseCaseCamera(
                 cameraMetadata = cameraMetadata,
             )
 
-        val cameraStateAdapter = CameraStateAdapter()
+        val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
         val useCaseCameraConfig =
             UseCaseCameraConfig.create(
                 cameraGraphConfigProvider = configProvider,

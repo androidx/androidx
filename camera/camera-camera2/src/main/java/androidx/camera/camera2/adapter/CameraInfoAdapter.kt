@@ -72,6 +72,7 @@ import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraExtensionCapabilities
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.CameraSessionLifecycleCallback
 import androidx.camera.core.impl.DynamicRanges
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
@@ -102,6 +103,7 @@ constructor(
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
     private val intrinsicZoomCalculator: IntrinsicZoomCalculator,
     private val streamSpecsCalculator: StreamSpecsCalculator,
+    private val cameraSessionLifecycleAdapter: CameraSessionLifecycleAdapter,
 ) : CameraInfoInternal, UnsafeWrapper {
     private val lock = Any()
 
@@ -244,6 +246,17 @@ constructor(
 
     override fun removeSessionCaptureCallback(callback: CameraCaptureCallback): Unit =
         cameraCallbackMap.removeCaptureCallback(callback)
+
+    override fun addSessionLifecycleCallback(
+        executor: Executor,
+        callback: CameraSessionLifecycleCallback,
+    ) {
+        cameraSessionLifecycleAdapter.addSessionLifecycleCallback(executor, callback)
+    }
+
+    override fun removeSessionLifecycleCallback(callback: CameraSessionLifecycleCallback) {
+        cameraSessionLifecycleAdapter.removeSessionLifecycleCallback(callback)
+    }
 
     override fun getImplementationType(): String =
         if (isLegacyDevice) CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY

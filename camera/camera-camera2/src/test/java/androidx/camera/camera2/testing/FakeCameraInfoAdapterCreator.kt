@@ -24,6 +24,7 @@ import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.adapter.CameraInfoAdapter
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
@@ -151,10 +152,11 @@ object FakeCameraInfoAdapterCreator {
             State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler, useCaseThreads).apply {
                 requestControl = fakeRequestControl
             }
+        val sessionLifecycleAdapter = CameraSessionLifecycleAdapter()
         return CameraInfoAdapter(
             cameraProperties,
             CameraConfig(cameraId),
-            CameraStateAdapter(),
+            CameraStateAdapter(sessionLifecycleAdapter),
             CameraControlStateAdapter(
                 zoomControl,
                 EvCompControl(FakeEvCompCompat()),
@@ -183,6 +185,7 @@ object FakeCameraInfoAdapterCreator {
             fakeStreamConfigurationMap,
             IntrinsicZoomCalculatorImpl(cameraDevices),
             NO_OP_STREAM_SPECS_CALCULATOR,
+            sessionLifecycleAdapter,
         )
     }
 }
