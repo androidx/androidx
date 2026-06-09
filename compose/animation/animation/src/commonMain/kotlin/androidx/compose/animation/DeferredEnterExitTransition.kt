@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalDeferredTransitionApi::class)
+
 package androidx.compose.animation
 
 import androidx.annotation.VisibleForTesting
@@ -32,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
@@ -129,7 +133,6 @@ public interface TransformScope {
     public var veil: Color
 }
 
-@OptIn(ExperimentalDeferredTransitionApi::class)
 internal class TransformScopeImpl : TransformScope {
     var isAlphaMutated by mutableStateOf(false)
     private val _alpha = mutableFloatStateOf(1f)
@@ -183,11 +186,14 @@ internal class TransformScopeImpl : TransformScope {
     }
 }
 
+/** Shares the [SharedMutableTransformState] with nested [SharedElement]s. */
+internal val ModifierLocalSharedMutableTransformState =
+    modifierLocalOf<SharedMutableTransformState?> { null }
+
 /**
  * [SharedMutableTransformState] object that's shared between EnterExitTransition and shared
  * elements
  */
-@OptIn(ExperimentalDeferredTransitionApi::class)
 internal class SharedMutableTransformState {
     private val _isMutating = mutableStateOf(false)
     var isMutating: Boolean
@@ -216,16 +222,33 @@ internal class SharedMutableTransformState {
 
     internal val transformScope = TransformScopeImpl()
 
+    internal val activeScale: Float
+        get() = if (transformScope.isScaleMutated) transformScope.scale else 1f
+
+    internal val activeOffset: IntOffset
+        get() = if (transformScope.isOffsetMutated) transformScope.offset else IntOffset.Zero
+
+    internal val activeTransformOrigin: TransformOrigin
+        get() =
+            if (transformScope.isTransformOriginMutated) transformScope.transformOrigin
+            else TransformOrigin.Center
+
     private val timeSource = TimeSource.Monotonic
     private val startTime = timeSource.markNow()
     private val currentMillis: Long
         get() = testTimeSource?.invoke() ?: startTime.elapsedNow().inWholeMilliseconds
+
+    var parentLayoutCoordinates: LayoutCoordinates? = null
+        internal set
 
     var lastVeil: Color = Color.Transparent
     var lastAlpha: Float = 1f
     var lastScale: Float = 1f
     var lastTransformOrigin: TransformOrigin = TransformOrigin.Center
     var lastSlide: IntOffset = IntOffset.Zero
+
+    var lastManualScale: Float = 1f
+    var lastManualSlide: IntOffset = IntOffset.Zero
 
     val veilRequiresAnimation: Boolean
         get() =
@@ -327,6 +350,7 @@ internal class SharedMutableTransformState {
 
         if (isMutating) {
             lastScale = combined
+            lastManualScale = if (isMutated) transformScope.scale else 1f
             if (isMutated) trackScaleVelocity(combined)
         }
         return combined
@@ -347,6 +371,7 @@ internal class SharedMutableTransformState {
 
         if (isMutating) {
             lastSlide = combined
+            lastManualSlide = if (isMutated) transformScope.offset else IntOffset.Zero
             if (isMutated) trackSlideVelocity(combined)
         }
         return combined
@@ -370,6 +395,8 @@ internal class SharedMutableTransformState {
         scaleVelocityTracker?.resetTracking()
         lastTransformOrigin = TransformOrigin.Center
         lastSlide = IntOffset.Zero
+        lastManualScale = 1f
+        lastManualSlide = IntOffset.Zero
         offsetVelocityTracker?.resetTracking()
         lastMutableData = null
         mutableData = null

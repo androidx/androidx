@@ -103,6 +103,8 @@ internal class BoundsAnimation(
         currentBounds: Rect,
         targetBounds: Rect,
         forcedBoundsTransform: BoundsTransform? = null,
+        forcedInitialValue: Rect? = null,
+        forcedInitialVelocity: AnimationVector4D? = null,
     ) {
         if (transitionScope.isTransitionActive) {
             currentBoundsForLambda = currentBounds
@@ -119,6 +121,8 @@ internal class BoundsAnimation(
             animationState =
                 animation.animate(
                     transitionSpec = transitionSpecLambda,
+                    forcedInitialValue = forcedInitialValue,
+                    forcedInitialVelocity = forcedInitialVelocity,
                     targetValueByState = targetValueByStateLambda,
                 )
         }

@@ -46,11 +46,14 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
@@ -1002,7 +1005,10 @@ internal fun Transition<EnterExitState>.createModifier(
     val graphicsLayerBlock =
         createGraphicsLayerBlock(activeEnter, activeExit, activeMutableState, label)
 
-    return (if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
+    return Modifier.modifierLocalProvider(ModifierLocalSharedMutableTransformState) {
+            activeMutableState
+        }
+        .then(if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
         .then(Modifier.graphicsLayer { clip = !disableClip && isEnabled() })
         .then(
             EnterExitTransitionElement(
@@ -1251,7 +1257,11 @@ private class EnterExitTransitionModifierNode(
     var mutableTransformState: SharedMutableTransformState,
     var isEnabled: () -> Boolean,
     var graphicsLayerBlock: GraphicsLayerBlockForEnterExit,
-) : LayoutModifierNodeWithPassThroughIntrinsics() {
+) : LayoutModifierNodeWithPassThroughIntrinsics(), LayoutAwareModifierNode {
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        mutableTransformState.parentLayoutCoordinates = coordinates
+    }
 
     private var lookaheadConstraintsAvailable = false
     private var lookaheadSize: IntSize = InvalidSize

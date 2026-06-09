@@ -16,12 +16,15 @@
 
 package androidx.compose.animation
 
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -84,7 +87,10 @@ internal data class SharedBoundsNodeElement(val sharedElementState: SharedElemen
  * visible. Once the target bounds are calculated, the bounds animation will happen during the
  * approach pass.
  */
-@OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
+@OptIn(
+    ExperimentalLookaheadAnimationVisualDebugApi::class,
+    ExperimentalDeferredTransitionApi::class,
+)
 internal class SharedBoundsNode(state: SharedElementEntry) :
     ApproachLayoutModifierNode,
     Modifier.Node(),
@@ -94,6 +100,8 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
     BoundsProvider,
     CompositionLocalConsumerModifierNode {
 
+    private var forcedHandoffBounds: Rect? = null
+    private var forcedHandoffVelocity: AnimationVector4D? = null
     private var boundsBeforeDetached: Rect? = null
     override val lastBoundsInSharedTransitionScope: Rect?
         get() {
@@ -115,6 +123,9 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
     override fun calculateAlternativeTargetBounds(targetBoundsBeforeDisposed: Rect): Rect? {
         return sharedElementEntry.calculateTargetBounds(targetBoundsBeforeDisposed)
     }
+
+    override val modifierLocalTransformState: SharedMutableTransformState?
+        get() = if (isAttached) ModifierLocalSharedMutableTransformState.current else null
 
     private val approachCoordinates: LayoutCoordinates
         get() = requireLayoutCoordinates()
@@ -298,12 +309,19 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
                 currentBounds,
                 targetData.targetBounds,
                 BoundsTransform { _, _ -> spring(visibilityThreshold = Rect.VisibilityThreshold) },
+                forcedInitialValue = forcedHandoffBounds,
+                forcedInitialVelocity = forcedHandoffVelocity,
             )
         } else {
             if (actualIsLookaheadAnimationVisualDebuggingEnabled) {
                 spec = spring()
             }
-            boundsAnimation.animate(currentBounds, targetData.targetBounds)
+            boundsAnimation.animate(
+                currentBounds,
+                targetData.targetBounds,
+                forcedInitialValue = forcedHandoffBounds,
+                forcedInitialVelocity = forcedHandoffVelocity,
+            )
         }
         if (actualIsLookaheadAnimationVisualDebuggingEnabled) {
             if (lookaheadAnimationVisualDebugHelper != null) {
@@ -314,6 +332,8 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
                 )
             }
         }
+        forcedHandoffBounds = null
+        forcedHandoffVelocity = null
 
         val animatedBounds = boundsAnimation.value
         val topLeft: Offset
@@ -343,7 +363,24 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
             topLeft = animatedTopLeft ?: currentBounds.topLeft
         }
 
-        val localOffset = coordinates.localPositionOf(rootCoords, topLeft)
+        val mutableTransformState = sharedElementEntry.activeMutableTransformState
+        var finalTopLeft = topLeft
+        if (mutableTransformState?.isMutating == true) {
+            if (!boundsAnimation.isRunning) {
+                finalTopLeft = positionInScope
+            }
+            val parentCoords = mutableTransformState.parentLayoutCoordinates
+            if (parentCoords != null && parentCoords.isAttached && rootCoords.isAttached) {
+                val scale = mutableTransformState.activeScale
+                val offset = mutableTransformState.activeOffset
+                val transformOrigin = mutableTransformState.activeTransformOrigin
+
+                val pivot = calculatePivot(parentCoords, rootCoords, transformOrigin)
+                finalTopLeft = topLeft.transform(pivot, scale, offset)
+            }
+        }
+
+        val localOffset = coordinates.localPositionOf(rootCoords, finalTopLeft)
         placeable.place(localOffset.x.fastRoundToInt(), localOffset.y.fastRoundToInt())
     }
 
@@ -402,26 +439,88 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
+        updateDeferredHandoffValues()
+
         // Approach pass. Animation may not have started, or if the animation isn't
         // running, we'll measure with current bounds.
         val resolvedConstraints =
             // When a match is found, all matches will be measured using the constraints
             // created by the target bounds, **even when there is no active transition**.
-            (boundsAnimation.value ?: sharedElement.tryInitializingCurrentBounds())?.let {
-                val (width, height) = it.size.roundToIntSize()
-                require(width != Constraints.Infinity && height != Constraints.Infinity) {
-                    "Error: Infinite width/height is invalid. " +
-                        "animated bounds: ${boundsAnimation.value}," +
-                        " current bounds: ${sharedElement.state.currentBounds}"
-                }
-                Constraints.fixed(width.coerceAtLeast(0), height.coerceAtLeast(0))
-            } ?: constraints
+            (forcedHandoffBounds
+                    ?: boundsAnimation.value
+                    ?: sharedElement.tryInitializingCurrentBounds())
+                ?.let {
+                    val (width, height) = it.size.roundToIntSize()
+                    require(width != Constraints.Infinity && height != Constraints.Infinity) {
+                        "Error: Infinite width/height is invalid. " +
+                            "animated bounds: ${boundsAnimation.value}," +
+                            " current bounds: ${sharedElement.state.currentBounds}"
+                    }
+                    Constraints.fixed(width.coerceAtLeast(0), height.coerceAtLeast(0))
+                } ?: constraints
         sharedTransitionDebug {
             "approach measure constraints: $resolvedConstraints," +
                 " key = ${sharedElement.key}, state: ${sharedElement.state}"
         }
         val placeable = measurable.measure(resolvedConstraints)
         return approachPlace(placeable)
+    }
+
+    private fun updateDeferredHandoffValues() {
+        if (sharedElement.state.targetData == null) return
+        val currentBounds = sharedElement.state.currentBounds ?: return
+
+        val mutableState = sharedElementEntry.activeMutableTransformState
+        if (mutableState == null || !mutableState.isHandoffActive) {
+            sharedElementEntry.hasHandoffOccurred = false
+            return
+        }
+
+        if (sharedElementEntry.hasHandoffOccurred) {
+            return
+        }
+
+        val parentCoords = mutableState.parentLayoutCoordinates
+        if (parentCoords == null || !parentCoords.isAttached || !rootCoords.isAttached) {
+            return
+        }
+
+        val manualScale = mutableState.lastManualScale
+        val manualOffset = mutableState.lastManualSlide
+        val transformOrigin = mutableState.lastTransformOrigin
+
+        val pivot = calculatePivot(parentCoords, rootCoords, transformOrigin)
+        val newTopLeft = currentBounds.topLeft.transform(pivot, manualScale, manualOffset)
+
+        val isOwnContainerMutating =
+            sharedElementEntry.boundsProvider?.modifierLocalTransformState === mutableState
+        val containerAppliesTransforms =
+            !sharedElementEntry.shouldRenderInOverlay && isOwnContainerMutating
+
+        val scale = if (containerAppliesTransforms) 1f else manualScale
+        val newRight = newTopLeft.x + currentBounds.width * scale
+        val newBottom = newTopLeft.y + currentBounds.height * scale
+
+        forcedHandoffBounds = Rect(newTopLeft.x, newTopLeft.y, newRight, newBottom)
+
+        if (!containerAppliesTransforms) {
+            val scaleVelocity = mutableState.scaleHandoffVelocity?.value ?: 0f
+            val offsetVelocity = mutableState.slideHandoffVelocity
+            val offsetVelocityX = offsetVelocity?.v1 ?: 0f
+            val offsetVelocityY = offsetVelocity?.v2 ?: 0f
+
+            val velocityLeft = (currentBounds.left - pivot.x) * scaleVelocity + offsetVelocityX
+            val velocityTop = (currentBounds.top - pivot.y) * scaleVelocity + offsetVelocityY
+            val velocityRight = (currentBounds.right - pivot.x) * scaleVelocity + offsetVelocityX
+            val velocityBottom = (currentBounds.bottom - pivot.y) * scaleVelocity + offsetVelocityY
+
+            forcedHandoffVelocity =
+                AnimationVector4D(velocityLeft, velocityTop, velocityRight, velocityBottom)
+        } else {
+            forcedHandoffVelocity = null
+        }
+
+        sharedElementEntry.hasHandoffOccurred = true
     }
 
     override fun ContentDrawScope.draw() {
@@ -607,3 +706,29 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
 }
 
 internal val ModifierLocalSharedElementInternalState = modifierLocalOf<SharedElementEntry?> { null }
+
+/**
+ * To make the shared element appear visually attached to its parent container during manual
+ * scaling, we must apply the exact same scale transformation. Since the shared element is drawn in
+ * the global overlay coordinate space, we must calculate the parent's scale pivot point in the root
+ * coordinate space and use it as the pivot for the shared element's scale operation. Without this,
+ * the shared element would scale around its own local center and visually drift away from its
+ * expected position within the parent.
+ */
+internal fun calculatePivot(
+    parentCoords: LayoutCoordinates,
+    rootCoords: LayoutCoordinates,
+    transformOrigin: TransformOrigin,
+): Offset {
+    val parentBoundsInRoot = rootCoords.localBoundingBoxOf(parentCoords, clipBounds = false)
+    return Offset(
+        parentBoundsInRoot.left + parentBoundsInRoot.width * transformOrigin.pivotFractionX,
+        parentBoundsInRoot.top + parentBoundsInRoot.height * transformOrigin.pivotFractionY,
+    )
+}
+
+internal fun Offset.transform(pivot: Offset, scale: Float, offset: IntOffset): Offset =
+    Offset(
+        x = (this.x - pivot.x) * scale + pivot.x + offset.x,
+        y = (this.y - pivot.y) * scale + pivot.y + offset.y,
+    )

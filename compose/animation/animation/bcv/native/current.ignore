@@ -1,4 +1,0 @@
-// Baseline format: 1.0
-[linuxX64]: Removed declaration SharedContentConfig(kotlin/Boolean) from androidx.compose.animation/SharedTransitionScope
-[linuxX64]: Removed declaration permitTransformDuringDeferredTransition from androidx.compose.animation/SharedTransitionScope.SharedContentConfig
-[linuxX64]: Removed declaration permitTransformDuringDeferredTransition from androidx.compose.animation/SharedTransitionDefaults.SharedContentConfig
